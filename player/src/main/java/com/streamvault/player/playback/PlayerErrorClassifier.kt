@@ -15,6 +15,7 @@ import javax.net.ssl.SSLHandshakeException
 enum class PlaybackErrorCategory {
     NETWORK,
     HTTP_AUTH,
+    HTTP_NOT_FOUND,
     HTTP_SERVER,
     PROVIDER_LIMIT,
     EMPTY_RESPONSE,
@@ -46,6 +47,7 @@ object PlayerErrorClassifier {
                 playbackException?.errorCode == PlaybackException.ERROR_CODE_BEHIND_LIVE_WINDOW ->
                 PlaybackErrorCategory.LIVE_WINDOW
             httpCode == 401 || httpCode == 403 || httpCode == 456 -> PlaybackErrorCategory.HTTP_AUTH
+            httpCode == 404 -> PlaybackErrorCategory.HTTP_NOT_FOUND
             httpCode == 509 -> PlaybackErrorCategory.PROVIDER_LIMIT
             httpCode == 204 -> PlaybackErrorCategory.EMPTY_RESPONSE
             httpCode in setOf(408, 429, 500, 502, 503, 504) -> PlaybackErrorCategory.HTTP_SERVER
@@ -79,7 +81,7 @@ object PlayerErrorClassifier {
     }
 
     private fun parseHttpStatus(message: String?): Int? {
-        return Regex("""\b(204|401|403|408|429|456|500|502|503|504|509)\b""").find(message.orEmpty())
+        return Regex("""\b(204|401|403|404|408|429|456|500|502|503|504|509)\b""").find(message.orEmpty())
             ?.groupValues
             ?.getOrNull(1)
             ?.toIntOrNull()

@@ -1,4 +1,5 @@
 import java.util.Properties
+import java.net.URI
 import java.io.FileInputStream
 import java.security.KeyStore
 import java.security.MessageDigest
@@ -36,7 +37,17 @@ if (localPropertiesFile.exists()) {
     FileInputStream(localPropertiesFile).use(localProperties::load)
 }
 
-fun localProp(key: String): String = localProperties.getProperty(key, "")
+// Opt-in performance APK has isolated app storage and never seeds real accounts.
+val xtreamSyncBenchmark = providers.gradleProperty("xtreamSyncBenchmark").orNull == "true"
+fun localProp(key: String): String =
+    if (xtreamSyncBenchmark) "" else localProperties.getProperty(key, "")
+
+// Public app configuration; OAuth user credentials are never build inputs.
+val traktClientId = providers.environmentVariable("TRAKT_CLIENT_ID").orNull ?: localProp("trakt.client.id")
+val traktRedirectUri = providers.environmentVariable("TRAKT_REDIRECT_URI").orNull ?: localProp("trakt.redirect.uri")
+val opensubtitlesApiKey = providers.environmentVariable("OPENSUBTITLES_API_KEY").orNull
+val traktCallback = runCatching { URI(traktRedirectUri) }.getOrNull()
+fun buildStringLiteral(value: String): String = "\"" + value.replace("\\", "\\\\").replace("\"", "\\\"") + "\""
 
 fun computeOfficialSigningCertSha256(): String {
     if (!keystorePropertiesFile.exists()) return ""
@@ -68,14 +79,19 @@ android {
         applicationId = "com.streamvault.app"
         minSdk = 25
         targetSdk = 36
-        versionCode = 21
-        versionName = "1.0.19"
+        versionCode = 22
+        versionName = "1.2.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        buildConfigField("String", "TRAKT_CLIENT_ID", buildStringLiteral(traktClientId))
+        buildConfigField("String", "TRAKT_REDIRECT_URI", buildStringLiteral(traktRedirectUri))
+        manifestPlaceholders["traktCallbackHost"] = traktCallback?.host ?: "trakt-unconfigured.invalid"
+        manifestPlaceholders["traktCallbackPath"] = traktCallback?.rawPath?.takeIf(String::isNotBlank) ?: "/oauth/trakt/callback"
         providers.gradleProperty("compatApi").orNull?.let { expectedApi ->
             testInstrumentationRunnerArguments["expected_api"] = expectedApi
         }
         buildConfigField("String", "OFFICIAL_APPLICATION_ID", "\"com.streamvault.app\"")
         buildConfigField("String", "OFFICIAL_SIGNING_CERT_SHA256", "\"$officialSigningCertSha256\"")
+        buildConfigField("String", "OPENSUBTITLES_API_KEY", buildStringLiteral(opensubtitlesApiKey.orEmpty()))
         buildConfigField("String", "APP_UPDATE_CHANNEL", "\"stable\"")
         buildConfigField("long", "BUILD_TIMESTAMP_UTC", "0L")
         ndk {
@@ -109,7 +125,7 @@ android {
 
     buildTypes {
         debug {
-            applicationIdSuffix = ".debug"
+            applicationIdSuffix = if (xtreamSyncBenchmark) ".syncbenchmark" else ".debug"
             versionNameSuffix = "-debug"
             buildConfigField("String", "XTREAM_DEV_SERVER", "\"${localProp("xtream.dev.server")}\"")
             buildConfigField("String", "XTREAM_DEV_USERNAME", "\"${localProp("xtream.dev.username")}\"")
@@ -117,6 +133,11 @@ android {
             buildConfigField("String", "XTREAM_DEV_NAME", "\"${localProp("xtream.dev.name")}\"")
             buildConfigField("String", "M3U_DEV_URL", "\"${localProp("m3u.dev.url")}\"")
             buildConfigField("String", "M3U_DEV_NAME", "\"${localProp("m3u.dev.name")}\"")
+            buildConfigField(
+                "String",
+                "OPENSUBTITLES_API_KEY",
+                buildStringLiteral(opensubtitlesApiKey ?: localProp("opensubtitles.api.key"))
+            )
         }
         create("beta") {
             initWith(getByName("release"))
@@ -456,6 +477,7 @@ dependencies {
     implementation(project(":feature:live"))
     implementation(project(":feature:catalog"))
     implementation(project(":feature:system"))
+    implementation(project(":feature:stremio"))
     implementation(libs.profileinstaller)
     baselineProfile(project(":benchmark"))
 
@@ -483,6 +505,13 @@ dependencies {
     implementation(libs.media3.datasource.okhttp)
     implementation(libs.media3.ui)
     implementation(files("../player/libs/media3-decoder-ffmpeg-1.11.0.aar"))
+
+    // Built-in BitTorrent playback (native libraries cover the app's supported ABIs).
+    implementation("org.libtorrent4j:libtorrent4j:2.0.6-26")
+    implementation("org.libtorrent4j:libtorrent4j-android-arm:2.0.6-26")
+    implementation("org.libtorrent4j:libtorrent4j-android-arm64:2.0.6-26")
+    implementation("org.libtorrent4j:libtorrent4j-android-x86:2.0.6-26")
+    implementation("org.libtorrent4j:libtorrent4j-android-x86_64:2.0.6-26")
 
     // Room
     implementation(libs.room.runtime)
@@ -533,6 +562,7 @@ dependencies {
     testImplementation(libs.coroutines.test)
     testImplementation(libs.mockito.kotlin)
     testImplementation(libs.robolectric)
+    testImplementation(libs.okhttp.mockwebserver)
 
     androidTestImplementation(composeBom)
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
@@ -541,6 +571,7 @@ dependencies {
     androidTestImplementation(libs.espresso.core)
     androidTestImplementation(libs.uiautomator)
     androidTestImplementation(libs.truth)
+    androidTestImplementation(libs.datastore.preferences)
 }
 
 tasks.configureEach {

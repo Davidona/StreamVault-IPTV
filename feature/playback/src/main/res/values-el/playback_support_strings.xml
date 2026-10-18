@@ -1,0 +1,22 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="cast_started" tools:ignore="MissingTranslation">Μετάδοση στη συνδεδεμένη συσκευή.</string>
+    <string name="cast_unavailable" tools:ignore="MissingTranslation">Το Google Cast δεν είναι διαθέσιμο σε αυτήν τη συσκευή.</string>
+    <string name="cast_stream_unsupported" tools:ignore="MissingTranslation">Αυτή η μορφή ροής δεν υποστηρίζεται από το Google Cast.</string>
+    <string name="cast_protocol_unsupported" tools:ignore="MissingTranslation">Οι ροές RTSP και RTMP δεν υποστηρίζονται για μετάδοση.</string>
+    <string name="cast_drm_unsupported" tools:ignore="MissingTranslation">Οι ροές με προστασία DRM δεν υποστηρίζονται από το Google Cast σε αυτήν την εφαρμογή.</string>
+    <string name="cast_item_unavailable" tools:ignore="MissingTranslation">Αυτό το στοιχείο δεν μπορεί να σταλεί σε δέκτη Cast.</string>
+    <string name="cast_local_url_unsupported" tools:ignore="MissingTranslation">Αυτή η ροή χρησιμοποιεί τοπικό URL ή URL μόνο της συσκευής, στο οποίο το Chromecast δεν μπορεί να έχει άμεση πρόσβαση.</string>
+    <string name="cast_headers_unsupported" tools:ignore="MissingTranslation">Αυτή η ροή χρειάζεται κεφαλίδες HTTP ή cookies που το Chromecast δεν μπορεί να χρησιμοποιήσει απευθείας.</string>
+    <string name="cast_user_agent_unsupported" tools:ignore="MissingTranslation">Αυτή η ροή χρειάζεται προσαρμοσμένο User-Agent που το Chromecast δεν μπορεί να χρησιμοποιήσει απευθείας.</string>
+    <string name="cast_proxy_unsupported" tools:ignore="MissingTranslation">Αυτή η ροή χρειάζεται τις ρυθμίσεις διακομιστή μεσολάβησης της εφαρμογής, οπότε το Chromecast δεν μπορεί να τη χρησιμοποιήσει απευθείας.</string>
+    <string name="cast_invalid_ssl_unsupported" tools:ignore="MissingTranslation">Αυτή η ροή χρησιμοποιεί χειρισμό SSL που το Chromecast δεν μπορεί να χρησιμοποιήσει απευθείας.</string>
+    <string name="cast_session_failed" tools:ignore="MissingTranslation">Δεν ήταν δυνατή η έναρξη της συνεδρίας μετάδοσης.</string>
+    <string name="cast_load_failed" tools:ignore="MissingTranslation">Ο δέκτης Cast δεν μπόρεσε να φορτώσει αυτήν τη ροή.</string>
+    <string name="cast_receiver_unavailable" tools:ignore="MissingTranslation">Ο συνδεδεμένος δέκτης Cast δεν είναι έτοιμος για αναπαραγωγή.</string>
+    <string name="cast_selection_cancelled" tools:ignore="MissingTranslation">Η επιλογή συσκευής Cast ακυρώθηκε.</string>
+    <string name="add_group_close_cd">Κλείσιμο</string>
+    <string name="player_archive_title">Αρχείο προγράμματος</string>
+    <string name="player_no_archive">Δεν βρέθηκαν αρχειοθετημένα προγράμματα</string>
+    <string name="program_date_time_range">%1$s | %2$s – %3$s</string>
+    <string name="player_archive_badge">Αρχείο</string>
+</resources>

@@ -7,6 +7,7 @@ import androidx.navigation.navArgument
 import com.streamvault.feature.live.api.LiveArchivePlaybackRequest
 import com.streamvault.feature.live.api.LiveChannelPlaybackRequest
 import com.streamvault.feature.live.api.LiveEpgContent
+import com.streamvault.feature.live.api.LiveSportsContent
 import com.streamvault.feature.live.api.LiveTvContent
 
 /**
@@ -16,10 +17,15 @@ import com.streamvault.feature.live.api.LiveTvContent
 fun NavGraphBuilder.registerLiveGraph(
     liveTvContent: LiveTvContent,
     epgContent: LiveEpgContent,
+    sportsContent: LiveSportsContent,
     onPlaybackRequested: (LiveChannelPlaybackRequest) -> Unit,
     onArchivePlaybackRequested: (LiveArchivePlaybackRequest) -> Unit,
     onNavigate: (String) -> Unit,
 ) {
+    composable(route = LiveRoutePatterns.SPORTS) {
+        sportsContent(onPlaybackRequested)
+    }
+
     composable(
         route = LiveRoutePatterns.LIVE_TV_DESTINATION,
         arguments = listOf(

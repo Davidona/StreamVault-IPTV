@@ -49,6 +49,16 @@ class PlayerModalStateTest {
     }
 
     @Test
+    fun `subtitle delay modal is mutually exclusive with other player modals`() {
+        val state = PlayerModalState()
+            .open(PlayerModal.TrackSelection(TrackType.TEXT))
+            .open(PlayerModal.SubtitleOffset)
+
+        assertThat(state.trackSelection).isNull()
+        assertThat(state.showSubtitleOffsetDialog).isTrue()
+    }
+
+    @Test
     fun `dismissing a modal clears the active modal`() {
         val state = PlayerModalState()
             .open(PlayerModal.EpisodePicker)

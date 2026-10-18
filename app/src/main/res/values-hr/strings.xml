@@ -1,0 +1,349 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">StreamVault</string>
+
+
+    <string name="nav_home">Početna</string>
+    <string name="nav_live_tv">TV uživo</string>
+    <string name="nav_movies">Filmovi</string>
+    <string name="nav_series">Serije</string>
+    <string name="nav_epg">Vodič</string>
+    <string name="nav_settings">Postavke</string>
+    <string name="nav_plugins">Dodaci</string>
+    <string name="nav_close_app">Zatvori aplikaciju</string>
+
+
+    <string name="welcome_enter_app">Uđi u aplikaciju</string>
+    <string name="welcome_manage_providers">Upravljanje pružateljima</string>
+    <string name="welcome_version">v1.0.3</string>
+    <string name="welcome_feature_live">Brzo pregledavanje uživo s naglaskom na daljinsko upravljanje</string>
+    <string name="welcome_feature_library">Filmovi i serije iz velike biblioteke bez nereda</string>
+    <string name="welcome_feature_player">Ujedinjeni preklopi playera, pristup vodiču i spremljeni sadržaj</string>
+    <string name="welcome_manage_hint">Zamijenite pružatelje, osvježite metapodatke ili dodajte novi izvor.</string>
+
+
+    <string name="hidden_categories_dialog_title">Skrivene kategorije</string>
+    <string name="hidden_categories_dialog_subtitle">Odaberite one koje želite vratiti.</string>
+    <string name="hidden_categories_dialog_unhide_all">Otkrij sve</string>
+    <string name="hidden_categories_dialog_close">Zatvori</string>
+    <string name="home_recent_channels">Nedavno</string>
+    <string name="home_last_channel">Posljednji kanal</string>
+    <string name="home_last_channel_label">Posljednji: %1$s</string>
+    <string name="home_last_group_label">Posljednja: %1$s</string>
+    <string name="home_loading">Učitavanje...</string>
+    <string name="home_locked_short">ZAKLJUČANO</string>
+    <string name="live_shell_subtitle">Brzo pregledajte kategorije uživo, održite dosljednu navigaciju i prikažite samo podatke o rasporedu koji su važni na zaslonu.</string>
+    <string name="live_shell_context">%1$d kategorija • %2$d kanala</string>
+    <string name="live_shell_provider">Pružatelj</string>
+    <string name="live_shell_split">Višestruki prikaz</string>
+    <string name="live_manage_groups">Upravljanje mjestima višestrukog prikaza</string>
+    <string name="live_reorder_title">Promjena redoslijeda %1$s</string>
+    <string name="live_empty_hint_favorites">Dodajte kanale u omiljene ili spremljenu grupu da popunite ovu traku.</string>
+    <string name="live_empty_hint_recent">Pokrenite reprodukciju na nekoliko kanala i pojavit će se ovdje.</string>
+    <string name="home_saved_subtitle">Omiljeni i prilagođene grupe uživo</string>
+    <string name="home_saved_empty_hint">Dodajte kanal u omiljene ili u prilagođenu grupu uživo da ga prikvačite ovdje.</string>
+    <string name="home_delete_group_title">Izbrisati grupu?</string>
+    <string name="home_delete_group_body">Jeste li sigurni da želite izbrisati \'%1$s\'? Time ćete ukloniti sve kanale iz ove grupe.</string>
+    <string name="home_delete_group_confirm">Izbriši</string>
+    <string name="home_delete_group_cancel">Odustani</string>
+
+
+    <string name="dashboard_customize_home">Prilagodi početnu</string>
+    <string name="dashboard_customize_home_subtitle">Odaberite koje se police prikazuju ovdje, dodajte još redova i promijenite njihov redoslijed kad god želite.</string>
+    <string name="dashboard_customize_home_action">Prilagodi</string>
+
+
+
+    <string name="category_options_set_default">Postavi kao zadanu grupu</string>
+    <string name="category_options_rename">Preimenuj grupu</string>
+    <string name="category_options_unlock">Otključaj grupu</string>
+    <string name="category_options_lock">Zaključaj grupu</string>
+    <string name="category_options_delete">Izbriši grupu</string>
+    <string name="category_options_cancel">Odustani</string>
+    <string name="category_options_reorder">Promijeni redoslijed stavki</string>
+    <string name="category_options_hide">Sakrij kategoriju</string>
+    <string name="category_options_hide_from_live_tv">Sakrij iz TV-a uživo</string>
+    <string name="category_options_clear_recent">Očisti sve nedavno</string>
+    <string name="category_options_pin">Prikvači kategoriju</string>
+    <string name="category_options_unpin">Otprikvači kategoriju</string>
+    <string name="m3u_organize_items">Uredi M3U stavke</string>
+    <string name="m3u_move_to_movies">Premjesti u filmove</string>
+    <string name="m3u_move_to_series">Premjesti u serije</string>
+    <string name="m3u_move_back_to_live">Vrati u TV uživo</string>
+    <string name="m3u_series_name">Naziv serije</string>
+    <string name="m3u_episode_number">Broj epizode</string>
+    <string name="m3u_season_number">Broj sezone</string>
+    <string name="m3u_classify">Razvrstaj</string>
+    <string name="m3u_classification_saved">M3U razvrstavanje spremljeno</string>
+    <string name="m3u_category_rule_subtitle">Odaberite zadano za ovu M3U grupu. Pojedinačni kanali i dalje mogu imati drukčiju postavku.</string>
+    <string name="m3u_keep_live">Zadrži kao TV uživo</string>
+    <string name="m3u_series_review_title">Uredi serije u %1$s</string>
+    <string name="m3u_series_review_subtitle">Pregledajte automatske prijedloge ili dodijelite svakom unosu seriju, sezonu i epizodu.</string>
+    <string name="m3u_episode_unresolved">Broj epizode nije razriješen — ostat će označen za ispravak.</string>
+
+    <string name="add_group_manage_title">Upravljanje: %1$s</string>
+    <string name="add_group_close_cd">Zatvori</string>
+    <string name="add_group_name_hint">Naziv grupe</string>
+    <string name="add_group_cancel">Odustani</string>
+    <string name="add_group_create">Stvori</string>
+    <string name="add_group_rename">Preimenuj</string>
+    <string name="add_group_remove_favorites">Ukloni iz omiljenih</string>
+    <string name="add_group_add_favorites">Dodaj u omiljene</string>
+    <string name="channel_options_remove_from_recent">Ukloni iz nedavnih</string>
+    <string name="add_group_reorder_title">Promijeni redoslijed</string>
+    <string name="add_group_move_up">Pomakni gore</string>
+    <string name="add_group_move_down">Pomakni dolje</string>
+    <string name="add_group_custom_groups_title">Prilagođene grupe</string>
+    <string name="add_group_remove_btn">Ukloni</string>
+    <string name="add_group_add_btn">Dodaj</string>
+    <string name="add_group_create_new_btn">Stvori novu grupu</string>
+
+    <!-- M4 hide individual channels -->
+    <string name="channel_action_hide">Sakrij ovaj kanal</string>
+    <string name="hidden_channels_dialog_title">Skriveni kanali</string>
+    <string name="hidden_channels_dialog_subtitle">Odaberite one koje želite vratiti.</string>
+    <string name="hidden_channels_dialog_unhide_all">Otkrij sve</string>
+    <string name="hidden_channels_dialog_close">Zatvori</string>
+
+    <string name="card_live_badge">LIVE</string>
+    <string name="card_locked">Zaključano</string>
+
+
+    <string name="playlist_no_provider">Nema pružatelja</string>
+    <string name="live_source_label">IZVOR</string>
+    <string name="live_source_filter_label">Filtar playliste</string>
+    <string name="live_source_filter_all">Svi izvori</string>
+    <string name="live_source_unavailable_short">Nedostupno</string>
+    <string name="live_source_empty_short">Prazno</string>
+
+
+    <string name="movies_shell_subtitle">Odabrane police, spremljene grupe i pregledavanje cijele biblioteke bez napuštanja konteksta trenutačnog pružatelja.</string>
+    <string name="movies_all_categories">Sve kategorije</string>
+    <string name="movies_search_launch_title">Pretraži biblioteku filmova</string>
+    <string name="movies_search_launch_subtitle">Prijeđite na namjensko sučelje za pretraživanje bez gubitka trenutačnog stanja pregledavanja.</string>
+    <string name="movies_group_created">Stvorena grupa %1$s</string>
+    <string name="movies_group_renamed">Grupa preimenovana u %1$s</string>
+    <string name="movies_group_deleted">Izbrisana grupa %1$s</string>
+    <string name="movies_group_name_invalid">Unesite naziv grupe</string>
+    <string name="movies_group_name_reserved">Omiljeni je rezerviran naziv</string>
+    <string name="movies_group_name_duplicate">Grupa filmova s tim nazivom već postoji</string>
+    <string name="movies_saved_empty_hint">Dodajte film u omiljene ili prilagođenu grupu da ga vidite ovdje.</string>
+    <string name="movies_filter_subtitle">Pročistite odabranu kategoriju filmova bez ponovnog učitavanja cijele biblioteke.</string>
+    <string name="movies_reorder_title">Promjena redoslijeda %1$s</string>
+
+
+    <string name="series_shell_subtitle">Uredničke police, spremljene grupe i stranično pregledavanje serija prilagođeno velikim bibliotekama pružatelja.</string>
+    <string name="series_all_categories">Sve kategorije</string>
+    <string name="series_search_launch_title">Pretraži biblioteku serija</string>
+    <string name="series_search_launch_subtitle">Otvorite prikaz naredbenog pretraživanja za brže pronalaženje naslova, epizoda ili spremljenih grupa.</string>
+    <string name="series_group_created">Stvorena grupa %1$s</string>
+    <string name="series_group_renamed">Grupa preimenovana u %1$s</string>
+    <string name="series_group_deleted">Izbrisana grupa %1$s</string>
+    <string name="series_group_name_invalid">Unesite naziv grupe</string>
+    <string name="series_group_name_reserved">Omiljeni je rezerviran naziv</string>
+    <string name="series_group_name_duplicate">Grupa serija s tim nazivom već postoji</string>
+    <string name="series_saved_empty_hint">Dodajte seriju u omiljene ili prilagođenu grupu da ju vidite ovdje.</string>
+    <string name="series_filter_subtitle">Prebacujte se između spremljenih, započetih, ažuriranih i visoko ocijenjenih serija.</string>
+    <string name="series_reorder_title">Promjena redoslijeda %1$s</string>
+
+    <string name="library_saved_title">Spremljeno</string>
+    <string name="library_saved_subtitle">Omiljeni i prilagođene grupe</string>
+    <string name="library_saved_manage_hint">Držite spremljenu grupu za opcije</string>
+    <string name="library_lens_title">Leća biblioteke</string>
+    <string name="library_filter_results">Prikazano %1$d od %2$d stavki</string>
+    <string name="library_loaded_results">Učitano %1$d od %2$d stavki</string>
+    <string name="library_sort_library">Redoslijed biblioteke</string>
+    <string name="library_sort_az">A-Z</string>
+    <string name="library_sort_release">Najnovije</string>
+    <string name="library_sort_updated">Nedavno ažurirano</string>
+    <string name="library_sort_rating">Ocjena</string>
+
+
+    <string name="settings_parental_subtitle">Zaštitite sadržaj za odrasle ili osjetljiv sadržaj kontrolama prilagođenima TV-u.</string>
+    <string name="settings_parental_groups_title">Zaštićene grupe</string>
+    <string name="settings_parental_groups_hint">Zaključajte ili otključajte kategorije za aktivnog pružatelja.</string>
+    <string name="settings_parental_groups_action">Upravljaj</string>
+    <string name="settings_categories_title">Postavke kategorija</string>
+    <string name="settings_categories_subtitle">Sakrijte kategorije pružatelja i zadržite njihov redoslijed točno onakvim kakav želite.</string>
+    <string name="settings_category_sorting_title">Sortiranje kategorija</string>
+    <string name="settings_category_sorting_subtitle">Razvrstajte kategorije za aktivnu playlistu. Zaključavanje i skrivanje sada se nalaze u kontrolama kategorija.</string>
+    <string name="settings_hidden_categories_title">Skrivene kategorije</string>
+    <string name="settings_hidden_categories_subtitle">Vratite sve kategorije pružatelja koje ste prethodno sakrili iz pregledavanja.</string>
+    <string name="settings_hidden_categories_none">Ništa nije skriveno</string>
+    <string name="settings_hidden_categories_count">%1$d skrivenih</string>
+    <string name="settings_hidden_categories_empty">Trenutačno nema skrivenih kategorija.</string>
+    <string name="settings_playback_subtitle">Prilagodite ponašanje dekodera i međuspremnika za glađu reprodukciju.</string>
+    <string name="settings_live_timeshift_backend_value">Automatski</string>
+    <string name="vod_classic_categories_title">Kategorije</string>
+    <string name="settings_decoder_mode">Način dekodera</string>
+    <string name="settings_select_decoder_mode">Odaberite način dekodera</string>
+    <string name="settings_buffer_duration">Trajanje međuspremnika</string>
+    <string name="settings_buffer_5s">5 sekundi</string>
+    <string name="settings_about_subtitle">Verzija, build i pojedinosti podrške za ovu instalaciju.</string>
+    <string name="settings_syncing">Sinkronizacija podataka, pričekajte...</string>
+    <string name="settings_cancel">Odustani</string>
+    <string name="settings_sync_option_all">Sinkroniziraj sve</string>
+    <string name="settings_sync_option_fast">Brza sinkronizacija</string>
+    <string name="settings_pc_btn">Roditeljska kontrola</string>
+    <string name="settings_language">Jezik</string>
+    <string name="settings_language_subtitle">Odaberite jezik aplikacije bez napuštanja TV sučelja.</string>
+
+    <string name="settings_backup_share_failed">Nijedna aplikacija nije mogla primiti datoteku sigurnosne kopije.</string>
+    <string name="settings_crash_report_share_failed">Nijedna aplikacija nije mogla primiti izvješće o rušenju.</string>
+    <string name="settings_crash_report_missing">Izvješće o rušenju nije dostupno.</string>
+    <string name="settings_catalog_count_pending">Na čekanju</string>
+    <string name="settings_diagnostic_never">Nikad</string>
+    <string name="settings_diagnostic_items">%1$d stavki</string>
+    <string name="settings_recording_subtitle">Upravljajte lokalnim DVR zadacima uživo, pohranom i zakazanim snimanjima.</string>
+    <string name="settings_recording_pattern_summary">%1$s</string>
+
+
+    <string name="saved_preset_watch_next">Gledaj sljedeće</string>
+    <string name="tv_channel_continue_watching_title">Nastavi gledati</string>
+    <string name="tv_channel_continue_watching_description">Nastavite naslove koje ste nedavno započeli</string>
+    <string name="tv_channel_top_movies_title">Najbolji filmovi</string>
+    <string name="tv_channel_top_movies_description">Popularni izbori iz %1$s</string>
+    <string name="tv_channel_recommended_movies_title">Preporučeni filmovi</string>
+    <string name="tv_channel_recommended_movies_description">Prilagođeno vašim nedavnim odabirima na %1$s</string>
+    <string name="tv_channel_fresh_series_title">Nove serije</string>
+    <string name="tv_channel_fresh_series_description">Nedavno ažurirane serije iz %1$s</string>
+
+
+    <string name="search_title">Pretraži</string>
+    <string name="parental_group_shell_subtitle">Pregledajte zaštićene grupe uživo, filmova i serija bez napuštanja sučelja postavki.</string>
+    <string name="search_command_title">Naredbeno pretraživanje</string>
+    <string name="search_hint">Pretraži...</string>
+    <string name="search_actions_title">%1$s</string>
+    <string name="search_actions_pin_subtitle">Unesite roditeljski PIN za potvrdu</string>
+    <string name="a11y_locked">Zaključano</string>
+    <string name="a11y_favorite">Omiljeno</string>
+    <string name="a11y_catch_up_available">Dostupno gledanje unatrag</string>
+    <string name="a11y_now_playing">Sada se reproducira %1$s</string>
+    <string name="a11y_channel_with_number">Kanal %1$d, %2$s</string>
+
+
+
+
+    <string name="player_no_external_player">Nema instaliranog vanjskog playera</string>
+    <string name="player_unsafe_stream_url">Ovaj se stream ne može otvoriti u vanjskom playeru</string>
+    <string name="player_external_launch_failed">Vanjski player nije se uspio pokrenuti</string>
+    <string name="player_next">SLJEDEĆE</string>
+    <string name="player_recording_started">Snimanje je započeto za %1$s.</string>
+    <string name="player_recording_stopped">Snimanje je zaustavljeno.</string>
+    <string name="player_recording_scheduled">Snimanje je zakazano za %1$s.</string>
+    <string name="player_recording_missing_context">Snimanje zahtijeva valjani kontekst kanala uživo.</string>
+    <string name="player_categories_label">Kategorije</string>
+    <string name="player_full_epg">Cijeli EPG</string>
+    <string name="player_action_controls">Kontrole</string>
+    <string name="player_action_restart_short">Ponovno pokreni</string>
+    <string name="player_action_recent_short">Nedavno</string>
+    <string name="player_diagnostics_decoder">Dekoder</string>
+    <string name="player_diagnostics_policy_guard">Čuvar pravila</string>
+    <string name="player_diagnostics_policy_profile">Profil pravila</string>
+    <string name="player_diagnostics_policy_buffer">Profil međuspremnika</string>
+    <string name="player_diagnostics_policy_render_path">Putanja prikaza</string>
+    <string name="player_diagnostics_policy_known_bad">Pravilo poznatih problema</string>
+    <string name="player_diagnostics_policy_recovery">Automatski oporavak</string>
+    <string name="player_diagnostics_policy_last_action">Posljednja radnja pravila</string>
+    <string name="epg_search_short">Pretraga programa</string>
+    <string name="epg_show_options">Prikaži opcije vodiča</string>
+    <string name="epg_hide_options">Sakrij opcije vodiča</string>
+    <string name="epg_showing_channels">Prikazano %1$d od %2$d kanala</string>
+    <string name="epg_schedule_summary">Podaci vodiča dostupni na %1$d od %2$d kanala</string>
+    <string name="epg_window_label">%1$s - %2$s</string>
+    <string name="epg_timeline_label">Vremenska crta</string>
+    <string name="epg_timeline_range_label">%1$s prozor</string>
+    <string name="epg_updated_now">Ažurirano upravo sada</string>
+    <string name="epg_updated_minutes_ago">Ažurirano prije %1$d min</string>
+    <string name="epg_minutes_remaining">Još %1$d min</string>
+    <string name="epg_program_channel_label">Kanal</string>
+    <string name="epg_program_provider_label">Pružatelj</string>
+    <string name="epg_program_provider_type_label">Izvor</string>
+    <string name="epg_program_language_label">Jezik</string>
+    <string name="epg_program_replay_label">Repriza</string>
+    <string name="epg_program_progress_label">Napredak</string>
+    <string name="epg_program_replay_unavailable">Nedostupno</string>
+    <string name="epg_program_progress_value">%1$d%% dovršeno • %2$s</string>
+    <string name="epg_provider_troubleshooting_missing_template">Repriza može zakazati jer pružatelj nudi podršku za gledanje unatrag bez upotrebljivog predloška za reprizu.</string>
+    <string name="epg_provider_troubleshooting_missing_stream_id">Repriza može zakazati jer pružatelj nije omogućio identifikator streama za reprizu.</string>
+
+
+    <string name="parental_group_title">Zaštićene grupe</string>
+    <string name="parental_group_search">Pretraži kategorije...</string>
+    <string name="player_live_timeshift_ready">Vremenski pomak je spreman.</string>
+    <string name="player_live_timeshift_failed">Lokalno premotavanje uživo nije dostupno za ovaj stream.</string>
+
+
+    <string name="multiview_add_to_split">Dodaj u podijeljeni ekran</string>
+    <string name="multiview_queued">U podijeljenom ekranu</string>
+
+
+    <string name="settings_privacy_subtitle">Upravljajte poviješću gledanja i anonimnim načinom rada.</string>
+
+
+    <string name="action_done">Gotovo</string>
+    <string name="action_delete">Izbriši</string>
+    <string name="action_clear">Očisti</string>
+    <string name="action_space">Razmak</string>
+
+
+    <string name="label_provider">PRUŽATELJ</string>
+    <string name="label_selected">Odabrano</string>
+    <string name="label_no_schedule">Nema podataka o rasporedu</string>
+    <string name="label_slots_count">%1$d/4 mjesta</string>
+    <string name="label_rating">★ %1$s/10</string>
+    <string name="label_episode">E%1$d</string>
+    <string name="label_episode_full">Epizoda %1$d</string>
+    <string name="badge_saved">SPREMLJENO</string>
+    <string name="badge_catch_up">UNATRAG</string>
+    <string name="badge_moving">PREMJEŠTANJE</string>
+    <string name="badge_fav">FAV</string>
+
+
+
+
+    <string name="favorites_content_type_movie">Film</string>
+
+
+
+
+    <string name="split_count_format">%1$s %2$d/4</string>
+    <string name="tv_input_setup_scanning_title">Skeniranje StreamVault kanala</string>
+    <string name="tv_input_setup_success_title">TV uživo je spreman</string>
+    <string name="tv_input_setup_no_provider_title">Nema konfiguriranog IPTV pružatelja</string>
+    <string name="tv_input_setup_error_title">Automatsko skeniranje nije uspjelo</string>
+    <string name="tv_input_setup_idle_title">Priprema integracije TV-a uživo</string>
+    <string name="tv_input_setup_scanning_body">StreamVault sinkronizira vašeg aktivnog pružatelja u Android TV Live TV.</string>
+    <string name="tv_input_setup_success_body">Vaši su kanali uspješno sinkronizirani.</string>
+    <string name="tv_input_setup_no_provider_body">Dodajte barem jednog IPTV pružatelja u StreamVault, zatim se vratite ovdje da skenirate kanale u Android TV Live TV.</string>
+    <string name="tv_input_setup_error_body">Sinkronizacija TV ulaza nije dovršena.</string>
+    <string name="tv_input_setup_idle_body">Pričekajte.</string>
+    <string name="tv_input_setup_source_format">Izvor: %1$s</string>
+    <string name="tv_input_setup_open_setup">Otvori StreamVault postavljanje</string>
+    <string name="tv_input_setup_try_scan_again">Pokušaj ponovno automatsko skeniranje</string>
+    <string name="tv_input_setup_retry_scan">Ponovi automatsko skeniranje</string>
+    <string name="tv_input_setup_success_hint">Android TV Live TV sada može otvoriti vaše StreamVault kanale.</string>
+
+    <!-- M2: Google Drive backup sync -->
+    <string name="settings_drive_cancel_backup_choice_subtitle">Vratite se na radnje sigurnosne kopije na Google Driveu.</string>
+
+    <!-- Download feature -->
+    <string name="download_failed">Preuzimanje nije uspjelo: %1$s</string>
+    <string name="download_completed">Preuzimanje dovršeno</string>
+    <string name="download_cancelled">Preuzimanje otkazano</string>
+    <string name="download_notification_channel">Preuzimanja</string>
+    <string name="download_notification_channel_description">Prikazuje napredak i dovršetak preuzimanja</string>
+    <string name="download_in_progress">Preuzimanje %s</string>
+    <string name="download_progress">%1$s / %2$s</string>
+    <string name="nav_downloads">Preuzimanja</string>
+    <string name="downloads_empty">Još nema preuzimanja</string>
+    <string name="downloads_delete_confirm">Izbrisati ovo preuzimanje?</string>
+    <string name="download_play_local">Reproduciraj</string>
+    <string name="nav_vod">VOD</string>
+    <string name="torrent_playback_start_failed">Reprodukciju torrenta nije moguće pokrenuti. Pokušajte ponovno.</string>
+    <string name="torrent_cache_capacity_reached">Reprodukcija torrenta dosegla je ograničenje privremene pohrane. Očistite predmemoriju ili oslobodite prostor pa pokušajte ponovno.</string>
+    <string name="torrent_storage_check_failed">Nije moguće provjeriti dostupnu pohranu. Reprodukcija torrenta ne može se sigurno nastaviti.</string>
+    <string name="nav_addons">Stremio dodaci</string>
+    <string name="nav_extensions">Proširenja</string>
+    <string name="nav_sports">Sport</string>
+</resources>

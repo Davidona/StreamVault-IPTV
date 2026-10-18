@@ -32,11 +32,11 @@
   <string name="badge_series">시리즈</string>
   <string name="card_live_badge">라이브</string>
   <string name="card_locked_channel">잠긴 채널</string>
-  <string name="cast_button_label" translatable="false">Cast</string>
-  <string name="cast_item_unavailable" translatable="false">This item cannot be sent to a Cast receiver.</string>
-  <string name="cast_launching" translatable="false">Casting...</string>
-  <string name="cast_started" translatable="false">Casting to the connected device.</string>
-  <string name="cast_unavailable" translatable="false">Google Cast is unavailable on this device.</string>
+  <string name="cast_button_label">캐스트</string>
+  <string name="cast_item_unavailable">이 항목은 Cast 수신기로 보낼 수 없습니다.</string>
+  <string name="cast_launching">캐스트 중...</string>
+  <string name="cast_started">연결된 기기로 캐스트 중입니다.</string>
+  <string name="cast_unavailable">이 기기에서는 Google Cast를 사용할 수 없습니다.</string>
   <string name="category_options_cancel">취소</string>
   <string name="category_options_clear_recent">최근 항목 모두 지우기</string>
   <string name="category_options_delete">그룹 삭제</string>
@@ -49,22 +49,22 @@
   <string name="category_options_set_default">기본 그룹으로 설정</string>
   <string name="category_options_unlock">그룹 잠금 해제</string>
   <string name="category_options_unpin">카테고리 고정 해제</string>
-  <string name="category_pin" translatable="false">Pin</string>
+  <string name="category_pin">카테고리 고정</string>
   <string name="category_see_all">모두 보기</string>
-  <string name="category_unpin" translatable="false">Unpin</string>
-  <string name="channel_action_hide">Hide this channel</string>
+  <string name="category_unpin">카테고리 고정 해제</string>
+  <string name="channel_action_hide">이 채널 숨기기</string>
   <string name="channel_options_remove_from_recent">최근 항목에서 제거</string>
   <string name="continue_watching_season_episode">S%1$d E%2$d</string>
   <string name="continue_watching_title">이어보기</string>
   <string name="dashboard_channels_format">%1$d개 채널</string>
   <string name="dashboard_continue_watching">시청 계속하기</string>
-  <string name="dashboard_continue_watching_movies">Continue Watching Movies</string>
-  <string name="dashboard_continue_watching_series">Continue Watching Series</string>
+  <string name="dashboard_continue_watching_movies">영화 이어보기</string>
+  <string name="dashboard_continue_watching_series">시리즈 이어보기</string>
   <string name="dashboard_empty_body">먼저 재생목록 또는 Xtream 소스를 추가하세요. 공급자가 활성화되면 홈에 즐겨찾는 채널, 이어보기, 새 라이브러리 항목이 표시됩니다.</string>
   <string name="dashboard_empty_title">홈 화면을 사용하려면 공급자를 설정하세요</string>
   <string name="dashboard_favorite_channels">즐겨찾는 채널</string>
-  <string name="dashboard_favorite_movies">Favorite Movies</string>
-  <string name="dashboard_favorite_series">Favorite Series</string>
+  <string name="dashboard_favorite_movies">즐겨찾는 영화</string>
+  <string name="dashboard_favorite_series">즐겨찾는 시리즈</string>
   <string name="dashboard_fresh_movie_pick">새 영화 추천</string>
   <string name="dashboard_jump_back_live">라이브 TV로 바로 돌아가기</string>
   <string name="dashboard_library_ready">IPTV 라이브러리를 사용할 수 있습니다</string>
@@ -87,7 +87,7 @@
   <string name="dashboard_recent_channels">최근 채널</string>
   <string name="dashboard_recent_movies">최근 추가된 영화</string>
   <string name="dashboard_recent_series">최근 업데이트된 시리즈</string>
-  <string name="dashboard_recommended_movies">Recommended Movies</string>
+  <string name="dashboard_recommended_movies">추천 영화</string>
   <string name="dashboard_resume_episode">에피소드 이어보기</string>
   <string name="dashboard_resume_episode_format">S%1$d E%2$d 이어보기</string>
   <string name="dashboard_resume_live">이어보기</string>
@@ -104,10 +104,10 @@
   <string name="dashboard_stat_series">시리즈 %1$d</string>
   <string name="dashboard_subtitle">%1$s이(가) 활성화되었습니다. 라이브로 돌아가거나, 진행 상황을 이어 보거나, 새 항목을 둘러보세요.</string>
   <string name="dashboard_title">라이브러리 준비 완료</string>
-  <string name="dashboard_top_rated_movies">Top Rated Movies</string>
-  <string name="dashboard_update_allow_installs" translatable="false">Allow Installs</string>
+  <string name="dashboard_top_rated_movies">평점 높은 영화</string>
+  <string name="dashboard_update_allow_installs">설치 허용</string>
   <string name="dashboard_update_available">새 앱 릴리스가 캐시되었으며 설정에서 확인할 수 있습니다.</string>
-  <string name="dashboard_update_install_permission_required" translatable="false">The update is downloaded. Allow installs from StreamVault, then retry installation.</string>
+  <string name="dashboard_update_install_permission_required">업데이트가 다운로드되었습니다. StreamVault의 설치를 허용한 후 설치를 다시 시도하세요.</string>
   <string name="dashboard_update_install_ready">최신 업데이트가 이미 다운로드되었습니다. 설정을 열어 설치하세요.</string>
   <string name="dashboard_update_open_installer">설정에서 설치</string>
   <string name="dashboard_update_open_settings">업데이트 열기</string>
@@ -117,10 +117,10 @@
   <string name="dashboard_warning_review">공급자 상세 열기</string>
   <string name="dashboard_warning_title">공급자 확인 필요</string>
   <string name="dashboard_watch_live">라이브 시청</string>
-  <string name="download_button_label">Download</string>
-  <string name="download_error_no_url">Could not resolve stream URL for download</string>
-  <string name="download_failed">Download failed: %1$s</string>
-  <string name="download_started">Download started</string>
+  <string name="download_button_label">다운로드</string>
+  <string name="download_error_no_url">다운로드할 스트림 URL을 확인할 수 없습니다</string>
+  <string name="download_failed">다운로드 실패: %1$s</string>
+  <string name="download_started">다운로드가 시작되었습니다</string>
   <string name="favorites_add">즐겨찾기에 추가</string>
   <string name="favorites_all_favorites">모든 즐겨찾기</string>
   <string name="favorites_cancel">뒤로: 취소</string>
@@ -197,10 +197,10 @@
   <string name="library_saved_manage_hint">저장된 그룹을 길게 눌러 옵션 보기</string>
   <string name="library_saved_primary_hint">전체 라이브러리로 돌아가기</string>
   <string name="library_sort_title">결과 정렬</string>
-  <string name="m3u_move_back_to_live" translatable="false">Move back to Live TV</string>
-  <string name="m3u_move_to_movies" translatable="false">Move to Movies</string>
-  <string name="m3u_move_to_series" translatable="false">Move to Series</string>
-  <string name="m3u_organize_items" translatable="false">Organize M3U Items</string>
+  <string name="m3u_move_back_to_live">라이브 TV로 되돌리기</string>
+  <string name="m3u_move_to_movies">영화로 이동</string>
+  <string name="m3u_move_to_series">시리즈로 이동</string>
+  <string name="m3u_organize_items">M3U 항목 정리</string>
   <string name="movie_detail_back">라이브러리로 돌아가기</string>
   <string name="movie_detail_cast">출연:</string>
   <string name="movie_detail_director">감독:</string>
@@ -212,7 +212,7 @@
   <string name="movie_detail_resume_from">%1$s부터 이어보기</string>
   <string name="movie_detail_trailer">예고편</string>
   <string name="movie_detail_unknown">알 수 없음</string>
-  <string name="movie_detail_versions">Versions</string>
+  <string name="movie_detail_versions">버전</string>
   <string name="movie_loading_details">세부 정보 불러오는 중...</string>
   <string name="movie_not_found">영화를 찾을 수 없음</string>
   <string name="movie_plot_fallback">줄거리 없음</string>
@@ -232,7 +232,7 @@
   <string name="nav_movies">영화</string>
   <string name="nav_series">시리즈</string>
   <string name="nav_settings">설정</string>
-  <string name="nav_vod" translatable="false">VOD</string>
+  <string name="nav_vod">VOD</string>
   <string name="pin_dialog_cancel">취소</string>
   <string name="pin_dialog_title">PIN 입력</string>
   <string name="player_resume">이어보기</string>
@@ -273,11 +273,11 @@
   <string name="search_actions_remove_favorite">즐겨찾기에서 제거</string>
   <string name="search_actions_unlock">자녀 보호 잠금 해제</string>
   <string name="search_all">전체</string>
-  <string name="search_build_complete_index" translatable="false">Build complete search index once</string>
-  <string name="search_catalog_complete" translatable="false">Complete catalog index</string>
-  <string name="search_catalog_downloaded_only" translatable="false">Downloaded items only. Build the complete search index to search the full portal catalog.</string>
-  <string name="search_catalog_indexing" translatable="false">The complete search index is being built. Results are still partial.</string>
-  <string name="search_catalog_truncated" translatable="false">The portal catalog was truncated. Results may be incomplete.</string>
+  <string name="search_build_complete_index">전체 검색 색인 한 번 만들기</string>
+  <string name="search_catalog_complete">전체 카탈로그 색인</string>
+  <string name="search_catalog_downloaded_only">다운로드한 항목만 검색합니다. 전체 검색 색인을 만들어 포털 카탈로그 전체를 검색하세요.</string>
+  <string name="search_catalog_indexing">전체 검색 색인을 만드는 중입니다. 결과가 아직 일부만 표시됩니다.</string>
+  <string name="search_catalog_truncated">포털 카탈로그가 잘렸습니다. 결과가 불완전할 수 있습니다.</string>
   <string name="search_clear_history">지우기</string>
   <string name="search_command_subtitle">제목, 키워드, 채널 이름 또는 시리즈로 시작하세요. 결과는 빠른 리모컨 탐색을 위해 그룹으로 유지됩니다.</string>
   <string name="search_error_subtitle">일부 결과를 불러올 수 없습니다. 다시 시도하세요.</string>
@@ -304,7 +304,7 @@
   <string name="series_detail_back">라이브러리로 돌아가기</string>
   <string name="series_detail_play_episode">재생 · 시즌 %1$d 에피소드 %2$d</string>
   <string name="series_detail_resume">이어보기 · 시즌 %1$d 에피소드 %2$d · %3$s</string>
-  <string name="series_detail_versions">Versions</string>
+  <string name="series_detail_versions">버전</string>
   <string name="series_episodes">에피소드(%1$d)</string>
   <string name="series_incorrect_pin">PIN이 올바르지 않습니다</string>
   <string name="series_library_lens_subtitle">전체 라이브러리에서 즐겨찾기, 시청 중, 최고 평점, 최신 시리즈를 표시합니다.</string>
@@ -328,10 +328,10 @@
   <string name="settings_status_partial">부분</string>
   <string name="settings_status_unknown">알 수 없음</string>
   <string name="settings_update_install_started">패키지 설치 프로그램을 여는 중입니다.</string>
-  <string name="stream_url_clip_label">Stream URL</string>
-  <string name="stream_url_copied">Stream URL copied</string>
-  <string name="stream_url_copy">Copy URL</string>
-  <string name="stream_url_copy_failed">Could not resolve stream URL</string>
+  <string name="stream_url_clip_label">스트림 URL</string>
+  <string name="stream_url_copied">스트림 URL이 복사되었습니다</string>
+  <string name="stream_url_copy">URL 복사</string>
+  <string name="stream_url_copy_failed">스트림 URL을 확인할 수 없습니다</string>
   <string name="vod_category_picker_empty">일치하는 카테고리를 찾을 수 없습니다.</string>
   <string name="vod_category_picker_search_placeholder">카테고리 검색…</string>
   <string name="vod_category_picker_subtitle">카테고리 이름으로 검색한 뒤 일치하는 선반을 여세요.</string>
@@ -349,6 +349,20 @@
   <string name="vod_rating_tmdb">TMDb</string>
   <string name="vod_sync_needed_subtitle">이 공급자를 새로 고쳐 영화와 시리즈를 라이브러리로 가져옵니다.</string>
   <string name="vod_sync_needed_title">동기화 필요</string>
-  <string name="vod_unavailable_subtitle" translatable="false">This provider exposes separate Movies and Series catalogs.</string>
-  <string name="vod_unavailable_title" translatable="false">VOD is unavailable</string>
+  <string name="vod_unavailable_subtitle">이 제공업체는 영화와 시리즈 카탈로그를 별도로 제공합니다.</string>
+  <string name="vod_unavailable_title">VOD를 사용할 수 없습니다</string>
+
+<string name="trakt_watchlist_add">Trakt 관심 목록에 추가</string>
+<string name="trakt_watchlist_connect">설정에서 Trakt 연결</string>
+<string name="trakt_watchlist_failed">Trakt 관심 목록을 업데이트할 수 없습니다. 다시 시도하세요.</string>
+<string name="trakt_watchlist_load">Trakt 관심 목록 불러오기</string>
+<string name="trakt_watchlist_remove">Trakt 관심 목록에서 삭제</string>
+<string name="dashboard_trakt_watchlist_movies">Trakt 관심 목록에 있는 영화</string>
+<string name="dashboard_trakt_watchlist_series">Trakt 관심 목록의 TV 프로그램</string>
+<string name="trakt_rating_action">Trakt에서 평가</string>
+<string name="trakt_rating_dialog_message">1에서 10까지 평가를 선택하세요.</string>
+<string name="trakt_rating_current">내 Trakt 평점: %1$d/10</string>
+<string name="trakt_rating_saved">Trakt에 평점을 저장했습니다.</string>
+<string name="trakt_rating_failed">Trakt에 평점을 저장하지 못했습니다.</string>
+<string name="trakt_favorite_sync_failed">StreamVault에서 변경 사항을 저장했지만 Trakt 즐겨찾기를 업데이트하지 못했습니다. 다시 시도하세요.</string>
 </resources>

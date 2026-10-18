@@ -1,0 +1,22 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="cast_started" tools:ignore="MissingTranslation">Emitiranje na povezani uređaj.</string>
+    <string name="cast_unavailable" tools:ignore="MissingTranslation">Google Cast nije dostupan na ovom uređaju.</string>
+    <string name="cast_stream_unsupported" tools:ignore="MissingTranslation">Google Cast ne podržava ovaj format streama.</string>
+    <string name="cast_protocol_unsupported" tools:ignore="MissingTranslation">RTSP i RTMP streamovi nisu podržani za emitiranje.</string>
+    <string name="cast_drm_unsupported" tools:ignore="MissingTranslation">Google Cast u ovoj aplikaciji ne podržava DRM-zaštićene streamove.</string>
+    <string name="cast_item_unavailable" tools:ignore="MissingTranslation">Ova se stavka ne može poslati na Cast prijemnik.</string>
+    <string name="cast_local_url_unsupported" tools:ignore="MissingTranslation">Ovaj stream upotrebljava lokalni URL ili URL samo za uređaj do kojeg Chromecast ne može izravno doći.</string>
+    <string name="cast_headers_unsupported" tools:ignore="MissingTranslation">Ovaj stream zahtijeva HTTP zaglavlja ili kolačiće koje Chromecast ne može izravno upotrijebiti.</string>
+    <string name="cast_user_agent_unsupported" tools:ignore="MissingTranslation">Ovaj stream zahtijeva prilagođeni User-Agent koji Chromecast ne može izravno upotrijebiti.</string>
+    <string name="cast_proxy_unsupported" tools:ignore="MissingTranslation">Ovaj stream zahtijeva proxy postavke aplikacije pa ga Chromecast ne može izravno upotrijebiti.</string>
+    <string name="cast_invalid_ssl_unsupported" tools:ignore="MissingTranslation">Ovaj stream upotrebljava SSL rukovanje koje Chromecast ne može izravno upotrijebiti.</string>
+    <string name="cast_session_failed" tools:ignore="MissingTranslation">Cast sesija nije se mogla pokrenuti.</string>
+    <string name="cast_load_failed" tools:ignore="MissingTranslation">Cast prijemnik nije mogao učitati ovaj stream.</string>
+    <string name="cast_receiver_unavailable" tools:ignore="MissingTranslation">Povezani Cast prijemnik nije spreman za reprodukciju.</string>
+    <string name="cast_selection_cancelled" tools:ignore="MissingTranslation">Odabir Cast uređaja je otkazan.</string>
+    <string name="add_group_close_cd">Zatvori</string>
+    <string name="player_archive_title">Arhiva programa</string>
+    <string name="player_no_archive">Nema pronađenih arhiviranih programa</string>
+    <string name="program_date_time_range">%1$s | %2$s – %3$s</string>
+    <string name="player_archive_badge">Arhiva</string>
+</resources>

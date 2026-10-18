@@ -516,6 +516,16 @@ class EpgSourceRepositoryImpl @Inject constructor(
     override suspend fun getChannelMapping(providerId: Long, channelId: Long): ChannelEpgMapping? =
         channelEpgMappingDao.getForChannel(providerId, channelId)?.toDomain()
 
+    override suspend fun getChannelMappingConfidences(
+        providerId: Long,
+        channelIds: List<Long>,
+    ): Map<Long, Float> {
+        if (channelIds.isEmpty()) return emptyMap()
+        return channelIds.distinct().chunked(500)
+            .flatMap { chunk -> channelEpgMappingDao.getForChannels(providerId, chunk) }
+            .associate { mapping -> mapping.providerChannelId to mapping.confidence }
+    }
+
     override suspend fun getOverrideCandidates(
         providerId: Long,
         query: String,

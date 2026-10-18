@@ -232,6 +232,8 @@ public fun SettingsScreenDialogs(
         onShowSubtitleTextColorDialogChange = { dialogState.showSubtitleTextColorDialog = it },
         showSubtitleBackgroundDialog = dialogState.showSubtitleBackgroundDialog,
         onShowSubtitleBackgroundDialogChange = { dialogState.showSubtitleBackgroundDialog = it },
+        showPinnedSubtitleLanguagesDialog = dialogState.showPinnedSubtitleLanguagesDialog,
+        onShowPinnedSubtitleLanguagesDialogChange = { dialogState.showPinnedSubtitleLanguagesDialog = it },
         showLiveTranslationEndpointDialog = dialogState.showLiveTranslationEndpointDialog,
         onShowLiveTranslationEndpointDialogChange = { dialogState.showLiveTranslationEndpointDialog = it },
         showWifiQualityDialog = dialogState.showWifiQualityDialog,
@@ -289,6 +291,7 @@ public fun SettingsScreenDialogs(
             onImportPlaybackHistoryChanged = { viewModel.setImportPlaybackHistory(it) },
             onImportMultiViewChanged = { viewModel.setImportMultiViewPresets(it) },
             onImportRecordingSchedulesChanged = { viewModel.setImportRecordingSchedules(it) },
+            onImportStremioAddonsChanged = { viewModel.setImportStremioAddons(it) },
             isImporting = uiState.isImportingBackup,
             onConfirm = { viewModel.confirmBackupImport() }
         )

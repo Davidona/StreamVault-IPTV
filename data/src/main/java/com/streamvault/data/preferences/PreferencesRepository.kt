@@ -15,13 +15,24 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
+import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStoreFile
 import com.streamvault.data.local.dao.ChannelPreferenceDao
+import com.streamvault.data.local.dao.PlaybackQualityPreferenceDao
 import com.streamvault.data.local.dao.SearchHistoryDao
+import com.streamvault.data.local.entity.PlaybackQualityPreferenceEntity
 import com.streamvault.domain.settings.DatabaseMaintenanceSnapshot
 import com.streamvault.domain.settings.PlayerPreferences
+import com.streamvault.domain.settings.PlaybackQualityLimit
+import com.streamvault.domain.settings.PlaybackQualityPreferences
+import com.streamvault.domain.settings.PlaybackQualityProfile
+import com.streamvault.domain.settings.PlaybackQualityPreferenceScope
+import com.streamvault.domain.settings.PlaybackQualityPreferenceScopeType
+import com.streamvault.domain.settings.QualityLimitOverride
+import com.streamvault.domain.settings.ScopedPlaybackQualityPreference
 import com.streamvault.domain.settings.SettingsPreferences
+import com.streamvault.domain.settings.SubtitleLanguageOrdering
 import com.streamvault.domain.model.GroupedChannelLabelMode
 import com.streamvault.domain.model.AudioOutputPreference
 import com.streamvault.domain.model.ChannelNumberingMode
@@ -50,6 +61,18 @@ import com.streamvault.domain.model.PlayerSurfaceMode
 import com.streamvault.domain.model.PlayerBackButtonVisibility
 import com.streamvault.domain.settings.VodTrackPreferenceScope
 import com.streamvault.domain.settings.VodTrackPreferences
+import com.streamvault.domain.sports.provider.SportsEventSourceMode
+import com.streamvault.domain.sports.provider.SportsEventSourcePreference
+import com.streamvault.domain.sports.provider.SportsEventSourceSettings
+import com.streamvault.domain.sports.provider.SportsScoreSourceMode
+import com.streamvault.domain.sports.provider.SportsScoreSourcePreference
+import com.streamvault.domain.sports.provider.SportsScoreSourceSettings
+import com.streamvault.domain.sports.provider.SportsStandingsSourceMode
+import com.streamvault.domain.sports.provider.SportsStandingsSourcePreference
+import com.streamvault.domain.sports.provider.SportsStandingsSourceSettings
+import com.streamvault.domain.sports.provider.SportsMetadataSourceMode
+import com.streamvault.domain.sports.provider.SportsMetadataSourcePreference
+import com.streamvault.domain.sports.provider.SportsMetadataSourceSettings
 import com.streamvault.domain.model.RemoteColorButton
 import com.streamvault.domain.model.RemoteShortcutPreferences
 import com.streamvault.domain.model.RemoteShortcutProfile
@@ -59,6 +82,7 @@ import com.streamvault.domain.model.TimeshiftBackendPreference
 import com.streamvault.domain.manager.ParentalPinVerifier
 import com.streamvault.domain.manager.ParentalControlSessionState
 import com.streamvault.domain.manager.ParentalControlSessionStore
+import com.streamvault.domain.trakt.TraktFeaturePreferences
 import java.security.SecureRandom
 import javax.crypto.SecretKeyFactory
 import javax.crypto.spec.PBEKeySpec
@@ -68,13 +92,35 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.distinctUntilChanged
 import javax.inject.Inject
 import javax.inject.Singleton
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.io.File
+import java.security.MessageDigest
 import java.util.concurrent.atomic.AtomicLong
 
 private const val PREFERENCES_DATASTORE_NAME = "user_preferences"
+private const val SPORTS_EVENT_CHANNEL_PICK_PREFIX = "sports_event_channel_pick_"
+
+private fun sportsEventChannelPickKeyName(eventId: String): String {
+    val digest = MessageDigest.getInstance("SHA-256").digest(eventId.toByteArray(Charsets.UTF_8))
+    val hexDigits = "0123456789abcdef"
+    val suffix = buildString(digest.size * 2) {
+        digest.forEach { byte ->
+            val value = byte.toInt() and 0xff
+            append(hexDigits[value ushr 4])
+            append(hexDigits[value and 0x0f])
+        }
+    }
+    return SPORTS_EVENT_CHANNEL_PICK_PREFIX + suffix
+}
+
+data class SportsEventChannelPick(
+    val providerId: Long,
+    val channelId: Long,
+    val expiresAtMillis: Long,
+)
 
 private fun VodTrackPreferenceScope.storageKey(): String = when (this) {
     is VodTrackPreferenceScope.Movie -> "$providerId|movie|$contentId"
@@ -165,9 +211,11 @@ internal fun parseAppThemePreference(saved: String?): AppTheme = AppTheme.fromSt
 class PreferencesRepository @Inject constructor(
     @ApplicationContext private val context: Context,
     private val channelPreferenceDao: ChannelPreferenceDao,
+    private val playbackQualityPreferenceDao: PlaybackQualityPreferenceDao,
     private val searchHistoryDao: SearchHistoryDao,
     private val corruptionRecovery: PreferencesCorruptionRecovery
-) : ParentalControlSessionStore, ParentalPinVerifier, PlayerPreferences {
+) : ParentalControlSessionStore, ParentalPinVerifier, PlayerPreferences, TraktFeaturePreferences,
+    SportsEventSourceSettings, SportsScoreSourceSettings, SportsStandingsSourceSettings, SportsMetadataSourceSettings {
     private val preferencesDataStore: DataStore<Preferences> by lazy {
         PreferenceDataStoreFactory.create(
             corruptionHandler = ReplaceFileCorruptionHandler { cause ->
@@ -175,6 +223,174 @@ class PreferencesRepository @Inject constructor(
             },
             produceFile = { context.preferencesDataStoreFile(PREFERENCES_DATASTORE_NAME) }
         )
+    }
+
+    override val automaticSyncConfiguration: Flow<com.streamvault.domain.sync.AutomaticSyncConfiguration> = preferencesDataStore.data.map { values ->
+        val defaults = readAutomaticSyncSettings(values[stringPreferencesKey("automatic_sync_defaults")])
+        val providers = values.asMap().mapNotNull { (key, value) ->
+            key.name.removePrefix("automatic_sync_provider_").toLongOrNull()
+                ?.takeIf { key.name.startsWith("automatic_sync_provider_") }
+                ?.let { it to readAutomaticSyncSettings(value as? String) }
+        }.toMap()
+        com.streamvault.domain.sync.AutomaticSyncConfiguration(defaults, providers)
+    }
+
+    override val automaticSyncStatuses: Flow<Map<Long, com.streamvault.domain.sync.AutomaticSyncStatus>> = preferencesDataStore.data.map { values ->
+        values.asMap().mapNotNull { (key, value) ->
+            val id = key.name.takeIf { it.startsWith("automatic_sync_status_") }
+                ?.removePrefix("automatic_sync_status_")?.toLongOrNull() ?: return@mapNotNull null
+            runCatching { id to com.google.gson.Gson().fromJson(value as String, com.streamvault.domain.sync.AutomaticSyncStatus::class.java) }.getOrNull()
+        }.toMap()
+    }
+
+    fun getExcludedSports(): Flow<Set<String>> = preferencesDataStore.data.map {
+        it[stringSetPreferencesKey("sports_excluded_sports")].orEmpty()
+    }
+
+    fun getExcludedSportsLeagues(): Flow<Set<String>> = preferencesDataStore.data.map {
+        it[stringSetPreferencesKey("sports_excluded_leagues")].orEmpty()
+    }
+
+    suspend fun setSportsSportIncluded(sport: String, included: Boolean) {
+        preferencesDataStore.edit { values ->
+            val key = stringSetPreferencesKey("sports_excluded_sports")
+            values[key] = if (included) values[key].orEmpty() - sport else values[key].orEmpty() + sport
+        }
+    }
+
+    suspend fun setSportsLeagueIncluded(league: String, included: Boolean) {
+        preferencesDataStore.edit { values ->
+            val key = stringSetPreferencesKey("sports_excluded_leagues")
+            values[key] = if (included) values[key].orEmpty() - league else values[key].orEmpty() + league
+        }
+    }
+
+    suspend fun resetSportsInclusions() {
+        preferencesDataStore.edit { values ->
+            values.remove(stringSetPreferencesKey("sports_excluded_sports"))
+            values.remove(stringSetPreferencesKey("sports_excluded_leagues"))
+        }
+    }
+
+    override val eventSourcePreference: Flow<SportsEventSourcePreference> = preferencesDataStore.data.map { values ->
+        val mode = values[PreferencesKeys.SPORTS_EVENT_SOURCE_MODE]
+            ?.let { saved -> SportsEventSourceMode.entries.firstOrNull { it.name == saved } }
+            ?: SportsEventSourceMode.AUTOMATIC
+        val instanceId = values[PreferencesKeys.SPORTS_EVENT_SOURCE_INSTANCE_ID]
+            ?.takeIf { it.matches(Regex("[A-Za-z0-9][A-Za-z0-9._-]{0,127}")) }
+        when {
+            mode == SportsEventSourceMode.PROVIDER && instanceId != null ->
+                SportsEventSourcePreference.provider(instanceId)
+            mode == SportsEventSourceMode.EPG -> SportsEventSourcePreference.EPG
+            else -> SportsEventSourcePreference.AUTOMATIC
+        }
+    }
+
+    override suspend fun setEventSourcePreference(preference: SportsEventSourcePreference) {
+        preferencesDataStore.edit { values ->
+            values[PreferencesKeys.SPORTS_EVENT_SOURCE_MODE] = preference.mode.name
+            if (preference.mode == SportsEventSourceMode.PROVIDER) {
+                values[PreferencesKeys.SPORTS_EVENT_SOURCE_INSTANCE_ID] = requireNotNull(preference.providerInstanceId)
+            } else {
+                values.remove(PreferencesKeys.SPORTS_EVENT_SOURCE_INSTANCE_ID)
+            }
+        }
+    }
+
+    override val scoreSourcePreference: Flow<SportsScoreSourcePreference> = preferencesDataStore.data.map { values ->
+        val mode = values[PreferencesKeys.SPORTS_SCORE_SOURCE_MODE]
+            ?.let { saved -> SportsScoreSourceMode.entries.firstOrNull { it.name == saved } }
+            ?: SportsScoreSourceMode.AUTOMATIC
+        val instanceId = values[PreferencesKeys.SPORTS_SCORE_SOURCE_INSTANCE_ID]
+            ?.takeIf { it.matches(Regex("[A-Za-z0-9][A-Za-z0-9._-]{0,127}")) }
+        when {
+            mode == SportsScoreSourceMode.PROVIDER && instanceId != null ->
+                SportsScoreSourcePreference.provider(instanceId)
+            mode == SportsScoreSourceMode.OFF -> SportsScoreSourcePreference.OFF
+            else -> SportsScoreSourcePreference.AUTOMATIC
+        }
+    }
+
+    override suspend fun setScoreSourcePreference(preference: SportsScoreSourcePreference) {
+        preferencesDataStore.edit { values ->
+            values[PreferencesKeys.SPORTS_SCORE_SOURCE_MODE] = preference.mode.name
+            if (preference.mode == SportsScoreSourceMode.PROVIDER) {
+                values[PreferencesKeys.SPORTS_SCORE_SOURCE_INSTANCE_ID] = requireNotNull(preference.providerInstanceId)
+            } else {
+                values.remove(PreferencesKeys.SPORTS_SCORE_SOURCE_INSTANCE_ID)
+            }
+        }
+    }
+
+    override val standingsSourcePreference: Flow<SportsStandingsSourcePreference> = preferencesDataStore.data.map { values ->
+        val mode = values[PreferencesKeys.SPORTS_STANDINGS_SOURCE_MODE]
+            ?.let { saved -> SportsStandingsSourceMode.entries.firstOrNull { it.name == saved } }
+            ?: SportsStandingsSourceMode.AUTOMATIC
+        val instanceId = values[PreferencesKeys.SPORTS_STANDINGS_SOURCE_INSTANCE_ID]
+            ?.takeIf { it.matches(Regex("[A-Za-z0-9][A-Za-z0-9._-]{0,127}")) }
+        when {
+            mode == SportsStandingsSourceMode.PROVIDER && instanceId != null ->
+                SportsStandingsSourcePreference.provider(instanceId)
+            mode == SportsStandingsSourceMode.OFF -> SportsStandingsSourcePreference.OFF
+            else -> SportsStandingsSourcePreference.AUTOMATIC
+        }
+    }
+
+    override suspend fun setStandingsSourcePreference(preference: SportsStandingsSourcePreference) {
+        preferencesDataStore.edit { values ->
+            values[PreferencesKeys.SPORTS_STANDINGS_SOURCE_MODE] = preference.mode.name
+            if (preference.mode == SportsStandingsSourceMode.PROVIDER) {
+                values[PreferencesKeys.SPORTS_STANDINGS_SOURCE_INSTANCE_ID] = requireNotNull(preference.providerInstanceId)
+            } else {
+                values.remove(PreferencesKeys.SPORTS_STANDINGS_SOURCE_INSTANCE_ID)
+            }
+        }
+    }
+
+    override val metadataSourcePreference: Flow<SportsMetadataSourcePreference> = preferencesDataStore.data.map { values ->
+        val mode = values[PreferencesKeys.SPORTS_METADATA_SOURCE_MODE]
+            ?.let { saved -> SportsMetadataSourceMode.entries.firstOrNull { it.name == saved } }
+            ?: SportsMetadataSourceMode.AUTOMATIC
+        val instanceId = values[PreferencesKeys.SPORTS_METADATA_SOURCE_INSTANCE_ID]
+            ?.takeIf { it.matches(Regex("[A-Za-z0-9][A-Za-z0-9._-]{0,127}")) }
+        when {
+            mode == SportsMetadataSourceMode.PROVIDER && instanceId != null ->
+                SportsMetadataSourcePreference.provider(instanceId)
+            mode == SportsMetadataSourceMode.OFF -> SportsMetadataSourcePreference.OFF
+            else -> SportsMetadataSourcePreference.AUTOMATIC
+        }
+    }
+
+    override suspend fun setMetadataSourcePreference(preference: SportsMetadataSourcePreference) {
+        preferencesDataStore.edit { values ->
+            values[PreferencesKeys.SPORTS_METADATA_SOURCE_MODE] = preference.mode.name
+            if (preference.mode == SportsMetadataSourceMode.PROVIDER) {
+                values[PreferencesKeys.SPORTS_METADATA_SOURCE_INSTANCE_ID] = requireNotNull(preference.providerInstanceId)
+            } else {
+                values.remove(PreferencesKeys.SPORTS_METADATA_SOURCE_INSTANCE_ID)
+            }
+        }
+    }
+
+    private fun readAutomaticSyncSettings(json: String?): com.streamvault.domain.sync.AutomaticSyncSettings =
+        runCatching { com.google.gson.Gson().fromJson(json, com.streamvault.domain.sync.AutomaticSyncSettings::class.java)?.normalized() }.getOrNull()
+            ?: com.streamvault.domain.sync.AutomaticSyncSettings()
+
+    override suspend fun setAutomaticSyncSettings(providerId: Long?, settings: com.streamvault.domain.sync.AutomaticSyncSettings?) {
+        val key = if (providerId == null) stringPreferencesKey("automatic_sync_defaults") else stringPreferencesKey("automatic_sync_provider_$providerId")
+        preferencesDataStore.edit { values ->
+            if (settings == null) values.remove(key)
+            else values[key] = com.google.gson.Gson().toJson(settings.normalized())
+        }
+        // Update durable work immediately; the worker re-reads policy before each section.
+        com.streamvault.data.sync.ProviderSyncWorker.enqueuePeriodic(context)
+        com.streamvault.data.sync.ProviderSyncWorker.enqueueLaunchStaleCheck(context)
+    }
+
+    suspend fun recordAutomaticSyncStatus(providerId: Long, status: com.streamvault.domain.sync.AutomaticSyncStatus) {
+        preferencesDataStore.edit { values ->
+            values[stringPreferencesKey("automatic_sync_status_$providerId")] = com.google.gson.Gson().toJson(status)
+        }
     }
 
     private val Context.dataStore: DataStore<Preferences>
@@ -195,6 +411,7 @@ class PreferencesRepository @Inject constructor(
         val ACTIVE_LIVE_SOURCE_TYPE = stringPreferencesKey("active_live_source_type")
         val ACTIVE_LIVE_SOURCE_ID = longPreferencesKey("active_live_source_id")
         val DEFAULT_VIEW_MODE = stringPreferencesKey("default_view_mode")
+        val HIDE_STREMIO_ADDONS = booleanPreferencesKey("hide_stremio_addons")
         val PARENTAL_CONTROL_LEVEL = intPreferencesKey("parental_control_level")
         val PARENTAL_V2_MIGRATED = booleanPreferencesKey("parental_v2_migrated")
         val LEGACY_PARENTAL_PIN = stringPreferencesKey("parental_pin")
@@ -203,10 +420,19 @@ class PreferencesRepository @Inject constructor(
         val DEFAULT_CATEGORY_ID = longPreferencesKey("default_category_id")
         val APP_LANGUAGE = stringPreferencesKey("app_language")
         val APP_LANDING_DESTINATION = stringPreferencesKey("app_landing_destination")
+        val DONT_ASK_PROVIDER_SETUP_AGAIN = booleanPreferencesKey("dont_ask_provider_setup_again")
         val APP_TOP_LEVEL_DESTINATIONS = stringPreferencesKey("app_top_level_destinations")
         val APP_HOME_DASHBOARD_SHELVES = stringPreferencesKey("app_home_dashboard_shelves")
         val APP_TIME_FORMAT = stringPreferencesKey("app_time_format")
         val APP_THEME = stringPreferencesKey("app_theme")
+        val SPORTS_EVENT_SOURCE_MODE = stringPreferencesKey("sports_event_source_mode")
+        val SPORTS_EVENT_SOURCE_INSTANCE_ID = stringPreferencesKey("sports_event_source_instance_id")
+        val SPORTS_SCORE_SOURCE_MODE = stringPreferencesKey("sports_score_source_mode")
+        val SPORTS_SCORE_SOURCE_INSTANCE_ID = stringPreferencesKey("sports_score_source_instance_id")
+        val SPORTS_STANDINGS_SOURCE_MODE = stringPreferencesKey("sports_standings_source_mode")
+        val SPORTS_STANDINGS_SOURCE_INSTANCE_ID = stringPreferencesKey("sports_standings_source_instance_id")
+        val SPORTS_METADATA_SOURCE_MODE = stringPreferencesKey("sports_metadata_source_mode")
+        val SPORTS_METADATA_SOURCE_INSTANCE_ID = stringPreferencesKey("sports_metadata_source_instance_id")
         val LIVE_TV_CHANNEL_MODE = stringPreferencesKey("live_tv_channel_mode")
         val LIVE_TV_AUTO_HIDE_CATEGORIES = booleanPreferencesKey("live_tv_auto_hide_categories")
         val SHOW_LIVE_SOURCE_SWITCHER = booleanPreferencesKey("show_live_source_switcher")
@@ -226,6 +452,12 @@ class PreferencesRepository @Inject constructor(
         val VOD_TYPE_BADGE_AS_ICON = booleanPreferencesKey("vod_type_badge_as_icon")
         val VOD_INFINITE_SCROLL = booleanPreferencesKey("vod_infinite_scroll")
         val VOD_PORTAL_SEARCH = booleanPreferencesKey("vod_portal_search")
+        val SHOW_TRAKT_TRENDING_MOVIES = booleanPreferencesKey("show_trakt_trending_movies")
+        val SHOW_TRAKT_POPULAR_MOVIES = booleanPreferencesKey("show_trakt_popular_movies")
+        val SHOW_TRAKT_TRENDING_SERIES = booleanPreferencesKey("show_trakt_trending_series")
+        val SHOW_TRAKT_POPULAR_SERIES = booleanPreferencesKey("show_trakt_popular_series")
+        val TRAKT_SCROBBLING_ENABLED = booleanPreferencesKey("trakt_scrobbling_enabled")
+        val TRAKT_HISTORY_SYNC_ENABLED = booleanPreferencesKey("trakt_history_sync_enabled")
         val VOD_CATEGORY_LOAD_MODE = stringPreferencesKey("vod_category_load_mode")
         val VOD_DUPLICATE_HANDLING_MODE = stringPreferencesKey("vod_duplicate_handling_mode")
         val VOD_VARIANT_PREFERENCE_MODE = stringPreferencesKey("vod_variant_preference_mode")
@@ -272,6 +504,7 @@ class PreferencesRepository @Inject constructor(
         val PLAYER_SUBTITLE_TEXT_SCALE = stringPreferencesKey("player_subtitle_text_scale")
         val PLAYER_SUBTITLE_TEXT_COLOR = intPreferencesKey("player_subtitle_text_color")
         val PLAYER_SUBTITLE_BACKGROUND_COLOR = intPreferencesKey("player_subtitle_background_color")
+        val PINNED_SUBTITLE_LANGUAGES = stringPreferencesKey("pinned_subtitle_languages")
         val PLAYER_LIVE_TRANSLATION_ENABLED = booleanPreferencesKey("player_live_translation_enabled")
         val PLAYER_LIVE_TRANSLATION_ENDPOINT = stringPreferencesKey("player_live_translation_endpoint")
         val PLAYER_CONTROLS_TIMEOUT_SECONDS = intPreferencesKey("player_controls_timeout_seconds")
@@ -284,6 +517,11 @@ class PreferencesRepository @Inject constructor(
         val PLAYER_DIAGNOSTICS_TIMEOUT_SECONDS = intPreferencesKey("player_diagnostics_timeout_seconds")
         val PLAYER_WIFI_MAX_VIDEO_HEIGHT = intPreferencesKey("player_wifi_max_video_height")
         val PLAYER_ETHERNET_MAX_VIDEO_HEIGHT = intPreferencesKey("player_ethernet_max_video_height")
+        val PLAYER_QUALITY_PROFILE = stringPreferencesKey("player_quality_profile")
+        val PLAYER_QUALITY_CUSTOM_MAX_VIDEO_HEIGHT = intPreferencesKey("player_quality_custom_max_video_height")
+        val PLAYER_QUALITY_CUSTOM_MAX_VIDEO_BITRATE_BPS = longPreferencesKey("player_quality_custom_max_video_bitrate_bps")
+        val PLAYER_WIFI_MAX_VIDEO_BITRATE_BPS = longPreferencesKey("player_wifi_max_video_bitrate_bps")
+        val PLAYER_ETHERNET_MAX_VIDEO_BITRATE_BPS = longPreferencesKey("player_ethernet_max_video_bitrate_bps")
         val PLAYER_TIMESHIFT_ENABLED = booleanPreferencesKey("player_timeshift_enabled")
         val PLAYER_TIMESHIFT_DEPTH_MINUTES = intPreferencesKey("player_timeshift_depth_minutes")
         val PLAYER_TIMESHIFT_BACKEND = stringPreferencesKey("player_timeshift_backend")
@@ -574,6 +812,24 @@ class PreferencesRepository @Inject constructor(
         decodeVodTrackPreferences(preferences[PreferencesKeys.PLAYER_VOD_TRACK_GLOBAL_PREFERENCES])
     }
 
+    val vodTrackPreferencesByScope: Flow<Map<VodTrackPreferenceScope, VodTrackPreferences>> =
+        context.dataStore.data.map { preferences ->
+            decodeVodTrackPreferenceEntries(preferences[PreferencesKeys.PLAYER_VOD_TRACK_PREFERENCES])
+                .mapNotNull { (storageKey, trackPreferences) ->
+                    val parts = storageKey.split('|', limit = 3)
+                    if (parts.size != 3) return@mapNotNull null
+                    val providerId = parts[0].toLongOrNull()?.takeIf { it > 0L } ?: return@mapNotNull null
+                    val contentId = parts[2].toLongOrNull()?.takeIf { it > 0L } ?: return@mapNotNull null
+                    val scope = when (parts[1]) {
+                        "movie" -> VodTrackPreferenceScope.Movie(providerId, contentId)
+                        "series" -> VodTrackPreferenceScope.Series(providerId, contentId)
+                        else -> return@mapNotNull null
+                    }
+                    scope to trackPreferences
+                }
+                .toMap()
+        }
+
     override fun getVodTrackPreferences(scope: VodTrackPreferenceScope): Flow<VodTrackPreferences?> =
         context.dataStore.data.map { preferences ->
             decodeVodTrackPreferenceEntries(preferences[PreferencesKeys.PLAYER_VOD_TRACK_PREFERENCES])[
@@ -594,6 +850,13 @@ class PreferencesRepository @Inject constructor(
 
     override val playerSubtitleBackgroundColor: Flow<Int> = context.dataStore.data.map { preferences ->
         preferences[PreferencesKeys.PLAYER_SUBTITLE_BACKGROUND_COLOR] ?: 0x80000000.toInt()
+    }
+
+    override val pinnedSubtitleLanguages: Flow<List<String>> = context.dataStore.data.map { preferences ->
+        preferences[PreferencesKeys.PINNED_SUBTITLE_LANGUAGES]
+            ?.split('\n')
+            .orEmpty()
+            .let(SubtitleLanguageOrdering::normalizePinned)
     }
 
     override val playerLiveTranslationEnabled: Flow<Boolean> = context.dataStore.data.map { preferences ->
@@ -647,6 +910,40 @@ class PreferencesRepository @Inject constructor(
         preferences[PreferencesKeys.PLAYER_ETHERNET_MAX_VIDEO_HEIGHT]?.takeIf { it > 0 }
     }
 
+    override val playbackQualityPreferences: Flow<PlaybackQualityPreferences> = context.dataStore.data.map { preferences ->
+        val profile = preferences[PreferencesKeys.PLAYER_QUALITY_PROFILE]
+            ?.let { saved -> PlaybackQualityProfile.entries.firstOrNull { it.name == saved } }
+            ?: PlaybackQualityProfile.AUTO
+        PlaybackQualityPreferences(
+            profile = profile,
+            customLimit = PlaybackQualityLimit(
+                maxVideoHeight = preferences[PreferencesKeys.PLAYER_QUALITY_CUSTOM_MAX_VIDEO_HEIGHT],
+                maxVideoBitrateBps = preferences[PreferencesKeys.PLAYER_QUALITY_CUSTOM_MAX_VIDEO_BITRATE_BPS]
+            ),
+            wifiLimit = PlaybackQualityLimit(
+                maxVideoHeight = preferences[PreferencesKeys.PLAYER_WIFI_MAX_VIDEO_HEIGHT],
+                maxVideoBitrateBps = preferences[PreferencesKeys.PLAYER_WIFI_MAX_VIDEO_BITRATE_BPS]
+            ),
+            ethernetLimit = PlaybackQualityLimit(
+                maxVideoHeight = preferences[PreferencesKeys.PLAYER_ETHERNET_MAX_VIDEO_HEIGHT],
+                maxVideoBitrateBps = preferences[PreferencesKeys.PLAYER_ETHERNET_MAX_VIDEO_BITRATE_BPS]
+            )
+        ).normalized()
+    }.distinctUntilChanged()
+
+    override fun getPlaybackQualityPreference(
+        scope: PlaybackQualityPreferenceScope
+    ): Flow<ScopedPlaybackQualityPreference?> {
+        if (!scope.isValid()) return flowOf(null)
+        return playbackQualityPreferenceDao.observe(
+            providerId = scope.providerId,
+            scopeType = scope.type.storageValue,
+            scopeKey = scope.key
+        ).map { entity ->
+            entity?.takeIf { it.identityVersion == scope.identityVersion }?.toDomainPreference()
+        }.distinctUntilChanged()
+    }
+
     override val playerTimeshiftEnabled: Flow<Boolean> = context.dataStore.data.map { preferences ->
         preferences[PreferencesKeys.PLAYER_TIMESHIFT_ENABLED] ?: false
     }
@@ -694,14 +991,28 @@ class PreferencesRepository @Inject constructor(
 
     val recentSearchQueries: Flow<List<String>> = getRecentSearchQueries(SearchHistoryScope.ALL, null)
 
+    override val hideStremioAddons: Flow<Boolean> = context.dataStore.data.map { preferences ->
+        preferences[PreferencesKeys.HIDE_STREMIO_ADDONS] ?: false
+    }
+
+    override suspend fun setHideStremioAddons(hidden: Boolean) {
+        context.dataStore.edit { preferences ->
+            preferences[PreferencesKeys.HIDE_STREMIO_ADDONS] = hidden
+        }
+    }
+
     override val parentalControlLevel: Flow<Int> = context.dataStore.data
         .map { preferences ->
-            val stored = preferences[PreferencesKeys.PARENTAL_CONTROL_LEVEL] ?: 2 // Default to 2 = PRIVATE
+            val stored = preferences[PreferencesKeys.PARENTAL_CONTROL_LEVEL]
             // Migration: users who had the old HIDDEN level (stored as 2) are promoted to the new
             // HIDDEN level (3). The v2-migrated flag prevents re-mapping after the user explicitly
             // sets level 2 (PRIVATE) in the new scheme.
             val migrated = preferences[PreferencesKeys.PARENTAL_V2_MIGRATED] ?: false
-            if (!migrated && stored == 2) 3 else stored
+            when {
+                stored == null -> 1 // Default to 1 = LOCKED
+                !migrated && stored == 2 -> 3
+                else -> stored
+            }
         }
 
     override val hasParentalPin: Flow<Boolean> = context.dataStore.data.map(::hasStoredParentalPin)
@@ -1282,6 +1593,20 @@ class PreferencesRepository @Inject constructor(
         }
     }
 
+    suspend fun clearVodTrackPreferencesForProvider(providerId: Long) {
+        if (providerId <= 0L) return
+        context.dataStore.edit { values ->
+            val updated = decodeVodTrackPreferenceEntries(
+                values[PreferencesKeys.PLAYER_VOD_TRACK_PREFERENCES]
+            ).filterKeys { key -> key.substringBefore('|').toLongOrNull() != providerId }
+            if (updated.isEmpty()) {
+                values.remove(PreferencesKeys.PLAYER_VOD_TRACK_PREFERENCES)
+            } else {
+                values[PreferencesKeys.PLAYER_VOD_TRACK_PREFERENCES] = encodeVodTrackPreferenceEntries(updated)
+            }
+        }
+    }
+
     override suspend fun setPlayerSubtitleTextScale(scale: Float) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.PLAYER_SUBTITLE_TEXT_SCALE] = scale.coerceIn(0.75f, 1.75f).toString()
@@ -1297,6 +1622,17 @@ class PreferencesRepository @Inject constructor(
     override suspend fun setPlayerSubtitleBackgroundColor(colorArgb: Int) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.PLAYER_SUBTITLE_BACKGROUND_COLOR] = colorArgb
+        }
+    }
+
+    override suspend fun setPinnedSubtitleLanguages(languages: List<String>) {
+        context.dataStore.edit { preferences ->
+            val normalized = SubtitleLanguageOrdering.normalizePinned(languages)
+            if (normalized.isEmpty()) {
+                preferences.remove(PreferencesKeys.PINNED_SUBTITLE_LANGUAGES)
+            } else {
+                preferences[PreferencesKeys.PINNED_SUBTITLE_LANGUAGES] = normalized.joinToString("\n")
+            }
         }
     }
 
@@ -1363,6 +1699,64 @@ class PreferencesRepository @Inject constructor(
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.PLAYER_DIAGNOSTICS_TIMEOUT_SECONDS] = seconds.coerceIn(2, 60)
         }
+    }
+
+    override suspend fun setPlaybackQualityPreferences(preferences: PlaybackQualityPreferences) {
+        val normalized = preferences.normalized()
+        context.dataStore.edit { values ->
+            values[PreferencesKeys.PLAYER_QUALITY_PROFILE] = normalized.profile.name
+            normalized.customLimit.maxVideoHeight?.let {
+                values[PreferencesKeys.PLAYER_QUALITY_CUSTOM_MAX_VIDEO_HEIGHT] = it
+            } ?: values.remove(PreferencesKeys.PLAYER_QUALITY_CUSTOM_MAX_VIDEO_HEIGHT)
+            normalized.customLimit.maxVideoBitrateBps?.let {
+                values[PreferencesKeys.PLAYER_QUALITY_CUSTOM_MAX_VIDEO_BITRATE_BPS] = it
+            } ?: values.remove(PreferencesKeys.PLAYER_QUALITY_CUSTOM_MAX_VIDEO_BITRATE_BPS)
+            normalized.wifiLimit.maxVideoHeight?.let {
+                values[PreferencesKeys.PLAYER_WIFI_MAX_VIDEO_HEIGHT] = it
+            } ?: values.remove(PreferencesKeys.PLAYER_WIFI_MAX_VIDEO_HEIGHT)
+            normalized.wifiLimit.maxVideoBitrateBps?.let {
+                values[PreferencesKeys.PLAYER_WIFI_MAX_VIDEO_BITRATE_BPS] = it
+            } ?: values.remove(PreferencesKeys.PLAYER_WIFI_MAX_VIDEO_BITRATE_BPS)
+            normalized.ethernetLimit.maxVideoHeight?.let {
+                values[PreferencesKeys.PLAYER_ETHERNET_MAX_VIDEO_HEIGHT] = it
+            } ?: values.remove(PreferencesKeys.PLAYER_ETHERNET_MAX_VIDEO_HEIGHT)
+            normalized.ethernetLimit.maxVideoBitrateBps?.let {
+                values[PreferencesKeys.PLAYER_ETHERNET_MAX_VIDEO_BITRATE_BPS] = it
+            } ?: values.remove(PreferencesKeys.PLAYER_ETHERNET_MAX_VIDEO_BITRATE_BPS)
+        }
+    }
+
+    override suspend fun setPlaybackQualityPreference(
+        scope: PlaybackQualityPreferenceScope,
+        preference: ScopedPlaybackQualityPreference
+    ) {
+        if (!scope.isValid()) return
+        val normalized = preference.normalizedForStorage()
+        if (normalized == null) {
+            clearPlaybackQualityPreference(scope)
+            return
+        }
+        playbackQualityPreferenceDao.upsert(
+            PlaybackQualityPreferenceEntity(
+                providerId = scope.providerId,
+                scopeType = scope.type.storageValue,
+                scopeKey = scope.key,
+                identityVersion = scope.identityVersion,
+                heightOverride = normalized.heightOverride,
+                maxVideoHeight = normalized.maxVideoHeight,
+                bitrateOverride = normalized.bitrateOverride,
+                maxVideoBitrateBps = normalized.maxVideoBitrateBps
+            )
+        )
+    }
+
+    override suspend fun clearPlaybackQualityPreference(scope: PlaybackQualityPreferenceScope) {
+        if (!scope.isValid()) return
+        playbackQualityPreferenceDao.delete(
+            providerId = scope.providerId,
+            scopeType = scope.type.storageValue,
+            scopeKey = scope.key
+        )
     }
 
     override suspend fun setPlayerWifiMaxVideoHeight(maxHeight: Int?) {
@@ -1672,6 +2066,10 @@ class PreferencesRepository @Inject constructor(
         AppLandingDestination.fromStorage(preferences[PreferencesKeys.APP_LANDING_DESTINATION])
     }
 
+    val dontAskProviderSetupAgain: Flow<Boolean> = context.dataStore.data
+        .map { preferences -> preferences[PreferencesKeys.DONT_ASK_PROVIDER_SETUP_AGAIN] ?: false }
+        .distinctUntilChanged()
+
     override val appTopLevelDestinations: Flow<List<AppTopLevelDestination>> = context.dataStore.data.map { preferences ->
         decodeAppTopLevelDestinations(preferences[PreferencesKeys.APP_TOP_LEVEL_DESTINATIONS])
     }
@@ -1683,6 +2081,12 @@ class PreferencesRepository @Inject constructor(
     override suspend fun setAppLandingDestination(destination: AppLandingDestination) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.APP_LANDING_DESTINATION] = destination.storageValue
+        }
+    }
+
+    suspend fun setDontAskProviderSetupAgain(dontAskAgain: Boolean) {
+        context.dataStore.edit { preferences ->
+            preferences[PreferencesKeys.DONT_ASK_PROVIDER_SETUP_AGAIN] = dontAskAgain
         }
     }
 
@@ -2037,6 +2441,66 @@ class PreferencesRepository @Inject constructor(
         }
     }
 
+    override val showTraktTrendingMovies: Flow<Boolean> = context.dataStore.data.map { preferences ->
+        preferences[PreferencesKeys.SHOW_TRAKT_TRENDING_MOVIES] ?: true
+    }
+
+    override suspend fun setShowTraktTrendingMovies(enabled: Boolean) {
+        context.dataStore.edit { preferences ->
+            preferences[PreferencesKeys.SHOW_TRAKT_TRENDING_MOVIES] = enabled
+        }
+    }
+
+    override val showTraktPopularMovies: Flow<Boolean> = context.dataStore.data.map { preferences ->
+        preferences[PreferencesKeys.SHOW_TRAKT_POPULAR_MOVIES] ?: true
+    }
+
+    override suspend fun setShowTraktPopularMovies(enabled: Boolean) {
+        context.dataStore.edit { preferences ->
+            preferences[PreferencesKeys.SHOW_TRAKT_POPULAR_MOVIES] = enabled
+        }
+    }
+
+    override val showTraktTrendingSeries: Flow<Boolean> = context.dataStore.data.map { preferences ->
+        preferences[PreferencesKeys.SHOW_TRAKT_TRENDING_SERIES] ?: true
+    }
+
+    override suspend fun setShowTraktTrendingSeries(enabled: Boolean) {
+        context.dataStore.edit { preferences ->
+            preferences[PreferencesKeys.SHOW_TRAKT_TRENDING_SERIES] = enabled
+        }
+    }
+
+    override val showTraktPopularSeries: Flow<Boolean> = context.dataStore.data.map { preferences ->
+        preferences[PreferencesKeys.SHOW_TRAKT_POPULAR_SERIES] ?: true
+    }
+
+    override suspend fun setShowTraktPopularSeries(enabled: Boolean) {
+        context.dataStore.edit { preferences ->
+            preferences[PreferencesKeys.SHOW_TRAKT_POPULAR_SERIES] = enabled
+        }
+    }
+
+    override val scrobblingEnabled: Flow<Boolean> = context.dataStore.data.map { preferences ->
+        preferences[PreferencesKeys.TRAKT_SCROBBLING_ENABLED] ?: true
+    }
+
+    override suspend fun setScrobblingEnabled(enabled: Boolean) {
+        context.dataStore.edit { preferences ->
+            preferences[PreferencesKeys.TRAKT_SCROBBLING_ENABLED] = enabled
+        }
+    }
+
+    override val historySyncEnabled: Flow<Boolean> = context.dataStore.data.map { preferences ->
+        preferences[PreferencesKeys.TRAKT_HISTORY_SYNC_ENABLED] ?: true
+    }
+
+    override suspend fun setHistorySyncEnabled(enabled: Boolean) {
+        context.dataStore.edit { preferences ->
+            preferences[PreferencesKeys.TRAKT_HISTORY_SYNC_ENABLED] = enabled
+        }
+    }
+
     override val vodCategoryLoadMode: Flow<com.streamvault.domain.model.VodCategoryLoadMode> =
         context.dataStore.data.map { preferences ->
             com.streamvault.domain.model.VodCategoryLoadMode.fromStorage(
@@ -2278,6 +2742,67 @@ class PreferencesRepository @Inject constructor(
             } else {
                 preferences[key] = channelIds.sorted().joinToString(",")
             }
+        }
+    }
+
+    suspend fun getSportsEventChannelPicks(
+        eventIds: Set<String>,
+        nowMillis: Long = System.currentTimeMillis(),
+    ): Map<String, SportsEventChannelPick> {
+        if (eventIds.isEmpty()) return emptyMap()
+        val eventIdByKeyName = eventIds.associateBy(::sportsEventChannelPickKeyName)
+        val values = context.dataStore.data.first()
+        val picks = linkedMapOf<String, SportsEventChannelPick>()
+        val keysToRemove = mutableSetOf<String>()
+        values.asMap().forEach { (key, value) ->
+            if (!key.name.startsWith(SPORTS_EVENT_CHANNEL_PICK_PREFIX)) return@forEach
+            val encoded = value as? String
+            val pick = encoded?.split('|')?.takeIf { it.size == 3 }?.let { parts ->
+                val providerId = parts[0].toLongOrNull()
+                val channelId = parts[1].toLongOrNull()
+                val expiresAtMillis = parts[2].toLongOrNull()
+                if (providerId != null && channelId != null && expiresAtMillis != null) {
+                    SportsEventChannelPick(providerId, channelId, expiresAtMillis)
+                } else {
+                    null
+                }
+            }
+            if (pick == null || pick.expiresAtMillis <= nowMillis) {
+                keysToRemove += key.name
+                return@forEach
+            }
+            eventIdByKeyName[key.name]?.let { eventId -> picks[eventId] = pick }
+        }
+        if (keysToRemove.isNotEmpty()) {
+            context.dataStore.edit { preferences ->
+                keysToRemove.forEach { keyName ->
+                    preferences.remove(stringPreferencesKey(keyName))
+                }
+            }
+        }
+        return picks
+    }
+
+    suspend fun saveSportsEventChannelPick(
+        eventId: String,
+        providerId: Long,
+        channelId: Long,
+        expiresAtMillis: Long,
+    ) {
+        require(eventId.isNotBlank())
+        require(providerId > 0L)
+        require(channelId > 0L)
+        require(expiresAtMillis > 0L)
+        context.dataStore.edit { preferences ->
+            preferences[stringPreferencesKey(sportsEventChannelPickKeyName(eventId))] =
+                "$providerId|$channelId|$expiresAtMillis"
+        }
+    }
+
+    suspend fun forgetSportsEventChannelPick(eventId: String) {
+        if (eventId.isBlank()) return
+        context.dataStore.edit { preferences ->
+            preferences.remove(stringPreferencesKey(sportsEventChannelPickKeyName(eventId)))
         }
     }
 
@@ -2759,6 +3284,54 @@ class PreferencesRepository @Inject constructor(
 
     private fun xtreamTextImportAppliedGenerationKey(providerId: Long): String =
         "xtream_text_import_applied_generation_$providerId"
+}
+
+private data class StoredPlaybackQualityPreference(
+    val heightOverride: String,
+    val maxVideoHeight: Int?,
+    val bitrateOverride: String,
+    val maxVideoBitrateBps: Long?
+)
+
+private fun ScopedPlaybackQualityPreference.normalizedForStorage(): StoredPlaybackQualityPreference? {
+    fun height(value: QualityLimitOverride<Int>): Pair<String, Int?> = when (value) {
+        QualityLimitOverride.Inherit -> "INHERIT" to null
+        QualityLimitOverride.NoAdditionalLimit -> "NO_ADDITIONAL_LIMIT" to null
+        is QualityLimitOverride.Maximum -> value.value.takeIf { it > 0 }
+            ?.let { "MAXIMUM" to it }
+            ?: ("INHERIT" to null)
+    }
+
+    fun bitrate(value: QualityLimitOverride<Long>): Pair<String, Long?> = when (value) {
+        QualityLimitOverride.Inherit -> "INHERIT" to null
+        QualityLimitOverride.NoAdditionalLimit -> "NO_ADDITIONAL_LIMIT" to null
+        is QualityLimitOverride.Maximum -> value.value.takeIf { it > 0L }
+            ?.let { "MAXIMUM" to it }
+            ?: ("INHERIT" to null)
+    }
+
+    val (heightMode, heightValue) = height(maxVideoHeight)
+    val (bitrateMode, bitrateValue) = bitrate(maxVideoBitrateBps)
+    if (heightMode == "INHERIT" && bitrateMode == "INHERIT") return null
+    return StoredPlaybackQualityPreference(heightMode, heightValue, bitrateMode, bitrateValue)
+}
+
+internal fun PlaybackQualityPreferenceEntity.toDomainPreference(): ScopedPlaybackQualityPreference {
+    val height = when (heightOverride) {
+        "NO_ADDITIONAL_LIMIT" -> QualityLimitOverride.NoAdditionalLimit
+        "MAXIMUM" -> maxVideoHeight?.takeIf { it > 0 }
+            ?.let { QualityLimitOverride.Maximum(it) }
+            ?: QualityLimitOverride.Inherit
+        else -> QualityLimitOverride.Inherit
+    }
+    val bitrate = when (bitrateOverride) {
+        "NO_ADDITIONAL_LIMIT" -> QualityLimitOverride.NoAdditionalLimit
+        "MAXIMUM" -> maxVideoBitrateBps?.takeIf { it > 0L }
+            ?.let { QualityLimitOverride.Maximum(it) }
+            ?: QualityLimitOverride.Inherit
+        else -> QualityLimitOverride.Inherit
+    }
+    return ScopedPlaybackQualityPreference(height, bitrate)
 }
 
 data class ParentalPinBackupData(

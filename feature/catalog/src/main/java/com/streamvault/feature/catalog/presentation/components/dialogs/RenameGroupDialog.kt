@@ -1,5 +1,7 @@
 ﻿package com.streamvault.feature.catalog.presentation.components.dialogs
 
+import com.streamvault.core.ui.design.browsePrimaryButtonColors
+import com.streamvault.core.ui.design.BrowseShapes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -9,7 +11,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.runtime.Composable
@@ -41,15 +42,15 @@ import androidx.tv.material3.Surface
 import androidx.tv.material3.SurfaceDefaults
 import androidx.tv.material3.Text
 import com.streamvault.core.ui.design.requestFocusSafely
-import com.streamvault.core.ui.design.FocusSpec
+import com.streamvault.core.ui.design.BrowseFocusSpec as FocusSpec
 import com.streamvault.feature.catalog.R
 import com.streamvault.core.ui.device.rememberIsTelevisionDevice
 import com.streamvault.core.ui.interaction.mouseClickable
-import com.streamvault.core.ui.theme.FocusBorder
-import com.streamvault.core.ui.theme.OnSurface
-import com.streamvault.core.ui.theme.OnSurfaceDim
-import com.streamvault.core.ui.theme.Primary
-import com.streamvault.core.ui.theme.SurfaceElevated
+import com.streamvault.core.ui.design.browse.FocusBorder
+import com.streamvault.core.ui.design.browse.OnSurface
+import com.streamvault.core.ui.design.browse.OnSurfaceDim
+import com.streamvault.core.ui.design.browse.Primary
+import com.streamvault.core.ui.design.browse.SurfaceElevated
 
 @Composable
 fun RenameGroupDialog(
@@ -83,7 +84,7 @@ fun RenameGroupDialog(
         val dialogContent: @Composable (Modifier) -> Unit = { resolvedModifier ->
             Surface(
                 modifier = resolvedModifier,
-                shape = RoundedCornerShape(24.dp),
+                shape = BrowseShapes.Panel,
                 colors = SurfaceDefaults.colors(containerColor = SurfaceElevated)
             ) {
                 Column(
@@ -184,12 +185,7 @@ fun RenameGroupDialog(
                             enabled = canInteract && value.trim().isNotEmpty(),
                             onClick = renameHandler
                         ),
-                        colors = ButtonDefaults.colors(
-                            containerColor = Primary,
-                            contentColor = Color.White,
-                            focusedContainerColor = Primary.copy(alpha = 0.84f),
-                            focusedContentColor = Color.White
-                        ),
+                        colors = browsePrimaryButtonColors(),
                         border = ButtonDefaults.border(
                             focusedBorder = Border(
                                 border = BorderStroke(FocusSpec.BorderWidth, FocusBorder)

@@ -1,0 +1,18 @@
+<resources>
+    <string name="vod_subtitle_sources">Burimet</string>
+    <string name="vod_subtitle_settings">Cilësimet</string>
+    <string name="vod_subtitle_provider">Titrat e ofruesit</string>
+    <string name="vod_subtitle_provider_hint">Zgjidh një pistë titrash nga ky video</string>
+    <string name="vod_subtitle_online">OpenSubtitles</string>
+    <string name="vod_subtitle_online_hint">Gjej titra online</string>
+    <string name="vod_subtitle_online_unavailable">Kërkimi online nuk disponohet për këtë video</string>
+    <string name="vod_subtitle_device_hint">Zgjidh një skedar SRT</string>
+    <string name="vod_subtitle_back">Kthehu te burimet</string>
+    <string name="vod_tracks_empty">Nuk ka pista të disponueshme në këtë video</string>
+    <string name="vod_subtitle_preview">Ky është një rresht titrash.</string>
+    <string name="vod_subtitle_font_size">Madhësia e shkronjave</string>
+    <string name="vod_subtitle_background">Opaciteti i sfondit</string>
+    <string name="vod_subtitle_background_hint" formatted="false">0% transparent · 100% e zezë e plotë</string>
+    <string name="vod_subtitle_decrease_setting">Zvogëlo %1$s</string>
+    <string name="vod_subtitle_increase_setting">Rrit %1$s</string>
+</resources>

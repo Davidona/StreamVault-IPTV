@@ -1,5 +1,6 @@
 package com.streamvault.feature.provider.setup
 
+import com.streamvault.core.ui.design.browseBackdrop
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.AnimatedVisibility
@@ -19,7 +20,6 @@ import androidx.compose.foundation.relocation.bringIntoViewRequester
 import com.streamvault.core.ui.interaction.mouseClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
@@ -39,7 +39,6 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusEvent
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.asImageBitmap
@@ -83,7 +82,7 @@ import com.streamvault.core.ui.progress.extractProgressFraction
 import com.streamvault.core.ui.interaction.TvButton
 import com.streamvault.core.ui.interaction.TvClickableSurface
 import com.streamvault.core.ui.components.shell.StatusPill
-import com.streamvault.core.ui.theme.*
+import com.streamvault.core.ui.design.browse.*
 import com.streamvault.domain.model.StalkerCompatibilityRegistry
 import com.streamvault.domain.model.StalkerCatalogMode
 import com.streamvault.domain.model.StalkerCompatibilityProfileIds
@@ -131,6 +130,10 @@ fun ProviderSetupScreen(
     val context = LocalContext.current
     val fileImportFailedMessage = stringResource(R.string.setup_file_import_failed)
     val coroutineScope = rememberCoroutineScope()
+
+    DisposableEffect(viewModel) {
+        onDispose { viewModel.stopPhonePairing() }
+    }
 
     // ?? Local form state ??????????????????????????????????????????????????????
     var selectedTab by rememberSaveable { mutableStateOf(0) }
@@ -401,7 +404,7 @@ fun ProviderSetupScreen(
     BoxWithConstraints(
         modifier = Modifier
             .fillMaxSize()
-            .background(Brush.verticalGradient(colors = listOf(BackgroundDeep, Background, Surface)))
+            .browseBackdrop()
     ) {
         val isWide = maxWidth >= 700.dp
         val hPad = if (isWide) 24.dp else 16.dp
@@ -560,12 +563,21 @@ fun ProviderSetupScreen(
         }
     }
 
-    if (uiState.syncProgress != null) {
+    val isPhonePairingSubmitting = pairingState.status == ProviderQrPairingStatus.RECEIVING
+    if (uiState.syncProgress != null || isPhonePairingSubmitting) {
         SyncProgressDialog(
-            message = uiState.syncProgress!!,
-            quickConnectCode = if (uiState.jellyfinQuickConnectCode.isNotBlank()) uiState.jellyfinQuickConnectCode else null,
-            serverUrl = serverUrl,
-            onCancel = when {
+            message = if (isPhonePairingSubmitting) {
+                pairingState.message ?: stringResource(R.string.setup_phone_pairing_receiving)
+            } else {
+                uiState.syncProgress.orEmpty()
+            },
+            quickConnectCode = if (!isPhonePairingSubmitting && uiState.jellyfinQuickConnectCode.isNotBlank()) {
+                uiState.jellyfinQuickConnectCode
+            } else {
+                null
+            },
+            serverUrl = serverUrl.takeIf { !isPhonePairingSubmitting },
+            onCancel = if (isPhonePairingSubmitting) null else when {
                 uiState.jellyfinQuickConnectCode.isNotBlank() ->
                     ({ viewModel.cancelJellyfinQuickConnect() })
                 uiState.selectedTab == 1 && uiState.isLoading ->
@@ -589,6 +601,7 @@ fun ProviderSetupScreen(
             onImportPlaybackHistoryChanged = { viewModel.setImportPlaybackHistory(it) },
             onImportMultiViewChanged = { viewModel.setImportMultiViewPresets(it) },
             onImportRecordingSchedulesChanged = { viewModel.setImportRecordingSchedules(it) },
+            onImportStremioAddonsChanged = { viewModel.setImportStremioAddons(it) },
             isImporting = uiState.isImportingBackup,
             onConfirm = { viewModel.confirmBackupImport() }
             )
@@ -628,6 +641,8 @@ uiState.stalkerTransportChallenge?.let { challenge ->
             title = title,
             subtitle = body,
             onDismissRequest = viewModel::dismissStalkerTransportChallenge,
+            smallScreenWidthFraction = 0.84f,
+            heightFraction = null,
             content = {},
             footer = {
                 PremiumDialogFooterButton(
@@ -648,6 +663,8 @@ uiState.stalkerTransportChallenge?.let { challenge ->
             title = stringResource(R.string.stalker_verification_inconclusive_title),
             subtitle = stringResource(R.string.stalker_verification_inconclusive_body),
             onDismissRequest = viewModel::dismissStalkerVerificationInconclusive,
+            smallScreenWidthFraction = 0.84f,
+            heightFraction = null,
             content = {},
             footer = {
                 PremiumDialogFooterButton(

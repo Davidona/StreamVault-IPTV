@@ -1,11 +1,16 @@
 package com.streamvault.feature.playback.player
 
 import android.graphics.Bitmap
+import com.streamvault.core.navigation.StremioPlaybackReference
+import com.streamvault.core.navigation.StremioSubtitlePlaybackSource
 import com.streamvault.domain.model.Channel
 import com.streamvault.domain.model.ChannelQualityOption
 import com.streamvault.domain.model.ContentType
 import com.streamvault.domain.model.AppTimeFormat
 import com.streamvault.domain.model.Episode
+import com.streamvault.domain.model.ExternalSubtitle
+import com.streamvault.domain.model.ExternalSubtitleLanguage
+import com.streamvault.domain.manager.OpenSubtitlesAccount
 import com.streamvault.domain.model.ExternalPlaybackMode
 import com.streamvault.domain.model.LiveClockFont
 import com.streamvault.domain.model.LiveClockPosition
@@ -14,6 +19,7 @@ import com.streamvault.domain.model.PlayerBackButtonVisibility
 import com.streamvault.domain.model.Season
 import com.streamvault.domain.model.Series
 import com.streamvault.domain.model.DecoderMode
+import com.streamvault.domain.settings.PlaybackQualityConstraintSource
 import com.streamvault.player.timeshift.LiveTimeshiftState
 import java.util.Locale
 
@@ -27,6 +33,25 @@ data class NumericChannelInputState(
     val input: String = "",
     val matchedChannelName: String? = null,
     val invalid: Boolean = false
+)
+
+enum class ExternalSubtitleSearchStage {
+    LANGUAGES,
+    RESULTS
+}
+
+data class ExternalSubtitleSearchUiState(
+    val account: OpenSubtitlesAccount? = null,
+    val stage: ExternalSubtitleSearchStage = ExternalSubtitleSearchStage.LANGUAGES,
+    val isLoadingLanguages: Boolean = false,
+    val languages: List<ExternalSubtitleLanguage> = emptyList(),
+    val selectedLanguageCode: String? = null,
+    val selectedLanguageName: String? = null,
+    val isSearching: Boolean = false,
+    val subtitles: List<ExternalSubtitle> = emptyList(),
+    val errorMessage: String? = null,
+    val downloadingSubtitleId: String? = null,
+    val appliedSubtitleName: String? = null,
 )
 
 data class PlayerNoticeState(
@@ -71,6 +96,7 @@ data class PlayerDiagnosticsUiState(
     val renderSurfaceType: String = "SURFACE_VIEW",
     val videoStallCount: Int = 0,
     val lastVideoFrameAgoMs: Long = 0,
+    val qualityPolicySources: Set<PlaybackQualityConstraintSource> = emptySet(),
     val streamClassLabel: String = "Primary",
     val playbackStateLabel: String = "Idle",
     val audioVideoOffsetMs: Int = 0,
@@ -145,7 +171,10 @@ data class PlayerPrepareIdentity(
     val combinedSourceFilterProviderId: Long?,
     val contentType: String,
     val archiveStartMs: Long?,
-    val archiveEndMs: Long?
+    val archiveEndMs: Long?,
+    val stremioPlaybackReference: StremioPlaybackReference? = null,
+    val stremioMediaRequestHeaders: Map<String, String> = emptyMap(),
+    val stremioInlineSubtitles: List<StremioSubtitlePlaybackSource> = emptyList()
 )
 
 internal fun buildPlayerPrepareIdentity(
@@ -159,7 +188,10 @@ internal fun buildPlayerPrepareIdentity(
     combinedSourceFilterProviderId: Long?,
     contentType: String,
     archiveStartMs: Long?,
-    archiveEndMs: Long?
+    archiveEndMs: Long?,
+    stremioPlaybackReference: StremioPlaybackReference? = null,
+    stremioMediaRequestHeaders: Map<String, String> = emptyMap(),
+    stremioInlineSubtitles: List<StremioSubtitlePlaybackSource> = emptyList()
 ): PlayerPrepareIdentity = PlayerPrepareIdentity(
     streamUrl = streamUrl,
     epgChannelId = epgChannelId,
@@ -171,7 +203,10 @@ internal fun buildPlayerPrepareIdentity(
     combinedSourceFilterProviderId = combinedSourceFilterProviderId?.takeIf { it > 0L },
     contentType = contentType,
     archiveStartMs = archiveStartMs,
-    archiveEndMs = archiveEndMs
+    archiveEndMs = archiveEndMs,
+    stremioPlaybackReference = stremioPlaybackReference,
+    stremioMediaRequestHeaders = stremioMediaRequestHeaders,
+    stremioInlineSubtitles = stremioInlineSubtitles
 )
 
 internal fun hasArchivePlaybackIdentity(

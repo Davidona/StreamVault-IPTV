@@ -10,6 +10,8 @@
     <string name="nav_epg">Guide</string>
     <string name="nav_settings">Settings</string>
     <string name="nav_plugins">Plugins</string>
+    <string name="nav_addons">Stremio-compatible Add-ons</string>
+    <string name="nav_extensions">Extensions</string>
     <string name="nav_close_app">Close app</string>
 
     
@@ -340,4 +342,8 @@
     <string name="downloads_delete_confirm">Delete this download?</string>
     <string name="download_play_local">Play</string>
     <string name="nav_vod">VOD</string>
+    <string name="torrent_playback_start_failed">Torrent playback could not be started. Please try again.</string>
+    <string name="torrent_cache_capacity_reached">Torrent playback reached its temporary storage limit. Clear the cache or free device storage, then try again.</string>
+    <string name="torrent_storage_check_failed">Available storage could not be checked. Torrent playback cannot continue safely.</string>
+    <string name="nav_sports">Sports</string>
 </resources>

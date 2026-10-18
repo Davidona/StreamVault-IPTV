@@ -1,0 +1,11 @@
+{
+  "lookup": [
+    {"idEvent":"2070217","strChannel":"Sky Sports Main Event HD","strCountry":"United Kingdom","strLogo":"https://image.invalid/not-licensed.png"},
+    {"idEvent":"2070217","strChannel":"Sky Sports Main Event HD","strCountry":"United Kingdom"},
+    {"idEvent":"2070217","strChannel":"Sky Sports Main Event HD","strCountry":"Ireland"},
+    {"idEvent":"2070217","strChannel":"Peacock","strCountry":"United States"},
+    {"idEvent":"2070217","strChannel":"Unknown Station","strCountry":null},
+    {"idEvent":"999","strChannel":"Wrong Event"},
+    {"idEvent":"2070217","strChannel":null}
+  ]
+}

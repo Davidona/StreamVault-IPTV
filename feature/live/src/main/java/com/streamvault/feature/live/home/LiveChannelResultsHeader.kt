@@ -29,8 +29,8 @@ import androidx.tv.material3.Text
 import com.streamvault.core.ui.components.SearchInput
 import com.streamvault.core.ui.components.shell.ContentMetadataStrip
 import com.streamvault.core.ui.interaction.TvIconButton
-import com.streamvault.core.ui.theme.OnBackground
-import com.streamvault.core.ui.theme.OnSurfaceDim
+import com.streamvault.core.ui.design.browse.OnBackground
+import com.streamvault.core.ui.design.browse.OnSurfaceDim
 
 @Composable
 fun LiveChannelResultsHeader(

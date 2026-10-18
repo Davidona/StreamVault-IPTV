@@ -11,6 +11,18 @@ private const val AUTO_PLAY_COUNTDOWN_SECONDS = 10
 
 internal suspend fun PlayerViewModel.persistPlaybackCompletion() {
     val durationMs = playerEngine.duration.value
+    if (currentStremioPlaybackReference != null) {
+        val history = buildStremioPlaybackHistorySnapshot(
+            positionMs = durationMs.coerceAtLeast(playerEngine.currentPosition.value),
+            durationMs = durationMs,
+            watched = true
+        ) ?: return
+        logRepositoryFailure(
+            operation = "Mark Stremio playback watched",
+            result = playbackHistoryCoordinator.saveStremioPlaybackHistory(history)
+        )
+        return
+    }
     val completedHistory = buildPlaybackHistorySnapshot(
         positionMs = durationMs.coerceAtLeast(playerEngine.currentPosition.value),
         durationMs = durationMs

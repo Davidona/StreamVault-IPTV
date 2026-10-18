@@ -1,0 +1,22 @@
+{
+  "subtitles": [
+    {
+      "id": "sub-1",
+      "url": "https://subs.example.test/srt/tt0111161.en.srt",
+      "lang": "eng"
+    },
+    {
+      "id": "sub-2",
+      "url": "https://subs.example.test/srt/tt0111161.ger.srt",
+      "lang": "ger"
+    },
+    {
+      "id": "sub-3",
+      "url": "",
+      "lang": "fra"
+    },
+    {
+      "lang": "spa"
+    }
+  ]
+}

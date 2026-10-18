@@ -15,10 +15,6 @@ internal class ProviderContinuationScheduler(
             // through the configuration-edit worker path (fresh providers have no revision row).
             workScheduler.scheduleProviderResume(providerId)
         }
-        if (work.any { it.operation == SyncContinuationOperation.REFRESH_GUIDE }) {
-            workScheduler.scheduleBackgroundEpg(providerId)
-        }
-
         val indexWork = work.filter { it.operation == SyncContinuationOperation.INDEX_CATALOG }
         when (snapshot.provider.type) {
             ProviderType.XTREAM_CODES -> indexWork
@@ -40,6 +36,11 @@ internal class ProviderContinuationScheduler(
             ProviderType.JELLYFIN -> check(indexWork.isEmpty()) {
                 "${snapshot.provider.type} declared unsupported catalog index continuation work"
             }
+        }
+        if (work.any { it.operation == SyncContinuationOperation.REFRESH_GUIDE }) {
+            // Queue the guide after catalog continuations. The Xtream guide worker also defers
+            // while durable live/movie/series index jobs remain queued or running.
+            workScheduler.scheduleBackgroundEpg(providerId)
         }
     }
 }

@@ -1,0 +1,22 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="cast_started" tools:ignore="MissingTranslation">Приказивање на повезаном уређају.</string>
+    <string name="cast_unavailable" tools:ignore="MissingTranslation">Google Cast није доступан на овом уређају.</string>
+    <string name="cast_stream_unsupported" tools:ignore="MissingTranslation">Google Cast не подржава овај формат тока.</string>
+    <string name="cast_protocol_unsupported" tools:ignore="MissingTranslation">RTSP и RTMP токови нису подржани за приказивање.</string>
+    <string name="cast_drm_unsupported" tools:ignore="MissingTranslation">Google Cast у овој апликацији не подржава DRM-заштићене токове.</string>
+    <string name="cast_item_unavailable" tools:ignore="MissingTranslation">Ова ставка не може да се пошаље на Cast пријемник.</string>
+    <string name="cast_local_url_unsupported" tools:ignore="MissingTranslation">Овај ток користи локалну URL адресу или адресу доступну само на уређају коју Chromecast не може директно да достигне.</string>
+    <string name="cast_headers_unsupported" tools:ignore="MissingTranslation">Овај ток захтева HTTP заглавља или колачиће које Chromecast не може директно да користи.</string>
+    <string name="cast_user_agent_unsupported" tools:ignore="MissingTranslation">Овај ток захтева прилагођени User-Agent који Chromecast не може директно да користи.</string>
+    <string name="cast_proxy_unsupported" tools:ignore="MissingTranslation">Овај ток захтева прокси подешавања апликације, па Chromecast не може директно да га користи.</string>
+    <string name="cast_invalid_ssl_unsupported" tools:ignore="MissingTranslation">Овај ток користи SSL обраду коју Chromecast не може директно да користи.</string>
+    <string name="cast_session_failed" tools:ignore="MissingTranslation">Cast сесија није могла да се покрене.</string>
+    <string name="cast_load_failed" tools:ignore="MissingTranslation">Cast пријемник није могао да учита овај ток.</string>
+    <string name="cast_receiver_unavailable" tools:ignore="MissingTranslation">Повезани Cast пријемник није спреман за репродукцију.</string>
+    <string name="cast_selection_cancelled" tools:ignore="MissingTranslation">Избор Cast уређаја је отказан.</string>
+    <string name="add_group_close_cd">Затвори</string>
+    <string name="player_archive_title">Архива програма</string>
+    <string name="player_no_archive">Нема пронађених архивираних програма</string>
+    <string name="program_date_time_range">%1$s | %2$s – %3$s</string>
+    <string name="player_archive_badge">Архива</string>
+</resources>

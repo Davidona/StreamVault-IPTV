@@ -13,6 +13,7 @@ public fun LazyListScope.settingsRecordingSection(
     page: SettingsPage? = null,
     viewModel: SettingsViewModel,
     onChooseFolder: () -> Unit,
+    onConfigureSmbStorage: () -> Unit,
     onUseUsbStorage: (() -> Unit)?,
     onShowRecordingPatternDialogChange: (Boolean) -> Unit,
     onShowRecordingRetentionDialogChange: (Boolean) -> Unit,
@@ -52,6 +53,12 @@ public fun LazyListScope.settingsRecordingSection(
             ClickableSettingsRow(stringResource(R.string.settings_recording_choose_folder),
                 uiState.recordingStorageState.displayName.orEmpty(), onChooseFolder,
                 modifier = if (targetItemId == "recording.folder") targetFocusModifier else androidx.compose.ui.Modifier)
+            ClickableSettingsRow(
+                stringResource(R.string.settings_recording_use_smb_storage),
+                uiState.recordingStorageState.smbUrl.orEmpty(),
+                onConfigureSmbStorage,
+                modifier = if (targetItemId == "recording.smb") targetFocusModifier else androidx.compose.ui.Modifier
+            )
             ClickableSettingsRow(stringResource(R.string.settings_recording_use_app_storage), "",
                 { viewModel.updateRecordingFolder(null, null) },
                 modifier = if (targetItemId == "recording.app_storage") targetFocusModifier else androidx.compose.ui.Modifier)

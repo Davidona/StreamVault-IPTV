@@ -37,6 +37,7 @@ public data class SettingsScreenLabels(
     val subtitleSizeLabel: String,
     val subtitleTextColorLabel: String,
     val subtitleBackgroundLabel: String,
+    val pinnedSubtitleLanguagesLabel: String,
     val liveTranslationEndpointLabel: String,
     val wifiQualityLabel: String,
     val ethernetQualityLabel: String,
@@ -125,6 +126,15 @@ public fun rememberSettingsScreenLabels(
     val subtitleBackgroundLabel = remember(uiState.subtitleBackgroundColor, context) {
         formatSubtitleColorLabel(uiState.subtitleBackgroundColor, subtitleBackgroundColorOptions(context))
     }
+    val pinnedSubtitleLanguagesLabel = remember(uiState.pinnedSubtitleLanguages, context) {
+        if (uiState.pinnedSubtitleLanguages.isEmpty()) {
+            context.getString(R.string.settings_pinned_subtitle_languages_none)
+        } else {
+            val labels = uiState.pinnedSubtitleLanguages.take(3).joinToString(", ") { subtitleLanguageLabel(it) }
+            val remaining = uiState.pinnedSubtitleLanguages.size - 3
+            if (remaining > 0) "$labels +$remaining" else labels
+        }
+    }
     val liveTranslationEndpointLabel = remember(uiState.playerLiveTranslationEndpoint) {
         uiState.playerLiveTranslationEndpoint
     }
@@ -206,6 +216,7 @@ public fun rememberSettingsScreenLabels(
         subtitleSizeLabel = subtitleSizeLabel,
         subtitleTextColorLabel = subtitleTextColorLabel,
         subtitleBackgroundLabel = subtitleBackgroundLabel,
+        pinnedSubtitleLanguagesLabel = pinnedSubtitleLanguagesLabel,
         liveTranslationEndpointLabel = liveTranslationEndpointLabel,
         wifiQualityLabel = wifiQualityLabel,
         ethernetQualityLabel = ethernetQualityLabel,
@@ -229,6 +240,7 @@ private fun formatAppLandingDestinationLabel(
     when (destination) {
         AppLandingDestination.HOME -> R.string.nav_home
         AppLandingDestination.LIVE_TV -> R.string.nav_live_tv
+        AppLandingDestination.SPORTS -> R.string.nav_sports
         AppLandingDestination.FIRST_FAVORITE_LIVE -> R.string.settings_startup_first_favorite_live
         AppLandingDestination.LAST_WATCHED_LIVE -> R.string.settings_startup_last_watched_live
         AppLandingDestination.MOVIES -> R.string.nav_movies
@@ -236,6 +248,7 @@ private fun formatAppLandingDestinationLabel(
         AppLandingDestination.GUIDE -> R.string.nav_epg
         AppLandingDestination.DOWNLOADS -> R.string.nav_downloads
         AppLandingDestination.PLUGINS -> R.string.nav_plugins
+        AppLandingDestination.ADDONS -> R.string.nav_addons
         AppLandingDestination.SETTINGS -> R.string.nav_settings
     }
 )

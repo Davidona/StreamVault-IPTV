@@ -123,9 +123,9 @@ class SystemPresentationVariantTest {
             }
         }
 
-        composeRule.onNodeWithText("No compatible StreamVault plugins are installed.")
+        composeRule.onNodeWithText("No plugins installed")
             .assertIsDisplayed()
-        composeRule.onNode(hasText("Refresh") and hasClickAction())
+        composeRule.onNode(hasText("Check installed plugins") and hasClickAction())
             .assertIsDisplayed()
             .assertHasClickAction()
     }

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tv>
+  <channel id="event-feed">
+    <display-name>Event Feed</display-name>
+  </channel>
+  <programme start="20261017110000 +0000" stop="20261017120000 +0000" channel="event-feed">
+    <title lang="en">Formula 1 Japanese Grand Prix Qualifying</title>
+    <desc>Qualifying session at Suzuka.</desc>
+  </programme>
+</tv>

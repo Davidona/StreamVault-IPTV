@@ -16,6 +16,9 @@ import com.streamvault.core.ui.design.AppShapes
 import com.streamvault.core.ui.design.LocalAppShapes
 import com.streamvault.core.ui.design.LocalAppSpacing
 import com.streamvault.core.ui.design.rememberAppTypography
+import com.streamvault.core.ui.layout.isPortraitLayout
+import com.streamvault.core.ui.design.AppSpacing
+import androidx.compose.ui.unit.dp
 
 @Composable
 fun StreamVaultTheme(
@@ -68,7 +71,10 @@ fun StreamVaultTheme(
         AppColors.current = palette
     }
     CompositionLocalProvider(
-        LocalAppSpacing provides com.streamvault.core.ui.design.AppSpacing(),
+        LocalAppSpacing provides if (isPortraitLayout()) AppSpacing(
+            lg = 16.dp, xl = 24.dp, screenGutter = 12.dp, sectionGap = 20.dp,
+            safeTop = 12.dp, safeBottom = 12.dp, safeHoriz = 12.dp
+        ) else AppSpacing(),
         LocalAppShapes provides AppShapes()
     ) {
         MaterialTheme(

@@ -1,0 +1,18 @@
+<resources>
+    <string name="vod_subtitle_sources">Kaynaklar</string>
+    <string name="vod_subtitle_settings">Ayarlar</string>
+    <string name="vod_subtitle_provider">Sağlayıcı altyazıları</string>
+    <string name="vod_subtitle_provider_hint">Bu videodan bir altyazı parçası seçin</string>
+    <string name="vod_subtitle_online">OpenSubtitles</string>
+    <string name="vod_subtitle_online_hint">Çevrimiçi altyazı bul</string>
+    <string name="vod_subtitle_online_unavailable">Bu video için çevrimiçi arama kullanılamıyor</string>
+    <string name="vod_subtitle_device_hint">Bir SRT dosyası seçin</string>
+    <string name="vod_subtitle_back">Kaynaklara dön</string>
+    <string name="vod_tracks_empty">Bu videoda kullanılabilir parça yok</string>
+    <string name="vod_subtitle_preview">Bu bir altyazıdır.</string>
+    <string name="vod_subtitle_font_size">Yazı tipi boyutu</string>
+    <string name="vod_subtitle_background">Arka plan opaklığı</string>
+    <string name="vod_subtitle_background_hint" formatted="false">0% şeffaf · 100% opak siyah</string>
+    <string name="vod_subtitle_decrease_setting">%1$s azalt</string>
+    <string name="vod_subtitle_increase_setting">%1$s artır</string>
+</resources>

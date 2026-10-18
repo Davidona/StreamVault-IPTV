@@ -21,5 +21,12 @@ data class PlayerNavigationRequest(
     val seriesId: Long? = null,
     val seasonNumber: Int? = null,
     val episodeNumber: Int? = null,
-    val episodeId: Long? = null
+    val episodeId: Long? = null,
+    /** Stable provider supplied content identity; never a local catalog row id. */
+    val remoteContentId: String? = null,
+    /** Stable provider supplied parent-series identity for series-wide preferences. */
+    val remoteSeriesId: String? = null,
+    val stremioPlaybackReference: StremioPlaybackReference? = null,
+    val stremioMediaRequestHeaders: Map<String, String> = emptyMap(),
+    val stremioInlineSubtitles: List<StremioSubtitlePlaybackSource> = emptyList()
 ) : Serializable

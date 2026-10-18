@@ -5,6 +5,17 @@ import org.junit.Test
 
 class PlaybackLogSanitizerTest {
     @Test
+    fun `subtitle origin logging removes private path and query`() {
+        val sanitized = PlaybackLogSanitizer.sanitizeOrigin(
+            "https://subtitles.example.test/private/configured/path.srt?token=hidden"
+        )
+
+        assertThat(sanitized).isEqualTo("https://subtitles.example.test")
+        assertThat(sanitized).doesNotContain("private")
+        assertThat(sanitized).doesNotContain("hidden")
+    }
+
+    @Test
     fun `redacts live username and password path segments`() {
         val sanitized = PlaybackLogSanitizer.sanitizeUrl(
             "https://example.test/live/user-name/password-value/61351.m3u8"

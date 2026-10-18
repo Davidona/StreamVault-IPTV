@@ -1,0 +1,23 @@
+{
+  "data": [
+    {
+      "id": 9001,
+      "startDate": "2026-10-17",
+      "startTime": "14:30",
+      "endDate": "2026-10-17",
+      "format": "T20",
+      "homeTeam": { "id": 71, "name": "Chennai" },
+      "awayTeam": { "id": 72, "name": "Mumbai" },
+      "league": { "id": 123, "season": 2026, "name": "Premier T20" },
+      "state": {
+        "description": "In progress",
+        "teams": {
+          "home": { "info": "17.2 overs", "score": "139/4" },
+          "away": { "info": "20 overs", "score": "137/8" }
+        }
+      }
+    }
+  ],
+  "pagination": { "totalCount": 1, "offset": 0, "limit": 100 },
+  "plan": { "tier": "BASIC", "message": "Fixture plan" }
+}

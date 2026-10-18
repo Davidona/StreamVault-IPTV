@@ -164,7 +164,7 @@ class RoutesTest {
         assertThat(AppTopLevelDestination.DOWNLOADS.toAppRoute()).isEqualTo(Routes.DOWNLOADS)
         assertThat(AppTopLevelDestination.GUIDE.toAppRoute()).isEqualTo(Routes.EPG)
         assertThat(AppTopLevelDestination.SEARCH.toAppRoute()).isEqualTo(Routes.SEARCH)
-        assertThat(AppTopLevelDestination.PLUGINS.toAppRoute()).isEqualTo(Routes.PLUGINS)
+        assertThat(AppTopLevelDestination.EXTENSIONS.toAppRoute()).isEqualTo(Routes.PLUGINS)
         assertThat(AppTopLevelDestination.SETTINGS.toAppRoute()).isEqualTo(Routes.SETTINGS)
     }
 
@@ -188,6 +188,18 @@ class RoutesTest {
             AppLandingDestination.LIVE_TV,
             AppLandingDestination.FIRST_FAVORITE_LIVE,
             AppLandingDestination.LAST_WATCHED_LIVE
+        )
+    }
+
+    @Test
+    fun `extensions top level keeps plugin and addon startup choices available`() {
+        val available = AppTopLevelDestination.availableLandingDestinations(
+            listOf(AppTopLevelDestination.HOME, AppTopLevelDestination.EXTENSIONS, AppTopLevelDestination.SETTINGS)
+        )
+
+        assertThat(available).containsAtLeast(
+            AppLandingDestination.PLUGINS,
+            AppLandingDestination.ADDONS
         )
     }
 

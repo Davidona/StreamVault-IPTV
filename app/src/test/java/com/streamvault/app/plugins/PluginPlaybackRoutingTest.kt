@@ -38,6 +38,36 @@ class PluginPlaybackRoutingTest {
     }
 
     @Test
+    fun `plugin candidates can own a custom magnet scheme`() {
+        val magnet = "magnet:?xt=urn:btih:0123456789abcdef"
+        val torrentPlugin = plugin("torrent", schemes = listOf("magnet"))
+
+        assertThat(playbackCandidates(emptyList(), magnet, StreamVaultPluginContract.CAPABILITY_PLAYBACK_PREPARE))
+            .isEmpty()
+        assertThat(
+            playbackCandidates(
+                listOf(torrentPlugin.copy(enabled = false)),
+                magnet,
+                StreamVaultPluginContract.CAPABILITY_PLAYBACK_PREPARE
+            )
+        ).isEmpty()
+        assertThat(playbackCandidates(listOf(torrentPlugin), magnet, StreamVaultPluginContract.CAPABILITY_PLAYBACK_PREPARE))
+            .containsExactly(torrentPlugin)
+    }
+
+    @Test
+    fun `built in torrent output accepts only the loopback stream endpoint`() {
+        val path = "/stream/0123456789abcdef0123456789abcdef"
+        assertThat(isSafeTorrentPlaybackOutputUrl("http://127.0.0.1:6878$path")).isTrue()
+        assertThat(isSafeTorrentPlaybackOutputUrl("http://localhost:6878$path")).isFalse()
+        assertThat(isSafeTorrentPlaybackOutputUrl("https://127.0.0.1:6878$path")).isFalse()
+        assertThat(isSafeTorrentPlaybackOutputUrl("http://127.0.0.1$path")).isFalse()
+        assertThat(isSafeTorrentPlaybackOutputUrl("http://user@127.0.0.1:6878$path")).isFalse()
+        assertThat(isSafeTorrentPlaybackOutputUrl("http://127.0.0.1:6878/stream/other")).isFalse()
+        assertThat(isSafeTorrentPlaybackOutputUrl("http://127.0.0.1:6878$path?redirect=elsewhere")).isFalse()
+    }
+
+    @Test
     fun `playback deadline bounds discovery and handler work together`() = runTest {
         val result = withPluginPlaybackDeadline(5_000L) {
             delay(3_000L) // discovery

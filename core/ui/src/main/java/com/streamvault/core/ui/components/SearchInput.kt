@@ -50,6 +50,10 @@ import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.streamvault.core.ui.device.rememberIsTelevisionDevice
+import com.streamvault.core.ui.design.AppColors
+import com.streamvault.core.ui.design.BrowseColors
+import com.streamvault.core.ui.design.BrowseShapes
+import com.streamvault.core.ui.design.LocalBrowseVisuals
 import com.streamvault.core.ui.interaction.mouseClickable
 import com.streamvault.core.ui.theme.FocusBorder
 import com.streamvault.core.ui.theme.OnSurface
@@ -80,7 +84,7 @@ fun SearchInput(
     val isTelevisionDevice = rememberIsTelevisionDevice()
     var hasContainerFocus by remember { mutableStateOf(false) }
     var hasInputFocus by remember { mutableStateOf(false) }
-    var acceptsInput by remember(isTelevisionDevice) { mutableStateOf(!isTelevisionDevice) }
+    var acceptsInput by remember { mutableStateOf(false) }
     var pendingInputActivation by remember { mutableStateOf(false) }
     var textFieldValue by remember {
         mutableStateOf(TextFieldValue(text = value, selection = TextRange(value.length)))
@@ -149,15 +153,18 @@ fun SearchInput(
         pendingInputActivation = false
     }
 
-    BackHandler(enabled = shouldConsumeSearchInputBack(isTelevisionDevice, acceptsInput)) {
+    BackHandler(enabled = shouldConsumeSearchInputBack(acceptsInput)) {
         pendingInputActivation = false
         acceptsInput = false
         keyboardController?.hide()
         focusRequester.requestFocus()
     }
 
-    val borderColor = if (isFocused) FocusBorder else OnSurfaceDim.copy(alpha = 0.5f)
-    val backgroundColor = if (isFocused) SurfaceHighlight else SurfaceElevated
+    val modern = LocalBrowseVisuals.current
+    val palette = if (modern) BrowseColors.current else AppColors.current
+    val searchShape = if (modern) BrowseShapes.Control else RoundedCornerShape(12.dp)
+    val borderColor = if (isFocused) palette.focus else if (modern) palette.outline else OnSurfaceDim.copy(alpha = 0.5f)
+    val backgroundColor = if (isFocused) palette.surfaceEmphasis else palette.surfaceElevated
     val borderWidth = if (isFocused) 2.dp else 1.dp
 
     Box(
@@ -166,8 +173,8 @@ fun SearchInput(
             .heightIn(min = 56.dp)
             .focusRequester(focusRequester)
             .bringIntoViewRequester(bringIntoViewRequester)
-            .background(backgroundColor, RoundedCornerShape(12.dp))
-            .border(borderWidth, borderColor, RoundedCornerShape(12.dp))
+            .background(backgroundColor, searchShape)
+            .border(borderWidth, borderColor, searchShape)
             .semantics(mergeDescendants = true) {
                 contentDescription = placeholder
                 stateDescription = value.ifBlank { placeholder }
@@ -210,7 +217,7 @@ fun SearchInput(
                         .fillMaxWidth()
                         .focusRequester(inputFocusRequester)
                         .focusProperties {
-                            canFocus = enabled && (!isTelevisionDevice || acceptsInput)
+                            canFocus = enabled && acceptsInput
                             if (isTelevisionDevice && acceptsInput) {
                                 left = FocusRequester.Cancel
                                 right = FocusRequester.Cancel
@@ -221,9 +228,7 @@ fun SearchInput(
                             if (it.hasFocus) {
                                 requestBringIntoView(120)
                             } else {
-                                if (isTelevisionDevice) {
-                                    acceptsInput = false
-                                }
+                                acceptsInput = false
                                 keyboardController?.hide()
                             }
                         }
@@ -250,7 +255,7 @@ fun SearchInput(
                     singleLine = true,
                     cursorBrush = SolidColor(Primary),
                     enabled = enabled,
-                    readOnly = isTelevisionDevice && !acceptsInput,
+                    readOnly = !acceptsInput,
                     keyboardOptions = KeyboardOptions(imeAction = imeAction),
                     keyboardActions = KeyboardActions(
                         onSearch = {
@@ -286,7 +291,4 @@ fun SearchInput(
     }
 }
 
-internal fun shouldConsumeSearchInputBack(
-    isTelevisionDevice: Boolean,
-    acceptsInput: Boolean,
-): Boolean = isTelevisionDevice && acceptsInput
+internal fun shouldConsumeSearchInputBack(acceptsInput: Boolean): Boolean = acceptsInput

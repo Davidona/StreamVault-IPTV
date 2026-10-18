@@ -1,8 +1,8 @@
 package com.streamvault.feature.provider.setup
 
+import com.streamvault.core.ui.design.BrowseShapes
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -18,7 +18,7 @@ import androidx.tv.material3.Text
 import com.streamvault.feature.provider.R
 import com.streamvault.core.ui.components.shell.StatusPill
 import com.streamvault.core.ui.interaction.mouseClickable
-import com.streamvault.core.ui.theme.*
+import com.streamvault.core.ui.design.browse.*
 
 @Composable
 internal fun SourceTypeSelectorPanel(
@@ -31,7 +31,7 @@ internal fun SourceTypeSelectorPanel(
 ) {
     TvSurface(
         modifier = modifier,
-        shape = RoundedCornerShape(20.dp),
+        shape = BrowseShapes.Panel,
         colors = SurfaceDefaults.colors(containerColor = Surface.copy(alpha = 0.92f))
     ) {
         Column(
@@ -134,7 +134,7 @@ internal fun SourceTypeCard(
     TvSurface(
         onClick = { if (enabled) onClick() },
         modifier = Modifier.fillMaxWidth().mouseClickable(enabled = enabled, onClick = onClick),
-        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(12.dp)),
+        shape = ClickableSurfaceDefaults.shape(BrowseShapes.Artwork),
         colors = ClickableSurfaceDefaults.colors(
             containerColor  = if (selected) Primary.copy(alpha = 0.18f) else SurfaceElevated,
             focusedContainerColor = if (selected) Primary.copy(alpha = 0.28f) else SurfaceHighlight

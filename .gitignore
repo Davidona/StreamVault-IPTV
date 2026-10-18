@@ -44,12 +44,14 @@ domain/bin/
 .pi/
 .kotlin/
 hs_err_pid*.log
+replay_pid*.log
 gradle_build.log
 ksp.log
 __pycache__/
 *.pyc
 
 # Local scratch outputs
+artifacts/
 .worktrees/
 capture.txt
 out.txt
@@ -63,12 +65,19 @@ tmp/*.txt
 tmp/*_HEAD.kt
 tmp/gha-artifact-inspect/
 .tmp-inspect/
+/app/src/main/java/com/streamvault/app.zip
 translations/
 releases/*.apk
+
+# Raw validation captures
+/validation/phase5_system/task10-logcat.txt
+/validation/phase5_system/task10-screenshots/
+/validation/phase7_player_capability/live-validation.log
 
 # AI tooling
 .claude/
 .opencode/
+docs/superpowers/
 
 # Dev handoff notes
 docs/*-handoff.md

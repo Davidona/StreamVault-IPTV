@@ -26,10 +26,12 @@ import com.streamvault.data.remote.stalker.StalkerRequestDescriptor
 import com.streamvault.data.remote.stalker.StalkerResponseMetrics
 import com.streamvault.data.remote.stalker.StalkerTrafficCoordinator
 import com.streamvault.data.remote.xtream.XtreamStreamUrlResolver
+import com.streamvault.data.security.CredentialDecryptionException
 import com.streamvault.data.sync.ContentCachePolicy
 import com.streamvault.data.sync.CatalogHydrationCommands
 import com.streamvault.data.util.MoviePresentationSettings
 import com.streamvault.data.util.buildPresentedMovies
+import com.streamvault.data.util.movieLogicalGroupId
 import com.streamvault.data.util.rankSearchResults
 import com.streamvault.data.util.toFtsPrefixQuery
 import com.streamvault.domain.model.Category
@@ -41,6 +43,7 @@ import com.streamvault.domain.model.LibrarySortBy
 import com.streamvault.domain.model.MovieDetailPresentationHint
 import com.streamvault.domain.model.Movie
 import com.streamvault.domain.model.PagedResult
+import com.streamvault.domain.model.PlaybackContentKind
 import com.streamvault.domain.model.PlaybackHistory
 import com.streamvault.domain.model.LegacyProvider as Provider
 import com.streamvault.domain.model.ProviderType
@@ -172,6 +175,18 @@ class MovieRepositoryImpl @Inject constructor(
         }.combine(moviePresentationSettingsFlow) { list, settings ->
             buildPresentedMovies(list.map { it.toDomain() }, settings)
         }.flowOn(Dispatchers.Default)
+
+    override suspend fun getMoviesByTmdbIds(providerId: Long, tmdbIds: List<Long>): List<Movie> {
+        val ids = tmdbIds.asSequence().filter { it > 0L }.distinct().toList()
+        if (ids.isEmpty()) return emptyList()
+        val hideProtected = preferencesRepository.parentalControlLevel.first() >= 3
+        val rows = ids.chunked(400).flatMap { movieDao.getByProviderTmdbIdsSync(providerId, it) }
+            .asSequence()
+            .filterNot { hideProtected && it.isUserProtected }
+            .map { it.toDomain() }
+            .toList()
+        return buildPresentedMovies(rows, moviePresentationSettingsFlow.first())
+    }
 
     override fun getMoviesByCategory(providerId: Long, categoryId: Long): Flow<List<Movie>> =
         flow {
@@ -488,7 +503,7 @@ class MovieRepositoryImpl @Inject constructor(
     private fun scheduleMoviePrefetch(providerId: Long, categoryId: Long, loadMode: VodCategoryLoadMode) {
         if (loadMode != VodCategoryLoadMode.PAGED) return
         repositoryScope.launch {
-            val provider = loadCompatibilityProvider(providerId) ?: return@launch
+            val provider = loadBackgroundCompatibilityProvider(providerId) ?: return@launch
             val current = movieCategoryHydrationDao.get(providerId, categoryId)
             if (current?.isComplete == true) return@launch
             if (provider.catalogLayout == CatalogLayout.SPLIT && provider.catalogLayoutDetectionVersion > 0) {
@@ -551,6 +566,28 @@ class MovieRepositoryImpl @Inject constructor(
             ?.toDomain()
             ?.let { movie -> attachMoviePresentation(movie).variants }
             .orEmpty()
+
+    override suspend fun hasExplicitMovieVariantSelection(movieId: Long): Boolean {
+        val movie = movieDao.getById(movieId)?.toDomain() ?: return true
+        if (movie.providerId <= 0L) return true
+        val settings = moviePresentationSettingsFlow.first()
+        val logicalGroupId = movie.logicalGroupId?.takeIf { it.isNotBlank() }
+            ?: movieLogicalGroupId(movie)
+        val selectionKey = "${movie.providerId}|$logicalGroupId"
+        if (selectionKey in settings.preferredVariants) return true
+
+        val raw = loadPresentationCandidates(movie).filter { it.providerId == movie.providerId }
+        val groupedMovie = buildPresentedMovies(
+            movies = raw.map { it.toDomain() },
+            settings = settings.copy(duplicateHandlingMode = VodDuplicateHandlingMode.GROUPED)
+        ).firstOrNull { presented ->
+            presented.id == movie.id || presented.variants.any { it.rawMovieId == movie.id }
+        }
+        val groupMovieIds = groupedMovie?.variants?.map { it.rawMovieId }.orEmpty().toSet() + movie.id
+        return settings.preferredVariants.any { (key, selectedMovieId) ->
+            key.startsWith("${movie.providerId}|") && selectedMovieId in groupMovieIds
+        }
+    }
 
     override suspend fun getMovieDetails(
         providerId: Long,
@@ -680,7 +717,8 @@ class MovieRepositoryImpl @Inject constructor(
                     proxyPort = resolvedStream.proxyPort,
                     streamType = StreamType.fromContainerExtension(ext),
                     containerExtension = ext,
-                    expirationTime = resolvedStream.expirationTime
+                    expirationTime = resolvedStream.expirationTime,
+                    playbackContentKind = PlaybackContentKind.ON_DEMAND
                 ).withM3uPlaybackMetadata(persistedMovie?.playbackMetadataJson)
             )
         } ?: Result.error("No stream URL available for movie: ${movie.name}")
@@ -1678,7 +1716,7 @@ class MovieRepositoryImpl @Inject constructor(
         repositoryScope.launch {
             if (!backgroundRefreshes.awaitAdd(key)) return@launch
             try {
-                val provider = loadCompatibilityProvider(providerId) ?: return@launch
+                val provider = loadBackgroundCompatibilityProvider(providerId) ?: return@launch
                 if (provider.type != ProviderType.XTREAM_CODES && provider.type != ProviderType.STALKER_PORTAL) {
                     return@launch
                 }
@@ -1988,5 +2026,13 @@ class MovieRepositoryImpl @Inject constructor(
 
     private suspend fun loadCompatibilityProvider(providerId: Long): Provider? =
         providerCapabilityResolver.snapshot(providerId)?.toLegacyProvider()
+
+    private suspend fun loadBackgroundCompatibilityProvider(providerId: Long): Provider? =
+        try {
+            loadCompatibilityProvider(providerId)
+        } catch (_: CredentialDecryptionException) {
+            Log.w(TAG, "Skipping background movie work because provider credentials are unreadable (providerId=$providerId)")
+            null
+        }
 }
 

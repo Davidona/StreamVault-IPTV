@@ -30,6 +30,8 @@ internal class PlayerRecoveryExecutionPortAdapter(
     private val logRepositoryFailure: (String, Result<Unit>) -> Unit,
     private val fallbackToPreviousChannel: (String) -> Boolean,
     private val hasLastChannel: () -> Boolean,
+    private val tryFallbackToAvcEpisodeVariant: suspend (Long, String) -> EpisodeFallbackResult = { _, _ -> EpisodeFallbackResult.NotEligible },
+    private val handleEpisodeReplacementError: (PlayerError) -> Boolean = { false },
 ) : PlayerRecoveryExecutionPort {
     override val playerEngine: PlayerEngine
         get() = engineCoordinator.currentEngine
@@ -47,6 +49,11 @@ internal class PlayerRecoveryExecutionPortAdapter(
 
     override suspend fun tryFallbackToAvcMovieVariant(requestVersion: Long, playbackUrl: String): Boolean =
         tryFallbackToAvcMovieVariant.invoke(requestVersion, playbackUrl)
+
+    override suspend fun tryFallbackToAvcEpisodeVariant(requestVersion: Long, playbackUrl: String): EpisodeFallbackResult =
+        tryFallbackToAvcEpisodeVariant.invoke(requestVersion, playbackUrl)
+
+    override fun handleEpisodeReplacementError(error: PlayerError): Boolean = handleEpisodeReplacementError.invoke(error)
 
     override suspend fun tryRefreshXtreamPlaybackAfterAuthError(
         error: PlayerError,

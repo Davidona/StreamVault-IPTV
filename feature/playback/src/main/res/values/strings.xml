@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="player_trakt_badge">TRAKT</string>
+    <string name="player_trakt_connect_required">Connect Trakt in Settings</string>
+    <string name="player_trakt_not_supported">Trakt tracks movies and episodes only.</string>
+    <string name="player_trakt_no_match">No exact Trakt match for this title.</string>
+    <string name="player_trakt_starting">Starting Trakt tracking…</string>
+    <string name="player_trakt_tracking">Tracking with Trakt</string>
+    <string name="player_trakt_paused">Trakt tracking paused</string>
+    <string name="player_trakt_failed">Trakt tracking failed</string>
+    <string name="player_trakt_sent">Sent to Trakt</string>
+</resources>

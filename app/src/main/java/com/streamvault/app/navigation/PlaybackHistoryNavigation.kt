@@ -16,5 +16,7 @@ internal fun PlaybackHistory.toPlayerNavigationRequest(
     returnDestination = returnDestination,
     seriesId = seriesId,
     seasonNumber = seasonNumber,
-    episodeNumber = episodeNumber
+    episodeNumber = episodeNumber,
+    remoteContentId = remoteContentId,
+    remoteSeriesId = remoteSeriesId
 )

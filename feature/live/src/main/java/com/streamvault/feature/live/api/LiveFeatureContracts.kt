@@ -143,6 +143,11 @@ typealias LiveTvContent = @Composable (
     onNavigate: (String) -> Unit,
 ) -> Unit
 
+/** Sports hub content injected by the app shell into the feature-owned route. */
+typealias LiveSportsContent = @Composable (
+    onPlaybackRequested: (LiveChannelPlaybackRequest) -> Unit,
+) -> Unit
+
 /** Guide content injected by the composition root into the feature-owned route. */
 typealias LiveEpgContent = @Composable (
     initialCategoryId: Long?,

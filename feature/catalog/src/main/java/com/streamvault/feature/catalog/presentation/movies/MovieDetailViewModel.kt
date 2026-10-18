@@ -28,6 +28,20 @@ import com.streamvault.domain.repository.FavoriteRepository
 import com.streamvault.domain.repository.MovieRepository
 import com.streamvault.domain.repository.PlaybackHistoryRepository
 import com.streamvault.domain.repository.ProviderRepository
+import com.streamvault.domain.trakt.TraktWatchlist
+import com.streamvault.domain.trakt.TraktWatchlistActionResult
+import com.streamvault.domain.trakt.TraktWatchlistFailure
+import com.streamvault.domain.trakt.TraktWatchlistIdentity
+import com.streamvault.domain.trakt.TraktWatchlistType
+import com.streamvault.domain.trakt.TraktFavorites
+import com.streamvault.domain.trakt.TraktFavoriteActionResult
+import com.streamvault.domain.trakt.TraktFavoriteFailure
+import com.streamvault.domain.trakt.TraktFavoriteIdentity
+import com.streamvault.domain.trakt.TraktFavoriteType
+import com.streamvault.domain.trakt.TraktRatings
+import com.streamvault.domain.trakt.TraktRatingActionResult
+import com.streamvault.domain.trakt.TraktRatingIdentity
+import com.streamvault.domain.trakt.TraktRatingType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -52,7 +66,10 @@ class MovieDetailViewModel @Inject constructor(
     private val streamPreparer: CatalogStreamPreparer,
     private val downloadManager: DownloadManager,
     private val downloadStarter: CatalogDownloadStarter,
-    private val castPort: CatalogCastPort
+    private val castPort: CatalogCastPort,
+    private val traktWatchlist: TraktWatchlist,
+    private val traktFavorites: TraktFavorites,
+    private val traktRatings: TraktRatings,
 ) : ViewModel() {
 
     private val movieId: Long = checkNotNull(
@@ -73,7 +90,66 @@ class MovieDetailViewModel @Inject constructor(
 
     init {
         observeCastPlaybackEvents()
+        observeTraktWatchlist()
+        observeTraktRatings()
         loadMovieDetails()
+    }
+
+    private fun observeTraktWatchlist() {
+        viewModelScope.launch {
+            traktWatchlist.state.collect { watchlistState ->
+                _uiState.update { current ->
+                    val identity = current.movie?.tmdbId?.takeIf { it > 0L }
+                        ?.let { TraktWatchlistIdentity(TraktWatchlistType.MOVIE, it) }
+                    current.copy(
+                        traktWatchlistConnected = watchlistState.connected,
+                        traktWatchlistLoaded = watchlistState.loaded,
+                        traktWatchlisted = watchlistState.loaded && identity?.let(watchlistState::contains) == true,
+                        traktWatchlistBusy = watchlistState.isRefreshing ||
+                            (identity != null && identity in watchlistState.updating),
+                        traktWatchlistFailure = watchlistState.failure,
+                    )
+                }
+            }
+        }
+    }
+
+    private fun refreshTraktWatchlist() {
+        if (_uiState.value.movie?.tmdbId?.let { it > 0L } != true) return
+        viewModelScope.launch { traktWatchlist.refresh() }
+    }
+
+    private fun observeTraktRatings() {
+        viewModelScope.launch {
+            traktRatings.state.collect { ratingsState ->
+                _uiState.update { current ->
+                    val identity = current.movie?.tmdbId?.takeIf { it > 0L }
+                        ?.let { TraktRatingIdentity(TraktRatingType.MOVIE, it) }
+                    current.copy(
+                        traktUserRating = identity?.let(ratingsState::rating),
+                        traktRatingBusy = ratingsState.refreshing.contains(TraktRatingType.MOVIE) ||
+                            (identity != null && identity in ratingsState.updating),
+                    )
+                }
+            }
+        }
+    }
+
+    private fun refreshTraktRatings() {
+        _uiState.value.movie?.tmdbId?.takeIf { it > 0L } ?: return
+        viewModelScope.launch { traktRatings.refresh(TraktRatingType.MOVIE) }
+    }
+
+    fun toggleTraktWatchlist() {
+        val movie = _uiState.value.movie ?: return
+        val tmdbId = movie.tmdbId?.takeIf { it > 0L } ?: return
+        val identity = TraktWatchlistIdentity(TraktWatchlistType.MOVIE, tmdbId)
+        viewModelScope.launch {
+            val result = traktWatchlist.setWatchlisted(identity, !_uiState.value.traktWatchlisted)
+            if (result is TraktWatchlistActionResult.Failure) {
+                _uiEvents.emit(CatalogUiEvent.ShowMessage(CatalogMessage.TraktWatchlistFailed))
+            }
+        }
     }
 
     private fun loadMovieDetails() {
@@ -140,6 +216,38 @@ class MovieDetailViewModel @Inject constructor(
                 favoriteRepository.removeFavorite(movie.providerId, movie.id, ContentType.MOVIE)
             }
             _uiState.update { it.copy(movie = movie.copy(isFavorite = newState)) }
+            movie.tmdbId?.takeIf { it > 0L }?.let { tmdbId ->
+                when (val result = traktFavorites.setFavorited(
+                    TraktFavoriteIdentity(TraktFavoriteType.MOVIE, tmdbId), newState,
+                )) {
+                    TraktFavoriteActionResult.Success -> Unit
+                    is TraktFavoriteActionResult.Failure -> if (result.reason != TraktFavoriteFailure.DISCONNECTED &&
+                        result.reason != TraktFavoriteFailure.INCOGNITO) {
+                        _uiEvents.emit(CatalogUiEvent.ShowMessage(CatalogMessage.TraktFavoriteSyncFailed))
+                    }
+                }
+            }
+        }
+    }
+
+    fun rateOnTrakt(rating: Int) {
+        val movie = _uiState.value.movie ?: return
+        val tmdbId = movie.tmdbId?.takeIf { it > 0L } ?: return
+        if (rating !in 1..10 || _uiState.value.traktRatingBusy) return
+        viewModelScope.launch {
+            _uiState.update { it.copy(traktRatingBusy = true) }
+            try {
+                when (traktRatings.setRating(TraktRatingIdentity(TraktRatingType.MOVIE, tmdbId), rating)) {
+                    TraktRatingActionResult.Success -> {
+                        _uiState.update { it.copy(traktUserRating = rating) }
+                        _uiEvents.emit(CatalogUiEvent.ShowMessage(CatalogMessage.TraktRatingSaved))
+                    }
+                    is TraktRatingActionResult.Failure ->
+                        _uiEvents.emit(CatalogUiEvent.ShowMessage(CatalogMessage.TraktRatingFailed))
+                }
+            } finally {
+                _uiState.update { it.copy(traktRatingBusy = false) }
+            }
         }
     }
 
@@ -332,6 +440,8 @@ class MovieDetailViewModel @Inject constructor(
                 resumePositionMs = if (hasResume) resumePositionMs else 0L
             )
         }
+        refreshTraktWatchlist()
+        refreshTraktRatings()
     }
 }
 
@@ -344,7 +454,14 @@ data class MovieDetailUiState(
     val isCasting: Boolean = false,
     val isLoadingExternalRatings: Boolean = false,
     val externalRatings: ExternalRatings = ExternalRatings.unavailable(),
-    val relatedContent: List<Movie> = emptyList()
+    val relatedContent: List<Movie> = emptyList(),
+    val traktWatchlistConnected: Boolean = false,
+    val traktWatchlistLoaded: Boolean = false,
+    val traktWatchlisted: Boolean = false,
+    val traktWatchlistBusy: Boolean = false,
+    val traktWatchlistFailure: TraktWatchlistFailure? = null,
+    val traktUserRating: Int? = null,
+    val traktRatingBusy: Boolean = false,
 )
 
 private enum class CastPlaybackReportMode {

@@ -1,0 +1,22 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="cast_started" tools:ignore="MissingTranslation">正在投屏到已连接的设备。</string>
+    <string name="cast_unavailable" tools:ignore="MissingTranslation">此设备上无法使用 Google Cast。</string>
+    <string name="cast_stream_unsupported" tools:ignore="MissingTranslation">Google Cast 不支持此流格式。</string>
+    <string name="cast_protocol_unsupported" tools:ignore="MissingTranslation">投屏不支持 RTSP 和 RTMP 流。</string>
+    <string name="cast_drm_unsupported" tools:ignore="MissingTranslation">此应用中的 Google Cast 不支持 DRM 保护的流。</string>
+    <string name="cast_item_unavailable" tools:ignore="MissingTranslation">此项目无法发送到 Cast 接收器。</string>
+    <string name="cast_local_url_unsupported" tools:ignore="MissingTranslation">此流使用本地或仅设备可访问的 URL，Chromecast 无法直接访问。</string>
+    <string name="cast_headers_unsupported" tools:ignore="MissingTranslation">此流需要 Chromecast 无法直接使用的 HTTP 头或 Cookie。</string>
+    <string name="cast_user_agent_unsupported" tools:ignore="MissingTranslation">此流需要 Chromecast 无法直接使用的自定义 User-Agent。</string>
+    <string name="cast_proxy_unsupported" tools:ignore="MissingTranslation">此流需要应用的代理设置，因此 Chromecast 无法直接使用。</string>
+    <string name="cast_invalid_ssl_unsupported" tools:ignore="MissingTranslation">此流使用的 SSL 处理方式，Chromecast 无法直接使用。</string>
+    <string name="cast_session_failed" tools:ignore="MissingTranslation">无法启动 Cast 会话。</string>
+    <string name="cast_load_failed" tools:ignore="MissingTranslation">Cast 接收器无法加载此流。</string>
+    <string name="cast_receiver_unavailable" tools:ignore="MissingTranslation">已连接的 Cast 接收器尚未准备好播放。</string>
+    <string name="cast_selection_cancelled" tools:ignore="MissingTranslation">已取消选择 Cast 设备。</string>
+    <string name="add_group_close_cd">关闭</string>
+    <string name="player_archive_title">节目归档</string>
+    <string name="player_no_archive">未找到已归档节目</string>
+    <string name="program_date_time_range">%1$s | %2$s – %3$s</string>
+    <string name="player_archive_badge">存档</string>
+</resources>

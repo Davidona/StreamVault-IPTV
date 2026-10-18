@@ -1,0 +1,20 @@
+{
+  "livescore": [
+    {
+      "idLiveScore": "269966368",
+      "idEvent": "2070217",
+      "strSport": "Cricket",
+      "idLeague": "4328",
+      "strLeague": "Example Cricket League",
+      "idHomeTeam": "140001",
+      "idAwayTeam": "140002",
+      "strHomeTeam": "Home XI",
+      "strAwayTeam": "Away XI",
+      "intHomeScore": "213/4",
+      "intAwayScore": "175",
+      "strStatus": "LIVE",
+      "strProgress": "60",
+      "updated": "2026-10-17 18:10:00"
+    }
+  ]
+}

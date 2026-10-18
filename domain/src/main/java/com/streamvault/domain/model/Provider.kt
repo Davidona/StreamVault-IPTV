@@ -66,6 +66,7 @@ data class LegacyProvider(
     val channelLogoSourcePolicy: ChannelLogoSourcePolicy = ChannelLogoSourcePolicy.SUPPLIER_PREFERRED,
     val xtreamFastSyncEnabled: Boolean = true,
     val xtreamLiveSyncMode: ProviderXtreamLiveSyncMode = ProviderXtreamLiveSyncMode.AUTO,
+    val preferredLiveStreamFormat: LiveStreamFormatMode? = null,
     val m3uVodClassificationEnabled: Boolean = false,
     val catalogLayout: CatalogLayout = CatalogLayout.SPLIT,
     val catalogLayoutDetectionVersion: Int = 0,

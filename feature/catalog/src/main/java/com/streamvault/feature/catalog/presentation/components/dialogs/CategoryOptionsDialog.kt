@@ -1,11 +1,12 @@
-﻿package com.streamvault.feature.catalog.presentation.components.dialogs
+package com.streamvault.feature.catalog.presentation.components.dialogs
 
+import com.streamvault.core.ui.design.BrowseShapes
 import androidx.compose.foundation.background
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -22,16 +23,18 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.tv.material3.Button
 import androidx.tv.material3.ButtonDefaults
+import androidx.tv.material3.Border
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface
 import androidx.tv.material3.SurfaceDefaults
 import androidx.tv.material3.Text
 import com.streamvault.feature.catalog.R
-import com.streamvault.core.ui.theme.OnSurface
-import com.streamvault.core.ui.theme.OnSurfaceDim
-import com.streamvault.core.ui.theme.Primary
-import com.streamvault.core.ui.theme.SurfaceElevated
+import com.streamvault.core.ui.design.browse.OnSurface
+import com.streamvault.core.ui.design.browse.OnSurfaceDim
+import com.streamvault.core.ui.design.browse.Primary
+import com.streamvault.core.ui.design.browse.SurfaceElevated
 import com.streamvault.core.ui.interaction.mouseClickable
+import com.streamvault.core.ui.design.BrowseColors
 import com.streamvault.core.ui.components.dialogs.rememberDialogOpenGestureBlocker
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.ui.Alignment
@@ -84,7 +87,7 @@ fun CategoryOptionsDialog(
             modifier = Modifier
                 .fillMaxWidth(dialogWidth)
                 .onPreviewKeyEvent(blockOpenGesture),
-            shape = RoundedCornerShape(24.dp),
+            shape = BrowseShapes.Panel,
             colors = SurfaceDefaults.colors(containerColor = SurfaceElevated)
         ) {
             Column(
@@ -206,10 +209,18 @@ fun CategoryOptionsDialog(
                 Button(
                     onClick = safeDismiss,
                     modifier = Modifier.mouseClickable(onClick = safeDismiss),
+                    shape = ButtonDefaults.shape(BrowseShapes.Control),
                     colors = ButtonDefaults.colors(
-                        containerColor = Color.White.copy(alpha = 0.08f),
-                        contentColor = OnSurface
-                    )
+                        containerColor = BrowseColors.SurfaceAccent,
+                        focusedContainerColor = BrowseColors.SurfaceAccent,
+                        contentColor = BrowseColors.TextPrimary,
+                        focusedContentColor = BrowseColors.TextPrimary
+                    ),
+                    border = ButtonDefaults.border(
+                        border = Border(BorderStroke(1.dp, BrowseColors.Outline)),
+                        focusedBorder = Border(BorderStroke(2.dp, BrowseColors.Focus))
+                    ),
+                    scale = ButtonDefaults.scale(focusedScale = 1f)
                 ) {
                     Text(stringResource(R.string.category_options_cancel))
                 }
@@ -228,10 +239,18 @@ private fun PremiumDialogAction(
     Button(
         onClick = onClick,
         modifier = Modifier.fillMaxWidth().mouseClickable(onClick = onClick),
+        shape = ButtonDefaults.shape(BrowseShapes.Control),
         colors = ButtonDefaults.colors(
-            containerColor = if (destructive) MaterialTheme.colorScheme.errorContainer else Color.White.copy(alpha = 0.08f),
-            contentColor = if (destructive) MaterialTheme.colorScheme.onErrorContainer else OnSurface
-        )
+            containerColor = if (destructive) MaterialTheme.colorScheme.errorContainer else BrowseColors.SurfaceAccent,
+            focusedContainerColor = if (destructive) MaterialTheme.colorScheme.errorContainer else BrowseColors.SurfaceAccent,
+            contentColor = if (destructive) MaterialTheme.colorScheme.onErrorContainer else BrowseColors.TextPrimary,
+            focusedContentColor = if (destructive) MaterialTheme.colorScheme.onErrorContainer else BrowseColors.TextPrimary
+        ),
+        border = ButtonDefaults.border(
+            border = Border(BorderStroke(1.dp, BrowseColors.Outline)),
+            focusedBorder = Border(BorderStroke(2.dp, BrowseColors.Focus))
+        ),
+        scale = ButtonDefaults.scale(focusedScale = 1f)
     ) {
         Text(label)
     }

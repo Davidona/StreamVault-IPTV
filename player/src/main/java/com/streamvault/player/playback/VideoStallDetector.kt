@@ -17,6 +17,14 @@ class VideoStallDetector(
     private var stalled = false
 
     @Synchronized
+    fun restartAfterRecoveryAttempt() {
+        startedAtMs = nowMs()
+        lastPositionCheckMs = startedAtMs
+        stalled = false
+        // Retain lastFrameAtMs: a seek attempt is not evidence of a rendered frame.
+    }
+
+    @Synchronized
     fun reset() {
         val now = nowMs()
         startedAtMs = now

@@ -1,5 +1,8 @@
 package com.streamvault.feature.playback.multiview
 
+import com.streamvault.core.ui.layout.isPortraitLayout
+
+import com.streamvault.core.ui.design.BrowseShapes
 import android.view.View
 import android.view.KeyEvent
 import android.view.WindowManager
@@ -80,7 +83,7 @@ import com.streamvault.core.ui.components.dialogs.PinEntryDialog
 import com.streamvault.core.ui.components.dialogs.PremiumDialog
 import com.streamvault.core.ui.components.dialogs.PremiumDialogActionButton
 import com.streamvault.core.ui.components.dialogs.PremiumDialogFooterButton
-import com.streamvault.core.ui.theme.Primary
+import com.streamvault.core.ui.design.browse.Primary
 import com.streamvault.player.PlayerRenderSurfaceType
 import com.streamvault.player.PlayerSurfaceResizeMode
 import kotlinx.coroutines.launch
@@ -221,7 +224,18 @@ fun MultiViewScreen(
         }
 
         Column(modifier = Modifier.fillMaxSize()) {
-            if (useCenteredCompactLayout) {
+            if (isPortraitLayout()) {
+                PortraitMultiViewGrid(
+                    slots = visibleSlots,
+                    focusedSlotIndex = uiState.focusedSlotIndex,
+                    showSelectionBorder = uiState.showSelectionBorder,
+                    showControls = showControls,
+                    firstSlotFocusRequester = firstSlotFocusRequester,
+                    firstControlFocusRequester = firstControlFocusRequester,
+                    onSlotClick = { showControls = !showControls },
+                    onSlotFocused = viewModel::setFocus
+                )
+            } else if (useCenteredCompactLayout) {
                 CenteredCompactLayout(
                     slots = visibleSlots,
                     focusedSlotIndex = uiState.focusedSlotIndex,
@@ -280,6 +294,35 @@ fun MultiViewScreen(
                     )
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun PortraitMultiViewGrid(
+    slots: List<MultiViewSlot>,
+    focusedSlotIndex: Int,
+    showSelectionBorder: Boolean,
+    showControls: Boolean,
+    firstSlotFocusRequester: FocusRequester,
+    firstControlFocusRequester: FocusRequester,
+    onSlotClick: () -> Unit,
+    onSlotFocused: (Int) -> Unit
+) {
+    Column(Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center) {
+        slots.forEachIndexed { index, slot ->
+            GridPlayerCell(
+                slot = slot,
+                slotIndex = slot.index,
+                focusedSlotIndex = focusedSlotIndex,
+                showSelectionBorder = showSelectionBorder,
+                showControls = showControls,
+                onClick = onSlotClick,
+                onFocused = onSlotFocused,
+                firstSlotFocusRequester = firstSlotFocusRequester.takeIf { index == 0 },
+                firstControlFocusRequester = firstControlFocusRequester,
+                modifier = Modifier.fillMaxWidth().weight(1f)
+            )
         }
     }
 }
@@ -639,8 +682,8 @@ private fun MultiViewControlHud(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(10.dp),
         modifier = Modifier
-            .background(Color.Black.copy(alpha = 0.58f), RoundedCornerShape(18.dp))
-            .border(1.dp, Color.White.copy(alpha = 0.08f), RoundedCornerShape(18.dp))
+            .background(Color.Black.copy(alpha = 0.58f), BrowseShapes.Panel)
+            .border(1.dp, Color.White.copy(alpha = 0.08f), BrowseShapes.Panel)
             .padding(horizontal = 18.dp, vertical = 14.dp)
     ) {
         Row(
@@ -772,7 +815,7 @@ private fun ReplaceSlotDialog(
                 onValueChange = onSearchChange,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(Color.White.copy(alpha = 0.07f), RoundedCornerShape(12.dp))
+                    .background(Color.White.copy(alpha = 0.07f), BrowseShapes.Artwork)
                     .padding(horizontal = 16.dp, vertical = 10.dp),
                 textStyle = MaterialTheme.typography.bodyMedium.copy(color = Color.White),
                 singleLine = true,

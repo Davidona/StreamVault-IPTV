@@ -8,6 +8,7 @@ import com.streamvault.feature.playback.navigation.PlaybackRoutePatterns
 import com.streamvault.feature.live.navigation.LiveRoutePatterns
 import com.streamvault.feature.catalog.navigation.CatalogRoutePatterns
 import com.streamvault.feature.system.navigation.SystemRoutePatterns
+import com.streamvault.feature.stremio.navigation.StremioRoutePatterns
 import java.net.URLDecoder
 
 internal object AppRoutePatterns {
@@ -15,6 +16,7 @@ internal object AppRoutePatterns {
     const val HOME = CatalogRoutePatterns.HOME
     const val LIVE_TV = LiveRoutePatterns.LIVE_TV
     const val LIVE_TV_DESTINATION = LiveRoutePatterns.LIVE_TV_DESTINATION
+    const val SPORTS = LiveRoutePatterns.SPORTS
     const val MOVIES = CatalogRoutePatterns.MOVIES
     const val SERIES = CatalogRoutePatterns.SERIES
     const val VOD = CatalogRoutePatterns.VOD
@@ -22,8 +24,9 @@ internal object AppRoutePatterns {
     const val EPG = LiveRoutePatterns.EPG
     const val EPG_DESTINATION = LiveRoutePatterns.EPG_DESTINATION
     const val SETTINGS = "settings"
-    const val SETTINGS_DESTINATION = "settings?backupUri={backupUri}"
+    const val SETTINGS_DESTINATION = "settings?backupUri={backupUri}&openOpenSubtitlesSignIn={openOpenSubtitlesSignIn}"
     const val PLUGINS = SystemRoutePatterns.PLUGINS
+    const val ADDONS = StremioRoutePatterns.ADDONS
     const val PLAYER = PlaybackRoutePatterns.PLAYER
     const val SEARCH = CatalogRoutePatterns.SEARCH
     const val SEARCH_DESTINATION = CatalogRoutePatterns.SEARCH_DESTINATION
@@ -41,6 +44,7 @@ internal object AppRouteCodec {
         is AppDestination.LiveTv -> destination.categoryId?.let { categoryId ->
             "${AppRoutePatterns.LIVE_TV}?categoryId=$categoryId"
         } ?: AppRoutePatterns.LIVE_TV
+        AppDestination.Sports -> AppRoutePatterns.SPORTS
         AppDestination.Movies -> AppRoutePatterns.MOVIES
         AppDestination.Series -> AppRoutePatterns.SERIES
         AppDestination.Vod -> AppRoutePatterns.VOD
@@ -51,10 +55,18 @@ internal object AppRouteCodec {
             "${AppRoutePatterns.EPG}?categoryId=$categoryId" +
                 "&anchorTime=$anchorTime&favoritesOnly=${destination.favoritesOnly}"
         }
-        is AppDestination.Settings -> destination.backupUri?.takeIf(String::isNotBlank)?.let { uri ->
-            "${AppRoutePatterns.SETTINGS}?backupUri=${Uri.encode(uri)}"
-        } ?: AppRoutePatterns.SETTINGS
+        is AppDestination.Settings -> buildList {
+            destination.backupUri?.takeIf(String::isNotBlank)?.let { uri ->
+                add("backupUri=${Uri.encode(uri)}")
+            }
+            if (destination.openOpenSubtitlesSignIn) {
+                add("openOpenSubtitlesSignIn=true")
+            }
+        }.takeIf { it.isNotEmpty() }
+            ?.joinToString(prefix = "${AppRoutePatterns.SETTINGS}?")
+            ?: AppRoutePatterns.SETTINGS
         AppDestination.Plugins -> AppRoutePatterns.PLUGINS
+        AppDestination.Addons -> AppRoutePatterns.ADDONS
         is AppDestination.Search -> destination.query?.takeIf(String::isNotBlank)?.let { query ->
             "${AppRoutePatterns.SEARCH}?query=${Uri.encode(query)}"
         } ?: AppRoutePatterns.SEARCH
@@ -94,15 +106,18 @@ internal object AppRouteCodec {
                     }
                 }
             }
+            path == AppRoutePatterns.SPORTS -> AppDestination.Sports
             path == AppRoutePatterns.MOVIES -> AppDestination.Movies
             path == AppRoutePatterns.SERIES -> AppDestination.Series
             path == AppRoutePatterns.VOD -> AppDestination.Vod
             path == AppRoutePatterns.DOWNLOADS -> AppDestination.Downloads
             path == AppRoutePatterns.EPG -> decodeGuide(query)
             path == AppRoutePatterns.SETTINGS -> AppDestination.Settings(
-                backupUri = query["backupUri"]?.takeIf(String::isNotBlank)
+                backupUri = query["backupUri"]?.takeIf(String::isNotBlank),
+                openOpenSubtitlesSignIn = query["openOpenSubtitlesSignIn"]?.toBooleanStrictOrNull() ?: false,
             )
             path == AppRoutePatterns.PLUGINS -> AppDestination.Plugins
+            path == AppRoutePatterns.ADDONS -> AppDestination.Addons
             path == AppRoutePatterns.PLAYER -> AppDestination.Player
             path == AppRoutePatterns.MULTI_VIEW -> AppDestination.MultiView
             path == AppRoutePatterns.SEARCH -> AppDestination.Search(
@@ -180,6 +195,7 @@ internal object Routes {
     const val HOME = AppRoutePatterns.HOME
     const val LIVE_TV = AppRoutePatterns.LIVE_TV
     const val LIVE_TV_DESTINATION = AppRoutePatterns.LIVE_TV_DESTINATION
+    const val SPORTS = AppRoutePatterns.SPORTS
     const val MOVIES = AppRoutePatterns.MOVIES
     const val SERIES = AppRoutePatterns.SERIES
     const val VOD = AppRoutePatterns.VOD
@@ -189,6 +205,7 @@ internal object Routes {
     const val SETTINGS = AppRoutePatterns.SETTINGS
     const val SETTINGS_DESTINATION = AppRoutePatterns.SETTINGS_DESTINATION
     const val PLUGINS = AppRoutePatterns.PLUGINS
+    const val ADDONS = AppRoutePatterns.ADDONS
     const val PLAYER = AppRoutePatterns.PLAYER
     const val SEARCH = AppRoutePatterns.SEARCH
     const val SEARCH_DESTINATION = AppRoutePatterns.SEARCH_DESTINATION

@@ -1,8 +1,13 @@
 package com.streamvault.core.ui.components.shell
 
+import com.streamvault.core.ui.layout.AdaptiveRow
+
+import androidx.compose.foundation.layout.FlowRow
+
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -20,6 +25,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -52,6 +60,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.tv.material3.Border
 import androidx.tv.material3.ClickableSurfaceDefaults
@@ -61,13 +70,19 @@ import androidx.tv.material3.Surface
 import androidx.tv.material3.SurfaceDefaults
 import androidx.tv.material3.Text
 import com.streamvault.core.ui.design.AppColors
+import com.streamvault.core.ui.design.BrowseColors
+import com.streamvault.core.ui.design.BrowseShapes
+import com.streamvault.core.ui.design.LocalBrowseVisuals
+import com.streamvault.core.ui.design.browseBackdrop
+import com.streamvault.core.ui.design.browsePanel
 import com.streamvault.core.ui.design.AppMotion
-import com.streamvault.core.ui.design.FocusSpec
+import com.streamvault.core.ui.design.BrowseFocusSpec as FocusSpec
 import com.streamvault.core.ui.design.LocalAppShapes
 import com.streamvault.core.ui.design.LocalAppSpacing
 import com.streamvault.core.ui.interaction.TvIconButton
 import com.streamvault.core.ui.interaction.mouseClickable
 import com.streamvault.core.ui.interaction.rememberTvInteractionSounds
+import com.streamvault.core.ui.layout.isPortraitLayout
 
 enum class NavigationChrome {
     Rail,
@@ -105,17 +120,21 @@ fun CoreAppScreenScaffold(
             .semantics {
                 contentDescription = "streamvault.destination:$currentDestinationId"
             }
-            .background(
-                Brush.linearGradient(
-                    colors = listOf(
-                        AppColors.Canvas,
-                        AppColors.CanvasElevated,
-                        AppColors.Surface
-                    )
-                )
-            )
+            .browseBackdrop()
     ) {
-        if (navigationChrome == NavigationChrome.Rail) {
+        if (isPortraitLayout()) {
+            Column(Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.safeDrawing)) {
+                Column(Modifier.weight(1f).fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp)) {
+                    if (showScreenHeader) {
+                        AppScreenHeader(title = title, subtitle = subtitle, compact = true)
+                        Spacer(Modifier.height(8.dp))
+                    }
+                    header?.invoke(this)
+                    Column(Modifier.weight(1f).fillMaxWidth().padding(contentPadding), content = content)
+                }
+                PortraitNavigation(currentDestinationId, destinations, onDestinationSelected, topBarActions)
+            }
+        } else if (navigationChrome == NavigationChrome.Rail) {
             Row(modifier = Modifier.fillMaxSize()) {
                 DestinationRail(
                     currentDestinationId = currentDestinationId,
@@ -219,13 +238,13 @@ fun AppScreenHeader(
             Text(
                 text = eyebrow,
                 style = MaterialTheme.typography.labelMedium,
-                color = AppColors.Brand
+                color = BrowseColors.Brand
             )
         }
         Text(
             text = title,
             style = if (compact) MaterialTheme.typography.titleMedium else MaterialTheme.typography.displaySmall,
-            color = AppColors.TextPrimary,
+            color = BrowseColors.TextPrimary,
             maxLines = 2,
             overflow = TextOverflow.Ellipsis
         )
@@ -233,7 +252,7 @@ fun AppScreenHeader(
             Text(
                 text = subtitle,
                 style = if (compact) MaterialTheme.typography.bodySmall else MaterialTheme.typography.bodyLarge,
-                color = AppColors.TextSecondary,
+                color = BrowseColors.TextSecondary,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis
             )
@@ -260,8 +279,9 @@ private fun TopNavigationBar(
                 focusRequesters[activeItem?.id] ?: FocusRequester.Default
             }
         },
-        shape = RoundedCornerShape(18.dp),
-        colors = SurfaceDefaults.colors(containerColor = AppColors.Surface.copy(alpha = 0.9f))
+        shape = BrowseShapes.Panel,
+        colors = SurfaceDefaults.colors(containerColor = BrowseColors.Surface.copy(alpha = 0.94f)),
+        border = Border(BorderStroke(1.dp, BrowseColors.Outline), shape = BrowseShapes.Panel)
     ) {
         Row(
             modifier = Modifier
@@ -273,11 +293,11 @@ private fun TopNavigationBar(
         ) {
             Text(
                 text = "StreamVault",
-                style = MaterialTheme.typography.titleSmall,
-                color = AppColors.TextPrimary,
+                style = MaterialTheme.typography.titleSmall.copy(letterSpacing = (-0.4).sp),
+                color = BrowseColors.TextPrimary,
                 modifier = Modifier.wrapContentWidth(Alignment.Start)
             )
-            Spacer(modifier = Modifier.width(32.dp))
+            Spacer(modifier = Modifier.width(24.dp))
             Row(
                 modifier = Modifier
                     .weight(1f)
@@ -321,14 +341,14 @@ fun AppTopBarCloseAction(
         modifier = modifier,
         colors = androidx.tv.material3.IconButtonDefaults.colors(
             containerColor = Color.Transparent,
-            focusedContainerColor = AppColors.SurfaceEmphasis,
-            contentColor = AppColors.TextSecondary,
-            focusedContentColor = AppColors.TextPrimary
+            focusedContainerColor = BrowseColors.Brand.copy(alpha = 0.18f),
+            contentColor = BrowseColors.TextSecondary,
+            focusedContentColor = BrowseColors.TextPrimary
         ),
         border = androidx.tv.material3.IconButtonDefaults.border(
             focusedBorder = Border(
-                border = BorderStroke(FocusSpec.BorderWidth, AppColors.Focus),
-                shape = RoundedCornerShape(14.dp)
+                border = BorderStroke(FocusSpec.BorderWidth, BrowseColors.Focus),
+                shape = BrowseShapes.Control
             )
         )
     ) {
@@ -379,33 +399,36 @@ private fun TopNavigationButton(
                 if (it.isFocused && !isFocused) sounds.playNavigate()
                 isFocused = it.isFocused
             },
-        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(14.dp)),
+        shape = ClickableSurfaceDefaults.shape(BrowseShapes.Control),
+        scale = ClickableSurfaceDefaults.scale(focusedScale = 1f),
         colors = ClickableSurfaceDefaults.colors(
-            containerColor = if (selected) AppColors.BrandMuted else Color.Transparent,
-            focusedContainerColor = AppColors.SurfaceEmphasis
+            containerColor = if (selected) BrowseColors.Brand.copy(alpha = 0.12f) else Color.Transparent,
+            focusedContainerColor = BrowseColors.Brand.copy(alpha = 0.18f)
         ),
         border = ClickableSurfaceDefaults.border(
             focusedBorder = Border(
-                border = BorderStroke(FocusSpec.BorderWidth, AppColors.Focus),
-                shape = RoundedCornerShape(14.dp)
+                border = BorderStroke(FocusSpec.BorderWidth, BrowseColors.Focus),
+                shape = BrowseShapes.Control
             )
         )
     ) {
         Row(
-            modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+            modifier = Modifier
+                .then(if (selected) Modifier.border(1.dp, BrowseColors.Brand.copy(alpha = 0.28f), BrowseShapes.Control) else Modifier)
+                .padding(horizontal = 8.dp, vertical = 6.dp),
             horizontalArrangement = Arrangement.spacedBy(6.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
                 imageVector = destination.icon,
                 contentDescription = destination.label,
-                tint = if (selected) AppColors.Brand else AppColors.TextSecondary,
+                tint = if (selected) BrowseColors.Brand else BrowseColors.TextSecondary,
                 modifier = Modifier.size(14.dp)
             )
             Text(
                 text = destination.label,
                 style = MaterialTheme.typography.labelSmall,
-                color = if (selected) AppColors.TextPrimary else AppColors.TextSecondary
+                color = if (selected) BrowseColors.TextPrimary else BrowseColors.TextSecondary
             )
         }
     }
@@ -422,24 +445,26 @@ fun AppHeroHeader(
 ) {
     Surface(
         modifier = modifier,
-        shape = RoundedCornerShape(28.dp),
-        colors = SurfaceDefaults.colors(containerColor = AppColors.SurfaceElevated)
+        shape = BrowseShapes.Hero,
+        colors = SurfaceDefaults.colors(containerColor = BrowseColors.SurfaceElevated),
+        border = Border(BorderStroke(1.dp, BrowseColors.Outline), shape = BrowseShapes.Hero)
     ) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .clip(RoundedCornerShape(28.dp))
+                .clip(BrowseShapes.Hero)
                 .background(
                     Brush.horizontalGradient(
-                        colors = listOf(AppColors.Canvas, AppColors.SurfaceAccent, AppColors.SurfaceEmphasis)
+                        colors = listOf(BrowseColors.Surface, BrowseColors.SurfaceEmphasis, BrowseColors.Brand.copy(alpha = 0.16f))
                     )
                 )
-                .padding(32.dp)
+                .padding(if (isPortraitLayout()) 18.dp else 32.dp)
         ) {
             Column(verticalArrangement = Arrangement.spacedBy(18.dp)) {
-                AppScreenHeader(title = title, subtitle = subtitle, eyebrow = eyebrow)
+                AppScreenHeader(title = title, subtitle = subtitle, eyebrow = eyebrow, compact = isPortraitLayout())
                 if (actions != null) {
                     Row(
+                        modifier = if (isPortraitLayout()) Modifier.horizontalScroll(rememberScrollState()) else Modifier,
                         horizontalArrangement = Arrangement.spacedBy(12.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         content = actions
@@ -458,7 +483,7 @@ fun AppSectionHeader(
     modifier: Modifier = Modifier,
     actionLabel: String? = null,
     onActionClick: (() -> Unit)? = null,
-    actionContentColor: Color = AppColors.TextTertiary
+    actionContentColor: Color = BrowseColors.TextTertiary
 ) {
     val shapes = LocalAppShapes.current
     Row(
@@ -473,11 +498,11 @@ fun AppSectionHeader(
             Text(
                 text = title,
                 style = MaterialTheme.typography.titleMedium,
-                color = AppColors.TextPrimary,
+                color = BrowseColors.TextPrimary,
                 modifier = Modifier.semantics { heading() }
             )
             if (!subtitle.isNullOrBlank()) {
-                Text(text = subtitle, style = MaterialTheme.typography.bodySmall, color = AppColors.TextTertiary)
+                Text(text = subtitle, style = MaterialTheme.typography.bodySmall, color = BrowseColors.TextTertiary)
             }
         }
         if (onActionClick != null && !actionLabel.isNullOrBlank()) {
@@ -489,8 +514,8 @@ fun AppSectionHeader(
                     .mouseClickable(focusRequester = actionFocusRequester, onClick = onActionClick),
                 shape = ClickableSurfaceDefaults.shape(shapes.pill),
                 colors = ClickableSurfaceDefaults.colors(
-                    containerColor = AppColors.Brand.copy(alpha = 0.12f),
-                    focusedContainerColor = AppColors.Brand.copy(alpha = 0.22f),
+                    containerColor = BrowseColors.Brand.copy(alpha = 0.12f),
+                    focusedContainerColor = BrowseColors.Brand.copy(alpha = 0.22f),
                     contentColor = actionContentColor
                 )
             ) {
@@ -510,13 +535,23 @@ fun StatusPill(
     horizontalPadding: Dp = 10.dp,
     verticalPadding: Dp = 4.dp
 ) {
+    val modern = LocalBrowseVisuals.current
+    val isStatusColor = containerColor in listOf(AppColors.Live, AppColors.Brand, AppColors.Warning, AppColors.Success, AppColors.Info)
+    val tinted = modern && isStatusColor
+    val shape = RoundedCornerShape(if (modern && cornerRadius == 999.dp) 6.dp else cornerRadius)
+    val resolvedContentColor = when {
+        tinted -> containerColor
+        modern && containerColor.copy(alpha = 1f) == Color.Black -> Color.White
+        else -> contentColor
+    }
     Box(
         modifier = modifier
-            .clip(RoundedCornerShape(cornerRadius))
-            .background(containerColor)
+            .clip(shape)
+            .background(if (tinted) containerColor.copy(alpha = 0.16f) else containerColor)
+            .then(if (modern) Modifier.border(1.dp, (if (tinted) containerColor else AppColors.TextPrimary).copy(alpha = 0.14f), shape) else Modifier)
             .padding(horizontal = horizontalPadding, vertical = verticalPadding)
     ) {
-        Text(text = label, style = MaterialTheme.typography.labelSmall, color = contentColor)
+        Text(text = label, style = MaterialTheme.typography.labelSmall, color = resolvedContentColor)
     }
 }
 
@@ -577,12 +612,12 @@ fun LoadMoreCard(
             .mouseClickable(focusRequester = focusRequester, onClick = onClick),
         shape = ClickableSurfaceDefaults.shape(shapes.medium),
         colors = ClickableSurfaceDefaults.colors(
-            containerColor = AppColors.SurfaceElevated,
-            focusedContainerColor = AppColors.SurfaceEmphasis
+            containerColor = BrowseColors.SurfaceElevated,
+            focusedContainerColor = BrowseColors.Brand.copy(alpha = 0.18f)
         ),
         border = ClickableSurfaceDefaults.border(
             focusedBorder = Border(
-                border = BorderStroke(FocusSpec.BorderWidth, AppColors.Focus),
+                border = BorderStroke(FocusSpec.BorderWidth, BrowseColors.Focus),
                 shape = shapes.medium
             )
         )
@@ -592,31 +627,32 @@ fun LoadMoreCard(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(imageVector = Icons.Default.Info, contentDescription = label, tint = AppColors.Brand, modifier = Modifier.size(18.dp))
-            Text(text = label, style = MaterialTheme.typography.titleMedium, color = AppColors.TextPrimary)
+            Icon(imageVector = Icons.Default.Info, contentDescription = label, tint = BrowseColors.Brand, modifier = Modifier.size(18.dp))
+            Text(text = label, style = MaterialTheme.typography.titleMedium, color = BrowseColors.TextPrimary)
         }
     }
 }
 
+@OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
 @Composable
 fun ContentMetadataStrip(
     values: List<String>,
     modifier: Modifier = Modifier
 ) {
     val filteredValues = values.filter { it.isNotBlank() }
-    Row(
+    AdaptiveRow(
         modifier = modifier,
         horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalAlignment = Alignment.CenterVertically
+        verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
         filteredValues.forEachIndexed { index, value ->
-            Text(text = value, style = MaterialTheme.typography.labelMedium, color = AppColors.TextSecondary)
+            Text(text = value, style = MaterialTheme.typography.labelMedium, color = BrowseColors.TextSecondary)
             if (index < filteredValues.lastIndex) {
                 Box(
                     modifier = Modifier
                         .size(4.dp)
                         .clip(RoundedCornerShape(999.dp))
-                        .background(AppColors.TextTertiary)
+                        .background(BrowseColors.TextTertiary)
                 )
             }
         }
@@ -637,8 +673,7 @@ private fun DestinationRail(
     Box(
         modifier = modifier
             .padding(start = spacing.lg, top = spacing.safeTop, bottom = spacing.safeBottom)
-            .clip(RoundedCornerShape(28.dp))
-            .background(Brush.verticalGradient(colors = listOf(AppColors.SurfaceElevated, AppColors.Surface)))
+            .browsePanel(BrowseShapes.Panel)
             .focusProperties {
                 onEnter = {
                     val activeItem = findActiveDestination(destinations, currentDestinationId)
@@ -652,8 +687,8 @@ private fun DestinationRail(
                 .padding(horizontal = 12.dp, vertical = 20.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            Text(text = "StreamVault", style = MaterialTheme.typography.titleMedium, color = AppColors.TextPrimary)
-            Text(text = "TV", style = MaterialTheme.typography.labelSmall, color = AppColors.TextTertiary)
+            Text(text = "StreamVault", style = MaterialTheme.typography.titleMedium, color = BrowseColors.TextPrimary)
+            Text(text = "TV", style = MaterialTheme.typography.labelSmall, color = BrowseColors.TextTertiary)
             Spacer(modifier = Modifier.height(10.dp))
             destinations.forEach { destination ->
                 val requester = focusRequesters.getOrPut(destination.id) { FocusRequester() }
@@ -705,15 +740,16 @@ private fun RailButton(
                 scaleY = scale
             }
             .onFocusChanged { isFocused = it.isFocused },
-        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(18.dp)),
+        shape = ClickableSurfaceDefaults.shape(BrowseShapes.Panel),
+        scale = ClickableSurfaceDefaults.scale(focusedScale = 1f),
         colors = ClickableSurfaceDefaults.colors(
-            containerColor = if (selected) AppColors.BrandMuted else Color.Transparent,
-            focusedContainerColor = AppColors.SurfaceEmphasis
+            containerColor = if (selected) BrowseColors.Brand.copy(alpha = 0.12f) else Color.Transparent,
+            focusedContainerColor = BrowseColors.Brand.copy(alpha = 0.18f)
         ),
         border = ClickableSurfaceDefaults.border(
             focusedBorder = Border(
-                border = BorderStroke(FocusSpec.BorderWidth, AppColors.Focus),
-                shape = RoundedCornerShape(18.dp)
+                border = BorderStroke(FocusSpec.BorderWidth, BrowseColors.Focus),
+                shape = BrowseShapes.Panel
             )
         )
     ) {
@@ -727,13 +763,13 @@ private fun RailButton(
             Icon(
                 imageVector = destination.icon,
                 contentDescription = destination.label,
-                tint = if (selected) AppColors.Brand else AppColors.TextSecondary,
+                tint = if (selected) BrowseColors.Brand else BrowseColors.TextSecondary,
                 modifier = Modifier.size(20.dp)
             )
             Text(
                 text = destination.label,
                 style = MaterialTheme.typography.titleSmall,
-                color = if (selected) AppColors.TextPrimary else AppColors.TextSecondary,
+                color = if (selected) BrowseColors.TextPrimary else BrowseColors.TextSecondary,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )

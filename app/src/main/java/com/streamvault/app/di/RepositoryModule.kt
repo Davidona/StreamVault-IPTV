@@ -22,6 +22,7 @@ import com.streamvault.data.remote.xtream.PlaybackObservationCoordinator
 import com.streamvault.data.remote.xtream.PlaybackObservationSink
 import com.streamvault.data.validation.ProviderSetupInputValidatorImpl
 import com.streamvault.domain.manager.ParentalPinVerifier
+import com.streamvault.domain.manager.OpenSubtitlesAccountManager
 import com.streamvault.domain.manager.ProviderSetupInputValidator
 import com.streamvault.domain.manager.ProviderSyncStateReader
 import com.streamvault.data.repository.*
@@ -34,6 +35,11 @@ import com.streamvault.domain.provider.ProviderSourceRegistry
 import com.streamvault.domain.provider.PlayerPlaybackResolver
 import com.streamvault.domain.settings.PlayerPreferences
 import com.streamvault.domain.settings.SettingsPreferences
+import com.streamvault.domain.trakt.TraktFeaturePreferences
+import com.streamvault.domain.sports.provider.SportsEventSourceSettings
+import com.streamvault.domain.sports.provider.SportsScoreSourceSettings
+import com.streamvault.domain.sports.provider.SportsStandingsSourceSettings
+import com.streamvault.domain.sports.provider.SportsMetadataSourceSettings
 import com.streamvault.app.playback.AppPlayerPlaybackResolver
 import com.streamvault.app.plugins.StreamVaultPluginManager
 import dagger.Binds
@@ -95,7 +101,19 @@ abstract class RepositoryModule {
     abstract fun bindM3uClassificationRepository(impl: M3uClassificationRepositoryImpl): M3uClassificationRepository
 
     @Binds @Singleton
+    abstract fun bindStremioAddonRepository(impl: StremioAddonRepositoryImpl): StremioAddonRepository
+
+    @Binds @Singleton
+    abstract fun bindStremioPlaybackHistoryRepository(impl: StremioPlaybackHistoryRepositoryImpl): StremioPlaybackHistoryRepository
+
+    @Binds @Singleton
     abstract fun bindExternalRatingsRepository(impl: ExternalRatingsRepositoryImpl): ExternalRatingsRepository
+
+    @Binds @Singleton
+    abstract fun bindExternalSubtitleRepository(impl: OpenSubtitlesRepositoryImpl): ExternalSubtitleRepository
+
+    @Binds @Singleton
+    abstract fun bindOpenSubtitlesAccountManager(impl: OpenSubtitlesRepositoryImpl): OpenSubtitlesAccountManager
 
     @Binds @Singleton
     abstract fun bindSyncMetadataRepository(impl: SyncMetadataRepositoryImpl): SyncMetadataRepository
@@ -131,7 +149,22 @@ abstract class RepositoryModule {
     abstract fun bindSettingsPreferences(impl: PreferencesRepository): SettingsPreferences
 
     @Binds @Singleton
+    abstract fun bindTraktFeaturePreferences(impl: PreferencesRepository): TraktFeaturePreferences
+
+    @Binds @Singleton
     abstract fun bindPlayerPreferences(impl: PreferencesRepository): PlayerPreferences
+
+    @Binds @Singleton
+    abstract fun bindSportsEventSourceSettings(impl: PreferencesRepository): SportsEventSourceSettings
+
+    @Binds @Singleton
+    abstract fun bindSportsScoreSourceSettings(impl: PreferencesRepository): SportsScoreSourceSettings
+
+    @Binds @Singleton
+    abstract fun bindSportsStandingsSourceSettings(impl: PreferencesRepository): SportsStandingsSourceSettings
+
+    @Binds @Singleton
+    abstract fun bindSportsMetadataSourceSettings(impl: PreferencesRepository): SportsMetadataSourceSettings
 
     @Binds @Singleton
     abstract fun bindPlayerPlaybackResolver(impl: AppPlayerPlaybackResolver): PlayerPlaybackResolver

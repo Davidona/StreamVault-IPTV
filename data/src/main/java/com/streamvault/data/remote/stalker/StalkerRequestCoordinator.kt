@@ -228,6 +228,14 @@ class StalkerRequestCoordinator @Inject constructor(
         }
     }
 
+    /** Returns the currently admitted metadata limit after loading persisted portal health. */
+    suspend fun effectiveConcurrencyLimit(providerId: Long): Int {
+        if (providerId <= 0L) return NORMAL_METADATA_CONCURRENCY
+        val state = states.computeIfAbsent(providerId) { ProviderState() }
+        hydratePersistedState(providerId, state)
+        return state.mutex.withLock { state.currentLimit(System.currentTimeMillis()) }
+    }
+
     suspend fun recordFailure(providerId: Long, error: Throwable?) {
         if (providerId <= 0L) return
         error?.findRateLimit()?.let { rateLimit ->

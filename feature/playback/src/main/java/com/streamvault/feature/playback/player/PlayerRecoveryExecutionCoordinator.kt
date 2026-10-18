@@ -4,10 +4,13 @@ import android.util.Log
 import com.streamvault.domain.model.Channel
 import com.streamvault.domain.model.ContentType
 import com.streamvault.domain.model.DecoderMode
+import com.streamvault.domain.model.PlaybackContentKind
 import com.streamvault.domain.model.Result
 import com.streamvault.domain.model.StreamInfo
 import com.streamvault.player.PlayerEngine
 import com.streamvault.player.PlayerError
+import com.streamvault.player.playback.ResolvedStreamType
+import com.streamvault.player.playback.StreamTypeResolver
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -42,6 +45,9 @@ internal interface PlayerRecoveryExecutionPort {
     ): Boolean
     fun tryNextCatchUpVariant(): Boolean
     suspend fun tryFallbackToAvcMovieVariant(requestVersion: Long, playbackUrl: String): Boolean
+    suspend fun tryFallbackToAvcEpisodeVariant(requestVersion: Long, playbackUrl: String): EpisodeFallbackResult =
+        EpisodeFallbackResult.NotEligible
+    fun handleEpisodeReplacementError(error: PlayerError): Boolean = false
     suspend fun tryRefreshXtreamPlaybackAfterAuthError(
         error: PlayerError,
         requestVersion: Long,
@@ -87,11 +93,12 @@ class PlayerRecoveryExecutionCoordinator @Inject constructor() {
         )
         cancel()
         if (!port.isActivePlaybackSession(request.requestVersion, request.playbackUrl)) return null
+        if (request.contentType == ContentType.SERIES_EPISODE && port.handleEpisodeReplacementError(error)) return null
 
         if (error is PlayerError.DecoderError && !port.recoveryState.retriedWithSoftwareDecoder) {
             if (!port.isActivePlaybackSession(request.requestVersion, request.playbackUrl)) return null
             if (request.contentType == ContentType.LIVE) {
-                val currentLiveHlsSession = request.resolvedStreamInfo?.streamType == com.streamvault.domain.model.StreamType.HLS
+                val currentLiveHlsSession = request.isLiveHlsSession()
                 if (currentLiveHlsSession) {
                     val channel = request.channel
                     if (channel != null && port.tryAlternateStream(channel, allowXtreamTsFallback = false)) {
@@ -100,6 +107,15 @@ class PlayerRecoveryExecutionCoordinator @Inject constructor() {
                     logWarning(
                         "Decoder error on live HLS. Keeping hardware path to match Sparkle-like playback on ${port.appPackageName}."
                     )
+                    if (!error.isDeferredLiveStall) {
+                        port.setLastFailureReason(error.message)
+                        port.showPlayerNotice(
+                            message = resolvePlaybackErrorMessage(error),
+                            recoveryType = PlayerRecoveryType.DECODER,
+                            actions = port.buildRecoveryActions(PlayerRecoveryType.DECODER)
+                        )
+                    }
+                    return null
                 }
             }
             port.recoveryState.retriedWithSoftwareDecoder = true
@@ -145,6 +161,12 @@ class PlayerRecoveryExecutionCoordinator @Inject constructor() {
 
         recoveryJob = sessionScope?.launch {
             if (!port.isActivePlaybackSession(request.requestVersion, request.playbackUrl)) return@launch
+            if (error is PlayerError.DecoderError && request.contentType == ContentType.SERIES_EPISODE) {
+                when (port.tryFallbackToAvcEpisodeVariant(request.requestVersion, request.playbackUrl)) {
+                    EpisodeFallbackResult.Recovered, EpisodeFallbackResult.HandledFailure -> return@launch
+                    EpisodeFallbackResult.NotEligible -> Unit
+                }
+            }
             if (
                 error is PlayerError.DecoderError &&
                 request.contentType == ContentType.MOVIE &&
@@ -278,4 +300,19 @@ class PlayerRecoveryExecutionCoordinator @Inject constructor() {
     private fun logWarning(message: String) {
         runCatching { Log.w("PlayerVM", message) }
     }
+}
+
+private fun PlayerRecoveryRequest.isLiveHlsSession(): Boolean {
+    val streamInfo = resolvedStreamInfo
+    if (isCatchUp || streamInfo?.playbackContentKind == PlaybackContentKind.CATCH_UP) return false
+
+    if (streamInfo != null) {
+        val resolvedType = StreamTypeResolver.resolve(streamInfo)
+        if (resolvedType != ResolvedStreamType.UNKNOWN) {
+            return resolvedType == ResolvedStreamType.HLS
+        }
+    }
+
+    return listOfNotNull(streamInfo?.url, currentStreamUrl, playbackUrl)
+        .any { url -> StreamTypeResolver.resolve(url = url, isLive = true) == ResolvedStreamType.HLS }
 }

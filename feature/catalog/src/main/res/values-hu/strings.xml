@@ -32,11 +32,11 @@
   <string name="badge_series">SOROZAT</string>
   <string name="card_live_badge">ÉLŐ</string>
   <string name="card_locked_channel">Lezárt csatorna</string>
-  <string name="cast_button_label" translatable="false">Cast</string>
-  <string name="cast_item_unavailable" translatable="false">This item cannot be sent to a Cast receiver.</string>
-  <string name="cast_launching" translatable="false">Casting...</string>
-  <string name="cast_started" translatable="false">Casting to the connected device.</string>
-  <string name="cast_unavailable" translatable="false">Google Cast is unavailable on this device.</string>
+  <string name="cast_button_label">Közvetítés</string>
+  <string name="cast_item_unavailable">Ez az elem nem küldhető Cast-eszközre.</string>
+  <string name="cast_launching">Közvetítés...</string>
+  <string name="cast_started">Közvetítés a csatlakoztatott eszközre.</string>
+  <string name="cast_unavailable">A Google Cast nem érhető el ezen az eszközön.</string>
   <string name="category_options_cancel">Mégse</string>
   <string name="category_options_clear_recent">Összes legutóbbi törlése</string>
   <string name="category_options_delete">Csoport törlése</string>
@@ -49,22 +49,22 @@
   <string name="category_options_set_default">Beállítás alapértelmezett csoportként</string>
   <string name="category_options_unlock">Csoport feloldása</string>
   <string name="category_options_unpin">Kategória rögzítésének feloldása</string>
-  <string name="category_pin" translatable="false">Pin</string>
+  <string name="category_pin">Rögzítés</string>
   <string name="category_see_all">Lásd Összes →</string>
-  <string name="category_unpin" translatable="false">Unpin</string>
-  <string name="channel_action_hide">Hide this channel</string>
+  <string name="category_unpin">Rögzítés feloldása</string>
+  <string name="channel_action_hide">Csatorna elrejtése</string>
   <string name="channel_options_remove_from_recent">Eltávolítás a legutóbbiakból</string>
   <string name="continue_watching_season_episode">S%1$d E%2$d</string>
   <string name="continue_watching_title">Folytassa a nézést</string>
   <string name="dashboard_channels_format">%1$d csatorna</string>
   <string name="dashboard_continue_watching">Folytassa a nézést</string>
-  <string name="dashboard_continue_watching_movies">Continue Watching Movies</string>
-  <string name="dashboard_continue_watching_series">Continue Watching Series</string>
+  <string name="dashboard_continue_watching_movies">Filmek folytatása</string>
+  <string name="dashboard_continue_watching_series">Sorozatok folytatása</string>
   <string name="dashboard_empty_body">Először adj hozzá egy lejátszási listát vagy Xtream forrást. Ha a szolgáltató aktív, a Kezdőlap megjeleníti a kedvenc csatornákat, a folytatandó nézést és az új könyvtársorokat.</string>
   <string name="dashboard_empty_title">Állíts be egy szolgáltatót a kezdőképernyő feloldásához</string>
   <string name="dashboard_favorite_channels">Kedvenc csatornák</string>
-  <string name="dashboard_favorite_movies">Favorite Movies</string>
-  <string name="dashboard_favorite_series">Favorite Series</string>
+  <string name="dashboard_favorite_movies">Kedvenc filmek</string>
+  <string name="dashboard_favorite_series">Kedvenc sorozatok</string>
   <string name="dashboard_fresh_movie_pick">Friss filmválasztás</string>
   <string name="dashboard_jump_back_live">Ugorjon vissza az élő tévéműsorba</string>
   <string name="dashboard_library_ready">Az IPTV könyvtár készen áll</string>
@@ -87,7 +87,7 @@
   <string name="dashboard_recent_channels">Legutóbbi csatornák</string>
   <string name="dashboard_recent_movies">Nemrég hozzáadott filmek</string>
   <string name="dashboard_recent_series">Nemrég frissített sorozat</string>
-  <string name="dashboard_recommended_movies">Recommended Movies</string>
+  <string name="dashboard_recommended_movies">Ajánlott filmek</string>
   <string name="dashboard_resume_episode">Epizód folytatása</string>
   <string name="dashboard_resume_episode_format">Önéletrajz S%1$d E%2$d</string>
   <string name="dashboard_resume_live">Folytatás</string>
@@ -104,10 +104,10 @@
   <string name="dashboard_stat_series">%1$d sorozat</string>
   <string name="dashboard_subtitle">%1$s aktív. Térj vissza az élő adásokhoz, folytasd a nézést, vagy böngéssz az új tartalmak között.</string>
   <string name="dashboard_title">A könyvtárad készen áll</string>
-  <string name="dashboard_top_rated_movies">Top Rated Movies</string>
-  <string name="dashboard_update_allow_installs" translatable="false">Allow Installs</string>
+  <string name="dashboard_top_rated_movies">Legjobbra értékelt filmek</string>
+  <string name="dashboard_update_allow_installs">Telepítések engedélyezése</string>
   <string name="dashboard_update_available">Egy újabb alkalmazásverzió gyorsítótárban van, és a Beállításokban megtekinthető.</string>
-  <string name="dashboard_update_install_permission_required" translatable="false">The update is downloaded. Allow installs from StreamVault, then retry installation.</string>
+  <string name="dashboard_update_install_permission_required">A frissítés letöltve. Engedélyezze a telepítéseket a StreamVaultból, majd próbálja újra a telepítést.</string>
   <string name="dashboard_update_install_ready">A legújabb frissítés már le lett töltve. Nyisd meg a Beállításokat a telepítéshez.</string>
   <string name="dashboard_update_open_installer">Telepítés a Beállításokból</string>
   <string name="dashboard_update_open_settings">Frissítések megnyitása</string>
@@ -117,10 +117,10 @@
   <string name="dashboard_warning_review">Szolgáltató részletei megnyitása</string>
   <string name="dashboard_warning_title">A szolgáltató figyelmet igényel</string>
   <string name="dashboard_watch_live">Nézd élőben</string>
-  <string name="download_button_label">Download</string>
-  <string name="download_error_no_url">Could not resolve stream URL for download</string>
-  <string name="download_failed">Download failed: %1$s</string>
-  <string name="download_started">Download started</string>
+  <string name="download_button_label">Letöltés</string>
+  <string name="download_error_no_url">A letöltéshez nem sikerült feloldani a stream URL-t</string>
+  <string name="download_failed">A letöltés sikertelen: %1$s</string>
+  <string name="download_started">A letöltés elindult</string>
   <string name="favorites_add">Hozzáadás a kedvencekhez</string>
   <string name="favorites_all_favorites">Minden kedvenc</string>
   <string name="favorites_cancel">Vissza: mégsem</string>
@@ -197,10 +197,10 @@
   <string name="library_saved_manage_hint">Tartsa lenyomva a mentett csoportot az opciókhoz</string>
   <string name="library_saved_primary_hint">Vissza a teljes könyvtárhoz</string>
   <string name="library_sort_title">Eredmények rendezése</string>
-  <string name="m3u_move_back_to_live" translatable="false">Move back to Live TV</string>
-  <string name="m3u_move_to_movies" translatable="false">Move to Movies</string>
-  <string name="m3u_move_to_series" translatable="false">Move to Series</string>
-  <string name="m3u_organize_items" translatable="false">Organize M3U Items</string>
+  <string name="m3u_move_back_to_live">Vissza az Élő TV-be</string>
+  <string name="m3u_move_to_movies">Áthelyezés a Filmek közé</string>
+  <string name="m3u_move_to_series">Áthelyezés a Sorozatok közé</string>
+  <string name="m3u_organize_items">M3U-elemek rendezése</string>
   <string name="movie_detail_back">Vissza a könyvtárba</string>
   <string name="movie_detail_cast">Szereplők:</string>
   <string name="movie_detail_director">Rendező:</string>
@@ -212,7 +212,7 @@
   <string name="movie_detail_resume_from">Folytatás innen: %1$s</string>
   <string name="movie_detail_trailer">Előzetes</string>
   <string name="movie_detail_unknown">Ismeretlen</string>
-  <string name="movie_detail_versions">Versions</string>
+  <string name="movie_detail_versions">Verziók</string>
   <string name="movie_loading_details">Részletek betöltése...</string>
   <string name="movie_not_found">A film nem található</string>
   <string name="movie_plot_fallback">Nincs elérhető történet</string>
@@ -232,7 +232,7 @@
   <string name="nav_movies">Filmek</string>
   <string name="nav_series">sorozat</string>
   <string name="nav_settings">Beállítások elemre</string>
-  <string name="nav_vod" translatable="false">VOD</string>
+  <string name="nav_vod">VOD</string>
   <string name="pin_dialog_cancel">Mégse</string>
   <string name="pin_dialog_title">PIN megadása</string>
   <string name="player_resume">Folytatás</string>
@@ -273,11 +273,11 @@
   <string name="search_actions_remove_favorite">Eltávolítás a kedvencekből</string>
   <string name="search_actions_unlock">Szülői felügyelet feloldása</string>
   <string name="search_all">Mind</string>
-  <string name="search_build_complete_index" translatable="false">Build complete search index once</string>
-  <string name="search_catalog_complete" translatable="false">Complete catalog index</string>
-  <string name="search_catalog_downloaded_only" translatable="false">Downloaded items only. Build the complete search index to search the full portal catalog.</string>
-  <string name="search_catalog_indexing" translatable="false">The complete search index is being built. Results are still partial.</string>
-  <string name="search_catalog_truncated" translatable="false">The portal catalog was truncated. Results may be incomplete.</string>
+  <string name="search_build_complete_index">A teljes keresési index felépítése egyszer</string>
+  <string name="search_catalog_complete">Teljes katalógusindex</string>
+  <string name="search_catalog_downloaded_only">Csak letöltött elemek. A teljes portálkatalógus kereséséhez építse fel a teljes keresési indexet.</string>
+  <string name="search_catalog_indexing">A teljes keresési index építése folyamatban van. Az eredmények még részlegesek.</string>
+  <string name="search_catalog_truncated">A portálkatalógus csonkolt. Az eredmények hiányosak lehetnek.</string>
   <string name="search_clear_history">Világos</string>
   <string name="search_command_subtitle">Kezdje címmel, kulcsszóval, csatornanévvel vagy sorozattal. Az eredmények csoportokban maradnak a gyors távirányítós navigációhoz.</string>
   <string name="search_error_subtitle">Egyes eredmények nem tölthetők be. Próbálja újra.</string>
@@ -304,7 +304,7 @@
   <string name="series_detail_back">Vissza a könyvtárhoz</string>
   <string name="series_detail_play_episode">Lejátszás · %1$d. évad %2$d. ep</string>
   <string name="series_detail_resume">Folytatás · %1$d. évad %2$d. ep · %3$s</string>
-  <string name="series_detail_versions">Versions</string>
+  <string name="series_detail_versions">Verziók</string>
   <string name="series_episodes">Epizódok (%1$d)</string>
   <string name="series_incorrect_pin">Hibás PIN</string>
   <string name="series_library_lens_subtitle">Kedvencek, folyamatban lévők, legjobbra értékeltek és friss sorozatok megjelenítése az ամբողջ könyvtárban.</string>
@@ -329,9 +329,9 @@
   <string name="settings_status_unknown">Ismeretlen</string>
   <string name="settings_update_install_started">A csomagtelepítő megnyitása.</string>
   <string name="stream_url_clip_label">Stream URL</string>
-  <string name="stream_url_copied">Stream URL copied</string>
-  <string name="stream_url_copy">Copy URL</string>
-  <string name="stream_url_copy_failed">Could not resolve stream URL</string>
+  <string name="stream_url_copied">Stream URL másolva</string>
+  <string name="stream_url_copy">URL másolása</string>
+  <string name="stream_url_copy_failed">Nem sikerült feloldani a stream URL-t</string>
   <string name="vod_category_picker_empty">Nem található egyező kategória.</string>
   <string name="vod_category_picker_search_placeholder">Kategóriák keresése…</string>
   <string name="vod_category_picker_subtitle">Keressen kategórianév szerint, majd nyissa meg a megfelelő polcot.</string>
@@ -349,6 +349,20 @@
   <string name="vod_rating_tmdb">TMDb</string>
   <string name="vod_sync_needed_subtitle">Frissítse ezt a szolgáltatót, hogy filmeket és sorozatokat importáljon a könyvtárba.</string>
   <string name="vod_sync_needed_title">Szinkronizálás szükséges</string>
-  <string name="vod_unavailable_subtitle" translatable="false">This provider exposes separate Movies and Series catalogs.</string>
-  <string name="vod_unavailable_title" translatable="false">VOD is unavailable</string>
+  <string name="vod_unavailable_subtitle">Ez a szolgáltató külön film- és sorozatkatalógust tesz elérhetővé.</string>
+  <string name="vod_unavailable_title">A VOD nem érhető el</string>
+
+<string name="trakt_watchlist_add">Hozzáadás a Trakt megtekintendő listájához</string>
+<string name="trakt_watchlist_connect">Csatlakoztasd a Traktot a Beállításokban</string>
+<string name="trakt_watchlist_failed">Nem sikerült frissíteni a Trakt listáját. Próbáld újra.</string>
+<string name="trakt_watchlist_load">Trakt lista betöltése</string>
+<string name="trakt_watchlist_remove">Eltávolítás a Trakt listájáról</string>
+<string name="dashboard_trakt_watchlist_movies">Filmek a Trakt figyelőlistán</string>
+<string name="dashboard_trakt_watchlist_series">TV-műsorok a Trakt figyelőlistádon</string>
+<string name="trakt_rating_action">Értékelés Trakton</string>
+<string name="trakt_rating_dialog_message">Válassz értékelést 1-től 10-ig.</string>
+<string name="trakt_rating_current">Trakt-értékelésed: %1$d/10</string>
+<string name="trakt_rating_saved">Az értékelésed mentve a Traktra.</string>
+<string name="trakt_rating_failed">Nem sikerült menteni az értékelésedet a Traktra.</string>
+<string name="trakt_favorite_sync_failed">A StreamVault mentette a módosítást, de nem sikerült frissítenie a Trakt kedvenceket. Próbáld újra.</string>
 </resources>

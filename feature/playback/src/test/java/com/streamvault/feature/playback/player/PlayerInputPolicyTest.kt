@@ -77,6 +77,16 @@ class PlayerInputPolicyTest {
     }
 
     @Test
+    fun `subtitle offset Back dismisses the dialog and directional keys pass through`() {
+        val state = liveState(showSubtitleOffsetDialog = true)
+
+        assertThat(playerInputDecision(state, PlayerInputKey.Back).action)
+            .isEqualTo(PlayerInputAction.DismissSubtitleOffset)
+        assertThat(playerInputDecision(state, PlayerInputKey.DpadRight).action)
+            .isEqualTo(PlayerInputAction.Pass)
+    }
+
+    @Test
     fun `speed modal consumes unrelated keys but passes navigation`() {
         val state = liveState(showSpeedSelection = true)
 
@@ -256,6 +266,7 @@ class PlayerInputPolicyTest {
         showVariantSelection: Boolean = false,
         showSpeedSelection: Boolean = false,
         showAudioVideoOffsetDialog: Boolean = false,
+        showSubtitleOffsetDialog: Boolean = false,
         showStopPlaybackTimerDialog: Boolean = false,
         showIdleStandbyTimerDialog: Boolean = false,
         showProgramHistory: Boolean = false,
@@ -280,6 +291,7 @@ class PlayerInputPolicyTest {
         showVariantSelection = showVariantSelection,
         showSpeedSelection = showSpeedSelection,
         showAudioVideoOffsetDialog = showAudioVideoOffsetDialog,
+        showSubtitleOffsetDialog = showSubtitleOffsetDialog,
         showStopPlaybackTimerDialog = showStopPlaybackTimerDialog,
         showIdleStandbyTimerDialog = showIdleStandbyTimerDialog,
         showProgramHistory = showProgramHistory,

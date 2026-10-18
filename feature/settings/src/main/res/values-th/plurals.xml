@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="settings_timeout_seconds">
+        <item quantity="other">%d วินาที</item>
+    </plurals>
+    <plurals name="settings_timer_minutes">
+        <item quantity="other">%1$d นาที</item>
+    </plurals>
+    <plurals name="settings_top_navigation_count">
+        <item quantity="other">%d แท็บ</item>
+    </plurals>
+    <plurals name="settings_home_dashboard_count">
+        <item quantity="other">%d ชั้นวาง</item>
+    </plurals>
+</resources>

@@ -33,6 +33,8 @@ import com.streamvault.domain.model.ContentType
 import com.streamvault.feature.system.api.SystemScaffoldContent
 import com.streamvault.feature.system.navigation.SystemRoutePatterns
 import com.streamvault.feature.system.navigation.registerSystemGraph
+import com.streamvault.feature.stremio.api.StremioScaffoldContent
+import com.streamvault.feature.stremio.navigation.registerStremioGraph
 
 @Composable
 internal fun AppNavHost(
@@ -57,6 +59,7 @@ internal fun AppNavHost(
             actions = actions,
             startupReady = startupReady,
             onStartupNavigationRequested = onStartupNavigationRequested,
+            onTopLevelDestinationRequested = onTopLevelDestinationRequested,
             scaffold = appSystemScaffold(onTopLevelDestinationRequested),
         )
         registerProviderGraph(
@@ -75,12 +78,19 @@ internal fun AppNavHost(
                     onImportPlaybackHistoryChanged = request.onImportPlaybackHistoryChanged,
                     onImportMultiViewChanged = request.onImportMultiViewChanged,
                     onImportRecordingSchedulesChanged = request.onImportRecordingSchedulesChanged,
+                    onImportStremioAddonsChanged = request.onImportStremioAddonsChanged,
                     isImporting = request.isImporting,
                     onConfirm = request.onConfirm
                 )
             }
         )
         registerLiveGraph(actions, onTopLevelDestinationRequested)
+        registerStremioGraph(
+            navController = navController,
+            actions = actions,
+            onTopLevelDestinationRequested = onTopLevelDestinationRequested,
+            scaffold = appStremioScaffold(onTopLevelDestinationRequested)
+        )
         registerCatalogGraph(
             actions = actions,
             platformHost = catalogPlatformHost,
@@ -103,8 +113,14 @@ internal fun AppNavHost(
             onPlayMovie = { movie, returnDestination ->
                 actions.openPlayer(movie.toPlayerNavigationRequest(returnDestination))
             },
-            onPlayEpisode = { episode, returnDestination ->
-                actions.openPlayer(episode.toPlayerNavigationRequest(returnDestination))
+            onPlayEpisode = { episode, series, returnDestination ->
+                actions.openPlayer(
+                    episode.toPlayerNavigationRequest(
+                        returnDestination = returnDestination,
+                        remoteSeriesId = series.providerSeriesId?.trim()?.takeIf(String::isNotBlank)
+                            ?: series.seriesId.takeIf { it > 0L }?.toString()
+                    )
+                )
             },
             onPlayHistory = { history, returnDestination ->
                 when (history.contentType) {
@@ -129,7 +145,7 @@ internal fun AppNavHost(
             actions = actions,
             platformHost = settingsPlatformHost,
             navigationDestinations = navigationDestinations,
-            settingsContent = { backupUri, platformHost, destinations, onBack ->
+            settingsContent = { backupUri, openOpenSubtitlesSignIn, platformHost, destinations, onBack ->
                 SettingsScreen(
                     onNavigate = { route ->
                         AppRouteCodec.decode(route)?.let(onTopLevelDestinationRequested)
@@ -154,6 +170,7 @@ internal fun AppNavHost(
                         )
                     },
                     initialBackupImportUri = backupUri,
+                    openOpenSubtitlesSignIn = openOpenSubtitlesSignIn,
                     onCloseApp = onCloseApp
                 )
             },
@@ -180,6 +197,22 @@ private fun appSystemScaffold(
         title = title,
         subtitle = subtitle,
         navigationChrome = AppNavigationChrome.TopBar,
+        compactHeader = compactHeader,
+        showScreenHeader = showScreenHeader,
+        content = content,
+    )
+}
+
+private fun appStremioScaffold(
+    onTopLevelDestinationRequested: (AppDestination) -> Unit,
+): StremioScaffoldContent = { destination, title, subtitle, compactHeader, showScreenHeader, topBarVisible, content ->
+    AppScreenScaffold(
+        currentRoute = AppRouteCodec.encode(destination),
+        onNavigate = { route -> AppRouteCodec.decode(route)?.let(onTopLevelDestinationRequested) },
+        title = title,
+        subtitle = subtitle,
+        navigationChrome = AppNavigationChrome.TopBar,
+        topBarVisible = topBarVisible,
         compactHeader = compactHeader,
         showScreenHeader = showScreenHeader,
         content = content,

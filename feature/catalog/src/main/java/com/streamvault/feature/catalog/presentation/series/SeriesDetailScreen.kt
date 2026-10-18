@@ -1,11 +1,14 @@
 package com.streamvault.feature.catalog.presentation.series
 
+import com.streamvault.core.ui.design.BrowseShapes
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.ContextWrapper
 import android.widget.Toast
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -23,7 +26,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
@@ -62,19 +65,28 @@ import com.streamvault.feature.catalog.api.CatalogPlatformHost
 import com.streamvault.feature.catalog.api.CatalogUiEvent
 import com.streamvault.feature.catalog.presentation.catalogMessageText
 import com.streamvault.feature.catalog.presentation.components.EpisodeRowCard
+import com.streamvault.feature.catalog.presentation.components.DetailActionButton
+import com.streamvault.feature.catalog.presentation.components.DetailSectionHeading
 import com.streamvault.feature.catalog.presentation.components.ExternalRatingsStrip
 import com.streamvault.feature.catalog.presentation.components.formatVodRatingLabel
+import com.streamvault.feature.catalog.presentation.components.TraktWatchlistActionButton
+import com.streamvault.feature.catalog.presentation.components.TraktRatingActionButton
+import com.streamvault.feature.catalog.presentation.components.TraktRatingDialog
+import com.streamvault.feature.catalog.presentation.components.TraktCustomListActionButton
 import com.streamvault.feature.catalog.presentation.time.formatPositionMs
 import com.streamvault.core.ui.device.rememberIsTelevisionDevice
 import com.streamvault.core.ui.image.rememberCrossfadeImageModel
 import com.streamvault.core.ui.components.shell.ContentMetadataStrip
 import com.streamvault.core.ui.components.shell.StatusPill
-import com.streamvault.core.ui.design.AppColors
+import com.streamvault.core.ui.design.BrowseColors as AppColors
 import com.streamvault.domain.model.Episode
 import com.streamvault.domain.model.ExternalRatings
 import com.streamvault.domain.model.Season
 import com.streamvault.domain.model.Series
 import com.streamvault.domain.model.VodSeriesVariant
+import com.streamvault.domain.trakt.TraktCustomListItem
+import com.streamvault.domain.trakt.TraktCustomListItemIdentity
+import com.streamvault.domain.trakt.TraktCustomListItemType
 import com.streamvault.core.ui.interaction.TvClickableSurface
 import com.streamvault.core.ui.interaction.TvButton
 import com.streamvault.core.ui.interaction.TvIconButton
@@ -85,7 +97,7 @@ private const val EPISODE_DETAIL_PAGE_SIZE = 100
 
 @Composable
 fun SeriesDetailScreen(
-    onEpisodeClick: (Episode) -> Unit,
+    onEpisodeClick: (Episode, Series) -> Unit,
     onResumeClick: ((Episode) -> Unit)? = null,
     onBack: () -> Unit,
     platformHost: CatalogPlatformHost? = null,
@@ -94,6 +106,7 @@ fun SeriesDetailScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val series = uiState.series
     val context = LocalContext.current
+    var ratingDialogOpen by remember { mutableStateOf(false) }
 
     LaunchedEffect(viewModel, context, platformHost) {
         viewModel.uiEvents.collect { event ->
@@ -143,11 +156,19 @@ fun SeriesDetailScreen(
         isCasting = uiState.isCasting,
         externalRatings = uiState.externalRatings,
         isLoadingExternalRatings = uiState.isLoadingExternalRatings,
+        traktWatchlistConnected = uiState.traktWatchlistConnected,
+        traktWatchlistLoaded = uiState.traktWatchlistLoaded,
+        traktWatchlisted = uiState.traktWatchlisted,
+        traktWatchlistBusy = uiState.traktWatchlistBusy,
+        traktUserRating = uiState.traktUserRating,
+        traktRatingBusy = uiState.traktRatingBusy,
+        onToggleTraktWatchlist = viewModel::toggleTraktWatchlist,
+        onRateOnTrakt = { ratingDialogOpen = true },
         onToggleFavorite = viewModel::toggleFavorite,
         onSelectVariant = viewModel::selectSeriesVariant,
         onSeasonSelected = viewModel::selectSeason,
-        onEpisodeClick = onEpisodeClick,
-        onResumeClick = onResumeClick ?: onEpisodeClick,
+        onEpisodeClick = { episode -> onEpisodeClick(episode, series) },
+        onResumeClick = onResumeClick ?: { episode -> onEpisodeClick(episode, series) },
         onCopyEpisodeUrl = { episode ->
             when (val result = viewModel.resolveCopyStreamUrl(episode)) {
                 is Result.Success -> result.data
@@ -162,6 +183,17 @@ fun SeriesDetailScreen(
         onCastEpisode = viewModel::castEpisode,
         onBack = onBack
     )
+    if (ratingDialogOpen) {
+        TraktRatingDialog(
+            currentRating = uiState.traktUserRating,
+            busy = uiState.traktRatingBusy,
+            onDismiss = { ratingDialogOpen = false },
+            onSelect = { rating ->
+                ratingDialogOpen = false
+                viewModel.rateOnTrakt(rating)
+            },
+        )
+    }
 }
 
 @Composable
@@ -173,6 +205,14 @@ private fun SeriesDetailContent(
     isCasting: Boolean,
     externalRatings: ExternalRatings,
     isLoadingExternalRatings: Boolean,
+    traktWatchlistConnected: Boolean,
+    traktWatchlistLoaded: Boolean,
+    traktWatchlisted: Boolean,
+    traktWatchlistBusy: Boolean,
+    traktUserRating: Int?,
+    traktRatingBusy: Boolean,
+    onToggleTraktWatchlist: () -> Unit,
+    onRateOnTrakt: () -> Unit,
     onToggleFavorite: () -> Unit,
     onSelectVariant: (Long) -> Unit,
     onSeasonSelected: (Season) -> Unit,
@@ -266,8 +306,9 @@ private fun SeriesDetailContent(
                             modifier = Modifier
                                 .width(posterWidth)
                                 .aspectRatio(2f / 3f)
-                                .clip(RoundedCornerShape(24.dp))
+                                .clip(BrowseShapes.Panel)
                                 .background(AppColors.SurfaceElevated)
+                                .border(1.dp, AppColors.Outline, BrowseShapes.Panel)
                         ) {
                             AsyncImage(
                                 model = rememberCrossfadeImageModel(series.posterUrl ?: series.backdropUrl),
@@ -354,8 +395,9 @@ private fun SeriesDetailContent(
                             modifier = Modifier
                                 .width(posterWidth)
                                 .aspectRatio(2f / 3f)
-                                .clip(RoundedCornerShape(24.dp))
+                                .clip(BrowseShapes.Panel)
                                 .background(AppColors.SurfaceElevated)
+                                .border(1.dp, AppColors.Outline, BrowseShapes.Panel)
                         ) {
                             AsyncImage(
                                 model = rememberCrossfadeImageModel(series.posterUrl ?: series.backdropUrl),
@@ -436,14 +478,45 @@ private fun SeriesDetailContent(
                 }
             }
 
+            if (series.tmdbId?.let { it > 0L } == true) {
+                item {
+                    LazyRow(
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        item {
+                            TraktWatchlistActionButton(
+                                hasIdentity = true,
+                                connected = traktWatchlistConnected,
+                                loaded = traktWatchlistLoaded,
+                                watchlisted = traktWatchlisted,
+                                busy = traktWatchlistBusy,
+                                onClick = onToggleTraktWatchlist,
+                            )
+                        }
+                        item {
+                            TraktRatingActionButton(
+                                hasIdentity = true,
+                                connected = traktWatchlistConnected,
+                                busy = traktRatingBusy,
+                                rating = traktUserRating,
+                                onClick = onRateOnTrakt,
+                            )
+                        }
+                        item {
+                            TraktCustomListActionButton(
+                                item = series.traktShowListItem(),
+                                additionalItems = series.traktNestedListItems(),
+                            )
+                        }
+                    }
+                }
+            }
+
             if (series.seasons.isNotEmpty()) {
                 item {
                     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                        Text(
-                            text = stringResource(R.string.series_seasons),
-                            style = MaterialTheme.typography.titleLarge,
-                            color = AppColors.TextPrimary
-                        )
+                        DetailSectionHeading(stringResource(R.string.series_seasons))
                         LazyRow(
                             horizontalArrangement = Arrangement.spacedBy(12.dp),
                             contentPadding = PaddingValues(vertical = 2.dp)
@@ -462,18 +535,10 @@ private fun SeriesDetailContent(
 
             selectedSeason?.let { season ->
                 item {
-                    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                        Text(
-                            text = stringResource(R.string.series_episodes, season.episodes.size),
-                            style = MaterialTheme.typography.titleLarge,
-                            color = AppColors.TextPrimary
-                        )
-                        Text(
-                            text = season.name,
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = AppColors.TextTertiary
-                        )
-                    }
+                    DetailSectionHeading(
+                        stringResource(R.string.series_episodes, season.episodes.size),
+                        season.name
+                    )
                 }
                 val fallbackCover = series?.let {
                         it.posterUrl ?: it.backdropUrl
@@ -512,6 +577,50 @@ private fun SeriesDetailContent(
     }
 }
 
+private fun Series.traktShowListItem(): TraktCustomListItem? {
+    val showTmdbId = tmdbId?.takeIf { it > 0L } ?: return null
+    return TraktCustomListItem(
+        identity = TraktCustomListItemIdentity(TraktCustomListItemType.SHOW, showTmdbId),
+        title = name,
+        year = releaseDate?.take(4)?.toIntOrNull(),
+    )
+}
+
+@Composable
+private fun Series.traktNestedListItems(): List<TraktCustomListItem> {
+    val showTmdbId = tmdbId?.takeIf { it > 0L } ?: return emptyList()
+    val items = mutableListOf<TraktCustomListItem>()
+    seasons.forEach { season ->
+        items += TraktCustomListItem(
+            identity = TraktCustomListItemIdentity(
+                type = TraktCustomListItemType.SEASON,
+                tmdbId = showTmdbId,
+                seasonNumber = season.seasonNumber,
+            ),
+            title = "$name · ${season.name}",
+        )
+        season.episodes.forEach { episode ->
+            if (episode.episodeNumber > 0) {
+                val episodeNumber = stringResource(
+                    R.string.continue_watching_season_episode,
+                    episode.seasonNumber,
+                    episode.episodeNumber,
+                )
+                items += TraktCustomListItem(
+                    identity = TraktCustomListItemIdentity(
+                        type = TraktCustomListItemType.EPISODE,
+                        tmdbId = showTmdbId,
+                        seasonNumber = episode.seasonNumber,
+                        episodeNumber = episode.episodeNumber,
+                    ),
+                    title = "$name · $episodeNumber · ${episode.title}",
+                )
+            }
+        }
+    }
+    return items
+}
+
 @Composable
 private fun SeriesVersionSelector(
     variants: List<VodSeriesVariant>,
@@ -532,7 +641,7 @@ private fun SeriesVersionSelector(
                     onClick = { onSelectVariant(variant.rawSeriesId) },
                     colors = ButtonDefaults.colors(
                         containerColor = if (selected) AppColors.Brand else AppColors.SurfaceEmphasis,
-                        contentColor = if (selected) Color.White else AppColors.TextPrimary
+                        contentColor = if (selected) AppColors.OnPrimary else AppColors.TextPrimary
                     )
                 ) {
                     Text(
@@ -557,55 +666,31 @@ private fun SeriesDetailActions(
     onCast: () -> Unit,
     onToggleFavorite: () -> Unit
 ) {
-    Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
-        TvButton(
-            onClick = { onResumeClick(resumeEpisode) },
-            colors = ButtonDefaults.colors(
-                containerColor = AppColors.Brand,
-                contentColor = Color.White
-            )
-        ) {
-            Text(
-                text = if (hasProgress) {
-                    stringResource(
-                        R.string.series_detail_resume,
-                        resumeEpisode.seasonNumber,
-                        resumeEpisode.episodeNumber,
-                        formatPositionMs(resumeEpisode.watchProgress)
-                    )
-                } else {
-                    stringResource(
-                        R.string.series_detail_play_episode,
-                        resumeEpisode.seasonNumber,
-                        resumeEpisode.episodeNumber
-                    )
-                }
-            )
-        }
-        TvButton(
-            onClick = onCopyUrl,
-            colors = ButtonDefaults.colors(
-                containerColor = AppColors.SurfaceEmphasis,
-                contentColor = AppColors.TextPrimary
-            )
-        ) {
-            Text(stringResource(R.string.stream_url_copy))
-        }
-        TvButton(
-            onClick = onCast,
-            enabled = !isCasting,
-            colors = ButtonDefaults.colors(
-                containerColor = AppColors.SurfaceEmphasis,
-                contentColor = AppColors.TextPrimary
-            )
-        ) {
-            Text(
+    LazyRow(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
+        item { DetailActionButton(
+            label = if (hasProgress) {
                 stringResource(
-                    if (isCasting) R.string.cast_launching else R.string.cast_button_label
+                    R.string.series_detail_resume,
+                    resumeEpisode.seasonNumber,
+                    resumeEpisode.episodeNumber,
+                    formatPositionMs(resumeEpisode.watchProgress)
                 )
-            )
-        }
-        SeriesDetailFavoriteAction(series = series, onToggleFavorite = onToggleFavorite)
+            } else {
+                stringResource(
+                    R.string.series_detail_play_episode,
+                    resumeEpisode.seasonNumber,
+                    resumeEpisode.episodeNumber
+                )
+            },
+            onClick = { onResumeClick(resumeEpisode) },
+            primary = true
+        ) }
+        item { DetailActionButton(stringResource(R.string.stream_url_copy), onCopyUrl) }
+        item { DetailActionButton(
+            stringResource(if (isCasting) R.string.cast_launching else R.string.cast_button_label),
+            onCast, enabled = !isCasting
+        ) }
+        item { SeriesDetailFavoriteAction(series = series, onToggleFavorite = onToggleFavorite) }
     }
 }
 
@@ -616,9 +701,17 @@ private fun SeriesDetailFavoriteAction(
 ) {
     TvIconButton(
         onClick = onToggleFavorite,
+        scale = ButtonDefaults.scale(focusedScale = 1f),
+        shape = ButtonDefaults.shape(shape = CircleShape),
+        border = ButtonDefaults.border(
+            border = Border(BorderStroke(1.dp, AppColors.Outline), shape = CircleShape),
+            focusedBorder = Border(BorderStroke(2.dp, AppColors.Focus), shape = CircleShape)
+        ),
         colors = ButtonDefaults.colors(
             containerColor = if (series.isFavorite) AppColors.Brand else AppColors.SurfaceEmphasis,
-            contentColor = if (series.isFavorite) Color.White else AppColors.TextSecondary
+            focusedContainerColor = if (series.isFavorite) AppColors.Brand else AppColors.SurfaceEmphasis,
+            contentColor = if (series.isFavorite) AppColors.OnPrimary else AppColors.TextSecondary,
+            focusedContentColor = if (series.isFavorite) AppColors.OnPrimary else AppColors.TextSecondary
         )
     ) {
         Icon(
@@ -638,23 +731,24 @@ fun SeasonChip(
 ) {
     TvClickableSurface(
         onClick = onClick,
-        shape = ClickableSurfaceDefaults.shape(shape = RoundedCornerShape(999.dp)),
+        shape = ClickableSurfaceDefaults.shape(shape = BrowseShapes.Control),
         colors = ClickableSurfaceDefaults.colors(
             containerColor = if (isSelected) AppColors.BrandMuted else AppColors.SurfaceElevated,
             contentColor = AppColors.TextPrimary,
-            focusedContainerColor = AppColors.SurfaceEmphasis,
+            focusedContainerColor = if (isSelected) AppColors.BrandMuted else AppColors.SurfaceElevated,
             focusedContentColor = AppColors.TextPrimary
         ),
         border = ClickableSurfaceDefaults.border(
             border = Border(
                 border = androidx.compose.foundation.BorderStroke(1.dp, if (isSelected) AppColors.Brand else AppColors.Outline),
-                shape = RoundedCornerShape(999.dp)
+                shape = BrowseShapes.Control
             ),
             focusedBorder = Border(
                 border = androidx.compose.foundation.BorderStroke(2.dp, AppColors.Focus),
-                shape = RoundedCornerShape(999.dp)
+                shape = BrowseShapes.Control
             )
-        )
+        ),
+        scale = ClickableSurfaceDefaults.scale(focusedScale = 1f)
     ) {
         Text(
             text = season.name,
@@ -681,11 +775,16 @@ fun EpisodeItem(
     ) {
         TvClickableSurface(
             onClick = onClick,
-            shape = ClickableSurfaceDefaults.shape(shape = RoundedCornerShape(18.dp)),
+            shape = ClickableSurfaceDefaults.shape(shape = BrowseShapes.Panel),
             colors = ClickableSurfaceDefaults.colors(
                 containerColor = AppColors.SurfaceElevated,
-                focusedContainerColor = AppColors.SurfaceEmphasis
+                focusedContainerColor = AppColors.SurfaceElevated
             ),
+            border = ClickableSurfaceDefaults.border(
+                border = Border(BorderStroke(1.dp, AppColors.Outline), shape = BrowseShapes.Panel),
+                focusedBorder = Border(BorderStroke(2.dp, AppColors.Focus), shape = BrowseShapes.Panel)
+            ),
+            scale = ClickableSurfaceDefaults.scale(focusedScale = 1f),
             modifier = Modifier.weight(1f)
         ) {
             EpisodeRowCard(
@@ -694,29 +793,17 @@ fun EpisodeItem(
                 modifier = Modifier.fillMaxWidth()
             )
         }
-        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            TvButton(
-                onClick = onDownload,
-                colors = ButtonDefaults.colors(
-                    containerColor = AppColors.SurfaceEmphasis,
-                    contentColor = AppColors.TextPrimary
-                )
-            ) {
-                Text(stringResource(R.string.download_button_label))
-            }
-            TvButton(onClick = onCopyUrl) {
-                Text(stringResource(R.string.stream_url_copy))
-            }
-            TvButton(
-                onClick = onCast,
-                enabled = !isCasting
-            ) {
-                Text(
-                    stringResource(
-                        if (isCasting) R.string.cast_launching else R.string.cast_button_label
-                    )
-                )
-            }
+        Column(
+            modifier = Modifier.width(140.dp),
+            verticalArrangement = Arrangement.spacedBy(7.dp)
+        ) {
+            DetailActionButton(stringResource(R.string.download_button_label), onDownload,
+                modifier = Modifier.fillMaxWidth(), compact = true)
+            DetailActionButton(stringResource(R.string.stream_url_copy), onCopyUrl,
+                modifier = Modifier.fillMaxWidth(), compact = true)
+            DetailActionButton(
+                stringResource(if (isCasting) R.string.cast_launching else R.string.cast_button_label),
+                onCast, modifier = Modifier.fillMaxWidth(), enabled = !isCasting, compact = true)
         }
     }
 }

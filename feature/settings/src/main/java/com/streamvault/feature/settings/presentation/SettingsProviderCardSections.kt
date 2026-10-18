@@ -44,8 +44,7 @@ public fun ProviderM3uOptionsPanel(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(Surface, RoundedCornerShape(10.dp))
-            .border(1.dp, SurfaceHighlight, RoundedCornerShape(10.dp))
+            .settingsDetailPanel()
             .padding(12.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
@@ -206,13 +205,6 @@ public fun ProviderActionButtons(
             modifier = if (targetItemId == "sources.edit") targetFocusModifier else Modifier,
         )
 
-        ProviderActionButton(
-            label = stringResource(R.string.settings_delete),
-            accent = ErrorColor,
-            onClick = onDelete,
-            modifier = if (targetItemId == "sources.delete") targetFocusModifier else Modifier,
-        )
-
         if (isActive) {
             ProviderActionButton(
                 label = stringResource(R.string.settings_provider_category_controls_action),
@@ -220,6 +212,13 @@ public fun ProviderActionButtons(
                 onClick = onParentalControl
             )
         }
+
+        ProviderActionButton(
+            label = stringResource(R.string.settings_delete),
+            accent = ErrorColor,
+            onClick = onDelete,
+            modifier = if (targetItemId == "sources.delete") targetFocusModifier else Modifier,
+        )
     }
 }
 
@@ -235,17 +234,17 @@ private fun ProviderActionButton(
     TvClickableSurface(
         onClick = onClick,
         modifier = modifier,
-        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(6.dp)),
+        shape = ClickableSurfaceDefaults.shape(SettingsDetailShapes.Control),
         colors = ClickableSurfaceDefaults.colors(
-            containerColor = if (filled) accent else accent.copy(alpha = 0.2f),
-            focusedContainerColor = if (filled) accent.copy(alpha = 0.8f) else accent.copy(alpha = 0.5f),
+            containerColor = if (filled) accent else accent.copy(alpha = 0.12f),
+            focusedContainerColor = accent,
             contentColor = contentColor,
-            focusedContentColor = contentColor
+            focusedContentColor = com.streamvault.core.ui.design.contentOnColor(accent)
         ),
         border = ClickableSurfaceDefaults.border(
             focusedBorder = Border(
                 border = BorderStroke(FocusSpec.BorderWidth, com.streamvault.core.ui.theme.FocusBorder),
-                shape = RoundedCornerShape(6.dp)
+                shape = SettingsDetailShapes.Control
             )
         ),
         scale = ClickableSurfaceDefaults.scale(focusedScale = 1f)
@@ -253,7 +252,6 @@ private fun ProviderActionButton(
         Text(
             text = label,
             style = MaterialTheme.typography.labelMedium,
-            color = contentColor,
             modifier = Modifier
                 .widthIn(min = 0.dp)
                 .padding(horizontal = 16.dp, vertical = 10.dp)

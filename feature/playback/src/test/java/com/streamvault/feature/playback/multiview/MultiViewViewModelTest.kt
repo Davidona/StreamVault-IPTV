@@ -59,6 +59,7 @@ class MultiViewViewModelTest {
         whenever(preferences.playerAudioVideoSyncEnabled).thenReturn(flowOf(false))
         whenever(preferences.playerAudioVideoOffsetMs).thenReturn(flowOf(0))
         whenever(preferences.getMultiViewPreset(any())).thenReturn(flowOf(emptyList()))
+        whenever(preferences.multiViewPerformanceMode).thenReturn(flowOf(null))
         whenever(preferences.multiViewCenterTwoSlotLayout).thenReturn(flowOf(false))
         whenever(preferences.multiViewRespectProviderConnectionLimit).thenReturn(flowOf(false))
         whenever(preferences.parentalControlLevel).thenReturn(flowOf(0))

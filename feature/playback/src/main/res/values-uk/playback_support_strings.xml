@@ -1,0 +1,22 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="cast_started" tools:ignore="MissingTranslation">Трансляція на підключений пристрій.</string>
+    <string name="cast_unavailable" tools:ignore="MissingTranslation">Google Cast недоступний на цьому пристрої.</string>
+    <string name="cast_stream_unsupported" tools:ignore="MissingTranslation">Цей формат потоку не підтримується Google Cast.</string>
+    <string name="cast_protocol_unsupported" tools:ignore="MissingTranslation">Потоки RTSP та RTMP не підтримуються для трансляції.</string>
+    <string name="cast_drm_unsupported" tools:ignore="MissingTranslation">Потоки із захистом DRM не підтримуються Google Cast у цьому застосунку.</string>
+    <string name="cast_item_unavailable" tools:ignore="MissingTranslation">Цей елемент не можна надіслати на приймач Cast.</string>
+    <string name="cast_local_url_unsupported" tools:ignore="MissingTranslation">Цей потік використовує локальну URL-адресу або адресу лише пристрою, до якої Chromecast не може дістатися напряму.</string>
+    <string name="cast_headers_unsupported" tools:ignore="MissingTranslation">Цьому потоку потрібні HTTP-заголовки або файли cookie, які Chromecast не може використати напряму.</string>
+    <string name="cast_user_agent_unsupported" tools:ignore="MissingTranslation">Цьому потоку потрібен власний User-Agent, який Chromecast не може використати напряму.</string>
+    <string name="cast_proxy_unsupported" tools:ignore="MissingTranslation">Цьому потоку потрібні налаштування проксі застосунку, тому Chromecast не може використати його напряму.</string>
+    <string name="cast_invalid_ssl_unsupported" tools:ignore="MissingTranslation">Цей потік використовує обробку SSL, яку Chromecast не може застосувати напряму.</string>
+    <string name="cast_session_failed" tools:ignore="MissingTranslation">Не вдалося розпочати сеанс трансляції.</string>
+    <string name="cast_load_failed" tools:ignore="MissingTranslation">Приймач Cast не зміг завантажити цей потік.</string>
+    <string name="cast_receiver_unavailable" tools:ignore="MissingTranslation">Підключений приймач Cast не готовий до відтворення.</string>
+    <string name="cast_selection_cancelled" tools:ignore="MissingTranslation">Вибір пристрою Cast скасовано.</string>
+    <string name="add_group_close_cd">Закрити</string>
+    <string name="player_archive_title">Архів програм</string>
+    <string name="player_no_archive">Архівних програм не знайдено</string>
+    <string name="program_date_time_range">%1$s | %2$s – %3$s</string>
+    <string name="player_archive_badge">Архів</string>
+</resources>

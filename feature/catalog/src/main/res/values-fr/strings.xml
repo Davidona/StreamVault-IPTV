@@ -32,11 +32,11 @@
   <string name="badge_series">SÉRIE</string>
   <string name="card_live_badge">EN DIRECT</string>
   <string name="card_locked_channel">Chaîne verrouillée</string>
-  <string name="cast_button_label" translatable="false">Cast</string>
-  <string name="cast_item_unavailable" translatable="false">This item cannot be sent to a Cast receiver.</string>
-  <string name="cast_launching" translatable="false">Casting...</string>
-  <string name="cast_started" translatable="false">Casting to the connected device.</string>
-  <string name="cast_unavailable" translatable="false">Google Cast is unavailable on this device.</string>
+  <string name="cast_button_label">Diffuser</string>
+  <string name="cast_item_unavailable">Cet élément ne peut pas être envoyé à un récepteur Cast.</string>
+  <string name="cast_launching">Diffusion en cours...</string>
+  <string name="cast_started">Diffusion vers l’appareil connecté.</string>
+  <string name="cast_unavailable">Google Cast n’est pas disponible sur cet appareil.</string>
   <string name="category_options_cancel">Annuler</string>
   <string name="category_options_clear_recent">Effacer tout le récent</string>
   <string name="category_options_delete">Supprimer le groupe</string>
@@ -49,22 +49,22 @@
   <string name="category_options_set_default">Définir comme groupe par défaut</string>
   <string name="category_options_unlock">Déverrouiller le groupe</string>
   <string name="category_options_unpin">Désépingler la catégorie</string>
-  <string name="category_pin" translatable="false">Pin</string>
+  <string name="category_pin">Épingler</string>
   <string name="category_see_all">Tout voir →</string>
-  <string name="category_unpin" translatable="false">Unpin</string>
+  <string name="category_unpin">Désépingler</string>
   <string name="channel_action_hide">Masquer cette chaîne</string>
   <string name="channel_options_remove_from_recent">Retirer du récent</string>
   <string name="continue_watching_season_episode">S%1$d E%2$d</string>
   <string name="continue_watching_title">Continuer à regarder</string>
   <string name="dashboard_channels_format">%1$d chaînes</string>
   <string name="dashboard_continue_watching">Continuer à regarder</string>
-  <string name="dashboard_continue_watching_movies">Continue Watching Movies</string>
-  <string name="dashboard_continue_watching_series">Continue Watching Series</string>
+  <string name="dashboard_continue_watching_movies">Reprendre les films</string>
+  <string name="dashboard_continue_watching_series">Reprendre les séries</string>
   <string name="dashboard_empty_body">Ajoutez d’abord une playlist ou une source Xtream. Une fois un fournisseur actif, l’accueil affichera les chaînes favorites, la reprise de lecture et de nouvelles lignes de bibliothèque.</string>
   <string name="dashboard_empty_title">Configurer un fournisseur pour déverrouiller l’écran d’accueil</string>
   <string name="dashboard_favorite_channels">Chaînes préférées</string>
-  <string name="dashboard_favorite_movies">Favorite Movies</string>
-  <string name="dashboard_favorite_series">Favorite Series</string>
+  <string name="dashboard_favorite_movies">Films préférés</string>
+  <string name="dashboard_favorite_series">Séries préférées</string>
   <string name="dashboard_fresh_movie_pick">Une nouvelle sélection de films</string>
   <string name="dashboard_jump_back_live">Revenez à la télévision en direct</string>
   <string name="dashboard_library_ready">Votre bibliothèque IPTV est prête</string>
@@ -87,7 +87,7 @@
   <string name="dashboard_recent_channels">Chaînes récentes</string>
   <string name="dashboard_recent_movies">Films récemment ajoutés</string>
   <string name="dashboard_recent_series">Série récemment mise à jour</string>
-  <string name="dashboard_recommended_movies">Recommended Movies</string>
+  <string name="dashboard_recommended_movies">Films recommandés</string>
   <string name="dashboard_resume_episode">Reprendre l’épisode</string>
   <string name="dashboard_resume_episode_format">Reprendre S%1$d E%2$d</string>
   <string name="dashboard_resume_live">CV</string>
@@ -104,10 +104,10 @@
   <string name="dashboard_stat_series">Série %1$d</string>
   <string name="dashboard_subtitle">%1$s est actif. Retournez au direct, reprenez votre progression ou parcourez les nouveautés.</string>
   <string name="dashboard_title">Votre bibliothèque, prête</string>
-  <string name="dashboard_top_rated_movies">Top Rated Movies</string>
-  <string name="dashboard_update_allow_installs" translatable="false">Allow Installs</string>
+  <string name="dashboard_top_rated_movies">Films les mieux notés</string>
+  <string name="dashboard_update_allow_installs">Autoriser les installations</string>
   <string name="dashboard_update_available">Une nouvelle version de l’application est en cache et prête à être consultée dans Paramètres.</string>
-  <string name="dashboard_update_install_permission_required" translatable="false">The update is downloaded. Allow installs from StreamVault, then retry installation.</string>
+  <string name="dashboard_update_install_permission_required">La mise à jour est téléchargée. Autorisez les installations depuis StreamVault, puis réessayez l’installation.</string>
   <string name="dashboard_update_install_ready">La dernière mise à jour a déjà été téléchargée. Ouvrez Paramètres pour l’installer.</string>
   <string name="dashboard_update_open_installer">Installer depuis les paramètres</string>
   <string name="dashboard_update_open_settings">Ouvrir les mises à jour</string>
@@ -117,10 +117,10 @@
   <string name="dashboard_warning_review">Détails du fournisseur ouvert</string>
   <string name="dashboard_warning_title">Le fournisseur a besoin d’attention</string>
   <string name="dashboard_watch_live">Regarder en direct</string>
-  <string name="download_button_label">Download</string>
-  <string name="download_error_no_url">Could not resolve stream URL for download</string>
-  <string name="download_failed">Download failed: %1$s</string>
-  <string name="download_started">Download started</string>
+  <string name="download_button_label">Télécharger</string>
+  <string name="download_error_no_url">Impossible de résoudre l’URL du flux pour le téléchargement</string>
+  <string name="download_failed">Échec du téléchargement : %1$s</string>
+  <string name="download_started">Téléchargement démarré</string>
   <string name="favorites_add">Ajouter aux favoris</string>
   <string name="favorites_all_favorites">Tous les favoris</string>
   <string name="favorites_cancel">Retour : annuler</string>
@@ -197,10 +197,10 @@
   <string name="library_saved_manage_hint">Conservez un groupe enregistré pour les options</string>
   <string name="library_saved_primary_hint">Revenir à la bibliothèque complète</string>
   <string name="library_sort_title">Trier les résultats</string>
-  <string name="m3u_move_back_to_live" translatable="false">Move back to Live TV</string>
-  <string name="m3u_move_to_movies" translatable="false">Move to Movies</string>
-  <string name="m3u_move_to_series" translatable="false">Move to Series</string>
-  <string name="m3u_organize_items" translatable="false">Organize M3U Items</string>
+  <string name="m3u_move_back_to_live">Revenir à la télévision en direct</string>
+  <string name="m3u_move_to_movies">Déplacer vers les films</string>
+  <string name="m3u_move_to_series">Déplacer vers les séries</string>
+  <string name="m3u_organize_items">Organiser les éléments M3U</string>
   <string name="movie_detail_back">Retour à la bibliothèque</string>
   <string name="movie_detail_cast">Distribution :</string>
   <string name="movie_detail_director">Réalisé par :</string>
@@ -232,7 +232,7 @@
   <string name="nav_movies">Films</string>
   <string name="nav_series">Série</string>
   <string name="nav_settings">Paramètres</string>
-  <string name="nav_vod" translatable="false">VOD</string>
+  <string name="nav_vod">À la demande</string>
   <string name="pin_dialog_cancel">Annuler</string>
   <string name="pin_dialog_title">Entrez le code PIN</string>
   <string name="player_resume">CV</string>
@@ -273,11 +273,11 @@
   <string name="search_actions_remove_favorite">Retirer des favoris</string>
   <string name="search_actions_unlock">Déverrouiller le contrôle parental</string>
   <string name="search_all">Tout</string>
-  <string name="search_build_complete_index" translatable="false">Build complete search index once</string>
-  <string name="search_catalog_complete" translatable="false">Complete catalog index</string>
-  <string name="search_catalog_downloaded_only" translatable="false">Downloaded items only. Build the complete search index to search the full portal catalog.</string>
-  <string name="search_catalog_indexing" translatable="false">The complete search index is being built. Results are still partial.</string>
-  <string name="search_catalog_truncated" translatable="false">The portal catalog was truncated. Results may be incomplete.</string>
+  <string name="search_build_complete_index">Créer l’index de recherche complet une seule fois</string>
+  <string name="search_catalog_complete">Index complet du catalogue</string>
+  <string name="search_catalog_downloaded_only">Éléments téléchargés uniquement. Créez l’index de recherche complet pour rechercher dans tout le catalogue du portail.</string>
+  <string name="search_catalog_indexing">L’index de recherche complet est en cours de création. Les résultats sont encore partiels.</string>
+  <string name="search_catalog_truncated">Le catalogue du portail a été tronqué. Les résultats peuvent être incomplets.</string>
   <string name="search_clear_history">Effacer</string>
   <string name="search_command_subtitle">Commencez par un titre, un mot-clé, un nom de chaîne ou une série. Les résultats restent groupés pour une navigation rapide à distance.</string>
   <string name="search_error_subtitle">Certains résultats n’ont pas pu être chargés. Réessayez.</string>
@@ -328,10 +328,10 @@
   <string name="settings_status_partial">Partielle</string>
   <string name="settings_status_unknown">Inconnu</string>
   <string name="settings_update_install_started">Ouverture du programme d’installation du package.</string>
-  <string name="stream_url_clip_label">Stream URL</string>
-  <string name="stream_url_copied">Stream URL copied</string>
-  <string name="stream_url_copy">Copy URL</string>
-  <string name="stream_url_copy_failed">Could not resolve stream URL</string>
+  <string name="stream_url_clip_label">URL du flux</string>
+  <string name="stream_url_copied">URL du flux copiée</string>
+  <string name="stream_url_copy">Copier l’URL</string>
+  <string name="stream_url_copy_failed">Impossible de résoudre l’URL du flux</string>
   <string name="vod_category_picker_empty">Aucune catégorie correspondante trouvée.</string>
   <string name="vod_category_picker_search_placeholder">Rechercher des catégories…</string>
   <string name="vod_category_picker_subtitle">Recherchez par nom de catégorie, puis ouvrez l’étagère correspondante.</string>
@@ -349,6 +349,20 @@
   <string name="vod_rating_tmdb">TMDb</string>
   <string name="vod_sync_needed_subtitle">Actualisez ce fournisseur pour importer des films et séries dans la bibliothèque.</string>
   <string name="vod_sync_needed_title">Synchronisation requise</string>
-  <string name="vod_unavailable_subtitle" translatable="false">This provider exposes separate Movies and Series catalogs.</string>
-  <string name="vod_unavailable_title" translatable="false">VOD is unavailable</string>
+  <string name="vod_unavailable_subtitle">Ce fournisseur expose des catalogues séparés de films et de séries.</string>
+  <string name="vod_unavailable_title">La VOD est indisponible</string>
+
+<string name="trakt_watchlist_add">Ajouter à la liste de suivi Trakt</string>
+<string name="trakt_watchlist_connect">Connectez Trakt dans les paramètres</string>
+<string name="trakt_watchlist_failed">Impossible de mettre à jour la liste Trakt. Réessayez.</string>
+<string name="trakt_watchlist_load">Charger la liste de suivi Trakt</string>
+<string name="trakt_watchlist_remove">Retirer de la liste de suivi Trakt</string>
+<string name="dashboard_trakt_watchlist_movies">Films dans votre liste de surveillance Trakt</string>
+<string name="dashboard_trakt_watchlist_series">Émissions TV dans votre liste de surveillance Trakt</string>
+<string name="trakt_rating_action">Noter sur Trakt</string>
+<string name="trakt_rating_dialog_message">Choisissez une note de 1 à 10.</string>
+<string name="trakt_rating_current">Votre note Trakt : %1$d/10</string>
+<string name="trakt_rating_saved">Votre note a été enregistrée sur Trakt.</string>
+<string name="trakt_rating_failed">Impossible d’enregistrer votre note sur Trakt.</string>
+<string name="trakt_favorite_sync_failed">StreamVault a enregistré la modification, mais n’a pas pu mettre à jour vos favoris Trakt. Réessayez.</string>
 </resources>

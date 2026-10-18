@@ -15,6 +15,8 @@ import android.provider.Settings
 import androidx.core.content.FileProvider
 import androidx.core.content.ContextCompat
 import com.streamvault.app.BuildConfig
+import com.streamvault.app.R
+import com.streamvault.torrent.TorrentPlaybackService
 import com.streamvault.feature.playback.api.CastMediaRequest
 import com.streamvault.app.tvinput.TvInputChannelSyncManager
 import com.streamvault.data.local.dao.PluginProviderOwnershipDao
@@ -51,10 +53,13 @@ import com.streamvault.feature.system.api.owner
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.io.File
 import java.net.URI
+import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
@@ -87,6 +92,9 @@ class StreamVaultPluginManager @Inject constructor(
     private val okHttpClient: OkHttpClient,
     private val json: Json
 ) : ProviderSourceRegistry {
+    private val playbackCleanupScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private val preparedPlaybackOwners = ConcurrentHashMap<String, InstalledStreamVaultPlugin>()
+    private val preparedTorrentOutputs = ConcurrentHashMap.newKeySet<String>()
     private val prefs = context.getSharedPreferences("streamvault_plugins", Context.MODE_PRIVATE)
     private val discoveryLock = Any()
     private val pluginMutationMutex = Mutex()
@@ -481,6 +489,41 @@ class StreamVaultPluginManager @Inject constructor(
     suspend fun preparePlaybackStreamInfo(streamInfo: StreamInfo): Result<StreamInfo> = withContext(Dispatchers.IO) {
         val url = streamInfo.url
         if (url.isBlank()) return@withContext Result.success(streamInfo)
+        val isMagnet = isMagnetPlaybackUrl(url)
+        if (isMagnet) {
+            return@withContext runCatching {
+                val prepared = TorrentPlaybackService.prepare(context, url)
+                check(isSafeTorrentPlaybackOutputUrl(prepared.outputUrl)) {
+                    "Built-in torrent engine returned an invalid local playback URL"
+                }
+                preparedTorrentOutputs += prepared.outputUrl
+                val extension = File(prepared.displayName).extension
+                    .takeIf(String::isNotBlank)
+                    ?.lowercase()
+                    ?.takeIf { it in TORRENT_VIDEO_EXTENSIONS }
+                streamInfo.copy(
+                    url = prepared.outputUrl,
+                    headers = emptyMap(),
+                    userAgent = null,
+                    playbackTransportPolicy = null,
+                    allowInvalidSsl = false,
+                    proxyHost = "",
+                    proxyPort = null,
+                    streamType = StreamType.PROGRESSIVE,
+                    containerExtension = extension,
+                    catchUpUrl = null,
+                    expirationTime = null,
+                    drmInfo = null,
+                    requestHeadersOrigin = null
+                )
+            }.fold(
+                onSuccess = Result.Companion::success,
+                onFailure = { error ->
+                    if (error is CancellationException) throw error
+                    Result.error(context.getString(R.string.torrent_playback_start_failed))
+                }
+            )
+        }
         val prepared = withPluginPlaybackDeadline(PLAYBACK_TOTAL_TIMEOUT_MILLIS) {
             val plugins = playbackCandidates(
                 discoverPlugins(), url, StreamVaultPluginContract.CAPABILITY_PLAYBACK_PREPARE
@@ -502,7 +545,9 @@ class StreamVaultPluginManager @Inject constructor(
                     if (!response.getBoolean(StreamVaultPluginContract.KEY_HANDLED, false)) continue
                     requests.values.forEach { it.cancel() }
                     return@coroutineScope if (response.getBoolean(StreamVaultPluginContract.KEY_SUCCESS, false)) {
-                        Result.success(applyPlaybackPreparationResponse(streamInfo, response))
+                        val preparedInfo = applyPlaybackPreparationResponse(streamInfo, response)
+                        preparedPlaybackOwners[preparedInfo.url] = plugin
+                        Result.success(preparedInfo)
                     } else {
                         Result.error(response.getString(StreamVaultPluginContract.KEY_MESSAGE).orEmpty()
                             .ifBlank { "${plugin.displayName} could not prepare playback" })
@@ -512,6 +557,31 @@ class StreamVaultPluginManager @Inject constructor(
             }
         }
         prepared ?: Result.success(streamInfo)
+    }
+
+    /** Stops a plugin session previously associated with the prepared output URL. */
+    fun stopPreparedPlayback(streamInfo: StreamInfo) {
+        val outputUrl = streamInfo.url
+        if (preparedTorrentOutputs.remove(outputUrl)) {
+            TorrentPlaybackService.stopPlayback(outputUrl)
+            return
+        }
+        val plugin = preparedPlaybackOwners.remove(outputUrl) ?: return
+        playbackCleanupScope.launch {
+            runCatching {
+                withPluginPlaybackDeadline(PLAYBACK_HANDLER_TIMEOUT_MILLIS) {
+                    messengerClient.send(
+                        packageName = plugin.packageName,
+                        serviceClassName = plugin.serviceClassName,
+                        what = StreamVaultPluginContract.MSG_STOP_PLAYBACK,
+                        data = Bundle().apply {
+                            putString(StreamVaultPluginContract.KEY_OUTPUT_URL, outputUrl)
+                        },
+                        timeoutMillis = PLAYBACK_HANDLER_TIMEOUT_MILLIS
+                    )
+                }
+            }
+        }
     }
 
     suspend fun rewriteCastUrl(request: CastMediaRequest): String? = withContext(Dispatchers.IO) {
@@ -1103,6 +1173,9 @@ class StreamVaultPluginManager @Inject constructor(
     private fun legacyEnabledKey(pluginId: String): String = "enabled.$pluginId"
 
     private companion object {
+        val TORRENT_VIDEO_EXTENSIONS = setOf(
+            "mkv", "mp4", "m4v", "webm", "avi", "mov", "mpg", "mpeg", "ts", "wmv"
+        )
         const val DISCOVERY_CACHE_TTL_MILLIS = 30_000L
         const val DISCOVERY_REQUEST_TIMEOUT_MILLIS = 1_500L
         const val DISCOVERY_PLUGIN_TIMEOUT_MILLIS = 2_500L

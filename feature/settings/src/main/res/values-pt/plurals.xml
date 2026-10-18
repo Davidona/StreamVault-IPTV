@@ -13,11 +13,11 @@
         <item quantity="other">%1$d minutos</item>
     </plurals>
 <plurals name="settings_top_navigation_count">
-        <item quantity="one">%d tab</item>
-        <item quantity="other">%d tabs</item>
+        <item quantity="one">%d aba</item>
+        <item quantity="other">%d abas</item>
     </plurals>
 <plurals name="settings_home_dashboard_count">
-        <item quantity="one">%d shelf</item>
-        <item quantity="other">%d shelves</item>
+        <item quantity="one">%d prateleira</item>
+        <item quantity="other">%d prateleiras</item>
     </plurals>
 </resources>

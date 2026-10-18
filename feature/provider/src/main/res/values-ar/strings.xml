@@ -22,7 +22,7 @@
     <string name="setup_info_manage_title">يمكنك إدارة المزوّدين لاحقًا</string>
     <string name="setup_info_manage_body">يمكنك التحديث أو التعديل أو الاستبدال لاحقًا من الإعدادات.</string>
     <string name="setup_xtream">Xtream Codes</string>
-    <string name="setup_m3u">M3U Playlist</string>
+    <string name="setup_m3u">قائمة تشغيل M3U</string>
     <string name="setup_name_hint">اسم قائمة التشغيل (اختياري)</string>
     <string name="setup_server_hint">عنوان الخادم</string>
     <string name="setup_user_hint">اسم المستخدم</string>
@@ -102,4 +102,7 @@
     <string name="setup_password">كلمة المرور</string>
     <string name="setup_name">الاسم</string>
     <string name="setup_name_placeholder">خادم Jellyfin الخاص بي</string>
+    <string name="setup_phone_pairing_security_warning">تنبيه أمني: يرسل الاقتران بيانات تسجيل الدخول عبر شبكتك المحلية دون تشفير. استخدم شبكة Wi-Fi خاصة وموثوقة فقط.</string>
+    <string name="setup_phone_pairing_error_help">تعذر إكمال الاقتران. تحقق من بيانات المزوّد وحاول مجددًا. إذا انتهت صلاحية جلسة QR، فابدأ جلسة جديدة على التلفاز.</string>
+    <string name="setup_phone_pairing_mac_label">عنوان MAC</string>
 </resources>

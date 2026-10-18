@@ -6,6 +6,7 @@ sealed interface AppDestination : Serializable {
     data object Welcome : AppDestination
     data object Home : AppDestination
     data class LiveTv(val categoryId: Long? = null) : AppDestination
+    data object Sports : AppDestination
     data object Movies : AppDestination
     data object Series : AppDestination
     data object Vod : AppDestination
@@ -15,8 +16,12 @@ sealed interface AppDestination : Serializable {
         val anchorTimeMs: Long? = null,
         val favoritesOnly: Boolean = false
     ) : AppDestination
-    data class Settings(val backupUri: String? = null) : AppDestination
+    data class Settings(
+        val backupUri: String? = null,
+        val openOpenSubtitlesSignIn: Boolean = false,
+    ) : AppDestination
     data object Plugins : AppDestination
+    data object Addons : AppDestination
     data class Search(val query: String? = null) : AppDestination
     data class ProviderSetup(
         val providerId: Long? = null,

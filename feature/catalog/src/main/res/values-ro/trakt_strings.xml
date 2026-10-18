@@ -1,0 +1,39 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="trakt_watchlist_movies_no_matches">Niciun film din lista dvs. de urmărire Trakt nu se potrivește cu acest furnizor sau cu filtrele actuale.</string>
+    <string name="trakt_watchlist_series_no_matches">Nicio serie din lista dvs. de urmărire Trakt nu se potrivește cu acest furnizor sau cu filtrele actuale.</string>
+    <string name="trakt_discovery_trending_movies">Tendințe pe Trakt</string>
+    <string name="trakt_discovery_popular_movies">Popular pe Trakt</string>
+    <string name="trakt_discovery_trending_series">Tendințe pe Trakt</string>
+    <string name="trakt_discovery_popular_series">Popular pe Trakt</string>
+    <string name="trakt_discovery_movies_no_matches">Niciun film popular Trakt nu se potrivește cu acest furnizor sau cu filtrele actuale.</string>
+    <string name="trakt_discovery_series_no_matches">Niciun program Trakt popular sau popular nu se potrivește cu acest furnizor sau cu filtrele actuale.</string>
+    <string name="trakt_discovery_load_failed">Nu s-au putut încărca titlurile de descoperire Trakt. Încearcă din nou.</string>
+    <string name="trakt_custom_lists_action">Trakt Liste</string>
+    <string name="trakt_custom_lists_title">Trakt dvs. listează</string>
+    <string name="trakt_custom_lists_for_item">Gestionați %1$s într-o listă</string>
+    <string name="trakt_custom_lists_loading">Se încarcă informațiile din listă…</string>
+    <string name="trakt_custom_lists_connect_first">Conectați Trakt în Setări pentru a vă folosi listele.</string>
+    <string name="trakt_custom_lists_empty">Nu aveți încă liste Trakt personalizate.</string>
+    <string name="trakt_custom_lists_failed">Nu s-a putut încărca sau actualiza această listă Trakt. Încearcă din nou.</string>
+    <string name="trakt_custom_lists_incognito">Listele Trakt nu sunt disponibile în timp ce modul incognito este activat.</string>
+    <string name="trakt_custom_lists_too_large">Această listă este prea mare pentru a se încărca complet în StreamVault.</string>
+    <string name="trakt_custom_list_open">%1$s · %2$d articole</string>
+    <string name="trakt_custom_list_contains_item">%1$s se află în această listă.</string>
+    <string name="trakt_custom_list_does_not_contain_item">%1$s nu este în această listă.</string>
+    <string name="trakt_custom_list_add_item">Adăugați pe listă</string>
+    <string name="trakt_custom_lists_create_new">Creați o nouă listă</string>
+    <string name="trakt_custom_lists_name">Numele listei</string>
+    <string name="trakt_custom_lists_optional_description">Descriere (opțional)</string>
+    <string name="trakt_custom_lists_private_note">Listele noi sunt private pe Trakt.</string>
+    <string name="trakt_custom_lists_create">Creați o listă privată</string>
+    <string name="trakt_custom_list_remove_item">Eliminați</string>
+    <string name="trakt_custom_list_items_truncated">Se afișează primele 200 de articole.</string>
+    <string name="trakt_custom_lists_back">Înapoi la liste</string>
+    <string name="trakt_custom_lists_choose_item">Alegeți ce să adăugați sau să eliminați</string>
+    <string name="trakt_custom_lists_movies">Film</string>
+    <string name="trakt_custom_lists_series">Seria</string>
+    <string name="trakt_custom_lists_seasons_count">Anotimpuri (%1$d)</string>
+    <string name="trakt_custom_lists_episodes_count">Episoade (%1$d)</string>
+    <string name="trakt_custom_lists_change_item">Schimbați titlul</string>
+</resources>

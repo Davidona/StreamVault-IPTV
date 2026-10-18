@@ -32,6 +32,11 @@ interface CatalogSyncDao {
     @Query("DELETE FROM channel_import_stage WHERE provider_id = :providerId AND session_id = :sessionId")
     suspend fun clearChannelStages(providerId: Long, sessionId: Long)
 
+    // Keep the first completed category's row when a provider repeats a stream
+    // in several categories. Failed attempts never reach this transfer.
+    @Query("UPDATE OR IGNORE channel_import_stage SET session_id = :targetSessionId WHERE provider_id = :providerId AND session_id = :sourceSessionId")
+    suspend fun moveCompletedChannelStages(providerId: Long, sourceSessionId: Long, targetSessionId: Long): Int
+
     @Query("DELETE FROM movie_import_stage WHERE provider_id = :providerId AND session_id = :sessionId")
     suspend fun clearMovieStages(providerId: Long, sessionId: Long)
 
@@ -418,6 +423,26 @@ interface CatalogSyncDao {
 
     @Query(
         """
+        DELETE FROM channels
+        WHERE provider_id = :providerId
+          AND category_id IN (:categoryIds)
+          AND NOT EXISTS (
+              SELECT 1
+              FROM channel_import_stage AS stage
+              WHERE stage.session_id = :sessionId
+                AND stage.provider_id = :providerId
+                AND stage.stream_id = channels.stream_id
+          )
+        """
+    )
+    suspend fun deleteStaleChannelsForStageInCategories(
+        providerId: Long,
+        sessionId: Long,
+        categoryIds: List<Long>
+    )
+
+    @Query(
+        """
         UPDATE movies
         SET name = (
                 SELECT stage.name
@@ -609,7 +634,10 @@ interface CatalogSyncDao {
             is_user_protected,
             playback_metadata_json,
             sync_fingerprint,
-            added_at
+            added_at,
+            cache_state,
+            detail_hydrated_at,
+            remote_stale_at
         )
         SELECT
             stage.stream_id,
@@ -645,7 +673,10 @@ interface CatalogSyncDao {
             ) THEN 1 ELSE 0 END,
             stage.playback_metadata_json,
             stage.sync_fingerprint,
-            stage.added_at
+            stage.added_at,
+            'SUMMARY_ONLY',
+            0,
+            0
         FROM movie_import_stage AS stage
         WHERE stage.session_id = :sessionId
           AND stage.provider_id = :providerId
@@ -839,7 +870,11 @@ interface CatalogSyncDao {
             provider_id,
             is_adult,
             is_user_protected,
-            sync_fingerprint
+            sync_fingerprint,
+            cache_state,
+            detail_hydrated_at,
+            remote_stale_at,
+            catalog_origin
         )
         SELECT
             stage.series_id,
@@ -868,7 +903,11 @@ interface CatalogSyncDao {
                   AND category.type = 'SERIES'
                   AND category.is_user_protected = 1
             ) THEN 1 ELSE 0 END,
-            stage.sync_fingerprint
+            stage.sync_fingerprint,
+            'SUMMARY_ONLY',
+            0,
+            0,
+            'NATIVE'
         FROM series_import_stage AS stage
         WHERE stage.session_id = :sessionId
           AND stage.provider_id = :providerId

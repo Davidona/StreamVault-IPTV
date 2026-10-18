@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="add_group_cancel">Batal</string>
+    <string name="settings_syncing_title">Menyegerakkan data...</string>
+    <string name="settings_syncing_subtitle">Sila tunggu sementara senarai main anda diimport.</string>
+    <string name="settings_syncing_btn">Menyegerakkan...</string>
+    <string name="settings_backup_restore">Sandaran &amp; Pemulihan</string>
+    <string name="settings_restore_data">Import Data</string>
+    <string name="settings_restore_subtitle">Pilih fail sandaran, atau buka sandaran dengan StreamVault daripada pengurus fail.</string>
+    <string name="setup_title_streamvault">StreamVault</string>
+    <string name="setup_provider_title">Tambah penyedia</string>
+    <string name="setup_edit_provider">Edit Penyedia</string>
+    <string name="setup_update_desc">Kemas kini butiran penyedia IPTV anda</string>
+    <string name="setup_add_desc">Tambah penyedia IPTV anda</string>
+    <string name="setup_shell_eyebrow">Pendaftaran Penyedia</string>
+    <string name="setup_shell_subtitle">Guna Xtream atau M3U. Anda boleh menukarnya kemudian.</string>
+    <string name="setup_form_subtitle">Pilih sumber, masukkan butiran dan teruskan. Anda boleh menguruskannya kemudian dari Tetapan.</string>
+    <string name="setup_source_type_label">Jenis Sumber</string>
+    <string name="setup_info_xtream_title">Guna Xtream apabila butiran log masuk tersedia</string>
+    <string name="setup_info_xtream_body">Terbaik apabila anda mempunyai pelayan, pengguna dan kata laluan.</string>
+    <string name="setup_info_stalker_body">URL portal serta alamat MAC yang diluluskan penyedia.</string>
+    <string name="setup_info_m3u_title">Guna M3U untuk senarai main berasaskan URL atau fail</string>
+    <string name="setup_info_m3u_body">Guna pautan senarai main atau import fail setempat.</string>
+    <string name="setup_info_manage_title">Anda boleh mengurus penyedia kemudian</string>
+    <string name="setup_info_manage_body">Muat semula, edit atau ganti kemudian dari Tetapan.</string>
+    <string name="setup_import_backup">Import Sandaran</string>
+    <string name="badge_beta">Beta</string>
+    <string name="setup_xtream">Xtream Codes</string>
+    <string name="setup_stalker">Stalker</string>
+    <string name="setup_m3u">Senarai Main M3U</string>
+    <string name="setup_name_hint">Nama Senarai Main (Pilihan)</string>
+    <string name="setup_server_hint">URL Pelayan</string>
+    <string name="setup_user_hint">Nama Pengguna</string>
+    <string name="setup_pass_hint">Kata Laluan</string>
+    <string name="setup_show_password">Tunjuk kata laluan</string>
+    <string name="setup_hide_password">Sembunyi kata laluan</string>
+    <string name="setup_phone_pairing_title">Tambah dari telefon</string>
+    <string name="setup_phone_pairing_body">Imbas kod QR dan masukkan butiran log masuk penyedia dari telefon pada Wi-Fi yang sama.</string>
+    <string name="setup_phone_pairing_start">Tunjuk kod QR</string>
+    <string name="setup_phone_pairing_restart">Kod QR baharu</string>
+    <string name="setup_phone_pairing_stop">Hentikan gandingan</string>
+    <string name="setup_phone_pairing_same_wifi">Buka ini dari telefon pada Wi-Fi yang sama. Butiran log masuk dihantar terus ke TV ini.</string>
+    <string name="setup_phone_pairing_qr_description">Kod QR untuk persediaan penyedia dari telefon</string>
+    <string name="setup_phone_pairing_idle">Setempat sahaja</string>
+    <string name="setup_phone_pairing_ready">Imbas sekarang</string>
+    <string name="setup_phone_pairing_receiving">Menambah</string>
+    <string name="setup_phone_pairing_complete">Ditambah</string>
+    <string name="setup_phone_pairing_error">Ralat</string>
+    <string name="setup_connecting">Menyambung...</string>
+    <string name="setup_save">Simpan Perubahan</string>
+    <string name="setup_login">Log Masuk</string>
+    <string name="setup_advanced_options_label">Pilihan Lanjutan</string>
+    <string name="setup_advanced_options_helper">Kawal cara data panduan diambil semasa persediaan dan muat semula penyedia.</string>
+    <string name="setup_advanced_options_show">Tunjuk</string>
+    <string name="setup_advanced_options_hide">Sembunyi</string>
+    <string name="setup_m3u_vod_classification_label">Klasifikasi VOD M3U</string>
+    <string name="setup_m3u_vod_classification_helper">M3U sahaja. Kelaskan URL filem yang dinyahkod dan petunjuk kumpulan atau tajuk setempat sebagai Filem; URL strim langsung yang dikenali kekal dalam TV Langsung.</string>
+    <string name="setup_xtream_live_sync_mode_label">Segerak Langsung Xtream</string>
+    <string name="setup_xtream_live_sync_mode_helper">Pilih cara saluran TV Langsung diambil. Auto melindungi peranti lemah dan muat semula rutin sambil memastikan kategori sentiasa diisi.</string>
+    <string name="setup_xtream_live_sync_mode_auto_title">Auto</string>
+    <string name="setup_xtream_live_sync_mode_auto_description">Disyorkan. Menggunakan segerak kategori pada peranti berjeda rendah, muat semula latar belakang, muat semula kategori tersembunyi dan penyedia tertekan.</string>
+    <string name="setup_xtream_live_sync_mode_category_title">Kategori demi kategori</string>
+    <string name="setup_xtream_live_sync_mode_category_description">Sentiasa ambil TV Langsung satu kategori pada satu masa. Lebih selamat untuk penyedia besar dan peranti Android TV lemah.</string>
+    <string name="setup_xtream_live_sync_mode_stream_all_title">Strim semua</string>
+    <string name="setup_xtream_live_sync_mode_stream_all_description">Cuba endpoint Langsung seluruh penyedia menggunakan penghurai penstriman. Kembali ke segerak kategori jika tidak selamat atau gagal.</string>
+    <string name="setup_epg_sync_mode_label">Segerak EPG</string>
+    <string name="setup_epg_sync_mode_helper">Pilihan Terdahulu mengekalkan tingkah laku hari ini. Latar belakang menyelesaikan persediaan dahulu, dan Langkau menangguhkan muat semula panduan.</string>
+    <string name="setup_epg_sync_mode_upfront_title">EPG penuh sekarang</string>
+    <string name="setup_epg_sync_mode_upfront_description">Muat turun data panduan penyedia dan luaran semasa persediaan sebelum ia selesai.</string>
+    <string name="setup_epg_sync_mode_background_title">Muat EPG di latar belakang</string>
+    <string name="setup_epg_sync_mode_background_description">Selesaikan persediaan dahulu, kemudian ambil data panduan secara automatik di latar belakang.</string>
+    <string name="setup_epg_sync_mode_skip_title">Langkau EPG buat masa ini</string>
+    <string name="setup_epg_sync_mode_skip_description">Jangan ambil data panduan secara automatik. Anda boleh muat semula EPG kemudian dari Tetapan.</string>
+    <string name="setup_stalker_epg_sync_mode_helper">Stalker boleh menggunakan panduan asli portal apabila XMLTV tiada atau tidak tersedia. Terdahulu mengimportnya semasa persediaan, Latar belakang menangguhkannya, dan Langkau membiarkan pemuatan panduan atas permintaan.</string>
+    <string name="setup_stalker_epg_sync_mode_upfront_description">Muat turun saluran langsung dan import panduan portal Stalker semasa persediaan. Jika XMLTV dikonfigurasikan dan berfungsi, ia digunakan dahulu.</string>
+    <string name="setup_stalker_epg_sync_mode_background_description">Selesaikan persediaan dahulu, kemudian import panduan portal Stalker di latar belakang. Jika XMLTV dikonfigurasikan dan berfungsi, ia digunakan dahulu.</string>
+    <string name="setup_stalker_epg_sync_mode_skip_description">Jangan import data panduan secara pukal secara automatik. Data panduan langsung masih boleh dimuatkan atas permintaan apabila anda melayari saluran.</string>
+    <string name="setup_m3u_hint">URL M3U</string>
+    <string name="setup_tab_url">URL</string>
+    <string name="setup_tab_file">Fail</string>
+    <string name="setup_choose_file">Pilih Fail M3U</string>
+    <string name="setup_file_replace_hint">Tekan untuk ganti fail</string>
+    <string name="setup_file_select_title">Pilih Fail M3U</string>
+    <string name="setup_file_browse_hint">Layari storan setempat atau USB</string>
+    <string name="setup_file_import_failed">Tidak dapat mengimport fail senarai main. Sila cuba lagi.</string>
+    <string name="setup_file_import_storage_full">Storan penuh. Kosongkan ruang dan cuba import lagi.</string>
+    <string name="setup_discard_draft_title">Buang draf persediaan?</string>
+    <string name="setup_discard_draft_body">Persediaan penyedia ini belum lengkap. Kembali tanpa menyimpan draf semasa?</string>
+    <string name="setup_discard_draft_confirm">Buang</string>
+    <string name="setup_discard_draft_cancel">Teruskan mengedit</string>
+    <string name="setup_validating">Mengesahkan...</string>
+    <string name="setup_add">Tambah Senarai Main</string>
+    <string name="setup_tab_jellyfin">Jellyfin</string>
+    <string name="setup_jellyfin_quick_connect">Sambungan Pantas</string>
+    <string name="setup_jellyfin_quick_connect_code">Kod: %s</string>
+    <string name="setup_jellyfin_quick_connect_code_instructions">Buka pelayan Jellyfin anda dalam pelayar dan masukkan kod ini, atau imbas kod QR dengan telefon anda.</string>
+    <string name="setup_server_url">URL Pelayan</string>
+    <string name="setup_username">Nama Pengguna</string>
+    <string name="setup_password">Kata Laluan</string>
+    <string name="setup_name">Nama</string>
+    <string name="setup_name_placeholder">Pelayan Jellyfin Saya</string>
+    <string name="settings_drive_signin" translatable="false">Sign in to Google Drive</string>
+    <string name="settings_drive_pull" translatable="false">Restore from Drive</string>
+    <string name="settings_drive_choose_backup_title" translatable="false">Choose a Drive backup</string>
+    <string name="settings_drive_choose_backup_subtitle" translatable="false">Select a saved snapshot to preview and restore.</string>
+    <string name="settings_drive_cancel_backup_choice" translatable="false">Cancel backup choice</string>
+    <string name="setup_import_from_drive">Import dari Drive</string>
+    <string name="stalker_transport_invalid_tls_title" translatable="false">This provider\'s security certificate can\'t be verified</string>
+    <string name="stalker_transport_invalid_tls_body" translatable="false">The connection to %1$s may still be encrypted, but the app can\'t confirm it is really this provider. Someone on the network could read your login or stream details.</string>
+    <string name="stalker_transport_http_title" translatable="false">This provider uses an unencrypted connection</string>
+    <string name="stalker_transport_http_body" translatable="false">Your login and viewing requests to %1$s can be read or changed by someone on the network.</string>
+    <string name="stalker_transport_origin_changed_title" translatable="false">This provider wants to use a different address</string>
+    <string name="stalker_transport_origin_changed_body" translatable="false">The provider redirected the connection to %1$s. Continue only if you recognize this address.</string>
+    <string name="stalker_transport_go_back" translatable="false">Go back</string>
+    <string name="stalker_transport_connect_anyway" translatable="false">Connect anyway</string>
+    <string name="stalker_verification_inconclusive_title" translatable="false">Live TV could not be verified</string>
+    <string name="stalker_verification_inconclusive_body" translatable="false">The provider accepted your login, but the Live TV check did not finish. You can save it with verification pending; it will remain inactive until a sync confirms playable Live TV.</string>
+    <string name="stalker_save_without_verification" translatable="false">Save without verification</string>
+    <string name="stalker_repair_connection" translatable="false">Repair connection</string>
+    <string name="setup_phone_pairing_security_warning">Keselamatan: Proses gandingan menghantar kelayakan tanpa penyulitan melalui rangkaian setempat anda. Gunakan rangkaian Wi-Fi peribadi yang dipercayai sahaja.</string>
+    <string name="setup_phone_pairing_error_help">Gandingan tidak dapat diselesaikan. Semak butiran penyedia dan cuba lagi. Jika sesi QR telah tamat tempoh, mulakan sesi baharu pada TV.</string>
+    <string name="setup_phone_pairing_mac_label">Alamat MAC</string>
+</resources>

@@ -2,7 +2,7 @@ package com.streamvault.player.playback
 
 import java.security.MessageDigest
 
-// Cached instance — safe because all callers (PreloadCoordinator) are Main-thread-only.
+// Reused for media-source and preload identity fingerprints.
 private val sha256: MessageDigest = MessageDigest.getInstance("SHA-256")
 
 /** SHA-256 fingerprint truncated to 16 hex chars — stable across JVM restarts. */

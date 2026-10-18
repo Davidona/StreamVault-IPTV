@@ -43,6 +43,10 @@
 -keep class * implements com.google.gson.JsonDeserializer
 # Keep fields that GSON accesses via reflection
 -keepclassmembers class com.streamvault.data.remote.** { <fields>; }
+# OAuth records must retain their schema and reflective constructors across releases.
+-keep class com.streamvault.data.trakt.TraktTokens { *; }
+-keep class com.streamvault.data.trakt.TraktPendingLogin { *; }
+-keep class com.streamvault.data.trakt.TraktStoredSession { *; }
 
 # ── Room ────────────────────────────────────────────────────
 -keep class * extends androidx.room.RoomDatabase
@@ -54,6 +58,7 @@
 -keep class com.streamvault.domain.manager.BackupData { *; }
 -keep class com.streamvault.domain.manager.ProviderBackupSnapshot { *; }
 -keep class com.streamvault.domain.manager.PortableProviderPreferencesBackup { *; }
+-keep class com.streamvault.domain.manager.PortablePlaybackQualityPreferenceBackup { *; }
 -keep class com.streamvault.domain.manager.BackupProviderReference { *; }
 -keep class com.streamvault.domain.manager.PortableCategoryReference { *; }
 -keep class com.streamvault.domain.manager.PortableVirtualGroupReference { *; }
@@ -79,6 +84,9 @@
 -dontwarn androidx.media3.decoder.ffmpeg.**
 -dontwarn androidx.media3.**
 
+# libtorrent4j's generated SWIG wrappers are called from the native JNI library.
+-keep class org.libtorrent4j.** { *; }
+
 # ── Coroutines ──────────────────────────────────────────────
 -keepnames class kotlinx.coroutines.internal.MainDispatcherFactory {}
 -keepnames class kotlinx.coroutines.CoroutineExceptionHandler {}
@@ -101,3 +109,6 @@
 -keepattributes SourceFile,LineNumberTable       # Better crash reports
 -renamesourcefileattribute SourceFile
 -keepattributes RuntimeVisibleAnnotations,RuntimeVisibleParameterAnnotations
+
+# SLF4J's binding is optional; jcifs-ng uses the API without bundling a backend.
+-dontwarn org.slf4j.impl.StaticLoggerBinder

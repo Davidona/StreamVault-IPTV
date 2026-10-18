@@ -1,8 +1,8 @@
 package com.streamvault.player.playback
 
 import com.streamvault.domain.model.PlaybackBufferMode
+import com.streamvault.domain.model.PlaybackContentKind
 import com.streamvault.domain.model.StreamInfo
-import com.streamvault.domain.model.VideoFormat
 import java.util.Locale
 
 internal data class PlaybackBufferPolicy(
@@ -52,9 +52,6 @@ internal object PlaybackBufferPolicies {
     private const val LARGE_LIVE_MAX_BUFFER_MS = 90_000
     private const val LARGE_LIVE_PLAYBACK_BUFFER_MS = 5_000
     private const val LARGE_LIVE_REBUFFER_MS = 15_000
-    private const val UHD_MIN_WIDTH = 3_840
-    private const val UHD_MIN_HEIGHT = 2_160
-    private const val HIGH_BITRATE_THRESHOLD_BPS = 20_000_000
 
     fun forPlayback(
         isLive: Boolean,
@@ -93,8 +90,7 @@ internal object PlaybackBufferPolicies {
         compatibilityMode = compatibilityMode,
         lowMemoryDevice = lowMemoryDevice,
         bufferMode = PlaybackBufferMode.AUTO,
-        streamInfo = null,
-        observedVideoFormat = null
+        streamInfo = null
     )
 
     fun forPlayback(
@@ -102,21 +98,32 @@ internal object PlaybackBufferPolicies {
         compatibilityMode: Boolean,
         lowMemoryDevice: Boolean,
         bufferMode: PlaybackBufferMode,
-        streamInfo: StreamInfo? = null,
-        observedVideoFormat: VideoFormat? = null,
-        qualityReasonOverride: String? = null
-    ): PlaybackBufferPolicy = when {
-        bufferMode == PlaybackBufferMode.MEDIUM && resolvedStreamType.isLive ->
-            mediumLivePolicy(label = "medium-live", qualityReason = "user-medium")
-        bufferMode == PlaybackBufferMode.LARGE && resolvedStreamType.isLive ->
-            largeLivePolicy(label = "large-live", qualityReason = "user-large")
-        bufferMode == PlaybackBufferMode.AUTO && resolvedStreamType == ResolvedStreamType.HLS -> {
-            val qualityReason = qualityReasonOverride ?: highQualityLiveHlsReason(streamInfo, observedVideoFormat)
-            when {
+        streamInfo: StreamInfo? = null
+    ): PlaybackBufferPolicy {
+        val kind = streamInfo?.playbackContentKind ?: PlaybackContentKind.UNKNOWN
+        val isLive = isLivePlayback(kind, resolvedStreamType)
+        if (bufferMode == PlaybackBufferMode.MEDIUM && isLive) {
+            return mediumLivePolicy(label = "medium-live", qualityReason = "user-medium")
+        }
+        if (bufferMode == PlaybackBufferMode.LARGE && isLive) {
+            return largeLivePolicy(label = "large-live", qualityReason = "user-large")
+        }
+        if (!isLive && resolvedStreamType == ResolvedStreamType.HLS) {
+            return baselineLivePolicy(
+                resolvedStreamType = resolvedStreamType,
+                compatibilityMode = compatibilityMode,
+                lowMemoryDevice = lowMemoryDevice,
+                isLive = true
+            ).copy(label = "vod-hls-initial", qualityReason = "finite-content")
+        }
+        if (bufferMode == PlaybackBufferMode.AUTO && resolvedStreamType == ResolvedStreamType.HLS) {
+            val qualityReason = highQualityLiveHlsReason(streamInfo)
+            return when {
                 qualityReason == null -> baselineLivePolicy(
                     resolvedStreamType = resolvedStreamType,
                     compatibilityMode = compatibilityMode,
-                    lowMemoryDevice = lowMemoryDevice
+                    lowMemoryDevice = lowMemoryDevice,
+                    isLive = isLive
                 )
                 lowMemoryDevice -> mediumLivePolicy(
                     label = "auto-uhd-live-hls-capped",
@@ -126,17 +133,19 @@ internal object PlaybackBufferPolicies {
                 else -> largeLivePolicy(label = "auto-uhd-live-hls", qualityReason = qualityReason)
             }
         }
-        else -> baselineLivePolicy(
+        return baselineLivePolicy(
             resolvedStreamType = resolvedStreamType,
             compatibilityMode = compatibilityMode,
-            lowMemoryDevice = lowMemoryDevice
+            lowMemoryDevice = lowMemoryDevice,
+            isLive = isLive
         )
     }
 
     private fun baselineLivePolicy(
         resolvedStreamType: ResolvedStreamType,
         compatibilityMode: Boolean,
-        lowMemoryDevice: Boolean
+        lowMemoryDevice: Boolean,
+        isLive: Boolean = resolvedStreamType.isLive
     ): PlaybackBufferPolicy = when {
         lowMemoryDevice && resolvedStreamType == ResolvedStreamType.MPEG_TS_LIVE ->
             PlaybackBufferPolicy(
@@ -146,9 +155,9 @@ internal object PlaybackBufferPolicies {
                 playbackBufferMs = LOW_MEMORY_PLAYBACK_BUFFER_MS,
                 rebufferMs = LOW_MEMORY_REBUFFER_MS,
                 targetBufferBytes = MPEG_TS_LIVE_TARGET_BUFFER_BYTES,
-                prioritizeTimeOverSizeThresholds = true
+                prioritizeTimeOverSizeThresholds = false
             )
-        lowMemoryDevice && compatibilityMode && resolvedStreamType.isLive ->
+        lowMemoryDevice && compatibilityMode && isLive ->
             PlaybackBufferPolicy(
                 label = "lowmem-compat-live",
                 minBufferMs = LOW_MEMORY_COMPAT_LIVE_MIN_BUFFER_MS,
@@ -156,9 +165,9 @@ internal object PlaybackBufferPolicies {
                 playbackBufferMs = LOW_MEMORY_PLAYBACK_BUFFER_MS,
                 rebufferMs = LOW_MEMORY_REBUFFER_MS,
                 targetBufferBytes = DEFAULT_TARGET_BUFFER_BYTES,
-                prioritizeTimeOverSizeThresholds = true
+                prioritizeTimeOverSizeThresholds = false
             )
-        lowMemoryDevice && resolvedStreamType.isLive ->
+        lowMemoryDevice && isLive ->
             PlaybackBufferPolicy(
                 label = "lowmem-live",
                 minBufferMs = LOW_MEMORY_LIVE_MIN_BUFFER_MS,
@@ -166,7 +175,7 @@ internal object PlaybackBufferPolicies {
                 playbackBufferMs = LOW_MEMORY_PLAYBACK_BUFFER_MS,
                 rebufferMs = LOW_MEMORY_REBUFFER_MS,
                 targetBufferBytes = DEFAULT_TARGET_BUFFER_BYTES,
-                prioritizeTimeOverSizeThresholds = true
+                prioritizeTimeOverSizeThresholds = false
             )
         lowMemoryDevice ->
             PlaybackBufferPolicy(
@@ -176,7 +185,7 @@ internal object PlaybackBufferPolicies {
                 playbackBufferMs = LOW_MEMORY_PLAYBACK_BUFFER_MS,
                 rebufferMs = LOW_MEMORY_REBUFFER_MS,
                 targetBufferBytes = DEFAULT_TARGET_BUFFER_BYTES,
-                prioritizeTimeOverSizeThresholds = true
+                prioritizeTimeOverSizeThresholds = false
             )
         resolvedStreamType == ResolvedStreamType.MPEG_TS_LIVE ->
             PlaybackBufferPolicy(
@@ -186,9 +195,9 @@ internal object PlaybackBufferPolicies {
                 playbackBufferMs = PLAYBACK_BUFFER_MS,
                 rebufferMs = REBUFFER_MS,
                 targetBufferBytes = MPEG_TS_LIVE_TARGET_BUFFER_BYTES,
-                prioritizeTimeOverSizeThresholds = true
+                prioritizeTimeOverSizeThresholds = false
             )
-        compatibilityMode && resolvedStreamType.isLive ->
+        compatibilityMode && isLive ->
             PlaybackBufferPolicy(
                 label = "compat-live",
                 minBufferMs = COMPAT_LIVE_MIN_BUFFER_MS,
@@ -196,9 +205,9 @@ internal object PlaybackBufferPolicies {
                 playbackBufferMs = PLAYBACK_BUFFER_MS,
                 rebufferMs = REBUFFER_MS,
                 targetBufferBytes = DEFAULT_TARGET_BUFFER_BYTES,
-                prioritizeTimeOverSizeThresholds = true
+                prioritizeTimeOverSizeThresholds = false
             )
-        resolvedStreamType.isLive ->
+        isLive ->
             PlaybackBufferPolicy(
                 label = "stable-live",
                 minBufferMs = LIVE_MIN_BUFFER_MS,
@@ -206,7 +215,7 @@ internal object PlaybackBufferPolicies {
                 playbackBufferMs = PLAYBACK_BUFFER_MS,
                 rebufferMs = REBUFFER_MS,
                 targetBufferBytes = DEFAULT_TARGET_BUFFER_BYTES,
-                prioritizeTimeOverSizeThresholds = true
+                prioritizeTimeOverSizeThresholds = false
             )
         else ->
             PlaybackBufferPolicy(
@@ -216,7 +225,7 @@ internal object PlaybackBufferPolicies {
                 playbackBufferMs = VOD_PLAYBACK_BUFFER_MS,
                 rebufferMs = VOD_REBUFFER_MS,
                 targetBufferBytes = DEFAULT_TARGET_BUFFER_BYTES,
-                prioritizeTimeOverSizeThresholds = true
+                prioritizeTimeOverSizeThresholds = false
             )
     }
 
@@ -230,8 +239,8 @@ internal object PlaybackBufferPolicies {
         maxBufferMs = MEDIUM_LIVE_MAX_BUFFER_MS,
         playbackBufferMs = MEDIUM_LIVE_PLAYBACK_BUFFER_MS,
         rebufferMs = MEDIUM_LIVE_REBUFFER_MS,
-        targetBufferBytes = MEDIUM_LIVE_TARGET_BUFFER_BYTES,
-        prioritizeTimeOverSizeThresholds = true,
+        targetBufferBytes = if (lowMemoryCapped) DEFAULT_TARGET_BUFFER_BYTES else MEDIUM_LIVE_TARGET_BUFFER_BYTES,
+        prioritizeTimeOverSizeThresholds = false,
         qualityReason = qualityReason,
         lowMemoryCapped = lowMemoryCapped
     )
@@ -243,19 +252,11 @@ internal object PlaybackBufferPolicies {
         playbackBufferMs = LARGE_LIVE_PLAYBACK_BUFFER_MS,
         rebufferMs = LARGE_LIVE_REBUFFER_MS,
         targetBufferBytes = LARGE_LIVE_TARGET_BUFFER_BYTES,
-        prioritizeTimeOverSizeThresholds = true,
+        prioritizeTimeOverSizeThresholds = false,
         qualityReason = qualityReason
     )
 
-    fun highQualityLiveHlsReason(streamInfo: StreamInfo?, observedVideoFormat: VideoFormat?): String? {
-        observedVideoFormat?.let { format ->
-            when {
-                format.width >= UHD_MIN_WIDTH -> return "observed-width-${format.width}"
-                format.height >= UHD_MIN_HEIGHT -> return "observed-height-${format.height}"
-                format.bitrate >= HIGH_BITRATE_THRESHOLD_BPS -> return "observed-bitrate-${format.bitrate}"
-                format.isHdr -> return "observed-hdr"
-            }
-        }
+    fun highQualityLiveHlsReason(streamInfo: StreamInfo?): String? {
         val searchable = listOfNotNull(
             streamInfo?.title,
             streamInfo?.url,

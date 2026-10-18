@@ -5,6 +5,7 @@ import com.streamvault.domain.model.RecordingRequest
 import com.streamvault.domain.model.RecordingReconciliationResult
 import com.streamvault.domain.model.RecordingReconciliationSummary
 import com.streamvault.domain.model.RecordingStorageConfig
+import com.streamvault.domain.model.RecordingSmbStorageConfig
 import com.streamvault.domain.model.RecordingStorageState
 import com.streamvault.domain.model.Result
 import kotlinx.coroutines.flow.Flow
@@ -30,6 +31,8 @@ interface RecordingManager {
         Result.error("Schedule enablement is not supported by this recording manager.")
     suspend fun updateStorageConfig(config: RecordingStorageConfig): Result<RecordingStorageState> =
         Result.error("Storage configuration is not supported by this recording manager.")
+    suspend fun updateSmbStorageConfig(config: RecordingSmbStorageConfig): Result<RecordingStorageState> =
+        Result.error("SMB recording storage is not supported by this recording manager.")
     suspend fun reconcileRecordingState(): RecordingReconciliationResult =
         RecordingReconciliationResult.Complete(RecordingReconciliationSummary())
     suspend fun promoteScheduledRecording(recordingId: String): Result<Unit> =

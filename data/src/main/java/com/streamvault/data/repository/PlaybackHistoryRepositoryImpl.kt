@@ -27,6 +27,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.sync.Mutex
@@ -70,11 +71,22 @@ class PlaybackHistoryRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun isIncognitoModeEnabled(): Boolean = preferencesRepository.isIncognitoMode.first()
+
     override fun getRecentlyWatched(limit: Int): Flow<List<PlaybackHistory>> {
         return mergedRecentHistory(
             persisted = dao.getRecentlyWatched(limit).map { list -> list.map { it.toDomain() } },
             limit = limit
         ) { true }
+    }
+
+    override suspend fun getRecentlyWatchedPage(offset: Int, limit: Int): List<PlaybackHistory> {
+        require(offset >= 0)
+        require(limit > 0)
+        return pendingProgressMutex.withLock {
+            flushPendingResumeUpdatesLocked()
+            dao.getRecentlyWatchedPage(limit = limit, offset = offset).first().map { it.toDomain() }
+        }
     }
 
     override fun getRecentlyWatchedByProvider(providerId: Long, limit: Int): Flow<List<PlaybackHistory>> {
@@ -167,6 +179,33 @@ class PlaybackHistoryRepositoryImpl @Inject constructor(
             throw cancelled
         } catch (e: Exception) {
             Result.error("Failed to mark content as watched", e)
+        }
+    }
+
+    override suspend fun importTraktHistory(history: PlaybackHistory,
+        identity: com.streamvault.domain.trakt.TraktMediaIdentity,
+        match: com.streamvault.domain.trakt.TraktHistoryMatch): Result<Boolean> {
+        return try {
+            if (preferencesRepository.isIncognitoMode.first()) return Result.success(false)
+            pendingProgressMutex.withLock {
+                val key = history.playbackKey()
+                val didImport = transactionRunner.inTransaction {
+                    val existing = pendingResumeUpdates[key]
+                        ?: dao.get(history.contentId, history.contentType.name, history.providerId)?.toDomain()
+                    val candidate = com.streamvault.domain.trakt.TraktHistoryMergePolicy.importCandidate(
+                        existing ?: history, identity, match) ?: return@inTransaction false
+                    val imported = candidate.copy(streamUrl = XtreamUrlFactory.sanitizePersistedStreamUrl(candidate.streamUrl, candidate.providerId))
+                    dao.insertOrUpdate(imported.toEntity())
+                    syncDenormalizedProgress(imported.contentId, imported.contentType, imported.providerId)
+                    true
+                }
+                if (didImport) clearPendingResumeUpdateLocked(key)
+                Result.success(didImport)
+            }
+        } catch (cancelled: CancellationException) {
+            throw cancelled
+        } catch (failure: Exception) {
+            Result.error("Failed to import Trakt history", failure)
         }
     }
 
@@ -313,22 +352,26 @@ class PlaybackHistoryRepositoryImpl @Inject constructor(
 
     private suspend fun flushPendingResumeUpdates() {
         pendingProgressMutex.withLock {
-            val snapshot = pendingResumeUpdates.toMap()
-            if (snapshot.isEmpty()) return@withLock
-
-            // One transaction for the coalesced set avoids a Room transaction per content
-            // item when a lifecycle boundary flushes several recently played items.
-            transactionRunner.inTransaction {
-                snapshot.values.forEach { history ->
-                    dao.insertOrUpdate(history.toEntity())
-                    syncDenormalizedProgress(history.contentId, history.contentType, history.providerId)
-                }
-            }
-            snapshot.forEach { (key, history) ->
-                pendingResumeUpdates.remove(key, history)
-            }
-            publishPendingResumeUpdates()
+            flushPendingResumeUpdatesLocked()
         }
+    }
+
+    private suspend fun flushPendingResumeUpdatesLocked() {
+        val snapshot = pendingResumeUpdates.toMap()
+        if (snapshot.isEmpty()) return
+
+        // One transaction for the coalesced set avoids a Room transaction per content
+        // item when a lifecycle boundary flushes several recently played items.
+        transactionRunner.inTransaction {
+            snapshot.values.forEach { history ->
+                dao.insertOrUpdate(history.toEntity())
+                syncDenormalizedProgress(history.contentId, history.contentType, history.providerId)
+            }
+        }
+        snapshot.forEach { (key, history) ->
+            pendingResumeUpdates.remove(key, history)
+        }
+        publishPendingResumeUpdates()
     }
 
     private fun clearPendingResumeUpdateLocked(key: PlaybackKey) {
@@ -357,7 +400,12 @@ class PlaybackHistoryRepositoryImpl @Inject constructor(
                 mergedByKey[history.playbackKey()] = history
             }
         mergedByKey.values
-            .sortedByDescending(PlaybackHistory::lastWatchedAt)
+            .sortedWith(
+                compareByDescending<PlaybackHistory> { it.lastWatchedAt }
+                    .thenByDescending { it.contentId }
+                    .thenByDescending { it.contentType.name }
+                    .thenByDescending { it.providerId }
+            )
             .take(limit)
     }
 

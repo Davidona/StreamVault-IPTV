@@ -7,29 +7,36 @@ enum class AppTopLevelDestination(
 ) {
     HOME("home", AppLandingDestination.HOME),
     LIVE_TV("live_tv", AppLandingDestination.LIVE_TV),
+    SPORTS("sports", AppLandingDestination.SPORTS),
     MOVIES("movies", AppLandingDestination.MOVIES),
     SERIES("series", AppLandingDestination.SERIES),
     DOWNLOADS("downloads", AppLandingDestination.DOWNLOADS),
     GUIDE("guide", AppLandingDestination.GUIDE),
     SEARCH("search"),
-    PLUGINS("plugins", AppLandingDestination.PLUGINS),
+    EXTENSIONS("extensions"),
     SETTINGS("settings", AppLandingDestination.SETTINGS, isRequired = true);
 
     companion object {
         val defaultOrder: List<AppTopLevelDestination> = listOf(
             HOME,
             LIVE_TV,
+            SPORTS,
             MOVIES,
             SERIES,
             DOWNLOADS,
             GUIDE,
             SEARCH,
-            PLUGINS,
+            EXTENSIONS,
             SETTINGS
         )
 
         fun fromStorage(value: String?): AppTopLevelDestination? =
             entries.firstOrNull { it.storageValue.equals(value, ignoreCase = true) }
+                ?: when {
+                    value.equals("plugins", ignoreCase = true) -> EXTENSIONS
+                    value.equals("addons", ignoreCase = true) -> EXTENSIONS
+                    else -> null
+                }
 
         fun normalizeForStorage(destinations: List<AppTopLevelDestination>): List<AppTopLevelDestination> {
             val unique = linkedSetOf<AppTopLevelDestination>()
@@ -43,7 +50,12 @@ enum class AppTopLevelDestination(
         ): List<AppLandingDestination> {
             val normalized = normalizeForStorage(destinations)
             val available = normalized
-                .mapNotNull { it.landingDestination }
+                .flatMap { destination ->
+                    when (destination) {
+                        EXTENSIONS -> listOf(AppLandingDestination.PLUGINS, AppLandingDestination.ADDONS)
+                        else -> listOfNotNull(destination.landingDestination)
+                    }
+                }
                 .distinct()
                 .toMutableList()
             if (LIVE_TV in normalized) {

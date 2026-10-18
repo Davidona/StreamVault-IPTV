@@ -7,7 +7,7 @@ import org.junit.Test
 
 class XtreamLiveSyncPolicyTest {
     @Test
-    fun `auto uses category by category for low devices`() {
+    fun `production auto uses bulk on low tier when memory is healthy`() {
         val method = XtreamLiveSyncPolicy.resolve(
             userMode = ProviderXtreamLiveSyncMode.AUTO,
             runtimeProfile = runtimeProfile(DeviceSyncTier.LOW),
@@ -17,11 +17,11 @@ class XtreamLiveSyncPolicyTest {
             hiddenLiveCategoryIds = emptySet()
         )
 
-        assertThat(method).isEqualTo(EffectiveXtreamLiveSyncMethod.CATEGORY_BY_CATEGORY)
+        assertThat(method).isEqualTo(EffectiveXtreamLiveSyncMethod.STREAM_ALL)
     }
 
     @Test
-    fun `auto uses category by category for manual and background sync`() {
+    fun `production auto uses bulk for manual and background sync`() {
         val profile = runtimeProfile(DeviceSyncTier.HIGH)
         val metadata = SyncMetadata(providerId = 1L)
 
@@ -34,7 +34,7 @@ class XtreamLiveSyncPolicyTest {
                 now = 1_000L,
                 hiddenLiveCategoryIds = emptySet()
             )
-        ).isEqualTo(EffectiveXtreamLiveSyncMethod.CATEGORY_BY_CATEGORY)
+        ).isEqualTo(EffectiveXtreamLiveSyncMethod.STREAM_ALL)
 
         assertThat(
             XtreamLiveSyncPolicy.resolve(
@@ -45,7 +45,7 @@ class XtreamLiveSyncPolicyTest {
                 now = 1_000L,
                 hiddenLiveCategoryIds = emptySet()
             )
-        ).isEqualTo(EffectiveXtreamLiveSyncMethod.CATEGORY_BY_CATEGORY)
+        ).isEqualTo(EffectiveXtreamLiveSyncMethod.STREAM_ALL)
     }
 
     @Test
@@ -91,14 +91,15 @@ class XtreamLiveSyncPolicyTest {
     }
 
     @Test
-    fun `auto uses category by category when hidden categories exist`() {
+    fun `production auto uses categories when most known live rows are hidden`() {
         val method = XtreamLiveSyncPolicy.resolve(
             userMode = ProviderXtreamLiveSyncMode.AUTO,
             runtimeProfile = runtimeProfile(DeviceSyncTier.HIGH),
             syncReason = XtreamLiveSyncReason.FOREGROUND,
             metadata = SyncMetadata(providerId = 1L),
             now = 1_000L,
-            hiddenLiveCategoryIds = setOf(42L)
+            hiddenLiveCategoryIds = setOf(42L),
+            hiddenLiveChannelFraction = 0.75f
         )
 
         assertThat(method).isEqualTo(EffectiveXtreamLiveSyncMethod.CATEGORY_BY_CATEGORY)
@@ -119,7 +120,7 @@ class XtreamLiveSyncPolicyTest {
     }
 
     @Test
-    fun `auto uses category by category when provider stress is remembered`() {
+    fun `production auto retries bulk when category stress is remembered`() {
         val method = XtreamLiveSyncPolicy.resolve(
             userMode = ProviderXtreamLiveSyncMode.AUTO,
             runtimeProfile = runtimeProfile(DeviceSyncTier.HIGH),
@@ -133,11 +134,11 @@ class XtreamLiveSyncPolicyTest {
             hiddenLiveCategoryIds = emptySet()
         )
 
-        assertThat(method).isEqualTo(EffectiveXtreamLiveSyncMethod.CATEGORY_BY_CATEGORY)
+        assertThat(method).isEqualTo(EffectiveXtreamLiveSyncMethod.STREAM_ALL)
     }
 
     @Test
-    fun `auto uses category by category for segmented onboarding preference`() {
+    fun `production auto uses bulk for segmented onboarding preference`() {
         val method = XtreamLiveSyncPolicy.resolve(
             userMode = ProviderXtreamLiveSyncMode.AUTO,
             runtimeProfile = runtimeProfile(
@@ -150,13 +151,108 @@ class XtreamLiveSyncPolicyTest {
             hiddenLiveCategoryIds = emptySet()
         )
 
+        assertThat(method).isEqualTo(EffectiveXtreamLiveSyncMethod.STREAM_ALL)
+    }
+
+    @Test
+    fun `production bulk first auto prefers bulk across device tiers and entry points`() {
+        DeviceSyncTier.entries.forEach { tier ->
+            XtreamLiveSyncReason.entries.forEach { reason ->
+                assertThat(
+                    XtreamLiveSyncPolicy.resolve(
+                        userMode = ProviderXtreamLiveSyncMode.AUTO,
+                        runtimeProfile = runtimeProfile(tier),
+                        syncReason = reason,
+                        metadata = SyncMetadata(providerId = 1L),
+                        now = 1_000L,
+                        hiddenLiveCategoryIds = emptySet()
+                    )
+                ).isEqualTo(EffectiveXtreamLiveSyncMethod.STREAM_ALL)
+            }
+        }
+    }
+
+    @Test
+    fun `bulk first auto distinguishes hidden coverage and remembered category stress`() {
+        val candidate = runtimeProfile(DeviceSyncTier.MID, bulkFirstAutoEnabled = true)
+        val base = SyncMetadata(providerId = 1L, liveSequentialFailuresRemembered = true)
+
+        assertThat(
+            XtreamLiveSyncPolicy.resolve(
+                userMode = ProviderXtreamLiveSyncMode.AUTO,
+                runtimeProfile = candidate,
+                syncReason = XtreamLiveSyncReason.MANUAL_SETTINGS,
+                metadata = base,
+                now = 1_000L,
+                hiddenLiveCategoryIds = setOf(13L),
+                hiddenLiveChannelFraction = 0.10f
+            )
+        ).isEqualTo(EffectiveXtreamLiveSyncMethod.STREAM_ALL)
+
+        assertThat(
+            XtreamLiveSyncPolicy.resolve(
+                userMode = ProviderXtreamLiveSyncMode.AUTO,
+                runtimeProfile = candidate,
+                syncReason = XtreamLiveSyncReason.BACKGROUND_STALE,
+                metadata = base,
+                now = 1_000L,
+                hiddenLiveCategoryIds = setOf(13L),
+                hiddenLiveChannelFraction = 0.75f
+            )
+        ).isEqualTo(EffectiveXtreamLiveSyncMethod.CATEGORY_BY_CATEGORY)
+
+        assertThat(
+            XtreamLiveSyncPolicy.resolve(
+                userMode = ProviderXtreamLiveSyncMode.AUTO,
+                runtimeProfile = candidate,
+                syncReason = XtreamLiveSyncReason.FOREGROUND,
+                metadata = base.copy(liveAvoidFullUntil = 2_000L),
+                now = 1_000L,
+                hiddenLiveCategoryIds = emptySet()
+            )
+        ).isEqualTo(EffectiveXtreamLiveSyncMethod.CATEGORY_BY_CATEGORY)
+    }
+
+    @Test
+    fun `bulk first auto falls back to categories during actual low memory`() {
+        val method = XtreamLiveSyncPolicy.resolve(
+            userMode = ProviderXtreamLiveSyncMode.AUTO,
+            runtimeProfile = runtimeProfile(
+                tier = DeviceSyncTier.HIGH,
+                currentlyLowMemory = true,
+                bulkFirstAutoEnabled = true
+            ),
+            syncReason = XtreamLiveSyncReason.FOREGROUND,
+            metadata = SyncMetadata(providerId = 1L),
+            now = 1_000L,
+            hiddenLiveCategoryIds = emptySet()
+        )
+
+        assertThat(method).isEqualTo(EffectiveXtreamLiveSyncMethod.CATEGORY_BY_CATEGORY)
+    }
+
+    @Test
+    fun `benchmark can opt out to compare the previous auto policy`() {
+        val method = XtreamLiveSyncPolicy.resolve(
+            userMode = ProviderXtreamLiveSyncMode.AUTO,
+            runtimeProfile = runtimeProfile(
+                tier = DeviceSyncTier.HIGH,
+                bulkFirstAutoEnabled = false
+            ),
+            syncReason = XtreamLiveSyncReason.MANUAL_SETTINGS,
+            metadata = SyncMetadata(providerId = 1L),
+            now = 1_000L,
+            hiddenLiveCategoryIds = emptySet()
+        )
+
         assertThat(method).isEqualTo(EffectiveXtreamLiveSyncMethod.CATEGORY_BY_CATEGORY)
     }
 
     private fun runtimeProfile(
         tier: DeviceSyncTier,
         currentlyLowMemory: Boolean = false,
-        preferSegmentedLiveOnboarding: Boolean = false
+        preferSegmentedLiveOnboarding: Boolean = false,
+        bulkFirstAutoEnabled: Boolean = true
     ): CatalogSyncRuntimeProfile = CatalogSyncRuntimeProfile(
         tier = tier,
         stageBatchSize = when (tier) {
@@ -186,6 +282,7 @@ class XtreamLiveSyncPolicyTest {
             manufacturer = "test",
             model = "test",
             sdkInt = 35
-        )
+        ),
+        bulkFirstAutoEnabled = bulkFirstAutoEnabled
     )
 }

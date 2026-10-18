@@ -1,0 +1,22 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="cast_started" tools:ignore="MissingTranslation">Transmitindo para o dispositivo conectado.</string>
+    <string name="cast_unavailable" tools:ignore="MissingTranslation">O Google Cast não está disponível neste dispositivo.</string>
+    <string name="cast_stream_unsupported" tools:ignore="MissingTranslation">Este formato de stream não é compatível com o Google Cast.</string>
+    <string name="cast_protocol_unsupported" tools:ignore="MissingTranslation">Streams RTSP e RTMP não são compatíveis com a transmissão.</string>
+    <string name="cast_drm_unsupported" tools:ignore="MissingTranslation">Streams protegidos por DRM não são compatíveis com o Google Cast neste app.</string>
+    <string name="cast_item_unavailable" tools:ignore="MissingTranslation">Este item não pode ser enviado para um receptor Cast.</string>
+    <string name="cast_local_url_unsupported" tools:ignore="MissingTranslation">Este stream usa um URL local ou exclusivo do dispositivo que o Chromecast não consegue alcançar diretamente.</string>
+    <string name="cast_headers_unsupported" tools:ignore="MissingTranslation">Este stream precisa de cabeçalhos HTTP ou cookies que o Chromecast não consegue usar diretamente.</string>
+    <string name="cast_user_agent_unsupported" tools:ignore="MissingTranslation">Este stream precisa de um User-Agent personalizado que o Chromecast não consegue usar diretamente.</string>
+    <string name="cast_proxy_unsupported" tools:ignore="MissingTranslation">Este stream precisa das configurações de proxy do app, por isso o Chromecast não consegue usá-lo diretamente.</string>
+    <string name="cast_invalid_ssl_unsupported" tools:ignore="MissingTranslation">Este stream usa um tratamento de SSL que o Chromecast não consegue usar diretamente.</string>
+    <string name="cast_session_failed" tools:ignore="MissingTranslation">Não foi possível iniciar a sessão do Cast.</string>
+    <string name="cast_load_failed" tools:ignore="MissingTranslation">O receptor Cast não conseguiu carregar este stream.</string>
+    <string name="cast_receiver_unavailable" tools:ignore="MissingTranslation">O receptor Cast conectado não está pronto para reprodução.</string>
+    <string name="cast_selection_cancelled" tools:ignore="MissingTranslation">A seleção do dispositivo Cast foi cancelada.</string>
+    <string name="add_group_close_cd">Fechar</string>
+    <string name="player_archive_title">Arquivo do Programa</string>
+    <string name="player_no_archive">Nenhum programa arquivado encontrado</string>
+    <string name="program_date_time_range">%1$s | %2$s – %3$s</string>
+    <string name="player_archive_badge">Arquivo</string>
+</resources>

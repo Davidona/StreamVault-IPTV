@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="add_group_cancel">Kanselahin</string>
+    <string name="settings_syncing_title">Nag-sy-sync ng data...</string>
+    <string name="settings_syncing_subtitle">Mangyaring maghintay habang ini-import ang playlist mo.</string>
+    <string name="settings_syncing_btn">Nag-sy-sync...</string>
+    <string name="settings_backup_restore">Backup at Restore</string>
+    <string name="settings_restore_data">Mag-import ng Data</string>
+    <string name="settings_restore_subtitle">Pumili ng backup file, o buksan ang backup gamit ang StreamVault mula sa file manager.</string>
+    <string name="setup_title_streamvault">StreamVault</string>
+    <string name="setup_provider_title">Magdagdag ng provider</string>
+    <string name="setup_edit_provider">I-edit ang Provider</string>
+    <string name="setup_update_desc">I-update ang detalye ng IPTV provider mo</string>
+    <string name="setup_add_desc">Idagdag ang IPTV provider mo</string>
+    <string name="setup_shell_eyebrow">Pagsisimula sa Provider</string>
+    <string name="setup_shell_subtitle">Gumamit ng Xtream o M3U. Maaari mo itong palitan mamaya.</string>
+    <string name="setup_form_subtitle">Pumili ng source, ilagay ang mga detalye, at magpatuloy. Maaari mo itong pamahalaan mamaya sa Settings.</string>
+    <string name="setup_source_type_label">Uri ng Source</string>
+    <string name="setup_info_xtream_title">Gamitin ang Xtream kapag may credentials</string>
+    <string name="setup_info_xtream_body">Pinakamainam kapag may server, user, at password ka.</string>
+    <string name="setup_info_stalker_body">Portal URL at MAC address na aprubado ng provider.</string>
+    <string name="setup_info_m3u_title">Gamitin ang M3U para sa URL o file-based na playlist</string>
+    <string name="setup_info_m3u_body">Gumamit ng playlist link o mag-import ng lokal na file.</string>
+    <string name="setup_info_manage_title">Maaari mong pamahalaan ang mga provider mamaya</string>
+    <string name="setup_info_manage_body">I-refresh, i-edit, o palitan ito mamaya sa Settings.</string>
+    <string name="setup_import_backup">Mag-import ng Backup</string>
+    <string name="badge_beta">Beta</string>
+    <string name="setup_xtream">Xtream Codes</string>
+    <string name="setup_stalker">Stalker</string>
+    <string name="setup_m3u">M3U Playlist</string>
+    <string name="setup_name_hint">Pangalan ng Playlist (Opsyonal)</string>
+    <string name="setup_server_hint">Server URL</string>
+    <string name="setup_user_hint">Username</string>
+    <string name="setup_pass_hint">Password</string>
+    <string name="setup_show_password">Ipakita ang password</string>
+    <string name="setup_hide_password">Itago ang password</string>
+    <string name="setup_phone_pairing_title">Magdagdag mula sa phone</string>
+    <string name="setup_phone_pairing_body">Mag-scan ng QR code at ilagay ang credentials ng provider mula sa phone na nasa parehong Wi-Fi.</string>
+    <string name="setup_phone_pairing_start">Ipakita ang QR code</string>
+    <string name="setup_phone_pairing_restart">Bagong QR code</string>
+    <string name="setup_phone_pairing_stop">Ihinto ang pairing</string>
+    <string name="setup_phone_pairing_same_wifi">Buksan ito mula sa phone na nasa parehong Wi-Fi. Direktang ipinapadala ang credentials sa TV na ito.</string>
+    <string name="setup_phone_pairing_qr_description">QR code para sa phone provider setup</string>
+    <string name="setup_phone_pairing_idle">Lokal lamang</string>
+    <string name="setup_phone_pairing_ready">I-scan ngayon</string>
+    <string name="setup_phone_pairing_receiving">Idinadagdag</string>
+    <string name="setup_phone_pairing_complete">Naidagdag</string>
+    <string name="setup_phone_pairing_error">Error</string>
+    <string name="setup_connecting">Kumokonekta...</string>
+    <string name="setup_save">I-save ang mga Pagbabago</string>
+    <string name="setup_login">Mag-login</string>
+    <string name="setup_advanced_options_label">Mga Advanced na Opsyon</string>
+    <string name="setup_advanced_options_helper">Kontrolin kung paano kinukuha ang guide data habang nagse-setup at nagre-refresh ng provider.</string>
+    <string name="setup_advanced_options_show">Ipakita</string>
+    <string name="setup_advanced_options_hide">Itago</string>
+    <string name="setup_m3u_vod_classification_label">Klasipikasyon ng M3U VOD</string>
+    <string name="setup_m3u_vod_classification_helper">M3U lamang. I-classify ang mga na-decode na movie URL at localized na group o title hint bilang Movies; mananatili sa Live TV ang mga kilalang live-stream URL.</string>
+    <string name="setup_xtream_live_sync_mode_label">Xtream Live Sync</string>
+    <string name="setup_xtream_live_sync_mode_helper">Piliin kung paano kinukuha ang mga Live TV channel. Pinoprotektahan ng Auto ang mahihinang device at ang mga routine refresh habang pinupuno ang mga kategorya.</string>
+    <string name="setup_xtream_live_sync_mode_auto_title">Auto</string>
+    <string name="setup_xtream_live_sync_mode_auto_description">Inirerekomenda. Gumagamit ng category sync sa mababang memory na device, background refresh, hidden-category refresh, at stressed na provider.</string>
+    <string name="setup_xtream_live_sync_mode_category_title">Isa-isa ang kategorya</string>
+    <string name="setup_xtream_live_sync_mode_category_description">Palaging isa-isa ang pagkuha ng Live TV. Mas ligtas para sa malalaking provider at mahihinang Android TV device.</string>
+    <string name="setup_xtream_live_sync_mode_stream_all_title">I-stream lahat</string>
+    <string name="setup_xtream_live_sync_mode_stream_all_description">Subukan ang provider-wide Live endpoint gamit ang streaming parser. Babalik sa category sync kung hindi ligtas o nabigo.</string>
+    <string name="setup_epg_sync_mode_label">EPG Sync</string>
+    <string name="setup_epg_sync_mode_helper">Ang Upfront ay tulad ng dati. Tinatapos muna ng Background ang setup, at ipinagpapaliban ng Skip ang guide refresh.</string>
+    <string name="setup_epg_sync_mode_upfront_title">Buong EPG ngayon</string>
+    <string name="setup_epg_sync_mode_upfront_description">I-download ang provider at external na guide data habang nagse-setup bago ito matapos.</string>
+    <string name="setup_epg_sync_mode_background_title">I-load ang EPG sa background</string>
+    <string name="setup_epg_sync_mode_background_description">Tapusin muna ang setup, pagkatapos ay awtomatikong kunin ang guide data sa background.</string>
+    <string name="setup_epg_sync_mode_skip_title">Laktawan muna ang EPG</string>
+    <string name="setup_epg_sync_mode_skip_description">Huwag awtomatikong kumuha ng guide data. Maaari mong i-refresh ang EPG mamaya sa Settings.</string>
+    <string name="setup_stalker_epg_sync_mode_helper">Maaaring gamitin ng Stalker ang native na gabay ng portal kapag wala o hindi available ang XMLTV. Ini-import ito ng Upfront habang nagse-setup, ipinagpapaliban ng Background, at hinahayaan ng Skip na mag-load ang gabay kapag kailangan.</string>
+    <string name="setup_stalker_epg_sync_mode_upfront_description">I-download ang mga live channel at i-import ang gabay ng Stalker portal habang nagse-setup. Kung naka-configure at gumagana ang XMLTV, iyon muna ang gagamitin.</string>
+    <string name="setup_stalker_epg_sync_mode_background_description">Tapusin muna ang setup, pagkatapos ay i-import ang gabay ng Stalker portal sa background. Kung naka-configure at gumagana ang XMLTV, iyon muna ang gagamitin.</string>
+    <string name="setup_stalker_epg_sync_mode_skip_description">Huwag awtomatikong mag-bulk import ng guide data. Maaari pa ring mag-load ang live guide data kapag nagba-browse ka ng mga channel.</string>
+    <string name="setup_m3u_hint">M3U URL</string>
+    <string name="setup_tab_url">URL</string>
+    <string name="setup_tab_file">File</string>
+    <string name="setup_choose_file">Pumili ng M3U File</string>
+    <string name="setup_file_replace_hint">Pindutin para palitan ang file</string>
+    <string name="setup_file_select_title">Piliin ang M3U File</string>
+    <string name="setup_file_browse_hint">Mag-browse sa local storage o USB</string>
+    <string name="setup_file_import_failed">Hindi ma-import ang playlist file. Subukang muli.</string>
+    <string name="setup_file_import_storage_full">Puno na ang storage. Magbakante ng espasyo at subukang i-import muli.</string>
+    <string name="setup_discard_draft_title">Itapon ang setup draft?</string>
+    <string name="setup_discard_draft_body">Hindi pa tapos ang provider setup na ito. Bumalik at itapon ang kasalukuyang draft?</string>
+    <string name="setup_discard_draft_confirm">Itapon</string>
+    <string name="setup_discard_draft_cancel">Ipagpatuloy ang pag-edit</string>
+    <string name="setup_validating">Vina-validate...</string>
+    <string name="setup_add">Magdagdag ng Playlist</string>
+    <string name="setup_tab_jellyfin">Jellyfin</string>
+    <string name="setup_jellyfin_quick_connect">Quick Connect</string>
+    <string name="setup_jellyfin_quick_connect_code">Code: %s</string>
+    <string name="setup_jellyfin_quick_connect_code_instructions">Buksan ang Jellyfin server mo sa browser at ilagay ang code na ito, o i-scan ang QR code gamit ang phone mo.</string>
+    <string name="setup_server_url">Server URL</string>
+    <string name="setup_username">Username</string>
+    <string name="setup_password">Password</string>
+    <string name="setup_name">Pangalan</string>
+    <string name="setup_name_placeholder">Aking Jellyfin Server</string>
+    <string name="settings_drive_signin" translatable="false">Sign in to Google Drive</string>
+    <string name="settings_drive_pull" translatable="false">Restore from Drive</string>
+    <string name="settings_drive_choose_backup_title" translatable="false">Choose a Drive backup</string>
+    <string name="settings_drive_choose_backup_subtitle" translatable="false">Select a saved snapshot to preview and restore.</string>
+    <string name="settings_drive_cancel_backup_choice" translatable="false">Cancel backup choice</string>
+    <string name="setup_import_from_drive">Mag-import mula sa Drive</string>
+    <string name="stalker_transport_invalid_tls_title" translatable="false">This provider\'s security certificate can\'t be verified</string>
+    <string name="stalker_transport_invalid_tls_body" translatable="false">The connection to %1$s may still be encrypted, but the app can\'t confirm it is really this provider. Someone on the network could read your login or stream details.</string>
+    <string name="stalker_transport_http_title" translatable="false">This provider uses an unencrypted connection</string>
+    <string name="stalker_transport_http_body" translatable="false">Your login and viewing requests to %1$s can be read or changed by someone on the network.</string>
+    <string name="stalker_transport_origin_changed_title" translatable="false">This provider wants to use a different address</string>
+    <string name="stalker_transport_origin_changed_body" translatable="false">The provider redirected the connection to %1$s. Continue only if you recognize this address.</string>
+    <string name="stalker_transport_go_back" translatable="false">Go back</string>
+    <string name="stalker_transport_connect_anyway" translatable="false">Connect anyway</string>
+    <string name="stalker_verification_inconclusive_title" translatable="false">Live TV could not be verified</string>
+    <string name="stalker_verification_inconclusive_body" translatable="false">The provider accepted your login, but the Live TV check did not finish. You can save it with verification pending; it will remain inactive until a sync confirms playable Live TV.</string>
+    <string name="stalker_save_without_verification" translatable="false">Save without verification</string>
+    <string name="stalker_repair_connection" translatable="false">Repair connection</string>
+    <string name="setup_phone_pairing_security_warning">Seguridad: Ipinapadala ng pagpapares ang mga kredensyal nang walang encryption sa lokal mong network. Gumamit lamang ng pribado at pinagkakatiwalaang Wi-Fi.</string>
+    <string name="setup_phone_pairing_error_help">Hindi nakumpleto ang pagpapares. Suriin ang mga detalye ng provider at subukan muli. Kung nag-expire ang QR session, magsimula ng bago sa TV.</string>
+    <string name="setup_phone_pairing_mac_label">Address ng MAC</string>
+</resources>

@@ -16,6 +16,7 @@ import com.streamvault.feature.live.api.LiveArchivePlaybackRequest
 import com.streamvault.feature.live.api.LiveChannelPlaybackRequest
 import com.streamvault.feature.live.api.LiveAddToGroupDialogRequest
 import com.streamvault.feature.live.home.LiveHomeScreen
+import com.streamvault.feature.live.sports.SportsHubScreen
 import com.streamvault.feature.live.epg.LiveEpgScreen
 import com.streamvault.feature.live.navigation.registerLiveGraph as registerFeatureLiveGraph
 
@@ -24,6 +25,25 @@ internal fun NavGraphBuilder.registerLiveGraph(
     onTopLevelDestinationRequested: (AppDestination) -> Unit,
 ) {
     registerFeatureLiveGraph(
+        sportsContent = { onPlaybackRequested ->
+            SportsHubScreen(
+                onPlaybackRequested = onPlaybackRequested,
+                scaffold = { route, title, subtitle, content ->
+                    AppScreenScaffold(
+                        currentRoute = route,
+                        onNavigate = { destination ->
+                            AppRouteCodec.decode(destination)?.let(onTopLevelDestinationRequested)
+                        },
+                        title = title,
+                        subtitle = subtitle,
+                        navigationChrome = AppNavigationChrome.TopBar,
+                        compactHeader = true,
+                        showScreenHeader = false,
+                        content = content,
+                    )
+                },
+            )
+        },
         liveTvContent = { initialCategoryId, onPlaybackRequested, onNavigate ->
             val multiViewPlanner = rememberAppLiveMultiViewPlannerContent()
             LiveHomeScreen(

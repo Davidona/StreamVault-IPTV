@@ -1,0 +1,39 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="trakt_watchlist_movies_no_matches">您的 Trakt 观看列表中没有与此提供商或当前过滤器匹配的电影。</string>
+    <string name="trakt_watchlist_series_no_matches">您的 Trakt 关注列表中没有任何系列与该提供商或当前过滤器匹配。</string>
+    <string name="trakt_discovery_trending_movies">Trakt 上的趋势</string>
+    <string name="trakt_discovery_popular_movies">Trakt上的热门</string>
+    <string name="trakt_discovery_trending_series">Trakt 上的趋势</string>
+    <string name="trakt_discovery_popular_series">Trakt上的热门</string>
+    <string name="trakt_discovery_movies_no_matches">没有趋势或流行的 Trakt 电影与该提供商或当前的过滤器相匹配。</string>
+    <string name="trakt_discovery_series_no_matches">没有趋势或流行的 Trakt 节目与该提供商或当前过滤器匹配。</string>
+    <string name="trakt_discovery_load_failed">无法加载 Trakt 发现标题。再试一次。</string>
+    <string name="trakt_custom_lists_action">Trakt 列表</string>
+    <string name="trakt_custom_lists_title">您的 Trakt 列表</string>
+    <string name="trakt_custom_lists_for_item">在列表中管理 %1$s</string>
+    <string name="trakt_custom_lists_loading">正在加载列表信息...</string>
+    <string name="trakt_custom_lists_connect_first">在“设置”中连接 Trakt 以使用您的列表。</string>
+    <string name="trakt_custom_lists_empty">您还没有任何自定义 Trakt 列表。</string>
+    <string name="trakt_custom_lists_failed">无法加载或更新此 Trakt 列表。再试一次。</string>
+    <string name="trakt_custom_lists_incognito">当隐身模式开启时，Trakt 列表不可用。</string>
+    <string name="trakt_custom_lists_too_large">此列表太大，无法在 StreamVault 中完全加载。</string>
+    <string name="trakt_custom_list_open">%1$s · %2$d 项目</string>
+    <string name="trakt_custom_list_contains_item">%1$s 在此列表中。</string>
+    <string name="trakt_custom_list_does_not_contain_item">%1$s 不在此列表中。</string>
+    <string name="trakt_custom_list_add_item">添加到列表</string>
+    <string name="trakt_custom_lists_create_new">创建新列表</string>
+    <string name="trakt_custom_lists_name">列表名称</string>
+    <string name="trakt_custom_lists_optional_description">描述（可选）</string>
+    <string name="trakt_custom_lists_private_note">新列表在 Trakt 上是私有的。</string>
+    <string name="trakt_custom_lists_create">创建私人列表</string>
+    <string name="trakt_custom_list_remove_item">删除</string>
+    <string name="trakt_custom_list_items_truncated">显示前 200 项。</string>
+    <string name="trakt_custom_lists_back">返回列表</string>
+    <string name="trakt_custom_lists_choose_item">选择要添加或删除的内容</string>
+    <string name="trakt_custom_lists_movies">电影</string>
+    <string name="trakt_custom_lists_series">系列</string>
+    <string name="trakt_custom_lists_seasons_count">四季 (%1$d)</string>
+    <string name="trakt_custom_lists_episodes_count">剧集 (%1$d)</string>
+    <string name="trakt_custom_lists_change_item">更改标题</string>
+</resources>

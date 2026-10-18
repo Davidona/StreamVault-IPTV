@@ -2,6 +2,7 @@ package com.streamvault.data.remote.stalker
 
 import com.google.common.truth.Truth.assertThat
 import com.streamvault.domain.model.StalkerRequestPriority
+import java.net.SocketTimeoutException
 import java.util.concurrent.atomic.AtomicInteger
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.async
@@ -114,5 +115,59 @@ class StalkerRequestCoordinatorTest {
         advanceUntilIdle()
         jobs.forEach { it.await() }
         assertThat(peak.get()).isEqualTo(2)
+    }
+
+    @Test
+    fun effectiveMetadataLimitDropsToOneAfterProviderStress() = runTest {
+        val coordinator = StalkerRequestCoordinator()
+        assertThat(coordinator.effectiveConcurrencyLimit(31L)).isEqualTo(2)
+
+        coordinator.recordFailure(
+            providerId = 31L,
+            error = StalkerApiError.Transport("portal timed out", SocketTimeoutException())
+        )
+
+        assertThat(coordinator.effectiveConcurrencyLimit(31L)).isEqualTo(1)
+    }
+
+    @Test
+    fun categoryAdmissionAtLimitOneFinishesBeforeBulkCanHoldTheSlot() = runTest {
+        val coordinator = StalkerRequestCoordinator()
+        coordinator.recordFailure(
+            providerId = 32L,
+            error = StalkerApiError.Transport("portal timed out", SocketTimeoutException())
+        )
+        val categoryStarted = CompletableDeferred<Unit>()
+        val releaseCategory = CompletableDeferred<Unit>()
+        val bulkStarted = CompletableDeferred<Unit>()
+
+        val category = async {
+            coordinator.execute(
+                32L,
+                StalkerRequestPriority.OPEN_CATEGORY,
+                StalkerRequestDescriptor("LIVE", "GET_CATEGORIES")
+            ) {
+                categoryStarted.complete(Unit)
+                releaseCategory.await()
+            }
+        }
+        categoryStarted.await()
+        val bulk = async {
+            coordinator.execute(
+                32L,
+                StalkerRequestPriority.OPEN_CATEGORY,
+                StalkerRequestDescriptor("LIVE", "STREAM_ALL")
+            ) {
+                bulkStarted.complete(Unit)
+            }
+        }
+        runCurrent()
+        assertThat(bulkStarted.isCompleted).isFalse()
+
+        releaseCategory.complete(Unit)
+        advanceUntilIdle()
+        category.await()
+        bulk.await()
+        assertThat(bulkStarted.isCompleted).isTrue()
     }
 }

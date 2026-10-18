@@ -80,6 +80,9 @@ internal fun buildCatchUpPreloadTimeline(
 internal fun episodePreloadKey(providerId: Long, episode: Episode): String =
     "episode:$providerId:${episode.playbackEpisodeIdentity()}"
 
+internal fun physicalEpisodePreloadKey(source: PhysicalEpisodeSource): String =
+    "episode:${source.episode.providerId}:series:${source.series.id}:local:${source.episode.id}:remote:${source.episode.episodeId}"
+
 internal fun catchUpPreloadKey(providerId: Long, channel: Channel, program: Program): String =
     "catchup:$providerId:${channel.id}:${program.startTime}:${program.endTime}"
 

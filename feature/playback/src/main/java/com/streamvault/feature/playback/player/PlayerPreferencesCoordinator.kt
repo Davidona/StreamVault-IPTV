@@ -5,6 +5,9 @@ import com.streamvault.domain.model.LiveChannelObservedQuality
 import com.streamvault.domain.model.PlayerBackButtonVisibility
 import com.streamvault.domain.model.VodVariantObservation
 import com.streamvault.domain.settings.PlayerPreferences
+import com.streamvault.domain.settings.PlaybackQualityPreferences
+import com.streamvault.domain.settings.PlaybackQualityPreferenceScope
+import com.streamvault.domain.settings.ScopedPlaybackQualityPreference
 import com.streamvault.domain.settings.VodTrackPreferenceScope
 import com.streamvault.domain.settings.VodTrackPreferences
 import javax.inject.Inject
@@ -51,6 +54,9 @@ class PlayerPreferencesCoordinator @Inject constructor(
     internal val playerNoticeTimeoutSeconds get() = preferencesRepository.playerNoticeTimeoutSeconds
     internal val playerPlaybackBufferMode get() = preferencesRepository.playerPlaybackBufferMode
     internal val playerPlaybackSpeed get() = preferencesRepository.playerPlaybackSpeed
+    internal val playbackQualityPreferences get() = preferencesRepository.playbackQualityPreferences
+    internal fun getPlaybackQualityPreference(scope: PlaybackQualityPreferenceScope) =
+        preferencesRepository.getPlaybackQualityPreference(scope)
     internal val playerSubtitleBackgroundColor get() = preferencesRepository.playerSubtitleBackgroundColor
     internal val playerSubtitleTextColor get() = preferencesRepository.playerSubtitleTextColor
     internal val playerSubtitleTextScale get() = preferencesRepository.playerSubtitleTextScale
@@ -63,6 +69,7 @@ class PlayerPreferencesCoordinator @Inject constructor(
     internal val playerWifiMaxVideoHeight get() = preferencesRepository.playerWifiMaxVideoHeight
     internal val preventStandbyDuringPlayback get() = preferencesRepository.preventStandbyDuringPlayback
     internal val preferredAudioLanguage get() = preferencesRepository.preferredAudioLanguage
+    internal val pinnedSubtitleLanguages get() = preferencesRepository.pinnedSubtitleLanguages
     internal val globalVodTrackPreferences get() = preferencesRepository.globalVodTrackPreferences
     internal val remoteShortcutPreferences get() = preferencesRepository.remoteShortcutPreferences
     internal val vodVariantObservations get() = preferencesRepository.vodVariantObservations
@@ -121,8 +128,27 @@ class PlayerPreferencesCoordinator @Inject constructor(
         preferencesRepository.setPlayerPlaybackSpeed(speed)
     }
 
+    internal suspend fun setSubtitleTextScale(scale: Float) {
+        preferencesRepository.setPlayerSubtitleTextScale(scale.coerceIn(0.75f, 1.75f))
+    }
+
+    internal suspend fun setSubtitleBackgroundOpacity(opacity: Int) {
+        preferencesRepository.setPlayerSubtitleBackgroundColor((opacity.coerceIn(0, 100) * 255 / 100) shl 24)
+    }
+
     internal suspend fun setGlobalVodTrackPreferences(preferences: VodTrackPreferences) {
         preferencesRepository.setGlobalVodTrackPreferences(preferences)
+    }
+
+    internal suspend fun setPlaybackQualityPreference(
+        scope: PlaybackQualityPreferenceScope,
+        preference: ScopedPlaybackQualityPreference
+    ) {
+        preferencesRepository.setPlaybackQualityPreference(scope, preference)
+    }
+
+    internal suspend fun clearPlaybackQualityPreference(scope: PlaybackQualityPreferenceScope) {
+        preferencesRepository.clearPlaybackQualityPreference(scope)
     }
 
     internal suspend fun setVodTrackPreferences(

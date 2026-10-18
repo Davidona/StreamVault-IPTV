@@ -32,11 +32,11 @@
   <string name="badge_series">SERI</string>
   <string name="card_live_badge">LANGSUNG</string>
   <string name="card_locked_channel">Saluran Terkunci</string>
-  <string name="cast_button_label" translatable="false">Cast</string>
-  <string name="cast_item_unavailable" translatable="false">This item cannot be sent to a Cast receiver.</string>
-  <string name="cast_launching" translatable="false">Casting...</string>
-  <string name="cast_started" translatable="false">Casting to the connected device.</string>
-  <string name="cast_unavailable" translatable="false">Google Cast is unavailable on this device.</string>
+  <string name="cast_button_label">Transmisikan</string>
+  <string name="cast_item_unavailable">Item ini tidak dapat dikirim ke receiver Cast.</string>
+  <string name="cast_launching">Mentransmisikan...</string>
+  <string name="cast_started">Mentransmisikan ke perangkat yang terhubung.</string>
+  <string name="cast_unavailable">Google Cast tidak tersedia di perangkat ini.</string>
   <string name="category_options_cancel">Batalkan</string>
   <string name="category_options_clear_recent">Hapus Semua Terkini</string>
   <string name="category_options_delete">Hapus Grup</string>
@@ -49,22 +49,22 @@
   <string name="category_options_set_default">Tetapkan sebagai Grup Default</string>
   <string name="category_options_unlock">Buka Kunci Grup</string>
   <string name="category_options_unpin">Lepas Sematan Kategori</string>
-  <string name="category_pin" translatable="false">Pin</string>
+  <string name="category_pin">Sematkan</string>
   <string name="category_see_all">Lihat Semua →</string>
-  <string name="category_unpin" translatable="false">Unpin</string>
-  <string name="channel_action_hide">Hide this channel</string>
+  <string name="category_unpin">Lepas Sematan</string>
+  <string name="channel_action_hide">Sembunyikan saluran ini</string>
   <string name="channel_options_remove_from_recent">Hapus dari Terkini</string>
   <string name="continue_watching_season_episode">S%1$d E%2$d</string>
   <string name="continue_watching_title">Lanjutkan Menonton</string>
   <string name="dashboard_channels_format">%1$d saluran</string>
   <string name="dashboard_continue_watching">Lanjutkan Menonton</string>
-  <string name="dashboard_continue_watching_movies">Continue Watching Movies</string>
-  <string name="dashboard_continue_watching_series">Continue Watching Series</string>
+  <string name="dashboard_continue_watching_movies">Lanjutkan Menonton Film</string>
+  <string name="dashboard_continue_watching_series">Lanjutkan Menonton Serial</string>
   <string name="dashboard_empty_body">Tambahkan playlist atau sumber Xtream terlebih dahulu. Setelah penyedia aktif, Beranda akan menampilkan saluran favorit, terus menonton, dan baris perpustakaan baru.</string>
   <string name="dashboard_empty_title">Siapkan penyedia untuk membuka kunci layar beranda</string>
   <string name="dashboard_favorite_channels">Saluran Favorit</string>
-  <string name="dashboard_favorite_movies">Favorite Movies</string>
-  <string name="dashboard_favorite_series">Favorite Series</string>
+  <string name="dashboard_favorite_movies">Film Favorit</string>
+  <string name="dashboard_favorite_series">Serial Favorit</string>
   <string name="dashboard_fresh_movie_pick">Pilihan film baru</string>
   <string name="dashboard_jump_back_live">Kembali ke siaran langsung TV</string>
   <string name="dashboard_library_ready">Perpustakaan IPTV Anda sudah siap</string>
@@ -87,7 +87,7 @@
   <string name="dashboard_recent_channels">Saluran Terbaru</string>
   <string name="dashboard_recent_movies">Film yang Baru Ditambahkan</string>
   <string name="dashboard_recent_series">Seri yang Baru Diperbarui</string>
-  <string name="dashboard_recommended_movies">Recommended Movies</string>
+  <string name="dashboard_recommended_movies">Film yang Direkomendasikan</string>
   <string name="dashboard_resume_episode">Lanjutkan episode</string>
   <string name="dashboard_resume_episode_format">Lanjutkan S%1$d E%2$d</string>
   <string name="dashboard_resume_live">Lanjutkan</string>
@@ -104,10 +104,10 @@
   <string name="dashboard_stat_series">%1$d seri</string>
   <string name="dashboard_subtitle">%1$s aktif. Langsung kembali ke siaran langsung, ikuti kemajuan, atau jelajahi tambahan baru.</string>
   <string name="dashboard_title">Perpustakaan Anda, Siap</string>
-  <string name="dashboard_top_rated_movies">Top Rated Movies</string>
-  <string name="dashboard_update_allow_installs" translatable="false">Allow Installs</string>
+  <string name="dashboard_top_rated_movies">Film Berperingkat Teratas</string>
+  <string name="dashboard_update_allow_installs">Izinkan Pemasangan</string>
   <string name="dashboard_update_available">Rilis aplikasi yang lebih baru sudah di-cache dan siap ditinjau dari Setelan.</string>
-  <string name="dashboard_update_install_permission_required" translatable="false">The update is downloaded. Allow installs from StreamVault, then retry installation.</string>
+  <string name="dashboard_update_install_permission_required">Pembaruan telah diunduh. Izinkan pemasangan dari StreamVault, lalu coba lagi pemasangan.</string>
   <string name="dashboard_update_install_ready">Pembaruan terbaru sudah diunduh. Buka Setelan untuk memasangnya.</string>
   <string name="dashboard_update_open_installer">Pasang dari Setelan</string>
   <string name="dashboard_update_open_settings">Buka Pembaruan</string>
@@ -117,10 +117,10 @@
   <string name="dashboard_warning_review">Buka Detail Penyedia</string>
   <string name="dashboard_warning_title">Penyedia Perlu Perhatian</string>
   <string name="dashboard_watch_live">Tonton Langsung</string>
-  <string name="download_button_label">Download</string>
-  <string name="download_error_no_url">Could not resolve stream URL for download</string>
-  <string name="download_failed">Download failed: %1$s</string>
-  <string name="download_started">Download started</string>
+  <string name="download_button_label">Unduh</string>
+  <string name="download_error_no_url">Tidak dapat menyelesaikan URL streaming untuk unduhan</string>
+  <string name="download_failed">Unduhan gagal: %1$s</string>
+  <string name="download_started">Unduhan dimulai</string>
   <string name="favorites_add">Tambah ke favorit</string>
   <string name="favorites_all_favorites">Semua Favorit</string>
   <string name="favorites_cancel">Kembali: batalkan</string>
@@ -197,10 +197,10 @@
   <string name="library_saved_manage_hint">Tahan grup yang disimpan untuk opsi</string>
   <string name="library_saved_primary_hint">Kembali ke perpustakaan lengkap</string>
   <string name="library_sort_title">Urutkan Hasil</string>
-  <string name="m3u_move_back_to_live" translatable="false">Move back to Live TV</string>
-  <string name="m3u_move_to_movies" translatable="false">Move to Movies</string>
-  <string name="m3u_move_to_series" translatable="false">Move to Series</string>
-  <string name="m3u_organize_items" translatable="false">Organize M3U Items</string>
+  <string name="m3u_move_back_to_live">Pindahkan kembali ke TV Langsung</string>
+  <string name="m3u_move_to_movies">Pindahkan ke Film</string>
+  <string name="m3u_move_to_series">Pindahkan ke Serial</string>
+  <string name="m3u_organize_items">Atur Item M3U</string>
   <string name="movie_detail_back">Kembali ke pustaka</string>
   <string name="movie_detail_cast">Pemeran:</string>
   <string name="movie_detail_director">Disutradarai oleh:</string>
@@ -212,7 +212,7 @@
   <string name="movie_detail_resume_from">Lanjutkan dari %1$s</string>
   <string name="movie_detail_trailer">Trailer</string>
   <string name="movie_detail_unknown">Tidak diketahui</string>
-  <string name="movie_detail_versions">Versions</string>
+  <string name="movie_detail_versions">Versi</string>
   <string name="movie_loading_details">Memuat detail...</string>
   <string name="movie_not_found">Film tidak ditemukan</string>
   <string name="movie_plot_fallback">Sinopsis tidak tersedia</string>
@@ -232,7 +232,7 @@
   <string name="nav_movies">Film</string>
   <string name="nav_series">Seri</string>
   <string name="nav_settings">Pengaturan</string>
-  <string name="nav_vod" translatable="false">VOD</string>
+  <string name="nav_vod">VOD</string>
   <string name="pin_dialog_cancel">Batalkan</string>
   <string name="pin_dialog_title">Masukkan PIN</string>
   <string name="player_resume">Lanjutkan</string>
@@ -273,11 +273,11 @@
   <string name="search_actions_remove_favorite">Hapus dari Favorit</string>
   <string name="search_actions_unlock">Buka Kunci Kontrol Orang Tua</string>
   <string name="search_all">Semua</string>
-  <string name="search_build_complete_index" translatable="false">Build complete search index once</string>
-  <string name="search_catalog_complete" translatable="false">Complete catalog index</string>
-  <string name="search_catalog_downloaded_only" translatable="false">Downloaded items only. Build the complete search index to search the full portal catalog.</string>
-  <string name="search_catalog_indexing" translatable="false">The complete search index is being built. Results are still partial.</string>
-  <string name="search_catalog_truncated" translatable="false">The portal catalog was truncated. Results may be incomplete.</string>
+  <string name="search_build_complete_index">Bangun indeks pencarian lengkap sekali</string>
+  <string name="search_catalog_complete">Indeks katalog lengkap</string>
+  <string name="search_catalog_downloaded_only">Hanya item yang diunduh. Bangun indeks pencarian lengkap untuk mencari seluruh katalog portal.</string>
+  <string name="search_catalog_indexing">Indeks pencarian lengkap sedang dibangun. Hasilnya masih sebagian.</string>
+  <string name="search_catalog_truncated">Katalog portal terpotong. Hasilnya mungkin tidak lengkap.</string>
   <string name="search_clear_history">Jelas</string>
   <string name="search_command_subtitle">Mulailah dengan judul, kata kunci, nama saluran, atau serial. Hasil tetap dikelompokkan untuk navigasi jarak jauh yang cepat.</string>
   <string name="search_error_subtitle">Beberapa hasil tidak dapat dimuat. Coba lagi.</string>
@@ -304,7 +304,7 @@
   <string name="series_detail_back">Kembali ke perpustakaan</string>
   <string name="series_detail_play_episode">Putar · Musim %1$d Ep %2$d</string>
   <string name="series_detail_resume">Lanjutkan · Musim %1$d Ep %2$d · %3$s</string>
-  <string name="series_detail_versions">Versions</string>
+  <string name="series_detail_versions">Versi</string>
   <string name="series_episodes">Episode (%1$d)</string>
   <string name="series_incorrect_pin">PIN salah</string>
   <string name="series_library_lens_subtitle">Tampilkan serial favorit, sedang berlangsung, berperingkat teratas, dan baru di seluruh perpustakaan.</string>
@@ -328,10 +328,10 @@
   <string name="settings_status_partial">Sebagian</string>
   <string name="settings_status_unknown">Tidak diketahui</string>
   <string name="settings_update_install_started">Membuka penginstal paket.</string>
-  <string name="stream_url_clip_label">Stream URL</string>
-  <string name="stream_url_copied">Stream URL copied</string>
-  <string name="stream_url_copy">Copy URL</string>
-  <string name="stream_url_copy_failed">Could not resolve stream URL</string>
+  <string name="stream_url_clip_label">URL Streaming</string>
+  <string name="stream_url_copied">URL streaming disalin</string>
+  <string name="stream_url_copy">Salin URL</string>
+  <string name="stream_url_copy_failed">Tidak dapat menyelesaikan URL streaming</string>
   <string name="vod_category_picker_empty">Tidak ditemukan kategori yang cocok.</string>
   <string name="vod_category_picker_search_placeholder">Cari kategori…</string>
   <string name="vod_category_picker_subtitle">Cari berdasarkan nama kategori, lalu buka rak yang cocok.</string>
@@ -349,6 +349,20 @@
   <string name="vod_rating_tmdb">TMDb</string>
   <string name="vod_sync_needed_subtitle">Perbarui penyedia ini untuk mengimpor film dan serial ke pustaka.</string>
   <string name="vod_sync_needed_title">Sinkronisasi diperlukan</string>
-  <string name="vod_unavailable_subtitle" translatable="false">This provider exposes separate Movies and Series catalogs.</string>
-  <string name="vod_unavailable_title" translatable="false">VOD is unavailable</string>
+  <string name="vod_unavailable_subtitle">Penyedia ini mengekspos katalog Film dan Serial yang terpisah.</string>
+  <string name="vod_unavailable_title">VOD tidak tersedia</string>
+
+<string name="trakt_watchlist_add">Tambahkan ke daftar tontonan Trakt</string>
+<string name="trakt_watchlist_connect">Hubungkan Trakt di Setelan</string>
+<string name="trakt_watchlist_failed">Tidak dapat memperbarui daftar tontonan Trakt. Coba lagi.</string>
+<string name="trakt_watchlist_load">Muat daftar tontonan Trakt</string>
+<string name="trakt_watchlist_remove">Hapus dari daftar tontonan Trakt</string>
+<string name="dashboard_trakt_watchlist_movies">Film dalam daftar pantauan Trakt Anda</string>
+<string name="dashboard_trakt_watchlist_series">Acara TV di daftar tontonan Trakt Anda</string>
+<string name="trakt_rating_action">Beri nilai di Trakt</string>
+<string name="trakt_rating_dialog_message">Pilih nilai dari 1 sampai 10.</string>
+<string name="trakt_rating_current">Nilai Trakt Anda: %1$d/10</string>
+<string name="trakt_rating_saved">Nilai Anda tersimpan di Trakt.</string>
+<string name="trakt_rating_failed">Nilai Anda tidak dapat disimpan di Trakt.</string>
+<string name="trakt_favorite_sync_failed">StreamVault menyimpan perubahan, tetapi tidak dapat memperbarui Favorit Trakt. Coba lagi.</string>
 </resources>

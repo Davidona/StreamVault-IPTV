@@ -427,6 +427,36 @@ class ChannelRepositoryImplTest {
     }
 
     @Test
+    fun `catalog presentation reads absent portal config once for many raw channels`() = runTest {
+        whenever(preferencesRepository.liveChannelGroupingMode)
+            .thenReturn(flowOf(LiveChannelGroupingMode.RAW_VARIANTS))
+        assertSinglePortalLookupForCatalog()
+    }
+
+    @Test
+    fun `catalog presentation reads absent portal config once for many grouped channels`() = runTest {
+        assertSinglePortalLookupForCatalog()
+    }
+
+    private suspend fun assertSinglePortalLookupForCatalog() {
+        whenever(channelDao.getByProvider(7L)).thenReturn(flowOf((1L..100L).map { id ->
+            ChannelBrowseEntity(
+                id = id,
+                streamId = id,
+                name = "Channel $id",
+                logicalGroupId = "group-$id",
+                streamUrl = "https://stream/$id",
+                providerId = 7L,
+            )
+        }))
+        whenever(parentalControlManager.unlockedCategoriesForProvider(7L)).thenReturn(flowOf(emptySet()))
+
+        assertThat(createRepository().getChannels(7L).first()).hasSize(100)
+
+        verify(providerSnapshotDao, times(1)).getConfigSync(7L)
+    }
+
+    @Test
     fun `getChannels resolves stored bare stalker logos using current portal config`() = runTest {
         whenever(channelDao.getByProvider(7L)).thenReturn(
             flowOf(

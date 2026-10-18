@@ -1,0 +1,47 @@
+[
+  {
+    "matchID": 507806,
+    "matchDateTime": "2026-10-17T12:30:00",
+    "matchDateTimeUTC": "2026-10-17T10:30:00Z",
+    "leagueId": 460,
+    "leagueName": "1. Bundesliga",
+    "leagueSeason": 2026,
+    "leagueShortcut": "bl1",
+    "matchIsFinished": true,
+    "lastUpdateDateTime": "2026-10-17T12:31:00Z",
+    "team1": {"teamId": 40, "teamName": "Bayern München", "teamIconUrl": "https://images.example.invalid/bayern.png"},
+    "team2": {"teamId": 7, "teamName": "Borussia Dortmund", "teamIconUrl": "https://images.example.invalid/dortmund.png"},
+    "matchResults": [
+      {"resultName": "Halbzeit", "pointsTeam1": 1, "pointsTeam2": 0, "resultOrderID": 1, "resultTypeKind": "halftime"},
+      {"resultName": "Endergebnis", "pointsTeam1": 2, "pointsTeam2": 1, "resultOrderID": 2, "resultTypeKind": "after90minutes"},
+      {"resultName": "Elfmeterschießen", "pointsTeam1": 5, "pointsTeam2": 4, "resultOrderID": 3, "resultTypeKind": "afterpenalties"}
+    ]
+  },
+  {
+    "matchID": 507807,
+    "matchDateTime": "2026-10-17T16:00:00",
+    "matchDateTimeUTC": "2026-10-17T14:00:00Z",
+    "leagueId": 460,
+    "leagueName": "1. Bundesliga",
+    "leagueSeason": 2026,
+    "leagueShortcut": "bl1",
+    "matchIsFinished": false,
+    "lastUpdateDateTime": "2026-10-16T08:00:00Z",
+    "team1": {"teamId": 16, "teamName": "Bayer 04 Leverkusen", "teamIconUrl": "https://images.example.invalid/leverkusen.png"},
+    "team2": {"teamId": 9, "teamName": "RB Leipzig", "teamIconUrl": "https://images.example.invalid/leipzig.png"},
+    "matchResults": []
+  },
+  {
+    "matchID": 507808,
+    "matchDateTime": "2026-10-18T18:30:00",
+    "matchDateTimeUTC": "2026-10-18T16:30:00Z",
+    "leagueId": 460,
+    "leagueName": "1. Bundesliga",
+    "leagueSeason": 2026,
+    "leagueShortcut": "bl1",
+    "matchIsFinished": false,
+    "team1": {"teamId": 15, "teamName": "Eintracht Frankfurt"},
+    "team2": {"teamId": 11, "teamName": "VfB Stuttgart"},
+    "matchResults": []
+  }
+]

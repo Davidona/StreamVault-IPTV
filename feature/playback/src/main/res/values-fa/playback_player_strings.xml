@@ -1,0 +1,299 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="player_search_online_subtitles" tools:ignore="MissingTranslation">جستجوی زیرنویس آنلاین</string>
+    <string name="player_subtitle_load_from_device" tools:ignore="MissingTranslation">بارگذاری SRT از دستگاه</string>
+    <string name="player_subtitle_delay_action" tools:ignore="MissingTranslation">تأخیر زیرنویس (%1$+d میلیثانیه)</string>
+    <string name="player_subtitle_delay_title" tools:ignore="MissingTranslation">تأخیر زیرنویس</string>
+    <string name="player_subtitle_delay_hint" tools:ignore="MissingTranslation">مقادیر منفی زیرنویس را زودتر و مقادیر مثبت دیرتر نشان میدهند.</string>
+    <string name="player_subtitle_delay_current" tools:ignore="MissingTranslation">تأخیر فعلی: %1$+d میلیثانیه</string>
+    <string name="player_subtitle_delay_earlier" tools:ignore="MissingTranslation">نمایش زیرنویس %1$d میلیثانیه زودتر</string>
+    <string name="player_subtitle_delay_later" tools:ignore="MissingTranslation">نمایش زیرنویس %1$d میلیثانیه دیرتر</string>
+    <string name="player_subtitle_delay_reset" tools:ignore="MissingTranslation">بازنشانی تأخیر</string>
+    <string name="player_subtitle_loaded" tools:ignore="MissingTranslation">%1$s بارگذاری شد. پخشکننده در حال بارگذاری زیرنویس است.</string>
+    <string name="player_subtitle_invalid_file" tools:ignore="MissingTranslation">یک فایل زیرنویس معتبر .srt انتخاب کنید.</string>
+    <string name="player_subtitle_file_too_large" tools:ignore="MissingTranslation">حجم فایل زیرنویس باید ۲۰ مگابایت یا کمتر باشد.</string>
+    <string name="player_subtitle_load_failed" tools:ignore="MissingTranslation">بارگذاری این فایل زیرنویس ممکن نشد.</string>
+    <string name="player_subtitle_search_title" tools:ignore="MissingTranslation">یافتن زیرنویس</string>
+    <string name="player_subtitle_search_signed_in" tools:ignore="MissingTranslation">یک زیرنویس برای افزودن به این ویدیو انتخاب کنید.</string>
+    <string name="player_subtitle_search_results_for" tools:ignore="MissingTranslation">نتایج برای %1$s</string>
+    <string name="player_subtitle_search_signed_out" tools:ignore="MissingTranslation">اگر دسترسی ناشناس فعال باشد، میتوانید بدون ورود جستجو کنید. برای استفاده از سهمیه دانلود حساب خود وارد شوید.</string>
+    <string name="player_subtitle_search_open_settings" tools:ignore="MissingTranslation">اتصال حساب (اختیاری)</string>
+    <string name="player_subtitle_search_loading" tools:ignore="MissingTranslation">در حال جستجوی OpenSubtitles…</string>
+    <string name="player_subtitle_search_no_results" tools:ignore="MissingTranslation">زیرنویسی برای این عنوان و زبان یافت نشد.</string>
+    <string name="player_subtitle_search_retry" tools:ignore="MissingTranslation">جستجوی دوباره</string>
+    <string name="player_subtitle_search_languages_hint" tools:ignore="MissingTranslation">یک زبان انتخاب کنید، سپس یک نسخه برگزینید.</string>
+    <string name="player_subtitle_search_all_languages" tools:ignore="MissingTranslation">همه زبانها</string>
+    <string name="player_subtitle_search_all_languages_hint" tools:ignore="MissingTranslation">نمایش همه زبانهای موجود</string>
+    <string name="player_subtitle_search_loading_languages" tools:ignore="MissingTranslation">در حال بارگذاری زبانها…</string>
+    <string name="player_subtitle_search_back_to_languages" tools:ignore="MissingTranslation">زبان: %1$s</string>
+    <string name="player_subtitle_search_change_language" tools:ignore="MissingTranslation">تغییر زبان</string>
+    <string name="player_subtitle_search_languages_unavailable" tools:ignore="MissingTranslation">بارگذاری فهرست زبانها ممکن نشد.</string>
+    <string name="player_subtitle_search_download_count" tools:ignore="MissingTranslation">%1$s دانلود</string>
+    <string name="player_subtitle_search_release_unknown" tools:ignore="MissingTranslation">انتشار عمومی</string>
+    <string name="player_subtitle_search_downloading" tools:ignore="MissingTranslation">در حال دانلود زیرنویس…</string>
+    <string name="player_subtitle_search_applied" tools:ignore="MissingTranslation">%1$s افزوده شد. پخشکننده در حال بارگذاری زیرنویس است.</string>
+    <string name="player_subtitle_search_close" tools:ignore="MissingTranslation">بستن</string>
+    <plurals name="settings_timer_minutes">
+            <item quantity="one">%1$d دقیقه</item>
+            <item quantity="other">%1$d دقیقه</item>
+        </plurals>
+    <string name="cast_disconnected" tools:ignore="MissingTranslation">نشست Cast قطع شد.</string>
+    <string name="channel_number_name_format">%1$d. %2$s</string>
+    <string name="epg_catchup_available">تماشای تأخیری موجود (%1$d روز)</string>
+    <string name="epg_catchup_available_unknown" tools:ignore="MissingTranslation">تماشای تأخیری موجود</string>
+    <string name="epg_no_info">اطلاعات EPG موجود نیست</string>
+    <string name="epg_now_playing">در حال پخش</string>
+    <string name="epg_title">راهنمای تلویزیون</string>
+    <string name="epg_up_next">برنامه بعدی</string>
+    <string name="epg_upcoming_schedule">برنامههای پیش رو</string>
+    <string name="home_locked_short">LOCKED</string>
+    <string name="label_categories">دستهبندیها</string>
+    <string name="label_duration_min">%1$d دقیقه</string>
+    <string name="multiview_nav">صفحه تقسیمشده</string>
+    <string name="nav_live_tv">تلویزیون زنده</string>
+    <string name="notification_permission_recording_alert_required">برای دریافت هشدارهای شکست ضبط، اعلانهای StreamVault را فعال کنید.</string>
+    <string name="notification_permission_reminder_required">برای دریافت یادآورهای برنامه، اعلانهای StreamVault را فعال کنید.</string>
+    <string name="player_action_cast">Cast</string>
+    <string name="player_action_diagnostics">عیبیابی</string>
+    <string name="player_action_format">قالب</string>
+    <string name="player_action_group">گروه</string>
+    <string name="player_action_guide">راهنما</string>
+    <string name="player_action_mute">بیصدا</string>
+    <string name="player_action_pip">PiP</string>
+    <string name="player_action_playback">پخش</string>
+    <string name="player_action_quality">کیفیت</string>
+    <string name="player_action_split">تقسیم</string>
+    <string name="player_action_variants">نسخهها</string>
+    <string name="player_action_view">نمایش</string>
+    <string name="player_archive">آرشیو</string>
+    <string name="player_aspect_ratio_label">نسبت تصویر %1$s</string>
+    <string name="player_audio">صدا</string>
+    <string name="player_chapters">فصلها</string>
+    <string name="player_chapter_count">%1$d فصل</string>
+    <string name="player_chapter_label">فصل %1$d</string>
+    <string name="player_chapter_selected">فصل %1$d، انتخابشده</string>
+    <string name="player_chapter_title">فصل %1$d · %2$s</string>
+    <string name="player_close_chapters">بستن فصلها</string>
+    <string name="player_previous_chapter">فصل قبلی</string>
+    <string name="player_next_chapter">فصل بعدی</string>
+    <string name="player_rewind_10_seconds">۱۰ ثانیه به عقب</string>
+    <string name="player_forward_10_seconds">۱۰ ثانیه به جلو</string>
+    <string name="player_vod_timeline">خط زمانی VOD</string>
+    <string name="player_close_controls">بستن کنترلها</string>
+    <string name="player_back_to_menu">بازگشت به منو</string>
+    <string name="player_playback_settings">تنظیمات پخش</string>
+    <string name="player_close_playback_settings">بستن تنظیمات پخش</string>
+    <string name="player_vod_controls">کنترلهای پخش VOD</string>
+    <string name="player_aspect_ratio">نسبت تصویر</string>
+    <string name="player_auto_play_cancel">لغو</string>
+    <string name="player_auto_play_countdown">پخش در %1$d ثانیه</string>
+    <string name="player_auto_play_play_now">پخش اکنون</string>
+    <string name="player_av_sync_channel">کانال</string>
+    <string name="player_av_sync_global">سراسری</string>
+    <string name="player_av_sync_minus_50">همگامسازی A/V -۵۰ میلیثانیه</string>
+    <string name="player_av_sync_plus_50">همگامسازی A/V +۵۰ میلیثانیه</string>
+    <string name="player_av_sync_preview">پیشنمایش</string>
+    <string name="player_av_sync_reset">بازنشانی به ۰ میلیثانیه</string>
+    <string name="player_av_sync_save_channel">ذخیره برای کانال</string>
+    <string name="player_av_sync_save_global">تنظیم بهعنوان سراسری</string>
+    <string name="player_av_sync_short">همگامسازی A/V</string>
+    <string name="player_av_sync_title">همگامسازی A/V</string>
+    <string name="player_av_sync_use_global">استفاده از سراسری</string>
+    <string name="player_av_sync_value">%1$s - %2$s</string>
+    <string name="player_browse_archive">مرور آرشیو</string>
+    <string name="player_browse_guide_catchup">مرور راهنما</string>
+    <string name="player_buffering">در حال بارگذاری...</string>
+    <string name="player_cancel_scheduled_recording">لغو زمانبندی</string>
+    <string name="player_cast">Cast</string>
+    <string name="player_catchup_badge">تماشای تأخیری</string>
+    <string name="player_catchup_options">تماشای تأخیری</string>
+    <string name="player_channel_list_hint">برای پخش فوری، یک کانال انتخاب کنید. دکمه بازگشت فهرست را میبندد.</string>
+    <string name="player_channel_list_title">کانالها (%1$d)</string>
+    <string name="player_channel_not_found">کانال یافت نشد</string>
+    <string name="player_channel_selected">اکنون</string>
+    <string name="player_channel_variants">نسخههای کانال</string>
+    <string name="player_close">بستن</string>
+    <string name="player_diagnostics_active_decoder">رمزگشای فعال</string>
+    <string name="player_diagnostics_alternates">جریانهای جایگزین</string>
+    <string name="player_diagnostics_archive">آرشیو</string>
+    <string name="player_diagnostics_audio_codec">کدک صدا</string>
+    <string name="player_diagnostics_audio_decoder">رمزگشای صدا</string>
+    <string name="player_diagnostics_audio_decoder_mode" tools:ignore="MissingTranslation">حالت رمزگشای صدا</string>
+    <string name="player_diagnostics_audio_output_path">مسیر صدا</string>
+    <string name="player_diagnostics_av_offset">انحراف A/V</string>
+    <string name="player_diagnostics_av_sync">همگامسازی A/V</string>
+    <string name="player_diagnostics_av_sync_custom">روشن (مسیر همگامسازی سفارشی)</string>
+    <string name="player_diagnostics_av_sync_stock">خاموش (مسیر صدای پیشفرض)</string>
+    <string name="player_diagnostics_av_sync_waiting">روشن (در انتظار راهاندازی مجدد پخش)</string>
+    <string name="player_diagnostics_channel_errors">خطاهای کانال</string>
+    <string name="player_diagnostics_compatibility_note">یادداشت سازگاری</string>
+    <string name="player_diagnostics_compatibility_note_value">ممکن است پخش این جریان از مسیر صدای آموختهشده یا سازگاری کمکی استفاده کند.</string>
+    <string name="player_diagnostics_compatibility_source">منبع سازگاری</string>
+    <string name="player_diagnostics_dropped_frames">فریمهای افتشده</string>
+    <string name="player_diagnostics_ffmpeg">FFmpeg</string>
+    <string name="player_diagnostics_last_failure">آخرین خطا</string>
+    <string name="player_diagnostics_last_frame">آخرین فریم ویدیو</string>
+    <string name="player_diagnostics_playback_state">وضعیت پخش</string>
+    <string name="player_diagnostics_provider">سرویسدهنده</string>
+    <string name="player_diagnostics_recovery_actions">اقدامات بازیابی</string>
+    <string name="player_diagnostics_resolution">وضوح</string>
+    <string name="player_diagnostics_section_audio">صدا</string>
+    <string name="player_diagnostics_section_playback">پخش</string>
+    <string name="player_diagnostics_section_recovery">بازیابی</string>
+    <string name="player_diagnostics_section_source">منبع</string>
+    <string name="player_diagnostics_section_video">ویدیو</string>
+    <string name="player_diagnostics_source">منبع</string>
+    <string name="player_diagnostics_stream_class">کلاس جریان</string>
+    <string name="player_diagnostics_surface">Surface</string>
+    <string name="player_diagnostics_title">عیبیابی پخش</string>
+    <string name="player_diagnostics_troubleshooting">عیبیابی</string>
+    <string name="player_diagnostics_frame_rate">نرخ فریم</string>
+    <string name="player_diagnostics_stream_bitrate">نرخ بیت جریان</string>
+    <string name="player_diagnostics_bandwidth_estimate">پهنای باند شبکه</string>
+    <string name="player_diagnostics_video_bitrate">نرخ بیت ویدیو</string>
+    <string name="player_diagnostics_video_codec">کدک ویدیو</string>
+    <string name="player_diagnostics_video_decoder_mode" tools:ignore="MissingTranslation">حالت رمزگشای ویدیو</string>
+    <string name="player_diagnostics_video_stalls">توقفهای ویدیو</string>
+    <string name="player_epg_overlay_hint">جزئیات راهنما را اینجا مرور کنید. برای باز کردن تاریخچه آرشیو، دکمه تماشای تأخیری را انتخاب کنید.</string>
+    <string name="player_epg_short">EPG</string>
+    <string name="player_episodes">قسمتها</string>
+    <string name="player_previous_episode">قسمت قبلی</string>
+    <string name="player_next_episode">قسمت بعدی</string>
+    <string name="player_error_back">یا دکمه بازگشت را برای بازگشت فشار دهید</string>
+    <string name="player_error_decoder">پخش این قالب ممکن نیست — حالت رمزگشا را در تنظیمات تغییر دهید</string>
+    <string name="player_error_drm">مجوز DRM یا الزامات امنیتی دستگاه مانع پخش شد</string>
+    <string name="player_error_live_hint">دوباره تلاش کنید، به آخرین کانال بازگردید، یا دکمه بازگشت را برای خروج از پخش فشار دهید.</string>
+    <string name="player_error_network">جریان در دسترس نیست — اتصال اینترنت خود را بررسی کنید</string>
+    <string name="player_error_source">جریان یافت نشد یا دسترسی رد شد</string>
+    <string name="player_error_title">خطای پخش</string>
+    <string name="player_error_unknown">خطای پخش ناشناخته</string>
+    <string name="player_format_short">قالب</string>
+    <string name="player_forward">جلو بردن</string>
+    <string name="player_idle_standby_after">اجازه آمادهبهکار پس از بیکاری</string>
+    <string name="player_idle_timer_status">آمادهبهکار بیکاری %1$s</string>
+    <string name="player_jump_to_live">پرش به زنده</string>
+    <string name="player_jump_to_live_short">LIVE</string>
+    <string name="player_last_channel_action">آخرین کانال</string>
+    <string name="player_last_group_hint">به آخرین گروه زندهای که مرور میکردید بازگردید.</string>
+    <string name="player_last_group_label">آخرین: %1$s</string>
+    <string name="player_live_buffer_depth">بافر %1$s</string>
+    <string name="player_live_buffer_end">لبه زنده</string>
+    <string name="player_live_buffer_start">شروع بافر</string>
+    <string name="player_live_channel">کانال %1$d</string>
+    <string name="player_live_dvr_controls">پخشکننده</string>
+    <string name="player_live_now">در حال پخش</string>
+    <string name="player_live_offset">%1$s عقبتر از زنده</string>
+    <string name="player_live_ready">LIVE</string>
+    <string name="player_live_rewind_badge">LOCAL DVR</string>
+    <string name="player_live_scrubber_cd">خط زمانی عقببری زنده. برای جابهجایی از چپ و راست استفاده کنید.</string>
+    <string name="player_live_timeshift_buffering">عقببری زنده محلی هنوز در حال بافر است.</string>
+    <string name="player_minutes_remaining">%1$d دقیقه باقیمانده</string>
+    <string name="player_more_controls">کنترلهای بیشتر</string>
+    <string name="player_multiview_short">چندصفحه</string>
+    <string name="player_mute">بیصدا</string>
+    <string name="player_muted_badge">بیصدا</string>
+    <string name="player_next_label">بعدی:</string>
+    <string name="player_no_guide_data">داده راهنما موجود نیست</string>
+    <string name="player_open_guide_action">باز کردن راهنما</string>
+    <string name="player_open_in_external_player">باز کردن در پخشکننده خارجی</string>
+    <string name="player_pause">توقف</string>
+    <string name="player_picture_in_picture">تصویر در تصویر</string>
+    <string name="player_pip_short">PiP</string>
+    <string name="player_play">پخش</string>
+    <string name="player_playback_label">پخش</string>
+    <string name="player_playback_speed_title">سرعت پخش</string>
+    <string name="player_playback_speed_value">سرعت %1$s</string>
+    <string name="player_quality_short">کیفیت</string>
+    <string name="player_recent_channels">اخیر</string>
+    <string name="player_record">ضبط</string>
+    <string name="player_record_now">ضبط اکنون</string>
+    <string name="player_record_options">ضبط</string>
+    <string name="player_recording_badge">در حال ضبط</string>
+    <string name="player_recording_scheduled_badge">زمانبندیشده</string>
+    <string name="player_resolution_auto_label">AUTO:%1$s</string>
+    <string name="player_restart">شروع دوباره</string>
+    <string name="player_close_playback_title">پخش بسته شود؟</string>
+    <string name="player_close_playback_desc">این کار پخش را متوقف کرده و به صفحه قبلی بازمیگردد.</string>
+    <string name="player_close_playback_confirm">بله</string>
+    <string name="player_close_playback_cancel">خیر</string>
+    <string name="player_resume">ادامه</string>
+    <string name="player_resume_desc">میخواهید %1$s را از همانجا که رها کردید ادامه دهید؟</string>
+    <string name="player_resume_start_over">شروع از ابتدا</string>
+    <string name="player_resume_title">ادامه پخش</string>
+    <string name="player_retry">تلاش دوباره</string>
+    <string name="player_rewind">عقب بردن</string>
+    <string name="player_schedule_daily_recording">زمانبندی روزانه</string>
+    <string name="player_schedule_recording">زمانبندی</string>
+    <string name="player_schedule_weekly_recording">زمانبندی هفتگی</string>
+    <string name="player_seek_back_10">-۱۰ ثانیه</string>
+    <string name="player_seek_forward_10">+۱۰ ثانیه</string>
+    <string name="player_skip_intro">پرش از مقدمه</string>
+    <string name="player_skip_opening">پرش از آغاز</string>
+    <string name="player_skip_recap">پرش از خلاصه</string>
+    <string name="player_skip_outro">پرش از پایانبندی</string>
+    <string name="player_selected">انتخابشده</string>
+    <string name="player_stats">آمار</string>
+    <string name="player_stop_casting">توقف Cast</string>
+    <string name="player_stop_playback_after">توقف پخش پس از</string>
+    <string name="player_stop_recording">توقف ضبط</string>
+    <string name="player_stop_timer_status">توقف در %1$s</string>
+    <string name="player_stream_format">قالب جریان</string>
+    <string name="player_subs">زیرنویس</string>
+    <string name="player_time_range_minutes">%1$s - %2$s | %3$d دقیقه</string>
+    <string name="player_timer_disable">غیرفعال</string>
+    <string name="player_timer_extend_30">+۳۰ دقیقه</string>
+    <string name="player_timer_off">خاموش</string>
+    <string name="player_timer_warning_idle">آمادهبهکار مجاز در %1$s</string>
+    <string name="player_timer_warning_stop">پخش در %1$s متوقف میشود</string>
+    <string name="player_track_audio">انتخاب مسیر صدا</string>
+    <string name="player_track_live_translation" tools:ignore="MissingTranslation">ترجمه همزمان</string>
+    <string name="player_track_off">خاموش</string>
+    <string name="player_track_subs">انتخاب زیرنویس</string>
+    <string name="player_try_alternate_stream">امتحان مسیر دیگر</string>
+    <string name="player_type_channel_number">شماره کانال را وارد کنید</string>
+    <string name="player_type_movie">فیلم</string>
+    <string name="player_type_series">سریال</string>
+    <string name="player_unmute">باصدا</string>
+    <string name="player_up_next">برنامه بعدی</string>
+    <string name="player_variants_short">نسخهها</string>
+    <string name="player_video_quality">کیفیت ویدیو</string>
+    <string name="series_seasons">فصلها</string>
+    <string name="settings_recording_status_recording">در حال ضبط</string>
+    <string name="time_range_format">%1$s – %2$s</string>
+    <string name="player_quality_save_as_limit">ذخیره وضوح فعلی به‌عنوان محدودیت تطبیقی</string>
+    <string name="player_quality_remove_saved_limit">حذف محدودیت وضوح ذخیره‌شده</string>
+    <string name="player_quality_use_session_limit">محدود کردن این پخش به وضوح فعلی</string>
+    <string name="player_quality_clear_session_limit">حذف محدودیت موقت کیفیت</string>
+
+    <string name="player_quality_gate_title">پخش به‌دلیل محدودیت کیفیت مکث شد</string>
+    <string name="player_quality_gate_message">هیچ کیفیت ویدیویی با محدودیت‌های شما سازگار نیست. پیش از ادامه، کیفیت پیشنهادی و جزئیات را بررسی کنید.</string>
+    <string name="player_quality_gate_offer">کیفیت ویدیوی پیشنهادی: %1$s</string>
+    <string name="player_quality_gate_height_exceeded">ارتفاع %1$d p از محدودیت %2$d p شما بیشتر است.</string>
+    <string name="player_quality_gate_height_unknown">ارتفاع ویدیو نامشخص است؛ محدودیت شما %1$d p است.</string>
+    <string name="player_quality_gate_bitrate_exceeded">نرخ بیت %1$s Mbps از محدودیت %2$s Mbps شما بیشتر است.</string>
+    <string name="player_quality_gate_bitrate_unknown">نرخ بیت ویدیو نامشخص است؛ محدودیت شما %1$s Mbps است.</string>
+    <string name="player_quality_gate_continue_once">یک‌بار ادامه</string>
+
+    <string name="player_diagnostics_quality_limits">محدودیت‌های کیفیت</string>
+    <string name="player_diagnostics_quality_reasons">عوامل محدودکننده</string>
+    <string name="player_diagnostics_quality_source_preferences">تنظیمات پخش</string>
+    <string name="player_diagnostics_quality_source_device">سازگاری دستگاه</string>
+    <string name="player_diagnostics_quality_decoder_pressure">فشار رمزگشا</string>
+
+    <string name="player_diagnostics_quality_capability">قابلیت منبع ویدیو</string>
+    <string name="player_diagnostics_quality_capability_adaptive">کیفیت‌های تطبیقی</string>
+    <string name="player_diagnostics_quality_capability_single">کیفیت تکی یا ثابت</string>
+    <string name="player_diagnostics_quality_capability_unknown">نامشخص</string>
+    <string name="player_diagnostics_quality_capability_timeshift">منبع پخش با تأخیر زمانی</string>
+    <string name="player_quality_save_bitrate_as_limit">ذخیره نرخ بیت ویدیوی فعلی به‌عنوان بیشینه</string>
+    <string name="player_quality_inherit_height_limit">استفاده از محدودیت ارتفاع به‌ارث‌رسیده</string>
+    <string name="player_quality_inherit_bitrate_limit">استفاده از محدودیت نرخ بیت به‌ارث‌رسیده</string>
+    <string name="player_quality_no_additional_height_limit">بدون محدودیت ارتفاع اضافی برای این محتوا</string>
+    <string name="player_quality_no_additional_bitrate_limit">بدون محدودیت نرخ بیت اضافی برای این محتوا</string>
+    <string name="player_quality_mode_auto">خودکار (تطبیقی)</string>
+    <string name="player_quality_mode_fixed">کیفیت ثابت</string>
+    <string name="player_diagnostics_quality_cast_unavailable">گیرنده Cast کیفیت را انتخاب می‌کند؛ این محدودیت‌ها اعمال نمی‌شوند.</string>
+    <string name="player_video_quality_selection_blocked">این کیفیت ویدیو با محدودیت‌های پخش شما سازگار نیست.</string>
+    <string name="player_diagnostics_quality_height_summary">وضوح تصویر: %1$d p</string>
+    <string name="player_diagnostics_quality_bitrate_summary">نرخ بیت: %1$s مگابیت/ث</string>
+    <string name="player_recording_failure_output_too_slow">مقصد ضبط نتوانست با پخش زنده همگام بماند.</string>
+</resources>

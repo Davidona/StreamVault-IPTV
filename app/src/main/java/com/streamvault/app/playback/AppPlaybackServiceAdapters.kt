@@ -25,6 +25,8 @@ class StreamVaultPluginPlaybackServiceAdapter internal constructor(
     override suspend fun prepare(streamInfo: StreamInfo): Result<StreamInfo> =
         operations.preparePlaybackStreamInfo(streamInfo)
 
+    override fun stop(streamInfo: StreamInfo) = operations.stopPlayback(streamInfo)
+
     override suspend fun rewrite(request: CastMediaRequest): String? = operations.rewriteCastUrl(request)
 }
 
@@ -58,6 +60,8 @@ class AppPlaybackSurfaceRefreshAdapter internal constructor(
 internal interface StreamVaultPluginPlaybackOperations {
     suspend fun preparePlaybackStreamInfo(streamInfo: StreamInfo): Result<StreamInfo>
 
+    fun stopPlayback(streamInfo: StreamInfo) = Unit
+
     suspend fun rewriteCastUrl(request: CastMediaRequest): String?
 }
 
@@ -76,6 +80,9 @@ private class StreamVaultPluginPlaybackManager(
 ) : StreamVaultPluginPlaybackOperations {
     override suspend fun preparePlaybackStreamInfo(streamInfo: StreamInfo): Result<StreamInfo> =
         pluginManager.preparePlaybackStreamInfo(streamInfo)
+
+    override fun stopPlayback(streamInfo: StreamInfo) =
+        pluginManager.stopPreparedPlayback(streamInfo)
 
     override suspend fun rewriteCastUrl(request: CastMediaRequest): String? =
         pluginManager.rewriteCastUrl(request)

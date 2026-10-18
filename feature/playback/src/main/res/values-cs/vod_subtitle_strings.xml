@@ -1,0 +1,18 @@
+<resources>
+    <string name="vod_subtitle_sources">Zdroje</string>
+    <string name="vod_subtitle_settings">Nastavení</string>
+    <string name="vod_subtitle_provider">Titulky poskytovatele</string>
+    <string name="vod_subtitle_provider_hint">Vyberte stopu titulků z tohoto videa</string>
+    <string name="vod_subtitle_online">OpenSubtitles</string>
+    <string name="vod_subtitle_online_hint">Najít titulky online</string>
+    <string name="vod_subtitle_online_unavailable">Online vyhledávání není pro toto video k dispozici</string>
+    <string name="vod_subtitle_device_hint">Vyberte soubor SRT</string>
+    <string name="vod_subtitle_back">Zpět na zdroje</string>
+    <string name="vod_tracks_empty">V tomto videu nejsou k dispozici žádné stopy</string>
+    <string name="vod_subtitle_preview">Toto jsou titulky.</string>
+    <string name="vod_subtitle_font_size">Velikost písma</string>
+    <string name="vod_subtitle_background">Průhlednost pozadí</string>
+    <string name="vod_subtitle_background_hint" formatted="false">0% průhledné · 100% plná černá</string>
+    <string name="vod_subtitle_decrease_setting">Snížit %1$s</string>
+    <string name="vod_subtitle_increase_setting">Zvýšit %1$s</string>
+</resources>

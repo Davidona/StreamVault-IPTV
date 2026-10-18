@@ -54,6 +54,7 @@ object DatabaseModule {
     @Provides fun provideProviderSnapshotDao(db: StreamVaultDatabase): ProviderSnapshotDao = db.providerSnapshotDao()
     @Provides fun provideChannelDao(db: StreamVaultDatabase): ChannelDao = db.channelDao()
     @Provides fun provideChannelPreferenceDao(db: StreamVaultDatabase): ChannelPreferenceDao = db.channelPreferenceDao()
+    @Provides fun providePlaybackQualityPreferenceDao(db: StreamVaultDatabase): PlaybackQualityPreferenceDao = db.playbackQualityPreferenceDao()
     @Provides fun provideMovieDao(db: StreamVaultDatabase): MovieDao = db.movieDao()
     @Provides fun provideSeriesDao(db: StreamVaultDatabase): SeriesDao = db.seriesDao()
     @Provides fun provideEpisodeDao(db: StreamVaultDatabase): EpisodeDao = db.episodeDao()
@@ -87,6 +88,7 @@ object DatabaseModule {
     @Provides fun provideXtreamIndexJobDao(db: StreamVaultDatabase): XtreamIndexJobDao = db.xtreamIndexJobDao()
     @Provides fun provideXtreamLiveOnboardingDao(db: StreamVaultDatabase): XtreamLiveOnboardingDao = db.xtreamLiveOnboardingDao()
     @Provides fun provideStalkerIndexJobDao(db: StreamVaultDatabase): StalkerIndexJobDao = db.stalkerIndexJobDao()
+    @Provides fun provideStalkerLiveCategoryRetryDao(db: StreamVaultDatabase): StalkerLiveCategoryRetryDao = db.stalkerLiveCategoryRetryDao()
     @Provides fun provideStalkerPortalStateDao(db: StreamVaultDatabase): StalkerPortalStateDao = db.stalkerPortalStateDao()
     @Provides fun provideStalkerRemoteIdentityDao(db: StreamVaultDatabase): StalkerRemoteIdentityDao = db.stalkerRemoteIdentityDao()
     @Provides fun provideStalkerDiscoveryStageDao(db: StreamVaultDatabase): StalkerDiscoveryStageDao = db.stalkerDiscoveryStageDao()
@@ -98,4 +100,6 @@ object DatabaseModule {
     @Provides fun provideProviderWorkflowDao(db: StreamVaultDatabase): ProviderWorkflowDao = db.providerWorkflowDao()
     @Provides fun provideM3uClassificationDao(db: StreamVaultDatabase): M3uClassificationDao = db.m3uClassificationDao()
     @Provides fun providePluginProviderOwnershipDao(db: StreamVaultDatabase): PluginProviderOwnershipDao = db.pluginProviderOwnershipDao()
+    @Provides fun provideStremioAddonDao(db: StreamVaultDatabase): StremioAddonDao = db.stremioAddonDao()
+    @Provides fun provideStremioPlaybackHistoryDao(db: StreamVaultDatabase): StremioPlaybackHistoryDao = db.stremioPlaybackHistoryDao()
 }

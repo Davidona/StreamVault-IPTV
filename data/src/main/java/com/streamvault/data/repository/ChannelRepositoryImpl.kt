@@ -23,12 +23,14 @@ import com.streamvault.domain.model.Channel
 import com.streamvault.domain.model.ChannelNumberingMode
 import com.streamvault.domain.model.ChannelQualityOption
 import com.streamvault.domain.model.ContentType
+import com.streamvault.domain.model.LivePlaybackIdentity
 import com.streamvault.domain.model.GroupedChannelLabelMode
 import com.streamvault.domain.model.LiveChannelGroupingMode
 import com.streamvault.domain.model.LiveChannelObservedQuality
 import com.streamvault.domain.model.LiveChannelVariant
 import com.streamvault.domain.model.LiveChannelVariantAttributes
 import com.streamvault.domain.model.LiveVariantPreferenceMode
+import com.streamvault.domain.model.PlaybackContentKind
 import com.streamvault.domain.model.ProviderType
 import com.streamvault.domain.model.Result
 import com.streamvault.domain.model.StalkerConfig
@@ -300,7 +302,9 @@ class ChannelRepositoryImpl @Inject constructor(
                     proxyPort = resolvedStream.proxyPort,
                     streamType = StreamType.fromContainerExtension(resolvedStream.containerExtension),
                     containerExtension = resolvedStream.containerExtension,
-                    expirationTime = resolvedStream.expirationTime
+                    expirationTime = resolvedStream.expirationTime,
+                    playbackContentKind = PlaybackContentKind.LIVE,
+                    livePlaybackIdentity = LivePlaybackIdentity(channel.providerId, channel.id)
                 ).withM3uPlaybackMetadata(persistedChannel?.playbackMetadataJson)
             )
         } ?: Result.error("No stream URL available for channel: ${channel.name}")
@@ -505,15 +509,20 @@ class ChannelRepositoryImpl @Inject constructor(
         unlockedCats: Set<Long>,
         stalkerPortalUrlForProvider: (Long) -> String?
     ): List<Channel> {
+        // Resolve once per provider for this presentation pass, including absent portal configs.
+        // The callback may query Room, so invoking it for every channel is very expensive.
+        val portalRoots = entities.map { it.providerId }.distinct()
+            .associateWith(stalkerPortalUrlForProvider)
+        val portalRootForProvider: (Long) -> String? = { portalRoots[it] }
         val base = if (settings.groupingMode == LiveChannelGroupingMode.RAW_VARIANTS) {
             entities.map { entity ->
                 entity.toPresentedRawChannel(
                     settings.observedQualities[entity.id],
-                    stalkerPortalUrlForProvider(entity.providerId)
+                    portalRootForProvider(entity.providerId)
                 )
             }
         } else {
-            buildGroupedChannels(entities, settings, stalkerPortalUrlForProvider)
+            buildGroupedChannels(entities, settings, portalRootForProvider)
         }
         return base.map { channel ->
             if (channel.categoryId != null && unlockedCats.contains(channel.categoryId)) {

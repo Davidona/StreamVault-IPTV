@@ -20,6 +20,8 @@ import androidx.compose.material.icons.filled.Audiotrack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.ClosedCaption
 import androidx.compose.material.icons.filled.MenuBook
+import androidx.compose.material.icons.filled.SkipNext
+import androidx.compose.material.icons.filled.SkipPrevious
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Tv
 import androidx.compose.runtime.Composable
@@ -62,6 +64,10 @@ internal fun VodPlayerControlsOverlay(
     onSeekNextChapter: () -> Unit,
     onOpenChapters: () -> Unit,
     onOpenEpisodes: () -> Unit,
+    canPlayPreviousEpisode: Boolean = false,
+    canPlayNextEpisode: Boolean = false,
+    onPlayPreviousEpisode: () -> Unit = {},
+    onPlayNextEpisode: () -> Unit = {},
     onOpenSubtitleTracks: () -> Unit,
     onOpenAudioTracks: () -> Unit,
     onOpenSettings: () -> Unit,
@@ -185,6 +191,18 @@ internal fun VodPlayerControlsOverlay(
                     }
                     if (overlayState.showEpisodesAction) {
                         VodActionButton(
+                            icon = Icons.Default.SkipPrevious,
+                            label = stringResource(R.string.player_previous_episode),
+                            enabled = canPlayPreviousEpisode,
+                            onClick = onPlayPreviousEpisode
+                        )
+                        VodActionButton(
+                            icon = Icons.Default.SkipNext,
+                            label = stringResource(R.string.player_next_episode),
+                            enabled = canPlayNextEpisode,
+                            onClick = onPlayNextEpisode
+                        )
+                        VodActionButton(
                             icon = Icons.Default.Tv,
                             label = stringResource(R.string.player_episodes),
                             onClick = onOpenEpisodes
@@ -242,10 +260,12 @@ internal fun VodPlayerControlsOverlay(
 private fun VodActionButton(
     icon: androidx.compose.ui.graphics.vector.ImageVector,
     label: String,
+    enabled: Boolean = true,
     onClick: () -> Unit
 ) {
     VodControlButton(
         onClick = onClick,
+        enabled = enabled,
         modifier = Modifier.semantics { contentDescription = label }
     ) {
         Icon(imageVector = icon, contentDescription = null)

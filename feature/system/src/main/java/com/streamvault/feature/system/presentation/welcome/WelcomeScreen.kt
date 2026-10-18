@@ -1,5 +1,15 @@
+@file:OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
+
 package com.streamvault.feature.system.presentation.welcome
 
+import com.streamvault.core.ui.layout.AdaptiveRow
+
+import androidx.compose.foundation.layout.FlowRow
+
+import com.streamvault.core.ui.layout.isPortraitLayout
+
+import com.streamvault.core.ui.design.browseBackdrop
+import com.streamvault.core.ui.design.BrowseShapes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -12,7 +22,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.selection.toggleable
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.runtime.Composable
@@ -20,9 +32,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -36,7 +48,7 @@ import androidx.tv.material3.SurfaceDefaults
 import androidx.tv.material3.Text
 import com.streamvault.feature.system.R
 import com.streamvault.core.ui.components.shell.StatusPill
-import com.streamvault.core.ui.design.AppColors
+import com.streamvault.core.ui.design.BrowseColors as AppColors
 import com.streamvault.core.ui.interaction.TvButton
 import com.streamvault.domain.repository.ProviderRepository
 import com.streamvault.domain.sync.Section
@@ -68,6 +80,12 @@ class WelcomeViewModel @Inject constructor(
     private val _hasProviders = MutableStateFlow<Boolean?>(null)
     val hasProviders: StateFlow<Boolean?> = _hasProviders.asStateFlow()
 
+    private val _dontAskAgainAtStartup = MutableStateFlow<Boolean?>(null)
+    val dontAskAgainAtStartup: StateFlow<Boolean?> = _dontAskAgainAtStartup.asStateFlow()
+
+    private val _dontAskProviderSetupAgain = MutableStateFlow(false)
+    val dontAskProviderSetupAgain: StateFlow<Boolean> = _dontAskProviderSetupAgain.asStateFlow()
+
     private val acceptingProgress = MutableStateFlow(true)
 
     val syncProgress: StateFlow<WelcomeSyncProgress?> =
@@ -76,6 +94,11 @@ class WelcomeViewModel @Inject constructor(
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
 
     init {
+        viewModelScope.launch {
+            val savedPreference = welcomePort.dontAskProviderSetupAgain.first()
+            _dontAskProviderSetupAgain.value = savedPreference
+            _dontAskAgainAtStartup.value = savedPreference
+        }
         viewModelScope.launch {
             maybeSeedDevProvider()
             providerRepository.getProviders()
@@ -87,6 +110,20 @@ class WelcomeViewModel @Inject constructor(
                 .filterNotNull()
                 .first()
             acceptingProgress.value = false
+        }
+    }
+
+    fun setDontAskProviderSetupAgain(dontAskAgain: Boolean) {
+        _dontAskProviderSetupAgain.value = dontAskAgain
+        viewModelScope.launch {
+            welcomePort.setDontAskProviderSetupAgain(dontAskAgain)
+        }
+    }
+
+    fun continueAfterSaving(onContinue: () -> Unit) {
+        viewModelScope.launch {
+            welcomePort.setDontAskProviderSetupAgain(dontAskProviderSetupAgain.value)
+            onContinue()
         }
     }
 
@@ -131,20 +168,29 @@ fun WelcomeScreen(
 ) {
     val hasProviders by viewModel.hasProviders.collectAsStateWithLifecycle()
     val syncProgress by viewModel.syncProgress.collectAsStateWithLifecycle()
+    val dontAskAgainAtStartup by viewModel.dontAskAgainAtStartup.collectAsStateWithLifecycle()
+    val dontAskProviderSetupAgain by viewModel.dontAskProviderSetupAgain.collectAsStateWithLifecycle()
 
-    LaunchedEffect(hasProviders, startupReady) {
+    LaunchedEffect(hasProviders, startupReady, dontAskAgainAtStartup) {
         when (hasProviders) {
             true -> if (startupReady) onNavigateToHome()
-            false -> Unit
+            false -> if (startupReady && dontAskAgainAtStartup == true) onNavigateToHome()
             null -> Unit
         }
     }
 
+    val displayedProviderState = if (
+        dontAskAgainAtStartup == null ||
+        (hasProviders == false && dontAskAgainAtStartup == true)
+    ) null else hasProviders
+
     WelcomeContent(
-        hasProviders = hasProviders,
+        hasProviders = displayedProviderState,
         syncProgress = syncProgress,
-        onNavigateToHome = onNavigateToHome,
-        onNavigateToSetup = onNavigateToSetup,
+        onNavigateToHome = { viewModel.continueAfterSaving(onNavigateToHome) },
+        onNavigateToSetup = { viewModel.continueAfterSaving(onNavigateToSetup) },
+        dontAskAgain = dontAskProviderSetupAgain,
+        onDontAskAgainChanged = viewModel::setDontAskProviderSetupAgain,
     )
 }
 
@@ -154,24 +200,20 @@ internal fun WelcomeContent(
     syncProgress: WelcomeSyncProgress?,
     onNavigateToHome: () -> Unit,
     onNavigateToSetup: () -> Unit,
+    dontAskAgain: Boolean = false,
+    onDontAskAgainChanged: (Boolean) -> Unit = {},
 ) {
     Box(modifier = Modifier.fillMaxSize()) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(
-                    Brush.verticalGradient(
-                        colors = listOf(
-                            Color.Black.copy(alpha = 0.22f),
-                            AppColors.HeroTop,
-                            AppColors.HeroBottom
-                        )
-                    )
-                )
+                .browseBackdrop()
         )
 
         when (hasProviders) {
             false -> WelcomeStartCard(
+                dontAskAgain = dontAskAgain,
+                onDontAskAgainChanged = onDontAskAgainChanged,
                 onNavigateToHome = onNavigateToHome,
                 onNavigateToSetup = onNavigateToSetup,
                 modifier = Modifier
@@ -196,7 +238,7 @@ private fun WelcomeLoadingCard(
 ) {
     Surface(
         modifier = modifier,
-        shape = RoundedCornerShape(28.dp),
+        shape = BrowseShapes.Hero,
         colors = SurfaceDefaults.colors(containerColor = AppColors.Surface.copy(alpha = 0.9f))
     ) {
         Column(
@@ -271,6 +313,8 @@ private fun WelcomeLoadingCard(
 
 @Composable
 private fun WelcomeStartCard(
+    dontAskAgain: Boolean,
+    onDontAskAgainChanged: (Boolean) -> Unit,
     onNavigateToHome: () -> Unit,
     onNavigateToSetup: () -> Unit,
     modifier: Modifier = Modifier
@@ -279,11 +323,11 @@ private fun WelcomeStartCard(
         modifier = modifier
             .widthIn(max = 720.dp)
             .fillMaxWidth(),
-        shape = RoundedCornerShape(28.dp),
+        shape = BrowseShapes.Hero,
         colors = SurfaceDefaults.colors(containerColor = AppColors.Surface.copy(alpha = 0.9f))
     ) {
         Column(
-            modifier = Modifier.padding(horizontal = 40.dp, vertical = 34.dp),
+            modifier = Modifier.padding(horizontal = if (isPortraitLayout()) 20.dp else 40.dp, vertical = 34.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(18.dp)
         ) {
@@ -303,20 +347,20 @@ private fun WelcomeStartCard(
                 color = AppColors.TextSecondary,
                 textAlign = TextAlign.Center
             )
-            Row(
+            AdaptiveRow(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(14.dp),
-                verticalAlignment = Alignment.CenterVertically
+                verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 TvButton(
                     onClick = onNavigateToSetup,
-                    modifier = Modifier.weight(1f)
+                    modifier = if (isPortraitLayout()) Modifier.fillMaxWidth() else Modifier.weight(1f)
                 ) {
                     Text(text = stringResource(R.string.welcome_setup_provider))
                 }
                 TvButton(
                     onClick = onNavigateToHome,
-                    modifier = Modifier.weight(1f),
+                    modifier = if (isPortraitLayout()) Modifier.fillMaxWidth() else Modifier.weight(1f),
                     colors = ButtonDefaults.colors(
                         containerColor = AppColors.SurfaceElevated,
                         focusedContainerColor = Color.White,
@@ -325,6 +369,32 @@ private fun WelcomeStartCard(
                 ) {
                     Text(text = stringResource(R.string.welcome_setup_later))
                 }
+            }
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .toggleable(
+                        value = dontAskAgain,
+                        role = Role.Checkbox,
+                        onValueChange = onDontAskAgainChanged,
+                    ),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Checkbox(
+                    checked = dontAskAgain,
+                    onCheckedChange = null,
+                    colors = CheckboxDefaults.colors(
+                        checkedColor = AppColors.Brand,
+                        uncheckedColor = AppColors.TextSecondary,
+                        checkmarkColor = Color.White,
+                    ),
+                )
+                Text(
+                    text = stringResource(R.string.welcome_dont_ask_again),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = AppColors.TextSecondary,
+                )
             }
         }
     }

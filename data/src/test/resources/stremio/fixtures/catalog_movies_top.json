@@ -1,0 +1,33 @@
+{
+  "metas": [
+    {
+      "id": "tt0111161",
+      "type": "movie",
+      "name": "The Shawshank Redemption",
+      "poster": "https://images.metahub.space/poster/medium/tt0111161/img",
+      "posterShape": "regular",
+      "background": "https://images.metahub.space/background/medium/tt0111161/img",
+      "logo": "https://images.metahub.space/logo/medium/tt0111161/img",
+      "description": "Two imprisoned men bond over a number of years, finding solace and eventual redemption.",
+      "releaseInfo": "1994",
+      "imdbRating": "9.3",
+      "genres": ["Drama"],
+      "runtime": "142 min",
+      "appOnlyField": { "nested": true }
+    },
+    {
+      "id": "tt0068646",
+      "type": "movie",
+      "name": "The Godfather",
+      "releaseInfo": "1972",
+      "imdbRating": "9.2"
+    },
+    {
+      "id": "",
+      "type": "movie",
+      "name": "Broken entry without an id"
+    }
+  ],
+  "hasMore": true,
+  "cacheMaxAge": 3600
+}

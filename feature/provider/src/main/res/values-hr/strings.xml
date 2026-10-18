@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="add_group_cancel">Odustani</string>
+    <string name="settings_syncing_title">Sinkronizacija podataka...</string>
+    <string name="settings_syncing_subtitle">Pričekajte dok se vaša playlista uvozi.</string>
+    <string name="settings_syncing_btn">Sinkronizacija...</string>
+    <string name="settings_backup_restore">Sigurnosna kopija i vraćanje</string>
+    <string name="settings_restore_data">Uvezi podatke</string>
+    <string name="settings_restore_subtitle">Odaberite datoteku sigurnosne kopije ili otvorite kopiju u aplikaciji StreamVault iz upravitelja datotekama.</string>
+    <string name="setup_title_streamvault">StreamVault</string>
+    <string name="setup_provider_title">Dodaj pružatelja</string>
+    <string name="setup_edit_provider">Uredi pružatelja</string>
+    <string name="setup_update_desc">Ažurirajte pojedinosti svog IPTV pružatelja</string>
+    <string name="setup_add_desc">Dodajte svoj IPTV pružatelj</string>
+    <string name="setup_shell_eyebrow">Uvođenje pružatelja</string>
+    <string name="setup_shell_subtitle">Koristite Xtream ili M3U. Kasnije to možete promijeniti.</string>
+    <string name="setup_form_subtitle">Odaberite izvor, unesite pojedinosti i nastavite. Kasnije možete upravljati iz postavki.</string>
+    <string name="setup_source_type_label">Vrsta izvora</string>
+    <string name="setup_info_xtream_title">Koristite Xtream kada su vjerodajnice dostupne</string>
+    <string name="setup_info_xtream_body">Najbolje kada imate poslužitelj, korisničko ime i lozinku.</string>
+    <string name="setup_info_stalker_body">URL portala i MAC adresa koju je pružatelj odobrio.</string>
+    <string name="setup_info_m3u_title">Koristite M3U za playliste iz URL-a ili datoteke</string>
+    <string name="setup_info_m3u_body">Koristite poveznicu na playlistu ili uvezite lokalnu datoteku.</string>
+    <string name="setup_info_manage_title">Pružateljima možete upravljati kasnije</string>
+    <string name="setup_info_manage_body">Osvježite, uredite ili zamijenite kasnije u postavkama.</string>
+    <string name="setup_import_backup">Uvezi sigurnosnu kopiju</string>
+    <string name="badge_beta">Beta</string>
+    <string name="setup_xtream">Xtream Codes</string>
+    <string name="setup_stalker">Stalker</string>
+    <string name="setup_m3u">M3U playlista</string>
+    <string name="setup_name_hint">Naziv playliste (neobavezno)</string>
+    <string name="setup_server_hint">URL poslužitelja</string>
+    <string name="setup_user_hint">Korisničko ime</string>
+    <string name="setup_pass_hint">Lozinka</string>
+    <string name="setup_show_password">Prikaži lozinku</string>
+    <string name="setup_hide_password">Sakrij lozinku</string>
+    <string name="setup_phone_pairing_title">Dodaj s telefona</string>
+    <string name="setup_phone_pairing_body">Skenirajte QR kod i unesite vjerodajnice pružatelja s telefona na istoj Wi-Fi mreži.</string>
+    <string name="setup_phone_pairing_start">Prikaži QR kod</string>
+    <string name="setup_phone_pairing_restart">Novi QR kod</string>
+    <string name="setup_phone_pairing_stop">Zaustavi uparivanje</string>
+    <string name="setup_phone_pairing_same_wifi">Otvorite ovo na telefonu na istoj Wi-Fi mreži. Vjerodajnice se šalju izravno na ovaj TV.</string>
+    <string name="setup_phone_pairing_qr_description">QR kod za postavljanje pružatelja putem telefona</string>
+    <string name="setup_phone_pairing_idle">Samo lokalno</string>
+    <string name="setup_phone_pairing_ready">Skenirajte sada</string>
+    <string name="setup_phone_pairing_receiving">Dodavanje</string>
+    <string name="setup_phone_pairing_complete">Dodano</string>
+    <string name="setup_phone_pairing_error">Pogreška</string>
+    <string name="setup_connecting">Povezivanje...</string>
+    <string name="setup_save">Spremi promjene</string>
+    <string name="setup_login">Prijava</string>
+    <string name="setup_advanced_options_label">Napredne opcije</string>
+    <string name="setup_advanced_options_helper">Kontrolirajte kako se podaci vodiča dohvaćaju tijekom postavljanja i osvježavanja pružatelja.</string>
+    <string name="setup_advanced_options_show">Prikaži</string>
+    <string name="setup_advanced_options_hide">Sakrij</string>
+    <string name="setup_m3u_vod_classification_label">Razvrstavanje M3U VOD-a</string>
+    <string name="setup_m3u_vod_classification_helper">Samo M3U. Razvrstajte dekodirane URL-ove filmova i lokalizirane naznake grupa ili naslova kao filmove; prepoznati URL-ovi streamova uživo ostaju u TV-u uživo.</string>
+    <string name="setup_xtream_live_sync_mode_label">Xtream sinkronizacija uživo</string>
+    <string name="setup_xtream_live_sync_mode_helper">Odaberite kako se dohvaćaju kanali uživo. Automatski način štiti slabe uređaje i rutinska osvježavanja, a kategorije ostaju popunjene.</string>
+    <string name="setup_xtream_live_sync_mode_auto_title">Automatski</string>
+    <string name="setup_xtream_live_sync_mode_auto_description">Preporučeno. Koristi sinkronizaciju po kategorijama na uređajima s malo memorije, pozadinska osvježavanja, osvježavanja skrivenih kategorija i kod opterećenih pružatelja.</string>
+    <string name="setup_xtream_live_sync_mode_category_title">Kategoriju po kategoriju</string>
+    <string name="setup_xtream_live_sync_mode_category_description">Uvijek dohvaćajte TV uživo kategoriju po kategoriju. Sigurnije za velike pružatelje i slabe Android TV uređaje.</string>
+    <string name="setup_xtream_live_sync_mode_stream_all_title">Strujanje svih</string>
+    <string name="setup_xtream_live_sync_mode_stream_all_description">Isprobajte Live endpoint cijelog pružatelja pomoću streaming parsera. Ako nije sigurno ili ne uspije, vraća se na sinkronizaciju po kategorijama.</string>
+    <string name="setup_epg_sync_mode_label">EPG sinkronizacija</string>
+    <string name="setup_epg_sync_mode_helper">Unaprijed zadržava današnje ponašanje. Pozadinski najprije dovršava postavljanje, a Preskoči ostavlja osvježavanje vodiča za kasnije.</string>
+    <string name="setup_epg_sync_mode_upfront_title">Cijeli EPG sada</string>
+    <string name="setup_epg_sync_mode_upfront_description">Preuzmite podatke vodiča pružatelja i vanjske podatke tijekom postavljanja prije njegova dovršetka.</string>
+    <string name="setup_epg_sync_mode_background_title">Učitaj EPG u pozadini</string>
+    <string name="setup_epg_sync_mode_background_description">Najprije dovršite postavljanje, zatim automatski dohvatite podatke vodiča u pozadini.</string>
+    <string name="setup_epg_sync_mode_skip_title">Preskoči EPG za sada</string>
+    <string name="setup_epg_sync_mode_skip_description">Ne dohvaćajte podatke vodiča automatski. EPG možete osvježiti kasnije u postavkama.</string>
+    <string name="setup_stalker_epg_sync_mode_helper">Stalker može koristiti izvorni vodič portala kada XMLTV nedostaje ili nije dostupan. Unaprijed ga uvozi tijekom postavljanja, Pozadinski odgađa, a Preskoči ostavlja učitavanje vodiča na zahtjev.</string>
+    <string name="setup_stalker_epg_sync_mode_upfront_description">Preuzmite kanale uživo i uvezite vodič Stalker portala tijekom postavljanja. Ako je XMLTV konfiguriran i radi, koristi se prvi.</string>
+    <string name="setup_stalker_epg_sync_mode_background_description">Najprije dovršite postavljanje, zatim uvezite vodič Stalker portala u pozadini. Ako je XMLTV konfiguriran i radi, koristi se prvi.</string>
+    <string name="setup_stalker_epg_sync_mode_skip_description">Ne uvozite masovno podatke vodiča automatski. Podaci vodiča uživo i dalje se mogu učitati na zahtjev tijekom pregledavanja kanala.</string>
+    <string name="setup_m3u_hint">M3U URL</string>
+    <string name="setup_tab_url">URL</string>
+    <string name="setup_tab_file">Datoteka</string>
+    <string name="setup_choose_file">Odaberite M3U datoteku</string>
+    <string name="setup_file_replace_hint">Pritisnite za zamjenu datoteke</string>
+    <string name="setup_file_select_title">Odaberite M3U datoteku</string>
+    <string name="setup_file_browse_hint">Pregledajte lokalnu pohranu ili USB</string>
+    <string name="setup_file_import_failed">Nije bilo moguće uvesti datoteku playliste. Pokušajte ponovno.</string>
+    <string name="setup_file_import_storage_full">Pohrana je puna. Oslobodite prostor i pokušajte ponovno uvesti.</string>
+    <string name="setup_discard_draft_title">Odbaciti skicu postavljanja?</string>
+    <string name="setup_discard_draft_body">Ovo postavljanje pružatelja nije dovršeno. Želite li se vratiti i izgubiti trenutačnu skicu?</string>
+    <string name="setup_discard_draft_confirm">Odbaci</string>
+    <string name="setup_discard_draft_cancel">Nastavi uređivati</string>
+    <string name="setup_validating">Provjera...</string>
+    <string name="setup_add">Dodaj playlistu</string>
+    <string name="setup_tab_jellyfin">Jellyfin</string>
+    <string name="setup_jellyfin_quick_connect">Brzo povezivanje</string>
+    <string name="setup_jellyfin_quick_connect_code">Kod: %s</string>
+    <string name="setup_jellyfin_quick_connect_code_instructions">Otvorite svoj Jellyfin poslužitelj u pregledniku i unesite ovaj kod ili skenirajte QR kod telefonom.</string>
+    <string name="setup_server_url">URL poslužitelja</string>
+    <string name="setup_username">Korisničko ime</string>
+    <string name="setup_password">Lozinka</string>
+    <string name="setup_name">Naziv</string>
+    <string name="setup_name_placeholder">Moj Jellyfin poslužitelj</string>
+    <string name="settings_drive_signin" translatable="false">Sign in to Google Drive</string>
+    <string name="settings_drive_pull" translatable="false">Restore from Drive</string>
+    <string name="settings_drive_choose_backup_title" translatable="false">Choose a Drive backup</string>
+    <string name="settings_drive_choose_backup_subtitle" translatable="false">Select a saved snapshot to preview and restore.</string>
+    <string name="settings_drive_cancel_backup_choice" translatable="false">Cancel backup choice</string>
+    <string name="setup_import_from_drive">Uvezi s Drivea</string>
+    <string name="stalker_transport_invalid_tls_title" translatable="false">This provider\'s security certificate can\'t be verified</string>
+    <string name="stalker_transport_invalid_tls_body" translatable="false">The connection to %1$s may still be encrypted, but the app can\'t confirm it is really this provider. Someone on the network could read your login or stream details.</string>
+    <string name="stalker_transport_http_title" translatable="false">This provider uses an unencrypted connection</string>
+    <string name="stalker_transport_http_body" translatable="false">Your login and viewing requests to %1$s can be read or changed by someone on the network.</string>
+    <string name="stalker_transport_origin_changed_title" translatable="false">This provider wants to use a different address</string>
+    <string name="stalker_transport_origin_changed_body" translatable="false">The provider redirected the connection to %1$s. Continue only if you recognize this address.</string>
+    <string name="stalker_transport_go_back" translatable="false">Go back</string>
+    <string name="stalker_transport_connect_anyway" translatable="false">Connect anyway</string>
+    <string name="stalker_verification_inconclusive_title" translatable="false">Live TV could not be verified</string>
+    <string name="stalker_verification_inconclusive_body" translatable="false">The provider accepted your login, but the Live TV check did not finish. You can save it with verification pending; it will remain inactive until a sync confirms playable Live TV.</string>
+    <string name="stalker_save_without_verification" translatable="false">Save without verification</string>
+    <string name="stalker_repair_connection" translatable="false">Repair connection</string>
+    <string name="setup_phone_pairing_security_warning">Sigurnost: Uparivanje šalje podatke za prijavu nešifrirane putem vaše lokalne mreže. Koristite samo pouzdanu privatnu Wi-Fi mrežu.</string>
+    <string name="setup_phone_pairing_error_help">Uparivanje nije dovršeno. Provjerite podatke pružatelja usluge i pokušajte ponovno. Ako je QR sesija istekla, pokrenite novu na TV-u.</string>
+    <string name="setup_phone_pairing_mac_label">MAC adresa</string>
+</resources>

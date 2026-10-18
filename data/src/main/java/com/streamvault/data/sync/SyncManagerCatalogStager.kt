@@ -165,7 +165,8 @@ internal class SyncManagerCatalogStager(
         items: List<Channel>,
         seenStreamIds: MutableSet<Long>,
         fallbackCollector: FallbackCategoryCollector,
-        sessionId: Long?
+        sessionId: Long?,
+        useLiveAdmissionCount: Boolean = false
     ): StagedCatalogSnapshot {
         var resolvedSessionId = sessionId
         val acceptedEntities = ArrayList<ChannelEntity>(items.size)
@@ -182,12 +183,16 @@ internal class SyncManagerCatalogStager(
                 syncCatalogStore.clearProviderStaging(providerId)
                 resolvedSessionId = syncCatalogStore.newSessionId()
             }
-            syncCatalogStore.stageChannelBatch(providerId, requireNotNull(resolvedSessionId), acceptedEntities)
+            if (useLiveAdmissionCount) {
+                syncCatalogStore.stageAdmittedLiveBatch(providerId, requireNotNull(resolvedSessionId), acceptedEntities, seenStreamIds.size)
+            } else {
+                syncCatalogStore.stageChannelBatch(providerId, requireNotNull(resolvedSessionId), acceptedEntities)
+            }
         }
         return StagedCatalogSnapshot(
             sessionId = resolvedSessionId,
             acceptedCount = acceptedEntities.size,
-            fallbackCategories = fallbackCollector.entities().takeIf { it.isNotEmpty() }
+            fallbackCategories = if (useLiveAdmissionCount) null else fallbackCollector.entities().takeIf { it.isNotEmpty() }
         )
     }
 

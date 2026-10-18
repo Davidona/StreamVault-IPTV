@@ -3,6 +3,16 @@ package com.streamvault.player.playback
 import java.net.URI
 
 internal object PlaybackLogSanitizer {
+    fun sanitizeOrigin(url: String?): String {
+        if (url.isNullOrBlank()) return "<unknown>"
+        val uri = runCatching { URI(url) }.getOrNull() ?: return "<malformed>"
+        val scheme = uri.scheme?.lowercase()?.takeIf { it == "http" || it == "https" }
+            ?: return "<unsupported>"
+        val host = uri.host?.takeIf(String::isNotBlank) ?: return "<unknown-host>"
+        val port = if (uri.port > 0) ":${uri.port}" else ""
+        return "$scheme://$host$port"
+    }
+
     fun sanitizeUrl(url: String?): String {
         if (url.isNullOrBlank()) return "<unknown>"
         val uri = runCatching { URI(url) }.getOrNull() ?: return "<malformed>"

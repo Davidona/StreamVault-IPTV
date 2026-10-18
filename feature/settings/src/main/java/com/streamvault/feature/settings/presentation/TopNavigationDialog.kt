@@ -238,11 +238,12 @@ private fun NavigationVisibilityToggle(
 private fun AppTopLevelDestination.labelResId(): Int = when (this) {
     AppTopLevelDestination.HOME -> R.string.nav_home
     AppTopLevelDestination.LIVE_TV -> R.string.nav_live_tv
+    AppTopLevelDestination.SPORTS -> R.string.nav_sports
     AppTopLevelDestination.MOVIES -> R.string.nav_movies
     AppTopLevelDestination.SERIES -> R.string.nav_series
     AppTopLevelDestination.DOWNLOADS -> R.string.nav_downloads
     AppTopLevelDestination.GUIDE -> R.string.nav_epg
     AppTopLevelDestination.SEARCH -> R.string.search_title
-    AppTopLevelDestination.PLUGINS -> R.string.nav_plugins
+    AppTopLevelDestination.EXTENSIONS -> R.string.nav_extensions
     AppTopLevelDestination.SETTINGS -> R.string.nav_settings
 }

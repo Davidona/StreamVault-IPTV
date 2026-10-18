@@ -1,5 +1,6 @@
 ﻿package com.streamvault.feature.catalog.presentation.components
 
+import com.streamvault.core.ui.design.BrowseShapes
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -16,7 +17,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -35,8 +35,8 @@ import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
 import com.streamvault.feature.catalog.R
 import com.streamvault.feature.catalog.presentation.components.FocusedMarqueeText
-import com.streamvault.core.ui.design.AppColors
-import com.streamvault.core.ui.design.FocusSpec
+import com.streamvault.core.ui.design.BrowseColors as AppColors
+import com.streamvault.core.ui.design.BrowseFocusSpec as FocusSpec
 import com.streamvault.core.ui.interaction.TvClickableSurface
 import com.streamvault.core.ui.interaction.TvButton
 import com.streamvault.core.ui.interaction.TvIconButton
@@ -83,7 +83,7 @@ fun VodClassicSplitLayout(
                     modifier = Modifier
                         .fillMaxWidth()
                         .onFocusChanged { isFocused = it.isFocused },
-                    shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(14.dp)),
+                    shape = ClickableSurfaceDefaults.shape(BrowseShapes.Control),
                     colors = ClickableSurfaceDefaults.colors(
                         containerColor = if (category.isSelected) AppColors.Brand.copy(alpha = 0.22f) else AppColors.SurfaceElevated,
                         focusedContainerColor = AppColors.SurfaceEmphasis,
@@ -93,7 +93,7 @@ fun VodClassicSplitLayout(
                     border = ClickableSurfaceDefaults.border(
                         focusedBorder = Border(
                             border = BorderStroke(FocusSpec.BorderWidth, AppColors.Focus),
-                            shape = RoundedCornerShape(14.dp)
+                            shape = BrowseShapes.Control
                         )
                     ),
                     scale = ClickableSurfaceDefaults.scale(focusedScale = FocusSpec.FocusedScale)
@@ -138,7 +138,7 @@ fun VodClassicSplitLayout(
             modifier = Modifier
                 .weight(1f)
                 .fillMaxHeight()
-                .background(AppColors.Canvas, RoundedCornerShape(28.dp))
+                .background(AppColors.Canvas, BrowseShapes.Hero)
                 .padding(horizontal = 16.dp, vertical = 14.dp)
         ) {
             content()
@@ -204,7 +204,7 @@ private fun VodClassicHeaderActionButton(
     TvClickableSurface(
         onClick = action.onClick,
         modifier = modifier,
-        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(18.dp)),
+        shape = ClickableSurfaceDefaults.shape(BrowseShapes.Panel),
         colors = ClickableSurfaceDefaults.colors(
             containerColor = if (isSelected) AppColors.Brand.copy(alpha = 0.18f) else AppColors.SurfaceElevated,
             focusedContainerColor = AppColors.SurfaceEmphasis,
@@ -214,7 +214,7 @@ private fun VodClassicHeaderActionButton(
         border = ClickableSurfaceDefaults.border(
             focusedBorder = Border(
                 border = BorderStroke(FocusSpec.BorderWidth, AppColors.Focus),
-                shape = RoundedCornerShape(18.dp)
+                shape = BrowseShapes.Panel
             )
         ),
         scale = ClickableSurfaceDefaults.scale(focusedScale = 1f)

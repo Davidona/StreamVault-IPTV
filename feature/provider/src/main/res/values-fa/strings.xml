@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="add_group_cancel">لغو</string>
+    <string name="settings_syncing_title">در حال همگام‌سازی داده‌ها...</string>
+    <string name="settings_syncing_subtitle">لطفاً صبر کنید تا لیست پخش شما وارد شود.</string>
+    <string name="settings_syncing_btn">در حال همگام‌سازی...</string>
+    <string name="settings_backup_restore">پشتیبان‌گیری و بازیابی</string>
+    <string name="settings_restore_data">وارد کردن داده‌ها</string>
+    <string name="settings_restore_subtitle">یک فایل پشتیبان انتخاب کنید یا پشتیبان را از مدیر فایل با StreamVault باز کنید.</string>
+    <string name="setup_title_streamvault">StreamVault</string>
+    <string name="setup_provider_title">افزودن ارائه‌دهنده</string>
+    <string name="setup_edit_provider">ویرایش ارائه‌دهنده</string>
+    <string name="setup_update_desc">جزئیات ارائه‌دهنده IPTV خود را به‌روزرسانی کنید</string>
+    <string name="setup_add_desc">ارائه‌دهنده IPTV خود را اضافه کنید</string>
+    <string name="setup_shell_eyebrow">شروع کار با ارائه‌دهنده</string>
+    <string name="setup_shell_subtitle">از Xtream یا M3U استفاده کنید. بعداً می‌توانید تغییر دهید.</string>
+    <string name="setup_form_subtitle">یک منبع انتخاب کنید، جزئیات را وارد کنید و ادامه دهید. بعداً می‌توانید آن را از تنظیمات مدیریت کنید.</string>
+    <string name="setup_source_type_label">نوع منبع</string>
+    <string name="setup_info_xtream_title">وقتی اطلاعات ورود موجود است از Xtream استفاده کنید</string>
+    <string name="setup_info_xtream_body">بهترین گزینه وقتی سرور، نام کاربری و رمز عبور دارید.</string>
+    <string name="setup_info_stalker_body">نشانی پورتال به‌همراه یک نشانی MAC تأییدشده توسط ارائه‌دهنده.</string>
+    <string name="setup_info_m3u_title">برای لیست‌های پخش مبتنی بر URL یا فایل از M3U استفاده کنید</string>
+    <string name="setup_info_m3u_body">از یک پیوند لیست پخش استفاده کنید یا یک فایل محلی وارد کنید.</string>
+    <string name="setup_info_manage_title">بعداً می‌توانید ارائه‌دهندگان را مدیریت کنید</string>
+    <string name="setup_info_manage_body">بعداً از تنظیمات آن را تازه‌سازی، ویرایش یا جایگزین کنید.</string>
+    <string name="setup_import_backup">وارد کردن پشتیبان</string>
+    <string name="badge_beta">بتا</string>
+    <string name="setup_xtream">Xtream Codes</string>
+    <string name="setup_stalker">Stalker</string>
+    <string name="setup_m3u">لیست پخش M3U</string>
+    <string name="setup_name_hint">نام لیست پخش (اختیاری)</string>
+    <string name="setup_server_hint">نشانی سرور</string>
+    <string name="setup_user_hint">نام کاربری</string>
+    <string name="setup_pass_hint">رمز عبور</string>
+    <string name="setup_show_password">نمایش رمز عبور</string>
+    <string name="setup_hide_password">پنهان کردن رمز عبور</string>
+    <string name="setup_phone_pairing_title">افزودن از گوشی</string>
+    <string name="setup_phone_pairing_body">کد QR را اسکن کنید و اطلاعات ورود ارائه‌دهنده را از گوشی متصل به همان Wi-Fi وارد کنید.</string>
+    <string name="setup_phone_pairing_start">نمایش کد QR</string>
+    <string name="setup_phone_pairing_restart">کد QR جدید</string>
+    <string name="setup_phone_pairing_stop">توقف جفت‌سازی</string>
+    <string name="setup_phone_pairing_same_wifi">این صفحه را از گوشی متصل به همان Wi-Fi باز کنید. اطلاعات ورود مستقیماً به این تلویزیون ارسال می‌شوند.</string>
+    <string name="setup_phone_pairing_qr_description">کد QR برای راه‌اندازی ارائه‌دهنده از گوشی</string>
+    <string name="setup_phone_pairing_idle">فقط محلی</string>
+    <string name="setup_phone_pairing_ready">همین حالا اسکن کنید</string>
+    <string name="setup_phone_pairing_receiving">در حال افزودن</string>
+    <string name="setup_phone_pairing_complete">افزوده شد</string>
+    <string name="setup_phone_pairing_error">خطا</string>
+    <string name="setup_connecting">در حال اتصال...</string>
+    <string name="setup_save">ذخیره تغییرات</string>
+    <string name="setup_login">ورود</string>
+    <string name="setup_advanced_options_label">گزینه‌های پیشرفته</string>
+    <string name="setup_advanced_options_helper">کنترل کنید داده‌های راهنما هنگام راه‌اندازی و تازه‌سازی ارائه‌دهنده چگونه دریافت می‌شوند.</string>
+    <string name="setup_advanced_options_show">نمایش</string>
+    <string name="setup_advanced_options_hide">پنهان کردن</string>
+    <string name="setup_m3u_vod_classification_label">دسته‌بندی VOD در M3U</string>
+    <string name="setup_m3u_vod_classification_helper">فقط M3U. URLهای رمزگشایی‌شده فیلم و نشانه‌های گروه یا عنوان بومی‌سازی‌شده را به‌عنوان فیلم دسته‌بندی می‌کند؛ URLهای شناسایی‌شده پخش زنده در پخش زنده باقی می‌مانند.</string>
+    <string name="setup_xtream_live_sync_mode_label">همگام‌سازی زنده Xtream</string>
+    <string name="setup_xtream_live_sync_mode_helper">انتخاب کنید کانال‌های پخش زنده چگونه دریافت شوند. حالت خودکار از دستگاه‌های ضعیف و تازه‌سازی‌های معمول محافظت می‌کند و در عین حال دسته‌ها پر می‌مانند.</string>
+    <string name="setup_xtream_live_sync_mode_auto_title">خودکار</string>
+    <string name="setup_xtream_live_sync_mode_auto_description">توصیه‌شده. در دستگاه‌های کم‌حافظه، تازه‌سازی‌های پس‌زمینه، تازه‌سازی دسته‌های پنهان و ارائه‌دهندگان تحت فشار از همگام‌سازی دسته‌ای استفاده می‌کند.</string>
+    <string name="setup_xtream_live_sync_mode_category_title">دسته به دسته</string>
+    <string name="setup_xtream_live_sync_mode_category_description">همیشه پخش زنده را یک دسته در هر بار دریافت کنید. ایمن‌تر برای ارائه‌دهندگان بزرگ و دستگاه‌های ضعیف Android TV.</string>
+    <string name="setup_xtream_live_sync_mode_stream_all_title">پخش همه</string>
+    <string name="setup_xtream_live_sync_mode_stream_all_description">نقطه پایانی زنده سراسر ارائه‌دهنده را با تجزیه‌گر جریانی امتحان می‌کند. اگر ناامن باشد یا شکست بخورد، به همگام‌سازی دسته‌ای برمی‌گردد.</string>
+    <string name="setup_epg_sync_mode_label">همگام‌سازی EPG</string>
+    <string name="setup_epg_sync_mode_helper">حالت پیشرو رفتار امروز را حفظ می‌کند. حالت پس‌زمینه ابتدا راه‌اندازی را تمام می‌کند و حالت رد کردن، تازه‌سازی راهنما را به بعد موکول می‌کند.</string>
+    <string name="setup_epg_sync_mode_upfront_title">EPG کامل همین حالا</string>
+    <string name="setup_epg_sync_mode_upfront_description">داده‌های راهنمای ارائه‌دهنده و راهنمای خارجی را هنگام راه‌اندازی و پیش از پایان آن دانلود کنید.</string>
+    <string name="setup_epg_sync_mode_background_title">بارگذاری EPG در پس‌زمینه</string>
+    <string name="setup_epg_sync_mode_background_description">ابتدا راه‌اندازی را تمام کنید، سپس داده‌های راهنما را به‌طور خودکار در پس‌زمینه دریافت کنید.</string>
+    <string name="setup_epg_sync_mode_skip_title">فعلاً از EPG صرف‌نظر کنید</string>
+    <string name="setup_epg_sync_mode_skip_description">داده‌های راهنما به‌طور خودکار دریافت نمی‌شوند. بعداً می‌توانید EPG را از تنظیمات تازه‌سازی کنید.</string>
+    <string name="setup_stalker_epg_sync_mode_helper">Stalker می‌تواند وقتی XMLTV وجود ندارد یا در دسترس نیست از راهنمای بومی پورتال استفاده کند. حالت پیشرو آن را هنگام راه‌اندازی وارد می‌کند، حالت پس‌زمینه به تعویق می‌اندازد و حالت رد کردن، بارگذاری راهنما را به درخواست واگذار می‌کند.</string>
+    <string name="setup_stalker_epg_sync_mode_upfront_description">کانال‌های زنده را دانلود و راهنمای پورتال Stalker را هنگام راه‌اندازی وارد کنید. اگر XMLTV پیکربندی شده و کار می‌کند، ابتدا از آن استفاده می‌شود.</string>
+    <string name="setup_stalker_epg_sync_mode_background_description">ابتدا راه‌اندازی را تمام کنید، سپس راهنمای پورتال Stalker را در پس‌زمینه وارد کنید. اگر XMLTV پیکربندی شده و کار می‌کند، ابتدا از آن استفاده می‌شود.</string>
+    <string name="setup_stalker_epg_sync_mode_skip_description">داده‌های راهنما را به‌طور خودکار به‌صورت انبوه وارد نکنید. داده‌های راهنمای زنده همچنان هنگام مرور کانال‌ها به‌صورت درخواستی بارگذاری می‌شوند.</string>
+    <string name="setup_m3u_hint">نشانی M3U</string>
+    <string name="setup_tab_url">URL</string>
+    <string name="setup_tab_file">فایل</string>
+    <string name="setup_choose_file">انتخاب فایل M3U</string>
+    <string name="setup_file_replace_hint">برای جایگزینی فایل فشار دهید</string>
+    <string name="setup_file_select_title">انتخاب فایل M3U</string>
+    <string name="setup_file_browse_hint">مرور حافظه داخلی یا USB</string>
+    <string name="setup_file_import_failed">وارد کردن فایل لیست پخش ممکن نشد. دوباره تلاش کنید.</string>
+    <string name="setup_file_import_storage_full">حافظه پر است. فضا خالی کنید و دوباره وارد کردن را امتحان کنید.</string>
+    <string name="setup_discard_draft_title">پیش‌نویس راه‌اندازی دور انداخته شود؟</string>
+    <string name="setup_discard_draft_body">این راه‌اندازی ارائه‌دهنده ناقص است. بازگردید و پیش‌نویس فعلی را از دست بدهید؟</string>
+    <string name="setup_discard_draft_confirm">دور انداختن</string>
+    <string name="setup_discard_draft_cancel">ادامه ویرایش</string>
+    <string name="setup_validating">در حال اعتبارسنجی...</string>
+    <string name="setup_add">افزودن لیست پخش</string>
+    <string name="setup_tab_jellyfin">Jellyfin</string>
+    <string name="setup_jellyfin_quick_connect">اتصال سریع</string>
+    <string name="setup_jellyfin_quick_connect_code">کد: %s</string>
+    <string name="setup_jellyfin_quick_connect_code_instructions">سرور Jellyfin خود را در مرورگر باز کنید و این کد را وارد کنید، یا کد QR را با گوشی خود اسکن کنید.</string>
+    <string name="setup_server_url">نشانی سرور</string>
+    <string name="setup_username">نام کاربری</string>
+    <string name="setup_password">رمز عبور</string>
+    <string name="setup_name">نام</string>
+    <string name="setup_name_placeholder">سرور Jellyfin من</string>
+    <string name="settings_drive_signin" translatable="false">Sign in to Google Drive</string>
+    <string name="settings_drive_pull" translatable="false">Restore from Drive</string>
+    <string name="settings_drive_choose_backup_title" translatable="false">Choose a Drive backup</string>
+    <string name="settings_drive_choose_backup_subtitle" translatable="false">Select a saved snapshot to preview and restore.</string>
+    <string name="settings_drive_cancel_backup_choice" translatable="false">Cancel backup choice</string>
+    <string name="setup_import_from_drive">وارد کردن از Drive</string>
+    <string name="stalker_transport_invalid_tls_title" translatable="false">This provider\'s security certificate can\'t be verified</string>
+    <string name="stalker_transport_invalid_tls_body" translatable="false">The connection to %1$s may still be encrypted, but the app can\'t confirm it is really this provider. Someone on the network could read your login or stream details.</string>
+    <string name="stalker_transport_http_title" translatable="false">This provider uses an unencrypted connection</string>
+    <string name="stalker_transport_http_body" translatable="false">Your login and viewing requests to %1$s can be read or changed by someone on the network.</string>
+    <string name="stalker_transport_origin_changed_title" translatable="false">This provider wants to use a different address</string>
+    <string name="stalker_transport_origin_changed_body" translatable="false">The provider redirected the connection to %1$s. Continue only if you recognize this address.</string>
+    <string name="stalker_transport_go_back" translatable="false">Go back</string>
+    <string name="stalker_transport_connect_anyway" translatable="false">Connect anyway</string>
+    <string name="stalker_verification_inconclusive_title" translatable="false">Live TV could not be verified</string>
+    <string name="stalker_verification_inconclusive_body" translatable="false">The provider accepted your login, but the Live TV check did not finish. You can save it with verification pending; it will remain inactive until a sync confirms playable Live TV.</string>
+    <string name="stalker_save_without_verification" translatable="false">Save without verification</string>
+    <string name="stalker_repair_connection" translatable="false">Repair connection</string>
+    <string name="setup_phone_pairing_security_warning">امنیت: اطلاعات ورود هنگام جفت‌سازی بدون رمزگذاری از شبکه محلی شما فرستاده می‌شود. فقط از شبکه خصوصی Wi-Fi مطمئن استفاده کنید.</string>
+    <string name="setup_phone_pairing_error_help">جفت‌سازی کامل نشد. اطلاعات ارائه‌دهنده را بررسی و دوباره امتحان کنید. اگر نشست QR منقضی شده است، نشست تازه‌ای در تلویزیون شروع کنید.</string>
+    <string name="setup_phone_pairing_mac_label">نشانی MAC</string>
+</resources>

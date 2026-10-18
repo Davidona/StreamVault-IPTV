@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="settings_timeout_seconds">
+        <item quantity="one">%d sekunda</item>
+        <item quantity="few">%d sekunde</item>
+        <item quantity="other">%d sekundi</item>
+    </plurals>
+    <plurals name="settings_timer_minutes">
+        <item quantity="one">%1$d minuta</item>
+        <item quantity="few">%1$d minute</item>
+        <item quantity="other">%1$d minuta</item>
+    </plurals>
+    <plurals name="settings_top_navigation_count">
+        <item quantity="one">%d kartica</item>
+        <item quantity="few">%d kartice</item>
+        <item quantity="other">%d kartica</item>
+    </plurals>
+    <plurals name="settings_home_dashboard_count">
+        <item quantity="one">%d polica</item>
+        <item quantity="few">%d police</item>
+        <item quantity="other">%d polica</item>
+    </plurals>
+</resources>

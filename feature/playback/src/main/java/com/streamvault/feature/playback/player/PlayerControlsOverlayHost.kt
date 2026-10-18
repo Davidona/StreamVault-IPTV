@@ -55,6 +55,7 @@ internal fun PlayerControlsOverlayHost(
     contentType: String,
     modifier: Modifier = Modifier,
     isCatchUpPlayback: Boolean = false,
+    onlineSubtitleSearchAvailable: Boolean = false,
     isPlaying: Boolean,
     currentChannel: Channel?,
     currentChannelName: String?,
@@ -89,8 +90,11 @@ internal fun PlayerControlsOverlayHost(
     val currentProgram by viewModel.currentProgram.collectAsStateWithLifecycle()
     val playbackTitle by viewModel.playbackTitle.collectAsStateWithLifecycle()
     val currentSeries by viewModel.currentSeries.collectAsStateWithLifecycle()
+    val currentEpisode by viewModel.currentEpisode.collectAsStateWithLifecycle()
+    val nextEpisode by viewModel.nextEpisode.collectAsStateWithLifecycle()
     val availableAudioTracks by viewModel.availableAudioTracks.collectAsStateWithLifecycle()
     val availableSubtitleTracks by viewModel.availableSubtitleTracks.collectAsStateWithLifecycle()
+    val stremioSubtitlePickerState by viewModel.stremioSubtitlePickerState.collectAsStateWithLifecycle()
     val availableVideoQualities by viewModel.availableVideoQualities.collectAsStateWithLifecycle()
     val liveTranslationAvailable by viewModel.liveTranslationAvailable.collectAsStateWithLifecycle()
     val currentChannelRecording by viewModel.currentChannelRecording.collectAsStateWithLifecycle()
@@ -105,6 +109,11 @@ internal fun PlayerControlsOverlayHost(
     val currentSeriesSeasons = remember(currentSeries) {
         currentSeries?.seasons.sanitizedForPlayer()
     }
+    val previousEpisode = remember(currentSeries, currentEpisode) {
+        val series = currentSeries
+        val episode = currentEpisode
+        if (series != null && episode != null) findPreviousEpisode(series, episode) else null
+    }
     val canOpenEpisodePicker = contentType == "SERIES_EPISODE" &&
         currentSeriesSeasons?.any { it.episodes.isNotEmpty() } == true
 
@@ -116,9 +125,11 @@ internal fun PlayerControlsOverlayHost(
         currentPositionMs = currentPosition,
         showEpisodesAction = canOpenEpisodePicker,
         subtitleTrackCount = availableSubtitleTracks.size,
+        showStremioSubtitleAction = stremioSubtitlePickerState.enabled,
         audioTrackCount = availableAudioTracks.size,
         videoQualityCount = availableVideoQualities.size,
         audioVideoSyncEnabled = audioVideoSyncEnabled,
+        onlineSubtitleSearchAvailable = onlineSubtitleSearchAvailable,
         showExternalPlayerAction = false,
         isCastConnected = isCastConnected
     )
@@ -147,6 +158,14 @@ internal fun PlayerControlsOverlayHost(
             },
             onOpenChapters = onOpenChapters,
             onOpenEpisodes = onOpenEpisodes,
+            canPlayPreviousEpisode = previousEpisode != null,
+            canPlayNextEpisode = nextEpisode != null,
+            onPlayPreviousEpisode = {
+                previousEpisode?.let(viewModel::playEpisodeFromNavigation)
+            },
+            onPlayNextEpisode = {
+                nextEpisode?.let(viewModel::playEpisodeFromNavigation)
+            },
             onOpenSubtitleTracks = onOpenSubtitleTracks,
             onOpenAudioTracks = onOpenAudioTracks,
             onOpenSettings = onOpenPlaybackSettings,

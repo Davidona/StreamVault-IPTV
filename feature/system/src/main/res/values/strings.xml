@@ -1,18 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="extensions_title">Extensions</string>
+    <string name="plugins_section_description">Add features to StreamVault with companion Android apps.</string>
+    <string name="plugins_install_url">Install plugin from URL</string>
+    <string name="plugins_install_file">Install plugin APK</string>
+    <string name="plugins_refresh">Check installed plugins</string>
+    <string name="plugins_install_hint">Use an APK file or a direct APK download link. For Stremio-compatible add-on manifest URLs, use the Stremio-compatible Add-ons tab.</string>
+    <string name="plugins_empty_title">No plugins installed</string>
+    <string name="plugins_empty_description">Install a compatible StreamVault companion app, or check again for a plugin you installed outside StreamVault.</string>
+    <string name="plugins_add">Add plugin</string>
+    <string name="plugins_installed_count">Plugins · %1$d installed</string>
+    <string name="plugins_provider_sources_count">%1$d provider sources available</string>
+    <string name="plugins_details">Details</string>
+    <string name="plugins_hide_details">Hide details</string>
+    <string name="plugins_back_to_plugins">Back to Plugins</string>
+    <string name="plugins_refresh_configuration">Refresh</string>
+    <string name="plugins_save_configuration">Save</string>
   <string name="app_name">StreamVault</string>
   <string name="welcome_setup_provider">Setup Provider</string>
   <string name="welcome_setup_later">Set up later</string>
+  <string name="welcome_dont_ask_again">Don’t ask me again</string>
   <string name="welcome_loading_title">Preparing your library</string>
   <string name="welcome_loading_subtitle">Opening the right screen for this device.</string>
   <string name="sync_section_live">Live</string>
   <string name="sync_section_vod">VOD</string>
   <string name="sync_section_series">Series</string>
-  <string name="sync_items_indexed_format">%1$d items indexed</string>
+  <string name="sync_items_indexed_format">%1$d items prepared</string>
   <string name="welcome_tagline">Premium IPTV for the living room</string>
   <string name="welcome_subtitle">Lean back into live channels, catch-up viewing, movies, and series with a first-party Android TV experience.</string>
   <string name="settings_cancel">Cancel</string>
   <string name="nav_downloads">Downloads</string>
+  <string name="extensions_tab_plugins">Plugins</string>
+  <string name="extensions_tab_stremio_addons">Stremio-compatible Add-ons</string>
   <string name="downloads_loading">Loading downloads...</string>
   <string name="downloads_empty_title">No downloads yet</string>
   <string name="downloads_empty_hint">Download movies or episodes from detail screens and they will appear here.</string>
@@ -33,4 +52,12 @@
   <string name="download_resume">Resume</string>
   <string name="download_delete">Delete</string>
   <string name="downloads_resumed">Download resumed</string>
+  <string name="plugins_configure">Configure</string>
+    <string name="torrent_cache_title">Temporary torrent cache</string>
+    <string name="torrent_cache_description">Temporary torrent data for streaming (8 GB limit). Saved downloads are separate.</string>
+    <string name="torrent_cache_usage">Used: %1$s of %2$s · Free: %3$s</string>
+    <string name="torrent_cache_clear">Clear cache</string>
+    <string name="torrent_cache_confirm_message">Remove temporary torrent data? Saved downloads will not be deleted.</string>
+    <string name="torrent_cache_active">Stop torrent playback before clearing the cache.</string>
+    <string name="torrent_cache_clear_failed">Could not clear the temporary cache.</string>
 </resources>

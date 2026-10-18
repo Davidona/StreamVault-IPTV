@@ -286,6 +286,62 @@ public fun LazyListScope.settingsBrowsingSection(
                     indent = 24.dp
                 ,
                     modifier = if (targetItemId == "vod.portal_search") targetFocusModifier else Modifier,)
+                Text(
+                    text = stringResource(R.string.settings_trakt_discovery_title),
+                    style = MaterialTheme.typography.titleSmall,
+                    color = OnSurface,
+                    modifier = Modifier.padding(top = 12.dp, bottom = 2.dp)
+                )
+                Text(
+                    text = stringResource(R.string.settings_trakt_discovery_description),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = OnSurfaceDim,
+                    modifier = Modifier.padding(bottom = 4.dp)
+                )
+                SwitchSettingsRow(
+                    label = stringResource(R.string.settings_trakt_discovery_trending_movies),
+                    value = stringResource(
+                        if (uiState.showTraktTrendingMovies) R.string.settings_trakt_discovery_visible
+                        else R.string.settings_trakt_discovery_hidden
+                    ),
+                    checked = uiState.showTraktTrendingMovies,
+                    onCheckedChange = viewModel::setShowTraktTrendingMovies,
+                    indent = 24.dp,
+                    modifier = if (targetItemId == "vod.trakt_trending_movies") targetFocusModifier else Modifier,
+                )
+                SwitchSettingsRow(
+                    label = stringResource(R.string.settings_trakt_discovery_popular_movies),
+                    value = stringResource(
+                        if (uiState.showTraktPopularMovies) R.string.settings_trakt_discovery_visible
+                        else R.string.settings_trakt_discovery_hidden
+                    ),
+                    checked = uiState.showTraktPopularMovies,
+                    onCheckedChange = viewModel::setShowTraktPopularMovies,
+                    indent = 24.dp,
+                    modifier = if (targetItemId == "vod.trakt_popular_movies") targetFocusModifier else Modifier,
+                )
+                SwitchSettingsRow(
+                    label = stringResource(R.string.settings_trakt_discovery_trending_series),
+                    value = stringResource(
+                        if (uiState.showTraktTrendingSeries) R.string.settings_trakt_discovery_visible
+                        else R.string.settings_trakt_discovery_hidden
+                    ),
+                    checked = uiState.showTraktTrendingSeries,
+                    onCheckedChange = viewModel::setShowTraktTrendingSeries,
+                    indent = 24.dp,
+                    modifier = if (targetItemId == "vod.trakt_trending_series") targetFocusModifier else Modifier,
+                )
+                SwitchSettingsRow(
+                    label = stringResource(R.string.settings_trakt_discovery_popular_series),
+                    value = stringResource(
+                        if (uiState.showTraktPopularSeries) R.string.settings_trakt_discovery_visible
+                        else R.string.settings_trakt_discovery_hidden
+                    ),
+                    checked = uiState.showTraktPopularSeries,
+                    onCheckedChange = viewModel::setShowTraktPopularSeries,
+                    indent = 24.dp,
+                    modifier = if (targetItemId == "vod.trakt_popular_series") targetFocusModifier else Modifier,
+                )
             }
             if (page == null || page == SettingsPage.VOD_ORGANIZATION) {
                 ClickableSettingsRow(
@@ -357,7 +413,7 @@ private fun RemoteShortcutSettingsPanel(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(com.streamvault.core.ui.theme.SurfaceElevated, RoundedCornerShape(18.dp))
+                .settingsDetailPanel()
                 .padding(horizontal = 14.dp, vertical = 14.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
@@ -570,4 +626,10 @@ private fun AppTheme.labelResId(): Int = when (this) {
     AppTheme.CLASSIC_BLUE -> R.string.settings_theme_classic_blue
     AppTheme.M3_PURPLE -> R.string.settings_theme_m3_purple
     AppTheme.LIGHT -> R.string.settings_theme_light
+    AppTheme.FOREST -> R.string.settings_theme_forest
+    AppTheme.SUNSET -> R.string.settings_theme_sunset
+    AppTheme.OCEAN -> R.string.settings_theme_ocean
+    AppTheme.ROSE -> R.string.settings_theme_rose
+    AppTheme.AMOLED_BLACK -> R.string.settings_theme_amoled_black
+    AppTheme.VINTAGE -> R.string.settings_theme_vintage
 }

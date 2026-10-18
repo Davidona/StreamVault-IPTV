@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="player_trakt_connect_required">Lidhni Trakt në Cilësimet</string>
+    <string name="player_trakt_not_supported">Trakt gjurmon vetëm filma dhe episode.</string>
+    <string name="player_trakt_no_match">Nuk ka përputhje të saktë Trakt për këtë titull.</string>
+    <string name="player_trakt_starting">Nis gjurmimin Trakt…</string>
+    <string name="player_trakt_tracking">Ndjekja me Trakt</string>
+    <string name="player_trakt_paused">Ndjekja e Trakt u ndërpre</string>
+    <string name="player_trakt_failed">Gjurmimi i Trakt dështoi</string>
+    <string name="player_trakt_sent">Dërguar në Trakt</string>
+    <string name="player_trakt_badge">TRAKT</string>
+</resources>

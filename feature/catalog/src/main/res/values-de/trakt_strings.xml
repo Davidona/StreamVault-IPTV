@@ -1,0 +1,39 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="trakt_watchlist_movies_no_matches">Keine Filme aus Ihrer Trakt-Beobachtungsliste stimmen mit diesem Anbieter oder den aktuellen Filtern überein.</string>
+    <string name="trakt_watchlist_series_no_matches">Keine Serie aus Ihrer Trakt-Beobachtungsliste passt zu diesem Anbieter oder den aktuellen Filtern.</string>
+    <string name="trakt_discovery_trending_movies">Im Trend: Trakt</string>
+    <string name="trakt_discovery_popular_movies">Beliebt bei Trakt</string>
+    <string name="trakt_discovery_trending_series">Im Trend: Trakt</string>
+    <string name="trakt_discovery_popular_series">Beliebt bei Trakt</string>
+    <string name="trakt_discovery_movies_no_matches">Keine angesagten oder beliebten Trakt-Filme passen zu diesem Anbieter oder den aktuellen Filtern.</string>
+    <string name="trakt_discovery_series_no_matches">Keine angesagten oder beliebten Trakt-Sendungen passen zu diesem Anbieter oder den aktuellen Filtern.</string>
+    <string name="trakt_discovery_load_failed">Die Discovery-Titel Trakt konnten nicht geladen werden. Versuchen Sie es erneut.</string>
+    <string name="trakt_custom_lists_action">Trakt Listen</string>
+    <string name="trakt_custom_lists_title">Ihre Trakt-Listen</string>
+    <string name="trakt_custom_lists_for_item">%1$s in einer Liste verwalten</string>
+    <string name="trakt_custom_lists_loading">Listeninformationen werden geladen…</string>
+    <string name="trakt_custom_lists_connect_first">Verbinden Sie Trakt in den Einstellungen, um Ihre Listen zu verwenden.</string>
+    <string name="trakt_custom_lists_empty">Sie haben noch keine benutzerdefinierten Trakt-Listen.</string>
+    <string name="trakt_custom_lists_failed">Diese Trakt-Liste konnte nicht geladen oder aktualisiert werden. Versuchen Sie es erneut.</string>
+    <string name="trakt_custom_lists_incognito">Trakt-Listen sind nicht verfügbar, während der Inkognito-Modus aktiviert ist.</string>
+    <string name="trakt_custom_lists_too_large">Diese Liste ist zu groß, um vollständig in StreamVault geladen zu werden.</string>
+    <string name="trakt_custom_list_open">%1$s · %2$d Artikel</string>
+    <string name="trakt_custom_list_contains_item">%1$s ist in dieser Liste.</string>
+    <string name="trakt_custom_list_does_not_contain_item">%1$s ist nicht in dieser Liste.</string>
+    <string name="trakt_custom_list_add_item">Zur Liste hinzufügen</string>
+    <string name="trakt_custom_lists_create_new">Neue Liste erstellen</string>
+    <string name="trakt_custom_lists_name">Listenname</string>
+    <string name="trakt_custom_lists_optional_description">Beschreibung (optional)</string>
+    <string name="trakt_custom_lists_private_note">Neue Listen sind auf Trakt privat.</string>
+    <string name="trakt_custom_lists_create">Private Liste erstellen</string>
+    <string name="trakt_custom_list_remove_item">Entfernen Sie</string>
+    <string name="trakt_custom_list_items_truncated">Zeigt die ersten 200 Artikel.</string>
+    <string name="trakt_custom_lists_back">Zurück zu den Listen</string>
+    <string name="trakt_custom_lists_choose_item">Wählen Sie aus, was hinzugefügt oder entfernt werden soll</string>
+    <string name="trakt_custom_lists_movies">Film</string>
+    <string name="trakt_custom_lists_series">Serie</string>
+    <string name="trakt_custom_lists_seasons_count">Jahreszeiten (%1$d)</string>
+    <string name="trakt_custom_lists_episodes_count">Episoden (%1$d)</string>
+    <string name="trakt_custom_lists_change_item">Titel ändern</string>
+</resources>

@@ -1,5 +1,9 @@
 package com.streamvault.feature.playback.player.overlay
 
+import com.streamvault.core.ui.layout.AdaptiveRow
+
+import com.streamvault.core.ui.layout.isPortraitLayout
+
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
@@ -464,13 +468,14 @@ private fun PlayerTopBar(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Row(
+                modifier = if (isPortraitLayout()) Modifier.weight(1f) else Modifier,
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 if (showBackButton) {
                     PlayerBackButton(onClick = onBackToMenu)
                 }
-                Column {
+                Column(modifier = if (isPortraitLayout()) Modifier.weight(1f) else Modifier) {
                     PlayerMetaPill(
                         text = when (contentType) {
                             "LIVE" -> stringResource(R.string.nav_live_tv)
@@ -481,6 +486,8 @@ private fun PlayerTopBar(
                     Spacer(modifier = Modifier.height(10.dp))
                     Text(
                         text = title,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
                         style = MaterialTheme.typography.titleLarge,
                         color = Color.White,
                         fontWeight = FontWeight.Bold
@@ -603,7 +610,8 @@ private fun PlayerBottomBar(
     modifier: Modifier = Modifier
 ) {
     val isVod = contentType != "LIVE" || isCatchUpPlayback
-    val bottomBarWidthFraction = if (isVod) 0.78f else 1f
+    val portrait = isPortraitLayout()
+    val bottomBarWidthFraction = if (isVod && !portrait) 0.78f else 1f
     Box(
         modifier = modifier
             .fillMaxWidth()
@@ -613,7 +621,7 @@ private fun PlayerBottomBar(
                 )
             )
             .padding(
-                horizontal = if (isVod) 14.dp else 32.dp,
+                horizontal = if (portrait) 12.dp else if (isVod) 14.dp else 32.dp,
                 vertical = if (isVod) 10.dp else 24.dp
             )
     ) {
@@ -752,6 +760,7 @@ private fun PlayerLiveInfo(
     aspectRatioLabel: String,
     subtitleTrackCount: Int,
     liveTranslationAvailable: Boolean,
+    localSubtitleLoadingAvailable: Boolean = true,
     audioTrackCount: Int,
     videoQualityCount: Int,
     currentRecordingStatus: RecordingStatus?,
@@ -855,7 +864,7 @@ private fun PlayerLiveInfo(
     }
     val secondaryActions = buildList {
         add(PlayerActionSpec("aspect_ratio", stringResource(R.string.player_aspect_ratio_label, aspectRatioLabel), onToggleAspectRatio))
-        if (subtitleTrackCount > 0 || liveTranslationAvailable) {
+        if (subtitleTrackCount > 0 || liveTranslationAvailable || localSubtitleLoadingAvailable) {
             add(PlayerActionSpec("subtitles", stringResource(R.string.player_subs), onOpenSubtitleTracks))
         }
         if (audioTrackCount > 0) {
@@ -1085,9 +1094,7 @@ private fun PlayerVodInfo(
             stringResource(if (isMuted) R.string.player_unmute else R.string.player_mute),
             onToggleMute
         ))
-        if (subtitleTrackCount > 0) {
-            add(PlayerActionSpec("subtitles", stringResource(R.string.player_subs), onOpenSubtitleTracks))
-        }
+        add(PlayerActionSpec("subtitles", stringResource(R.string.player_subs), onOpenSubtitleTracks))
         if (videoQualityCount > 0) {
             add(PlayerActionSpec("video_quality", stringResource(R.string.player_video_quality), onOpenVideoTracks))
         }
@@ -1191,12 +1198,12 @@ private fun PlayerVodInfo(
         shape = RoundedCornerShape(18.dp),
         colors = SurfaceDefaults.colors(containerColor = Color.White.copy(alpha = 0.06f))
     ) {
-        Row(
+        AdaptiveRow(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 12.dp, vertical = 10.dp),
             horizontalArrangement = Arrangement.spacedBy(outerSpacing),
-            verticalAlignment = Alignment.CenterVertically
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             Surface(
                 shape = RoundedCornerShape(999.dp),
@@ -1267,7 +1274,7 @@ private fun PlayerVodInfo(
             }
 
             Column(
-                modifier = Modifier.weight(1f),
+                modifier = if (isPortraitLayout()) Modifier.fillMaxWidth() else Modifier.weight(1f),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 AnimatedVisibility(visible = seekPreview.visible) {

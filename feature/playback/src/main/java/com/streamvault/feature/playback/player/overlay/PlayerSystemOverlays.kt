@@ -85,9 +85,15 @@ import com.streamvault.domain.model.LiveChannelVariant
 import com.streamvault.domain.model.Season
 import com.streamvault.player.PlayerError
 import com.streamvault.player.PlayerTrack
+import com.streamvault.player.PLAYER_TRACK_AUTO_ID
 import com.streamvault.player.TrackType
+import com.streamvault.feature.playback.player.StremioPlayerSubtitleOption
+import com.streamvault.feature.playback.player.StremioSubtitlePickerState
 import com.streamvault.player.AUDIO_VIDEO_OFFSET_MAX_MS
 import com.streamvault.player.AUDIO_VIDEO_OFFSET_MIN_MS
+import com.streamvault.player.SUBTITLE_OFFSET_MAX_MS
+import com.streamvault.player.SUBTITLE_OFFSET_MIN_MS
+import com.streamvault.player.SUBTITLE_OFFSET_STEP_MS
 import java.util.Locale
 import com.streamvault.core.ui.interaction.TvClickableSurface
 import com.streamvault.core.ui.interaction.TvButton
@@ -256,13 +262,52 @@ fun PlayerTrackSelectionDialog(
     audioTracks: List<PlayerTrack>,
     subtitleTracks: List<PlayerTrack>,
     videoTracks: List<PlayerTrack>,
+    isCastConnected: Boolean = false,
     liveTranslationAvailable: Boolean = false,
     liveTranslationActive: Boolean = false,
+    stremioSubtitlePicker: StremioSubtitlePickerState = StremioSubtitlePickerState(),
+    onlineSubtitleSearchAvailable: Boolean = false,
+    subtitleOffsetMs: Int = 0,
     onDismiss: () -> Unit,
     onSelectAudio: (String) -> Unit,
     onSelectVideo: (String) -> Unit,
     onSelectSubtitle: (String?) -> Unit,
-    onSelectLiveTranslation: () -> Unit = {}
+    onTrySelectVideo: ((String) -> Boolean)? = null,
+    onSelectLiveTranslation: () -> Unit = {},
+    onSelectStremioSubtitle: (StremioPlayerSubtitleOption) -> Unit = {},
+    onRetryStremioSubtitles: () -> Unit = {},
+    onSearchOnlineSubtitles: () -> Unit = {},
+    onOpenSubtitleOffset: () -> Unit = {},
+    onLoadLocalSubtitle: () -> Unit = {},
+    canSavePlaybackQuality: Boolean = false,
+    canSaveProviderPlaybackQuality: Boolean = false,
+    canSavePlaybackBitrate: Boolean = false,
+    canSaveProviderPlaybackBitrate: Boolean = false,
+    hasSavedPlaybackQuality: Boolean = false,
+    hasSavedProviderPlaybackQuality: Boolean = false,
+    canEditPlaybackQuality: Boolean = false,
+    hasSavedPlaybackHeight: Boolean = false,
+    hasSavedPlaybackBitrate: Boolean = false,
+    hasSavedProviderHeight: Boolean = false,
+    hasSavedProviderBitrate: Boolean = false,
+    playbackHeightHasNoAdditionalLimit: Boolean = false,
+    playbackBitrateHasNoAdditionalLimit: Boolean = false,
+    canSetTemporaryPlaybackQuality: Boolean = false,
+    hasTemporaryPlaybackQuality: Boolean = false,
+    onSavePlaybackQuality: () -> Unit = {},
+    onSavePlaybackBitrate: () -> Unit = {},
+    onRemovePlaybackQuality: () -> Unit = {},
+    onSaveProviderPlaybackQuality: () -> Unit = {},
+    onSaveProviderPlaybackBitrate: () -> Unit = {},
+    onRemoveProviderPlaybackQuality: () -> Unit = {},
+    onInheritPlaybackHeight: () -> Unit = {},
+    onInheritPlaybackBitrate: () -> Unit = {},
+    onNoAdditionalPlaybackHeight: () -> Unit = {},
+    onNoAdditionalPlaybackBitrate: () -> Unit = {},
+    onInheritProviderHeight: () -> Unit = {},
+    onInheritProviderBitrate: () -> Unit = {},
+    onSetTemporaryPlaybackQuality: () -> Unit = {},
+    onClearTemporaryPlaybackQuality: () -> Unit = {},
 ) {
     if (trackType == null) return
 
@@ -273,13 +318,15 @@ fun PlayerTrackSelectionDialog(
         TrackType.VIDEO -> videoTracks
         TrackType.TEXT -> subtitleTracks
     }
+    var videoSelectionRejected by remember(trackType) { mutableStateOf(false) }
     val title = when (trackType) {
         TrackType.AUDIO -> stringResource(R.string.player_track_audio)
         TrackType.VIDEO -> stringResource(R.string.player_video_quality)
         TrackType.TEXT -> stringResource(R.string.player_track_subs)
     }
 
-    LaunchedEffect(trackType, tracks.firstOrNull()?.id) {
+    LaunchedEffect(trackType, tracks.firstOrNull()?.id, isCastConnected) {
+        if (trackType == TrackType.VIDEO && isCastConnected) return@LaunchedEffect
         firstItemFocusRequester.requestFocusSafely(
             tag = "PlayerTrackSelectionDialog",
             target = "First track option"
@@ -323,6 +370,14 @@ fun PlayerTrackSelectionDialog(
                     color = Color.White,
                     modifier = Modifier.padding(bottom = 16.dp)
                 )
+                if (videoSelectionRejected) {
+                    Text(
+                        text = stringResource(R.string.player_video_quality_selection_blocked),
+                        color = ErrorColor,
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+                }
 
                 LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     if (trackType == TrackType.TEXT) {
@@ -339,24 +394,44 @@ fun PlayerTrackSelectionDialog(
                         }
                     }
 
-                    items(tracks, key = { it.id }) { track ->
-                        TrackSelectionItem(
-                            name = track.name,
-                            isSelected = track.isSelected && !(trackType == TrackType.TEXT && liveTranslationActive),
-                            onClick = {
-                                when (trackType) {
-                                    TrackType.AUDIO -> onSelectAudio(track.id)
-                                    TrackType.VIDEO -> onSelectVideo(track.id)
-                                    TrackType.TEXT -> onSelectSubtitle(track.id)
+                    if (trackType == TrackType.VIDEO && isCastConnected) {
+                        item {
+                            Text(
+                                text = stringResource(R.string.player_diagnostics_quality_cast_unavailable),
+                                color = Color.White.copy(alpha = 0.8f),
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                        }
+                    } else {
+                        items(tracks, key = { it.id }) { track ->
+                            TrackSelectionItem(
+                                name = if (track.id == PLAYER_TRACK_AUTO_ID) {
+                                    stringResource(R.string.player_quality_mode_auto)
+                                } else track.name,
+                                isSelected = track.isSelected && !(trackType == TrackType.TEXT && liveTranslationActive),
+                                onClick = {
+                                    val selected = when (trackType) {
+                                        TrackType.AUDIO -> { onSelectAudio(track.id); true }
+                                        TrackType.VIDEO -> onTrySelectVideo?.invoke(track.id) ?: run {
+                                            onSelectVideo(track.id)
+                                            true
+                                        }
+                                        TrackType.TEXT -> { onSelectSubtitle(track.id); true }
+                                    }
+                                    if (selected) {
+                                        videoSelectionRejected = false
+                                        onDismiss()
+                                    } else {
+                                        videoSelectionRejected = trackType == TrackType.VIDEO
+                                    }
+                                },
+                                modifier = if (trackType != TrackType.TEXT && track == tracks.firstOrNull()) {
+                                    Modifier.focusRequester(firstItemFocusRequester)
+                                } else {
+                                    Modifier
                                 }
-                                onDismiss()
-                            },
-                            modifier = if (trackType != TrackType.TEXT && track == tracks.firstOrNull()) {
-                                Modifier.focusRequester(firstItemFocusRequester)
-                            } else {
-                                Modifier
-                            }
-                        )
+                            )
+                        }
                     }
 
                     if (trackType == TrackType.TEXT && liveTranslationAvailable) {
@@ -366,6 +441,270 @@ fun PlayerTrackSelectionDialog(
                                 isSelected = liveTranslationActive,
                                 onClick = {
                                     onSelectLiveTranslation()
+                                    onDismiss()
+                                }
+                            )
+                        }
+                    }
+
+                    if (trackType == TrackType.TEXT) {
+                        item {
+                            TrackSelectionItem(
+                                name = stringResource(R.string.player_subtitle_delay_action, subtitleOffsetMs),
+                                isSelected = false,
+                                onClick = onOpenSubtitleOffset
+                            )
+                        }
+                        item {
+                            TrackSelectionItem(
+                                name = stringResource(R.string.player_subtitle_load_from_device),
+                                isSelected = false,
+                                onClick = onLoadLocalSubtitle
+                            )
+                        }
+                    }
+
+                    if (trackType == TrackType.TEXT && onlineSubtitleSearchAvailable) {
+                        item {
+                            TrackSelectionItem(
+                                name = stringResource(R.string.player_search_online_subtitles),
+                                isSelected = false,
+                                onClick = onSearchOnlineSubtitles
+                            )
+                        }
+                    }
+
+                    if (trackType == TrackType.TEXT && stremioSubtitlePicker.enabled) {
+                        item {
+                            Text(
+                                text = stringResource(R.string.player_stremio_subtitles_heading),
+                                style = MaterialTheme.typography.titleSmall,
+                                color = Color.White,
+                                modifier = Modifier.padding(top = 12.dp, bottom = 4.dp)
+                            )
+                        }
+                        if (stremioSubtitlePicker.loading) {
+                            item {
+                                Text(
+                                    text = stringResource(R.string.player_stremio_subtitles_loading),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = Color.White.copy(alpha = 0.72f),
+                                    modifier = Modifier.padding(vertical = 8.dp)
+                                )
+                            }
+                        }
+                        if (stremioSubtitlePicker.failed) {
+                            item {
+                                TrackSelectionItem(
+                                    name = stringResource(R.string.player_stremio_subtitles_retry),
+                                    isSelected = false,
+                                    onClick = onRetryStremioSubtitles
+                                )
+                            }
+                        }
+                        if (!stremioSubtitlePicker.loading &&
+                            !stremioSubtitlePicker.failed &&
+                            stremioSubtitlePicker.options.isEmpty()
+                        ) {
+                            item {
+                                Text(
+                                    text = stringResource(R.string.player_stremio_subtitles_empty),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = Color.White.copy(alpha = 0.72f),
+                                    modifier = Modifier.padding(vertical = 8.dp)
+                                )
+                            }
+                        }
+                        items(stremioSubtitlePicker.options, key = { it.key }) { option ->
+                            TrackSelectionItem(
+                                name = option.label,
+                                isSelected = false,
+                                onClick = {
+                                    onSelectStremioSubtitle(option)
+                                    onDismiss()
+                                }
+                            )
+                        }
+                    }
+
+                    if (trackType == TrackType.VIDEO && canSavePlaybackQuality) {
+                        item {
+                            TrackSelectionItem(
+                                name = stringResource(R.string.player_quality_save_as_limit),
+                                isSelected = false,
+                                onClick = {
+                                    onSavePlaybackQuality()
+                                    onDismiss()
+                                }
+                            )
+                        }
+                    }
+
+                    if (trackType == TrackType.VIDEO && canSaveProviderPlaybackQuality) {
+                        item {
+                            TrackSelectionItem(
+                                name = stringResource(R.string.player_diagnostics_provider) + ": " +
+                                    stringResource(R.string.player_quality_save_as_limit),
+                                isSelected = false,
+                                onClick = {
+                                    onSaveProviderPlaybackQuality()
+                                    onDismiss()
+                                }
+                            )
+                        }
+                    }
+
+                    if (trackType == TrackType.VIDEO && canSavePlaybackBitrate) {
+                        item {
+                            TrackSelectionItem(
+                                name = stringResource(R.string.player_quality_save_bitrate_as_limit),
+                                isSelected = false,
+                                onClick = {
+                                    onSavePlaybackBitrate()
+                                    onDismiss()
+                                }
+                            )
+                        }
+                    }
+
+                    if (trackType == TrackType.VIDEO && canSaveProviderPlaybackBitrate) {
+                        item {
+                            TrackSelectionItem(
+                                name = stringResource(R.string.player_diagnostics_provider) + ": " +
+                                    stringResource(R.string.player_quality_save_bitrate_as_limit),
+                                isSelected = false,
+                                onClick = {
+                                    onSaveProviderPlaybackBitrate()
+                                    onDismiss()
+                                }
+                            )
+                        }
+                    }
+
+                    if (trackType == TrackType.VIDEO && canEditPlaybackQuality && hasSavedPlaybackHeight) {
+                        item {
+                            TrackSelectionItem(
+                                name = stringResource(R.string.player_quality_inherit_height_limit),
+                                isSelected = false,
+                                onClick = {
+                                    onInheritPlaybackHeight()
+                                    onDismiss()
+                                }
+                            )
+                        }
+                    }
+
+                    if (trackType == TrackType.VIDEO && canEditPlaybackQuality && hasSavedPlaybackBitrate) {
+                        item {
+                            TrackSelectionItem(
+                                name = stringResource(R.string.player_quality_inherit_bitrate_limit),
+                                isSelected = false,
+                                onClick = {
+                                    onInheritPlaybackBitrate()
+                                    onDismiss()
+                                }
+                            )
+                        }
+                    }
+
+                    if (trackType == TrackType.VIDEO && canEditPlaybackQuality) {
+                        item {
+                            TrackSelectionItem(
+                                name = stringResource(R.string.player_quality_no_additional_height_limit),
+                                isSelected = playbackHeightHasNoAdditionalLimit,
+                                onClick = {
+                                    onNoAdditionalPlaybackHeight()
+                                    onDismiss()
+                                }
+                            )
+                        }
+                        item {
+                            TrackSelectionItem(
+                                name = stringResource(R.string.player_quality_no_additional_bitrate_limit),
+                                isSelected = playbackBitrateHasNoAdditionalLimit,
+                                onClick = {
+                                    onNoAdditionalPlaybackBitrate()
+                                    onDismiss()
+                                }
+                            )
+                        }
+                    }
+
+                    if (trackType == TrackType.VIDEO && hasSavedProviderHeight) {
+                        item {
+                            TrackSelectionItem(
+                                name = stringResource(R.string.player_diagnostics_provider) + ": " +
+                                    stringResource(R.string.player_quality_inherit_height_limit),
+                                isSelected = false,
+                                onClick = {
+                                    onInheritProviderHeight()
+                                    onDismiss()
+                                }
+                            )
+                        }
+                    }
+
+                    if (trackType == TrackType.VIDEO && hasSavedProviderBitrate) {
+                        item {
+                            TrackSelectionItem(
+                                name = stringResource(R.string.player_diagnostics_provider) + ": " +
+                                    stringResource(R.string.player_quality_inherit_bitrate_limit),
+                                isSelected = false,
+                                onClick = {
+                                    onInheritProviderBitrate()
+                                    onDismiss()
+                                }
+                            )
+                        }
+                    }
+
+                    if (trackType == TrackType.VIDEO && canSetTemporaryPlaybackQuality) {
+                        item {
+                            TrackSelectionItem(
+                                name = stringResource(R.string.player_quality_use_session_limit),
+                                isSelected = false,
+                                onClick = {
+                                    onSetTemporaryPlaybackQuality()
+                                    onDismiss()
+                                }
+                            )
+                        }
+                    }
+
+                    if (trackType == TrackType.VIDEO && hasSavedPlaybackQuality) {
+                        item {
+                            TrackSelectionItem(
+                                name = stringResource(R.string.player_quality_remove_saved_limit),
+                                isSelected = false,
+                                onClick = {
+                                    onRemovePlaybackQuality()
+                                    onDismiss()
+                                }
+                            )
+                        }
+                    }
+
+                    if (trackType == TrackType.VIDEO && hasSavedProviderPlaybackQuality) {
+                        item {
+                            TrackSelectionItem(
+                                name = stringResource(R.string.player_diagnostics_provider) + ": " +
+                                    stringResource(R.string.player_quality_remove_saved_limit),
+                                isSelected = false,
+                                onClick = {
+                                    onRemoveProviderPlaybackQuality()
+                                    onDismiss()
+                                }
+                            )
+                        }
+                    }
+
+                    if (trackType == TrackType.VIDEO && hasTemporaryPlaybackQuality) {
+                        item {
+                            TrackSelectionItem(
+                                name = stringResource(R.string.player_quality_clear_session_limit),
+                                isSelected = false,
+                                onClick = {
+                                    onClearTemporaryPlaybackQuality()
                                     onDismiss()
                                 }
                             )
@@ -892,6 +1231,104 @@ fun PlayerAudioVideoOffsetDialog(
                                 }
                             )
                         }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun PlayerSubtitleOffsetDialog(
+    visible: Boolean,
+    offsetMs: Int,
+    onDismiss: () -> Unit,
+    onAdjust: (Int) -> Unit,
+    onReset: () -> Unit
+) {
+    if (!visible) return
+
+    val firstItemFocusRequester = remember { FocusRequester() }
+    LaunchedEffect(visible) {
+        firstItemFocusRequester.requestFocusSafely(
+            tag = "PlayerSubtitleOffsetDialog",
+            target = "Earlier subtitle timing option"
+        )
+    }
+
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(usePlatformDefaultWidth = false)
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Black.copy(alpha = 0.8f))
+                .clickable(onClick = onDismiss),
+            contentAlignment = Alignment.Center
+        ) {
+            Column(
+                modifier = Modifier
+                    .widthIn(min = 340.dp, max = 460.dp)
+                    .background(SurfaceElevated, RoundedCornerShape(12.dp))
+                    .padding(24.dp)
+                    .onPreviewKeyEvent { event ->
+                        if (event.nativeKeyEvent.action != KeyEvent.ACTION_DOWN) return@onPreviewKeyEvent false
+                        when (event.nativeKeyEvent.keyCode) {
+                            KeyEvent.KEYCODE_DPAD_UP,
+                            KeyEvent.KEYCODE_DPAD_DOWN,
+                            KeyEvent.KEYCODE_DPAD_LEFT,
+                            KeyEvent.KEYCODE_DPAD_RIGHT,
+                            KeyEvent.KEYCODE_DPAD_CENTER,
+                            KeyEvent.KEYCODE_ENTER,
+                            KeyEvent.KEYCODE_NUMPAD_ENTER,
+                            KeyEvent.KEYCODE_BACK -> false
+                            else -> true
+                        }
+                    }
+            ) {
+                Text(
+                    text = stringResource(R.string.player_subtitle_delay_title),
+                    style = MaterialTheme.typography.titleLarge,
+                    color = Color.White
+                )
+                Text(
+                    text = stringResource(R.string.player_subtitle_delay_hint),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = OnSurfaceDim,
+                    modifier = Modifier.padding(top = 6.dp)
+                )
+                Text(
+                    text = stringResource(R.string.player_subtitle_delay_current, offsetMs),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Primary,
+                    modifier = Modifier.padding(top = 12.dp, bottom = 16.dp)
+                )
+
+                LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    item {
+                        TrackSelectionItem(
+                            name = stringResource(R.string.player_subtitle_delay_earlier, SUBTITLE_OFFSET_STEP_MS),
+                            isSelected = false,
+                            onClick = { onAdjust(-SUBTITLE_OFFSET_STEP_MS) },
+                            enabled = offsetMs > SUBTITLE_OFFSET_MIN_MS,
+                            modifier = Modifier.focusRequester(firstItemFocusRequester)
+                        )
+                    }
+                    item {
+                        TrackSelectionItem(
+                            name = stringResource(R.string.player_subtitle_delay_later, SUBTITLE_OFFSET_STEP_MS),
+                            isSelected = false,
+                            onClick = { onAdjust(SUBTITLE_OFFSET_STEP_MS) },
+                            enabled = offsetMs < SUBTITLE_OFFSET_MAX_MS
+                        )
+                    }
+                    item {
+                        TrackSelectionItem(
+                            name = stringResource(R.string.player_subtitle_delay_reset),
+                            isSelected = offsetMs == 0,
+                            onClick = onReset
+                        )
                     }
                 }
             }

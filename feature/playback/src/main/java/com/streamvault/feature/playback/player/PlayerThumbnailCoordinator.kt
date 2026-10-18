@@ -48,7 +48,11 @@ class PlayerThumbnailCoordinator @Inject constructor(
             Log.d(TAG, "frame-thumbnail backend=none reason=legacy-unsupported")
             return null
         }
-        return legacyProvider.loadFrame(streamUrl, positionMs)
+        return legacyProvider.loadFrame(
+            streamUrl = streamUrl,
+            positionMs = positionMs,
+            requestHeaders = streamInfo.thumbnailRequestHeaders()
+        )
     }
 
     internal fun clearCache() {
@@ -73,6 +77,18 @@ class PlayerThumbnailCoordinator @Inject constructor(
             streamInfo = requestInfo,
             isLive = isLive
         )
+    }
+}
+
+private fun StreamInfo?.thumbnailRequestHeaders(): Map<String, String> {
+    val source = this ?: return emptyMap()
+    val normalizedUserAgent = source.userAgent?.trim().orEmpty()
+    if (normalizedUserAgent.isBlank()) return source.headers
+    return buildMap(source.headers.size + 1) {
+        source.headers.forEach { (name, value) ->
+            if (!name.equals("User-Agent", ignoreCase = true)) put(name, value)
+        }
+        put("User-Agent", normalizedUserAgent)
     }
 }
 

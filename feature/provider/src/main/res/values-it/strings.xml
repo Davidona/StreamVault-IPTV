@@ -85,13 +85,13 @@
     <string name="setup_phone_pairing_receiving">Aggiunta in corso</string>
     <string name="setup_phone_pairing_complete">Aggiunto</string>
     <string name="setup_phone_pairing_error">Errore</string>
-    <string name="setup_xtream_live_sync_mode_label">Xtream Live Sync</string>
+    <string name="setup_xtream_live_sync_mode_label">Sincronizzazione live Xtream</string>
     <string name="setup_xtream_live_sync_mode_helper">Scegli come recuperare i canali Live TV. Auto protegge i dispositivi con risorse limitate e i normali aggiornamenti mantenendo le categorie popolate.</string>
     <string name="setup_xtream_live_sync_mode_auto_title">Auto</string>
     <string name="setup_xtream_live_sync_mode_auto_description">Consigliato. Utilizza la sincronizzazione per categoria sui dispositivi con poca memoria, aggiornamenti in background, aggiornamenti delle categorie nascoste e provider sotto carico.</string>
     <string name="setup_xtream_live_sync_mode_category_title">Categoria per categoria</string>
     <string name="setup_xtream_live_sync_mode_category_description">Recupera sempre la Live TV una categoria alla volta. Più sicuro per provider di grandi dimensioni e dispositivi Android TV con risorse limitate.</string>
-    <string name="setup_xtream_live_sync_mode_stream_all_title">Stream all</string>
+    <string name="setup_xtream_live_sync_mode_stream_all_title">Trasmetti tutto</string>
     <string name="setup_xtream_live_sync_mode_stream_all_description">Prova l\'endpoint Live generale del provider usando il parser in streaming. Passa alla sincronizzazione per categoria in caso di errore o rischio.</string>
     <string name="setup_tab_jellyfin">Jellyfin</string>
     <string name="setup_jellyfin_quick_connect">Quick Connect</string>
@@ -102,4 +102,7 @@
     <string name="setup_password">Password</string>
     <string name="setup_name">Nome</string>
     <string name="setup_name_placeholder">Il mio server Jellyfin</string>
+    <string name="setup_phone_pairing_security_warning">Sicurezza: L’associazione invia le credenziali senza crittografia sulla rete locale. Usa solo una rete Wi-Fi privata e affidabile.</string>
+    <string name="setup_phone_pairing_error_help">Impossibile completare l’associazione. Controlla i dati del provider e riprova. Se la sessione QR è scaduta, avviane una nuova sulla TV.</string>
+    <string name="setup_phone_pairing_mac_label">Indirizzo MAC</string>
 </resources>

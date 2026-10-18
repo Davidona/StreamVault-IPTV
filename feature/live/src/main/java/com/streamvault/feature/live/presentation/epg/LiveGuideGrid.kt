@@ -1,5 +1,7 @@
 package com.streamvault.feature.live.presentation.epg
 
+import com.streamvault.core.ui.layout.isPortraitLayout
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -52,7 +54,8 @@ fun LiveGuideGrid(
     onProgramFocused: (Channel, Program, Boolean) -> Unit,
     onRequestMoreChannels: () -> Unit = {}
 ) {
-    val channelRailWidth = 180.dp
+    val portrait = isPortraitLayout()
+    val channelRailWidth = if (portrait) 112.dp else 180.dp
     val timelineGap = 4.dp
     val rowHeight = when (density) {
         GuideDensity.COMPACT -> 38.dp
@@ -79,9 +82,9 @@ fun LiveGuideGrid(
             .fillMaxSize()
             .padding(horizontal = 12.dp, vertical = 2.dp)
     ) {
-        val timelineViewportWidth = (maxWidth - channelRailWidth - timelineGap).coerceAtLeast(640.dp)
+        val timelineViewportWidth = (maxWidth - channelRailWidth - timelineGap).coerceAtLeast(if (portrait) 1.dp else 640.dp)
         val totalDuration = (guideWindowEnd - guideWindowStart).coerceAtLeast(1L)
-        val visibleDurationMs = 3 * 60 * 60 * 1000L
+        val visibleDurationMs = (if (portrait) 1 else 3) * 60 * 60 * 1000L
         val calculatedTimelineWidth = timelineViewportWidth * (totalDuration.toFloat() / visibleDurationMs.toFloat())
         val totalTimelineWidth = if (calculatedTimelineWidth > timelineViewportWidth) {
             calculatedTimelineWidth

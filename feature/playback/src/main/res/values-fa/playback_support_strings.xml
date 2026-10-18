@@ -1,0 +1,22 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="cast_started" tools:ignore="MissingTranslation">در حال ارسال به دستگاه متصل.</string>
+    <string name="cast_unavailable" tools:ignore="MissingTranslation">Google Cast در این دستگاه در دسترس نیست.</string>
+    <string name="cast_stream_unsupported" tools:ignore="MissingTranslation">این قالب جریان توسط Google Cast پشتیبانی نمی‌شود.</string>
+    <string name="cast_protocol_unsupported" tools:ignore="MissingTranslation">جریان‌های RTSP و RTMP برای ارسال پشتیبانی نمی‌شوند.</string>
+    <string name="cast_drm_unsupported" tools:ignore="MissingTranslation">جریان‌های محافظت‌شده با DRM در این برنامه توسط Google Cast پشتیبانی نمی‌شوند.</string>
+    <string name="cast_item_unavailable" tools:ignore="MissingTranslation">این مورد را نمی‌توان به گیرنده Cast فرستاد.</string>
+    <string name="cast_local_url_unsupported" tools:ignore="MissingTranslation">این جریان از URL محلی یا مخصوص دستگاه استفاده می‌کند که Chromecast نمی‌تواند مستقیماً به آن دسترسی داشته باشد.</string>
+    <string name="cast_headers_unsupported" tools:ignore="MissingTranslation">این جریان به هدرهای HTTP یا کوکی‌هایی نیاز دارد که Chromecast نمی‌تواند مستقیماً از آن‌ها استفاده کند.</string>
+    <string name="cast_user_agent_unsupported" tools:ignore="MissingTranslation">این جریان به User-Agent سفارشی نیاز دارد که Chromecast نمی‌تواند مستقیماً از آن استفاده کند.</string>
+    <string name="cast_proxy_unsupported" tools:ignore="MissingTranslation">این جریان به تنظیمات پروکسی برنامه نیاز دارد، بنابراین Chromecast نمی‌تواند مستقیماً از آن استفاده کند.</string>
+    <string name="cast_invalid_ssl_unsupported" tools:ignore="MissingTranslation">این جریان از مدیریت SSL استفاده می‌کند که Chromecast نمی‌تواند مستقیماً از آن استفاده کند.</string>
+    <string name="cast_session_failed" tools:ignore="MissingTranslation">نشست Cast راه‌اندازی نشد.</string>
+    <string name="cast_load_failed" tools:ignore="MissingTranslation">گیرنده Cast نتوانست این جریان را بارگذاری کند.</string>
+    <string name="cast_receiver_unavailable" tools:ignore="MissingTranslation">گیرنده Cast متصل برای پخش آماده نیست.</string>
+    <string name="cast_selection_cancelled" tools:ignore="MissingTranslation">انتخاب دستگاه Cast لغو شد.</string>
+    <string name="add_group_close_cd">بستن</string>
+    <string name="player_archive_title">آرشیو برنامه‌ها</string>
+    <string name="player_no_archive">هیچ برنامه آرشیوی پیدا نشد</string>
+    <string name="program_date_time_range">%1$s | %2$s – %3$s</string>
+    <string name="player_archive_badge">آرشیو</string>
+</resources>

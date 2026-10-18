@@ -493,6 +493,9 @@ abstract class ChannelDao {
     @Query("SELECT COUNT(*) FROM channels WHERE provider_id = :providerId")
     abstract suspend fun countByProvider(providerId: Long): Int
 
+    @Query("SELECT COUNT(*) FROM channels WHERE provider_id = :providerId AND category_id IN (:categoryIds)")
+    abstract suspend fun countByProviderAndCategories(providerId: Long, categoryIds: List<Long>): Int
+
     @Query("DELETE FROM channels WHERE provider_id = :providerId")
     abstract suspend fun deleteByProvider(providerId: Long)
 
@@ -738,6 +741,27 @@ interface ChannelPreferenceDao {
 }
 
 @Dao
+interface PlaybackQualityPreferenceDao {
+    @Query("SELECT * FROM playback_quality_preferences WHERE provider_id = :providerId AND scope_type = :scopeType AND scope_key = :scopeKey LIMIT 1")
+    fun observe(providerId: Long, scopeType: String, scopeKey: String): Flow<PlaybackQualityPreferenceEntity?>
+
+    @Query("SELECT * FROM playback_quality_preferences ORDER BY provider_id, scope_type, scope_key")
+    suspend fun getAllSync(): List<PlaybackQualityPreferenceEntity>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun upsert(preference: PlaybackQualityPreferenceEntity)
+
+    @Query("DELETE FROM playback_quality_preferences WHERE provider_id = :providerId AND scope_type = :scopeType AND scope_key = :scopeKey")
+    suspend fun delete(providerId: Long, scopeType: String, scopeKey: String)
+
+    @Query("DELETE FROM playback_quality_preferences WHERE provider_id = :providerId")
+    suspend fun deleteByProvider(providerId: Long)
+
+    @Query("DELETE FROM playback_quality_preferences")
+    suspend fun deleteAll()
+}
+
+@Dao
 interface PlaybackCompatibilityDao {
     @Query(
         """
@@ -976,6 +1000,12 @@ interface TmdbIdentityDao {
 @Dao
 @RewriteQueriesToDropUnusedColumns
 interface MovieDao {
+    @Query("SELECT * FROM movies WHERE id IN (:ids) AND provider_id > 0")
+    suspend fun getByIdsSync(ids: List<Long>): List<MovieEntity>
+    @Query("SELECT * FROM movies WHERE tmdb_id IN (:ids) AND provider_id > 0")
+    suspend fun getByTmdbIdsSync(ids: List<Long>): List<MovieEntity>
+    @Query("SELECT * FROM movies WHERE provider_id = :providerId AND tmdb_id IN (:ids)")
+    suspend fun getByProviderTmdbIdsSync(providerId: Long, ids: List<Long>): List<MovieEntity>
     @Query("SELECT * FROM movies WHERE provider_id = :providerId ORDER BY added_at DESC, name ASC, id ASC")
     fun getByProvider(providerId: Long): Flow<List<MovieBrowseEntity>>
 
@@ -1880,6 +1910,12 @@ interface MovieDao {
 @Dao
 @RewriteQueriesToDropUnusedColumns
 interface SeriesDao {
+    @Query("SELECT * FROM series WHERE id IN (:ids) AND provider_id > 0")
+    suspend fun getByIdsSync(ids: List<Long>): List<SeriesEntity>
+    @Query("SELECT * FROM series WHERE tmdb_id IN (:ids) AND provider_id > 0")
+    suspend fun getByTmdbIdsSync(ids: List<Long>): List<SeriesEntity>
+    @Query("SELECT * FROM series WHERE provider_id = :providerId AND tmdb_id IN (:ids)")
+    suspend fun getByProviderTmdbIdsSync(providerId: Long, ids: List<Long>): List<SeriesEntity>
     @Query("SELECT * FROM series WHERE provider_id = :providerId ORDER BY last_modified DESC, name ASC, id ASC")
     fun getByProvider(providerId: Long): Flow<List<SeriesBrowseEntity>>
 
@@ -2877,8 +2913,12 @@ interface EpisodeDao {
     @Query("SELECT * FROM episodes WHERE id = :id")
     suspend fun getById(id: Long): EpisodeEntity?
 
+    /** Episode ids are only unique per series; prefer [getByProviderSeriesAndEpisodeId] when the series is known. */
     @Query("SELECT * FROM episodes WHERE provider_id = :providerId AND episode_id = :episodeId LIMIT 1")
     suspend fun getByProviderAndEpisodeId(providerId: Long, episodeId: Long): EpisodeEntity?
+
+    @Query("SELECT * FROM episodes WHERE provider_id = :providerId AND episode_id = :episodeId")
+    suspend fun getAllByProviderAndEpisodeId(providerId: Long, episodeId: Long): List<EpisodeEntity>
 
     @Query("SELECT * FROM episodes WHERE provider_id = :providerId")
     suspend fun getByProviderSync(providerId: Long): List<EpisodeEntity>
@@ -2901,6 +2941,7 @@ interface EpisodeDao {
            AND playback_history.provider_id = episodes.provider_id
         WHERE episodes.provider_id = :providerId
           AND episodes.series_id = :seriesId
+          AND COALESCE(playback_history.watched_status, 'IN_PROGRESS') = 'IN_PROGRESS'
           AND (
               COALESCE(playback_history.total_duration_ms, episodes.duration_seconds * 1000) <= 0
               OR COALESCE(playback_history.resume_position_ms, episodes.watch_progress) < CAST(
@@ -3025,6 +3066,9 @@ interface CategoryDao {
 
     @Query("SELECT * FROM categories WHERE provider_id = :providerId AND type = :type ORDER BY provider_order ASC, id ASC")
     suspend fun getByProviderAndTypeSync(providerId: Long, type: String): List<CategoryEntity>
+
+    @Query("SELECT * FROM categories WHERE provider_id = :providerId AND type = :type AND category_id = :categoryId LIMIT 1")
+    suspend fun getByProviderTypeAndCategoryId(providerId: Long, type: String, categoryId: Long): CategoryEntity?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(categories: List<CategoryEntity>)
@@ -3524,8 +3568,11 @@ interface VirtualGroupDao {
 @Dao
 @RewriteQueriesToDropUnusedColumns
 interface PlaybackHistoryDao {
-    @Query("SELECT * FROM playback_history ORDER BY last_watched_at DESC LIMIT :limit")
+    @Query("SELECT * FROM playback_history ORDER BY last_watched_at DESC, content_id DESC, content_type DESC, provider_id DESC LIMIT :limit")
     fun getRecentlyWatched(limit: Int = 100): Flow<List<PlaybackHistoryLiteEntity>>
+
+    @Query("SELECT * FROM playback_history ORDER BY last_watched_at DESC, content_id DESC, content_type DESC, provider_id DESC LIMIT :limit OFFSET :offset")
+    fun getRecentlyWatchedPage(limit: Int, offset: Int): Flow<List<PlaybackHistoryLiteEntity>>
 
     @Query("SELECT * FROM playback_history WHERE provider_id = :providerId ORDER BY last_watched_at DESC LIMIT :limit")
     fun getRecentlyWatchedByProvider(providerId: Long, limit: Int = 100): Flow<List<PlaybackHistoryLiteEntity>>

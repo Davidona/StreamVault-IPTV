@@ -1,5 +1,6 @@
 package com.streamvault.app.navigation
 
+import com.streamvault.core.ui.design.BrowseVisualStyle
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -57,20 +58,24 @@ fun AppNavigation(
         LocalAppDestinationItems provides navigationDestinations,
         LocalAppCloseAction provides onCloseApp
     ) {
-        AppNavHost(
-            navController = navController,
-            actions = navigator,
-            catalogDetailActions = navigator,
-            payloads = navigator,
-            playbackPlatformHost = playbackPlatformHost,
-            settingsPlatformHost = settingsPlatformHost,
-            catalogPlatformHost = catalogPlatformHost,
-            navigationDestinations = navigationDestinations,
-            startupReady = state.startupTarget != null,
-            onStartupNavigationRequested = coordinator::requestStartupNavigation,
-            onTopLevelDestinationRequested = coordinator::requestTopLevelNavigation,
-            onCloseApp = onCloseApp
-        )
+        val route = currentBackStackEntry?.destination?.route.orEmpty()
+        BrowseVisualStyle(enabled = !route.startsWith(AppRoutePatterns.SETTINGS) &&
+            !route.startsWith("parental_control_groups") && route != AppRoutePatterns.PLAYER) {
+            AppNavHost(
+                navController = navController,
+                actions = navigator,
+                catalogDetailActions = navigator,
+                payloads = navigator,
+                playbackPlatformHost = playbackPlatformHost,
+                settingsPlatformHost = settingsPlatformHost,
+                catalogPlatformHost = catalogPlatformHost,
+                navigationDestinations = navigationDestinations,
+                startupReady = state.startupTarget != null,
+                onStartupNavigationRequested = coordinator::requestStartupNavigation,
+                onTopLevelDestinationRequested = coordinator::requestTopLevelNavigation,
+                onCloseApp = onCloseApp
+            )
+        }
     }
 }
 

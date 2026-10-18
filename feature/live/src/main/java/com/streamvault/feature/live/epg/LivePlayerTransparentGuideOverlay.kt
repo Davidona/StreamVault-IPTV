@@ -1,5 +1,6 @@
 package com.streamvault.feature.live.epg
 
+import com.streamvault.core.ui.design.BrowseShapes
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -10,7 +11,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -43,8 +43,8 @@ import com.streamvault.feature.live.presentation.epg.LiveGuideGrid
 import com.streamvault.feature.live.presentation.epg.LiveGuideGridLabels
 import com.streamvault.feature.live.presentation.epg.currentLiveGuideNow
 import com.streamvault.feature.live.epg.isGuideCategoryLocked
-import com.streamvault.core.ui.theme.OnSurfaceDim
-import com.streamvault.core.ui.theme.Primary
+import com.streamvault.core.ui.design.browse.OnSurfaceDim
+import com.streamvault.core.ui.design.browse.Primary
 import com.streamvault.domain.model.Category
 import com.streamvault.domain.model.Channel
 import com.streamvault.domain.model.Program
@@ -129,7 +129,7 @@ fun PlayerTransparentGuideOverlay(
                     .align(Alignment.TopStart)
                     .fillMaxWidth()
                     .padding(start = 18.dp, top = 16.dp, end = 18.dp),
-                shape = RoundedCornerShape(18.dp),
+                shape = BrowseShapes.Panel,
                 colors = SurfaceDefaults.colors(
                     containerColor = Color.Black.copy(alpha = 0.32f)
                 )
@@ -199,7 +199,7 @@ fun PlayerTransparentGuideOverlay(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(start = 18.dp, top = 112.dp, end = 18.dp, bottom = 16.dp)
-                    .clip(RoundedCornerShape(24.dp))
+                    .clip(BrowseShapes.Panel)
                     .background(Color.Black.copy(alpha = 0.16f))
             ) {
                 when {

@@ -9,8 +9,12 @@ import androidx.media3.datasource.TransferListener
 import androidx.media3.datasource.okhttp.OkHttpDataSource
 import com.streamvault.domain.model.VodHttpProtocolMode
 import com.streamvault.domain.model.PlaybackTransportPolicy
+import com.streamvault.domain.model.PlaybackContentKind
 import com.streamvault.domain.model.StreamInfo
 import com.streamvault.domain.util.BoundedExpiringCache
+import com.streamvault.domain.util.LivePlaybackByteTap
+import com.streamvault.domain.util.effectiveHttpRequestProperties
+import com.streamvault.domain.util.livePlaybackRequestFingerprint
 import java.net.InetSocketAddress
 import java.net.Proxy
 import java.net.URI
@@ -18,9 +22,8 @@ import java.util.concurrent.TimeUnit
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.Protocol
-
-internal fun shouldUsePlatformHttpDataSource(resolvedStreamType: ResolvedStreamType): Boolean =
-    false
+import okhttp3.Authenticator
+import okhttp3.CookieJar
 
 @UnstableApi
 class PlayerDataSourceFactoryProvider(
@@ -28,8 +31,7 @@ class PlayerDataSourceFactoryProvider(
     private val baseClient: OkHttpClient,
     /** Receives byte counts for foreground (non-preload) playback; used for measured bitrate stats. */
     private val transferListener: TransferListener? = null,
-    /** Receives the same foreground transfers for Media3's adaptive bandwidth estimate. */
-    private val additionalTransferListener: TransferListener? = null
+    private val livePlaybackByteTap: LivePlaybackByteTap? = null
 ) {
     private companion object {
         private const val TAG = "PlayerDataSource"
@@ -79,9 +81,58 @@ class PlayerDataSourceFactoryProvider(
             proxyHost = streamInfo.proxyHost.trim(),
             proxyPort = streamInfo.proxyPort
         )
-        val client = clientsByKey.getOrPut(clientKey) {
+        val client = if (streamInfo.requestHeadersOrigin != null) {
+            // Stremio URLs may contain credentials; keep their playback client out of shared logging,
+            // cookie, authenticator, cache, and client-cache state.
+            buildClient(streamInfo, profile, forceHttp1, port, headers)
+        } else {
+            clientsByKey.getOrPut(clientKey) {
+                buildClient(streamInfo, profile, forceHttp1, port, emptyMap())
+            }
+        }
+        val upstreamFactory = OkHttpDataSource.Factory(client).apply {
+            if (headers.isNotEmpty() && streamInfo.requestHeadersOrigin == null) {
+                setDefaultRequestProperties(headers)
+            }
+        }
+        val defaultFactory = DefaultDataSource.Factory(context, upstreamFactory)
+        if (!preload) {
+            transferListener?.let(defaultFactory::setTransferListener)
+        }
+        val factory = if (shouldWrapDataSourceReadStats(resolvedStreamType)) {
+            PlayerDataSourceReadStatsFactory(
+                upstream = defaultFactory,
+                resolvedStreamType = resolvedStreamType,
+                initialTargetUrl = streamInfo.url,
+                livePlaybackByteTap = livePlaybackByteTap.takeIf {
+                    !preload && resolvedStreamType in setOf(
+                        ResolvedStreamType.MPEG_TS_LIVE,
+                        ResolvedStreamType.HLS
+                    )
+                },
+                livePlaybackIdentity = streamInfo.livePlaybackIdentity.takeIf {
+                    streamInfo.playbackContentKind == PlaybackContentKind.LIVE
+                },
+                livePlaybackRequestFingerprint = livePlaybackRequestFingerprint(streamInfo.url, headers),
+                sensitiveTargetOrigin = streamInfo.requestHeadersOrigin
+            )
+        } else {
+            defaultFactory
+        }
+        return profile to factory
+    }
+
+    private fun buildClient(
+        streamInfo: StreamInfo,
+        profile: PlayerTimeoutProfile,
+        forceHttp1: Boolean,
+        port: Int,
+        originScopedHeaders: Map<String, String>
+    ): OkHttpClient {
+            val isStremioMediaRequest = streamInfo.requestHeadersOrigin != null
             val transportPolicy = streamInfo.playbackTransportPolicy
             val builder = when {
+                isStremioMediaRequest -> baseClient.newBuilder()
                 transportPolicy != null ->
                     baseClient.newBuilder()
                         .applyPlaybackTransportPolicy(transportPolicy)
@@ -89,8 +140,16 @@ class PlayerDataSourceFactoryProvider(
                     baseClient.newBuilder().applyUnsafeTlsBypass()
                 else -> baseClient.newBuilder()
             }
-            builder
-                .addInterceptor(StalkerPlaybackRequestLoggingInterceptor)
+            val stremioMediaOrigin = streamInfo.requestHeadersOrigin
+            if (stremioMediaOrigin != null) {
+                builder.applyStremioMediaRequestPolicy(
+                    origin = stremioMediaOrigin,
+                    headers = originScopedHeaders
+                )
+            } else {
+                builder.addInterceptor(StalkerPlaybackRequestLoggingInterceptor)
+            }
+            return builder
                 .connectTimeout(profile.connectTimeoutMs, TimeUnit.MILLISECONDS)
                 .readTimeout(profile.readTimeoutMs, TimeUnit.MILLISECONDS)
                 .writeTimeout(profile.writeTimeoutMs, TimeUnit.MILLISECONDS)
@@ -100,38 +159,16 @@ class PlayerDataSourceFactoryProvider(
                     if (forceHttp1) {
                         protocols(listOf(Protocol.HTTP_1_1))
                     }
-                    streamInfo.httpProxy()?.let { proxy(it) }
+                    if (!isStremioMediaRequest) {
+                        streamInfo.httpProxy()?.let { proxy(it) }
+                    }
                 }
                 .build()
-        }
-        if (forceHttp1) {
-            Log.i(TAG, "data-source streamType=$resolvedStreamType timeout=$profile httpProtocol=HTTP_1_1")
-        }
-        val upstreamFactory = OkHttpDataSource.Factory(client).apply {
-            if (headers.isNotEmpty()) {
-                setDefaultRequestProperties(headers)
+            .also {
+                if (forceHttp1) {
+                    Log.i(TAG, "data-source timeout=$profile httpProtocol=HTTP_1_1")
+                }
             }
-        }
-        val defaultFactory = DefaultDataSource.Factory(context, upstreamFactory)
-        if (!preload) {
-            playbackTransferListener()?.let(defaultFactory::setTransferListener)
-        }
-        val factory = if (shouldWrapDataSourceReadStats(resolvedStreamType)) {
-            PlayerDataSourceReadStatsFactory(
-                upstream = defaultFactory,
-                resolvedStreamType = resolvedStreamType,
-                initialTargetUrl = streamInfo.url
-            )
-        } else {
-            defaultFactory
-        }
-        return profile to factory
-    }
-
-    private fun playbackTransferListener(): TransferListener? = when {
-        transferListener == null -> additionalTransferListener
-        additionalTransferListener == null -> transferListener
-        else -> CompositeTransferListener(transferListener, additionalTransferListener)
     }
 
     internal fun clientCacheSizeForTests(): Int = clientsByKey.size()
@@ -141,6 +178,7 @@ class PlayerDataSourceFactoryProvider(
         headers: Map<String, String>,
         preload: Boolean
     ) {
+        if (streamInfo.requestHeadersOrigin != null) return
         val hasStalkerHeaders = headers.containsKey("X-User-Agent") ||
             headers.containsKey("Authorization") ||
             headers["Cookie"]?.contains("mac=", ignoreCase = true) == true
@@ -174,60 +212,54 @@ class PlayerDataSourceFactoryProvider(
     }
 }
 
-private class CompositeTransferListener(
-    private vararg val listeners: TransferListener
-) : TransferListener {
-    override fun onTransferInitializing(
-        source: DataSource,
-        dataSpec: androidx.media3.datasource.DataSpec,
-        isNetwork: Boolean
-    ) {
-        listeners.forEach { it.onTransferInitializing(source, dataSpec, isNetwork) }
+internal fun OkHttpClient.Builder.applyStremioMediaRequestPolicy(
+    origin: String,
+    headers: Map<String, String>
+): OkHttpClient.Builder {
+    interceptors().clear()
+    networkInterceptors().clear()
+    cookieJar(CookieJar.NO_COOKIES)
+        .authenticator(Authenticator.NONE)
+        .proxyAuthenticator(Authenticator.NONE)
+        .cache(null)
+        .followRedirects(true)
+        .followSslRedirects(true)
+    if (headers.isNotEmpty()) {
+        addNetworkInterceptor(OriginScopedPlaybackHeadersInterceptor(origin, headers))
     }
+    return this
+}
 
-    override fun onTransferStart(
-        source: DataSource,
-        dataSpec: androidx.media3.datasource.DataSpec,
-        isNetwork: Boolean
-    ) {
-        listeners.forEach { it.onTransferStart(source, dataSpec, isNetwork) }
+internal class OriginScopedPlaybackHeadersInterceptor(
+    private val origin: String,
+    private val headers: Map<String, String>
+) : Interceptor {
+    override fun intercept(chain: Interceptor.Chain): okhttp3.Response {
+        return chain.proceed(originScopedPlaybackRequest(chain.request(), origin, headers))
     }
+}
 
-    override fun onBytesTransferred(
-        source: DataSource,
-        dataSpec: androidx.media3.datasource.DataSpec,
-        isNetwork: Boolean,
-        bytesTransferred: Int
-    ) {
-        listeners.forEach { it.onBytesTransferred(source, dataSpec, isNetwork, bytesTransferred) }
+internal fun originScopedPlaybackRequest(
+    request: okhttp3.Request,
+    origin: String,
+    headers: Map<String, String>
+): okhttp3.Request = request.newBuilder().apply {
+    // Remove these names on redirects too: OkHttp may carry a prior exchange's request forward.
+    headers.keys.forEach { removeHeader(it) }
+    if (playbackRequestOrigin(request.url) == origin) {
+        headers.forEach { (name, value) -> header(name, value) }
     }
+}.build()
 
-    override fun onTransferEnd(
-        source: DataSource,
-        dataSpec: androidx.media3.datasource.DataSpec,
-        isNetwork: Boolean
-    ) {
-        listeners.forEach { it.onTransferEnd(source, dataSpec, isNetwork) }
-    }
+internal fun playbackRequestOrigin(url: okhttp3.HttpUrl): String {
+    val host = url.host.let { if (it.contains(':')) "[$it]" else it }
+    return "${url.scheme}://$host:${url.port}"
 }
 
 internal fun effectivePlaybackRequestProperties(
     headers: Map<String, String>,
     userAgent: String?
-): Map<String, String> {
-    val normalizedUserAgent = userAgent?.trim().orEmpty()
-    if (normalizedUserAgent.isBlank()) {
-        return headers
-    }
-    return buildMap(headers.size + 1) {
-        headers.forEach { (name, value) ->
-            if (!name.equals("User-Agent", ignoreCase = true)) {
-                put(name, value)
-            }
-        }
-        put("User-Agent", normalizedUserAgent)
-    }
-}
+): Map<String, String> = effectiveHttpRequestProperties(headers, userAgent)
 
 private object StalkerPlaybackRequestLoggingInterceptor : Interceptor {
     private const val TAG = "PlayerDataSource"

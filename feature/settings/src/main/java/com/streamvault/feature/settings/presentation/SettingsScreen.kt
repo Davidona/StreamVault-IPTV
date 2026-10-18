@@ -59,6 +59,7 @@ public fun SettingsScreen(
     onEditProvider: (Provider) -> Unit = {},
     onNavigateToParentalControl: (Long) -> Unit = {},
     initialBackupImportUri: String? = null,
+    openOpenSubtitlesSignIn: Boolean = false,
     onCloseApp: () -> Unit = {},
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
@@ -88,19 +89,35 @@ public fun SettingsScreen(
         context = context,
         officialBuildStatus = platformHost.officialBuildStatus()
     )
-    val dialogState = rememberSettingsScreenDialogState()
+    val initialCategory = if (openOpenSubtitlesSignIn) {
+        SettingsCategory.PLAYBACK.legacyId
+    } else {
+        SettingsCategory.SOURCES.legacyId
+    }
+    val dialogState = rememberSettingsScreenDialogState(initialCategory)
     val providerState = rememberSettingsProviderSectionState(dialogState)
-    var compactPane by rememberSaveable { mutableStateOf(SettingsCompactPane.CATEGORIES) }
+    var compactPane by rememberSaveable {
+        mutableStateOf(
+            if (openOpenSubtitlesSignIn) SettingsCompactPane.CONTENT else SettingsCompactPane.CATEGORIES
+        )
+    }
     var searchVisible by rememberSaveable { mutableStateOf(false) }
     var settingsSearchQuery by rememberSaveable { mutableStateOf("") }
     var searchRequestId by rememberSaveable { mutableLongStateOf(0L) }
     var categorySelectionId by rememberSaveable { mutableLongStateOf(0L) }
     var currentSettingsPage by remember { mutableStateOf<SettingsPage?>(null) }
+    var openOpenSubtitlesSignInPending by rememberSaveable {
+        mutableStateOf(openOpenSubtitlesSignIn)
+    }
     var searchOriginCategoryId by rememberSaveable { mutableIntStateOf(SettingsCategory.SOURCES.legacyId) }
     var searchOriginPageName by rememberSaveable { mutableStateOf<String?>(null) }
     var searchOriginCompactPane by rememberSaveable { mutableStateOf(SettingsCompactPane.CATEGORIES) }
-    var restoredPage by remember { mutableStateOf<SettingsPage?>(null) }
-    var restorePageRequestId by rememberSaveable { mutableLongStateOf(0L) }
+    var restoredPage by remember {
+        mutableStateOf(if (openOpenSubtitlesSignIn) SettingsPage.SUBTITLES else null)
+    }
+    var restorePageRequestId by rememberSaveable {
+        mutableLongStateOf(if (openOpenSubtitlesSignIn) 1L else 0L)
+    }
     var requestedDestination by remember { mutableStateOf<SettingsSearchTarget?>(null) }
     var searchReturnResultId by rememberSaveable { mutableStateOf<String?>(null) }
     val searchResultsListState = rememberLazyListState()
@@ -109,6 +126,12 @@ public fun SettingsScreen(
     val searchButtonModifier = Modifier
         .focusRequester(settingsSearchFocusRequester)
         .onGloballyPositioned { searchButtonPlaced = true }
+
+    LaunchedEffect(openOpenSubtitlesSignIn, currentSettingsPage) {
+        if (openOpenSubtitlesSignIn && currentSettingsPage == SettingsPage.SUBTITLES) {
+            openOpenSubtitlesSignInPending = false
+        }
+    }
 
     fun openSettingsSearch() {
         searchOriginCategoryId = dialogState.selectedCategory
@@ -151,6 +174,11 @@ public fun SettingsScreen(
             viewModel.exportConfig(
                 uriString = it.toString(),
                 onSuccess = { platformHost.backupFiles.rememberManagedExport(it) },
+                onFinished = { success ->
+                    if (!success) {
+                        DocumentFile.fromSingleUri(context, it)?.delete()
+                    }
+                },
             )
         }
     }
@@ -207,6 +235,9 @@ public fun SettingsScreen(
         viewModel.exportConfig(
             uriString = newFile.uri.toString(),
             onSuccess = { platformHost.backupFiles.rememberManagedExport(newFile.uri) },
+            onFinished = { success ->
+                if (!success) newFile.delete()
+            },
         )
     }
 
@@ -253,11 +284,17 @@ public fun SettingsScreen(
             return
         }
         val uri = platformHost.backupFiles.providerUri(file)
-        viewModel.exportConfig(uri.toString()) {
-            if (platformHost.shareBackup(uri) is Result.Error) {
-                viewModel.showUserMessage(shareFailedMessage)
-            }
-        }
+        viewModel.exportConfig(
+            uriString = uri.toString(),
+            onFinished = { exported ->
+                if (!exported) {
+                    file.delete()
+                } else if (platformHost.shareBackup(uri) is Result.Error) {
+                    file.delete()
+                    viewModel.showUserMessage(shareFailedMessage)
+                }
+            },
+        )
     }
 
     fun exportBackupWithoutPicker() {
@@ -283,6 +320,7 @@ public fun SettingsScreen(
     val usbStorageDir: File? = remember(platformHost) { platformHost.removableBackupDirectory() }
 
     var showLocalBackupManager by remember { mutableStateOf(false) }
+    var showRecordingSmbStorageDialog by rememberSaveable { mutableStateOf(false) }
     var managedLocalBackups by remember { mutableStateOf<List<SettingsBackupFileCandidate>>(emptyList()) }
 
     fun refreshManagedLocalBackups() {
@@ -318,7 +356,21 @@ public fun SettingsScreen(
             viewModel.showUserMessage(usbBackupFailedMessage)
             return
         }
-        viewModel.exportConfig(Uri.fromFile(file).toString())
+        val candidate = SettingsBackupFileCandidate(
+            displayName = file.name,
+            uri = Uri.fromFile(file),
+            lastModifiedMs = file.lastModified(),
+            sizeBytes = file.length(),
+        )
+        viewModel.exportConfig(
+            uriString = candidate.uri.toString(),
+            onFinished = { success ->
+                if (!success) {
+                    platformHost.backupFiles.delete(candidate)
+                }
+                refreshManagedLocalBackups()
+            }
+        )
     }
 
     fun restoreBackupFromUsb() {
@@ -414,7 +466,12 @@ public fun SettingsScreen(
         }
     }
 
-    Box(modifier = Modifier.fillMaxSize().background(com.streamvault.core.ui.design.AppColors.Canvas)) {
+    SettingsScreenFrame(
+        currentRoute = currentRoute,
+        destinations = navigationDestinations,
+        onNavigate = onNavigate,
+        modifier = Modifier.fillMaxSize().background(com.streamvault.core.ui.design.AppColors.Canvas)
+    ) {
         if (searchVisible) {
             SettingsSearchSurface(
                 query = settingsSearchQuery,
@@ -439,6 +496,7 @@ public fun SettingsScreen(
                         add("sources.combined.delete")
                     }
                     if (uiState.providers.isEmpty()) {
+                        add("sources.automatic_sync")
                         add("sources.active_provider")
                         add("sources.edit")
                         add("sources.sync")
@@ -523,6 +581,7 @@ public fun SettingsScreen(
                     context = context,
                     appVersionLabel = "${platformHost.buildInfo.versionName} (${platformHost.buildInfo.versionCode})",
                     onCloseApp = onCloseApp,
+                    openOpenSubtitlesSignIn = openOpenSubtitlesSignInPending,
                     screenLabels = screenLabels,
                     dialogState = dialogState,
                     providerState = providerState,
@@ -538,6 +597,7 @@ public fun SettingsScreen(
                             )
                         }
                     },
+                    onConfigureSmbRecordingStorage = { showRecordingSmbStorageDialog = true },
                     onUseUsbRecordingStorage = usbStorageDir?.let { dir ->
                         { viewModel.useUsbRecordingStorage(File(dir, "recordings").absolutePath) }
                     },
@@ -653,6 +713,14 @@ public fun SettingsScreen(
         },
         modifier = Modifier
     )
+
+    if (showRecordingSmbStorageDialog) {
+        RecordingSmbStorageDialog(
+            storageState = uiState.recordingStorageState,
+            viewModel = viewModel,
+            onDismiss = { showRecordingSmbStorageDialog = false }
+        )
+    }
 
     if (pendingImportCandidates.isNotEmpty()) {
         BackupSelectionDialog(

@@ -1,5 +1,7 @@
 package com.streamvault.feature.live.home
 
+import com.streamvault.core.ui.design.browsePrimaryButtonColors
+import com.streamvault.core.ui.design.BrowseShapes
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -55,14 +57,14 @@ import com.streamvault.feature.live.presentation.components.LiveFocusedMarqueeTe
 import com.streamvault.player.ui.PlayerRenderView
 import com.streamvault.core.ui.interaction.TvButton
 import com.streamvault.core.ui.interaction.TvClickableSurface
-import com.streamvault.core.ui.theme.FocusBorder
-import com.streamvault.core.ui.theme.OnBackground
-import com.streamvault.core.ui.theme.OnSurface
-import com.streamvault.core.ui.theme.OnSurfaceDim
-import com.streamvault.core.ui.theme.Primary
-import com.streamvault.core.ui.theme.PrimaryLight
-import com.streamvault.core.ui.theme.SurfaceElevated
-import com.streamvault.core.ui.theme.SurfaceHighlight
+import com.streamvault.core.ui.design.browse.FocusBorder
+import com.streamvault.core.ui.design.browse.OnBackground
+import com.streamvault.core.ui.design.browse.OnSurface
+import com.streamvault.core.ui.design.browse.OnSurfaceDim
+import com.streamvault.core.ui.design.browse.Primary
+import com.streamvault.core.ui.design.browse.PrimaryLight
+import com.streamvault.core.ui.design.browse.SurfaceElevated
+import com.streamvault.core.ui.design.browse.SurfaceHighlight
 import com.streamvault.feature.live.presentation.time.LocalLiveTimeFormat
 import com.streamvault.feature.live.presentation.time.createLiveTimeFormat
 import com.streamvault.domain.model.Category
@@ -85,7 +87,7 @@ fun CompactSplitLauncherButton(
         modifier = modifier
             .widthIn(min = 112.dp)
             .height(34.dp),
-        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(999.dp)),
+        shape = ClickableSurfaceDefaults.shape(BrowseShapes.Control),
         colors = ClickableSurfaceDefaults.colors(
             containerColor = Primary.copy(alpha = 0.18f),
             focusedContainerColor = Primary.copy(alpha = 0.3f),
@@ -133,8 +135,9 @@ fun LivePreviewPane(
 
     Surface(
         modifier = modifier,
-        shape = RoundedCornerShape(18.dp),
-        colors = SurfaceDefaults.colors(containerColor = SurfaceElevated.copy(alpha = 0.72f))
+        shape = BrowseShapes.Panel,
+        colors = SurfaceDefaults.colors(containerColor = SurfaceElevated),
+        border = Border(BorderStroke(1.dp, com.streamvault.core.ui.design.BrowseColors.Outline), shape = BrowseShapes.Panel)
     ) {
         Column(
             modifier = Modifier
@@ -152,7 +155,7 @@ fun LivePreviewPane(
                 modifier = Modifier
                     .fillMaxWidth()
                     .aspectRatio(16f / 9f)
-                    .background(Color.Black, RoundedCornerShape(16.dp)),
+                    .background(Color.Black, BrowseShapes.Control),
                 contentAlignment = Alignment.Center
             ) {
                 if (playerEngine != null && errorMessage == null) {
@@ -171,13 +174,13 @@ fun LivePreviewPane(
                         Text(
                             text = stringResource(R.string.live_preview_placeholder_title),
                             style = MaterialTheme.typography.titleSmall,
-                            color = OnBackground,
+                            color = Color.White,
                             textAlign = TextAlign.Center
                         )
                         Text(
                             text = errorMessage ?: stringResource(R.string.live_preview_placeholder_subtitle),
                             style = MaterialTheme.typography.bodySmall,
-                            color = OnSurfaceDim,
+                            color = Color.White.copy(alpha = 0.7f),
                             textAlign = TextAlign.Center
                         )
                     }
@@ -186,7 +189,7 @@ fun LivePreviewPane(
                 if (isLoading && channel != null) {
                     Row(
                         modifier = Modifier
-                            .background(Color.Black.copy(alpha = 0.62f), RoundedCornerShape(12.dp))
+                            .background(Color.Black.copy(alpha = 0.62f), BrowseShapes.Artwork)
                             .padding(horizontal = 14.dp, vertical = 10.dp),
                         horizontalArrangement = Arrangement.spacedBy(10.dp),
                         verticalAlignment = Alignment.CenterVertically
@@ -431,10 +434,7 @@ fun ReorderSidePanel(
             ) {
                 TvButton(
                     onClick = onSave,
-                    colors = ButtonDefaults.colors(
-                        containerColor = Primary,
-                        contentColor = Color.White
-                    ),
+                    colors = browsePrimaryButtonColors(),
                     modifier = Modifier.weight(1f)
                 ) { Text(stringResource(R.string.action_save), maxLines = 1) }
 

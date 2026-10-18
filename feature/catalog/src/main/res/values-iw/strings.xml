@@ -32,11 +32,11 @@
   <string name="badge_series">סדרה</string>
   <string name="card_live_badge">בשידור חי</string>
   <string name="card_locked_channel">ערוץ נעול</string>
-  <string name="cast_button_label" translatable="false">Cast</string>
-  <string name="cast_item_unavailable" translatable="false">This item cannot be sent to a Cast receiver.</string>
-  <string name="cast_launching" translatable="false">Casting...</string>
-  <string name="cast_started" translatable="false">Casting to the connected device.</string>
-  <string name="cast_unavailable" translatable="false">Google Cast is unavailable on this device.</string>
+  <string name="cast_button_label">העברה</string>
+  <string name="cast_item_unavailable">לא ניתן לשלוח פריט זה למקלט Cast.</string>
+  <string name="cast_launching">מעביר...</string>
+  <string name="cast_started">מעביר למכשיר המחובר.</string>
+  <string name="cast_unavailable">Google Cast אינו זמין במכשיר זה.</string>
   <string name="category_options_cancel">בטל</string>
   <string name="category_options_clear_recent">נקה את כל האחרונים</string>
   <string name="category_options_delete">מחק קבוצה</string>
@@ -49,22 +49,22 @@
   <string name="category_options_set_default">הגדר כקבוצת ברירת מחדל</string>
   <string name="category_options_unlock">בטל את נעילת הקבוצה</string>
   <string name="category_options_unpin">בטל הצמדה של קטגוריה</string>
-  <string name="category_pin" translatable="false">Pin</string>
+  <string name="category_pin">הצמד</string>
   <string name="category_see_all">ראה הכל</string>
-  <string name="category_unpin" translatable="false">Unpin</string>
-  <string name="channel_action_hide">Hide this channel</string>
+  <string name="category_unpin">בטל הצמדה</string>
+  <string name="channel_action_hide">הסתר ערוץ זה</string>
   <string name="channel_options_remove_from_recent">הסר מהאחרונים</string>
   <string name="continue_watching_season_episode">עונה %1$d פרק %2$d</string>
   <string name="continue_watching_title">המשך לצפות</string>
   <string name="dashboard_channels_format">%1$d ערוצים</string>
   <string name="dashboard_continue_watching">המשך לצפות</string>
-  <string name="dashboard_continue_watching_movies">Continue Watching Movies</string>
-  <string name="dashboard_continue_watching_series">Continue Watching Series</string>
+  <string name="dashboard_continue_watching_movies">המשך לצפייה בסרטים</string>
+  <string name="dashboard_continue_watching_series">המשך לצפייה בסדרות</string>
   <string name="dashboard_empty_body">הוסף תחילה רשימת השמעה או מקור Xtream. ברגע שספק פעיל, Home יציג ערוצים מועדפים, ימשיך לצפות ושורות ספרייה חדשות.</string>
   <string name="dashboard_empty_title">הגדר ספק לביטול נעילת מסך הבית</string>
   <string name="dashboard_favorite_channels">ערוצים אהובים</string>
-  <string name="dashboard_favorite_movies">Favorite Movies</string>
-  <string name="dashboard_favorite_series">Favorite Series</string>
+  <string name="dashboard_favorite_movies">סרטים מועדפים</string>
+  <string name="dashboard_favorite_series">סדרות מועדפות</string>
   <string name="dashboard_fresh_movie_pick">בחירת סרט טרי</string>
   <string name="dashboard_jump_back_live">קפוץ חזרה לטלוויזיה בשידור חי</string>
   <string name="dashboard_library_ready">ספריית ה-IPTV שלך מוכנה</string>
@@ -87,7 +87,7 @@
   <string name="dashboard_recent_channels">ערוצים אחרונים</string>
   <string name="dashboard_recent_movies">סרטים שנוספו לאחרונה</string>
   <string name="dashboard_recent_series">סדרה שעודכנה לאחרונה</string>
-  <string name="dashboard_recommended_movies">Recommended Movies</string>
+  <string name="dashboard_recommended_movies">סרטים מומלצים</string>
   <string name="dashboard_resume_episode">המשך פרק</string>
   <string name="dashboard_resume_episode_format">קורות חיים S%1$d E%2$d</string>
   <string name="dashboard_resume_live">קורות חיים</string>
@@ -104,10 +104,10 @@
   <string name="dashboard_stat_series">%1$d סדרה</string>
   <string name="dashboard_subtitle">%1$s פעיל. קפוץ חזרה לשידור חי, התעדכן בהתקדמות או עיין בתוספות טריות.</string>
   <string name="dashboard_title">הספרייה שלך, מוכנה</string>
-  <string name="dashboard_top_rated_movies">Top Rated Movies</string>
-  <string name="dashboard_update_allow_installs" translatable="false">Allow Installs</string>
+  <string name="dashboard_top_rated_movies">סרטים מדורגים מובילים</string>
+  <string name="dashboard_update_allow_installs">אפשר התקנות</string>
   <string name="dashboard_update_available">גרסה חדשה יותר של האפליקציה נשמרה במטמון ומוכנה לבדיקה בהגדרות.</string>
-  <string name="dashboard_update_install_permission_required" translatable="false">The update is downloaded. Allow installs from StreamVault, then retry installation.</string>
+  <string name="dashboard_update_install_permission_required">העדכון הורד. אפשר התקנות מ-StreamVault, ואז נסה להתקין שוב.</string>
   <string name="dashboard_update_install_ready">העדכון האחרון כבר הורד. פתח את ההגדרות כדי להתקין אותו.</string>
   <string name="dashboard_update_open_installer">התקן מההגדרות</string>
   <string name="dashboard_update_open_settings">פתח עדכונים</string>
@@ -117,10 +117,10 @@
   <string name="dashboard_warning_review">פתח את פרטי הספק</string>
   <string name="dashboard_warning_title">ספק זקוק לתשומת לב</string>
   <string name="dashboard_watch_live">צפו בשידור חי</string>
-  <string name="download_button_label">Download</string>
-  <string name="download_error_no_url">Could not resolve stream URL for download</string>
-  <string name="download_failed">Download failed: %1$s</string>
-  <string name="download_started">Download started</string>
+  <string name="download_button_label">הורדה</string>
+  <string name="download_error_no_url">לא ניתן לפענח כתובת זרם להורדה</string>
+  <string name="download_failed">ההורדה נכשלה: %1$s</string>
+  <string name="download_started">ההורדה החלה</string>
   <string name="favorites_add">הוסף למועדפים</string>
   <string name="favorites_all_favorites">כל המועדפים</string>
   <string name="favorites_cancel">גב: בטל</string>
@@ -197,10 +197,10 @@
   <string name="library_saved_manage_hint">החזק קבוצה שמורה לאפשרויות</string>
   <string name="library_saved_primary_hint">חזור לספרייה המלאה</string>
   <string name="library_sort_title">מיין תוצאות</string>
-  <string name="m3u_move_back_to_live" translatable="false">Move back to Live TV</string>
-  <string name="m3u_move_to_movies" translatable="false">Move to Movies</string>
-  <string name="m3u_move_to_series" translatable="false">Move to Series</string>
-  <string name="m3u_organize_items" translatable="false">Organize M3U Items</string>
+  <string name="m3u_move_back_to_live">העבר חזרה ל-Live TV</string>
+  <string name="m3u_move_to_movies">העבר לסרטים</string>
+  <string name="m3u_move_to_series">העבר לסדרות</string>
+  <string name="m3u_organize_items">ארגן פריטי M3U</string>
   <string name="movie_detail_back">חזרה לספרייה</string>
   <string name="movie_detail_cast">שחקנים:</string>
   <string name="movie_detail_director">בימוי:</string>
@@ -212,7 +212,7 @@
   <string name="movie_detail_resume_from">המשך מ-%1$s</string>
   <string name="movie_detail_trailer">טריילר</string>
   <string name="movie_detail_unknown">לא ידוע</string>
-  <string name="movie_detail_versions">Versions</string>
+  <string name="movie_detail_versions">גרסאות</string>
   <string name="movie_loading_details">טוען פרטים...</string>
   <string name="movie_not_found">הסרט לא נמצא</string>
   <string name="movie_plot_fallback">אין תקציר זמין</string>
@@ -232,7 +232,7 @@
   <string name="nav_movies">סרטים</string>
   <string name="nav_series">סדרה</string>
   <string name="nav_settings">הגדרות</string>
-  <string name="nav_vod" translatable="false">VOD</string>
+  <string name="nav_vod">VOD</string>
   <string name="pin_dialog_cancel">בטל</string>
   <string name="pin_dialog_title">הזן PIN</string>
   <string name="player_resume">קורות חיים</string>
@@ -273,11 +273,11 @@
   <string name="search_actions_remove_favorite">הסר מהמועדפים</string>
   <string name="search_actions_unlock">בטל נעילת בקרת הורים</string>
   <string name="search_all">הכל</string>
-  <string name="search_build_complete_index" translatable="false">Build complete search index once</string>
-  <string name="search_catalog_complete" translatable="false">Complete catalog index</string>
-  <string name="search_catalog_downloaded_only" translatable="false">Downloaded items only. Build the complete search index to search the full portal catalog.</string>
-  <string name="search_catalog_indexing" translatable="false">The complete search index is being built. Results are still partial.</string>
-  <string name="search_catalog_truncated" translatable="false">The portal catalog was truncated. Results may be incomplete.</string>
+  <string name="search_build_complete_index">בנה אינדקס חיפוש מלא פעם אחת</string>
+  <string name="search_catalog_complete">אינדקס קטלוג מלא</string>
+  <string name="search_catalog_downloaded_only">פריטים שהורדו בלבד. בנה את אינדקס החיפוש המלא כדי לחפש בכל קטלוג הפורטל.</string>
+  <string name="search_catalog_indexing">אינדקס החיפוש המלא נבנה. התוצאות עדיין חלקיות.</string>
+  <string name="search_catalog_truncated">קטלוג הפורטל נחתך. ייתכן שהתוצאות אינן מלאות.</string>
   <string name="search_clear_history">ברור</string>
   <string name="search_command_subtitle">התחל עם כותרת, מילת מפתח, שם ערוץ או סדרה. התוצאות נשארות מקובצות לניווט מרחוק מהיר.</string>
   <string name="search_error_subtitle">חלק מהתוצאות לא ניתן לטעון. נסה שוב.</string>
@@ -304,7 +304,7 @@
   <string name="series_detail_back">חזרה לספרייה</string>
   <string name="series_detail_play_episode">נגן · עונה %1$d פרק %2$d</string>
   <string name="series_detail_resume">המשך · עונה %1$d פרק %2$d · %3$s</string>
-  <string name="series_detail_versions">Versions</string>
+  <string name="series_detail_versions">גרסאות</string>
   <string name="series_episodes">פרקים (%1$d)</string>
   <string name="series_incorrect_pin">PIN שגוי</string>
   <string name="series_library_lens_subtitle">הצג סדרות מועדפות על פני השטח, מתקדמות, מדורגים מובילים ורעננים בכל הספרייה.</string>
@@ -328,10 +328,10 @@
   <string name="settings_status_partial">חלקי</string>
   <string name="settings_status_unknown">לא ידוע</string>
   <string name="settings_update_install_started">פותח את מתקין החבילה.</string>
-  <string name="stream_url_clip_label">Stream URL</string>
-  <string name="stream_url_copied">Stream URL copied</string>
-  <string name="stream_url_copy">Copy URL</string>
-  <string name="stream_url_copy_failed">Could not resolve stream URL</string>
+  <string name="stream_url_clip_label">כתובת זרם</string>
+  <string name="stream_url_copied">כתובת הזרם הועתקה</string>
+  <string name="stream_url_copy">העתק כתובת</string>
+  <string name="stream_url_copy_failed">לא ניתן לפענח כתובת זרם</string>
   <string name="vod_category_picker_empty">לא נמצאו קטגוריות תואמות.</string>
   <string name="vod_category_picker_search_placeholder">חפש קטגוריות...</string>
   <string name="vod_category_picker_subtitle">חפש לפי שם קטגוריה ולאחר מכן פתח את המדף התואם.</string>
@@ -349,6 +349,20 @@
   <string name="vod_rating_tmdb">TMDb</string>
   <string name="vod_sync_needed_subtitle">רענן ספק זה כדי לייבא סרטים וסדרות לספרייה.</string>
   <string name="vod_sync_needed_title">נדרש סנכרון</string>
-  <string name="vod_unavailable_subtitle" translatable="false">This provider exposes separate Movies and Series catalogs.</string>
-  <string name="vod_unavailable_title" translatable="false">VOD is unavailable</string>
+  <string name="vod_unavailable_subtitle">ספק זה חושף קטלוגים נפרדים של סרטים וסדרות.</string>
+  <string name="vod_unavailable_title">VOD אינו זמין</string>
+
+<string name="trakt_watchlist_add">הוספה לרשימת הצפייה של Trakt</string>
+<string name="trakt_watchlist_connect">יש להתחבר ל‑Trakt דרך ההגדרות</string>
+<string name="trakt_watchlist_failed">לא ניתן לעדכן את רשימת Trakt. נסו שוב.</string>
+<string name="trakt_watchlist_load">טעינת רשימת הצפייה של Trakt</string>
+<string name="trakt_watchlist_remove">הסרה מרשימת הצפייה של Trakt</string>
+<string name="dashboard_trakt_watchlist_movies">סרטים ברשימת המעקב שלך Trakt</string>
+<string name="dashboard_trakt_watchlist_series">תוכניות טלוויזיה ברשימת המעקב שלך Trakt</string>
+<string name="trakt_rating_action">דרגו ב‑Trakt</string>
+<string name="trakt_rating_dialog_message">בחרו דירוג בין 1 ל‑10.</string>
+<string name="trakt_rating_current">הדירוג שלך ב‑Trakt: %1$d/10</string>
+<string name="trakt_rating_saved">הדירוג נשמר ב‑Trakt.</string>
+<string name="trakt_rating_failed">לא ניתן לשמור את הדירוג ב‑Trakt.</string>
+<string name="trakt_favorite_sync_failed">StreamVault שמר את השינוי, אך לא הצליח לעדכן את המועדפים ב‑Trakt. נסו שוב.</string>
 </resources>

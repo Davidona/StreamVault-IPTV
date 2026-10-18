@@ -32,11 +32,11 @@
   <string name="badge_series">SÉRIE</string>
   <string name="card_live_badge">ŽIVĚ</string>
   <string name="card_locked_channel">Uzamčený kanál</string>
-  <string name="cast_button_label" translatable="false">Cast</string>
-  <string name="cast_item_unavailable" translatable="false">This item cannot be sent to a Cast receiver.</string>
-  <string name="cast_launching" translatable="false">Casting...</string>
-  <string name="cast_started" translatable="false">Casting to the connected device.</string>
-  <string name="cast_unavailable" translatable="false">Google Cast is unavailable on this device.</string>
+  <string name="cast_button_label">Vysílat</string>
+  <string name="cast_item_unavailable">Tuto položku nelze odeslat do přijímače Cast.</string>
+  <string name="cast_launching">Vysílání...</string>
+  <string name="cast_started">Vysílání do připojeného zařízení.</string>
+  <string name="cast_unavailable">Google Cast není na tomto zařízení k dispozici.</string>
   <string name="category_options_cancel">Zrušit</string>
   <string name="category_options_clear_recent">Vymazat vše nedávné</string>
   <string name="category_options_delete">Smazat skupinu</string>
@@ -49,22 +49,22 @@
   <string name="category_options_set_default">Nastavit jako výchozí skupinu</string>
   <string name="category_options_unlock">Odemknout skupinu</string>
   <string name="category_options_unpin">Odepnout kategorii</string>
-  <string name="category_pin" translatable="false">Pin</string>
+  <string name="category_pin">Připnout</string>
   <string name="category_see_all">Zobrazit vše →</string>
-  <string name="category_unpin" translatable="false">Unpin</string>
-  <string name="channel_action_hide">Hide this channel</string>
+  <string name="category_unpin">Odepnout</string>
+  <string name="channel_action_hide">Skrýt tento kanál</string>
   <string name="channel_options_remove_from_recent">Odebrat z nedávných</string>
   <string name="continue_watching_season_episode">S%1$d E%2$d</string>
   <string name="continue_watching_title">Pokračovat ve sledování</string>
   <string name="dashboard_channels_format">%1$d kanálů</string>
   <string name="dashboard_continue_watching">Pokračovat ve sledování</string>
-  <string name="dashboard_continue_watching_movies">Continue Watching Movies</string>
-  <string name="dashboard_continue_watching_series">Continue Watching Series</string>
+  <string name="dashboard_continue_watching_movies">Pokračovat ve sledování filmů</string>
+  <string name="dashboard_continue_watching_series">Pokračovat ve sledování seriálů</string>
   <string name="dashboard_empty_body">Nejprve přidejte playlist nebo zdroj Xtream. Jakmile bude poskytovatel aktivní, Domů zobrazí oblíbené kanály, pokračování ve sledování a nové řádky knihovny.</string>
   <string name="dashboard_empty_title">Nastavte poskytovatele pro odemknutí domovské obrazovky</string>
   <string name="dashboard_favorite_channels">Oblíbené kanály</string>
-  <string name="dashboard_favorite_movies">Favorite Movies</string>
-  <string name="dashboard_favorite_series">Favorite Series</string>
+  <string name="dashboard_favorite_movies">Oblíbené filmy</string>
+  <string name="dashboard_favorite_series">Oblíbené seriály</string>
   <string name="dashboard_fresh_movie_pick">Nový filmový tip</string>
   <string name="dashboard_jump_back_live">Vraťte se zpět do živého vysílání</string>
   <string name="dashboard_library_ready">Vaše knihovna IPTV je připravena</string>
@@ -87,7 +87,7 @@
   <string name="dashboard_recent_channels">Nejnovější kanály</string>
   <string name="dashboard_recent_movies">Nedávno přidané filmy</string>
   <string name="dashboard_recent_series">Nedávno aktualizovaná řada</string>
-  <string name="dashboard_recommended_movies">Recommended Movies</string>
+  <string name="dashboard_recommended_movies">Doporučené filmy</string>
   <string name="dashboard_resume_episode">Obnovit epizodu</string>
   <string name="dashboard_resume_episode_format">Pokračovat S%1$d E%2$d</string>
   <string name="dashboard_resume_live">Pokračovat</string>
@@ -104,10 +104,10 @@
   <string name="dashboard_stat_series">série %1$d</string>
   <string name="dashboard_subtitle">%1$s je aktivní. Vraťte se zpět do živého vysílání, pokračujte tam, kde jste skončili, nebo procházejte nové položky.</string>
   <string name="dashboard_title">Vaše knihovna, připravena</string>
-  <string name="dashboard_top_rated_movies">Top Rated Movies</string>
-  <string name="dashboard_update_allow_installs" translatable="false">Allow Installs</string>
+  <string name="dashboard_top_rated_movies">Nejlépe hodnocené filmy</string>
+  <string name="dashboard_update_allow_installs">Povolit instalace</string>
   <string name="dashboard_update_available">Novější verze aplikace je uložená v mezipaměti a připravená ke kontrole v Nastavení.</string>
-  <string name="dashboard_update_install_permission_required" translatable="false">The update is downloaded. Allow installs from StreamVault, then retry installation.</string>
+  <string name="dashboard_update_install_permission_required">Aktualizace je stažena. Povolte instalace z aplikace StreamVault a zkuste instalaci znovu.</string>
   <string name="dashboard_update_install_ready">Nejnovější aktualizace už byla stažena. Otevřete Nastavení a nainstalujte ji.</string>
   <string name="dashboard_update_open_installer">Nainstalovat z Nastavení</string>
   <string name="dashboard_update_open_settings">Otevřít aktualizace</string>
@@ -117,10 +117,10 @@
   <string name="dashboard_warning_review">Otevřete Podrobnosti poskytovatele</string>
   <string name="dashboard_warning_title">Poskytovatel vyžaduje pozornost</string>
   <string name="dashboard_watch_live">Sledovat živě</string>
-  <string name="download_button_label">Download</string>
-  <string name="download_error_no_url">Could not resolve stream URL for download</string>
-  <string name="download_failed">Download failed: %1$s</string>
-  <string name="download_started">Download started</string>
+  <string name="download_button_label">Stáhnout</string>
+  <string name="download_error_no_url">Nepodařilo se zjistit URL streamu pro stažení</string>
+  <string name="download_failed">Stahování se nezdařilo: %1$s</string>
+  <string name="download_started">Stahování zahájeno</string>
   <string name="favorites_add">Přidat do oblíbených</string>
   <string name="favorites_all_favorites">Všechny oblíbené</string>
   <string name="favorites_cancel">Zpět: zrušit</string>
@@ -197,10 +197,10 @@
   <string name="library_saved_manage_hint">Podržte uloženou skupinu pro možnosti</string>
   <string name="library_saved_primary_hint">Návrat do úplné knihovny</string>
   <string name="library_sort_title">Seřadit výsledky</string>
-  <string name="m3u_move_back_to_live" translatable="false">Move back to Live TV</string>
-  <string name="m3u_move_to_movies" translatable="false">Move to Movies</string>
-  <string name="m3u_move_to_series" translatable="false">Move to Series</string>
-  <string name="m3u_organize_items" translatable="false">Organize M3U Items</string>
+  <string name="m3u_move_back_to_live">Přesunout zpět do živé TV</string>
+  <string name="m3u_move_to_movies">Přesunout do filmů</string>
+  <string name="m3u_move_to_series">Přesunout do seriálů</string>
+  <string name="m3u_organize_items">Uspořádat položky M3U</string>
   <string name="movie_detail_back">Zpět do knihovny</string>
   <string name="movie_detail_cast">Obsazení:</string>
   <string name="movie_detail_director">Režie:</string>
@@ -212,7 +212,7 @@
   <string name="movie_detail_resume_from">Pokračovat od %1$s</string>
   <string name="movie_detail_trailer">Trailer</string>
   <string name="movie_detail_unknown">Neznámé</string>
-  <string name="movie_detail_versions">Versions</string>
+  <string name="movie_detail_versions">Verze</string>
   <string name="movie_loading_details">Načítání podrobností...</string>
   <string name="movie_not_found">Film nenalezen</string>
   <string name="movie_plot_fallback">Děj není k dispozici</string>
@@ -232,7 +232,7 @@
   <string name="nav_movies">Filmy</string>
   <string name="nav_series">série</string>
   <string name="nav_settings">Nastavení</string>
-  <string name="nav_vod" translatable="false">VOD</string>
+  <string name="nav_vod">VOD</string>
   <string name="pin_dialog_cancel">Zrušit</string>
   <string name="pin_dialog_title">Zadejte PIN</string>
   <string name="player_resume">Pokračovat</string>
@@ -273,11 +273,11 @@
   <string name="search_actions_remove_favorite">Odebrat z oblíbených</string>
   <string name="search_actions_unlock">Odemknout rodičovskou kontrolu</string>
   <string name="search_all">všechny</string>
-  <string name="search_build_complete_index" translatable="false">Build complete search index once</string>
-  <string name="search_catalog_complete" translatable="false">Complete catalog index</string>
-  <string name="search_catalog_downloaded_only" translatable="false">Downloaded items only. Build the complete search index to search the full portal catalog.</string>
-  <string name="search_catalog_indexing" translatable="false">The complete search index is being built. Results are still partial.</string>
-  <string name="search_catalog_truncated" translatable="false">The portal catalog was truncated. Results may be incomplete.</string>
+  <string name="search_build_complete_index">Vytvořit úplný index vyhledávání jednou</string>
+  <string name="search_catalog_complete">Úplný index katalogu</string>
+  <string name="search_catalog_downloaded_only">Pouze stažené položky. Vytvořte úplný index vyhledávání pro prohledání celého katalogu portálu.</string>
+  <string name="search_catalog_indexing">Úplný index vyhledávání se právě vytváří. Výsledky jsou zatím částečné.</string>
+  <string name="search_catalog_truncated">Katalog portálu byl zkrácen. Výsledky mohou být neúplné.</string>
   <string name="search_clear_history">Vymazat</string>
   <string name="search_command_subtitle">Začněte názvem, klíčovým slovem, názvem kanálu nebo seriálem. Výsledky zůstávají seskupené pro rychlou navigaci ovladačem.</string>
   <string name="search_error_subtitle">Některé výsledky se nepodařilo načíst. Zkuste to znovu.</string>
@@ -304,7 +304,7 @@
   <string name="series_detail_back">Zpět do knihovny</string>
   <string name="series_detail_play_episode">Přehrát · Série %1$d Ep %2$d</string>
   <string name="series_detail_resume">Pokračovat · Série %1$d Ep %2$d · %3$s</string>
-  <string name="series_detail_versions">Versions</string>
+  <string name="series_detail_versions">Verze</string>
   <string name="series_episodes">Epizody (%1$d)</string>
   <string name="series_incorrect_pin">Nesprávný PIN</string>
   <string name="series_library_lens_subtitle">Zobrazte oblíbené, rozkoukané, nejlépe hodnocené a nové seriály v celé knihovně.</string>
@@ -328,10 +328,10 @@
   <string name="settings_status_partial">Částečně</string>
   <string name="settings_status_unknown">Neznámé</string>
   <string name="settings_update_install_started">Otevírá se instalační program balíčku.</string>
-  <string name="stream_url_clip_label">Stream URL</string>
-  <string name="stream_url_copied">Stream URL copied</string>
-  <string name="stream_url_copy">Copy URL</string>
-  <string name="stream_url_copy_failed">Could not resolve stream URL</string>
+  <string name="stream_url_clip_label">URL streamu</string>
+  <string name="stream_url_copied">URL streamu zkopírována</string>
+  <string name="stream_url_copy">Kopírovat URL</string>
+  <string name="stream_url_copy_failed">Nepodařilo se zjistit URL streamu</string>
   <string name="vod_category_picker_empty">Nebyly nalezeny žádné odpovídající kategorie.</string>
   <string name="vod_category_picker_search_placeholder">Hledat kategorie…</string>
   <string name="vod_category_picker_subtitle">Vyhledejte podle názvu kategorie a pak otevřete odpovídající polici.</string>
@@ -349,6 +349,20 @@
   <string name="vod_rating_tmdb">TMDb</string>
   <string name="vod_sync_needed_subtitle">Obnovte tohoto poskytovatele pro import filmů a seriálů do knihovny.</string>
   <string name="vod_sync_needed_title">Synchronizace potřebná</string>
-  <string name="vod_unavailable_subtitle" translatable="false">This provider exposes separate Movies and Series catalogs.</string>
-  <string name="vod_unavailable_title" translatable="false">VOD is unavailable</string>
+  <string name="vod_unavailable_subtitle">Tento poskytovatel nabízí samostatné katalogy filmů a seriálů.</string>
+  <string name="vod_unavailable_title">VOD není k dispozici</string>
+
+<string name="trakt_watchlist_add">Přidat do seznamu ke zhlédnutí Trakt</string>
+<string name="trakt_watchlist_connect">Připojte Trakt v Nastavení</string>
+<string name="trakt_watchlist_failed">Seznam ke zhlédnutí Trakt se nepodařilo aktualizovat. Zkuste to znovu.</string>
+<string name="trakt_watchlist_load">Načíst seznam ke zhlédnutí Trakt</string>
+<string name="trakt_watchlist_remove">Odebrat ze seznamu ke zhlédnutí Trakt</string>
+<string name="dashboard_trakt_watchlist_movies">Filmy ve vašem seznamu sledovaných Trakt</string>
+<string name="dashboard_trakt_watchlist_series">Televizní pořady ve vašem seznamu sledovaných Trakt</string>
+<string name="trakt_rating_action">Ohodnotit na Traktu</string>
+<string name="trakt_rating_dialog_message">Vyberte hodnocení od 1 do 10.</string>
+<string name="trakt_rating_current">Vaše hodnocení na Traktu: %1$d/10</string>
+<string name="trakt_rating_saved">Hodnocení bylo uloženo do Traktu.</string>
+<string name="trakt_rating_failed">Hodnocení se nepodařilo uložit do Traktu.</string>
+<string name="trakt_favorite_sync_failed">StreamVault změnu uložil, ale nepodařilo se aktualizovat Oblíbené na Traktu. Zkuste to znovu.</string>
 </resources>

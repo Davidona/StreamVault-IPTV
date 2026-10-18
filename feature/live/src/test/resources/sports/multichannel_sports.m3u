@@ -1,0 +1,5 @@
+#EXTM3U
+#EXTINF:-1 tvg-id="event-main" group-title="Sports",Sports Event Main
+https://example.test/main.m3u8
+#EXTINF:-1 tvg-id="event-alt" group-title="Sports",Sports Event Alt
+https://example.test/alternate.m3u8

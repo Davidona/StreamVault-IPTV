@@ -1,5 +1,6 @@
 package com.streamvault.feature.provider.setup
 
+import com.streamvault.core.ui.design.BrowseShapes
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
@@ -11,7 +12,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.TextButton
@@ -31,7 +31,7 @@ import com.streamvault.feature.provider.R
 import com.streamvault.core.ui.components.dialogs.PremiumDialog
 import com.streamvault.core.ui.progress.extractProgressFraction
 import com.streamvault.core.ui.components.shell.StatusPill
-import com.streamvault.core.ui.theme.*
+import com.streamvault.core.ui.design.browse.*
 
 @Composable
 fun SyncProgressDialog(
@@ -60,7 +60,7 @@ fun SyncProgressDialog(
                         Box(
                             modifier = Modifier
                                 .size(200.dp)
-                                .background(Color.White, RoundedCornerShape(12.dp))
+                                .background(Color.White, BrowseShapes.Artwork)
                                 .padding(8.dp),
                             contentAlignment = Alignment.Center
                         ) {

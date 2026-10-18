@@ -1,0 +1,22 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="cast_started" tools:ignore="MissingTranslation">Se transmite către dispozitivul conectat.</string>
+    <string name="cast_unavailable" tools:ignore="MissingTranslation">Google Cast nu este disponibil pe acest dispozitiv.</string>
+    <string name="cast_stream_unsupported" tools:ignore="MissingTranslation">Acest format de flux nu este acceptat de Google Cast.</string>
+    <string name="cast_protocol_unsupported" tools:ignore="MissingTranslation">Fluxurile RTSP și RTMP nu sunt acceptate pentru transmitere.</string>
+    <string name="cast_drm_unsupported" tools:ignore="MissingTranslation">Fluxurile protejate prin DRM nu sunt acceptate de Google Cast în această aplicație.</string>
+    <string name="cast_item_unavailable" tools:ignore="MissingTranslation">Acest element nu poate fi trimis către un receptor Cast.</string>
+    <string name="cast_local_url_unsupported" tools:ignore="MissingTranslation">Acest flux folosește un URL local sau exclusiv de dispozitiv, pe care Chromecast nu îl poate accesa direct.</string>
+    <string name="cast_headers_unsupported" tools:ignore="MissingTranslation">Acest flux necesită anteturi HTTP sau cookie-uri pe care Chromecast nu le poate folosi direct.</string>
+    <string name="cast_user_agent_unsupported" tools:ignore="MissingTranslation">Acest flux necesită un User-Agent personalizat pe care Chromecast nu îl poate folosi direct.</string>
+    <string name="cast_proxy_unsupported" tools:ignore="MissingTranslation">Acest flux necesită setările de proxy ale aplicației, așa că Chromecast nu îl poate folosi direct.</string>
+    <string name="cast_invalid_ssl_unsupported" tools:ignore="MissingTranslation">Acest flux folosește o gestionare SSL pe care Chromecast nu o poate folosi direct.</string>
+    <string name="cast_session_failed" tools:ignore="MissingTranslation">Sesiunea Cast nu a putut fi pornită.</string>
+    <string name="cast_load_failed" tools:ignore="MissingTranslation">Receptorul Cast nu a putut încărca acest flux.</string>
+    <string name="cast_receiver_unavailable" tools:ignore="MissingTranslation">Receptorul Cast conectat nu este pregătit pentru redare.</string>
+    <string name="cast_selection_cancelled" tools:ignore="MissingTranslation">Selectarea dispozitivului Cast a fost anulată.</string>
+    <string name="add_group_close_cd">Închide</string>
+    <string name="player_archive_title">Arhiva de programe</string>
+    <string name="player_no_archive">Nu s-au găsit programe arhivate</string>
+    <string name="program_date_time_range">%1$s | %2$s – %3$s</string>
+    <string name="player_archive_badge">Arhiva</string>
+</resources>

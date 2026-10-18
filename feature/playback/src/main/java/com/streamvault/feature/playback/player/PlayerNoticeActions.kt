@@ -98,6 +98,11 @@ fun PlayerViewModel.restartCurrentProgram() {
 }
 
 fun PlayerViewModel.retryStream(streamUrl: String, epgChannelId: String?) {
+    if (currentContentType == ContentType.SERIES_EPISODE &&
+        episodeSourceState.source(episodeSourceState.token) != null && streamUrl == currentStreamUrl) {
+        retryPhysicalEpisode()
+        return
+    }
     if (isCatchUpPlayback.value) {
         val requestVersion = beginPlaybackSession()
         playbackSessionScope(requestVersion)?.launch {

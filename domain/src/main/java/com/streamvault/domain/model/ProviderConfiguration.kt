@@ -20,7 +20,8 @@ data class XtreamConfig(
     val channelLogoSourcePolicy: ChannelLogoSourcePolicy = ChannelLogoSourcePolicy.SUPPLIER_PREFERRED,
     val fastSyncEnabled: Boolean = true,
     val liveSyncMode: ProviderXtreamLiveSyncMode = ProviderXtreamLiveSyncMode.AUTO,
-    override val schemaVersion: Int = CURRENT_SCHEMA_VERSION
+    override val schemaVersion: Int = CURRENT_SCHEMA_VERSION,
+    val preferredLiveStreamFormat: LiveStreamFormatMode? = null
 ) : ProviderConfiguration {
     override val type: ProviderType = ProviderType.XTREAM_CODES
 

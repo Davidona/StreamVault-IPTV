@@ -357,11 +357,12 @@ class M3uClassificationRepositoryImpl @Inject constructor(
         localSeriesId: Long,
         assignment: M3uSeriesAssignment
     ): Long {
+        // A stream is a single episode: reuse its row even if it was classified into another series.
         val existing = episodeDao.getByProviderSeriesAndEpisodeId(
             channel.providerId,
             localSeriesId,
             channel.streamId
-        )
+        ) ?: episodeDao.getByProviderAndEpisodeId(channel.providerId, channel.streamId)
         return episodeDao.insert(
             EpisodeEntity(
                 id = existing?.id ?: 0L,

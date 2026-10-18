@@ -16,10 +16,12 @@ import com.streamvault.data.remote.stalker.StalkerSeriesDetailDialect
 import com.streamvault.data.remote.stalker.StalkerUrlFactory
 import com.streamvault.data.remote.stalker.StalkerVodPlaybackDialect
 import com.streamvault.data.remote.xtream.XtreamStreamUrlResolver
+import com.streamvault.data.security.CredentialDecryptionException
 import com.streamvault.data.sync.ContentCachePolicy
 import com.streamvault.data.sync.CatalogHydrationCommands
 import com.streamvault.data.util.SeriesPresentationSettings
 import com.streamvault.data.util.buildPresentedSeries
+import com.streamvault.data.util.seriesLogicalGroupId
 import com.streamvault.domain.model.*
 import com.streamvault.domain.model.LegacyProvider as Provider
 import com.streamvault.domain.model.Result.Success
@@ -155,6 +157,18 @@ class SeriesRepositoryImpl @Inject constructor(
                 buildPresentedSeries(list, settings)
             }.flowOn(Dispatchers.Default)
 
+    override suspend fun getSeriesByTmdbIds(providerId: Long, tmdbIds: List<Long>): List<Series> {
+        val ids = tmdbIds.asSequence().filter { it > 0L }.distinct().toList()
+        if (ids.isEmpty()) return emptyList()
+        val hideProtected = preferencesRepository.parentalControlLevel.first() >= 3
+        val rows = ids.chunked(400).flatMap { seriesDao.getByProviderTmdbIdsSync(providerId, it) }
+            .asSequence()
+            .filterNot { hideProtected && it.isUserProtected }
+            .map { it.toDomain() }
+            .toList()
+        return buildPresentedSeries(rows, seriesPresentationSettingsFlow.first())
+    }
+
     override fun getSeriesByCategory(providerId: Long, categoryId: Long): Flow<List<Series>> =
         flow {
             ensureXtreamCategoryLoaded(providerId, categoryId)
@@ -234,10 +248,14 @@ class SeriesRepositoryImpl @Inject constructor(
                 val provider = loadCompatibilityProvider(providerId)
                 val previewCategories = if (provider?.type == ProviderType.STALKER_PORTAL) {
                     val stalkerProvider = createStalkerProvider(providerId)
-                    val nonWildcard = filteredCategories.filterNot { category ->
-                        stalkerProvider.isWildcardCategory(ContentType.SERIES, category.categoryId)
+                    if (stalkerProvider == null) {
+                        filteredCategories
+                    } else {
+                        val nonWildcard = filteredCategories.filterNot { category ->
+                            stalkerProvider.isWildcardCategory(ContentType.SERIES, category.categoryId)
+                        }
+                        if (nonWildcard.isNotEmpty()) nonWildcard else filteredCategories
                     }
-                    if (nonWildcard.isNotEmpty()) nonWildcard else filteredCategories
                 } else {
                     filteredCategories
                 }
@@ -425,7 +443,11 @@ class SeriesRepositoryImpl @Inject constructor(
             mode == VodCategoryLoadMode.PAGED
         ) {
             repositoryScope.launch {
-                requestCategoryHydration(providerId, categoryId, VodCategoryHydrationRequest.NEXT_PAGE)
+                try {
+                    requestCategoryHydration(providerId, categoryId, VodCategoryHydrationRequest.NEXT_PAGE)
+                } catch (_: CredentialDecryptionException) {
+                    logUnreadableProviderCredentials(providerId)
+                }
             }
         }
         return derivedResult
@@ -463,6 +485,29 @@ class SeriesRepositoryImpl @Inject constructor(
 
     override suspend fun getSeriesById(seriesId: Long): Series? =
         seriesDao.getById(seriesId)?.toDomain()
+
+    override suspend fun getSeriesVariants(seriesId: Long): List<VodSeriesVariant> {
+        val series = getSeriesById(seriesId) ?: return emptyList()
+        if (series.providerId <= 0L) return emptyList()
+        return attachSeriesPresentation(series).variants
+    }
+
+    override suspend fun hasExplicitSeriesVariantSelection(seriesId: Long): Boolean {
+        val series = getSeriesById(seriesId) ?: return true
+        if (series.providerId <= 0L) return true
+        val settings = seriesPresentationSettingsFlow.first()
+        val currentKey = "${series.providerId}|${seriesLogicalGroupId(series)}"
+        if (currentKey in settings.preferredVariants) return true
+        val raw = loadSeriesPresentationCandidates(series).filter { it.providerId == series.providerId }
+        // Membership is derived from existing grouping even if presentation is currently Show All.
+        val members = buildPresentedSeries(raw.map { it.toDomain() }, settings.copy(
+            duplicateHandlingMode = VodDuplicateHandlingMode.GROUPED
+        )).firstOrNull { it.id == series.id || it.variants.any { variant -> variant.rawSeriesId == series.id } }
+        val ids = members?.variants?.map { it.rawSeriesId }.orEmpty().toSet() + series.id
+        return settings.preferredVariants.any { (key, selectedId) ->
+            key.startsWith("${series.providerId}|") && selectedId in ids
+        }
+    }
 
     override suspend fun getEpisodeById(episodeId: Long): Episode? =
         episodeDao.getById(episodeId)?.toDomain()
@@ -735,7 +780,8 @@ class SeriesRepositoryImpl @Inject constructor(
                     proxyPort = resolvedStream.proxyPort,
                     streamType = StreamType.fromContainerExtension(ext),
                     containerExtension = ext,
-                    expirationTime = resolvedStream.expirationTime
+                    expirationTime = resolvedStream.expirationTime,
+                    playbackContentKind = PlaybackContentKind.ON_DEMAND
                 )
             )
         } ?: Result.error("No stream URL available for episode: ${episode.title}")
@@ -1651,6 +1697,8 @@ class SeriesRepositoryImpl @Inject constructor(
                         allowWildcard = allowStalkerWildcard
                     )
                 }
+            } catch (_: CredentialDecryptionException) {
+                logUnreadableProviderCredentials(providerId)
             } finally {
                 backgroundRefreshes.remove(key)
             }
@@ -1690,7 +1738,7 @@ class SeriesRepositoryImpl @Inject constructor(
         xtreamCategoryLoadLocks.withLock(key) {
             val persistedHydration = seriesCategoryHydrationDao.get(providerId, categoryId)
             if (requestedPage != null && (persistedHydration?.lastSuccessfulPage ?: 0) >= requestedPage) return@withLock
-            val stalkerProvider = createStalkerProvider(providerId)
+            val stalkerProvider = createStalkerProvider(providerId) ?: return@withLock
             if (!allowWildcard && stalkerProvider.isWildcardCategory(ContentType.SERIES, categoryId)) return@withLock
             var currentCount = localCount ?: seriesDao.getCountByCategory(providerId, categoryId).first()
             var currentHydration = persistedHydration ?: hydration
@@ -1910,8 +1958,13 @@ class SeriesRepositoryImpl @Inject constructor(
     private fun seriesUpdatedScore(series: Series): Long =
         series.lastModified.takeIf { it > 0L } ?: 0L
 
-    private suspend fun createStalkerProvider(providerId: Long): StalkerProvider {
-        val snapshot = providerCapabilityResolver.snapshot(providerId)
+    private suspend fun createStalkerProvider(providerId: Long): StalkerProvider? {
+        val snapshot = try {
+            providerCapabilityResolver.snapshot(providerId)
+        } catch (_: CredentialDecryptionException) {
+            logUnreadableProviderCredentials(providerId)
+            return null
+        }
             ?: throw IllegalStateException("Provider $providerId has no typed configuration")
         return when (val resolution = typedProviderClientFactory.stalker(snapshot)) {
             is CapabilityResolution.Available -> resolution.capability
@@ -1939,6 +1992,14 @@ class SeriesRepositoryImpl @Inject constructor(
         catalogLayoutDetectionVersion.toString()
     ).joinToString("\u0000").hashCode()
 
-    private suspend fun loadCompatibilityProvider(providerId: Long): Provider? =
+    private suspend fun loadCompatibilityProvider(providerId: Long): Provider? = try {
         providerCapabilityResolver.snapshot(providerId)?.toLegacyProvider()
+    } catch (_: CredentialDecryptionException) {
+        logUnreadableProviderCredentials(providerId)
+        null
+    }
+
+    private fun logUnreadableProviderCredentials(providerId: Long) {
+        Log.w(TAG, "Skipping series provider work because stored credentials are unreadable (providerId=$providerId)")
+    }
 }

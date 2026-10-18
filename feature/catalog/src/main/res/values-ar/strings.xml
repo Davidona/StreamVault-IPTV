@@ -32,11 +32,11 @@
   <string name="badge_series">مسلسل</string>
   <string name="card_live_badge">مباشر</string>
   <string name="card_locked_channel">قناة مقفلة</string>
-  <string name="cast_button_label" translatable="false">Cast</string>
-  <string name="cast_item_unavailable" translatable="false">This item cannot be sent to a Cast receiver.</string>
-  <string name="cast_launching" translatable="false">Casting...</string>
-  <string name="cast_started" translatable="false">Casting to the connected device.</string>
-  <string name="cast_unavailable" translatable="false">Google Cast is unavailable on this device.</string>
+  <string name="cast_button_label">إرسال</string>
+  <string name="cast_item_unavailable">لا يمكن إرسال هذا العنصر إلى مستقبِل Cast.</string>
+  <string name="cast_launching">جارٍ الإرسال...</string>
+  <string name="cast_started">جارٍ الإرسال إلى الجهاز المتصل.</string>
+  <string name="cast_unavailable">Google Cast غير متاح على هذا الجهاز.</string>
   <string name="category_options_cancel">إلغاء</string>
   <string name="category_options_clear_recent">مسح جميع الأخيرة</string>
   <string name="category_options_delete">حذف المجموعة</string>
@@ -49,9 +49,9 @@
   <string name="category_options_set_default">تعيين كمجموعة افتراضية</string>
   <string name="category_options_unlock">إلغاء قفل المجموعة</string>
   <string name="category_options_unpin">إلغاء تثبيت الفئة</string>
-  <string name="category_pin" translatable="false">Pin</string>
+  <string name="category_pin">تثبيت</string>
   <string name="category_see_all">عرض الكل</string>
-  <string name="category_unpin" translatable="false">Unpin</string>
+  <string name="category_unpin">إلغاء التثبيت</string>
   <string name="channel_action_hide">إخفاء هذه القناة</string>
   <string name="channel_options_remove_from_recent">إزالة من الأخيرة</string>
   <string name="continue_watching_season_episode">م%1$d ح%2$d</string>
@@ -105,9 +105,9 @@
   <string name="dashboard_subtitle">%1$s مفعَّل. ارجع إلى البث المباشر، أو تابع ما بدأت، أو استكشف الإضافات الجديدة.</string>
   <string name="dashboard_title">مكتبتك جاهزة</string>
   <string name="dashboard_top_rated_movies">الأفلام الأعلى تقييمًا</string>
-  <string name="dashboard_update_allow_installs" translatable="false">Allow Installs</string>
+  <string name="dashboard_update_allow_installs">السماح بالتثبيتات</string>
   <string name="dashboard_update_available">تم تخزين إصدار أحدث من التطبيق وهو جاهز للمراجعة من الإعدادات.</string>
-  <string name="dashboard_update_install_permission_required" translatable="false">The update is downloaded. Allow installs from StreamVault, then retry installation.</string>
+  <string name="dashboard_update_install_permission_required">تم تنزيل التحديث. اسمح بالتثبيت من StreamVault، ثم أعد محاولة التثبيت.</string>
   <string name="dashboard_update_install_ready">تم تنزيل آخر تحديث بالفعل. افتح الإعدادات لتثبيته.</string>
   <string name="dashboard_update_open_installer">التثبيت من الإعدادات</string>
   <string name="dashboard_update_open_settings">فتح التحديثات</string>
@@ -197,10 +197,10 @@
   <string name="library_saved_manage_hint">اضغط مطولًا على مجموعة محفوظة لعرض الخيارات</string>
   <string name="library_saved_primary_hint">العودة إلى المكتبة الكاملة</string>
   <string name="library_sort_title">ترتيب النتائج</string>
-  <string name="m3u_move_back_to_live" translatable="false">Move back to Live TV</string>
-  <string name="m3u_move_to_movies" translatable="false">Move to Movies</string>
-  <string name="m3u_move_to_series" translatable="false">Move to Series</string>
-  <string name="m3u_organize_items" translatable="false">Organize M3U Items</string>
+  <string name="m3u_move_back_to_live">نقل مرة أخرى إلى البث المباشر</string>
+  <string name="m3u_move_to_movies">نقل إلى الأفلام</string>
+  <string name="m3u_move_to_series">نقل إلى المسلسلات</string>
+  <string name="m3u_organize_items">تنظيم عناصر M3U</string>
   <string name="movie_detail_back">العودة إلى المكتبة</string>
   <string name="movie_detail_cast">طاقم التمثيل:</string>
   <string name="movie_detail_director">إخراج:</string>
@@ -232,7 +232,7 @@
   <string name="nav_movies">الأفلام</string>
   <string name="nav_series">المسلسلات</string>
   <string name="nav_settings">الإعدادات</string>
-  <string name="nav_vod" translatable="false">VOD</string>
+  <string name="nav_vod">VOD</string>
   <string name="pin_dialog_cancel">إلغاء</string>
   <string name="pin_dialog_title">أدخل رمز PIN</string>
   <string name="player_resume">استئناف</string>
@@ -273,11 +273,11 @@
   <string name="search_actions_remove_favorite">إزالة من المفضلة</string>
   <string name="search_actions_unlock">إلغاء قفل الرقابة الأبوية</string>
   <string name="search_all">الكل</string>
-  <string name="search_build_complete_index" translatable="false">Build complete search index once</string>
-  <string name="search_catalog_complete" translatable="false">Complete catalog index</string>
-  <string name="search_catalog_downloaded_only" translatable="false">Downloaded items only. Build the complete search index to search the full portal catalog.</string>
-  <string name="search_catalog_indexing" translatable="false">The complete search index is being built. Results are still partial.</string>
-  <string name="search_catalog_truncated" translatable="false">The portal catalog was truncated. Results may be incomplete.</string>
+  <string name="search_build_complete_index">إنشاء فهرس البحث الكامل مرة واحدة</string>
+  <string name="search_catalog_complete">فهرس الكتالوج الكامل</string>
+  <string name="search_catalog_downloaded_only">العناصر المنزَّلة فقط. أنشئ فهرس البحث الكامل للبحث في كتالوج البوابة بالكامل.</string>
+  <string name="search_catalog_indexing">جارٍ إنشاء فهرس البحث الكامل. لا تزال النتائج جزئية.</string>
+  <string name="search_catalog_truncated">تم اقتطاع كتالوج البوابة. قد تكون النتائج غير مكتملة.</string>
   <string name="search_clear_history">مسح</string>
   <string name="search_command_subtitle">ابدأ بعنوان أو كلمة مفتاحية أو اسم قناة أو مسلسل. تبقى النتائج مجمعة لتصفح سريع بالريموت.</string>
   <string name="search_error_subtitle">تعذّر تحميل بعض النتائج. حاول مجدداً.</string>
@@ -349,6 +349,20 @@
   <string name="vod_rating_tmdb">TMDb</string>
   <string name="vod_sync_needed_subtitle">حدّث هذا المزود لاستيراد الأفلام والمسلسلات إلى المكتبة.</string>
   <string name="vod_sync_needed_title">المزامنة مطلوبة</string>
-  <string name="vod_unavailable_subtitle" translatable="false">This provider exposes separate Movies and Series catalogs.</string>
-  <string name="vod_unavailable_title" translatable="false">VOD is unavailable</string>
+  <string name="vod_unavailable_subtitle">يعرض هذا المزوّد كتالوجات منفصلة للأفلام والمسلسلات.</string>
+  <string name="vod_unavailable_title">VOD غير متاح</string>
+
+<string name="trakt_watchlist_add">إضافة إلى قائمة متابعة Trakt</string>
+<string name="trakt_watchlist_connect">اتصل بـ Trakt من الإعدادات</string>
+<string name="trakt_watchlist_failed">تعذر تحديث قائمة متابعة Trakt. حاول مرة أخرى.</string>
+<string name="trakt_watchlist_load">تحميل قائمة متابعة Trakt</string>
+<string name="trakt_watchlist_remove">إزالة من قائمة متابعة Trakt</string>
+<string name="dashboard_trakt_watchlist_movies">الأفلام في قائمة مراقبتك Trakt</string>
+<string name="dashboard_trakt_watchlist_series">البرامج التلفزيونية في قائمة مراقبتك Trakt</string>
+<string name="trakt_rating_action">قيّم على Trakt</string>
+<string name="trakt_rating_dialog_message">اختر تقييمًا من 1 إلى 10.</string>
+<string name="trakt_rating_current">تقييمك على Trakt: %1$d/10</string>
+<string name="trakt_rating_saved">تم حفظ تقييمك في Trakt.</string>
+<string name="trakt_rating_failed">تعذر حفظ تقييمك في Trakt.</string>
+<string name="trakt_favorite_sync_failed">حفظ StreamVault التغيير، لكن تعذر تحديث مفضلات Trakt. حاول مرة أخرى.</string>
 </resources>

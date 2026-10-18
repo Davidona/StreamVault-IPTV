@@ -24,12 +24,24 @@ import com.streamvault.domain.repository.FavoriteRepository
 import com.streamvault.domain.repository.MovieRepository
 import com.streamvault.domain.repository.PlaybackHistoryRepository
 import com.streamvault.domain.repository.ProviderRepository
+import com.streamvault.domain.trakt.TraktFavoriteActionResult
+import com.streamvault.domain.trakt.TraktFavoriteIdentity
+import com.streamvault.domain.trakt.TraktFavoriteType
+import com.streamvault.domain.trakt.TraktFavorites
+import com.streamvault.domain.trakt.TraktRatingActionResult
+import com.streamvault.domain.trakt.TraktRatingIdentity
+import com.streamvault.domain.trakt.TraktRatingType
+import com.streamvault.domain.trakt.TraktRatingRefreshResult
+import com.streamvault.domain.trakt.TraktRatings
+import com.streamvault.domain.trakt.TraktRatingsState
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.runBlocking
@@ -46,6 +58,25 @@ class MovieDetailViewModelCastingTest {
 
     @get:Rule
     val mainDispatcherRule = CatalogMainDispatcherRule()
+
+    @Test
+    fun `rateOnTrakt sends exact movie identity and records successful rating`() = runBlocking {
+        val ratings = RecordingTraktRatings()
+        val viewModel = createViewModel(movie = movie().copy(tmdbId = 603L), traktRatings = ratings)
+
+        try {
+            viewModel.uiState.first { it.movie != null }
+            val event = async(start = CoroutineStart.UNDISPATCHED) { viewModel.uiEvents.first() }
+            viewModel.rateOnTrakt(8)
+
+            assertThat(withTimeout(5_000L) { event.await() })
+                .isEqualTo(CatalogUiEvent.ShowMessage(CatalogMessage.TraktRatingSaved))
+            assertThat(ratings.writes).containsExactly(TraktRatingIdentity(TraktRatingType.MOVIE, 603L) to 8)
+            assertThat(viewModel.uiState.value.traktUserRating).isEqualTo(8)
+        } finally {
+            viewModel.viewModelScope.cancel()
+        }
+    }
 
     @Test
     fun `castMovie emits route chooser and preserves resume position`() = runBlocking {
@@ -164,6 +195,25 @@ class MovieDetailViewModelCastingTest {
     }
 
     @Test
+    fun `heart toggle also syncs the movie TMDB id to Trakt favorites`() = runBlocking {
+        val favorites = RecordingTraktFavorites()
+        val viewModel = createViewModel(movie = movie().copy(tmdbId = 603L), traktFavorites = favorites)
+
+        try {
+            withTimeout(5_000L) { viewModel.uiState.first { it.movie != null } }
+            viewModel.toggleFavorite()
+
+            assertThat(withTimeout(5_000L) { favorites.completed.await() }).isEqualTo(Unit)
+            assertThat(favorites.writes).containsExactly(
+                TraktFavoriteIdentity(TraktFavoriteType.MOVIE, 603L) to true,
+            )
+            assertThat(viewModel.uiState.value.movie?.isFavorite).isTrue()
+        } finally {
+            viewModel.viewModelScope.cancel()
+        }
+    }
+
+    @Test
     fun `castMovie explains streams that need header rewrite when cast remains unsupported`() = runBlocking {
         val castPort = FakeCatalogCastPort(CatalogCastStartResult.Unsupported(CatalogMessage.CastUnsupported))
         val streamInfo = StreamInfo(
@@ -190,7 +240,9 @@ class MovieDetailViewModelCastingTest {
     private suspend fun createViewModel(
         movie: Movie = movie(),
         streamInfo: StreamInfo = StreamInfo(url = "https://example.test/movie.m3u8"),
-        castPort: FakeCatalogCastPort = FakeCatalogCastPort()
+        castPort: FakeCatalogCastPort = FakeCatalogCastPort(),
+        traktFavorites: TraktFavorites = com.streamvault.feature.catalog.presentation.NoopTraktFavorites(),
+        traktRatings: TraktRatings = com.streamvault.feature.catalog.presentation.NoopTraktRatings(),
     ): MovieDetailViewModel {
         val provider = Provider(
             id = movie.providerId,
@@ -243,8 +295,22 @@ class MovieDetailViewModelCastingTest {
             downloadStarter = object : com.streamvault.feature.catalog.api.CatalogDownloadStarter {
                 override fun startDownload(downloadId: String) = Unit
             },
-            castPort = castPort
+            castPort = castPort,
+            traktWatchlist = com.streamvault.feature.catalog.presentation.NoopTraktWatchlist(),
+            traktFavorites = traktFavorites,
+            traktRatings = traktRatings,
         )
+    }
+
+    private class RecordingTraktFavorites : TraktFavorites {
+        val writes = mutableListOf<Pair<TraktFavoriteIdentity, Boolean>>()
+        val completed = CompletableDeferred<Unit>()
+
+        override suspend fun setFavorited(identity: TraktFavoriteIdentity, favorited: Boolean): TraktFavoriteActionResult {
+            writes += identity to favorited
+            completed.complete(Unit)
+            return TraktFavoriteActionResult.Success
+        }
     }
 
     private class FakeCatalogCastPort(
@@ -264,6 +330,18 @@ class MovieDetailViewModelCastingTest {
 
         suspend fun emit(event: CatalogCastPlaybackEvent) {
             mutablePlaybackEvents.emit(event)
+        }
+    }
+
+    private class RecordingTraktRatings : TraktRatings {
+        private val mutableState = kotlinx.coroutines.flow.MutableStateFlow(TraktRatingsState())
+        override val state = mutableState.asStateFlow()
+        val writes = mutableListOf<Pair<TraktRatingIdentity, Int>>()
+        override suspend fun refresh(type: TraktRatingType, force: Boolean) = TraktRatingRefreshResult.Success(0)
+        override suspend fun setRating(identity: TraktRatingIdentity, rating: Int): TraktRatingActionResult {
+            writes += identity to rating
+            mutableState.value = mutableState.value.copy(ratings = mutableState.value.ratings + (identity to rating))
+            return TraktRatingActionResult.Success
         }
     }
 

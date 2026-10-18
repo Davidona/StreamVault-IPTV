@@ -13,6 +13,9 @@ import com.streamvault.domain.model.XtreamConfig
 import com.streamvault.domain.model.M3uConfig
 import com.streamvault.domain.model.StalkerConfig
 import com.streamvault.domain.model.JellyfinConfig
+import com.streamvault.domain.settings.VodTrackPreferences
+
+const val BACKUP_SECTION_STREMIO_ADDONS = "Stremio Add-ons"
 
 data class BackupData(
     val version: Int = 13,
@@ -52,7 +55,68 @@ data class BackupData(
     val portableContentPreferences: List<PortableContentPreferenceBackup>? = null,
     val portableVariantChoices: List<PortableVariantChoiceBackup>? = null,
     val portableManualEpgMappings: List<PortableManualEpgMappingV14Backup>? = null,
-    val portableMultiViewPresetsV14: List<PortableMultiViewPresetV14Backup>? = null
+    val portableMultiViewPresetsV14: List<PortableMultiViewPresetV14Backup>? = null,
+    /** v17 portable Stremio configuration; local Room row IDs are deliberately omitted. */
+    val stremioAddons: List<StremioAddonBackup>? = null,
+    /** v17 Stremio playback progress, keyed by stable content identity. */
+    val stremioPlaybackHistory: List<StremioPlaybackHistoryBackup>? = null,
+    /** v18 sports provider configurations; account IDs remain stable for source preferences. */
+    val sportsProviders: List<SportsProviderBackup>? = null,
+    /** v18 sports API credentials, keyed by sports provider instance ID. */
+    val sportsProviderCredentials: List<SportsProviderCredentialsBackup>? = null
+)
+
+data class SportsProviderBackup(
+    val instanceId: String,
+    val typeId: String,
+    val configurationVersion: Int,
+    val enabled: Boolean,
+    val priority: Int,
+    val baseUrl: String? = null,
+    val eventLeagueIds: List<String> = emptyList(),
+    val customDefinitionJson: String? = null
+) {
+    override fun toString(): String =
+        "SportsProviderBackup(instanceId=$instanceId, typeId=$typeId, enabled=$enabled)"
+}
+
+/** Credentials are carried separately from provider configuration and redact diagnostic output. */
+data class SportsProviderCredentialsBackup(
+    val instanceId: String,
+    val secret: String,
+    val username: String? = null
+) {
+    override fun toString(): String =
+        "SportsProviderCredentialsBackup(instanceId=$instanceId, credentials=[REDACTED])"
+}
+
+data class StremioAddonBackup(
+    val installUrl: String,
+    val manifestId: String,
+    val name: String,
+    val version: String,
+    val manifestJson: String,
+    val enabled: Boolean,
+    val sortOrder: Int,
+    val catalogSettingsJson: String,
+    val createdAt: Long,
+    val updatedAt: Long,
+    val manifestRefreshedAt: Long = 0L
+)
+
+data class StremioPlaybackHistoryBackup(
+    val contentKey: String,
+    val mediaType: String,
+    val exactVideoId: String,
+    val parentSeriesId: String?,
+    val title: String,
+    val posterUrl: String?,
+    val resumePositionMs: Long,
+    val totalDurationMs: Long,
+    val isWatched: Boolean,
+    val lastWatchedAt: Long,
+    val catalogOriginKey: String,
+    val streamOriginKeyHint: String?
 )
 
 data class ProviderBackupSnapshot(
@@ -104,7 +168,11 @@ data class PortableProviderPreferencesBackup(
     /** The user's Home start category, resolved by provider/category identity on import. */
     val homeDefaultCategory: PortableCategoryReference? = null,
     val homeDefaultVirtualCategoryId: Long? = null,
-    val homeDefaultCategorySpecified: Boolean = false
+    val homeDefaultCategorySpecified: Boolean = false,
+    /** Per-movie and per-series VOD track selections, stored without local catalog ids. */
+    val vodTrackPreferences: List<PortableVodTrackPreferenceBackup>? = null,
+    /** Sparse quality overrides identified by stable provider/content keys, never local row ids. */
+    val playbackQualityPreferences: List<PortablePlaybackQualityPreferenceBackup>? = null
 )
 
 data class BackupProviderReference(
@@ -180,6 +248,23 @@ data class PortableContentReference(
     val remoteCategoryId: String? = null,
     val name: String? = null,
     val urlFallback: String? = null
+)
+
+data class PortableVodTrackPreferenceBackup(
+    val content: PortableContentReference,
+    val preferences: VodTrackPreferences
+)
+
+data class PortablePlaybackQualityPreferenceBackup(
+    val provider: BackupProviderReference,
+    val scopeType: String? = null,
+    val scopeKey: String? = null,
+    val identityVersion: Int = 1,
+    /** String modes keep this portable wire type independent of Kotlin sealed-class serialization. */
+    val heightOverride: String? = null,
+    val maxVideoHeight: Int? = null,
+    val bitrateOverride: String? = null,
+    val maxVideoBitrateBps: Long? = null
 )
 
 data class PortableFavoriteBackup(
@@ -377,7 +462,9 @@ data class BackupPreview(
     val groupConflicts: Int,
     val historyConflicts: Int,
     val protectedCategoryConflicts: Int,
-    val recordingConflicts: Int
+    val recordingConflicts: Int,
+    val stremioAddonCount: Int = 0,
+    val stremioAddonConflicts: Int = 0
 )
 
 data class BackupImportPlan(
@@ -387,6 +474,7 @@ data class BackupImportPlan(
     val importPlaybackHistory: Boolean = true,
     val importMultiViewPresets: Boolean = true,
     val importRecordingSchedules: Boolean = true,
+    val importStremioAddons: Boolean = importPreferences,
     val conflictStrategy: BackupConflictStrategy = BackupConflictStrategy.KEEP_EXISTING
 )
 

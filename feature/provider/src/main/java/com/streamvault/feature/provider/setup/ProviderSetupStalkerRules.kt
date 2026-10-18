@@ -1,5 +1,6 @@
 package com.streamvault.feature.provider.setup
 
+import com.streamvault.core.ui.design.BrowseShapes
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -23,7 +24,7 @@ import androidx.tv.material3.Surface as TvSurface
 import androidx.tv.material3.Text
 import com.streamvault.core.ui.interaction.TvClickableSurface
 import com.streamvault.core.ui.interaction.mouseClickable
-import com.streamvault.core.ui.theme.*
+import com.streamvault.core.ui.design.browse.*
 import kotlinx.coroutines.delay
 
 @Composable
@@ -35,7 +36,7 @@ internal fun StalkerLinkOptionButton(
     TvSurface(
         onClick = onClick,
         modifier = Modifier.mouseClickable(onClick = onClick),
-        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(999.dp)),
+        shape = ClickableSurfaceDefaults.shape(BrowseShapes.Control),
         colors = ClickableSurfaceDefaults.colors(
             containerColor = if (selected) Primary.copy(alpha = 0.18f) else Surface,
             focusedContainerColor = Primary.copy(alpha = 0.28f)
@@ -76,8 +77,8 @@ internal fun StalkerRequestRulesEditor(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(Surface, RoundedCornerShape(12.dp))
-            .border(1.dp, SurfaceHighlight, RoundedCornerShape(12.dp))
+            .background(Surface, BrowseShapes.Artwork)
+            .border(1.dp, SurfaceHighlight, BrowseShapes.Artwork)
             .padding(12.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {

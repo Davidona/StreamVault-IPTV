@@ -48,6 +48,7 @@ import java.security.MessageDigest
 import java.util.Base64
 import java.util.Locale
 import java.util.concurrent.ConcurrentHashMap
+import kotlinx.coroutines.delay
 
 data class StalkerPlaybackInfo(
     val url: String,
@@ -123,7 +124,8 @@ class StalkerProvider(
     private val portalStateStore: StalkerPortalStateStore? = null,
     private val discoveryCoordinator: StalkerDiscoveryCoordinator =
         StalkerDiscoveryCoordinator(api),
-    private val onProgress: ((String) -> Unit)? = null
+    private val onProgress: ((String) -> Unit)? = null,
+    private val resolvedCategoryHandoffKey: String? = null
 ) : ProviderAuthenticator,
     LiveCatalogSource,
     VodCatalogSource,
@@ -153,6 +155,7 @@ internal companion object {
         private val missingVodClassificationLogged = ConcurrentHashMap.newKeySet<Long>()
 
         fun clearSharedAuthCacheForTests() {
+            StalkerResolvedCategoryHandoff.clear()
             sharedAuthCache.clear()
             sharedPortalAuthCache.clear()
             sharedAuthFailureCache.clear()
@@ -165,6 +168,7 @@ internal companion object {
         /** Provider deletion hook for process-lifetime authentication and URL caches. */
         fun clearCachesForProvider(providerId: Long) {
             if (providerId <= 0L) return
+            StalkerResolvedCategoryHandoff.clearProvider(providerId)
             val authPrefix = "provider:$providerId|"
             sharedAuthCache.keys.filter { it.startsWith(authPrefix) }.forEach(sharedAuthCache::remove)
             val portalPrefix = "portal:$providerId|"
@@ -220,6 +224,29 @@ internal companion object {
         val name: String
     )
 
+    /** Retains first-list-match semantics even when ID and name point at different seeds. */
+    private class CategoryLookup(val seeds: List<CategorySeed>) {
+        private val byRawId = HashMap<String, IndexedValue<CategorySeed>>()
+        private val byName = java.util.TreeMap<String, IndexedValue<CategorySeed>>(String.CASE_INSENSITIVE_ORDER)
+
+        init {
+            seeds.withIndex().forEach { entry ->
+                byRawId.putIfAbsent(entry.value.rawId, entry)
+                byName.putIfAbsent(entry.value.name, entry)
+            }
+        }
+
+        fun resolve(rawId: String?, name: String?): CategorySeed? {
+            val raw = rawId?.let(byRawId::get)
+            val named = name?.let(byName::get)
+            return when {
+                raw == null -> named?.value
+                named == null || raw.index <= named.index -> raw.value
+                else -> named.value
+            }
+        }
+    }
+
     // Authentication lock identity must remain stable for the provider lifetime. Evicting a
     // configuration-scoped lock while an older provider instance still holds it permits a second
     // mutex to be created and defeats same-provider authentication serialization.
@@ -227,14 +254,19 @@ internal companion object {
     private var accountProfileCache: StalkerProviderProfile? = null
     private var authFailureCache: CachedAuthFailure? = null
     private val categoryCache = mutableMapOf<ContentType, List<CategorySeed>>()
+    private val categoryLookups = mutableMapOf<ContentType, CategoryLookup>()
+    private var resolvedCategorySnapshot: StalkerResolvedCategoryHandoff.Snapshot? = null
     private val remoteIdentityCache = ConcurrentHashMap<Pair<ContentType, String>, Long>()
 
     suspend fun invalidateAuthentication() {
+        resolvedCategorySnapshot = null
+        resolvedCategoryHandoffKey?.let(StalkerResolvedCategoryHandoff::invalidate)
         sharedAuthMutexes.withLock(authMutexKey()) {
             sessionCache = null
             accountProfileCache = null
             authFailureCache = null
             categoryCache.clear()
+            categoryLookups.clear()
             sharedAuthCache.remove(authCacheKey())
             if (providerId > 0L) {
                 sharedPortalAuthCache.remove(portalIdentityKey())
@@ -281,6 +313,7 @@ internal companion object {
                 val profile = authResult.data.second
                 val catalogDetection = detectCatalogLayout(authResult.data.first, profile)
                 val catalogLayout = catalogDetection.layout
+                resolvedCategorySnapshot = resolvedCategorySnapshot?.copy(layout = catalogLayout)
                 val learnedDeviceProfile = buildLearnedDeviceProfile(profile)
                 val hostLabel = portalUrl.substringAfter("://").substringBefore('/').ifBlank { "portal" }
                 val providerName = profile.accountName?.takeUnless { it.isBlank() || it == "0" }
@@ -361,6 +394,7 @@ internal companion object {
 
         val device = buildLearnedDeviceProfile(profile)
         val seriesResult = api.getSeriesCategories(session, device)
+        if (seriesResult is Result.Success) rememberResolvedCategories(session, ContentType.SERIES, seriesResult.data)
         if (seriesResult is Result.Success && seriesResult.data.isNotEmpty()) {
             StalkerTelemetry.catalogLayoutDetected(
                 providerId,
@@ -377,7 +411,9 @@ internal companion object {
             return CatalogLayoutDetection(catalogLayoutHint, conclusive = false)
         }
 
-        return when (val vodResult = api.getVodCategories(session, device)) {
+        val vodResult = api.getVodCategories(session, device)
+        if (vodResult is Result.Success) rememberResolvedCategories(session, ContentType.MOVIE, vodResult.data)
+        return when (vodResult) {
             is Result.Success -> if (vodResult.data.isNotEmpty()) {
                 StalkerTelemetry.catalogLayoutDetected(
                     providerId,
@@ -426,56 +462,108 @@ internal companion object {
         return session to profile
     }
 
+    private fun rememberResolvedCategories(session: StalkerSession, type: ContentType, records: List<StalkerCategoryRecord>) {
+        val previous = resolvedCategorySnapshot?.takeIf { it.matches(session) }
+        resolvedCategorySnapshot = StalkerResolvedCategoryHandoff.Snapshot(
+            session, previous?.categories.orEmpty() + (type to records.toList())
+        )
+    }
+
+    internal fun handoffResolvedCategories(key: String) {
+        resolvedCategorySnapshot?.let { StalkerResolvedCategoryHandoff.publish(key, it) }
+    }
+
     suspend fun streamLiveStreams(
         maxChannels: Int? = null,
+        batchRows: Int = LIVE_IDENTITY_BATCH_SIZE,
+        batchBytes: Long = 1024L * 1024L,
+        onAttemptStart: suspend () -> Unit = {},
+        awaitCategoryContext: suspend () -> Unit = {},
+        onReadProgress: () -> Unit = {},
+        onLocalWork: (Boolean) -> Unit = {},
         onChannel: suspend (Channel) -> Unit
-    ): Result<Int> {
-        return runWithAuthorizedSession { session, _ ->
-            val pendingItems = ArrayList<StalkerItemRecord>(LIVE_IDENTITY_BATCH_SIZE)
-            val limit = maxChannels?.takeIf { it > 0 }
-            var acceptedCount = 0
-
-            suspend fun flushPendingItems() {
-                if (pendingItems.isEmpty()) return
-                bindRemoteIds(ContentType.LIVE, pendingItems.map(StalkerItemRecord::id))
-                pendingItems.forEach { item ->
-                    toChannel(item)?.let { channel ->
-                        onChannel(channel)
+    ): Result<Int> = runWithAuthorizedSession { session, _ ->
+        onAttemptStart()
+        val limit = maxChannels?.takeIf { it > 0 }
+        var acceptedCount = 0
+        runStalkerLivePipeline(
+            batchRows = batchRows,
+            batchBytes = batchBytes,
+            localWork = onLocalWork,
+            read = { emit ->
+                val result = try {
+                    api.streamLiveStreams(session, currentDeviceProfile()) { item ->
+                        onReadProgress()
+                        if (limit != null && acceptedCount >= limit) throw LiveStreamLimitReached
+                        emit(item)
+                        acceptedCount++
                     }
+                } catch (capReached: LiveStreamLimitReached) {
+                    Result.success(acceptedCount)
                 }
-                pendingItems.clear()
+                when (result) {
+                    is Result.Error -> if (result.exception is LiveStreamLimitReached) Result.success(acceptedCount) else result
+                    is Result.Loading -> Result.error("Unexpected loading state")
+                    is Result.Success -> result
+                }
+            },
+            consume = { items ->
+                // Bulk HTTP may begin before category metadata when the portal safely admits
+                // two requests. Keep the single mapping owner behind this barrier so category
+                // IDs/names are resolved against a complete immutable seed set.
+                awaitCategoryContext()
+                bindRemoteIds(ContentType.LIVE, items.map(StalkerItemRecord::id))
+                items.forEach { item -> toChannel(item)?.let { onChannel(it) } }
             }
+        )
+    }
 
-            val result = try {
-                api.streamLiveStreams(session, currentDeviceProfile()) { item ->
-                    if (limit != null && acceptedCount >= limit) {
-                        throw LiveStreamLimitReached
-                    }
-                    pendingItems += item
-                    acceptedCount++
-                    if (pendingItems.size >= LIVE_IDENTITY_BATCH_SIZE) {
-                        flushPendingItems()
-                    }
+    /** Streams one category with bounded row batches for isolated fallback staging. */
+    suspend fun streamLiveCategory(
+        categoryId: Long,
+        batchRows: Int,
+        batchBytes: Long,
+        onAttemptStart: suspend () -> Unit = {},
+        onMappedBatch: suspend (List<Channel>) -> Unit
+    ): Result<Int> = runWithAuthorizedSession { session, _ ->
+        val rawCategoryId = resolveRawCategoryId(ContentType.LIVE, categoryId)
+            ?.takeIf(String::isNotBlank)
+            ?: return@runWithAuthorizedSession Result.error("Live category $categoryId is unavailable")
+        var attempt = 0
+        var finalResult: Result<Int>? = null
+        while (finalResult == null) {
+            // Each retry gets a new staging session only after the previous pipeline has
+            // drained its consumer and returned, so no failed rows can cross attempts.
+            onAttemptStart()
+            val result = runStalkerLivePipeline(
+                batchRows = batchRows,
+                batchBytes = batchBytes,
+                localWork = {},
+                read = { emit ->
+                    api.streamLiveStreamsByCategory(
+                        session = session,
+                        profile = currentDeviceProfile(),
+                        categoryId = rawCategoryId,
+                        onItem = emit
+                    )
+                },
+                consume = { items ->
+                    bindRemoteIds(ContentType.LIVE, items.map(StalkerItemRecord::id))
+                    val channels = items.mapNotNull(::toChannel)
+                    if (channels.isNotEmpty()) onMappedBatch(channels)
                 }
-            } catch (capReached: LiveStreamLimitReached) {
-                flushPendingItems()
-                return@runWithAuthorizedSession Result.success(acceptedCount)
-            }
-
-            when (result) {
-                is Result.Success -> {
-                    flushPendingItems()
-                    Result.success(result.data)
-                }
-                is Result.Error -> {
-                    if (result.exception is LiveStreamLimitReached) {
-                        flushPendingItems()
-                        Result.success(acceptedCount)
-                    } else Result.error(result.message, result.exception)
-                }
-                is Result.Loading -> Result.error("Unexpected loading state")
+            )
+            val error = (result as? Result.Error)?.exception
+            val retryable = error is StalkerApiError.Transport ||
+                (error is StalkerApiError.Server && (error.httpStatus ?: 500) >= 500)
+            if (!retryable || attempt >= 2) {
+                finalResult = result
+            } else {
+                delay(250L shl attempt)
+                attempt++
             }
         }
+        requireNotNull(finalResult)
     }
 
     override suspend fun getVodCategories(): Result<List<Category>> =
@@ -484,7 +572,7 @@ internal companion object {
         }
 
     suspend fun getUnifiedVodCategories(): Result<List<Category>> =
-        mapCategories(ContentType.VOD) { session, profile ->
+        mapCategories(ContentType.VOD, resolvedType = ContentType.MOVIE) { session, profile ->
             api.getVodCategories(session, profile)
         }
 
@@ -680,7 +768,15 @@ internal companion object {
                 api.getVodStreams(session, profile, rawCategoryId)
             }
             return mapResolvedItems(ContentType.SERIES, vodResult) { item ->
-                if (item.isSeries) toSeries(item, requestedCategoryId = categoryId) else null
+                if (item.isSeries) {
+                    toSeries(
+                        item,
+                        requestedCategoryId = categoryId,
+                        origin = SeriesCatalogOrigin.VOD_DERIVED
+                    )
+                } else {
+                    null
+                }
             }
         }
         return mapped
@@ -695,7 +791,15 @@ internal companion object {
             val vodPage = mapPagedItems(ContentType.SERIES, categoryId) { session, profile, rawCategoryId ->
                 api.getVodStreamsPage(session, profile, rawCategoryId, page)
             }.let { result -> mapResolvedPage(ContentType.SERIES, result) { item ->
-                if (item.isSeries) toSeries(item, requestedCategoryId = categoryId) else null
+                if (item.isSeries) {
+                    toSeries(
+                        item,
+                        requestedCategoryId = categoryId,
+                        origin = SeriesCatalogOrigin.VOD_DERIVED
+                    )
+                } else {
+                    null
+                }
             } }
             return vodPage
         }
@@ -1430,10 +1534,21 @@ is Result.Success -> {
 
     private suspend fun mapCategories(
         type: ContentType,
+        resolvedType: ContentType = type,
         loader: suspend (StalkerSession, StalkerDeviceProfile) -> Result<List<StalkerCategoryRecord>>
     ): Result<List<Category>> {
         return runWithAuthorizedSession { session, _ ->
-            when (val result = loader(session, currentDeviceProfile())) {
+            if (resolvedCategorySnapshot?.matches(session) != true) resolvedCategorySnapshot = null
+            if (resolvedCategorySnapshot == null) {
+                resolvedCategorySnapshot = resolvedCategoryHandoffKey?.let {
+                    StalkerResolvedCategoryHandoff.take(it, session, catalogLayoutHint)
+                }
+            }
+            val cachedRecords = resolvedCategorySnapshot?.categories?.get(resolvedType)
+            if (cachedRecords != null) {
+                resolvedCategorySnapshot = resolvedCategorySnapshot?.let { it.copy(categories = it.categories - resolvedType) }
+            }
+            when (val result = cachedRecords?.let { Result.success(it) } ?: loader(session, currentDeviceProfile())) {
                 is Result.Success -> {
                     val categoryRecords = result.data.ifEmpty {
                         when (type) {
@@ -2691,11 +2806,11 @@ private fun playbackTransportChallengeFor(url: String): StalkerTransportChalleng
     private fun resolveCategory(type: ContentType, rawId: String?, rawName: String?): CategorySeed {
         val normalizedName = rawName?.trim().takeUnless { it.isNullOrBlank() }
         val normalizedRawId = rawId?.trim().takeUnless { it.isNullOrBlank() }
-        val cached = categoryCache[type]
-            ?.firstOrNull { category ->
-                category.rawId == normalizedRawId ||
-                    (normalizedName != null && category.name.equals(normalizedName, ignoreCase = true))
-            }
+        val cached = categoryCache[type]?.let { seeds ->
+            val lookup = categoryLookups[type]?.takeIf { it.seeds === seeds }
+                ?: CategoryLookup(seeds).also { categoryLookups[type] = it }
+            lookup.resolve(normalizedRawId, normalizedName)
+        }
         if (cached != null) {
             return cached
         }

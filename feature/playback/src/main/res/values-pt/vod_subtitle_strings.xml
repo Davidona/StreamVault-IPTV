@@ -1,0 +1,18 @@
+<resources>
+    <string name="vod_subtitle_sources">Fontes</string>
+    <string name="vod_subtitle_settings">Configurações</string>
+    <string name="vod_subtitle_provider">Legendas do provedor</string>
+    <string name="vod_subtitle_provider_hint">Escolha uma faixa de legendas deste vídeo</string>
+    <string name="vod_subtitle_online">OpenSubtitles</string>
+    <string name="vod_subtitle_online_hint">Encontrar legendas online</string>
+    <string name="vod_subtitle_online_unavailable">A pesquisa online não está disponível para este vídeo</string>
+    <string name="vod_subtitle_device_hint">Escolha um arquivo SRT</string>
+    <string name="vod_subtitle_back">Voltar às fontes</string>
+    <string name="vod_tracks_empty">Nenhuma faixa disponível neste vídeo</string>
+    <string name="vod_subtitle_preview">Esta é uma legenda.</string>
+    <string name="vod_subtitle_font_size">Tamanho da fonte</string>
+    <string name="vod_subtitle_background">Opacidade do fundo</string>
+    <string name="vod_subtitle_background_hint" formatted="false">0% transparente · 100% preto sólido</string>
+    <string name="vod_subtitle_decrease_setting">Diminuir %1$s</string>
+    <string name="vod_subtitle_increase_setting">Aumentar %1$s</string>
+</resources>

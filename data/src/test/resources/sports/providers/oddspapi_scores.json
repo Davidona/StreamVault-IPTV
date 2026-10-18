@@ -1,0 +1,7 @@
+{
+  "fixtureId": "id1000001761301153",
+  "scores": {
+    "0": { "participant1Score": 1, "participant2Score": 0, "updatedAt": "2026-10-17T16:05:00Z" },
+    "1": { "participant1Score": 2, "participant2Score": 1, "updatedAt": "2026-10-17T16:10:00Z" }
+  }
+}

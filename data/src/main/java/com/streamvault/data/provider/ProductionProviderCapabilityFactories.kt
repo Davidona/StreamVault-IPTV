@@ -243,6 +243,7 @@ private class XtreamCapabilityAdapter(
         val streamId = directToken?.streamId ?: request.content.numericRemoteId()
             ?: return Result.error("Xtream playback stream ID is missing")
         val resolvedExtension = clients.resolveLiveContainerExtension(
+            snapshot,
             kind,
             directToken?.containerExtension ?: request.containerExtension
         )
@@ -259,6 +260,9 @@ private class XtreamCapabilityAdapter(
         )
         val sourceIsInternal = token != null
         val resolvedUrl = when {
+            kind == XtreamStreamKind.LIVE && XtreamUrlFactory.isGeneratedCatchUpUrl(
+                request.sourceUrl, config.serverUrl, config.username, config.password, streamId
+            ) -> request.sourceUrl
             request.preferStableUrl -> stableUrl
             directSource != null -> directSource
             sourceIsInternal -> stableUrl

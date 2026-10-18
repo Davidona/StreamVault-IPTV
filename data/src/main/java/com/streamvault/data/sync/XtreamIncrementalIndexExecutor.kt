@@ -17,6 +17,8 @@ import com.streamvault.domain.model.Series
  * supplied through one narrow operations port so the coordinator does not regain those seams.
  */
 internal interface XtreamIncrementalIndexOperations {
+    fun monotonicTimeMillis(): Long = System.nanoTime() / 1_000_000L
+
     suspend fun getCategories(providerId: Long, contentType: ContentType): List<CategoryEntity>
 
     suspend fun ensureCategoryShell(
@@ -98,6 +100,8 @@ internal class XtreamIncrementalIndexExecutor(
         api: XtreamProvider,
         contentType: ContentType,
         maxCategories: Int?,
+        maxRowsPerSlice: Int? = null,
+        maxDurationMillis: Long? = null,
         onProgress: ((String) -> Unit)?
     ) {
         require(contentType == ContentType.MOVIE || contentType == ContentType.SERIES) {
@@ -137,6 +141,11 @@ internal class XtreamIncrementalIndexExecutor(
                 )) {
                     is Result.Success -> return
                     is Result.Error -> {
+                        streamed.exception?.let { error ->
+                            if (XtreamIndexRecoveryPolicy.isAuthenticationFailure(error)) {
+                                throw error
+                            }
+                        }
                         operations.log(
                             "Full ${contentType.name} stream index failed for provider ${provider.id}; falling back to category slices: ${streamed.message}"
                         )
@@ -215,6 +224,8 @@ internal class XtreamIncrementalIndexExecutor(
                 }
             }
 
+            var rowsProcessedThisSlice = 0
+            val sliceStartedAt = operations.monotonicTimeMillis()
             workLoop@ for (workItem in workItems) {
                 val category = workItem.category
                 operations.progress(
@@ -229,6 +240,7 @@ internal class XtreamIncrementalIndexExecutor(
                 }
                 when (val categoryOutcome = outcome.outcome) {
                     is CategoryFetchOutcome.Success -> {
+                        rowsProcessedThisSlice += categoryOutcome.rawCount
                         val accepted = when (contentType) {
                             ContentType.MOVIE -> operations.upsertMovieSummaryBatch(
                                 providerId = provider.id,
@@ -280,6 +292,9 @@ internal class XtreamIncrementalIndexExecutor(
                         }
                     }
                     is CategoryFetchOutcome.Failure -> {
+                        if (XtreamIndexRecoveryPolicy.failureState(categoryOutcome.error) == "FAILED_PERMANENT") {
+                            throw categoryOutcome.error
+                        }
                         failedCategories++
                         lastError = categoryOutcome.error
                     }
@@ -301,6 +316,13 @@ internal class XtreamIncrementalIndexExecutor(
                 if (outcome.outcome is CategoryFetchOutcome.Failure) {
                     break@workLoop
                 }
+                val rowBudgetReached = maxRowsPerSlice
+                    ?.takeIf { it > 0 }
+                    ?.let { rowsProcessedThisSlice >= it } == true
+                val durationBudgetReached = maxDurationMillis
+                    ?.takeIf { it > 0L }
+                    ?.let { operations.monotonicTimeMillis() - sliceStartedAt >= it } == true
+                if (rowBudgetReached || durationBudgetReached) break@workLoop
             }
 
             val finishedAt = System.currentTimeMillis()

@@ -31,6 +31,7 @@ import com.streamvault.domain.model.PlayerBackButtonVisibility
 import com.streamvault.domain.model.LegacyProvider as Provider
 import com.streamvault.domain.model.RemoteShortcutPreferences
 import com.streamvault.domain.model.TimeshiftBackendPreference
+import com.streamvault.domain.settings.PlaybackQualityPreferences
 
 enum class ProviderWarningAction {
     EPG,
@@ -87,10 +88,12 @@ data class SettingsPreferenceSnapshot(
     val subtitleTextScale: Float,
     val subtitleTextColor: Int,
     val subtitleBackgroundColor: Int,
+    val pinnedSubtitleLanguages: List<String> = emptyList(),
     val playerLiveTranslationEnabled: Boolean,
     val playerLiveTranslationEndpoint: String,
     val wifiMaxVideoHeight: Int?,
     val ethernetMaxVideoHeight: Int?,
+    val playbackQualityPreferences: PlaybackQualityPreferences = PlaybackQualityPreferences(),
     val playerTimeshiftEnabled: Boolean,
     val playerTimeshiftDepthMinutes: Int,
     val playerTimeshiftBackend: TimeshiftBackendPreference,
@@ -101,6 +104,7 @@ data class SettingsPreferenceSnapshot(
     val lastSpeedTestTransport: String?,
     val lastSpeedTestRecommendedHeight: Int?,
     val lastSpeedTestEstimated: Boolean,
+    val hideStremioAddons: Boolean = false,
     val isIncognitoMode: Boolean,
     val useXtreamTextClassification: Boolean,
     val xtreamBase64TextCompatibility: Boolean,
@@ -119,6 +123,10 @@ data class SettingsPreferenceSnapshot(
     val groupedChannelLabelMode: GroupedChannelLabelMode,
     val liveVariantPreferenceMode: LiveVariantPreferenceMode,
     val vodViewMode: VodViewMode,
+    val showTraktTrendingMovies: Boolean = true,
+    val showTraktPopularMovies: Boolean = true,
+    val showTraktTrendingSeries: Boolean = true,
+    val showTraktPopularSeries: Boolean = true,
     val vodTypeBadgeAsIcon: Boolean,
     val vodCategoryLoadMode: VodCategoryLoadMode,
     val vodInfiniteScroll: Boolean,

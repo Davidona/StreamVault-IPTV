@@ -130,9 +130,7 @@ class ProviderSetupViewModel @Inject constructor(
     }
 
     fun stopPhonePairing() {
-        viewModelScope.launch {
-            providerQrPairingManager.stopPairing()
-        }
+        providerQrPairingManager.stopPairing()
     }
 
     fun completeDriveSignIn(intentData: android.content.Intent?) {
@@ -1053,6 +1051,10 @@ class ProviderSetupViewModel @Inject constructor(
         _uiState.update { it.copy(backupImportPlan = it.backupImportPlan.copy(importRecordingSchedules = enabled)) }
     }
 
+    fun setImportStremioAddons(enabled: Boolean) {
+        _uiState.update { it.copy(backupImportPlan = it.backupImportPlan.copy(importStremioAddons = enabled)) }
+    }
+
     fun confirmBackupImport() {
         var capturedUri: String? = null
         var capturedPlan: BackupImportPlan? = null
@@ -1060,7 +1062,8 @@ class ProviderSetupViewModel @Inject constructor(
             if (state.isImportingBackup || state.pendingBackupUri == null) return@update state
             val plan = state.backupImportPlan
             if (!plan.importPreferences && !plan.importProviders && !plan.importSavedLibrary &&
-                !plan.importPlaybackHistory && !plan.importMultiViewPresets && !plan.importRecordingSchedules
+                !plan.importPlaybackHistory && !plan.importMultiViewPresets && !plan.importRecordingSchedules &&
+                !plan.importStremioAddons
             ) {
                 return@update state.copy(error = "Select at least one section to import")
             }

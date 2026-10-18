@@ -74,7 +74,8 @@ class PlayerMediaSourceFactory(
 
         Log.i(
             TAG,
-            "media-source streamType=$resolvedStreamType timeout=$timeoutProfile source=${mediaSource::class.java.simpleName} target=${PlaybackLogSanitizer.sanitizeUrl(streamInfo.url)}"
+            "media-source streamType=$resolvedStreamType timeout=$timeoutProfile source=${mediaSource::class.java.simpleName} " +
+                "target=${PlaybackLogSanitizer.sanitizeUrl(streamInfo.requestHeadersOrigin ?: streamInfo.url)}"
         )
         return timeoutProfile to mediaSource
     }

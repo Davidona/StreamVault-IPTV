@@ -48,7 +48,7 @@ public fun InternetSpeedTestCard(
     TvClickableSurface(
         onClick = onRunTest,
         enabled = !isRunning,
-        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(12.dp)),
+        shape = ClickableSurfaceDefaults.shape(SettingsDetailShapes.Panel),
         colors = ClickableSurfaceDefaults.colors(
             containerColor = SurfaceElevated,
             focusedContainerColor = Primary.copy(alpha = 0.18f)

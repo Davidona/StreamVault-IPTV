@@ -40,6 +40,7 @@ public fun SettingsContentPane(
     onEditProvider: (Provider) -> Unit,
     onNavigateToParentalControl: (Long) -> Unit,
     onChooseRecordingFolder: () -> Unit,
+    onConfigureSmbRecordingStorage: () -> Unit,
     onUseUsbRecordingStorage: (() -> Unit)?,
     onCreateBackup: () -> Unit,
     onManageLocalBackups: () -> Unit,
@@ -67,6 +68,7 @@ public fun SettingsContentPane(
     restorePageRequestId: Long = 0L,
     onPageChanged: (SettingsPage?) -> Unit = {},
     categorySelectionId: Long = 0L,
+    openOpenSubtitlesSignIn: Boolean = false,
     onCloseApp: () -> Unit = {}
 ) {
     val category = SettingsCategory.fromId(dialogState.selectedCategory)
@@ -213,6 +215,9 @@ public fun SettingsContentPane(
                 SettingsLocalHeader(
                     title = stringResource(page?.title ?: category.title),
                     description = stringResource(page?.description ?: category.description),
+                    badge = if (category == SettingsCategory.SPORTS) {
+                        stringResource(R.string.settings_experimental_badge)
+                    } else null,
                     parentTitle = when {
                         activeSearchTarget != null -> stringResource(R.string.settings_search_title)
                         page != null -> stringResource(category.title)
@@ -237,6 +242,10 @@ public fun SettingsContentPane(
                     verticalArrangement = Arrangement.spacedBy(SettingsDesignTokens.space8),
                     userScrollEnabled = true,
                 ) {
+                if (category == SettingsCategory.TRAKT) {
+                    item { TraktSettingsSection(modifier = if (activeSearchTarget?.itemId == "trakt.account")
+                        searchTargetModifier else directEntryModifier) }
+                }
                 if (page == null && category.pages.isNotEmpty()) {
                     items(category.pages, key = { it.name }) { destination ->
                             val isReturnTarget = destination == lastPage
@@ -253,7 +262,9 @@ public fun SettingsContentPane(
                                     onClick = { lastPage = destination; page = destination })
                     }
                 } else {
-                    if (page == SettingsPage.SOURCE_COMPATIBILITY) {
+                    if (page == SettingsPage.SPORTS_DATA_PROVIDERS) {
+                        item { SportsDataProviderSettingsPage() }
+                    } else if (page == SettingsPage.SOURCE_COMPATIBILITY) {
                         item {
                             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                                 SwitchSettingsRow(stringResource(R.string.settings_xtream_text_classification),
@@ -308,6 +319,7 @@ public fun SettingsContentPane(
                             subtitleSizeLabel = screenLabels.subtitleSizeLabel,
                             subtitleTextColorLabel = screenLabels.subtitleTextColorLabel,
                             subtitleBackgroundLabel = screenLabels.subtitleBackgroundLabel,
+                            pinnedSubtitleLanguagesLabel = screenLabels.pinnedSubtitleLanguagesLabel,
                             liveTranslationEndpointLabel = screenLabels.liveTranslationEndpointLabel,
                             wifiQualityLabel = screenLabels.wifiQualityLabel,
                             ethernetQualityLabel = screenLabels.ethernetQualityLabel,
@@ -335,9 +347,11 @@ public fun SettingsContentPane(
                             onShowSubtitleSizeDialogChange = { dialogState.showSubtitleSizeDialog = it },
                             onShowSubtitleTextColorDialogChange = { dialogState.showSubtitleTextColorDialog = it },
                             onShowSubtitleBackgroundDialogChange = { dialogState.showSubtitleBackgroundDialog = it },
+                            onShowPinnedSubtitleLanguagesDialogChange = { dialogState.showPinnedSubtitleLanguagesDialog = it },
                             onShowLiveTranslationEndpointDialogChange = { dialogState.showLiveTranslationEndpointDialog = it },
                             onShowWifiQualityDialogChange = { dialogState.showWifiQualityDialog = it },
                             onShowEthernetQualityDialogChange = { dialogState.showEthernetQualityDialog = it },
+                            openOpenSubtitlesSignIn = openOpenSubtitlesSignIn,
                             targetItemId = activeSearchTarget?.itemId,
                             targetFocusModifier = searchTargetModifier,
                         )
@@ -382,6 +396,7 @@ public fun SettingsContentPane(
                         settingsPrivacySection(
                             uiState = uiState,
                             onToggleIncognitoMode = viewModel::toggleIncognitoMode,
+                            onHideStremioAddonsChange = viewModel::setHideStremioAddons,
                             onToggleXtreamTextClassification = viewModel::toggleXtreamTextClassification,
                             onToggleXtreamBase64TextCompatibility = viewModel::toggleXtreamBase64TextCompatibility,
                             onPendingProtectionLevelChange = { dialogState.pendingProtectionLevel = it },
@@ -402,6 +417,7 @@ public fun SettingsContentPane(
                             page = page,
                             viewModel = viewModel,
                             onChooseFolder = onChooseRecordingFolder,
+                            onConfigureSmbStorage = onConfigureSmbRecordingStorage,
                             onUseUsbStorage = onUseUsbRecordingStorage,
                             onShowRecordingPatternDialogChange = { dialogState.showRecordingPatternDialog = it },
                             onShowRecordingRetentionDialogChange = { dialogState.showRecordingRetentionDialog = it },

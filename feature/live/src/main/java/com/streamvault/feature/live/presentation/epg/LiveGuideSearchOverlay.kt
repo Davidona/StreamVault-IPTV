@@ -1,5 +1,6 @@
 package com.streamvault.feature.live.presentation.epg
 
+import com.streamvault.core.ui.design.BrowseShapes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusGroup
@@ -13,7 +14,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -73,7 +73,7 @@ fun LiveGuideSearchOverlay(
                 .padding(top = 32.dp)
                 .focusGroup(),
             colors = SurfaceDefaults.colors(containerColor = com.streamvault.core.ui.theme.SurfaceElevated),
-            shape = RoundedCornerShape(18.dp)
+            shape = BrowseShapes.Panel
         ) {
             Column(
                 modifier = Modifier.padding(horizontal = 18.dp, vertical = 16.dp),

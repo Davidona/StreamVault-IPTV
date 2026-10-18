@@ -1,0 +1,18 @@
+<resources>
+    <string name="vod_subtitle_sources">Surse</string>
+    <string name="vod_subtitle_settings">Setări</string>
+    <string name="vod_subtitle_provider">Subtitrări de la furnizor</string>
+    <string name="vod_subtitle_provider_hint">Alegeți o pistă de subtitrare din acest videoclip</string>
+    <string name="vod_subtitle_online">OpenSubtitles</string>
+    <string name="vod_subtitle_online_hint">Găsiți subtitrări online</string>
+    <string name="vod_subtitle_online_unavailable">Căutarea online nu este disponibilă pentru acest videoclip</string>
+    <string name="vod_subtitle_device_hint">Alegeți un fișier SRT</string>
+    <string name="vod_subtitle_back">Înapoi la surse</string>
+    <string name="vod_tracks_empty">Nu există piste disponibile în acest videoclip</string>
+    <string name="vod_subtitle_preview">Aceasta este o subtitrare.</string>
+    <string name="vod_subtitle_font_size">Dimensiunea fontului</string>
+    <string name="vod_subtitle_background">Opacitatea fundalului</string>
+    <string name="vod_subtitle_background_hint" formatted="false">0% transparent · 100% negru solid</string>
+    <string name="vod_subtitle_decrease_setting">Micșorați %1$s</string>
+    <string name="vod_subtitle_increase_setting">Măriți %1$s</string>
+</resources>

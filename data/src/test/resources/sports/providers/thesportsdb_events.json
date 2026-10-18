@@ -1,0 +1,30 @@
+{
+  "schedule": [
+    {
+      "idEvent": "2070217",
+      "strEvent": "Wolves vs Brentford",
+      "strSport": "Soccer",
+      "idLeague": "4328",
+      "strLeague": "English Premier League",
+      "strHomeTeam": "Wolves",
+      "idHomeTeam": "133599",
+      "strAwayTeam": "Brentford",
+      "idAwayTeam": "134355",
+      "strTimestamp": "2026-10-17T18:00:00",
+      "dateEvent": "2026-10-17",
+      "strStatus": "NS",
+      "strGroup": ""
+    },
+    {
+      "idEvent": "2070218",
+      "strEvent": "Late Fixture",
+      "strSport": "Soccer",
+      "idLeague": "4328",
+      "strLeague": "English Premier League",
+      "strHomeTeam": "Home",
+      "strAwayTeam": "Away",
+      "strTimestamp": "2026-10-18T00:00:00",
+      "dateEvent": "2026-10-18"
+    }
+  ]
+}

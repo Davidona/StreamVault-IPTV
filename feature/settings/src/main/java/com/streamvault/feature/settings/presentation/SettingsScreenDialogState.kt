@@ -49,6 +49,7 @@ class SettingsScreenDialogState(
     private val showSubtitleSizeDialogState: MutableState<Boolean>,
     private val showSubtitleTextColorDialogState: MutableState<Boolean>,
     private val showSubtitleBackgroundDialogState: MutableState<Boolean>,
+    private val showPinnedSubtitleLanguagesDialogState: MutableState<Boolean>,
     private val showLiveTranslationEndpointDialogState: MutableState<Boolean>,
     private val showWifiQualityDialogState: MutableState<Boolean>,
     private val showProviderSyncDialogState: MutableState<Boolean>,
@@ -115,6 +116,7 @@ class SettingsScreenDialogState(
     var showSubtitleSizeDialog by showSubtitleSizeDialogState
     var showSubtitleTextColorDialog by showSubtitleTextColorDialogState
     var showSubtitleBackgroundDialog by showSubtitleBackgroundDialogState
+    var showPinnedSubtitleLanguagesDialog by showPinnedSubtitleLanguagesDialogState
     var showLiveTranslationEndpointDialog by showLiveTranslationEndpointDialogState
     var showWifiQualityDialog by showWifiQualityDialogState
     var showProviderSyncDialog by showProviderSyncDialogState
@@ -208,7 +210,7 @@ fun rememberSettingsProviderSectionState(
 }
 
 @Composable
-fun rememberSettingsScreenDialogState(): SettingsScreenDialogState {
+fun rememberSettingsScreenDialogState(initialSelectedCategory: Int = 0): SettingsScreenDialogState {
     val showPinDialogState = rememberSaveable { mutableStateOf(false) }
     val showLevelDialogState = rememberSaveable { mutableStateOf(false) }
     val showLanguageDialogState = rememberSaveable { mutableStateOf(false) }
@@ -249,6 +251,7 @@ fun rememberSettingsScreenDialogState(): SettingsScreenDialogState {
     val showSubtitleSizeDialogState = rememberSaveable { mutableStateOf(false) }
     val showSubtitleTextColorDialogState = rememberSaveable { mutableStateOf(false) }
     val showSubtitleBackgroundDialogState = rememberSaveable { mutableStateOf(false) }
+    val showPinnedSubtitleLanguagesDialogState = rememberSaveable { mutableStateOf(false) }
     val showLiveTranslationEndpointDialogState = rememberSaveable { mutableStateOf(false) }
     val showWifiQualityDialogState = rememberSaveable { mutableStateOf(false) }
     val showProviderSyncDialogState = rememberSaveable { mutableStateOf(false) }
@@ -277,7 +280,7 @@ fun rememberSettingsScreenDialogState(): SettingsScreenDialogState {
     val selectedRemoteShortcutTargetKeyState = rememberSaveable { mutableStateOf<String?>(null) }
     val selectedRecordingIdState = rememberSaveable { mutableStateOf<String?>(null) }
     val categorySortDialogTypeState = rememberSaveable { mutableStateOf<String?>(null) }
-    val selectedCategoryState = rememberSaveable { mutableStateOf(0) }
+    val selectedCategoryState = rememberSaveable { mutableStateOf(initialSelectedCategory) }
     val pinErrorState = rememberSaveable { mutableStateOf<String?>(null) }
     val pendingActionState = remember { mutableStateOf<ParentalAction?>(null) }
     val pendingProtectionLevelState = rememberSaveable { mutableStateOf<Int?>(null) }
@@ -324,6 +327,7 @@ fun rememberSettingsScreenDialogState(): SettingsScreenDialogState {
         showSubtitleSizeDialogState = showSubtitleSizeDialogState,
         showSubtitleTextColorDialogState = showSubtitleTextColorDialogState,
         showSubtitleBackgroundDialogState = showSubtitleBackgroundDialogState,
+        showPinnedSubtitleLanguagesDialogState = showPinnedSubtitleLanguagesDialogState,
         showLiveTranslationEndpointDialogState = showLiveTranslationEndpointDialogState,
         showWifiQualityDialogState = showWifiQualityDialogState,
         showProviderSyncDialogState = showProviderSyncDialogState,

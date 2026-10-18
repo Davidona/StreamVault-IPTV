@@ -1,5 +1,6 @@
 package com.streamvault.feature.playback.multiview
 
+import com.streamvault.core.ui.design.BrowseShapes
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -11,7 +12,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -42,8 +42,8 @@ import com.streamvault.core.ui.components.dialogs.PremiumDialog
 import com.streamvault.core.ui.components.dialogs.PremiumDialogFooterButton
 import com.streamvault.core.ui.components.shell.AppMessageState
 import com.streamvault.core.ui.components.shell.StatusPill
-import com.streamvault.core.ui.design.AppColors
-import com.streamvault.core.ui.design.FocusSpec
+import com.streamvault.core.ui.design.BrowseColors as AppColors
+import com.streamvault.core.ui.design.BrowseFocusSpec as FocusSpec
 import com.streamvault.domain.model.Channel
 import kotlinx.coroutines.delay
 import com.streamvault.core.ui.interaction.TvClickableSurface
@@ -92,6 +92,7 @@ fun MultiViewPlannerDialog(
         subtitle = subtitle,
         onDismissRequest = onDismiss,
         widthFraction = 0.58f,
+        bodyHeightFraction = 0.66f,
         content = {
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 StatusPill(
@@ -110,6 +111,7 @@ fun MultiViewPlannerDialog(
                 } else {
                     listOf(listOf(0, 1), listOf(2, 3))
                 }
+                val slotAspectRatio = if (centeredTwoSlotLayout) 16f / 9f else 2.1f
                 plannerRows.forEachIndexed { rowIndex, rowSlots ->
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -121,6 +123,7 @@ fun MultiViewPlannerDialog(
                                 slotIndex = slotIndex,
                                 occupant = occupant,
                                 isPickerMode = isPickerMode && !channelPlaced,
+                                aspectRatio = slotAspectRatio,
                                 modifier = Modifier
                                     .weight(1f)
                                     .then(
@@ -187,6 +190,7 @@ private fun MultiViewSlotCard(
     slotIndex: Int,
     occupant: Channel?,
     isPickerMode: Boolean,
+    aspectRatio: Float,
     modifier: Modifier = Modifier,
     onSlotClick: () -> Unit,
     onClearSlot: () -> Unit
@@ -201,18 +205,18 @@ private fun MultiViewSlotCard(
 
     TvClickableSurface(
         onClick = { if (isPickerMode) onSlotClick() else onClearSlot() },
-        modifier = modifier.aspectRatio(16f / 9f),
-        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(18.dp)),
+        modifier = modifier.aspectRatio(aspectRatio),
+        shape = ClickableSurfaceDefaults.shape(BrowseShapes.Panel),
         colors = ClickableSurfaceDefaults.colors(
             containerColor = AppColors.SurfaceElevated,
-            focusedContainerColor = AppColors.SurfaceEmphasis,
+            focusedContainerColor = AppColors.SurfaceElevated,
             pressedContainerColor = AppColors.SurfaceEmphasis
         ),
         border = ClickableSurfaceDefaults.border(
             border = Border(border = BorderStroke(1.dp, accent.copy(alpha = 0.35f))),
             focusedBorder = Border(border = BorderStroke(FocusSpec.BorderWidth, AppColors.Focus))
         ),
-        scale = ClickableSurfaceDefaults.scale(focusedScale = FocusSpec.FocusedScale)
+        scale = ClickableSurfaceDefaults.scale(focusedScale = 1f)
     ) {
         Box(
             modifier = Modifier

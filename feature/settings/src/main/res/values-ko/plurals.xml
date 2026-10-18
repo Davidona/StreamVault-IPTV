@@ -13,11 +13,11 @@
         <item quantity="other">%1$d 분</item>
     </plurals>
 <plurals name="settings_top_navigation_count">
-        <item quantity="one">%d tab</item>
-        <item quantity="other">%d tabs</item>
+        <item quantity="one">%d개 탭</item>
+        <item quantity="other">%d개 탭</item>
     </plurals>
 <plurals name="settings_home_dashboard_count">
-        <item quantity="one">%d shelf</item>
-        <item quantity="other">%d shelves</item>
+        <item quantity="one">%d개 선반</item>
+        <item quantity="other">%d개 선반</item>
     </plurals>
 </resources>

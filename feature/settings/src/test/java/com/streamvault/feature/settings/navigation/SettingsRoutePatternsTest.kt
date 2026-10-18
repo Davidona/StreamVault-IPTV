@@ -9,7 +9,7 @@ class SettingsRoutePatternsTest {
     fun routePatternsRemainCompatibleWithExistingAppRoutes() {
         assertThat(SettingsRoutePatterns.SETTINGS).isEqualTo("settings")
         assertThat(SettingsRoutePatterns.SETTINGS_DESTINATION)
-            .isEqualTo("settings?backupUri={backupUri}")
+            .isEqualTo("settings?backupUri={backupUri}&openOpenSubtitlesSignIn={openOpenSubtitlesSignIn}")
         assertThat(SettingsRoutePatterns.PARENTAL_CONTROL_GROUPS)
             .isEqualTo("parental_control_groups/{providerId}")
     }

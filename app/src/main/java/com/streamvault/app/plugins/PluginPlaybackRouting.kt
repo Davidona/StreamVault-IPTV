@@ -40,3 +40,17 @@ private fun StreamVaultPluginManifest.ownsPlaybackUrl(scheme: String, host: Stri
     // Hostless schemes (for example, a custom URI) can be owned by scheme alone.
     return host == null || playbackUrlHosts.any { it.equals("*", true) || it.equals(host, true) }
 }
+
+internal fun isMagnetPlaybackUrl(url: String): Boolean =
+    url.trimStart().startsWith("magnet:", ignoreCase = true)
+
+internal fun isSafeTorrentPlaybackOutputUrl(url: String): Boolean = runCatching {
+    val uri = URI(url)
+    uri.scheme.equals("http", ignoreCase = true) &&
+        uri.host.equals("127.0.0.1", ignoreCase = true) &&
+        uri.port in 1..65535 &&
+        uri.rawUserInfo == null &&
+        uri.rawQuery == null &&
+        uri.rawPath.matches(Regex("/stream/[A-Za-z0-9]{32}")) &&
+        uri.rawFragment == null
+}.getOrDefault(false)

@@ -1978,6 +1978,384 @@ class StreamVaultDatabaseMigrationTest {
         migrated.close()
     }
 
+    @Test
+    fun migrate78To87_preservesSavedImportWithoutGrantingCompletionProof() {
+        val name = "streamvault-78-87-live-receipt"
+        migrationTestHelper.createDatabase(name, 78).apply {
+            execSQL("INSERT INTO providers (id,name,type,is_active,status,last_synced_at,created_at) " +
+                "VALUES (1,'Synthetic','XTREAM_CODES',1,'UNKNOWN',0,0)")
+            execSQL("""
+                INSERT INTO xtream_live_onboarding_state (
+                    provider_id, provider_type, content_type, phase, staged_session_id, import_strategy,
+                    next_category_index, accepted_row_count, staged_flush_count, sync_profile_tier,
+                    sync_profile_batch_size, sync_profile_strategy, sync_profile_low_memory,
+                    sync_profile_memory_class_mb, sync_profile_available_mem_mb, last_error,
+                    created_at, updated_at, completed_at
+                ) VALUES (1, 'XTREAM_CODES', 'LIVE', 'STAGED', 123, 'full', 0, 7, 1,
+                    'MID', 250, 'STREAM_ALL', 0, 192, 512, NULL, 100, 200, NULL)
+            """.trimIndent())
+            close()
+        }
+        val migrated = migrationTestHelper.runMigrationsAndValidate(
+            name,
+            80,
+            true,
+            *StreamVaultDatabaseMigrationRegistry.all.toTypedArray()
+        )
+        assertEquals(1, countRows(migrated, "SELECT COUNT(*) FROM providers WHERE id=1 AND name='Synthetic'"))
+        assertEquals(1, countRows(migrated, """
+            SELECT COUNT(*) FROM xtream_live_onboarding_state WHERE provider_id=1
+              AND staged_session_id=123 AND accepted_row_count=7 AND phase='STAGED'
+              AND sealed_session_id IS NULL AND sealed_row_count=0
+              AND sealed_configuration_generation IS NULL AND sealed_mapping_profile IS NULL
+        """.trimIndent()))
+        assertEquals(0, countRows(migrated, "SELECT COUNT(*) FROM pragma_foreign_key_check"))
+        migrated.close()
+
+        val current = migrationTestHelper.runMigrationsAndValidate(
+            name,
+            81,
+            true,
+            StreamVaultDatabase.MIGRATION_80_81
+        )
+        assertEquals(1, countRows(current, "SELECT COUNT(*) FROM providers WHERE id=1 AND name='Synthetic'"))
+        assertEquals(1, countRows(current, """
+            SELECT COUNT(*) FROM xtream_live_onboarding_state WHERE provider_id=1
+              AND staged_session_id=123 AND accepted_row_count=7 AND phase='STAGED'
+              AND sealed_session_id IS NULL AND sealed_row_count=0
+              AND sealed_configuration_generation IS NULL AND sealed_mapping_profile IS NULL
+        """.trimIndent()))
+        assertEquals(1, countRows(current, "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='stalker_live_category_retries'"))
+        assertEquals(0, countRows(current, "SELECT COUNT(*) FROM pragma_foreign_key_check"))
+        current.close()
+
+        val latest = migrationTestHelper.runMigrationsAndValidate(
+            name,
+            StreamVaultDatabaseMigrationRegistry.CURRENT_VERSION,
+            true,
+            *StreamVaultDatabaseMigrationRegistry.all.filter { it.startVersion >= 81 }.toTypedArray()
+        )
+        assertEquals(1, countRows(latest, "SELECT COUNT(*) FROM providers WHERE id=1 AND name='Synthetic'"))
+        assertEquals(1, countRows(latest, """
+            SELECT COUNT(*) FROM xtream_live_onboarding_state WHERE provider_id=1
+              AND staged_session_id=123 AND accepted_row_count=7 AND phase='STAGED'
+              AND sealed_session_id IS NULL AND sealed_row_count=0
+              AND sealed_configuration_generation IS NULL AND sealed_mapping_profile IS NULL
+        """.trimIndent()))
+        assertEquals(1, countRows(latest, "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='playback_quality_preferences'"))
+        assertEquals(1, countRows(latest, "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='stremio_addons'"))
+        assertEquals(1, countRows(latest, "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='stremio_playback_history'"))
+        assertEquals(1, countRows(latest, "SELECT COUNT(*) FROM pragma_table_info('downloads') WHERE name='request_headers_json'"))
+        assertEquals(1, countRows(latest, "SELECT COUNT(*) FROM pragma_table_info('recording_runs') WHERE name='network_profile_json'"))
+        assertEquals(0, countRows(latest, "SELECT COUNT(*) FROM pragma_foreign_key_check"))
+        latest.close()
+    }
+
+    @Test
+    fun migrate80To81_createsStalkerRetriesAndExpiresSeriesDetails() {
+        val name = "streamvault-80-81-stalker-retries"
+        migrationTestHelper.createDatabase(name, 80).apply {
+            insertProvider78(1, "Stalker", "STALKER_PORTAL")
+            insertSeries78(id = 30, seriesId = 3001, providerId = 1, name = "First Series", detailHydratedAt = 555)
+            insertSeries78(id = 31, seriesId = 3002, providerId = 1, name = "Second Series", detailHydratedAt = 666)
+            insertEpisode78(id = 40, episodeId = 10001, seriesId = 30, providerId = 1, title = "First S01E01")
+            insertEpisode78(id = 41, episodeId = 10001, seriesId = 31, providerId = 1, title = "Second S01E01")
+            assertEquals(0, countRows(this, "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='stalker_live_category_retries'"))
+            close()
+        }
+
+        val migrated = migrationTestHelper.runMigrationsAndValidate(
+            name,
+            81,
+            true,
+            StreamVaultDatabase.MIGRATION_80_81
+        )
+        assertEquals(2, countRows(migrated, "SELECT COUNT(*) FROM episodes WHERE provider_id=1 AND episode_id=10001"))
+        assertEquals(1, countRows(migrated, "SELECT COUNT(*) FROM series WHERE id=30 AND detail_hydrated_at=1"))
+        assertEquals(1, countRows(migrated, "SELECT COUNT(*) FROM series WHERE id=31 AND detail_hydrated_at=1"))
+        assertEquals(1, countRows(migrated, "SELECT COUNT(*) FROM pragma_index_list('stalker_live_category_retries') WHERE name='index_stalker_live_category_retries_provider_id'"))
+        assertEquals(1, countRows(migrated, "SELECT COUNT(*) FROM pragma_foreign_key_list('stalker_live_category_retries') WHERE `table`='providers' AND on_delete='CASCADE'"))
+        migrated.execSQL("""
+            INSERT INTO stalker_live_category_retries (
+                provider_id, category_id, category_name, configuration_generation,
+                attempt_count, last_attempt_at, last_error
+            ) VALUES (1, 7, 'News', 3, 2, 100, 'Retryable failure')
+        """.trimIndent())
+        assertEquals(1, countRows(migrated, "SELECT COUNT(*) FROM stalker_live_category_retries WHERE provider_id=1 AND category_id=7"))
+        assertEquals(0, countRows(migrated, "SELECT COUNT(*) FROM pragma_foreign_key_check"))
+        migrated.setForeignKeyConstraintsEnabled(true)
+        migrated.execSQL("DELETE FROM providers WHERE id=1")
+        assertEquals(0, countRows(migrated, "SELECT COUNT(*) FROM stalker_live_category_retries"))
+        assertEquals(0, countRows(migrated, "SELECT COUNT(*) FROM pragma_foreign_key_check"))
+        migrated.close()
+    }
+
+    @Test
+    fun migrate78To79_scopesEpisodeUniquenessToSeriesAndExpiresSeriesDetails() {
+        val name = "streamvault-78-79-episode-uniqueness"
+        migrationTestHelper.createDatabase(name, 78).apply {
+            insertProvider78(1, "Xtream", "XTREAM_CODES")
+            insertSeries78(id = 30, seriesId = 3001, providerId = 1, name = "Series With Episodes", detailHydratedAt = 555)
+            insertSeries78(id = 31, seriesId = 3002, providerId = 1, name = "Stranded Series", detailHydratedAt = 666)
+            insertEpisode78(id = 40, episodeId = 10001, seriesId = 30, providerId = 1, title = "S01E01")
+            execSQL("INSERT INTO series (id, series_id, name, rating, last_modified, provider_id, is_adult, is_user_protected, sync_fingerprint, cache_state, detail_hydrated_at, remote_stale_at, catalog_origin) VALUES (32, 3003, 'Summary Series', 0.0, 0, 1, 0, 0, 'fp', 'SUMMARY_ONLY', 0, 0, 'NATIVE')")
+            close()
+        }
+
+        val migrated = migrationTestHelper.runMigrationsAndValidate(
+            name,
+            79,
+            true,
+            *StreamVaultDatabaseMigrationRegistry.all.toTypedArray()
+        )
+
+        assertEquals(0, countRows(migrated, "SELECT COUNT(*) FROM pragma_index_list('episodes') WHERE name='index_episodes_provider_id_episode_id'"))
+        assertEquals(1, countRows(migrated, "SELECT COUNT(*) FROM pragma_index_list('episodes') WHERE name='index_episodes_provider_id_series_id_episode_id' AND `unique`=1"))
+        migrated.insertEpisode78(id = 41, episodeId = 10001, seriesId = 31, providerId = 1, title = "S01E01")
+        assertEquals(2, countRows(migrated, "SELECT COUNT(*) FROM episodes WHERE provider_id = 1 AND episode_id = 10001"))
+        assertEquals(2, countRows(migrated, "SELECT COUNT(*) FROM series WHERE cache_state = 'DETAIL_HYDRATED' AND detail_hydrated_at = 1"))
+        assertEquals(1, countRows(migrated, "SELECT COUNT(*) FROM series WHERE id = 32 AND cache_state = 'SUMMARY_ONLY' AND detail_hydrated_at = 0"))
+        assertEquals(1, countRows(migrated, "SELECT COUNT(*) FROM episodes WHERE id = 40 AND series_id = 30"))
+        assertEquals(0, countRows(migrated, "SELECT COUNT(*) FROM pragma_foreign_key_check"))
+        migrated.close()
+    }
+
+    @Test
+    fun migrate82To83_createsPlaybackQualityPreferencesTable() {
+        val name = "streamvault-82-83-playback-quality"
+        migrationTestHelper.createDatabase(name, 82).close()
+
+        val migrated = migrationTestHelper.runMigrationsAndValidate(
+            name,
+            83,
+            true,
+            *StreamVaultDatabaseMigrationRegistry.v82To83.toTypedArray()
+        )
+
+        assertEquals(1, countRows(migrated, "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='playback_quality_preferences'"))
+        assertEquals(1, countRows(migrated, "SELECT COUNT(*) FROM pragma_index_list('playback_quality_preferences') WHERE name='index_playback_quality_preferences_provider_id'"))
+        assertEquals(9, countRows(migrated, "SELECT COUNT(*) FROM pragma_table_info('playback_quality_preferences')"))
+        assertEquals(0, countRows(migrated, "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name IN ('stremio_addons','stremio_playback_history')"))
+        assertEquals(0, countRows(migrated, "SELECT COUNT(*) FROM pragma_foreign_key_check"))
+        migrated.close()
+    }
+
+    @Test
+    fun migratePreMergeStremioV83To87_repairsSchemaAndPreservesUserData() {
+        val name = "streamvault-premerge-stremio-v83-87"
+        migrationTestHelper.createDatabase(name, 83).apply {
+            execSQL("DROP INDEX `index_episodes_provider_id_series_id_episode_id`")
+            execSQL(
+                "CREATE UNIQUE INDEX `index_episodes_provider_id_episode_id` " +
+                    "ON `episodes` (`provider_id`, `episode_id`)"
+            )
+            createPreReceiptXtreamOnboardingStateTable()
+
+            insertProvider78(1, "Synthetic Xtream", "XTREAM_CODES")
+            execSQL(
+                """
+                INSERT INTO xtream_live_onboarding_state (
+                    provider_id, provider_type, content_type, phase, staged_session_id,
+                    import_strategy, next_category_index, accepted_row_count, staged_flush_count,
+                    sync_profile_tier, sync_profile_batch_size, sync_profile_strategy,
+                    sync_profile_low_memory, sync_profile_memory_class_mb,
+                    sync_profile_available_mem_mb, last_error, created_at, updated_at, completed_at
+                ) VALUES (1, 'XTREAM_CODES', 'LIVE', 'STAGED', 123, 'full', 2, 7, 1,
+                    'MID', 250, 'STREAM_ALL', 0, 192, 512, NULL, 100, 200, NULL)
+                """.trimIndent()
+            )
+            insertSeries78(30, 3001, 1, "First Series", 555)
+            insertSeries78(31, 3002, 1, "Second Series", 666)
+            insertEpisode78(40, 10001, 30, 1, "First S01E01")
+
+            // The pre-merge Stremio v83 schema already had these tables, unlike develop v83.
+            execSQL(
+                """
+                CREATE TABLE `stremio_addons` (
+                    `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                    `install_url` TEXT NOT NULL,
+                    `manifest_id` TEXT NOT NULL,
+                    `name` TEXT NOT NULL,
+                    `version` TEXT NOT NULL,
+                    `manifest_json` TEXT NOT NULL,
+                    `enabled` INTEGER NOT NULL,
+                    `sort_order` INTEGER NOT NULL,
+                    `catalog_settings_json` TEXT NOT NULL,
+                    `created_at` INTEGER NOT NULL,
+                    `updated_at` INTEGER NOT NULL
+                )
+                """.trimIndent()
+            )
+            execSQL("CREATE UNIQUE INDEX `index_stremio_addons_install_url` ON `stremio_addons` (`install_url`)")
+            execSQL(
+                """
+                CREATE TABLE `stremio_playback_history` (
+                    `content_key` TEXT NOT NULL,
+                    `media_type` TEXT NOT NULL,
+                    `exact_video_id` TEXT NOT NULL,
+                    `parent_series_id` TEXT,
+                    `title` TEXT NOT NULL,
+                    `poster_url` TEXT,
+                    `resume_position_ms` INTEGER NOT NULL,
+                    `total_duration_ms` INTEGER NOT NULL,
+                    `is_watched` INTEGER NOT NULL,
+                    `last_watched_at` INTEGER NOT NULL,
+                    `catalog_origin_key` TEXT NOT NULL,
+                    `stream_origin_key_hint` TEXT,
+                    PRIMARY KEY(`content_key`)
+                )
+                """.trimIndent()
+            )
+            execSQL(
+                """
+                INSERT INTO stremio_addons (
+                    id, install_url, manifest_id, name, version, manifest_json, enabled,
+                    sort_order, catalog_settings_json, created_at, updated_at
+                ) VALUES (1, 'https://addon.example/manifest.json', 'fixture.addon', 'Fixture Add-on',
+                    '1.2.3', '{}', 1, 0, '{}', 100, 200)
+                """.trimIndent()
+            )
+            execSQL(
+                """
+                INSERT INTO stremio_playback_history (
+                    content_key, media_type, exact_video_id, parent_series_id, title, poster_url,
+                    resume_position_ms, total_duration_ms, is_watched, last_watched_at,
+                    catalog_origin_key, stream_origin_key_hint
+                ) VALUES ('movie:fixture', 'movie', 'fixture', NULL, 'Saved Movie', NULL,
+                    12000, 90000, 0, 300, 'fixture.addon', NULL)
+                """.trimIndent()
+            )
+            close()
+        }
+
+        val migrationPath = StreamVaultDatabaseMigrationRegistry.all
+            .filter { it.startVersion >= 83 }
+        val migrated = migrationTestHelper.runMigrationsAndValidate(
+            name,
+            StreamVaultDatabaseMigrationRegistry.CURRENT_VERSION,
+            true,
+            *migrationPath.toTypedArray()
+        )
+
+        assertEquals(1, countRows(migrated, "SELECT COUNT(*) FROM providers WHERE id=1 AND name='Synthetic Xtream'"))
+        assertEquals(1, countRows(migrated, """
+            SELECT COUNT(*) FROM xtream_live_onboarding_state
+            WHERE provider_id=1 AND staged_session_id=123 AND next_category_index=2
+              AND accepted_row_count=7 AND sealed_session_id IS NULL AND sealed_row_count=0
+              AND sealed_configuration_generation IS NULL AND sealed_mapping_profile IS NULL
+        """.trimIndent()))
+        assertEquals(0, countRows(migrated, "SELECT COUNT(*) FROM pragma_index_list('episodes') WHERE name='index_episodes_provider_id_episode_id'"))
+        assertEquals(1, countRows(migrated, "SELECT COUNT(*) FROM pragma_index_list('episodes') WHERE name='index_episodes_provider_id_series_id_episode_id' AND `unique`=1"))
+        assertEquals(2, countRows(migrated, "SELECT COUNT(*) FROM series WHERE provider_id=1 AND detail_hydrated_at=1"))
+        migrated.insertEpisode78(41, 10001, 31, 1, "Second S01E01")
+        assertEquals(2, countRows(migrated, "SELECT COUNT(*) FROM episodes WHERE provider_id=1 AND episode_id=10001"))
+        assertEquals(1, countRows(migrated, "SELECT COUNT(*) FROM stremio_addons WHERE id=1 AND name='Fixture Add-on' AND enabled=1 AND manifest_refreshed_at=0"))
+        assertEquals(1, countRows(migrated, "SELECT COUNT(*) FROM stremio_playback_history WHERE content_key='movie:fixture' AND resume_position_ms=12000"))
+        assertEquals(1, countRows(migrated, "SELECT COUNT(*) FROM pragma_table_info('recording_runs') WHERE name='network_profile_json'"))
+        assertEquals(1, countRows(migrated, "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='playback_quality_preferences'"))
+        assertEquals(0, countRows(migrated, "SELECT COUNT(*) FROM pragma_foreign_key_check"))
+        migrated.close()
+    }
+
+    private fun SupportSQLiteDatabase.insertProvider78(id: Long, name: String, type: String) {
+        execSQL(
+            "INSERT INTO providers (id,name,type,is_active,status,last_synced_at,created_at) VALUES (?,?,?,1,'UNKNOWN',0,0)",
+            arrayOf<Any?>(id, name, type)
+        )
+    }
+
+    /** Rebuilds the empty current-schema table as the pre-merge v83 shape. */
+    private fun SupportSQLiteDatabase.createPreReceiptXtreamOnboardingStateTable() {
+        execSQL("DROP TABLE `xtream_live_onboarding_state`")
+        execSQL(
+            """
+            CREATE TABLE `xtream_live_onboarding_state` (
+                `provider_id` INTEGER NOT NULL,
+                `provider_type` TEXT NOT NULL,
+                `content_type` TEXT NOT NULL,
+                `phase` TEXT NOT NULL,
+                `staged_session_id` INTEGER,
+                `import_strategy` TEXT,
+                `next_category_index` INTEGER NOT NULL,
+                `accepted_row_count` INTEGER NOT NULL,
+                `staged_flush_count` INTEGER NOT NULL,
+                `sync_profile_tier` TEXT,
+                `sync_profile_batch_size` INTEGER NOT NULL,
+                `sync_profile_strategy` TEXT,
+                `sync_profile_low_memory` INTEGER NOT NULL,
+                `sync_profile_memory_class_mb` INTEGER NOT NULL,
+                `sync_profile_available_mem_mb` INTEGER NOT NULL,
+                `last_error` TEXT,
+                `created_at` INTEGER NOT NULL,
+                `updated_at` INTEGER NOT NULL,
+                `completed_at` INTEGER,
+                PRIMARY KEY(`provider_id`),
+                FOREIGN KEY(`provider_id`) REFERENCES `providers`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE
+            )
+            """.trimIndent()
+        )
+        execSQL(
+            "CREATE INDEX `index_xtream_live_onboarding_state_provider_id` " +
+                "ON `xtream_live_onboarding_state` (`provider_id`)"
+        )
+        execSQL(
+            "CREATE INDEX `index_xtream_live_onboarding_state_phase` " +
+                "ON `xtream_live_onboarding_state` (`phase`)"
+        )
+        execSQL(
+            "CREATE INDEX `index_xtream_live_onboarding_state_updated_at` " +
+                "ON `xtream_live_onboarding_state` (`updated_at`)"
+        )
+        execSQL(
+            "CREATE INDEX `index_xtream_live_onboarding_state_staged_session_id` " +
+                "ON `xtream_live_onboarding_state` (`staged_session_id`)"
+        )
+    }
+
+    private fun SupportSQLiteDatabase.insertSeries78(
+        id: Long,
+        seriesId: Long,
+        providerId: Long,
+        name: String,
+        detailHydratedAt: Long
+    ) {
+        execSQL(
+            """
+            INSERT INTO series (
+                id, series_id, provider_series_id, name, poster_url, backdrop_url, category_id,
+                category_name, plot, cast, director, genre, release_date, rating, tmdb_id,
+                youtube_trailer, episode_run_time, last_modified, provider_id, is_adult,
+                is_user_protected, sync_fingerprint, cache_state, detail_hydrated_at,
+                remote_stale_at, catalog_origin, episode_playback_template_url
+            ) VALUES (
+                ?,?,NULL,?,NULL,NULL,7,'Series',NULL,NULL,NULL,NULL,NULL,0.0,NULL,
+                NULL,NULL,0,?,0,0,'series-fp','DETAIL_HYDRATED',?,0,'NATIVE',NULL
+            )
+            """.trimIndent(),
+            arrayOf<Any?>(id, seriesId, name, providerId, detailHydratedAt)
+        )
+    }
+
+    private fun SupportSQLiteDatabase.insertEpisode78(
+        id: Long,
+        episodeId: Long,
+        seriesId: Long,
+        providerId: Long,
+        title: String
+    ) {
+        execSQL(
+            """
+            INSERT INTO episodes (
+                id, episode_id, title, episode_number, season_number, stream_url,
+                container_extension, cover_url, plot, duration, duration_seconds, rating,
+                release_date, series_id, provider_id, watch_progress, last_watched_at,
+                is_adult, is_user_protected
+            ) VALUES (?,?,?,1,1,'https://stream.test/episode',NULL,NULL,NULL,NULL,0,0.0,NULL,?,?,0,0,0,0)
+            """.trimIndent(),
+            arrayOf<Any?>(id, episodeId, title, seriesId, providerId)
+        )
+    }
+
     private fun SupportSQLiteDatabase.insertProvider72(id: Long, name: String, type: String) {
         execSQL(
             """

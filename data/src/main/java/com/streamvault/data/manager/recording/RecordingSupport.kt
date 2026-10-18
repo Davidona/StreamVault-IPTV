@@ -9,10 +9,12 @@ import androidx.documentfile.provider.DocumentFile
 import com.streamvault.data.local.entity.RecordingRunEntity
 import com.streamvault.data.local.entity.RecordingRunWithSchedule
 import com.streamvault.data.local.entity.RecordingStorageEntity
+import com.streamvault.data.security.CredentialCrypto
 import com.streamvault.domain.model.RecordingFailureCategory
 import com.streamvault.domain.model.RecordingItem
 import com.streamvault.domain.model.RecordingStorageConfig
 import com.streamvault.domain.model.RecordingStorageState
+import com.streamvault.domain.util.LivePlaybackCaptureBackpressureException
 import java.io.File
 import java.io.FileOutputStream
 import java.text.SimpleDateFormat
@@ -51,24 +53,40 @@ internal fun RecordingRunWithSchedule.toDomain(): RecordingItem = RecordingItem(
     terminalAtMs = terminalAtMs
 )
 
-internal fun RecordingStorageEntity.toDomain(): RecordingStorageState = RecordingStorageState(
-    treeUri = treeUri,
-    displayName = displayName,
-    // When no SAF tree is selected, outputDirectory holds the resolved local path (default
-    // internal dir or a chosen USB folder), so it doubles as the active localDirectory.
-    localDirectory = if (treeUri.isNullOrBlank()) outputDirectory else null,
-    outputDirectory = outputDirectory,
-    availableBytes = availableBytes,
-    isWritable = isWritable,
-    fileNamePattern = fileNamePattern,
-    retentionDays = retentionDays,
-    maxSimultaneousRecordings = maxSimultaneousRecordings
-)
+internal fun RecordingStorageEntity.toDomain(credentialCrypto: CredentialCrypto): RecordingStorageState {
+    val smbCredentials = runCatching {
+        decodeSmbCredentials(smbCredentialsEncrypted, credentialCrypto)
+    }.getOrNull()
+    return RecordingStorageState(
+        treeUri = treeUri,
+        displayName = displayName,
+        // When no SAF tree is selected, outputDirectory holds the resolved local path (default
+        // internal dir or a chosen USB folder), so it doubles as the active localDirectory.
+        localDirectory = if (treeUri.isNullOrBlank() && smbUrl.isNullOrBlank()) outputDirectory else null,
+        smbUrl = smbUrl,
+        smbUsername = smbCredentials?.username,
+        outputDirectory = outputDirectory,
+        availableBytes = availableBytes,
+        isWritable = isWritable,
+        fileNamePattern = fileNamePattern,
+        retentionDays = retentionDays,
+        maxSimultaneousRecordings = maxSimultaneousRecordings
+    )
+}
 
-internal fun RecordingStorageConfig.toEntity(existing: RecordingStorageEntity?, outputDirectory: String?, availableBytes: Long?, isWritable: Boolean): RecordingStorageEntity =
+internal fun RecordingStorageConfig.toEntity(
+    existing: RecordingStorageEntity?,
+    outputDirectory: String?,
+    availableBytes: Long?,
+    isWritable: Boolean
+): RecordingStorageEntity =
     RecordingStorageEntity(
         id = existing?.id ?: 1L,
         treeUri = treeUri,
+        smbUrl = smbUrl,
+        smbCredentialsEncrypted = existing
+            ?.takeIf { !smbUrl.isNullOrBlank() && it.smbUrl == smbUrl }
+            ?.smbCredentialsEncrypted,
         displayName = displayName,
         outputDirectory = outputDirectory,
         availableBytes = availableBytes,
@@ -95,6 +113,7 @@ internal fun headersFromJson(raw: String?): Map<String, String> {
 
 internal fun inferFailureCategory(error: Throwable?, fallback: RecordingFailureCategory = RecordingFailureCategory.UNKNOWN): RecordingFailureCategory {
     if (error is UnsupportedRecordingException) return error.category
+    if (error is LivePlaybackCaptureBackpressureException) return RecordingFailureCategory.STORAGE
     val rootCause = error?.cause ?: error
     when (rootCause) {
         is java.net.SocketTimeoutException,
@@ -164,13 +183,30 @@ internal fun resolveStorageDetails(
 sealed interface RecordingOutputTarget {
     data class FileTarget(val file: File) : RecordingOutputTarget
     data class DocumentTarget(val uri: Uri, val displayPath: String?) : RecordingOutputTarget
+    data class SmbTarget(
+        val url: String,
+        val credentials: SmbRecordingCredentials,
+        val displayPath: String?
+    ) : RecordingOutputTarget
 }
 
 internal fun createOutputTarget(
     context: Context,
     storage: RecordingStorageEntity,
-    fileName: String
+    fileName: String,
+    credentialCrypto: CredentialCrypto
 ): RecordingOutputTarget {
+    storage.smbUrl?.takeIf { it.isNotBlank() }?.let { smbUrl ->
+        val credentials = decodeSmbCredentials(storage.smbCredentialsEncrypted, credentialCrypto)
+            ?: throw IllegalStateException("SMB credentials are unavailable. Reconfigure the SMB recording folder.")
+        val outputUrl = SmbRecordingStorage.findAvailableFileUrl(smbUrl, fileName, credentials)
+        return RecordingOutputTarget.SmbTarget(
+            url = outputUrl,
+            credentials = credentials,
+            displayPath = outputUrl
+        )
+    }
+
     val treeUri = storage.treeUri
     if (treeUri.isNullOrBlank()) {
         val baseDirectory = storage.outputDirectory
@@ -197,7 +233,22 @@ internal fun createOutputTarget(
     return RecordingOutputTarget.DocumentTarget(document.uri, "${documentTree.name ?: "Recordings"}/$candidateName")
 }
 
-internal fun deleteOutputTarget(context: Context, outputUri: String?, outputPath: String?) {
+internal fun deleteOutputTarget(
+    context: Context,
+    outputUri: String?,
+    outputPath: String?,
+    outputCredentialsEncrypted: String?,
+    credentialCrypto: CredentialCrypto
+) {
+    if (outputUri?.startsWith("smb://", ignoreCase = true) == true) {
+        runCatching {
+            val credentials = decodeSmbCredentials(outputCredentialsEncrypted, credentialCrypto)
+                ?: throw IllegalStateException("SMB credentials are unavailable.")
+            SmbRecordingStorage.deleteFile(outputUri, credentials)
+        }
+        return
+    }
+
     outputUri?.let { rawUri ->
         runCatching {
             val document = DocumentFile.fromSingleUri(context, Uri.parse(rawUri))
@@ -219,11 +270,16 @@ internal fun deleteOutputTarget(context: Context, outputUri: String?, outputPath
 internal fun RecordingOutputTarget.asPersistenceValues(): Pair<String?, String?> = when (this) {
     is RecordingOutputTarget.FileTarget -> null to file.absolutePath
     is RecordingOutputTarget.DocumentTarget -> uri.toString() to displayPath
+    is RecordingOutputTarget.SmbTarget -> url to displayPath
 }
+
+internal fun RecordingOutputTarget.encryptedSmbCredentials(credentialCrypto: CredentialCrypto): String? =
+    (this as? RecordingOutputTarget.SmbTarget)?.credentials?.encodeEncrypted(credentialCrypto)
 
 internal fun RecordingOutputTarget.openOutputStream(contentResolver: ContentResolver, append: Boolean = false) = when (this) {
     is RecordingOutputTarget.FileTarget -> FileOutputStream(file, append).buffered()
     is RecordingOutputTarget.DocumentTarget -> contentResolver.openOutputStream(uri, if (append) "wa" else "w")
+    is RecordingOutputTarget.SmbTarget -> SmbRecordingStorage.openOutputStream(url, credentials, append)
 }
 
 private fun defaultRecordingDirectory(context: Context): File {

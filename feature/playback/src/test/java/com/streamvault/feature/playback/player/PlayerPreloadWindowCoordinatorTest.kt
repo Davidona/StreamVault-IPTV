@@ -219,6 +219,72 @@ class PlayerPreloadWindowCoordinatorTest {
         assertThat(window?.currentIndex).isEqualTo(0)
     }
 
+    @Test
+    fun sameRemoteIdDifferentSeriesHasDistinctPreloadKey() = runTest {
+        val logical = episode(2, 2).copy(episodeId = 99)
+        val replacement = logical.copy(id = 22, seriesId = 20)
+        val series = Series(10, "Drama", providerId = 7,
+            seasons = listOf(Season(1, episodes = listOf(logical))))
+        val physical = PhysicalEpisodeSource(EpisodeSourceToken(1, 2),
+            Series(20, "Drama 720p", providerId = 7), replacement)
+        val item = PlayerPreloadItem("current", StreamInfo("https://fixture.invalid/avc.mp4"),
+            PlayerPreloadContentType.VOD)
+        val window = PlayerPreloadWindowCoordinator(mock(), mock(), mock()).buildEpisodeWindow(
+            current = item, series = series, currentEpisode = logical, providerId = 7,
+            isCurrent = { true }, physicalCurrent = physical)
+        assertThat(window?.items?.single()?.key).isEqualTo("episode:7:series:20:local:22:remote:99")
+        assertThat(window?.items?.single()?.streamInfo).isEqualTo(item.streamInfo)
+        assertThat(window?.currentIndex).isEqualTo(0)
+    }
+
+    @Test
+    fun oldPreloadCallbackCannotRestoreHevc() = runTest {
+        val state = PlayerEpisodeSourceState()
+        val old = state.reset(1)
+        val currentEpisode = episode(2, 2)
+        state.reserveFallback(old, 60000, 180000)
+        val window = PlayerPreloadWindowCoordinator(mock(), mock(), mock()).buildEpisodeWindow(
+            current = PlayerPreloadItem("old", StreamInfo("https://fixture.invalid/hevc.mp4"), PlayerPreloadContentType.VOD),
+            series = Series(10, "Drama", seasons = listOf(Season(1, episodes = listOf(currentEpisode)))),
+            currentEpisode = currentEpisode, providerId = 7, isCurrent = { state.isCurrent(old) })
+        assertThat(window).isNull()
+    }
+
+    @Test
+    fun recoveredPhysicalEpisodeDoesNotOpenNeighborMedia() = runTest {
+        val logical = episode(2, 2)
+        val series = Series(10, "Drama", providerId = 7,
+            seasons = listOf(Season(1, episodes = listOf(episode(1, 1), logical, episode(3, 3)))))
+        val physical = PhysicalEpisodeSource(EpisodeSourceToken(1, 2),
+            Series(20, "Drama 720p", providerId = 7), logical.copy(id = 22, seriesId = 20))
+        val resolver = mock<PlayerContentResolver>()
+        val item = PlayerPreloadItem("current", StreamInfo("https://fixture.invalid/avc.mp4"), PlayerPreloadContentType.VOD)
+        whenever(resolver.resolvePlaybackStream(any(), any(), any(), any(), any(), anyOrNull(), anyOrNull()))
+            .thenReturn(PlayerPlaybackStreamResolution(null))
+        val window = PlayerPreloadWindowCoordinator(resolver, mock(), mock()).buildEpisodeWindow(
+            current = item, series = series, currentEpisode = logical, providerId = 7,
+            isCurrent = { true }, physicalCurrent = physical)
+        assertThat(window?.items).containsExactly(item.copy(key = physicalEpisodePreloadKey(physical)))
+        assertThat(series.seasons.single().episodes.map { it.episodeNumber }).containsExactly(1, 2, 3).inOrder()
+        org.mockito.Mockito.verifyNoInteractions(resolver)
+    }
+
+    @Test
+    fun singleConnectionLogicalEpisodeDoesNotResolveNeighbors() = runTest {
+        val logical = episode(2, 2)
+        val series = Series(10, "Drama", providerId = 7,
+            seasons = listOf(Season(1, episodes = listOf(episode(1, 1), logical, episode(3, 3)))))
+        val resolver = mock<PlayerContentResolver>()
+        whenever(resolver.resolvePlaybackStream(any(), any(), any(), any(), any(), anyOrNull(), anyOrNull()))
+            .thenReturn(PlayerPlaybackStreamResolution(null))
+        val item = PlayerPreloadItem("current", StreamInfo("https://fixture.invalid/hevc.mp4"), PlayerPreloadContentType.VOD)
+        val window = PlayerPreloadWindowCoordinator(resolver, mock(), mock()).buildEpisodeWindow(
+            current = item, series = series, currentEpisode = logical, providerId = 7,
+            isCurrent = { true }, allowNeighborMedia = false)
+        assertThat(window?.items).containsExactly(item.copy(key = episodePreloadKey(7, logical)))
+        org.mockito.Mockito.verifyNoInteractions(resolver)
+    }
+
     private fun episode(id: Long, number: Int) = Episode(
         id = id,
         title = "Episode $id",

@@ -1,0 +1,22 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="cast_started" tools:ignore="MissingTranslation">कनेक्टेड डिवाइस पर कास्ट हो रहा है।</string>
+    <string name="cast_unavailable" tools:ignore="MissingTranslation">इस डिवाइस पर Google Cast उपलब्ध नहीं है।</string>
+    <string name="cast_stream_unsupported" tools:ignore="MissingTranslation">यह स्ट्रीम प्रारूप Google Cast द्वारा समर्थित नहीं है।</string>
+    <string name="cast_protocol_unsupported" tools:ignore="MissingTranslation">RTSP और RTMP स्ट्रीम कास्टिंग के लिए समर्थित नहीं हैं।</string>
+    <string name="cast_drm_unsupported" tools:ignore="MissingTranslation">इस ऐप में DRM-संरक्षित स्ट्रीम Google Cast द्वारा समर्थित नहीं हैं।</string>
+    <string name="cast_item_unavailable" tools:ignore="MissingTranslation">यह आइटम Cast रिसीवर पर भेजा नहीं जा सकता।</string>
+    <string name="cast_local_url_unsupported" tools:ignore="MissingTranslation">यह स्ट्रीम लोकल या केवल-डिवाइस URL का उपयोग करती है जिस तक Chromecast सीधे नहीं पहुँच सकता।</string>
+    <string name="cast_headers_unsupported" tools:ignore="MissingTranslation">इस स्ट्रीम को HTTP हेडर या कुकीज़ चाहिए जो Chromecast सीधे उपयोग नहीं कर सकता।</string>
+    <string name="cast_user_agent_unsupported" tools:ignore="MissingTranslation">इस स्ट्रीम को कस्टम User-Agent चाहिए जो Chromecast सीधे उपयोग नहीं कर सकता।</string>
+    <string name="cast_proxy_unsupported" tools:ignore="MissingTranslation">इस स्ट्रीम को ऐप प्रॉक्सी सेटिंग्स चाहिए, इसलिए Chromecast इसे सीधे उपयोग नहीं कर सकता।</string>
+    <string name="cast_invalid_ssl_unsupported" tools:ignore="MissingTranslation">यह स्ट्रीम ऐसी SSL हैंडलिंग का उपयोग करती है जिसे Chromecast सीधे उपयोग नहीं कर सकता।</string>
+    <string name="cast_session_failed" tools:ignore="MissingTranslation">Cast सत्र शुरू नहीं हो सका।</string>
+    <string name="cast_load_failed" tools:ignore="MissingTranslation">Cast रिसीवर यह स्ट्रीम लोड नहीं कर सका।</string>
+    <string name="cast_receiver_unavailable" tools:ignore="MissingTranslation">कनेक्टेड Cast रिसीवर प्लेबैक के लिए तैयार नहीं है।</string>
+    <string name="cast_selection_cancelled" tools:ignore="MissingTranslation">Cast डिवाइस चयन रद्द कर दिया गया।</string>
+    <string name="add_group_close_cd">बंद करें</string>
+    <string name="player_archive_title">कार्यक्रम संग्रह</string>
+    <string name="player_no_archive">कोई संग्रहीत कार्यक्रम नहीं मिला</string>
+    <string name="program_date_time_range">%1$s | %2$s – %3$s</string>
+    <string name="player_archive_badge">संग्रह</string>
+</resources>

@@ -2,6 +2,7 @@ package com.streamvault.player.playback
 
 import androidx.media3.common.Format
 import androidx.media3.common.util.UnstableApi
+import androidx.media3.exoplayer.DefaultRenderersFactory
 import androidx.media3.exoplayer.DecoderReuseEvaluation
 import androidx.media3.exoplayer.mediacodec.MediaCodecInfo
 import androidx.media3.exoplayer.mediacodec.MediaCodecSelector
@@ -55,6 +56,27 @@ internal data class PlaybackRendererPlan(
 internal enum class PlaybackExtensionRendererMode {
     PLATFORM_FIRST,
     EXTENSIONS_FIRST
+}
+
+internal data class PlaybackRendererFactorySettings(
+    val audioExtensionRendererMode: Int,
+    val videoExtensionRendererMode: Int,
+    val enableDecoderFallback: Boolean
+)
+
+@UnstableApi
+internal fun buildPlaybackRendererFactorySettings(
+    plan: PlaybackRendererPlan
+): PlaybackRendererFactorySettings = PlaybackRendererFactorySettings(
+    audioExtensionRendererMode = plan.audioExtensionRendererMode.toMedia3RendererMode(),
+    videoExtensionRendererMode = plan.videoExtensionRendererMode.toMedia3RendererMode(),
+    enableDecoderFallback = true
+)
+
+@UnstableApi
+internal fun PlaybackExtensionRendererMode.toMedia3RendererMode(): Int = when (this) {
+    PlaybackExtensionRendererMode.PLATFORM_FIRST -> DefaultRenderersFactory.EXTENSION_RENDERER_MODE_ON
+    PlaybackExtensionRendererMode.EXTENSIONS_FIRST -> DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER
 }
 
 internal fun extensionRendererModeFor(activeDecoderMode: DecoderMode): PlaybackExtensionRendererMode {

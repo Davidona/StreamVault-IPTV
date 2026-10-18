@@ -2,11 +2,11 @@
 
 package com.streamvault.feature.provider.setup
 
+import com.streamvault.core.ui.design.BrowseShapes
 import android.graphics.Bitmap
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -18,14 +18,16 @@ import androidx.compose.ui.unit.dp
 import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.qrcode.QRCodeWriter
 import com.streamvault.feature.provider.R
 import com.streamvault.core.ui.interaction.TvButton
-import com.streamvault.core.ui.theme.AccentCyan
-import com.streamvault.core.ui.theme.TextPrimary
-import com.streamvault.core.ui.theme.TextSecondary
-import com.streamvault.core.ui.theme.TextTertiary
+import com.streamvault.core.ui.design.browse.AccentCyan
+import com.streamvault.core.ui.design.browse.TextPrimary
+import com.streamvault.core.ui.design.browse.TextSecondary
+import com.streamvault.core.ui.design.browse.TextTertiary
 
 @Composable
 internal fun JellyfinProviderForm(
@@ -75,13 +77,15 @@ internal fun JellyfinProviderForm(
                 Box(
                     modifier = Modifier
                         .size(240.dp)
-                        .background(Color.White, RoundedCornerShape(12.dp))
+                        .background(Color.White, BrowseShapes.Artwork)
                         .padding(8.dp),
                     contentAlignment = Alignment.Center
                 ) {
                     Image(
                         bitmap = qrCodeBitmap.asImageBitmap(),
-                        contentDescription = "Quick Connect QR Code",
+                        contentDescription = stringResource(
+                            R.string.setup_jellyfin_quick_connect_code_instructions
+                        ),
                         modifier = Modifier.fillMaxSize()
                     )
                 }
@@ -122,7 +126,7 @@ internal fun JellyfinProviderForm(
 
 internal fun generateJellyfinQuickConnectQrCode(serverUrl: String, code: String): Bitmap? {
     return try {
-        val qrUrl = "${serverUrl.trimEnd('/')}/web/index.html#!/quickconnect.html?code=$code"
+        val qrUrl = buildJellyfinQuickConnectUrl(serverUrl, code)
         val writer = QRCodeWriter()
         val bitMatrix = writer.encode(qrUrl, BarcodeFormat.QR_CODE, 512, 512)
         val bitmap = Bitmap.createBitmap(512, 512, Bitmap.Config.RGB_565)
@@ -135,4 +139,10 @@ internal fun generateJellyfinQuickConnectQrCode(serverUrl: String, code: String)
     } catch (e: Exception) {
         null
     }
+}
+
+internal fun buildJellyfinQuickConnectUrl(serverUrl: String, code: String): String {
+    val normalizedServerUrl = serverUrl.trim().trimEnd('/')
+    val encodedCode = URLEncoder.encode(code, StandardCharsets.UTF_8.name())
+    return "$normalizedServerUrl/web/#/quickconnect?code=$encodedCode"
 }

@@ -1,0 +1,18 @@
+<resources>
+    <string name="vod_subtitle_sources">מקורות</string>
+    <string name="vod_subtitle_settings">הגדרות</string>
+    <string name="vod_subtitle_provider">כתוביות ספק</string>
+    <string name="vod_subtitle_provider_hint">בחר רצועת כתוביות מסרטון זה</string>
+    <string name="vod_subtitle_online">OpenSubtitles</string>
+    <string name="vod_subtitle_online_hint">מצא כתוביות באופן מקוון</string>
+    <string name="vod_subtitle_online_unavailable">חיפוש מקוון אינו זמין עבור סרטון זה</string>
+    <string name="vod_subtitle_device_hint">בחר קובץ SRT</string>
+    <string name="vod_subtitle_back">חזרה למקורות</string>
+    <string name="vod_tracks_empty">אין רצועות זמינות בסרטון זה</string>
+    <string name="vod_subtitle_preview">זו כתובית.</string>
+    <string name="vod_subtitle_font_size">גודל גופן</string>
+    <string name="vod_subtitle_background">אטימות רקע</string>
+    <string name="vod_subtitle_background_hint" formatted="false">0% שקוף · 100% שחור מלא</string>
+    <string name="vod_subtitle_decrease_setting">הקטן %1$s</string>
+    <string name="vod_subtitle_increase_setting">הגדל %1$s</string>
+</resources>

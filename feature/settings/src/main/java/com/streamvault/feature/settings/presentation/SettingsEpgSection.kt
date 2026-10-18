@@ -214,8 +214,7 @@ private fun ProviderGuideAndLogoPolicyCard(
         modifier = modifier
             .fillMaxWidth()
             .padding(bottom = 16.dp)
-            .clip(RoundedCornerShape(18.dp))
-            .background(SurfaceElevated)
+            .settingsDetailPanel()
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
@@ -317,8 +316,7 @@ private fun EpgTimeShiftCard(
         modifier = modifier
             .fillMaxWidth()
             .padding(vertical = 6.dp)
-            .clip(RoundedCornerShape(12.dp))
-            .background(SurfaceElevated)
+            .settingsDetailPanel()
             .padding(16.dp)
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {

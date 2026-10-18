@@ -3,6 +3,7 @@ package com.streamvault.feature.playback.player
 import androidx.lifecycle.viewModelScope
 import com.streamvault.domain.playback.isArchivePlayable
 import com.streamvault.domain.model.ContentType
+import com.streamvault.domain.model.PlaybackContentKind
 import com.streamvault.domain.model.Program
 import com.streamvault.domain.model.Result
 import com.streamvault.domain.model.StreamInfo
@@ -15,7 +16,7 @@ internal suspend fun resolveCatchUpStreamInfo(
     currentProviderId: Long,
     resolveStreamInfo: suspend (String, Long, Long, ContentType) -> StreamInfo?
 ): StreamInfo? = resolveStreamInfo(candidateUrl, currentContentId, currentProviderId, ContentType.LIVE)
-    ?.copy(title = title)
+    ?.copy(title = title, playbackContentKind = PlaybackContentKind.CATCH_UP)
 
 internal suspend fun PlayerViewModel.startCatchUpPlayback(
     urls: List<String>,

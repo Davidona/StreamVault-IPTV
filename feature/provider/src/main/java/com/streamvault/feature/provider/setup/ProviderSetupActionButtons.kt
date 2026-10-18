@@ -19,11 +19,11 @@ import androidx.tv.material3.Glow
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.streamvault.core.ui.interaction.TvClickableSurface
-import com.streamvault.core.ui.theme.FocusBorder
-import com.streamvault.core.ui.theme.OnBackground
-import com.streamvault.core.ui.theme.Primary
-import com.streamvault.core.ui.theme.PrimaryLight
-import com.streamvault.core.ui.theme.SurfaceHighlight
+import com.streamvault.core.ui.design.browse.FocusBorder
+import com.streamvault.core.ui.design.browse.OnBackground
+import com.streamvault.core.ui.design.browse.Primary
+import com.streamvault.core.ui.design.browse.PrimaryLight
+import com.streamvault.core.ui.design.browse.SurfaceHighlight
 
 @Composable
 internal fun ActionButton(
@@ -86,7 +86,7 @@ private fun ProviderActionButton(
                     color = OnBackground.copy(alpha = 0.6f)
                 )
             } else {
-                Text(text = text, style = MaterialTheme.typography.bodySmall, color = Color.White)
+                Text(text = text, style = MaterialTheme.typography.bodySmall, color = com.streamvault.core.ui.design.BrowseColors.OnPrimary)
             }
         }
     }

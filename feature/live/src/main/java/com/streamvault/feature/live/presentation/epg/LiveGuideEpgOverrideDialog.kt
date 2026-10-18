@@ -1,5 +1,6 @@
 package com.streamvault.feature.live.presentation.epg
 
+import com.streamvault.core.ui.design.BrowseShapes
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.layout.Arrangement
@@ -12,7 +13,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -32,12 +32,12 @@ import androidx.tv.material3.SurfaceDefaults
 import androidx.tv.material3.Text
 import com.streamvault.core.ui.interaction.TvButton
 import com.streamvault.core.ui.interaction.TvClickableSurface
-import com.streamvault.core.ui.theme.FocusBorder
-import com.streamvault.core.ui.theme.OnSurface
-import com.streamvault.core.ui.theme.OnSurfaceDim
-import com.streamvault.core.ui.theme.Primary
-import com.streamvault.core.ui.theme.SurfaceElevated
-import com.streamvault.core.ui.theme.SurfaceHighlight
+import com.streamvault.core.ui.design.browse.FocusBorder
+import com.streamvault.core.ui.design.browse.OnSurface
+import com.streamvault.core.ui.design.browse.OnSurfaceDim
+import com.streamvault.core.ui.design.browse.Primary
+import com.streamvault.core.ui.design.browse.SurfaceElevated
+import com.streamvault.core.ui.design.browse.SurfaceHighlight
 import com.streamvault.domain.model.Channel
 import com.streamvault.domain.model.ChannelEpgMapping
 import com.streamvault.domain.model.EpgMatchType
@@ -120,7 +120,7 @@ fun LiveGuideEpgOverrideDialog(
         Surface(
             modifier = Modifier.widthIn(min = 560.dp, max = 760.dp),
             colors = SurfaceDefaults.colors(containerColor = SurfaceElevated),
-            shape = RoundedCornerShape(20.dp)
+            shape = BrowseShapes.Panel
         ) {
             Column(
                 modifier = Modifier
@@ -207,11 +207,11 @@ fun LiveGuideEpgOverrideDialog(
                                     contentColor = OnSurface,
                                     focusedContentColor = OnSurface
                                 ),
-                                shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(14.dp)),
+                                shape = ClickableSurfaceDefaults.shape(BrowseShapes.Control),
                                 border = ClickableSurfaceDefaults.border(
                                     focusedBorder = Border(
                                         border = BorderStroke(2.dp, FocusBorder),
-                                        shape = RoundedCornerShape(14.dp)
+                                        shape = BrowseShapes.Control
                                     )
                                 )
                             ) {

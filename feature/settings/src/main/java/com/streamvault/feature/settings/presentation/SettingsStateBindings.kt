@@ -82,6 +82,7 @@ fun observeSettingsPreferenceSnapshot(
             subtitleTextScale = 1f,
             subtitleTextColor = 0xFFFFFFFF.toInt(),
             subtitleBackgroundColor = 0x80000000.toInt(),
+            pinnedSubtitleLanguages = emptyList(),
             playerLiveTranslationEnabled = false,
             playerLiveTranslationEndpoint = "http://10.0.2.2:8765",
             wifiMaxVideoHeight = null,
@@ -114,6 +115,10 @@ fun observeSettingsPreferenceSnapshot(
             groupedChannelLabelMode = GroupedChannelLabelMode.HYBRID,
             liveVariantPreferenceMode = LiveVariantPreferenceMode.BALANCED,
             vodViewMode = VodViewMode.MODERN,
+            showTraktTrendingMovies = true,
+            showTraktPopularMovies = true,
+            showTraktTrendingSeries = true,
+            showTraktPopularSeries = true,
             vodTypeBadgeAsIcon = false,
             vodCategoryLoadMode = VodCategoryLoadMode.PAGED,
             vodInfiniteScroll = true,
@@ -147,6 +152,8 @@ fun observeSettingsPreferenceSnapshot(
         snapshot.copy(appTimeFormat = timeFormat)
     }.combine(preferencesRepository.preferredAudioLanguage) { snapshot, preferredAudioLanguage ->
         snapshot.copy(preferredAudioLanguage = preferredAudioLanguage ?: "auto")
+    }.combine(preferencesRepository.pinnedSubtitleLanguages) { snapshot, pinnedSubtitleLanguages ->
+        snapshot.copy(pinnedSubtitleLanguages = pinnedSubtitleLanguages)
     }.combine(preferencesRepository.playerMediaSessionEnabled) { snapshot, mediaSessionEnabled ->
         snapshot.copy(playerMediaSessionEnabled = mediaSessionEnabled)
     }.combine(preferencesRepository.playerBackButtonVisibility) { snapshot, visibility ->
@@ -211,6 +218,8 @@ fun observeSettingsPreferenceSnapshot(
         snapshot.copy(wifiMaxVideoHeight = wifiMaxVideoHeight)
     }.combine(preferencesRepository.playerEthernetMaxVideoHeight) { snapshot, ethernetMaxVideoHeight ->
         snapshot.copy(ethernetMaxVideoHeight = ethernetMaxVideoHeight)
+    }.combine(preferencesRepository.playbackQualityPreferences) { snapshot, playbackQualityPreferences ->
+        snapshot.copy(playbackQualityPreferences = playbackQualityPreferences)
     }.combine(preferencesRepository.playerTimeshiftEnabled) { snapshot, enabled ->
         snapshot.copy(playerTimeshiftEnabled = enabled)
     }.combine(preferencesRepository.playerTimeshiftDepthMinutes) { snapshot, depthMinutes ->
@@ -231,6 +240,8 @@ fun observeSettingsPreferenceSnapshot(
         snapshot.copy(lastSpeedTestRecommendedHeight = lastSpeedTestRecommendedHeight)
     }.combine(preferencesRepository.lastSpeedTestEstimated) { snapshot, lastSpeedTestEstimated ->
         snapshot.copy(lastSpeedTestEstimated = lastSpeedTestEstimated)
+    }.combine(preferencesRepository.hideStremioAddons) { snapshot, hidden ->
+        snapshot.copy(hideStremioAddons = hidden)
     }.combine(preferencesRepository.isIncognitoMode) { snapshot, incognito ->
         snapshot.copy(isIncognitoMode = incognito)
     }.combine(preferencesRepository.useXtreamTextClassification) { snapshot, useTextClass ->
@@ -271,6 +282,14 @@ fun observeSettingsPreferenceSnapshot(
         snapshot.copy(liveVariantPreferenceMode = liveVariantPreferenceMode)
     }.combine(preferencesRepository.vodViewMode) { snapshot, vodViewMode ->
         snapshot.copy(vodViewMode = VodViewMode.fromStorage(vodViewMode))
+    }.combine(preferencesRepository.showTraktTrendingMovies) { snapshot, enabled ->
+        snapshot.copy(showTraktTrendingMovies = enabled)
+    }.combine(preferencesRepository.showTraktPopularMovies) { snapshot, enabled ->
+        snapshot.copy(showTraktPopularMovies = enabled)
+    }.combine(preferencesRepository.showTraktTrendingSeries) { snapshot, enabled ->
+        snapshot.copy(showTraktTrendingSeries = enabled)
+    }.combine(preferencesRepository.showTraktPopularSeries) { snapshot, enabled ->
+        snapshot.copy(showTraktPopularSeries = enabled)
     }.combine(preferencesRepository.vodTypeBadgeAsIcon) { snapshot, vodTypeBadgeAsIcon ->
         snapshot.copy(vodTypeBadgeAsIcon = vodTypeBadgeAsIcon)
     }.combine(preferencesRepository.vodCategoryLoadMode) { snapshot, vodCategoryLoadMode ->

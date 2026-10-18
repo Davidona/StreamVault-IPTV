@@ -13,11 +13,11 @@
         <item quantity="other">%1$d minuti</item>
     </plurals>
 <plurals name="settings_top_navigation_count">
-        <item quantity="one">%d tab</item>
-        <item quantity="other">%d tabs</item>
+        <item quantity="one">%d scheda</item>
+        <item quantity="other">%d schede</item>
     </plurals>
 <plurals name="settings_home_dashboard_count">
-        <item quantity="one">%d shelf</item>
-        <item quantity="other">%d shelves</item>
+        <item quantity="one">%d scaffale</item>
+        <item quantity="other">%d scaffali</item>
     </plurals>
 </resources>

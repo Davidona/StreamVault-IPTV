@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="settings_timeout_seconds">
+        <item quantity="one">%d секунда</item>
+        <item quantity="few">%d секунде</item>
+        <item quantity="other">%d секунди</item>
+    </plurals>
+    <plurals name="settings_timer_minutes">
+        <item quantity="one">%1$d минут</item>
+        <item quantity="few">%1$d минута</item>
+        <item quantity="other">%1$d минута</item>
+    </plurals>
+    <plurals name="settings_top_navigation_count">
+        <item quantity="one">%d таб</item>
+        <item quantity="few">%d таба</item>
+        <item quantity="other">%d табова</item>
+    </plurals>
+    <plurals name="settings_home_dashboard_count">
+        <item quantity="one">%d полица</item>
+        <item quantity="few">%d полице</item>
+        <item quantity="other">%d полица</item>
+    </plurals>
+</resources>

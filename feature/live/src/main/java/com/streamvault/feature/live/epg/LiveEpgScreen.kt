@@ -1,5 +1,6 @@
 package com.streamvault.feature.live.epg
 
+import com.streamvault.core.ui.design.BrowseShapes
 import android.view.inputmethod.InputMethodManager
 import com.streamvault.domain.playback.ArchiveReplayMechanism
 import com.streamvault.domain.playback.archivePlaybackCapability
@@ -68,7 +69,6 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
@@ -124,14 +124,14 @@ import com.streamvault.core.ui.image.ChannelLogoBadge
 import com.streamvault.core.ui.platform.rememberNotificationPermissionGate
 import kotlinx.coroutines.launch
 import com.streamvault.core.ui.components.dialogs.PinDialog
-import com.streamvault.core.ui.theme.FocusBorder
-import com.streamvault.core.ui.theme.OnSurface
-import com.streamvault.core.ui.theme.OnSurfaceDim
-import com.streamvault.core.ui.theme.Primary
-import com.streamvault.core.ui.theme.SurfaceElevated
-import com.streamvault.core.ui.theme.SurfaceHighlight
-import com.streamvault.core.ui.theme.TextPrimary
-import com.streamvault.core.ui.theme.TextSecondary
+import com.streamvault.core.ui.design.browse.FocusBorder
+import com.streamvault.core.ui.design.browse.OnSurface
+import com.streamvault.core.ui.design.browse.OnSurfaceDim
+import com.streamvault.core.ui.design.browse.Primary
+import com.streamvault.core.ui.design.browse.SurfaceElevated
+import com.streamvault.core.ui.design.browse.SurfaceHighlight
+import com.streamvault.core.ui.design.browse.TextPrimary
+import com.streamvault.core.ui.design.browse.TextSecondary
 import com.streamvault.domain.model.Category
 import com.streamvault.domain.model.Channel
 import com.streamvault.domain.model.EpgMatchType
@@ -873,7 +873,7 @@ private fun GuideStatusCard(
     isGuideStale: Boolean
 ) {
     Surface(
-        shape = RoundedCornerShape(16.dp),
+        shape = BrowseShapes.Control,
         colors = SurfaceDefaults.colors(containerColor = SurfaceHighlight)
     ) {
         Column(
@@ -915,7 +915,7 @@ private fun GuideProviderTroubleshootingCard(
     isGuideStale: Boolean
 ) {
     Surface(
-        shape = RoundedCornerShape(16.dp),
+        shape = BrowseShapes.Control,
         colors = SurfaceDefaults.colors(containerColor = SurfaceHighlight.copy(alpha = 0.85f))
     ) {
         Column(

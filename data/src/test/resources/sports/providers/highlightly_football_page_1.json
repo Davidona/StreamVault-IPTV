@@ -1,0 +1,19 @@
+{
+  "data": [
+    {
+      "id": 501,
+      "round": "Regular Season - 8",
+      "date": "2026-10-17T16:30:00.000Z",
+      "homeTeam": { "id": 10, "name": "Arsenal", "type": "club" },
+      "awayTeam": { "id": 20, "name": "Chelsea", "type": "club" },
+      "league": { "id": 39, "season": 2026, "name": "Premier League" },
+      "state": {
+        "description": "Second half",
+        "clock": 67,
+        "score": { "current": "2 - 1", "penalties": "0 - 0" }
+      }
+    }
+  ],
+  "pagination": { "totalCount": 2, "offset": 0, "limit": 1 },
+  "plan": { "tier": "BASIC", "message": "Fixture plan" }
+}

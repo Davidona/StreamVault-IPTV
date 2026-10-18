@@ -1,5 +1,8 @@
 package com.streamvault.feature.catalog.presentation.dashboard
 
+import com.streamvault.core.ui.layout.isPortraitLayout
+
+import com.streamvault.core.ui.design.BrowseShapes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -17,7 +20,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -62,21 +64,21 @@ import com.streamvault.core.ui.image.rememberCrossfadeImageModel
 import com.streamvault.feature.catalog.presentation.components.SeriesCard
 import com.streamvault.core.ui.components.shell.AppHeroHeader
 import com.streamvault.core.ui.components.shell.StatusPill
-import com.streamvault.core.ui.design.AppColors
+import com.streamvault.core.ui.design.BrowseColors as AppColors
 import com.streamvault.feature.catalog.presentation.time.LocalCatalogTimeFormat
 import com.streamvault.feature.catalog.presentation.time.createCatalogDateTimeFormat
 import com.streamvault.feature.catalog.api.CatalogDashboardShelfCustomizationContent
 import com.streamvault.feature.catalog.api.CatalogNavigationChrome
 import com.streamvault.feature.catalog.api.CatalogScaffoldContent
 import com.streamvault.core.navigation.AppDestination
-import com.streamvault.core.ui.design.AppColors.Brand as Primary
-import com.streamvault.core.ui.design.AppColors.Focus as FocusBorder
-import com.streamvault.core.ui.design.AppColors.SurfaceElevated as SurfaceElevated
-import com.streamvault.core.ui.design.AppColors.SurfaceEmphasis as SurfaceHighlight
-import com.streamvault.core.ui.design.AppColors.TextPrimary as OnBackground
-import com.streamvault.core.ui.design.AppColors.TextPrimary as TextPrimary
-import com.streamvault.core.ui.design.AppColors.TextTertiary as OnSurfaceDim
-import com.streamvault.core.ui.design.AppColors.TextTertiary as TextTertiary
+import com.streamvault.core.ui.design.BrowseColors.Brand as Primary
+import com.streamvault.core.ui.design.BrowseColors.Focus as FocusBorder
+import com.streamvault.core.ui.design.BrowseColors.SurfaceElevated as SurfaceElevated
+import com.streamvault.core.ui.design.BrowseColors.SurfaceEmphasis as SurfaceHighlight
+import com.streamvault.core.ui.design.BrowseColors.TextPrimary as OnBackground
+import com.streamvault.core.ui.design.BrowseColors.TextPrimary as TextPrimary
+import com.streamvault.core.ui.design.BrowseColors.TextTertiary as OnSurfaceDim
+import com.streamvault.core.ui.design.BrowseColors.TextTertiary as TextTertiary
 import com.streamvault.domain.model.AppHomeDashboardShelf
 import com.streamvault.domain.model.Category
 import com.streamvault.domain.model.Channel
@@ -290,6 +292,28 @@ fun DashboardScreen(
                         )
                     }
 
+                    AppHomeDashboardShelf.TRAKT_WATCHLIST_MOVIES -> CategoryRow(
+                        title = stringResource(R.string.dashboard_trakt_watchlist_movies),
+                        items = uiState.traktWatchlistMovies,
+                        keySelector = { it.id },
+                        onSeeAll = { onDestinationRequested(AppDestination.Movies) }
+                    ) { movie ->
+                        MovieCard(movie = movie, onClick = { onMovieClick(movie) })
+                    }
+
+                    AppHomeDashboardShelf.TRAKT_WATCHLIST_SERIES -> CategoryRow(
+                        title = stringResource(R.string.dashboard_trakt_watchlist_series),
+                        items = uiState.traktWatchlistSeries,
+                        keySelector = { it.id },
+                        onSeeAll = { onDestinationRequested(AppDestination.Series) }
+                    ) { series ->
+                        SeriesCard(
+                            series = series,
+                            subtitle = series.releaseDate ?: stringResource(R.string.dashboard_updated_series_badge),
+                            onClick = { onSeriesClick(series) }
+                        )
+                    }
+
                     AppHomeDashboardShelf.CONTINUE_WATCHING_MOVIES -> ContinueWatchingRow(
                         title = stringResource(R.string.dashboard_continue_watching_movies),
                         items = uiState.continueWatchingMovies,
@@ -375,13 +399,13 @@ private fun DashboardHero(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(heroHeight)
-                    .clip(RoundedCornerShape(28.dp))
+                    .clip(BrowseShapes.Hero)
             )
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(heroHeight)
-                    .clip(RoundedCornerShape(28.dp))
+                    .clip(BrowseShapes.Hero)
                     .background(
                         Brush.horizontalGradient(
                             colors = listOf(
@@ -400,7 +424,7 @@ private fun DashboardHero(
             subtitle = feature.summary.ifBlank { stringResource(R.string.dashboard_subtitle, providerName) },
             modifier = Modifier
                 .fillMaxWidth()
-                .height(heroHeight),
+                .then(if (isPortraitLayout()) Modifier else Modifier.height(heroHeight)),
             footer = {
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -446,7 +470,7 @@ private fun DashboardStatRow(
     LazyRow(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
         items(statItems, key = { it }) { statLabel ->
             Surface(
-                shape = RoundedCornerShape(999.dp),
+                shape = BrowseShapes.Control,
                 colors = SurfaceDefaults.colors(
                     containerColor = AppColors.Surface.copy(alpha = 0.64f)
                 )
@@ -528,7 +552,7 @@ private fun DashboardShortcutCard(
         modifier = Modifier
             .width(cardWidth)
             .height(76.dp),
-        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(16.dp)),
+        shape = ClickableSurfaceDefaults.shape(BrowseShapes.Control),
         colors = ClickableSurfaceDefaults.colors(
             containerColor = SurfaceElevated,
             focusedContainerColor = SurfaceHighlight
@@ -536,11 +560,11 @@ private fun DashboardShortcutCard(
         border = ClickableSurfaceDefaults.border(
             border = Border(
                 border = BorderStroke(1.dp, accentColor.copy(alpha = 0.28f)),
-                shape = RoundedCornerShape(16.dp)
+                shape = BrowseShapes.Control
             ),
             focusedBorder = Border(
                 border = BorderStroke(2.dp, FocusBorder),
-                shape = RoundedCornerShape(16.dp)
+                shape = BrowseShapes.Control
             )
         )
     ) {
@@ -557,7 +581,7 @@ private fun DashboardShortcutCard(
                 Box(
                     modifier = Modifier
                         .size(12.dp)
-                        .clip(RoundedCornerShape(999.dp))
+                        .clip(BrowseShapes.Control)
                         .background(accentColor)
                 )
                 Text(
@@ -635,7 +659,7 @@ private fun DashboardProviderHealthCard(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 48.dp, vertical = 4.dp),
-        shape = RoundedCornerShape(22.dp),
+        shape = BrowseShapes.Panel,
         colors = SurfaceDefaults.colors(containerColor = SurfaceHighlight)
     ) {
         Row(
@@ -707,7 +731,7 @@ private fun DashboardHealthPill(
     value: String
 ) {
     Surface(
-        shape = RoundedCornerShape(18.dp),
+        shape = BrowseShapes.Panel,
         colors = SurfaceDefaults.colors(containerColor = Color.White.copy(alpha = 0.08f))
     ) {
         Column(
@@ -737,7 +761,7 @@ private fun DashboardProviderWarningCard(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 48.dp, vertical = 6.dp),
-        shape = RoundedCornerShape(20.dp),
+        shape = BrowseShapes.Panel,
         colors = SurfaceDefaults.colors(containerColor = SurfaceElevated)
     ) {
         Column(
@@ -774,7 +798,7 @@ private fun DashboardUpdateCard(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 48.dp, vertical = 6.dp),
-        shape = RoundedCornerShape(20.dp),
+        shape = BrowseShapes.Panel,
         colors = SurfaceDefaults.colors(containerColor = Primary.copy(alpha = 0.16f)),
         border = Border(BorderStroke(1.dp, Primary.copy(alpha = 0.45f)))
     ) {
@@ -843,7 +867,7 @@ private fun EmptyDashboard(
         }
 
         Surface(
-            shape = RoundedCornerShape(28.dp),
+            shape = BrowseShapes.Hero,
             colors = SurfaceDefaults.colors(
                 containerColor = SurfaceHighlight
             )
@@ -941,6 +965,8 @@ private fun rememberDashboardSections(
         uiState.continueWatchingSeriesItems,
         uiState.favoriteMovies,
         uiState.favoriteSeries,
+        uiState.traktWatchlistMovies,
+        uiState.traktWatchlistSeries,
         uiState.recentMovies,
         uiState.recentSeries,
         uiState.topRatedMovies,
@@ -974,7 +1000,7 @@ private fun FavoriteChannelsRow(
             )
             TvClickableSurface(
                 onClick = onSeeAll,
-                shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(999.dp)),
+                shape = ClickableSurfaceDefaults.shape(BrowseShapes.Control),
                 colors = ClickableSurfaceDefaults.colors(
                     containerColor = Primary.copy(alpha = 0.12f),
                     focusedContainerColor = Primary.copy(alpha = 0.22f),
@@ -1011,7 +1037,7 @@ private fun FavoriteChannelLogoCard(
     TvClickableSurface(
         onClick = onClick,
         modifier = Modifier.width(86.dp),
-        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(18.dp)),
+        shape = ClickableSurfaceDefaults.shape(BrowseShapes.Panel),
         colors = ClickableSurfaceDefaults.colors(
             containerColor = SurfaceElevated,
             focusedContainerColor = SurfaceHighlight
@@ -1019,7 +1045,7 @@ private fun FavoriteChannelLogoCard(
         border = ClickableSurfaceDefaults.border(
             focusedBorder = Border(
                 border = BorderStroke(2.dp, FocusBorder),
-                shape = RoundedCornerShape(18.dp)
+                shape = BrowseShapes.Panel
             )
         )
     ) {
@@ -1033,12 +1059,12 @@ private fun FavoriteChannelLogoCard(
             Box(
                 modifier = Modifier
                     .size(54.dp)
-                    .clip(RoundedCornerShape(999.dp))
+                    .clip(BrowseShapes.Control)
             ) {
                 ChannelLogoBadge(
                     channelName = channel.name,
                     logoUrl = channel.logoUrl,
-                    shape = RoundedCornerShape(999.dp),
+                    shape = BrowseShapes.Control,
                     backgroundColor = AppColors.SurfaceEmphasis,
                     contentPadding = PaddingValues(8.dp),
                     textStyle = MaterialTheme.typography.labelLarge,

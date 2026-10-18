@@ -74,6 +74,8 @@ public fun SettingsPreferenceDialogs(
     onShowSubtitleTextColorDialogChange: (Boolean) -> Unit,
     showSubtitleBackgroundDialog: Boolean,
     onShowSubtitleBackgroundDialogChange: (Boolean) -> Unit,
+    showPinnedSubtitleLanguagesDialog: Boolean,
+    onShowPinnedSubtitleLanguagesDialogChange: (Boolean) -> Unit,
     showLiveTranslationEndpointDialog: Boolean,
     onShowLiveTranslationEndpointDialogChange: (Boolean) -> Unit,
     showWifiQualityDialog: Boolean,
@@ -263,6 +265,17 @@ public fun SettingsPreferenceDialogs(
         }
     }
 
+    if (showPinnedSubtitleLanguagesDialog) {
+        PinnedSubtitleLanguagesDialog(
+            currentLanguages = uiState.pinnedSubtitleLanguages,
+            onDismiss = { onShowPinnedSubtitleLanguagesDialogChange(false) },
+            onSave = { languages ->
+                viewModel.setPinnedSubtitleLanguages(languages)
+                onShowPinnedSubtitleLanguagesDialogChange(false)
+            }
+        )
+    }
+
     if (showSubtitleSizeDialog) {
         val subtitleSizeOptions = remember { subtitleSizeOptions() }
         PremiumSelectionDialog(
@@ -387,6 +400,7 @@ public fun SettingsPreferenceDialogs(
 private fun AppLandingDestination.labelResId(): Int = when (this) {
     AppLandingDestination.HOME -> R.string.nav_home
     AppLandingDestination.LIVE_TV -> R.string.nav_live_tv
+    AppLandingDestination.SPORTS -> R.string.nav_sports
     AppLandingDestination.FIRST_FAVORITE_LIVE -> R.string.settings_startup_first_favorite_live
     AppLandingDestination.LAST_WATCHED_LIVE -> R.string.settings_startup_last_watched_live
     AppLandingDestination.MOVIES -> R.string.nav_movies
@@ -394,6 +408,7 @@ private fun AppLandingDestination.labelResId(): Int = when (this) {
     AppLandingDestination.GUIDE -> R.string.nav_epg
     AppLandingDestination.DOWNLOADS -> R.string.nav_downloads
     AppLandingDestination.PLUGINS -> R.string.nav_plugins
+    AppLandingDestination.ADDONS -> R.string.nav_addons
     AppLandingDestination.SETTINGS -> R.string.nav_settings
 }
 
@@ -401,4 +416,10 @@ private fun AppTheme.labelResId(): Int = when (this) {
     AppTheme.CLASSIC_BLUE -> R.string.settings_theme_classic_blue
     AppTheme.M3_PURPLE -> R.string.settings_theme_m3_purple
     AppTheme.LIGHT -> R.string.settings_theme_light
+    AppTheme.FOREST -> R.string.settings_theme_forest
+    AppTheme.SUNSET -> R.string.settings_theme_sunset
+    AppTheme.OCEAN -> R.string.settings_theme_ocean
+    AppTheme.ROSE -> R.string.settings_theme_rose
+    AppTheme.AMOLED_BLACK -> R.string.settings_theme_amoled_black
+    AppTheme.VINTAGE -> R.string.settings_theme_vintage
 }

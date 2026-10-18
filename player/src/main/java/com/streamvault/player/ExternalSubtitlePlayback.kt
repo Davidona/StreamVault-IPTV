@@ -37,12 +37,33 @@ internal fun TrackSelectionParameters.withExternalSubtitleEnabled(): TrackSelect
 
 internal fun buildExternalSubtitleConfiguration(
     subtitleUri: Uri,
-    language: String
-): MediaItem.SubtitleConfiguration = MediaItem.SubtitleConfiguration.Builder(subtitleUri)
-    .setMimeType(MimeTypes.APPLICATION_SUBRIP)
-    .setLanguage(language)
-    .setSelectionFlags(C.SELECTION_FLAG_DEFAULT)
-    .build()
+    language: String,
+    label: String? = null,
+    subtitleSource: SubtitleTrackSource? = null
+): MediaItem.SubtitleConfiguration {
+    val source = subtitleSource ?: if (label != null) SubtitleTrackSource.DEVICE else SubtitleTrackSource.ONLINE
+    val trackId = when (source) {
+        SubtitleTrackSource.DEVICE -> DEVICE_SUBTITLE_TRACK_ID
+        SubtitleTrackSource.STREMIO -> STREMIO_SUBTITLE_TRACK_ID
+        SubtitleTrackSource.ONLINE, SubtitleTrackSource.PROVIDER -> ONLINE_SUBTITLE_TRACK_ID
+    }
+    return MediaItem.SubtitleConfiguration.Builder(subtitleUri)
+        .setId(trackId)
+        .setMimeType(externalSubtitleMimeType(subtitleUri))
+        .setLanguage(language)
+        .setLabel(label?.takeIf(String::isNotBlank))
+        .setSelectionFlags(C.SELECTION_FLAG_DEFAULT)
+        .build()
+}
+
+private fun externalSubtitleMimeType(uri: Uri): String = when (
+    uri.lastPathSegment.orEmpty().substringAfterLast('.', "").lowercase()
+) {
+    "vtt", "webvtt" -> MimeTypes.TEXT_VTT
+    "ass", "ssa" -> MimeTypes.TEXT_SSA
+    "ttml", "dfxp" -> MimeTypes.APPLICATION_TTML
+    else -> MimeTypes.APPLICATION_SUBRIP
+}
 
 @UnstableApi
 internal fun buildExternalSubtitleMediaSource(

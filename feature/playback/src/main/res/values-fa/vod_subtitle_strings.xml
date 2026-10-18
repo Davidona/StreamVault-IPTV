@@ -1,0 +1,18 @@
+<resources>
+    <string name="vod_subtitle_sources">منابع</string>
+    <string name="vod_subtitle_settings">تنظیمات</string>
+    <string name="vod_subtitle_provider">زیرنویس‌های ارائه‌دهنده</string>
+    <string name="vod_subtitle_provider_hint">یک زیرنویس از این ویدیو انتخاب کنید</string>
+    <string name="vod_subtitle_online">OpenSubtitles</string>
+    <string name="vod_subtitle_online_hint">یافتن زیرنویس آنلاین</string>
+    <string name="vod_subtitle_online_unavailable">جستجوی آنلاین برای این ویدیو در دسترس نیست</string>
+    <string name="vod_subtitle_device_hint">یک فایل SRT انتخاب کنید</string>
+    <string name="vod_subtitle_back">بازگشت به منابع</string>
+    <string name="vod_tracks_empty">هیچ ترکی در این ویدیو موجود نیست</string>
+    <string name="vod_subtitle_preview">این یک زیرنویس است.</string>
+    <string name="vod_subtitle_font_size">اندازه قلم</string>
+    <string name="vod_subtitle_background">شفافیت پس‌زمینه</string>
+    <string name="vod_subtitle_background_hint" formatted="false">0% شفاف · 100% سیاه یکدست</string>
+    <string name="vod_subtitle_decrease_setting">کاهش %1$s</string>
+    <string name="vod_subtitle_increase_setting">افزایش %1$s</string>
+</resources>

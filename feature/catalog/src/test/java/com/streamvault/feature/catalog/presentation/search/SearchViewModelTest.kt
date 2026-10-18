@@ -7,6 +7,7 @@ import com.streamvault.domain.model.LegacyProvider as Provider
 import com.streamvault.domain.model.ProviderType
 import com.streamvault.domain.model.SearchHistoryScope
 import com.streamvault.domain.model.Series
+import com.streamvault.domain.model.ContentType
 import com.streamvault.data.preferences.PreferencesRepository
 import com.streamvault.domain.manager.ParentalControlManager
 import com.streamvault.domain.manager.RecordingManager
@@ -15,6 +16,10 @@ import com.streamvault.domain.repository.FavoriteRepository
 import com.streamvault.domain.repository.ProviderRepository
 import com.streamvault.domain.usecase.SearchContent
 import com.streamvault.domain.usecase.SearchContentResult
+import com.streamvault.domain.trakt.TraktFavoriteActionResult
+import com.streamvault.domain.trakt.TraktFavoriteIdentity
+import com.streamvault.domain.trakt.TraktFavoriteType
+import com.streamvault.domain.trakt.TraktFavorites
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
@@ -67,7 +72,8 @@ class SearchViewModelTest {
             parentalControlManager,
             favoriteRepository,
             categoryRepository,
-            recordingManager
+            recordingManager,
+            com.streamvault.feature.catalog.presentation.NoopTraktFavorites()
         )
     }
 
@@ -121,7 +127,8 @@ class SearchViewModelTest {
             parentalControlManager,
             favoriteRepository,
             categoryRepository,
-            recordingManager
+            recordingManager,
+            com.streamvault.feature.catalog.presentation.NoopTraktFavorites()
         )
 
         val collectorJob = backgroundScope.launch { viewModel.uiState.collect { } }
@@ -162,7 +169,8 @@ class SearchViewModelTest {
             parentalControlManager,
             favoriteRepository,
             categoryRepository,
-            recordingManager
+            recordingManager,
+            com.streamvault.feature.catalog.presentation.NoopTraktFavorites()
         )
 
         val collectorJob = backgroundScope.launch { viewModel.uiState.collect { } }
@@ -211,7 +219,8 @@ class SearchViewModelTest {
             parentalControlManager,
             favoriteRepository,
             categoryRepository,
-            recordingManager
+            recordingManager,
+            com.streamvault.feature.catalog.presentation.NoopTraktFavorites()
         )
 
         val collectorJob = backgroundScope.launch { viewModel.uiState.collect { } }
@@ -225,5 +234,42 @@ class SearchViewModelTest {
         assertThat(viewModel.uiState.value.series.map { it.id }).containsExactly(3L)
         assertThat(viewModel.uiState.value.hasSearched).isTrue()
         collectorJob.cancel()
+    }
+
+    @Test
+    fun `movie favorite action also syncs its TMDB id to Trakt`() = runTest {
+        val provider = Provider(id = 5L, name = "Provider", type = ProviderType.M3U, serverUrl = "http://test")
+        whenever(providerRepository.getActiveProvider()).thenReturn(flowOf(provider))
+        val favorites = RecordingTraktFavorites()
+        viewModel = SearchViewModel(
+            providerRepository,
+            searchContent,
+            preferencesRepository,
+            parentalControlManager,
+            favoriteRepository,
+            categoryRepository,
+            recordingManager,
+            favorites,
+        )
+        val collectorJob = backgroundScope.launch { viewModel.uiState.collect { } }
+        advanceUntilIdle()
+
+        viewModel.toggleFavorite(20L, ContentType.MOVIE, currentlyFavorite = false, tmdbId = 603L)
+        advanceUntilIdle()
+
+        verify(favoriteRepository).addFavorite(5L, 20L, ContentType.MOVIE)
+        assertThat(favorites.writes).containsExactly(
+            TraktFavoriteIdentity(TraktFavoriteType.MOVIE, 603L) to true,
+        )
+        collectorJob.cancel()
+    }
+
+    private class RecordingTraktFavorites : TraktFavorites {
+        val writes = mutableListOf<Pair<TraktFavoriteIdentity, Boolean>>()
+
+        override suspend fun setFavorited(identity: TraktFavoriteIdentity, favorited: Boolean): TraktFavoriteActionResult {
+            writes += identity to favorited
+            return TraktFavoriteActionResult.Success
+        }
     }
 }

@@ -8,6 +8,31 @@ class VideoStallDetectorTest {
     private var nowMs = 0L
 
     @Test
+    fun `unsuccessful recovery is reported again after grace without inventing a rendered frame`() {
+        val detector = detector()
+        detector.reset()
+        nowMs = 1_000L
+        detector.onVideoFrameRendered(500L)
+        nowMs = 9_000L
+        assertThat(detector.shouldReportStall(
+            PlaybackState.READY, true, true, 9_000L, 5_000L,
+            recoverFrameSilentReadyStalls = true
+        )).isTrue()
+        detector.restartAfterRecoveryAttempt()
+        assertThat(detector.lastVideoFrameAgoMs()).isEqualTo(8_000L)
+        nowMs = 12_000L
+        assertThat(detector.shouldReportStall(
+            PlaybackState.READY, true, true, 12_000L, 5_000L,
+            recoverFrameSilentReadyStalls = true
+        )).isFalse()
+        nowMs = 18_000L
+        assertThat(detector.shouldReportStall(
+            PlaybackState.READY, true, true, 18_000L, 5_000L,
+            recoverFrameSilentReadyStalls = true
+        )).isTrue()
+    }
+
+    @Test
     fun `does not report before initial grace`() {
         val detector = detector()
         detector.reset()

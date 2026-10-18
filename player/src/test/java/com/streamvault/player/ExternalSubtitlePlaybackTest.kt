@@ -42,16 +42,32 @@ class ExternalSubtitlePlaybackTest {
     }
 
     @Test
-    fun `external subtitle configuration preserves language and uses subrip`() {
+    fun `external subtitle configuration preserves language label and uses subrip`() {
         val configuration = buildExternalSubtitleConfiguration(
             subtitleUri = Uri.parse("https://example.test/subtitles/episode.srt"),
-            language = "he"
+            language = "he",
+            label = "episode.srt"
         )
 
         assertThat(configuration.uri.toString()).isEqualTo("https://example.test/subtitles/episode.srt")
         assertThat(configuration.mimeType).isEqualTo(MimeTypes.APPLICATION_SUBRIP)
         assertThat(configuration.language).isEqualTo("he")
+        assertThat(configuration.label).isEqualTo("episode.srt")
+        assertThat(configuration.id).isEqualTo(DEVICE_SUBTITLE_TRACK_ID)
         assertThat(configuration.selectionFlags).isEqualTo(C.SELECTION_FLAG_DEFAULT)
+    }
+
+    @Test
+    fun `external subtitle configuration preserves label and detects webvtt`() {
+        val configuration = buildExternalSubtitleConfiguration(
+            subtitleUri = Uri.parse("https://example.test/private/path/captions.vtt?token=hidden"),
+            language = "en",
+            label = "English · Subtitles"
+        )
+
+        assertThat(configuration.mimeType).isEqualTo(MimeTypes.TEXT_VTT)
+        assertThat(configuration.language).isEqualTo("en")
+        assertThat(configuration.label).isEqualTo("English · Subtitles")
     }
 
     @Test
@@ -61,6 +77,7 @@ class ExternalSubtitlePlaybackTest {
             language = "en"
         )
         val dataSourceFactory = DataSource.Factory { ByteArrayDataSource(byteArrayOf()) }
+        assertThat(configuration.id).isEqualTo(ONLINE_SUBTITLE_TRACK_ID)
 
         val source = buildExternalSubtitleMediaSource(dataSourceFactory, configuration)
 

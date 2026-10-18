@@ -1,6 +1,8 @@
 package com.streamvault.feature.playback.player
 
 import android.view.KeyEvent
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -93,10 +95,13 @@ import com.streamvault.feature.playback.player.overlay.NextEpisodeCountdownOverl
 import com.streamvault.feature.playback.player.overlay.SkipChapterOverlay
 import com.streamvault.feature.playback.player.LiveClockOverlay
 import com.streamvault.core.navigation.AppDestination
+import com.streamvault.core.navigation.StremioPlaybackReference
+import com.streamvault.core.navigation.StremioSubtitlePlaybackSource
 
 
 
 private const val CLOSE_PLAYBACK_CONFIRM_GUARD_MS = 350L
+private const val TRAKT_STATUS_BADGE_DURATION_MS = 3_000L
 
 @OptIn(androidx.compose.ui.ExperimentalComposeUiApi::class)
 @Composable
@@ -119,6 +124,11 @@ fun PlayerScreen(
     seasonNumber: Int? = null,
     episodeNumber: Int? = null,
     episodeId: Long? = null,
+    remoteContentId: String? = null,
+    remoteSeriesId: String? = null,
+    stremioPlaybackReference: StremioPlaybackReference? = null,
+    stremioMediaRequestHeaders: Map<String, String> = emptyMap(),
+    stremioInlineSubtitles: List<StremioSubtitlePlaybackSource> = emptyList(),
     returnDestination: AppDestination? = null,
     onBack: () -> Unit,
     onNavigate: ((AppDestination) -> Unit)? = null,
@@ -154,12 +164,14 @@ fun PlayerScreen(
         ?: false
     val playerEngine by viewModel.activePlayerEngine.collectAsStateWithLifecycle()
     val playbackState by playerEngine.playbackState.collectAsStateWithLifecycle()
+    val playbackQualityGate by playerEngine.playbackQualityGate.collectAsStateWithLifecycle()
     val isPlaying by playerEngine.isPlaying.collectAsStateWithLifecycle()
     val renderSurfaceType by playerEngine.renderSurfaceType.collectAsStateWithLifecycle()
     val showControls by viewModel.showControls.collectAsStateWithLifecycle()
     val videoFormat by viewModel.videoFormat.collectAsStateWithLifecycle()
     val playerError by viewModel.playerError.collectAsStateWithLifecycle()
     val playbackResolutionUiState by viewModel.playbackResolutionUiState.collectAsStateWithLifecycle()
+    val traktTrackingStatus by viewModel.playerTraktCoordinator.status.collectAsStateWithLifecycle()
     val currentChannel by viewModel.currentChannel.collectAsStateWithLifecycle()
     val autoPlayCountdown by viewModel.autoPlayCountdown.collectAsStateWithLifecycle()
     val skipChapter by viewModel.skipChapter.collectAsStateWithLifecycle()
@@ -167,6 +179,7 @@ fun PlayerScreen(
     val playerPreferencesUiState by viewModel.playerPreferencesUiState.collectAsStateWithLifecycle()
     
     val isCatchUpPlayback by viewModel.isCatchUpPlayback.collectAsStateWithLifecycle()
+    val onlineSubtitleSearchAvailable = !isCatchUpPlayback && contentType in setOf("VOD", "MOVIE", "SERIES_EPISODE")
     val showChannelListOverlay by viewModel.showChannelListOverlay.collectAsStateWithLifecycle()
     val showCategoryListOverlay by viewModel.showCategoryListOverlay.collectAsStateWithLifecycle()
     val showEpgOverlay by viewModel.showEpgOverlay.collectAsStateWithLifecycle()
@@ -178,11 +191,31 @@ fun PlayerScreen(
     val preventStandbyDuringPlayback by viewModel.preventStandbyDuringPlayback.collectAsStateWithLifecycle()
     val sleepTimerExitEvent by viewModel.sleepTimerExitEvent.collectAsStateWithLifecycle()
     val playerPreferences by viewModel.playerPreferencesUiState.collectAsStateWithLifecycle()
+    val localSubtitlePicker = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument()
+    ) { uri ->
+        uri?.let(viewModel::loadLocalSrtSubtitle)
+    }
+    val pickLocalSubtitle: () -> Unit = {
+        localSubtitlePicker.launch(arrayOf("application/x-subrip", "text/plain", "application/octet-stream"))
+    }
+
+    DisposableEffect(viewModel) {
+        onDispose { viewModel.clearSeekPreview() }
+    }
 
     var modalState by remember { mutableStateOf(PlayerModalState()) }
     var channelInfoSubPanelOpen by remember { mutableStateOf(false) }
     var showClosePlaybackConfirmation by rememberSaveable { mutableStateOf(false) }
     var closePlaybackConfirmationOpenedAtMs by remember { mutableStateOf(0L) }
+    var showTransientTraktStatus by remember { mutableStateOf(false) }
+
+    LaunchedEffect(isInPictureInPictureMode) {
+        if (isInPictureInPictureMode) {
+            modalState = modalState.dismiss()
+            showClosePlaybackConfirmation = false
+        }
+    }
     
     val focusRequester = remember { FocusRequester() }
     val channelListFocusRequester = remember { FocusRequester() }
@@ -203,11 +236,22 @@ fun PlayerScreen(
         focusRequester.requestFocus()
     }
 
+    LaunchedEffect(traktTrackingStatus) {
+        if (traktTrackingStatus == PlayerTraktTrackingStatus.HIDDEN) {
+            showTransientTraktStatus = false
+        } else {
+            showTransientTraktStatus = true
+            delay(TRAKT_STATUS_BADGE_DURATION_MS)
+            showTransientTraktStatus = false
+        }
+    }
+
     LaunchedEffect(playbackPlatformHost, streamUrl, playbackState, isPlaying, videoFormat.width, videoFormat.height, videoFormat.pixelWidthHeightRatio) {
         playbackPlatformHost?.updatePictureInPictureState(
             PlaybackPictureInPictureState(
                 enabled = streamUrl.isNotBlank()
                     && playbackState != PlaybackState.ERROR
+                    && playbackQualityGate == null
                     && (isPlaying || playbackState == PlaybackState.READY || playbackState == PlaybackState.BUFFERING),
                 isPlaying = isPlaying,
                 videoWidth = videoFormat.width,
@@ -316,7 +360,10 @@ fun PlayerScreen(
         combinedSourceFilterProviderId = combinedSourceFilterProviderId,
         contentType = contentType,
         archiveStartMs = archiveStartMs,
-        archiveEndMs = archiveEndMs
+        archiveEndMs = archiveEndMs,
+        stremioPlaybackReference = stremioPlaybackReference,
+        stremioMediaRequestHeaders = stremioMediaRequestHeaders,
+        stremioInlineSubtitles = stremioInlineSubtitles
     )
 
     LaunchedEffect(prepareIdentity) {
@@ -338,7 +385,12 @@ fun PlayerScreen(
             seriesId = seriesId,
             seasonNumber = seasonNumber,
             episodeNumber = episodeNumber,
-            episodeId = episodeId
+            episodeId = episodeId,
+            remoteContentId = remoteContentId,
+            remoteSeriesId = remoteSeriesId,
+            stremioPlaybackReference = stremioPlaybackReference,
+            stremioMediaRequestHeaders = stremioMediaRequestHeaders,
+            stremioInlineSubtitles = stremioInlineSubtitles
         )
     }
 
@@ -433,6 +485,7 @@ fun PlayerScreen(
                     hasPendingNumericChannelInput = viewModel.hasPendingNumericChannelInput(),
                     hasAutoPlayCountdown = autoPlayCountdown != null,
                     hasPlayerNotice = playerNotice != null,
+                    hasPlaybackQualityGate = playbackQualityGate != null,
                     showProgramHistory = modalState.showProgramHistory,
                     showSplitDialog = modalState.showSplitDialog,
                     showEpisodePicker = modalState.showEpisodePicker,
@@ -440,9 +493,11 @@ fun PlayerScreen(
                     showPlaybackSettings = modalState.showPlaybackSettings,
                     showSpeedSelection = modalState.showSpeedSelection,
                     showAudioVideoOffsetDialog = modalState.showAudioVideoOffsetDialog,
+                    showSubtitleOffsetDialog = modalState.showSubtitleOffsetDialog,
                     showStopPlaybackTimerDialog = modalState.showStopPlaybackTimerDialog,
                     showIdleStandbyTimerDialog = modalState.showIdleStandbyTimerDialog,
                     hasTrackSelection = modalState.trackSelection != null,
+                    showSubtitleSearch = modalState.showSubtitleSearch,
                     showVariantSelection = modalState.showVariantSelection,
                     showDiagnostics = showDiagnostics,
                     showChannelInfoOverlay = showChannelInfoOverlay,
@@ -465,15 +520,21 @@ fun PlayerScreen(
                     modalState = modalState.dismiss()
                     viewModel.dismissAudioVideoOffsetPreview()
                 }
+                PlayerBackAction.CLOSE_SUBTITLE_OFFSET_DIALOG -> modalState = modalState.dismiss()
                 PlayerBackAction.CLOSE_STOP_PLAYBACK_TIMER -> modalState = modalState.dismiss()
                 PlayerBackAction.CLOSE_IDLE_STANDBY_TIMER -> modalState = modalState.dismiss()
                 PlayerBackAction.CLOSE_VARIANT_SELECTION -> modalState = modalState.dismiss()
                 PlayerBackAction.CLOSE_TRACK_SELECTION -> modalState = modalState.dismiss()
+                PlayerBackAction.CLOSE_SUBTITLE_SEARCH -> {
+                    viewModel.cancelExternalSubtitleSearch()
+                    modalState = modalState.dismiss()
+                }
                 PlayerBackAction.TOGGLE_DIAGNOSTICS -> viewModel.toggleDiagnostics()
                 PlayerBackAction.CLOSE_CHANNEL_INFO -> viewModel.closeChannelInfoOverlay()
                 PlayerBackAction.CLOSE_LIVE_OVERLAYS -> viewModel.closeOverlays()
                 PlayerBackAction.TOGGLE_CONTROLS -> viewModel.toggleControls()
                 PlayerBackAction.CANCEL_CLOSE_PLAYBACK -> dismissClosePlaybackConfirmation()
+                PlayerBackAction.QUALITY_GATE_ACTIVE -> Unit
                 PlayerBackAction.NAVIGATE_BACK -> {
                     if (playerPreferences.confirmClosePlayback) {
                         openClosePlaybackConfirmation()
@@ -504,6 +565,7 @@ fun PlayerScreen(
             showVariantSelection = modalState.showVariantSelection,
             showSpeedSelection = modalState.showSpeedSelection,
             showAudioVideoOffsetDialog = modalState.showAudioVideoOffsetDialog,
+            showSubtitleOffsetDialog = modalState.showSubtitleOffsetDialog,
             showStopPlaybackTimerDialog = modalState.showStopPlaybackTimerDialog,
             showIdleStandbyTimerDialog = modalState.showIdleStandbyTimerDialog,
             showProgramHistory = modalState.showProgramHistory,
@@ -597,6 +659,10 @@ fun PlayerScreen(
                     PlayerInputAction.DismissAudioVideoOffset -> {
                         modalState = modalState.dismiss()
                         viewModel.dismissAudioVideoOffsetPreview()
+                        true
+                    }
+                    PlayerInputAction.DismissSubtitleOffset -> {
+                        modalState = modalState.dismiss()
                         true
                     }
                     PlayerInputAction.CloseSpeedSelection -> {
@@ -754,6 +820,18 @@ fun PlayerScreen(
                 .padding(start = 18.dp, top = 18.dp)
         )
 
+        AnimatedVisibility(
+            visible = traktTrackingStatus != PlayerTraktTrackingStatus.HIDDEN &&
+                (showControls || showTransientTraktStatus) && !isInPictureInPictureMode,
+            enter = fadeIn(tween(150)),
+            exit = fadeOut(tween(250)),
+            modifier = Modifier
+                .align(Alignment.TopStart)
+                .padding(start = 18.dp, top = 70.dp)
+        ) {
+            PlayerTraktStatusOverlay(status = traktTrackingStatus)
+        }
+
         when (val resolutionState = playbackResolutionUiState) {
             PlaybackResolutionUiState.Resolving -> Box(
                 modifier = Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.82f)),
@@ -764,7 +842,10 @@ fun PlayerScreen(
                     verticalArrangement = Arrangement.spacedBy(14.dp)
                 ) {
                     CircularProgressIndicator(color = Primary)
-                    Text("Resolving playback…", color = Color.White)
+                    Text(
+                        text = stringResource(R.string.player_preparing_playback),
+                        color = Color.White,
+                    )
                 }
             }
             is PlaybackResolutionUiState.Failure -> PlayerErrorOverlay(
@@ -813,6 +894,7 @@ fun PlayerScreen(
             title = title,
             contentType = contentType,
             isCatchUpPlayback = isCatchUpPlayback,
+            onlineSubtitleSearchAvailable = onlineSubtitleSearchAvailable,
             isPlaying = isPlaying,
             currentChannel = currentChannel,
             currentChannelName = currentChannel?.name,
@@ -932,6 +1014,8 @@ fun PlayerScreen(
             viewModel = viewModel,
             isInPictureInPictureMode = isInPictureInPictureMode,
             showTrackSelection = modalState.trackSelection,
+            showSubtitleSearch = modalState.showSubtitleSearch,
+            onlineSubtitleSearchAvailable = onlineSubtitleSearchAvailable,
             showVariantSelection = modalState.showVariantSelection,
             currentChannel = currentChannel,
             showSpeedSelection = modalState.showSpeedSelection,
@@ -939,10 +1023,17 @@ fun PlayerScreen(
             showIdleStandbyTimerDialog = modalState.showIdleStandbyTimerDialog,
             canSaveChannel = currentChannel != null,
             showAudioVideoOffsetDialog = modalState.showAudioVideoOffsetDialog,
+            showSubtitleOffsetDialog = modalState.showSubtitleOffsetDialog,
             showEpisodePicker = modalState.showEpisodePicker,
             fallbackTitle = title,
             fallbackEpisodeId = internalChannelId,
             fallbackSeasonNumber = seasonNumber,
+            onOpenSubtitleSearch = { modalState = modalState.open(PlayerModal.SubtitleSearch) },
+            onOpenSubtitleOffset = { modalState = modalState.open(PlayerModal.SubtitleOffset) },
+            onPickLocalSubtitle = pickLocalSubtitle,
+            onOpenSettings = {
+                onNavigate?.invoke(AppDestination.Settings(openOpenSubtitlesSignIn = true))
+            },
             onDismissModal = { modalState = modalState.dismiss() }
         )
 
@@ -980,6 +1071,21 @@ fun PlayerScreen(
                 onRunRecordingAction = notificationPermissionGate::runRecordingAction,
                 onOpenCastRouteChooser = { playbackPlatformHost?.openCastRouteChooser() },
                 onTransientPanelVisibilityChanged = { channelInfoSubPanelOpen = it }
+            )
+        }
+        playbackQualityGate?.let { gate ->
+            PlayerQualityGateOverlay(
+                state = gate,
+                hasAlternateSource = viewModel.hasAlternateStream(),
+                onContinueOnce = playerEngine::continuePlaybackQualityOnce,
+                onTryAlternateSource = {
+                    viewModel.runPlayerNoticeAction(PlayerNoticeAction.ALTERNATE_STREAM)
+                },
+                onStop = {
+                    playerEngine.stop()
+                    onBack()
+                },
+                modifier = Modifier.fillMaxSize()
             )
         }
     }

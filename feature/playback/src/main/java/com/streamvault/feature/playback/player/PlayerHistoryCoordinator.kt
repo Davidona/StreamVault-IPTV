@@ -4,7 +4,9 @@ import com.streamvault.feature.playback.api.PlaybackSurfaceRefreshPort
 import com.streamvault.domain.model.ContentType
 import com.streamvault.domain.model.PlaybackHistory
 import com.streamvault.domain.model.Result
+import com.streamvault.domain.model.stremio.StremioPlaybackHistory
 import com.streamvault.domain.repository.PlaybackHistoryRepository
+import com.streamvault.domain.repository.StremioPlaybackHistoryRepository
 import com.streamvault.domain.usecase.MarkAsWatched
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
@@ -12,6 +14,7 @@ import javax.inject.Inject
 /** Keeps player history reads and writes behind one feature-scoped boundary. */
 class PlayerHistoryCoordinator @Inject constructor(
     private val repository: PlaybackHistoryRepository,
+    private val stremioRepository: StremioPlaybackHistoryRepository,
     private val playbackSurfaceRefreshPort: PlaybackSurfaceRefreshPort,
     private val markAsWatched: MarkAsWatched
 ) {
@@ -49,6 +52,12 @@ class PlayerHistoryCoordinator @Inject constructor(
 
     internal suspend fun flushPendingProgress(): Result<Unit> =
         repository.flushPendingProgress()
+
+    internal suspend fun getStremioPlaybackHistory(contentKey: String): StremioPlaybackHistory? =
+        stremioRepository.get(contentKey)
+
+    internal suspend fun saveStremioPlaybackHistory(history: StremioPlaybackHistory): Result<Unit> =
+        stremioRepository.save(history)
 
     internal suspend fun refreshPlaybackSurfaces() {
         playbackSurfaceRefreshPort.refreshWatchNext()

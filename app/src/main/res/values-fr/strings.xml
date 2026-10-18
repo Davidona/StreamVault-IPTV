@@ -261,4 +261,48 @@
     <!-- Xtream Live Sync Mode -->
 
     <!-- M2 : sauvegarde Google Drive -->
+
+    <string name="nav_close_app">Fermer l’application</string>
+    <string name="m3u_organize_items">Organiser les éléments M3U</string>
+    <string name="m3u_move_to_movies">Déplacer vers Films</string>
+    <string name="m3u_move_to_series">Déplacer vers Séries</string>
+    <string name="m3u_move_back_to_live">Revenir à la TV en direct</string>
+    <string name="m3u_series_name">Nom de la série</string>
+    <string name="m3u_episode_number">Numéro d’épisode</string>
+    <string name="m3u_season_number">Numéro de saison</string>
+    <string name="m3u_classify">Classer</string>
+    <string name="m3u_classification_saved">Classification M3U enregistrée</string>
+    <string name="m3u_category_rule_subtitle">Choisissez une valeur par défaut pour ce groupe M3U. Les chaînes individuelles peuvent toujours être remplacées.</string>
+    <string name="m3u_keep_live">Conserver en TV en direct</string>
+    <string name="m3u_series_review_title">Organiser les séries dans %1$s</string>
+    <string name="m3u_series_review_subtitle">Examinez les suggestions automatiques ou attribuez chaque entrée à une série, une saison et un épisode.</string>
+    <string name="m3u_episode_unresolved">Numéro d’épisode non résolu — il restera signalé pour correction.</string>
+    <string name="settings_drive_cancel_backup_choice_subtitle">Revenez aux actions de sauvegarde Drive.</string>
+    <string name="nav_vod">VOD</string>
+
+    <!-- Merged from strings_missing.xml -->
+    <string name="nav_plugins">Plugins</string>
+    <string name="dashboard_customize_home">Personnaliser l’accueil</string>
+    <string name="dashboard_customize_home_subtitle">Choisissez les rayons qui apparaissent ici, ajoutez des lignes et réorganisez-les à tout moment.</string>
+    <string name="dashboard_customize_home_action">Personnaliser</string>
+    <string name="player_no_external_player">Aucun lecteur externe installé</string>
+    <string name="player_unsafe_stream_url">Ce flux ne peut pas être ouvert dans un lecteur externe</string>
+    <string name="player_external_launch_failed">Le lecteur externe n’a pas pu démarrer</string>
+    <string name="download_failed">Échec du téléchargement : %1$s</string>
+    <string name="download_completed">Téléchargement terminé</string>
+    <string name="download_cancelled">Téléchargement annulé</string>
+    <string name="download_notification_channel">Téléchargements</string>
+    <string name="download_notification_channel_description">Affiche la progression et la fin des téléchargements</string>
+    <string name="download_in_progress">Téléchargement de %s</string>
+    <string name="download_progress">%1$s / %2$s</string>
+    <string name="nav_downloads">Téléchargements</string>
+    <string name="downloads_empty">Aucun téléchargement pour le moment</string>
+    <string name="downloads_delete_confirm">Supprimer ce téléchargement ?</string>
+    <string name="download_play_local">Lire</string>
+    <string name="torrent_playback_start_failed">La lecture du torrent n’a pas pu démarrer. Veuillez réessayer.</string>
+    <string name="torrent_cache_capacity_reached">La lecture du torrent a atteint la limite de stockage temporaire. Videz le cache ou libérez de la place, puis réessayez.</string>
+    <string name="torrent_storage_check_failed">Impossible de vérifier le stockage disponible. La lecture du torrent ne peut pas continuer en toute sécurité.</string>
+    <string name="nav_addons">Extensions Stremio</string>
+    <string name="nav_extensions">Extensions</string>
+    <string name="nav_sports">Sports</string>
 </resources>

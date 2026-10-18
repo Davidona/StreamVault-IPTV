@@ -1,3 +1,21 @@
+## Localization requirement (mandatory)
+
+- Every user-facing string is localized product content. This includes UI labels,
+  buttons, dialogs, errors, notifications, accessibility labels, and text shown
+  by Compose or XML layouts.
+- When adding or changing user-facing text, define it in the owning Android
+  module's default `res/values/strings.xml` and provide a real translation in
+  that module for every locale listed in
+  `app/src/main/res/xml/locales_config.xml`. Add missing locale resource files
+  as needed; do not rely on Android falling back to English or use English as a
+  placeholder translation.
+- Keep resource names and formatting contracts aligned across locales, including
+  `%s`/`%d` placeholders, positional arguments, plurals, and escaped characters.
+- Do not put user-facing text directly in Kotlin, Compose, or layout XML. Read it
+  from the localized resources for the module that owns the UI.
+- Before finishing a change that adds or edits user-facing text, verify that each
+  affected resource key exists and is translated in every advertised locale.
+
 ## Live TV playback validation
 
 For live TV playback bugs, do not validate with a single screenshot, a short

@@ -18,6 +18,8 @@ internal fun DashboardUiState.hasContentFor(shelf: AppHomeDashboardShelf): Boole
     AppHomeDashboardShelf.RECENT_SERIES -> recentSeries.isNotEmpty()
     AppHomeDashboardShelf.FAVORITE_MOVIES -> favoriteMovies.isNotEmpty()
     AppHomeDashboardShelf.FAVORITE_SERIES -> favoriteSeries.isNotEmpty()
+    AppHomeDashboardShelf.TRAKT_WATCHLIST_MOVIES -> traktWatchlistMovies.isNotEmpty()
+    AppHomeDashboardShelf.TRAKT_WATCHLIST_SERIES -> traktWatchlistSeries.isNotEmpty()
     AppHomeDashboardShelf.CONTINUE_WATCHING_MOVIES -> continueWatchingMovies.isNotEmpty()
     AppHomeDashboardShelf.CONTINUE_WATCHING_SERIES -> continueWatchingSeriesItems.isNotEmpty()
     AppHomeDashboardShelf.TOP_RATED_MOVIES -> topRatedMovies.isNotEmpty()

@@ -11,6 +11,7 @@ import com.streamvault.domain.manager.DriveAuthState
 import com.streamvault.domain.manager.DriveBackupSnapshot
 import com.streamvault.domain.manager.DriveSignInRequest
 import com.streamvault.domain.manager.DriveSyncStatus
+import com.streamvault.domain.manager.OpenSubtitlesAccount
 import com.streamvault.domain.manager.ProviderCredentials
 import com.streamvault.domain.model.ActiveLiveSource
 import com.streamvault.domain.model.VodCategoryLoadMode
@@ -45,6 +46,7 @@ import com.streamvault.domain.model.RecordingStorageState
 import com.streamvault.domain.model.RemoteShortcutPreferences
 import com.streamvault.domain.model.TimeshiftBackendPreference
 import com.streamvault.domain.model.VodVariantPreferenceMode
+import com.streamvault.domain.settings.PlaybackQualityPreferences
 
 data class CrashReportUiModel(
     val timestamp: String = "",
@@ -112,10 +114,15 @@ data class SettingsUiState(
     val subtitleTextScale: Float = 1f,
     val subtitleTextColor: Int = 0xFFFFFFFF.toInt(),
     val subtitleBackgroundColor: Int = 0x80000000.toInt(),
+    val pinnedSubtitleLanguages: List<String> = emptyList(),
     val playerLiveTranslationEnabled: Boolean = false,
     val playerLiveTranslationEndpoint: String = "http://10.0.2.2:8765",
+    val openSubtitlesAccount: OpenSubtitlesAccount? = null,
+    val isOpenSubtitlesBusy: Boolean = false,
+    val openSubtitlesError: String? = null,
     val wifiMaxVideoHeight: Int? = null,
     val ethernetMaxVideoHeight: Int? = null,
+    val playbackQualityPreferences: PlaybackQualityPreferences = PlaybackQualityPreferences(),
     val playerTimeshiftEnabled: Boolean = false,
     val playerTimeshiftDepthMinutes: Int = 30,
     val playerTimeshiftBackend: TimeshiftBackendPreference = TimeshiftBackendPreference.AUTOMATIC,
@@ -153,6 +160,7 @@ data class SettingsUiState(
     val wifiOnlyRecording: Boolean = false,
     val recordingPaddingBeforeMinutes: Int = 0,
     val recordingPaddingAfterMinutes: Int = 0,
+    val hideStremioAddons: Boolean = false,
     val isIncognitoMode: Boolean = false,
     val useXtreamTextClassification: Boolean = true,
     val xtreamBase64TextCompatibility: Boolean = false,
@@ -171,6 +179,10 @@ data class SettingsUiState(
     val groupedChannelLabelMode: GroupedChannelLabelMode = GroupedChannelLabelMode.HYBRID,
     val liveVariantPreferenceMode: LiveVariantPreferenceMode = LiveVariantPreferenceMode.BALANCED,
     val vodViewMode: VodViewMode = VodViewMode.MODERN,
+    val showTraktTrendingMovies: Boolean = true,
+    val showTraktPopularMovies: Boolean = true,
+    val showTraktTrendingSeries: Boolean = true,
+    val showTraktPopularSeries: Boolean = true,
     val vodTypeBadgeAsIcon: Boolean = false,
     val vodCategoryLoadMode: VodCategoryLoadMode = VodCategoryLoadMode.PAGED,
     val vodInfiniteScroll: Boolean = true,

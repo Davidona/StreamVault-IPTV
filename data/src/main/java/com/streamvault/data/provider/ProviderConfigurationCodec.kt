@@ -25,6 +25,26 @@ class ProviderConfigurationCodec @Inject constructor(
     fun decode(type: ProviderType, payload: String): ProviderConfiguration =
         decodeProviderConfigurationCompat(gson, credentialCrypto, type, payload)
 
+    /**
+     * Decode provider metadata for public projections without asking Android Keystore to open
+     * credentials that the projection will immediately discard.
+     */
+    fun decodeForPublicProjection(type: ProviderType, payload: String): ProviderConfiguration {
+        val configuration = decodeProviderConfigurationCompat(
+            gson = gson,
+            credentialCrypto = credentialCrypto,
+            type = type,
+            payload = payload,
+            decryptCredentials = false
+        )
+        return when (configuration) {
+            is XtreamConfig -> configuration.copy(password = "")
+            is M3uConfig -> configuration
+            is StalkerConfig -> configuration.copy(password = "")
+            is JellyfinConfig -> configuration.copy(credential = "")
+        }
+    }
+
     fun identityKey(configuration: ProviderConfiguration): String {
         val canonical = when (configuration) {
             is XtreamConfig -> listOf(configuration.type.name, normalizeOrigin(configuration.serverUrl), configuration.username.trim())

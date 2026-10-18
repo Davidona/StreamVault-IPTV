@@ -171,13 +171,15 @@ Messages:
 | 8 | `MSG_GET_CONFIGURATION_VALUES` | Return `configuration_values_json`. |
 | 9 | `MSG_SET_CONFIGURATION_VALUES` | Persist `configuration_values_json`. |
 | 10 | `MSG_RUN_CONFIGURATION_ACTION` | Run `configuration_action_id`. |
+| 11 | `MSG_STOP_PLAYBACK` | Release a prepared playback session identified by `output_url`. |
 
 For `playback.prepare` and `cast.rewriteUrl`, StreamVault only sends the message
 to plugins whose manifest already owns the URL (see `playbackUrlSchemes` /
 `playbackUrlHosts` above). Within that narrowed set, plugins should still set
 `handled=false` when the specific URL is not one they can actually prepare.
 StreamVault then continues with other matching enabled plugins or the original
-URL.
+URL. For `magnet:` inputs, StreamVault fails closed when no enabled plugin
+handles the link; the unresolved magnet is never passed to the player.
 
 `MSG_REWRITE_CAST_URL` is Cast-specific. StreamVault sends the stream context that
 made direct receiver playback unsafe:
@@ -217,6 +219,15 @@ player. When `handled=true` and `success=true`, the plugin can return:
   "playClearContentWithoutKey": true
 }
 ```
+
+For magnet playback, the host accepts a successful plugin response only when
+`output_url` is an HTTP URL on `127.0.0.1` with an explicit port. The plugin
+should bind its streaming server to loopback only. Torrent companion plugins
+should honor a `so` file-selection parameter when present. When playback ends,
+StreamVault sends `MSG_STOP_PLAYBACK` with the exact `output_url` returned by
+that plugin; the plugin should stop the matching session and release its
+foreground-service resources. Stop delivery is best effort, so the plugin must
+also clean up expired or abandoned sessions itself.
 
 `scheme` accepts `widevine`, `playready`, `clearkey`, or their platform UUID
 aliases (`com.widevine.alpha`, `com.microsoft.playready`, `org.w3.clearkey`).

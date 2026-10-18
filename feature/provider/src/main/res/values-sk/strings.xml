@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="add_group_cancel">Zrušiť</string>
+    <string name="settings_syncing_title">Synchronizácia údajov...</string>
+    <string name="settings_syncing_subtitle">Čakajte prosím, importuje sa váš playlist.</string>
+    <string name="settings_syncing_btn">Synchronizácia...</string>
+    <string name="settings_backup_restore">Záloha &amp; obnovenie</string>
+    <string name="settings_restore_data">Importovať údaje</string>
+    <string name="settings_restore_subtitle">Vyberte záložný súbor alebo otvorte zálohu pomocou StreamVault zo správcu súborov.</string>
+    <string name="setup_title_streamvault">StreamVault</string>
+    <string name="setup_provider_title">Pridať poskytovateľa</string>
+    <string name="setup_edit_provider">Upraviť poskytovateľa</string>
+    <string name="setup_update_desc">Aktualizujte údaje svojho IPTV poskytovateľa</string>
+    <string name="setup_add_desc">Pridajte svojho IPTV poskytovateľa</string>
+    <string name="setup_shell_eyebrow">Registrácia poskytovateľa</string>
+    <string name="setup_shell_subtitle">Použite Xtream alebo M3U. Neskôr to môžete zmeniť.</string>
+    <string name="setup_form_subtitle">Vyberte zdroj, zadajte údaje a pokračujte. Neskôr to môžete spravovať v Nastaveniach.</string>
+    <string name="setup_source_type_label">Typ zdroja</string>
+    <string name="setup_info_xtream_title">Použite Xtream, keď máte prihlasovacie údaje</string>
+    <string name="setup_info_xtream_body">Najlepšie, keď máte server, používateľské meno a heslo.</string>
+    <string name="setup_info_stalker_body">URL portálu a poskytovateľom schválená MAC adresa.</string>
+    <string name="setup_info_m3u_title">Použite M3U pre playlisty z URL alebo zo súboru</string>
+    <string name="setup_info_m3u_body">Použite odkaz na playlist alebo importujte lokálny súbor.</string>
+    <string name="setup_info_manage_title">Poskytovateľov môžete spravovať neskôr</string>
+    <string name="setup_info_manage_body">Neskôr ich môžete obnoviť, upraviť alebo nahradiť v Nastaveniach.</string>
+    <string name="setup_import_backup">Importovať zálohu</string>
+    <string name="badge_beta">Beta</string>
+    <string name="setup_xtream">Xtream Codes</string>
+    <string name="setup_stalker">Stalker</string>
+    <string name="setup_m3u">M3U playlist</string>
+    <string name="setup_name_hint">Názov playlistu (voliteľné)</string>
+    <string name="setup_server_hint">URL servera</string>
+    <string name="setup_user_hint">Používateľské meno</string>
+    <string name="setup_pass_hint">Heslo</string>
+    <string name="setup_show_password">Zobraziť heslo</string>
+    <string name="setup_hide_password">Skryť heslo</string>
+    <string name="setup_phone_pairing_title">Pridať z telefónu</string>
+    <string name="setup_phone_pairing_body">Naskenujte QR kód a zadajte prihlasovacie údaje poskytovateľa z telefónu v tej istej sieti Wi-Fi.</string>
+    <string name="setup_phone_pairing_start">Zobraziť QR kód</string>
+    <string name="setup_phone_pairing_restart">Nový QR kód</string>
+    <string name="setup_phone_pairing_stop">Zastaviť párovanie</string>
+    <string name="setup_phone_pairing_same_wifi">Otvorte toto z telefónu v tej istej sieti Wi-Fi. Prihlasovacie údaje sa odošlú priamo do tejto TV.</string>
+    <string name="setup_phone_pairing_qr_description">QR kód na nastavenie poskytovateľa v telefóne</string>
+    <string name="setup_phone_pairing_idle">Iba lokálne</string>
+    <string name="setup_phone_pairing_ready">Skenovať teraz</string>
+    <string name="setup_phone_pairing_receiving">Pridáva sa</string>
+    <string name="setup_phone_pairing_complete">Pridané</string>
+    <string name="setup_phone_pairing_error">Chyba</string>
+    <string name="setup_connecting">Pripája sa...</string>
+    <string name="setup_save">Uložiť zmeny</string>
+    <string name="setup_login">Prihlásiť sa</string>
+    <string name="setup_advanced_options_label">Pokročilé možnosti</string>
+    <string name="setup_advanced_options_helper">Nastavte, ako sa pri nastavení a obnovení poskytovateľa načítavajú údaje sprievodcu.</string>
+    <string name="setup_advanced_options_show">Zobraziť</string>
+    <string name="setup_advanced_options_hide">Skryť</string>
+    <string name="setup_m3u_vod_classification_label">Klasifikácia VOD v M3U</string>
+    <string name="setup_m3u_vod_classification_helper">Iba M3U. Dekódované URL filmov a lokalizované náznaky v skupine alebo názve klasifikujte ako filmy; rozpoznané URL živých streamov zostávajú v Živej TV.</string>
+    <string name="setup_xtream_live_sync_mode_label">Synchronizácia Xtream Live</string>
+    <string name="setup_xtream_live_sync_mode_helper">Zvoľte, ako sa načítavajú kanály Živej TV. Auto chráni slabé zariadenia a bežné aktualizácie a zároveň udržiava kategórie naplnené.</string>
+    <string name="setup_xtream_live_sync_mode_auto_title">Auto</string>
+    <string name="setup_xtream_live_sync_mode_auto_description">Odporúčané. Používa synchronizáciu po kategóriách na zariadeniach s nízkou pamäťou, aktualizácie na pozadí, aktualizácie skrytých kategórií a pri preťažených poskytovateľoch.</string>
+    <string name="setup_xtream_live_sync_mode_category_title">Kategória po kategórii</string>
+    <string name="setup_xtream_live_sync_mode_category_description">Vždy načítavať Živú TV po jednej kategórii. Bezpečnejšie pre veľkých poskytovateľov a slabé zariadenia Android TV.</string>
+    <string name="setup_xtream_live_sync_mode_stream_all_title">Streamovať všetko</string>
+    <string name="setup_xtream_live_sync_mode_stream_all_description">Vyskúšať live koncový bod celého poskytovateľa pomocou streamovacieho parsera. Pri nebezpečnosti alebo zlyhaní sa vráti k synchronizácii po kategóriách.</string>
+    <string name="setup_epg_sync_mode_label">Synchronizácia EPG</string>
+    <string name="setup_epg_sync_mode_helper">Režim „Hneď“ zachováva dnešné správanie. Režim „Na pozadí“ najprv dokončí nastavenie a režim „Preskočiť“ nechá aktualizáciu sprievodcu na neskôr.</string>
+    <string name="setup_epg_sync_mode_upfront_title">Celé EPG teraz</string>
+    <string name="setup_epg_sync_mode_upfront_description">Stiahnuť údaje poskytovateľa a externého sprievodcu počas nastavenia, pred jeho dokončením.</string>
+    <string name="setup_epg_sync_mode_background_title">Načítať EPG na pozadí</string>
+    <string name="setup_epg_sync_mode_background_description">Najprv dokončiť nastavenie a potom automaticky stiahnuť údaje sprievodcu na pozadí.</string>
+    <string name="setup_epg_sync_mode_skip_title">Zatiaľ preskočiť EPG</string>
+    <string name="setup_epg_sync_mode_skip_description">Automaticky nestahovať údaje sprievodcu. EPG môžete neskôr obnoviť v Nastaveniach.</string>
+    <string name="setup_stalker_epg_sync_mode_helper">Stalker môže použiť natívneho sprievodcu portálu, keď XMLTV chýba alebo nie je dostupné. Voľba „Hneď“ ho importuje počas nastavenia, „Na pozadí“ ho odloží a „Preskočiť“ ponechá načítanie sprievodcu na vyžiadanie.</string>
+    <string name="setup_stalker_epg_sync_mode_upfront_description">Počas nastavenia stiahnuť živé kanály a importovať sprievodcu portálu Stalker. Ak je XMLTV nakonfigurované a funguje, použije sa najprv.</string>
+    <string name="setup_stalker_epg_sync_mode_background_description">Najprv dokončiť nastavenie a potom na pozadí importovať sprievodcu portálu Stalker. Ak je XMLTV nakonfigurované a funguje, použije sa najprv.</string>
+    <string name="setup_stalker_epg_sync_mode_skip_description">Automaticky neimportovať hromadné údaje sprievodcu. Údaje živého sprievodcu sa pri prehliadaní kanálov môžu stále načítať na vyžiadanie.</string>
+    <string name="setup_m3u_hint">URL M3U</string>
+    <string name="setup_tab_url">URL</string>
+    <string name="setup_tab_file">Súbor</string>
+    <string name="setup_choose_file">Vybrať súbor M3U</string>
+    <string name="setup_file_replace_hint">Stlačením nahradíte súbor</string>
+    <string name="setup_file_select_title">Vybrať súbor M3U</string>
+    <string name="setup_file_browse_hint">Prehliadať lokálne úložisko alebo USB</string>
+    <string name="setup_file_import_failed">Súbor playlistu sa nepodarilo importovať. Skúste to prosím znova.</string>
+    <string name="setup_file_import_storage_full">Úložisko je plné. Uvoľnite miesto a skúste import znova.</string>
+    <string name="setup_discard_draft_title">Zahodiť koncept nastavenia?</string>
+    <string name="setup_discard_draft_body">Nastavenie tohto poskytovateľa nie je dokončené. Vrátiť sa späť a stratiť aktuálny koncept?</string>
+    <string name="setup_discard_draft_confirm">Zahodiť</string>
+    <string name="setup_discard_draft_cancel">Pokračovať v úpravách</string>
+    <string name="setup_validating">Overuje sa...</string>
+    <string name="setup_add">Pridať playlist</string>
+    <string name="setup_tab_jellyfin">Jellyfin</string>
+    <string name="setup_jellyfin_quick_connect">Quick Connect</string>
+    <string name="setup_jellyfin_quick_connect_code">Kód: %s</string>
+    <string name="setup_jellyfin_quick_connect_code_instructions">Otvorte svoj server Jellyfin v prehliadači a zadajte tento kód alebo naskenujte QR kód telefónom.</string>
+    <string name="setup_server_url">URL servera</string>
+    <string name="setup_username">Používateľské meno</string>
+    <string name="setup_password">Heslo</string>
+    <string name="setup_name">Názov</string>
+    <string name="setup_name_placeholder">Môj server Jellyfin</string>
+    <string name="settings_drive_signin" translatable="false">Sign in to Google Drive</string>
+    <string name="settings_drive_pull" translatable="false">Restore from Drive</string>
+    <string name="settings_drive_choose_backup_title" translatable="false">Choose a Drive backup</string>
+    <string name="settings_drive_choose_backup_subtitle" translatable="false">Select a saved snapshot to preview and restore.</string>
+    <string name="settings_drive_cancel_backup_choice" translatable="false">Cancel backup choice</string>
+    <string name="setup_import_from_drive">Importovať z Disku</string>
+    <string name="stalker_transport_invalid_tls_title" translatable="false">This provider\'s security certificate can\'t be verified</string>
+    <string name="stalker_transport_invalid_tls_body" translatable="false">The connection to %1$s may still be encrypted, but the app can\'t confirm it is really this provider. Someone on the network could read your login or stream details.</string>
+    <string name="stalker_transport_http_title" translatable="false">This provider uses an unencrypted connection</string>
+    <string name="stalker_transport_http_body" translatable="false">Your login and viewing requests to %1$s can be read or changed by someone on the network.</string>
+    <string name="stalker_transport_origin_changed_title" translatable="false">This provider wants to use a different address</string>
+    <string name="stalker_transport_origin_changed_body" translatable="false">The provider redirected the connection to %1$s. Continue only if you recognize this address.</string>
+    <string name="stalker_transport_go_back" translatable="false">Go back</string>
+    <string name="stalker_transport_connect_anyway" translatable="false">Connect anyway</string>
+    <string name="stalker_verification_inconclusive_title" translatable="false">Live TV could not be verified</string>
+    <string name="stalker_verification_inconclusive_body" translatable="false">The provider accepted your login, but the Live TV check did not finish. You can save it with verification pending; it will remain inactive until a sync confirms playable Live TV.</string>
+    <string name="stalker_save_without_verification" translatable="false">Save without verification</string>
+    <string name="stalker_repair_connection" translatable="false">Repair connection</string>
+    <string name="setup_phone_pairing_security_warning">Zabezpečenie: Pri párovaní sa prihlasovacie údaje odosielajú cez miestnu sieť bez šifrovania. Používajte iba dôveryhodnú súkromnú Wi-Fi sieť.</string>
+    <string name="setup_phone_pairing_error_help">Párovanie sa nepodarilo dokončiť. Skontrolujte údaje poskytovateľa a skúste to znova. Ak platnosť QR relácie vypršala, spustite na televízore novú.</string>
+    <string name="setup_phone_pairing_mac_label">MAC adresa</string>
+</resources>
