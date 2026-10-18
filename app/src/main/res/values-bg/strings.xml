@@ -9,7 +9,6 @@
     <string name="nav_series">Сериали</string>
     <string name="nav_epg">Програма</string>
     <string name="nav_settings">Настройки</string>
-    <string name="nav_plugins">Приставки</string>
     <string name="nav_close_app">Затвори приложението</string>
 
 
@@ -30,7 +29,7 @@
     <string name="home_last_channel">Последен канал</string>
     <string name="home_last_channel_label">Последен: %1$s</string>
     <string name="home_last_group_label">Последна: %1$s</string>
-    <string name="home_loading">Зареждане...</string>
+    <string name="home_loading">Зареждане…</string>
     <string name="home_locked_short">ЗАКЛЮЧЕНО</string>
     <string name="live_shell_subtitle">Разглеждайте категориите на живо бързо, поддържайте последователна навигация и показвайте само данните от програмата, които имат значение на екрана.</string>
     <string name="live_shell_context">%1$d категории • %2$d канала</string>
@@ -180,7 +179,7 @@
     <string name="settings_buffer_duration">Продължителност на буфера</string>
     <string name="settings_buffer_5s">5 секунди</string>
     <string name="settings_about_subtitle">Данни за версията, компилацията и поддръжката на тази инсталация.</string>
-    <string name="settings_syncing">Синхронизиране на данни, моля изчакайте...</string>
+    <string name="settings_syncing">Синхронизиране на данни, моля изчакайте…</string>
     <string name="settings_cancel">Отказ</string>
     <string name="settings_sync_option_all">Синхронизирай всичко</string>
     <string name="settings_sync_option_fast">Бърза синхронизация</string>
@@ -212,7 +211,7 @@
     <string name="search_title">Търсене</string>
     <string name="parental_group_shell_subtitle">Прегледайте защитените групи за канали на живо, филми и сериали, без да напускате екрана с настройки.</string>
     <string name="search_command_title">Командно търсене</string>
-    <string name="search_hint">Търсене...</string>
+    <string name="search_hint">Търсене…</string>
     <string name="search_actions_title">%1$s</string>
     <string name="search_actions_pin_subtitle">Въведете родителския си PIN за потвърждение</string>
     <string name="a11y_locked">Заключено</string>
@@ -270,7 +269,7 @@
 
 
     <string name="parental_group_title">Защитени групи</string>
-    <string name="parental_group_search">Търсене на категории...</string>
+    <string name="parental_group_search">Търсене на категории…</string>
     <string name="player_live_timeshift_ready">Отложеното гледане е готово.</string>
     <string name="player_live_timeshift_failed">Локалното превъртане назад е недостъпно за този поток.</string>
 
@@ -346,7 +345,6 @@
     <string name="torrent_playback_start_failed">Възпроизвеждането на торент не можа да започне. Опитайте отново.</string>
     <string name="torrent_cache_capacity_reached">Поточното възпроизвеждане достигна лимита за временно съхранение. Изчистете кеша или освободете място и опитайте отново.</string>
     <string name="torrent_storage_check_failed">Свободното място не можа да бъде проверено. Възпроизвеждането на торент не може да продължи безопасно.</string>
-    <string name="nav_addons">Добавки за Stremio</string>
     <string name="nav_extensions">Разширения</string>
     <string name="nav_sports">Спорт</string>
 </resources>

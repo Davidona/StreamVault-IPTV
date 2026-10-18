@@ -19,7 +19,7 @@
     <string name="home_last_channel">Poslední kanál</string>
     <string name="home_last_channel_label">Poslední: %1$s</string>
     <string name="home_last_group_label">Poslední: %1$s</string>
-    <string name="home_loading">Načítání...</string>
+    <string name="home_loading">Načítání…</string>
     <string name="home_locked_short">ZAMKNUTO</string>
     <string name="live_shell_subtitle">Rychle procházejte živé kategorie, zachovejte předvídatelnou navigaci a zobrazujte jen plán, který je na obrazovce důležitý.</string>
     <string name="live_shell_context">%1$d kategorie • %2$d kanály</string>
@@ -125,7 +125,7 @@
     <string name="settings_buffer_duration">Doba trvání vyrovnávací paměti</string>
     <string name="settings_buffer_5s">5 sekund</string>
     <string name="settings_about_subtitle">Podrobnosti o verzi, sestavení a podpoře pro tuto instalaci.</string>
-    <string name="settings_syncing">Probíhá synchronizace dat, čekejte prosím...</string>
+    <string name="settings_syncing">Probíhá synchronizace dat, čekejte prosím…</string>
     <string name="settings_cancel">Zrušit</string>
     <string name="settings_sync_option_all">Synchronizovat vše</string>
     <string name="settings_sync_option_fast">Rychlá synchronizace</string>
@@ -148,7 +148,7 @@
     <string name="search_title">Hledat</string>
     <string name="parental_group_shell_subtitle">Zkontrolujte chráněné skupiny živého vysílání, filmů a seriálů, aniž byste opustili prémiové nastavení.</string>
     <string name="search_command_title">Příkazové vyhledávání</string>
-    <string name="search_hint">Hledat...</string>
+    <string name="search_hint">Hledat…</string>
     <string name="a11y_locked">Uzamčeno</string>
     <string name="a11y_favorite">Oblíbené</string>
     <string name="a11y_catch_up_available">Catch-up k dispozici</string>
@@ -187,7 +187,7 @@
     <string name="epg_provider_troubleshooting_missing_template">Přehrání může selhat, protože poskytovatel zpřístupnil podporu catch-up bez použitelné šablony přehrání.</string>
     <string name="epg_provider_troubleshooting_missing_stream_id">Přehrání může selhat, protože poskytovatel nezpřístupnil identifikátor replay streamu.</string>
     <string name="parental_group_title">Chráněné skupiny</string>
-    <string name="parental_group_search">Hledat kategorie...</string>
+    <string name="parental_group_search">Hledat kategorie…</string>
     <string name="multiview_add_to_split">Přidat na rozdělenou obrazovku</string>
     <string name="multiview_queued">Na rozdělené obrazovce</string>
     <string name="settings_privacy_subtitle">Spravujte historii sledování a anonymní režim.</string>
@@ -240,7 +240,6 @@
     <string name="settings_backup_share_failed">Žádná aplikace nemohla přijmout záložní soubor.</string>
     <string name="settings_catalog_count_pending">Čeká</string>
     <string name="settings_live_timeshift_backend_value">Automaticky</string>
-    <string name="nav_plugins">Doplňky</string>
     <string name="nav_close_app">Zavřít aplikaci</string>
     <string name="nav_vod">VOD</string>
     <string name="nav_downloads">Stahování</string>
@@ -290,7 +289,6 @@
     <string name="torrent_playback_start_failed">Přehrávání torrentu se nepodařilo spustit. Zkuste to znovu.</string>
     <string name="torrent_cache_capacity_reached">Přehrávání torrentu dosáhlo limitu dočasného úložiště. Vymažte mezipaměť nebo uvolněte místo a zkuste to znovu.</string>
     <string name="torrent_storage_check_failed">Volné úložiště se nepodařilo zkontrolovat. Přehrávání torrentu nemůže bezpečně pokračovat.</string>
-    <string name="nav_addons">Doplňky Stremio</string>
     <string name="nav_extensions">Rozšíření</string>
     <string name="nav_sports">Sport</string>
 </resources>

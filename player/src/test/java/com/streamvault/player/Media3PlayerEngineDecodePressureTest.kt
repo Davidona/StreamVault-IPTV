@@ -12,6 +12,7 @@ import com.google.common.truth.Truth.assertThat
 import com.streamvault.domain.model.PlaybackCompatibilityKey
 import com.streamvault.domain.repository.PlaybackCompatibilityRepository
 import com.streamvault.player.playback.ResolvedStreamType
+import com.streamvault.player.tracks.PlayerTrackController
 import java.lang.reflect.Proxy
 import okhttp3.OkHttpClient
 import org.junit.After
@@ -19,8 +20,10 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
+import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
+@Config(sdk = [35])
 class Media3PlayerEngineDecodePressureTest {
     private val context = RuntimeEnvironment.getApplication()
     private val engine = Media3PlayerEngine(context, OkHttpClient(), NoOpRepository,
@@ -56,6 +59,7 @@ class Media3PlayerEngineDecodePressureTest {
     private fun install(type: ResolvedStreamType = ResolvedStreamType.HLS) {
         field("exoPlayer").set(engine, player)
         field("currentResolvedStreamType").set(engine, type)
+        (field("trackController").get(engine) as PlayerTrackController).onTracksChanged(tracks)
     }
     private fun tick(t: Long) {
         counters.renderedOutputBufferCount = (t * 10).toInt()
@@ -89,6 +93,7 @@ class Media3PlayerEngineDecodePressureTest {
         install()
         (0L..21).forEach(::tick)
         engine.selectVideoTrack("high")
+        assertThat(params.overrides[group]?.trackIndices).containsExactly(0)
         (22L..55).forEach(::tick)
         assertThat(params.overrides[group]?.trackIndices).containsExactly(0)
     }

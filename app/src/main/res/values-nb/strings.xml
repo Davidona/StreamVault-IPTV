@@ -19,7 +19,7 @@
     <string name="home_last_channel">Siste kanal</string>
     <string name="home_last_channel_label">Siste: %1$s</string>
     <string name="home_last_group_label">Siste: %1$s</string>
-    <string name="home_loading">Laster inn...</string>
+    <string name="home_loading">Laster inn…</string>
     <string name="home_locked_short">LÅST</string>
     <string name="live_shell_subtitle">Skann live-kategorier raskt, hold navigasjonsdeterministisk, og vis kun plandataene som er viktige på skjermen.</string>
     <string name="live_shell_context">%1$d kategorier • %2$d kanaler</string>
@@ -125,7 +125,7 @@
     <string name="settings_buffer_duration">Buffervarighet</string>
     <string name="settings_buffer_5s">5 sekunder</string>
     <string name="settings_about_subtitle">Versjon, bygg og støttedetaljer for denne installasjonen.</string>
-    <string name="settings_syncing">Synkroniserer data, vennligst vent...</string>
+    <string name="settings_syncing">Synkroniserer data, vennligst vent…</string>
     <string name="settings_cancel">Avbryt</string>
     <string name="settings_sync_option_all">Synkroniser alle</string>
     <string name="settings_sync_option_fast">Rask synkronisering</string>
@@ -148,7 +148,7 @@
     <string name="search_title">Søk</string>
     <string name="parental_group_shell_subtitle">Se gjennom beskyttede live-, film- og seriegrupper uten å forlate premium-innstillingsskallet.</string>
     <string name="search_command_title">Kommandosøk</string>
-    <string name="search_hint">Søk...</string>
+    <string name="search_hint">Søk…</string>
     <string name="a11y_locked">Låst</string>
     <string name="a11y_favorite">Favoritt</string>
     <string name="a11y_catch_up_available">Catch-up tilgjengelig</string>
@@ -187,7 +187,7 @@
     <string name="epg_provider_troubleshooting_missing_template">Avspilling kan mislykkes fordi leverandøren har oppgitt støtte for catch-up uten en brukbar avspillingsmal.</string>
     <string name="epg_provider_troubleshooting_missing_stream_id">Avspilling kan mislykkes fordi leverandøren ikke oppga en avspillingsstrøm-ID.</string>
     <string name="parental_group_title">Beskyttede grupper</string>
-    <string name="parental_group_search">Søk i kategorier...</string>
+    <string name="parental_group_search">Søk i kategorier…</string>
     <string name="multiview_add_to_split">Legg til delt skjerm</string>
     <string name="multiview_queued">I delt skjerm</string>
     <string name="settings_privacy_subtitle">Administrer seerlogg og inkognitomodus.</string>
@@ -241,7 +241,6 @@
     <string name="settings_catalog_count_pending">Venter</string>
     <string name="settings_live_timeshift_backend_value">Automatisk</string>
     <!-- M2: Google Drive backup sync -->
-    <string name="nav_plugins">Programtillegg</string>
     <string name="nav_close_app">Lukk appen</string>
     <string name="hidden_categories_dialog_title">Skjulte kategorier</string>
     <string name="hidden_categories_dialog_subtitle">Velg de du vil gjenopprette.</string>
@@ -290,7 +289,6 @@
     <string name="torrent_playback_start_failed">Kunne ikke starte torrentavspillingen. Prøv igjen.</string>
     <string name="torrent_cache_capacity_reached">Torrentavspillingen nådde grensen for midlertidig lagring. Tøm bufferen eller frigjør plass, og prøv igjen.</string>
     <string name="torrent_storage_check_failed">Tilgjengelig lagringsplass kunne ikke kontrolleres. Torrentavspillingen kan ikke fortsette trygt.</string>
-    <string name="nav_addons">Stremio-tillegg</string>
     <string name="nav_extensions">Utvidelser</string>
     <string name="nav_sports">Sport</string>
 </resources>

@@ -19,7 +19,7 @@
     <string name="home_last_channel">Último canal</string>
     <string name="home_last_channel_label">Último: %1$s</string>
     <string name="home_last_group_label">Último: %1$s</string>
-    <string name="home_loading">Carregando...</string>
+    <string name="home_loading">Carregando…</string>
     <string name="home_locked_short">BLOQUEADO</string>
     <string name="live_shell_subtitle">Analise categorias ao vivo rapidamente, mantenha a navegação determinística e exiba apenas os dados de programação que importam na tela.</string>
     <string name="live_shell_context">%1$d categorias • %2$d canais</string>
@@ -125,7 +125,7 @@
     <string name="settings_buffer_duration">Duração do buffer</string>
     <string name="settings_buffer_5s">5 segundos</string>
     <string name="settings_about_subtitle">Detalhes de versão, compilação e suporte para esta instalação.</string>
-    <string name="settings_syncing">Sincronizando dados, aguarde...</string>
+    <string name="settings_syncing">Sincronizando dados, aguarde…</string>
     <string name="settings_cancel">Cancelar</string>
     <string name="settings_sync_option_all">Sincronizar tudo</string>
     <string name="settings_sync_option_fast">Sincronização rápida</string>
@@ -148,7 +148,7 @@
     <string name="search_title">Pesquisar</string>
     <string name="parental_group_shell_subtitle">Revise grupos protegidos ao vivo, filmes e séries sem sair do shell de configurações premium.</string>
     <string name="search_command_title">Pesquisa de comando</string>
-    <string name="search_hint">Pesquisar...</string>
+    <string name="search_hint">Pesquisar…</string>
     <string name="a11y_locked">Bloqueado</string>
     <string name="a11y_favorite">Favorito</string>
     <string name="a11y_catch_up_available">Atualização disponível</string>
@@ -187,7 +187,7 @@
     <string name="epg_provider_troubleshooting_missing_template">A reprodução pode falhar porque o provedor expôs suporte a catch-up sem um modelo de reprodução utilizável.</string>
     <string name="epg_provider_troubleshooting_missing_stream_id">A reprodução pode falhar porque o provedor não expôs um identificador de stream de reprodução.</string>
     <string name="parental_group_title">Grupos Protegidos</string>
-    <string name="parental_group_search">Pesquisar categorias...</string>
+    <string name="parental_group_search">Pesquisar categorias…</string>
     <string name="multiview_add_to_split">Adicionar à tela dividida</string>
     <string name="multiview_queued">Em tela dividida</string>
     <string name="settings_privacy_subtitle">Gerencie o histórico de visualização e o modo anônimo.</string>
@@ -244,7 +244,6 @@
     <string name="hidden_categories_dialog_subtitle">Escolha as que deseja restaurar.</string>
     <string name="hidden_categories_dialog_unhide_all">Mostrar todas</string>
     <string name="hidden_categories_dialog_close">Fechar</string>
-    <string name="nav_plugins">Plugins</string>
     <string name="nav_close_app">Fechar aplicativo</string>
     <string name="dashboard_customize_home">Personalizar página inicial</string>
     <string name="dashboard_customize_home_subtitle">Escolha quais prateleiras aparecem aqui, adicione mais linhas e reordene-as a qualquer momento.</string>
@@ -290,7 +289,6 @@
     <string name="torrent_playback_start_failed">Não foi possível iniciar a reprodução do torrent. Tente novamente.</string>
     <string name="torrent_cache_capacity_reached">A reprodução do torrent atingiu o limite de armazenamento temporário. Limpe o cache ou libere espaço e tente novamente.</string>
     <string name="torrent_storage_check_failed">Não foi possível verificar o armazenamento disponível. A reprodução do torrent não pode continuar com segurança.</string>
-    <string name="nav_addons">Complementos do Stremio</string>
     <string name="nav_extensions">Extensões</string>
     <string name="nav_sports">Desporto</string>
 </resources>

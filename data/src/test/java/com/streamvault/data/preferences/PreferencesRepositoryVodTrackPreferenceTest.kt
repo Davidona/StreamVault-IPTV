@@ -57,6 +57,7 @@ class PreferencesRepositoryVodTrackPreferenceTest {
     private fun repository(): PreferencesRepository = PreferencesRepository(
         context = context,
         channelPreferenceDao = mock<ChannelPreferenceDao>(),
+        playbackQualityPreferenceDao = mock(),
         searchHistoryDao = mock<SearchHistoryDao>(),
         corruptionRecovery = mock<PreferencesCorruptionRecovery>()
     )

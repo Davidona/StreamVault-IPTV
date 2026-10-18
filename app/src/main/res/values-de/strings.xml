@@ -19,7 +19,7 @@
     <string name="home_last_channel">Letzter Kanal</string>
     <string name="home_last_channel_label">Zuletzt: %1$s</string>
     <string name="home_last_group_label">Zuletzt: %1$s</string>
-    <string name="home_loading">Laden...</string>
+    <string name="home_loading">Laden…</string>
     <string name="home_locked_short">GESPERRT</string>
     <string name="live_shell_subtitle">Scannen Sie Live-Kategorien schnell, halten Sie die Navigation deterministisch und zeigen Sie nur die wichtigen Zeitplandaten auf dem Bildschirm an.</string>
     <string name="live_shell_context">%1$d Kategorien • %2$d Kanäle</string>
@@ -125,7 +125,7 @@
     <string name="settings_buffer_duration">Pufferdauer</string>
     <string name="settings_buffer_5s">5 Sekunden</string>
     <string name="settings_about_subtitle">Version, Build und Support-Details für diese Installation.</string>
-    <string name="settings_syncing">Daten werden synchronisiert, bitte warten...</string>
+    <string name="settings_syncing">Daten werden synchronisiert, bitte warten…</string>
     <string name="settings_cancel">Abbrechen</string>
     <string name="settings_sync_option_all">Alle synchronisieren</string>
     <string name="settings_sync_option_fast">Schnelle Synchronisierung</string>
@@ -148,7 +148,7 @@
     <string name="search_title">Suchen</string>
     <string name="parental_group_shell_subtitle">Geschützte Live-, Film- und Seriengruppen prüfen, ohne die Premium-Einstellungen zu verlassen.</string>
     <string name="search_command_title">Befehlssuche</string>
-    <string name="search_hint">Suchen...</string>
+    <string name="search_hint">Suchen…</string>
     <string name="a11y_locked">Gesperrt</string>
     <string name="a11y_favorite">Favorit</string>
     <string name="a11y_catch_up_available">Catch-up verfügbar</string>
@@ -187,7 +187,7 @@
     <string name="epg_provider_troubleshooting_missing_template">Die Wiedergabe kann fehlschlagen, weil der Anbieter Catch-up-Unterstützung ohne eine nutzbare Wiedergabevorlage bereitgestellt hat.</string>
     <string name="epg_provider_troubleshooting_missing_stream_id">Die Wiedergabe kann fehlschlagen, weil der Anbieter keine Wiedergabe-Stream-ID bereitgestellt hat.</string>
     <string name="parental_group_title">Geschützte Gruppen</string>
-    <string name="parental_group_search">Kategorien durchsuchen...</string>
+    <string name="parental_group_search">Kategorien durchsuchen…</string>
     <string name="multiview_add_to_split">Zu Split-Screen hinzufügen</string>
     <string name="multiview_queued">Im geteilten Bildschirm</string>
     <string name="settings_privacy_subtitle">Verwalten Sie den Wiedergabeverlauf und den Inkognito-Modus.</string>
@@ -241,7 +241,6 @@
     <string name="settings_catalog_count_pending">Ausstehend</string>
     <string name="settings_live_timeshift_backend_value">Automatisch</string>
     <!-- M2: Google Drive backup sync -->
-    <string name="nav_plugins">Plugins</string>
     <string name="nav_close_app">App schließen</string>
     <string name="hidden_categories_dialog_title">Ausgeblendete Kategorien</string>
     <string name="hidden_categories_dialog_subtitle">Wähle die aus, die du wiederherstellen möchtest.</string>
@@ -290,7 +289,6 @@
     <string name="torrent_playback_start_failed">Die Torrent-Wiedergabe konnte nicht gestartet werden. Bitte versuche es erneut.</string>
     <string name="torrent_cache_capacity_reached">Die Torrent-Wiedergabe hat das Limit für temporären Speicher erreicht. Leere den Cache oder gib Speicherplatz frei und versuche es erneut.</string>
     <string name="torrent_storage_check_failed">Der verfügbare Speicher konnte nicht geprüft werden. Die Torrent-Wiedergabe kann nicht sicher fortgesetzt werden.</string>
-    <string name="nav_addons">Stremio-Add-ons</string>
     <string name="nav_extensions">Erweiterungen</string>
     <string name="nav_sports">Sport</string>
 </resources>

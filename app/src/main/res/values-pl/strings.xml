@@ -19,7 +19,7 @@
     <string name="home_last_channel">Ostatni kanał</string>
     <string name="home_last_channel_label">Ostatni: %1$s</string>
     <string name="home_last_group_label">Ostatni: %1$s</string>
-    <string name="home_loading">Ładowanie...</string>
+    <string name="home_loading">Ładowanie…</string>
     <string name="home_locked_short">ZABLOKOWANE</string>
     <string name="live_shell_subtitle">Szybko przeglądaj kategorie na żywo, zachowaj przewidywalną nawigację i wyświetlaj tylko dane programu, które są istotne na ekranie.</string>
     <string name="live_shell_context">Kategorie %1$d • %2$d kanały</string>
@@ -125,7 +125,7 @@
     <string name="settings_buffer_duration">Czas trwania bufora</string>
     <string name="settings_buffer_5s">5 sekund</string>
     <string name="settings_about_subtitle">Wersja, kompilacja i informacje o wsparciu dla tej instalacji.</string>
-    <string name="settings_syncing">Synchronizowanie danych, proszę czekać...</string>
+    <string name="settings_syncing">Synchronizowanie danych, proszę czekać…</string>
     <string name="settings_cancel">Anuluj</string>
     <string name="settings_sync_option_all">Synchronizuj wszystko</string>
     <string name="settings_sync_option_fast">Szybka synchronizacja</string>
@@ -148,7 +148,7 @@
     <string name="search_title">Szukaj</string>
     <string name="parental_group_shell_subtitle">Przeglądaj chronione grupy live, filmów i seriali bez wychodzenia z panelu ustawień premium.</string>
     <string name="search_command_title">Wyszukiwanie poleceń</string>
-    <string name="search_hint">Szukaj...</string>
+    <string name="search_hint">Szukaj…</string>
     <string name="a11y_locked">Zablokowane</string>
     <string name="a11y_favorite">Ulubiony</string>
     <string name="a11y_catch_up_available">Dostępne Catch-up</string>
@@ -187,7 +187,7 @@
     <string name="epg_provider_troubleshooting_missing_template">Odtwarzanie może się nie udać, ponieważ dostawca udostępnił obsługę catch-up bez użytecznego szablonu odtwarzania.</string>
     <string name="epg_provider_troubleshooting_missing_stream_id">Odtwarzanie może się nie udać, ponieważ dostawca nie udostępnił identyfikatora strumienia odtwarzania.</string>
     <string name="parental_group_title">Grupy chronione</string>
-    <string name="parental_group_search">Kategorie wyszukiwania...</string>
+    <string name="parental_group_search">Kategorie wyszukiwania…</string>
     <string name="multiview_add_to_split">Dodaj do podzielonego ekranu</string>
     <string name="multiview_queued">Na podzielonym ekranie</string>
     <string name="settings_privacy_subtitle">Zarządzaj historią oglądania i trybem incognito.</string>
@@ -241,7 +241,6 @@
     <string name="settings_catalog_count_pending">Oczekujące</string>
     <string name="settings_live_timeshift_backend_value">Automatyczny</string>
     <!-- M2: Google Drive backup sync -->
-    <string name="nav_plugins">Wtyczki</string>
     <string name="nav_vod">VOD</string>
     <string name="nav_downloads">Pobrane</string>
     <string name="nav_close_app">Zamknij aplikację</string>
@@ -290,7 +289,6 @@
     <string name="torrent_playback_start_failed">Nie udało się rozpocząć odtwarzania torrenta. Spróbuj ponownie.</string>
     <string name="torrent_cache_capacity_reached">Odtwarzanie torrenta osiągnęło limit pamięci tymczasowej. Wyczyść pamięć lub zwolnij miejsce i spróbuj ponownie.</string>
     <string name="torrent_storage_check_failed">Nie można sprawdzić dostępnego miejsca. Odtwarzanie torrenta nie może być bezpiecznie kontynuowane.</string>
-    <string name="nav_addons">Dodatki Stremio</string>
     <string name="nav_extensions">Rozszerzenia</string>
     <string name="nav_sports">Sport</string>
 </resources>

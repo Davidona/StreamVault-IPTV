@@ -9,8 +9,6 @@
     <string name="nav_series">Series</string>
     <string name="nav_epg">Guide</string>
     <string name="nav_settings">Settings</string>
-    <string name="nav_plugins">Plugins</string>
-    <string name="nav_addons">Stremio-compatible Add-ons</string>
     <string name="nav_extensions">Extensions</string>
     <string name="nav_close_app">Close app</string>
 
@@ -32,7 +30,7 @@
     <string name="home_last_channel">Last Channel</string>
     <string name="home_last_channel_label">Last: %1$s</string>
     <string name="home_last_group_label">Last: %1$s</string>
-    <string name="home_loading">Loading...</string>
+    <string name="home_loading">Loading…</string>
     <string name="home_locked_short">LOCKED</string>
     <string name="live_shell_subtitle">Scan live categories quickly, keep navigation deterministic, and surface only the schedule data that matters on screen.</string>
     <string name="live_shell_context">%1$d categories • %2$d channels</string>
@@ -182,7 +180,7 @@
     <string name="settings_buffer_duration">Buffer Duration</string>
     <string name="settings_buffer_5s">5 seconds</string>
     <string name="settings_about_subtitle">Version, build, and support details for this installation.</string>
-    <string name="settings_syncing">Syncing data, please wait...</string>
+    <string name="settings_syncing">Syncing data, please wait…</string>
     <string name="settings_cancel">Cancel</string>
     <string name="settings_sync_option_all">Sync All</string>
     <string name="settings_sync_option_fast">Quick Sync</string>
@@ -214,7 +212,7 @@
     <string name="search_title">Search</string>
     <string name="parental_group_shell_subtitle">Review protected live, movie, and series groups without leaving the premium settings shell.</string>
     <string name="search_command_title">Command Search</string>
-    <string name="search_hint">Search...</string>
+    <string name="search_hint">Search…</string>
     <string name="search_actions_title">%1$s</string>
     <string name="search_actions_pin_subtitle">Enter your parental PIN to confirm</string>
     <string name="a11y_locked">Locked</string>
@@ -271,7 +269,7 @@
 
     
     <string name="parental_group_title">Protected Groups</string>
-    <string name="parental_group_search">Search categories...</string>
+    <string name="parental_group_search">Search categories…</string>
     <string name="player_live_timeshift_ready">Timeshift ready.</string>
     <string name="player_live_timeshift_failed">Local live rewind is unavailable for this stream.</string>
 

@@ -95,7 +95,7 @@ dependencies {
     implementation(libs.core.ktx)
     implementation(libs.documentfile)
     implementation(libs.tracing)
-    implementation("eu.agno3.jcifs:jcifs-ng:2.1.10")
+    implementation(libs.jcifs.ng)
 
     // Unit tests
     testImplementation(libs.junit)

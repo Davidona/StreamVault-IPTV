@@ -19,7 +19,7 @@
     <string name="home_last_channel">Son Kanal</string>
     <string name="home_last_channel_label">Son: %1$s</string>
     <string name="home_last_group_label">Son: %1$s</string>
-    <string name="home_loading">Yükleniyor...</string>
+    <string name="home_loading">Yükleniyor…</string>
     <string name="home_locked_short">KİLİTLİ</string>
     <string name="live_shell_subtitle">Canlı kategorileri hızlıca tarayın, gezinmeyi tutarlı tutun ve yalnızca ekranda önemli olan program verilerini gösterin.</string>
     <string name="live_shell_context">%1$d kategoriler • %2$d kanallar</string>
@@ -125,7 +125,7 @@
     <string name="settings_buffer_duration">Arabellek Süresi</string>
     <string name="settings_buffer_5s">5 saniye</string>
     <string name="settings_about_subtitle">Bu kurulum için sürüm, derleme ve destek bilgileri.</string>
-    <string name="settings_syncing">Veriler eşitleniyor, lütfen bekleyin...</string>
+    <string name="settings_syncing">Veriler eşitleniyor, lütfen bekleyin…</string>
     <string name="settings_cancel">İptal</string>
     <string name="settings_sync_option_all">Tümünü Eşitle</string>
     <string name="settings_sync_option_fast">Hızlı Senkronizasyon</string>
@@ -148,7 +148,7 @@
     <string name="search_title">Ara</string>
     <string name="parental_group_shell_subtitle">Korunan canlı, film ve dizi gruplarını premium ayarlar ekranından çıkmadan inceleyin.</string>
     <string name="search_command_title">Komut Arama</string>
-    <string name="search_hint">Ara...</string>
+    <string name="search_hint">Ara…</string>
     <string name="a11y_locked">Kilitli</string>
     <string name="a11y_favorite">Favori</string>
     <string name="a11y_catch_up_available">Yakalama mevcut</string>
@@ -187,7 +187,7 @@
     <string name="epg_provider_troubleshooting_missing_template">Sağlayıcı, kullanılabilir bir geri sarma şablonu olmadan geri sarma desteği sunduğu için oynatma başarısız olabilir.</string>
     <string name="epg_provider_troubleshooting_missing_stream_id">Sağlayıcı bir geri sarma yayın kimliği sunmadığı için oynatma başarısız olabilir.</string>
     <string name="parental_group_title">Korunan Gruplar</string>
-    <string name="parental_group_search">Kategorileri ara...</string>
+    <string name="parental_group_search">Kategorileri ara…</string>
     <string name="multiview_add_to_split">Bölünmüş Ekrana Ekle</string>
     <string name="multiview_queued">Bölünmüş Ekranda</string>
     <string name="settings_privacy_subtitle">İzleme geçmişini ve gizli modu yönetin.</string>
@@ -242,7 +242,6 @@
     <string name="settings_live_timeshift_backend_value">Otomatik</string>
     <!-- M2: Google Drive backup sync -->
     <string name="nav_vod">VOD</string>
-    <string name="nav_plugins">Eklentiler</string>
     <string name="nav_downloads">İndirmeler</string>
     <string name="nav_close_app">Uygulamayı kapat</string>
     <string name="hidden_channels_dialog_title">Gizli kanallar</string>
@@ -290,7 +289,6 @@
     <string name="torrent_playback_start_failed">Torrent oynatımı başlatılamadı. Lütfen tekrar deneyin.</string>
     <string name="torrent_cache_capacity_reached">Torrent oynatma geçici depolama sınırına ulaştı. Önbelleği temizleyin veya alan açıp yeniden deneyin.</string>
     <string name="torrent_storage_check_failed">Kullanılabilir depolama alanı denetlenemedi. Torrent oynatma güvenli biçimde sürdürülemez.</string>
-    <string name="nav_addons">Stremio eklentileri</string>
     <string name="nav_extensions">Eklentiler</string>
     <string name="nav_sports">Spor</string>
 </resources>

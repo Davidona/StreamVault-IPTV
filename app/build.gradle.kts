@@ -507,11 +507,11 @@ dependencies {
     implementation(files("../player/libs/media3-decoder-ffmpeg-1.11.0.aar"))
 
     // Built-in BitTorrent playback (native libraries cover the app's supported ABIs).
-    implementation("org.libtorrent4j:libtorrent4j:2.0.6-26")
-    implementation("org.libtorrent4j:libtorrent4j-android-arm:2.0.6-26")
-    implementation("org.libtorrent4j:libtorrent4j-android-arm64:2.0.6-26")
-    implementation("org.libtorrent4j:libtorrent4j-android-x86:2.0.6-26")
-    implementation("org.libtorrent4j:libtorrent4j-android-x86_64:2.0.6-26")
+    implementation(libs.libtorrent.core)
+    implementation(libs.libtorrent.android.arm)
+    implementation(libs.libtorrent.android.arm64)
+    implementation(libs.libtorrent.android.x86)
+    implementation(libs.libtorrent.android.x8664)
 
     // Room
     implementation(libs.room.runtime)
@@ -565,7 +565,7 @@ dependencies {
     testImplementation(libs.okhttp.mockwebserver)
 
     androidTestImplementation(composeBom)
-    androidTestImplementation("androidx.compose.ui:ui-test-junit4")
+    androidTestImplementation(libs.compose.ui.test.junit4)
     androidTestImplementation(libs.navigation.testing)
     androidTestImplementation(libs.androidx.test.ext.junit)
     androidTestImplementation(libs.espresso.core)

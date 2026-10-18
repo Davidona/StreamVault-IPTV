@@ -1,5 +1,6 @@
 package com.streamvault.feature.stremio.presentation
 
+import android.content.Context
 import com.google.common.truth.Truth.assertThat
 import com.streamvault.domain.model.Result
 import com.streamvault.domain.model.stremio.StremioAddon
@@ -15,6 +16,7 @@ import com.streamvault.domain.model.stremio.StremioResourceResolution
 import com.streamvault.domain.model.stremio.StremioStream
 import com.streamvault.domain.model.stremio.StremioSubtitle
 import com.streamvault.domain.repository.StremioAddonRepository
+import com.streamvault.feature.stremio.R
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.awaitCancellation
@@ -31,7 +33,9 @@ import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
+import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.whenever
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class StremioCatalogBrowseViewModelTest {
@@ -55,7 +59,7 @@ class StremioCatalogBrowseViewModelTest {
             metas = listOf(preview("tt0"), preview("tt100")),
             rawItemCount = 7
         )
-        val viewModel = StremioCatalogBrowseViewModel(repository, FakeStremioContentAccess(), context = mock())
+        val viewModel = StremioCatalogBrowseViewModel(repository, FakeStremioContentAccess(), context = contextWithResourceIds())
         advanceUntilIdle()
 
         val rowKey = viewModel.state.value.rows.single().key
@@ -93,12 +97,12 @@ class StremioCatalogBrowseViewModelTest {
             )
         )
         val repository = CatalogRepositoryFake(catalog)
-        val viewModel = StremioCatalogBrowseViewModel(repository, FakeStremioContentAccess(), context = mock())
+        val viewModel = StremioCatalogBrowseViewModel(repository, FakeStremioContentAccess(), context = contextWithResourceIds())
         advanceUntilIdle()
 
         val row = viewModel.state.value.rows.single()
         assertThat(repository.calls).isEmpty()
-        assertThat(row.waitingForInput).isNotNull()
+        assertThat(row.waitingForInput).isEqualTo(R.string.stremio_catalog_waiting_search.toString())
 
         viewModel.setSearch(row.key, "  galaxy  ")
         advanceTimeBy(350)
@@ -115,7 +119,7 @@ class StremioCatalogBrowseViewModelTest {
         val samePage = StremioCatalogPage(listOf(preview("tt1")), hasMore = true, rawItemCount = 1)
         repository.pages += samePage
         repository.pages += samePage
-        val viewModel = StremioCatalogBrowseViewModel(repository, FakeStremioContentAccess(), context = mock())
+        val viewModel = StremioCatalogBrowseViewModel(repository, FakeStremioContentAccess(), context = contextWithResourceIds())
         advanceUntilIdle()
         val key = viewModel.state.value.rows.single().key
 
@@ -124,7 +128,7 @@ class StremioCatalogBrowseViewModelTest {
 
         val row = viewModel.state.value.rows.single()
         assertThat(row.canLoadMore).isFalse()
-        assertThat(row.error).contains("repeated a page")
+        assertThat(row.error).isEqualTo(R.string.stremio_catalog_repeated_page.toString())
     }
 
     @Test
@@ -405,6 +409,12 @@ class StremioCatalogBrowseViewModelTest {
         name = "Popular",
         extras = extras
     )
+
+    private fun contextWithResourceIds(): Context = mock<Context>().also { context ->
+        whenever(context.getString(any<Int>())).thenAnswer { invocation ->
+            invocation.getArgument<Int>(0).toString()
+        }
+    }
 
     private fun manifest(catalog: StremioCatalogRef) = StremioManifest(
         id = "test.addon",

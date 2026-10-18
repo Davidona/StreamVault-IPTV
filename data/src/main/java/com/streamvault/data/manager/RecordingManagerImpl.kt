@@ -5,6 +5,7 @@ import android.database.sqlite.SQLiteException
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.util.Log
+import androidx.core.net.toUri
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.streamvault.data.local.DatabaseTransactionRunner
@@ -1385,7 +1386,7 @@ class RecordingManagerImpl @Inject constructor(
             RecordingOutputTarget.SmbTarget(run.outputUri, credentials, run.outputDisplayPath)
         }
         !run.outputUri.isNullOrBlank() -> RecordingOutputTarget.DocumentTarget(
-            uri = android.net.Uri.parse(run.outputUri),
+            uri = run.outputUri.toUri(),
             displayPath = run.outputDisplayPath
         )
         !run.outputDisplayPath.isNullOrBlank() -> RecordingOutputTarget.FileTarget(File(run.outputDisplayPath))

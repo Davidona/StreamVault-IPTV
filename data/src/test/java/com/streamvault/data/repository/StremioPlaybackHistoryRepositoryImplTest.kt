@@ -45,6 +45,9 @@ private class FakeStremioPlaybackHistoryDao : StremioPlaybackHistoryDao {
     override suspend fun get(contentKey: String): StremioPlaybackHistoryEntity? =
         rows.value.firstOrNull { it.contentKey == contentKey }
 
+    override suspend fun getAll(): List<StremioPlaybackHistoryEntity> =
+        rows.value.sortedWith(compareByDescending<StremioPlaybackHistoryEntity> { it.lastWatchedAt }.thenBy { it.contentKey })
+
     override suspend fun upsert(entity: StremioPlaybackHistoryEntity) {
         rows.value = rows.value.filterNot { it.contentKey == entity.contentKey } + entity
     }

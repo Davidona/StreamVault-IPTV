@@ -8,7 +8,6 @@
     <string name="nav_series">劇集</string>
     <string name="nav_epg">節目表</string>
     <string name="nav_settings">設定</string>
-    <string name="nav_plugins">外掛</string>
     <string name="nav_close_app">關閉應用程式</string>
 
     <string name="welcome_enter_app">進入應用程式</string>
@@ -27,7 +26,7 @@
     <string name="home_last_channel">上次頻道</string>
     <string name="home_last_channel_label">上次：%1$s</string>
     <string name="home_last_group_label">上次：%1$s</string>
-    <string name="home_loading">載入中...</string>
+    <string name="home_loading">載入中…</string>
     <string name="home_locked_short">已鎖定</string>
     <string name="live_shell_subtitle">快速瀏覽直播分類，保持導覽一致性，並僅顯示螢幕上真正需要的節目資料。</string>
     <string name="live_shell_context">%1$d 個分類 • %2$d 個頻道</string>
@@ -168,7 +167,7 @@
     <string name="settings_buffer_duration">緩衝時間</string>
     <string name="settings_buffer_5s">5 秒</string>
     <string name="settings_about_subtitle">此安裝的版本、組建和支援資訊。</string>
-    <string name="settings_syncing">正在同步資料，請稍候...</string>
+    <string name="settings_syncing">正在同步資料，請稍候…</string>
     <string name="settings_cancel">取消</string>
     <string name="settings_sync_option_all">同步全部</string>
     <string name="settings_sync_option_fast">快速同步</string>
@@ -197,7 +196,7 @@
     <string name="search_title">搜尋</string>
     <string name="parental_group_shell_subtitle">在不離開進階設定介面的情況下，檢視受保護的直播、電影和劇集群組。</string>
     <string name="search_command_title">指令搜尋</string>
-    <string name="search_hint">搜尋...</string>
+    <string name="search_hint">搜尋…</string>
     <string name="search_actions_title">%1$s</string>
     <string name="search_actions_pin_subtitle">輸入家長 PIN 以確認</string>
     <string name="a11y_locked">已鎖定</string>
@@ -248,7 +247,7 @@
     <string name="epg_provider_troubleshooting_missing_template">供應商已公開回看支援，但沒有可用的重播範本，可能導致重播失敗。</string>
     <string name="epg_provider_troubleshooting_missing_stream_id">供應商未公開重播串流識別碼，可能導致重播失敗。</string>
     <string name="parental_group_title">受保護群組</string>
-    <string name="parental_group_search">搜尋分類...</string>
+    <string name="parental_group_search">搜尋分類…</string>
     <string name="player_live_timeshift_ready">Timeshift 就緒。</string>
     <string name="player_live_timeshift_failed">此串流無法使用本機直播倒轉。</string>
 
@@ -312,7 +311,6 @@
     <string name="torrent_playback_start_failed">無法開始播放種子。請再試一次。</string>
     <string name="torrent_cache_capacity_reached">Torrent 播放已達暫存空間上限。請清除快取或釋出裝置空間後再試。</string>
     <string name="torrent_storage_check_failed">無法檢查可用儲存空間，因此無法安全地繼續播放 Torrent。</string>
-    <string name="nav_addons">Stremio 擴充套件</string>
     <string name="nav_extensions">擴充功能</string>
     <string name="nav_sports">體育</string>
 </resources>

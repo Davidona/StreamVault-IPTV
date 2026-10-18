@@ -21,9 +21,9 @@
     <string name="settings_diagnostic_movie_streak">سلسلة أفلام %1$d</string>
     <string name="settings_diagnostic_series_streak">خط السلسلة %1$d</string>
     <plurals name="settings_diagnostic_movie_warnings">
-        <item quantity="zero">لا توجد تحذيرات محفوظة للأفلام</item>
-        <item quantity="one">لدى الأفلام تحذير محفوظ واحد</item>
-        <item quantity="two">لدى الأفلام تحذيران محفوظان</item>
+        <item quantity="zero">لا توجد تحذيرات محفوظة للأفلام (%1$d)</item>
+        <item quantity="one">لدى الأفلام %1$d تحذير محفوظ</item>
+        <item quantity="two">لدى الأفلام %1$d تحذيران محفوظان</item>
         <item quantity="few">لدى الأفلام %1$d تحذيرات محفوظة</item>
         <item quantity="many">لدى الأفلام %1$d تحذيرًا محفوظًا</item>
         <item quantity="other">لدى الأفلام %1$d تحذير محفوظ</item>

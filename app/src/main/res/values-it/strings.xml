@@ -19,7 +19,7 @@
     <string name="home_last_channel">Ultimo canale</string>
     <string name="home_last_channel_label">Ultimo: %1$s</string>
     <string name="home_last_group_label">Ultimo: %1$s</string>
-    <string name="home_loading">Caricamento...</string>
+    <string name="home_loading">Caricamento…</string>
     <string name="home_locked_short">BLOCCATO</string>
     <string name="live_shell_subtitle">Esplora rapidamente le categorie live, mantieni una navigazione deterministica e mostra solo i dati della guida che contano sullo schermo.</string>
     <string name="live_shell_context">%1$d categorie • %2$d canali</string>
@@ -125,7 +125,7 @@
     <string name="settings_buffer_duration">Durata del buffer</string>
     <string name="settings_buffer_5s">5 secondi</string>
     <string name="settings_about_subtitle">Dettagli su versione, build e supporto per questa installazione.</string>
-    <string name="settings_syncing">Sincronizzazione dei dati, attendere...</string>
+    <string name="settings_syncing">Sincronizzazione dei dati, attendere…</string>
     <string name="settings_cancel">Annulla</string>
     <string name="settings_sync_option_all">Sincronizza tutto</string>
     <string name="settings_sync_option_fast">Sincronizzazione veloce</string>
@@ -148,7 +148,7 @@
     <string name="search_title">Cerca</string>
     <string name="parental_group_shell_subtitle">Controlla i gruppi protetti di live, film e serie senza uscire dalla shell delle impostazioni premium.</string>
     <string name="search_command_title">Ricerca comandi</string>
-    <string name="search_hint">Cerca...</string>
+    <string name="search_hint">Cerca…</string>
     <string name="a11y_locked">Bloccato</string>
     <string name="a11y_favorite">Preferito</string>
     <string name="a11y_catch_up_available">Recupero disponibile</string>
@@ -187,7 +187,7 @@
     <string name="epg_provider_troubleshooting_missing_template">La riproduzione potrebbe non riuscire perché il provider ha esposto il supporto di recupero senza un modello di riproduzione utilizzabile.</string>
     <string name="epg_provider_troubleshooting_missing_stream_id">La riproduzione potrebbe non riuscire perché il provider non ha esposto un identificatore del flusso di riproduzione.</string>
     <string name="parental_group_title">Gruppi protetti</string>
-    <string name="parental_group_search">Cerca categorie...</string>
+    <string name="parental_group_search">Cerca categorie…</string>
     <string name="multiview_add_to_split">Aggiungi a schermo diviso</string>
     <string name="multiview_queued">Nello schermo diviso</string>
     <string name="settings_privacy_subtitle">Gestisci la cronologia visualizzazioni e la modalità di navigazione in incognito.</string>
@@ -241,7 +241,6 @@
     <string name="settings_catalog_count_pending">In attesa</string>
     <string name="settings_live_timeshift_backend_value">Automatico</string>
     <!-- M2: Google Drive backup sync -->
-    <string name="nav_plugins">Plugin</string>
     <string name="hidden_categories_dialog_title">Categorie nascoste</string>
     <string name="hidden_categories_dialog_subtitle">Scegli quelle da ripristinare.</string>
     <string name="hidden_categories_dialog_unhide_all">Mostra tutte</string>
@@ -290,7 +289,6 @@
     <string name="torrent_playback_start_failed">Impossibile avviare la riproduzione del torrent. Riprova.</string>
     <string name="torrent_cache_capacity_reached">La riproduzione del torrent ha raggiunto il limite di spazio temporaneo. Svuota la cache o libera spazio, poi riprova.</string>
     <string name="torrent_storage_check_failed">Impossibile controllare lo spazio disponibile. La riproduzione del torrent non può continuare in sicurezza.</string>
-    <string name="nav_addons">Componenti aggiuntivi Stremio</string>
     <string name="nav_extensions">Estensioni</string>
     <string name="nav_sports">Sport</string>
 </resources>

@@ -19,7 +19,7 @@
     <string name="home_last_channel">Останній канал</string>
     <string name="home_last_channel_label">Останній: %1$s</string>
     <string name="home_last_group_label">Остання: %1$s</string>
-    <string name="home_loading">Завантаження...</string>
+    <string name="home_loading">Завантаження…</string>
     <string name="home_locked_short">ЗАБЛОКОВАНО</string>
     <string name="live_shell_subtitle">Швидко переглядайте живі категорії, зберігайте навігацію передбачуваною та показуйте лише потрібні дані розкладу на екрані.</string>
     <string name="live_shell_context">%1$d категорій • %2$d каналів</string>
@@ -125,7 +125,7 @@
     <string name="settings_buffer_duration">Тривалість буфера</string>
     <string name="settings_buffer_5s">5 секунд</string>
     <string name="settings_about_subtitle">Версія, збірка та дані підтримки для цієї інсталяції.</string>
-    <string name="settings_syncing">Синхронізація даних, зачекайте...</string>
+    <string name="settings_syncing">Синхронізація даних, зачекайте…</string>
     <string name="settings_cancel">Скасувати</string>
     <string name="settings_sync_option_all">Синхронізувати все</string>
     <string name="settings_sync_option_fast">Швидка синхронізація</string>
@@ -148,7 +148,7 @@
     <string name="search_title">Пошук</string>
     <string name="parental_group_shell_subtitle">Переглядайте захищені групи прямих ефірів, фільмів і серіалів, не виходячи з преміум-налаштувань.</string>
     <string name="search_command_title">Командний пошук</string>
-    <string name="search_hint">Пошук...</string>
+    <string name="search_hint">Пошук…</string>
     <string name="a11y_locked">Заблоковано</string>
     <string name="a11y_favorite">Улюблене</string>
     <string name="a11y_catch_up_available">Доступний перегляд</string>
@@ -187,7 +187,7 @@
     <string name="epg_provider_troubleshooting_missing_template">Повтор може не працювати, бо провайдер надав підтримку catch-up без придатного шаблону повтору.</string>
     <string name="epg_provider_troubleshooting_missing_stream_id">Повтор може не працювати, бо провайдер не надав ідентифікатор потоку повтору.</string>
     <string name="parental_group_title">Захищені групи</string>
-    <string name="parental_group_search">Пошук категорій...</string>
+    <string name="parental_group_search">Пошук категорій…</string>
     <string name="multiview_add_to_split">Додати до розділеного екрана</string>
     <string name="multiview_queued">У розділеному екрані</string>
     <string name="settings_privacy_subtitle">Керуйте історією переглядів і режимом інкогніто.</string>
@@ -250,7 +250,6 @@
     <string name="hidden_channels_dialog_unhide_all">Показати всі</string>
     <string name="hidden_channels_dialog_close">Закрити</string>
     <string name="channel_action_hide">Приховати цей канал</string>
-    <string name="nav_plugins">Плагіни</string>
     <string name="nav_vod">VOD</string>
     <string name="nav_downloads">Завантаження</string>
     <string name="nav_close_app">Закрити додаток</string>
@@ -290,7 +289,6 @@
     <string name="torrent_playback_start_failed">Не вдалося почати відтворення торента. Спробуйте ще раз.</string>
     <string name="torrent_cache_capacity_reached">Відтворення торрента досягло ліміту тимчасового сховища. Очистьте кеш або звільніть місце й повторіть спробу.</string>
     <string name="torrent_storage_check_failed">Не вдалося перевірити доступне сховище. Відтворення торрента не можна безпечно продовжити.</string>
-    <string name="nav_addons">Доповнення Stremio</string>
     <string name="nav_extensions">Розширення</string>
     <string name="nav_sports">Спорт</string>
 </resources>

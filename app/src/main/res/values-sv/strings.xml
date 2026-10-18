@@ -19,7 +19,7 @@
     <string name="home_last_channel">Sista kanalen</string>
     <string name="home_last_channel_label">Senaste: %1$s</string>
     <string name="home_last_group_label">Senaste: %1$s</string>
-    <string name="home_loading">Laddar...</string>
+    <string name="home_loading">Laddar…</string>
     <string name="home_locked_short">LÅST</string>
     <string name="live_shell_subtitle">Skanna livekategorier snabbt, håll navigeringen deterministisk och visa bara schemadata som är viktiga på skärmen.</string>
     <string name="live_shell_context">%1$d kategorier • %2$d kanaler</string>
@@ -125,7 +125,7 @@
     <string name="settings_buffer_duration">Buffertlängd</string>
     <string name="settings_buffer_5s">5 sekunder</string>
     <string name="settings_about_subtitle">Version, bygg och supportinformation för den här installationen.</string>
-    <string name="settings_syncing">Synkroniserar data, vänta...</string>
+    <string name="settings_syncing">Synkroniserar data, vänta…</string>
     <string name="settings_cancel">Avbryt</string>
     <string name="settings_sync_option_all">Synkronisera alla</string>
     <string name="settings_sync_option_fast">Snabb synk</string>
@@ -148,7 +148,7 @@
     <string name="search_title">Sök</string>
     <string name="parental_group_shell_subtitle">Granska skyddade live-, film- och seriegrupper utan att lämna premiuminställningarna.</string>
     <string name="search_command_title">Kommandosökning</string>
-    <string name="search_hint">Sök...</string>
+    <string name="search_hint">Sök…</string>
     <string name="a11y_locked">Låst</string>
     <string name="a11y_favorite">Favorit</string>
     <string name="a11y_catch_up_available">Upphämtning tillgänglig</string>
@@ -187,7 +187,7 @@
     <string name="epg_provider_troubleshooting_missing_template">Uppspelning kan misslyckas eftersom leverantören har visat stöd för catch-up utan en användbar återspelningsmall.</string>
     <string name="epg_provider_troubleshooting_missing_stream_id">Uppspelning kan misslyckas eftersom leverantören inte har angett något återspelningsström-ID.</string>
     <string name="parental_group_title">Skyddade grupper</string>
-    <string name="parental_group_search">Sök kategorier...</string>
+    <string name="parental_group_search">Sök kategorier…</string>
     <string name="multiview_add_to_split">Lägg till på delad skärm</string>
     <string name="multiview_queued">I delad skärm</string>
     <string name="settings_privacy_subtitle">Hantera visningshistorik och inkognitoläge.</string>
@@ -240,7 +240,6 @@
     <string name="settings_backup_share_failed">Ingen app kunde ta emot säkerhetskopieringsfilen.</string>
     <string name="settings_catalog_count_pending">Väntar</string>
     <string name="settings_live_timeshift_backend_value">Automatisk</string>
-    <string name="nav_plugins">Tillägg</string>
     <string name="nav_close_app">Stäng appen</string>
     <string name="nav_downloads">Nedladdningar</string>
     <string name="nav_vod">VOD</string>
@@ -291,7 +290,6 @@
     <string name="torrent_playback_start_failed">Torrentuppspelningen kunde inte startas. Försök igen.</string>
     <string name="torrent_cache_capacity_reached">Torrentuppspelningen nådde gränsen för tillfällig lagring. Rensa cachen eller frigör utrymme och försök igen.</string>
     <string name="torrent_storage_check_failed">Det gick inte att kontrollera tillgängligt lagringsutrymme. Torrentuppspelningen kan inte fortsätta på ett säkert sätt.</string>
-    <string name="nav_addons">Stremio-tillägg</string>
     <string name="nav_extensions">Tillägg</string>
     <string name="nav_sports">Sport</string>
 </resources>

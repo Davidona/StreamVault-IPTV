@@ -19,7 +19,7 @@
     <string name="home_last_channel">Ultimul canal</string>
     <string name="home_last_channel_label">Ultima: %1$s</string>
     <string name="home_last_group_label">Ultima: %1$s</string>
-    <string name="home_loading">Se încarcă...</string>
+    <string name="home_loading">Se încarcă…</string>
     <string name="home_locked_short">BLOCAT</string>
     <string name="live_shell_subtitle">Scanează rapid categoriile live, menține navigarea deterministă și evidențiază doar datele de program care contează pe ecran.</string>
     <string name="live_shell_context">%1$d categorii • %2$d canale</string>
@@ -125,7 +125,7 @@
     <string name="settings_buffer_duration">Durata tamponului</string>
     <string name="settings_buffer_5s">5 secunde</string>
     <string name="settings_about_subtitle">Versiune, versiune și detalii de asistență pentru această instalare.</string>
-    <string name="settings_syncing">Se sincronizează datele, așteptați...</string>
+    <string name="settings_syncing">Se sincronizează datele, așteptați…</string>
     <string name="settings_cancel">Anulează</string>
     <string name="settings_sync_option_all">Sincronizare tot</string>
     <string name="settings_sync_option_fast">Sincronizare rapidă</string>
@@ -148,7 +148,7 @@
     <string name="search_title">Caută</string>
     <string name="parental_group_shell_subtitle">Examinați grupurile protejate live, filme și seriale fără a părăsi shell-ul setărilor premium.</string>
     <string name="search_command_title">Căutare de comandă</string>
-    <string name="search_hint">Cauta...</string>
+    <string name="search_hint">Cauta…</string>
     <string name="a11y_locked">Blocat</string>
     <string name="a11y_favorite">Favorit</string>
     <string name="a11y_catch_up_available">Catch-up disponibil</string>
@@ -187,7 +187,7 @@
     <string name="epg_provider_troubleshooting_missing_template">Reluarea poate eșua deoarece furnizorul a expus asistența de recuperare fără un șablon de reluare utilizabil.</string>
     <string name="epg_provider_troubleshooting_missing_stream_id">Redarea poate eșua deoarece furnizorul nu a expus un identificator de flux de redare.</string>
     <string name="parental_group_title">Grupuri protejate</string>
-    <string name="parental_group_search">Caută categorii...</string>
+    <string name="parental_group_search">Caută categorii…</string>
     <string name="multiview_add_to_split">Adăugați la Split Screen</string>
     <string name="multiview_queued">În ecran divizat</string>
     <string name="settings_privacy_subtitle">Gestionați istoricul vizionărilor și modul incognito.</string>
@@ -242,7 +242,6 @@
     <string name="settings_live_timeshift_backend_value">Automat</string>
     <!-- M2: Google Drive backup sync -->
     <string name="settings_drive_cancel_backup_choice_subtitle">Reveniți la acțiunile de backup din Drive.</string>
-    <string name="nav_plugins">Module</string>
     <string name="nav_close_app">Închideți aplicația</string>
     <string name="hidden_categories_dialog_title">Categorii ascunse</string>
     <string name="hidden_categories_dialog_subtitle">Alegeți-le pe cele de restaurat.</string>
@@ -290,7 +289,6 @@
     <string name="torrent_playback_start_failed">Redarea torrentului nu a putut fi pornită. Încearcă din nou.</string>
     <string name="torrent_cache_capacity_reached">Redarea torrentului a atins limita spațiului temporar. Șterge cache-ul sau eliberează spațiu, apoi încearcă din nou.</string>
     <string name="torrent_storage_check_failed">Spațiul disponibil nu a putut fi verificat. Redarea torrentului nu poate continua în siguranță.</string>
-    <string name="nav_addons">Extensii Stremio</string>
     <string name="nav_extensions">Extensii</string>
     <string name="nav_sports">Sport</string>
 </resources>

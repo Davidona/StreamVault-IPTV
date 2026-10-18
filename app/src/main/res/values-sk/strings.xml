@@ -9,7 +9,6 @@
     <string name="nav_series">Seriály</string>
     <string name="nav_epg">Sprievodca</string>
     <string name="nav_settings">Nastavenia</string>
-    <string name="nav_plugins">Doplnky</string>
     <string name="nav_close_app">Zavrieť aplikáciu</string>
 
 
@@ -30,7 +29,7 @@
     <string name="home_last_channel">Posledný kanál</string>
     <string name="home_last_channel_label">Posledný: %1$s</string>
     <string name="home_last_group_label">Posledná: %1$s</string>
-    <string name="home_loading">Načítava sa...</string>
+    <string name="home_loading">Načítava sa…</string>
     <string name="home_locked_short">ZAMKNUTÉ</string>
     <string name="live_shell_subtitle">Rýchlo prehliadajte živé kategórie, zachovajte predvídateľnú navigáciu a zobrazujte iba tie údaje o programe, ktoré sú na obrazovke dôležité.</string>
     <string name="live_shell_context">%1$d kategórií • %2$d kanálov</string>
@@ -180,7 +179,7 @@
     <string name="settings_buffer_duration">Trvanie vyrovnávacej pamäte</string>
     <string name="settings_buffer_5s">5 sekúnd</string>
     <string name="settings_about_subtitle">Podrobnosti o verzii, zostavení a podpore pre túto inštaláciu.</string>
-    <string name="settings_syncing">Synchronizujú sa údaje, čakajte prosím...</string>
+    <string name="settings_syncing">Synchronizujú sa údaje, čakajte prosím…</string>
     <string name="settings_cancel">Zrušiť</string>
     <string name="settings_sync_option_all">Synchronizovať všetko</string>
     <string name="settings_sync_option_fast">Rýchla synchronizácia</string>
@@ -212,7 +211,7 @@
     <string name="search_title">Hľadať</string>
     <string name="parental_group_shell_subtitle">Skontrolujte chránené skupiny živého vysielania, filmov a seriálov bez opustenia prémiového prostredia nastavení.</string>
     <string name="search_command_title">Príkazové vyhľadávanie</string>
-    <string name="search_hint">Hľadať...</string>
+    <string name="search_hint">Hľadať…</string>
     <string name="search_actions_title">%1$s</string>
     <string name="search_actions_pin_subtitle">Na potvrdenie zadajte rodičovský PIN</string>
     <string name="a11y_locked">Zamknuté</string>
@@ -269,7 +268,7 @@
 
 
     <string name="parental_group_title">Chránené skupiny</string>
-    <string name="parental_group_search">Hľadať kategórie...</string>
+    <string name="parental_group_search">Hľadať kategórie…</string>
     <string name="player_live_timeshift_ready">Timeshift pripravený.</string>
     <string name="player_live_timeshift_failed">Lokálne pretáčanie živého vysielania nie je pre tento stream dostupné.</string>
 
@@ -343,7 +342,6 @@
     <string name="torrent_playback_start_failed">Prehrávanie torrentu sa nepodarilo spustiť. Skúste to znova.</string>
     <string name="torrent_cache_capacity_reached">Prehrávanie torrentu dosiahlo limit dočasného úložiska. Vymažte vyrovnávaciu pamäť alebo uvoľnite miesto a skúste to znova.</string>
     <string name="torrent_storage_check_failed">Voľné úložisko sa nepodarilo skontrolovať. Prehrávanie torrentu nemôže bezpečne pokračovať.</string>
-    <string name="nav_addons">Doplnky Stremio</string>
     <string name="nav_extensions">Rozšírenia</string>
     <string name="nav_sports">Šport</string>
 </resources>

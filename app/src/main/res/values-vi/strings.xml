@@ -19,7 +19,7 @@
     <string name="home_last_channel">Kênh gần nhất</string>
     <string name="home_last_channel_label">Gần nhất: %1$s</string>
     <string name="home_last_group_label">Gần nhất: %1$s</string>
-    <string name="home_loading">Đang tải...</string>
+    <string name="home_loading">Đang tải…</string>
     <string name="home_locked_short">ĐÃ KHÓA</string>
     <string name="live_shell_subtitle">Quét nhanh các danh mục trực tiếp, giữ điều hướng nhất quán và chỉ hiển thị dữ liệu lịch phát sóng cần thiết trên màn hình.</string>
     <string name="live_shell_context">%1$d danh mục • %2$d kênh</string>
@@ -125,7 +125,7 @@
     <string name="settings_buffer_duration">Thời lượng bộ đệm</string>
     <string name="settings_buffer_5s">5 giây</string>
     <string name="settings_about_subtitle">Thông tin phiên bản, bản dựng và hỗ trợ cho bản cài đặt này.</string>
-    <string name="settings_syncing">Đang đồng bộ dữ liệu, vui lòng đợi...</string>
+    <string name="settings_syncing">Đang đồng bộ dữ liệu, vui lòng đợi…</string>
     <string name="settings_cancel">Hủy</string>
     <string name="settings_sync_option_all">Đồng bộ hóa tất cả</string>
     <string name="settings_sync_option_fast">Đồng bộ nhanh</string>
@@ -148,7 +148,7 @@
     <string name="search_title">Tìm kiếm</string>
     <string name="parental_group_shell_subtitle">Xem các nhóm trực tiếp, phim và series được bảo vệ mà không rời khỏi giao diện cài đặt cao cấp.</string>
     <string name="search_command_title">Tìm kiếm lệnh</string>
-    <string name="search_hint">Tìm kiếm...</string>
+    <string name="search_hint">Tìm kiếm…</string>
     <string name="a11y_locked">Đã khóa</string>
     <string name="a11y_favorite">yêu thích</string>
     <string name="a11y_catch_up_available">Có xem lại</string>
@@ -187,7 +187,7 @@
     <string name="epg_provider_troubleshooting_missing_template">Phát lại có thể thất bại vì nhà cung cấp đã bật hỗ trợ catch-up nhưng không có mẫu phát lại hợp lệ.</string>
     <string name="epg_provider_troubleshooting_missing_stream_id">Phát lại có thể thất bại vì nhà cung cấp không cung cấp mã định danh luồng phát lại.</string>
     <string name="parental_group_title">Nhóm được bảo vệ</string>
-    <string name="parental_group_search">Tìm danh mục...</string>
+    <string name="parental_group_search">Tìm danh mục…</string>
     <string name="multiview_add_to_split">Thêm vào màn hình chia đôi</string>
     <string name="multiview_queued">Trong màn hình chia đôi</string>
     <string name="settings_privacy_subtitle">Quản lý lịch sử xem và chế độ ẩn danh.</string>
@@ -240,7 +240,6 @@
     <string name="settings_backup_share_failed">Không có ứng dụng nào có thể nhận tệp sao lưu.</string>
     <string name="settings_catalog_count_pending">Đang chờ</string>
     <string name="settings_live_timeshift_backend_value">Tự động</string>
-    <string name="nav_plugins">Tiện ích</string>
     <string name="nav_close_app">Đóng ứng dụng</string>
     <string name="hidden_categories_dialog_title">Danh mục đã ẩn</string>
     <string name="hidden_categories_dialog_subtitle">Chọn những mục để khôi phục.</string>
@@ -290,7 +289,6 @@
     <string name="torrent_playback_start_failed">Không thể bắt đầu phát torrent. Vui lòng thử lại.</string>
     <string name="torrent_cache_capacity_reached">Phát torrent đã đạt giới hạn dung lượng tạm thời. Hãy xóa bộ nhớ đệm hoặc giải phóng dung lượng rồi thử lại.</string>
     <string name="torrent_storage_check_failed">Không thể kiểm tra dung lượng lưu trữ còn trống. Không thể tiếp tục phát torrent một cách an toàn.</string>
-    <string name="nav_addons">Tiện ích Stremio</string>
     <string name="nav_extensions">Tiện ích mở rộng</string>
     <string name="nav_sports">Thể thao</string>
 </resources>
