@@ -138,8 +138,9 @@ internal fun TraktCustomListActionButton(
         title = selectedList?.name ?: stringResource(R.string.trakt_custom_lists_title),
         subtitle = targetItem?.let { stringResource(R.string.trakt_custom_lists_for_item, it.title) },
         onDismissRequest = { if (!operation) dialogOpen = false },
-        widthFraction = 0.58f,
+        widthFraction = 0.5f,
         smallScreenWidthFraction = 0.94f,
+        heightFraction = null,
         bodyHeightFraction = 0.66f,
         content = {
             Column(

@@ -51,6 +51,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.unit.LayoutDirection
@@ -197,12 +198,13 @@ class MainActivity : ComponentActivity(), CatalogPlatformHost {
             val databaseStartupState by databaseStartupCoordinator.state.collectAsState()
             val currentContext = LocalContext.current
             
-            val configuration = remember(appLanguage) {
+            val deviceConfiguration = LocalConfiguration.current
+            val configuration = remember(appLanguage, deviceConfiguration) {
                 val locale = resolveAppLocale(
                     preferredLanguageTag = appLanguage,
-                    baseConfiguration = this@MainActivity.resources.configuration
+                    baseConfiguration = deviceConfiguration
                 )
-                val conf = Configuration(this@MainActivity.resources.configuration)
+                val conf = Configuration(deviceConfiguration)
                 Locale.setDefault(locale)
                 conf.setLocale(locale)
                 conf.setLayoutDirection(locale)
@@ -233,6 +235,7 @@ class MainActivity : ComponentActivity(), CatalogPlatformHost {
 
             CompositionLocalProvider(
                 LocalContext provides localizedContext,
+                LocalConfiguration provides configuration,
                 LocalLayoutDirection provides layoutDirection,
                 LocalAppTimeFormat provides appTimeFormat,
                 LocalLiveTimeFormat provides appTimeFormat,
@@ -253,7 +256,7 @@ class MainActivity : ComponentActivity(), CatalogPlatformHost {
                                 coordinator = appNavigationCoordinator,
                                 settingsPlatformHost = settingsPlatformHost,
                                 catalogPlatformHost = this@MainActivity,
-                                onCloseApp = ::finishAffinity
+                                onCloseApp = ::closeApp
                             )
                             LaunchedEffect(Unit) {
                                 dispatchPendingExternalNavigationRequests()
@@ -274,6 +277,18 @@ class MainActivity : ComponentActivity(), CatalogPlatformHost {
     override fun onResume() {
         super.onResume()
         applyImmersiveSystemUi()
+    }
+
+    private fun closeApp() {
+        // OAuth runs in a separate browser task. Bring the launcher forward before
+        // finishing this task so the browser's authorization page is not revealed.
+        startActivity(
+            Intent(Intent.ACTION_MAIN).apply {
+                addCategory(Intent.CATEGORY_HOME)
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+        )
+        finishAffinity()
     }
 
     override fun onWindowFocusChanged(hasFocus: Boolean) {

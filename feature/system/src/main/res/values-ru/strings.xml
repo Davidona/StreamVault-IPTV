@@ -59,4 +59,5 @@
     <string name="plugins_back_to_plugins">Назад к плагинам</string>
     <string name="plugins_refresh_configuration">Обновить</string>
     <string name="plugins_save_configuration">Сохранить</string>
+<string name="welcome_dont_ask_again">Больше не спрашивать</string>
 </resources>

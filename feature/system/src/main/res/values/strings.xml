@@ -19,6 +19,7 @@
   <string name="app_name">StreamVault</string>
   <string name="welcome_setup_provider">Setup Provider</string>
   <string name="welcome_setup_later">Set up later</string>
+  <string name="welcome_dont_ask_again">Don’t ask me again</string>
   <string name="welcome_loading_title">Preparing your library</string>
   <string name="welcome_loading_subtitle">Opening the right screen for this device.</string>
   <string name="sync_section_live">Live</string>

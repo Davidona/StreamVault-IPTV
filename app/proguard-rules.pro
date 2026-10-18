@@ -109,3 +109,6 @@
 -keepattributes SourceFile,LineNumberTable       # Better crash reports
 -renamesourcefileattribute SourceFile
 -keepattributes RuntimeVisibleAnnotations,RuntimeVisibleParameterAnnotations
+
+# SLF4J's binding is optional; jcifs-ng uses the API without bundling a backend.
+-dontwarn org.slf4j.impl.StaticLoggerBinder

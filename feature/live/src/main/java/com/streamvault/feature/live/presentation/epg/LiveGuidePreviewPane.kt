@@ -1,5 +1,7 @@
 package com.streamvault.feature.live.presentation.epg
 
+import com.streamvault.core.ui.layout.isPortraitLayout
+
 import com.streamvault.core.ui.design.BrowseShapes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -10,6 +12,7 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -82,7 +85,7 @@ fun LiveGuidePreviewPane(
         ) {
             Box(
                 modifier = Modifier
-                    .fillMaxHeight()
+                    .then(if (isPortraitLayout()) Modifier.width(120.dp) else Modifier.fillMaxHeight())
                     .aspectRatio(16f / 9f)
                     .background(Color.Black, BrowseShapes.Artwork)
                     .clip(BrowseShapes.Artwork),

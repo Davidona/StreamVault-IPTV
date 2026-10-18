@@ -189,7 +189,12 @@ internal fun TraktSettingsSection(modifier: Modifier = Modifier, viewModel: Trak
                     TraktSettingsAction(
                         label = stringResource(R.string.trakt_connect),
                         onClick = {
-                            viewModel.connect { url -> context.startActivity(Intent(Intent.ACTION_VIEW, url.toUri())) }
+                            viewModel.connect { url ->
+                                context.startActivity(
+                                    Intent(Intent.ACTION_VIEW, url.toUri())
+                                        .addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
+                                )
+                            }
                         },
                         enabled = state.configured && !busy,
                         modifier = if (state.configured) modifier else modifier.focusable(),

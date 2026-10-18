@@ -6,6 +6,10 @@ All notable product changes are recorded in this document.
 
 ### Added
 
+- Added responsive portrait layouts across app tabs, with icon-only bottom navigation and a menu for additional destinations, while preserving the existing landscape TV layout.
+
+
+
 - Added a Sports tab populated with events from the EPG.
   - Added support for built-in and custom sports API providers in Sports settings.
 - Added a localized security warning to QR phone pairing that explains provider credentials are sent unencrypted over the local network.

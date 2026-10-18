@@ -59,4 +59,5 @@
     <string name="plugins_back_to_plugins">प्लगइन पर वापस जाएँ</string>
     <string name="plugins_refresh_configuration">रीफ़्रेश करें</string>
     <string name="plugins_save_configuration">सहेजें</string>
+<string name="welcome_dont_ask_again">मुझसे दोबारा न पूछें</string>
 </resources>

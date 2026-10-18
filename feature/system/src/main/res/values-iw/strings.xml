@@ -59,4 +59,5 @@
     <string name="plugins_back_to_plugins">חזרה לתוספים</string>
     <string name="plugins_refresh_configuration">רענון</string>
     <string name="plugins_save_configuration">שמירה</string>
+<string name="welcome_dont_ask_again">לא לשאול אותי שוב</string>
 </resources>

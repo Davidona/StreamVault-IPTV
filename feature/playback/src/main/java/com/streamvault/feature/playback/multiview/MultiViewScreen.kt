@@ -1,5 +1,7 @@
 package com.streamvault.feature.playback.multiview
 
+import com.streamvault.core.ui.layout.isPortraitLayout
+
 import com.streamvault.core.ui.design.BrowseShapes
 import android.view.View
 import android.view.KeyEvent
@@ -222,7 +224,18 @@ fun MultiViewScreen(
         }
 
         Column(modifier = Modifier.fillMaxSize()) {
-            if (useCenteredCompactLayout) {
+            if (isPortraitLayout()) {
+                PortraitMultiViewGrid(
+                    slots = visibleSlots,
+                    focusedSlotIndex = uiState.focusedSlotIndex,
+                    showSelectionBorder = uiState.showSelectionBorder,
+                    showControls = showControls,
+                    firstSlotFocusRequester = firstSlotFocusRequester,
+                    firstControlFocusRequester = firstControlFocusRequester,
+                    onSlotClick = { showControls = !showControls },
+                    onSlotFocused = viewModel::setFocus
+                )
+            } else if (useCenteredCompactLayout) {
                 CenteredCompactLayout(
                     slots = visibleSlots,
                     focusedSlotIndex = uiState.focusedSlotIndex,
@@ -281,6 +294,35 @@ fun MultiViewScreen(
                     )
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun PortraitMultiViewGrid(
+    slots: List<MultiViewSlot>,
+    focusedSlotIndex: Int,
+    showSelectionBorder: Boolean,
+    showControls: Boolean,
+    firstSlotFocusRequester: FocusRequester,
+    firstControlFocusRequester: FocusRequester,
+    onSlotClick: () -> Unit,
+    onSlotFocused: (Int) -> Unit
+) {
+    Column(Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center) {
+        slots.forEachIndexed { index, slot ->
+            GridPlayerCell(
+                slot = slot,
+                slotIndex = slot.index,
+                focusedSlotIndex = focusedSlotIndex,
+                showSelectionBorder = showSelectionBorder,
+                showControls = showControls,
+                onClick = onSlotClick,
+                onFocused = onSlotFocused,
+                firstSlotFocusRequester = firstSlotFocusRequester.takeIf { index == 0 },
+                firstControlFocusRequester = firstControlFocusRequester,
+                modifier = Modifier.fillMaxWidth().weight(1f)
+            )
         }
     }
 }

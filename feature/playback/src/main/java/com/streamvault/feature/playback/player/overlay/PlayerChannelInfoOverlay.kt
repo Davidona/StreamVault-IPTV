@@ -51,6 +51,8 @@ import androidx.tv.material3.Text
 import com.streamvault.feature.playback.R
 import com.streamvault.core.ui.image.ChannelLogoBadge
 import com.streamvault.core.ui.components.shell.StatusPill
+import com.streamvault.core.ui.layout.AdaptiveRow
+import com.streamvault.core.ui.layout.isPortraitLayout
 import com.streamvault.core.ui.design.BrowseColors as AppColors
 import com.streamvault.core.ui.interaction.TvClickableSurface
 import com.streamvault.domain.playback.archivePlaybackCapability
@@ -177,7 +179,7 @@ fun ChannelInfoOverlay(
         PlayerOverlayPanel(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 40.dp, vertical = 16.dp)
+                .padding(horizontal = if (isPortraitLayout()) 12.dp else 40.dp, vertical = 16.dp)
         ) {
             Column(
                 modifier = Modifier.fillMaxWidth(),
@@ -214,7 +216,7 @@ fun ChannelInfoOverlay(
                             modifier = Modifier.weight(1f),
                             verticalArrangement = Arrangement.spacedBy(4.dp)
                         ) {
-                        Row(
+                        AdaptiveRow(
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
@@ -249,8 +251,7 @@ fun ChannelInfoOverlay(
                                     fontWeight = FontWeight.Bold,
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis,
-                                    modifier = Modifier
-                                        .weight(1f, fill = false)
+                                    modifier = (if (isPortraitLayout()) Modifier.fillMaxWidth() else Modifier.weight(1f, fill = false))
                                         .basicMarquee(
                                             iterations = Int.MAX_VALUE,
                                             initialDelayMillis = 900,

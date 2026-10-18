@@ -49,7 +49,8 @@ internal fun TraktRatingDialog(
         title = stringResource(R.string.trakt_rating_action),
         subtitle = stringResource(R.string.trakt_rating_dialog_message),
         onDismissRequest = { if (!busy) onDismiss() },
-        widthFraction = 0.46f,
+        widthFraction = 0.42f,
+        heightFraction = null,
         bodyHeightFraction = 0.36f,
         content = {
             currentRating?.let { rating ->

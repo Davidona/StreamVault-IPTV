@@ -1,4 +1,12 @@
+@file:OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
+
 package com.streamvault.feature.system.presentation.plugins
+
+import com.streamvault.core.ui.layout.AdaptiveRow
+
+import androidx.compose.foundation.layout.FlowRow
+
+import com.streamvault.core.ui.layout.isPortraitLayout
 
 import com.streamvault.core.ui.design.browsePanel
 import android.net.Uri
@@ -206,10 +214,10 @@ internal fun PluginsContent(
                     onRunAction = actions.onRunConfigurationAction
                 )
             } else {
-                Row(
+                AdaptiveRow(
                     modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     ExtensionsSectionTabs(
                         selectedIndex = 0,
@@ -217,7 +225,7 @@ internal fun PluginsContent(
                         stremioAddonsLabel = stringResource(R.string.extensions_tab_stremio_addons),
                         onTabSelected = { if (it == 1) onNavigateToStremioAddons() }
                     )
-                    Spacer(Modifier.weight(1f))
+                    if (!isPortraitLayout()) Spacer(Modifier.weight(1f))
                     PluginButton(onClick = onShowInstallOptionsDialog, tone = PluginButtonTone.Primary) {
                         Text(stringResource(R.string.plugins_add))
                     }
@@ -244,7 +252,7 @@ internal fun PluginsContent(
                                 description = stringResource(R.string.plugins_empty_description),
                                 modifier = Modifier.weight(1f),
                                 action = {
-                                    Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                                    AdaptiveRow(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                                         PluginButton(
                                             enabled = !uiState.isInstalling,
                                             onClick = onShowInstallUrlDialog,

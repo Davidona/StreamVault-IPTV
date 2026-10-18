@@ -1,5 +1,7 @@
 package com.streamvault.feature.catalog.presentation.dashboard
 
+import com.streamvault.core.ui.layout.isPortraitLayout
+
 import com.streamvault.core.ui.design.BrowseShapes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -422,7 +424,7 @@ private fun DashboardHero(
             subtitle = feature.summary.ifBlank { stringResource(R.string.dashboard_subtitle, providerName) },
             modifier = Modifier
                 .fillMaxWidth()
-                .height(heroHeight),
+                .then(if (isPortraitLayout()) Modifier else Modifier.height(heroHeight)),
             footer = {
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {

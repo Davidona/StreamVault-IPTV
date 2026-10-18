@@ -32,6 +32,8 @@ import com.streamvault.core.ui.design.AppColors
 import com.streamvault.core.ui.interaction.TvClickableSurface
 import com.streamvault.core.ui.interaction.TvIconButton
 import com.streamvault.feature.settings.R
+import com.streamvault.core.ui.layout.isPortraitLayout
+import androidx.compose.ui.text.style.TextOverflow
 
 @Composable
 internal fun SettingsLocalHeader(
@@ -46,10 +48,12 @@ internal fun SettingsLocalHeader(
     badge: String? = null,
 ) {
     val colors = SettingsDesignTokens.colors(AppColors.current)
+    val portrait = isPortraitLayout()
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .heightIn(min = SettingsDesignTokens.headerMinHeight),
+            .heightIn(min = if (portrait) 48.dp else SettingsDesignTokens.headerMinHeight),
         horizontalArrangement = Arrangement.spacedBy(SettingsDesignTokens.space12),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -84,7 +88,7 @@ internal fun SettingsLocalHeader(
                         tint = colors.primaryText,
                         modifier = Modifier.size(20.dp),
                     )
-                    Text(
+                    if (!portrait) Text(
                         text = parentTitle,
                         style = MaterialTheme.typography.labelLarge,
                         color = colors.primaryText,
@@ -98,7 +102,9 @@ internal fun SettingsLocalHeader(
         ) {
             Text(
                 text = title,
-                style = MaterialTheme.typography.headlineMedium,
+                style = if (portrait) MaterialTheme.typography.titleLarge else MaterialTheme.typography.headlineMedium,
+                maxLines = if (portrait) 2 else Int.MAX_VALUE,
+                overflow = TextOverflow.Ellipsis,
                 fontWeight = FontWeight.SemiBold,
                 color = colors.primaryText,
                 modifier = Modifier.semantics { heading() },
@@ -117,7 +123,7 @@ internal fun SettingsLocalHeader(
                         .padding(horizontal = 10.dp, vertical = 5.dp),
                 )
             }
-            if (description.isNotBlank()) {
+            if (!portrait && description.isNotBlank()) {
                 Text(
                     text = description,
                     style = MaterialTheme.typography.bodyMedium,
@@ -140,5 +146,9 @@ internal fun SettingsLocalHeader(
                 contentDescription = stringResource(R.string.settings_close_app),
             )
         }
+    }
+    if (portrait && description.isNotBlank()) {
+        Text(description, style = MaterialTheme.typography.bodyMedium, color = colors.secondaryText)
+    }
     }
 }

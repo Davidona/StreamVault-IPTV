@@ -466,7 +466,12 @@ public fun SettingsScreen(
         }
     }
 
-    Box(modifier = Modifier.fillMaxSize().background(com.streamvault.core.ui.design.AppColors.Canvas)) {
+    SettingsScreenFrame(
+        currentRoute = currentRoute,
+        destinations = navigationDestinations,
+        onNavigate = onNavigate,
+        modifier = Modifier.fillMaxSize().background(com.streamvault.core.ui.design.AppColors.Canvas)
+    ) {
         if (searchVisible) {
             SettingsSearchSurface(
                 query = settingsSearchQuery,

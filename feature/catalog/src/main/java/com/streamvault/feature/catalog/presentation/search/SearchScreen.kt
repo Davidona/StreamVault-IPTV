@@ -1,4 +1,12 @@
+@file:OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
+
 package com.streamvault.feature.catalog.presentation.search
+
+import com.streamvault.core.ui.layout.AdaptiveRow
+
+import androidx.compose.foundation.layout.FlowRow
+
+import com.streamvault.core.ui.layout.isPortraitLayout
 
 import android.widget.Toast
 import com.streamvault.core.ui.design.BrowseShapes
@@ -464,9 +472,13 @@ fun SearchScreen(
         actionsIsFavorite = series.isFavorite
         showActionsDialog = true
     }
-    val channelRows = remember(uiState.channels) { uiState.channels.chunked(4) }
-    val movieRows = remember(uiState.movies) { uiState.movies.chunked(6) }
-    val seriesRows = remember(uiState.series) { uiState.series.chunked(6) }
+    val portrait = isPortraitLayout()
+    val availableWidth = androidx.compose.ui.platform.LocalConfiguration.current.screenWidthDp - 64
+    val channelColumns = if (portrait) (availableWidth / 240).coerceIn(1, 4) else 4
+    val posterColumns = if (portrait) (availableWidth / 148).coerceIn(1, 6) else 6
+    val channelRows = remember(uiState.channels, channelColumns) { uiState.channels.chunked(channelColumns) }
+    val movieRows = remember(uiState.movies, posterColumns) { uiState.movies.chunked(posterColumns) }
+    val seriesRows = remember(uiState.series, posterColumns) { uiState.series.chunked(posterColumns) }
 
     fun isLocked(categoryId: Long?, isAdult: Boolean, isUserProtected: Boolean): Boolean {
         if (uiState.parentalControlLevel != 1) {
@@ -897,13 +909,14 @@ private fun SearchHeroPanel(
                 .padding(horizontal = 20.dp, vertical = 18.dp),
             verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
-            Row(
+            AdaptiveRow(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
                 verticalAlignment = Alignment.Top
             ) {
                 Column(
-                    modifier = Modifier.weight(1f),
+                    modifier = if (isPortraitLayout()) Modifier.fillMaxWidth() else Modifier.weight(1f),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Text(

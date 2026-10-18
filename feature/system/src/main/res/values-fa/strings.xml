@@ -59,4 +59,5 @@
     <string name="torrent_cache_confirm_message">داده موقت تورنت حذف شود؟ دانلودهای ذخیره‌شده حذف نمی‌شوند.</string>
     <string name="torrent_cache_active">پیش از پاک کردن حافظه موقت، پخش تورنت را متوقف کنید.</string>
     <string name="torrent_cache_clear_failed">پاک کردن حافظه موقت انجام نشد.</string>
+<string name="welcome_dont_ask_again">دیگر از من نپرس</string>
 </resources>

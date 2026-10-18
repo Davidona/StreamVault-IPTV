@@ -1,4 +1,10 @@
+@file:OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
+
 package com.streamvault.feature.live.sports
+
+import com.streamvault.core.ui.layout.AdaptiveRow
+
+import com.streamvault.core.ui.layout.isPortraitLayout
 
 import android.text.format.DateUtils
 import androidx.compose.foundation.background
@@ -179,14 +185,14 @@ internal fun SportsHubContent(
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
         item(key = "sports-header") {
-            Row(
+            AdaptiveRow(
                 modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(20.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 Text(stringResource(R.string.nav_sports), fontSize = 22.sp,
                     fontWeight = FontWeight.Bold, color = BrowseColors.TextPrimary)
-                Spacer(Modifier.weight(1f))
+                if (!isPortraitLayout()) Spacer(Modifier.weight(1f))
                 SportsTimeRangeFilters(state.selectedTimeRange, onSelectTimeRange)
             }
         }
@@ -431,6 +437,31 @@ private fun FeaturedSportsEvent(
     onShowDetails: (SportsEvent) -> Unit,
     onPlayBroadcast: (SportsBroadcast) -> Unit,
 ) {
+    if (isPortraitLayout()) {
+        Column(
+            modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp))
+                .background(Brush.horizontalGradient(listOf(BrowseColors.SurfaceEmphasis, BrowseColors.Surface)))
+                .border(1.dp, BrowseColors.Outline, RoundedCornerShape(12.dp)).padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            EventEyebrow(event, isLive)
+            SportsFixture(event, featured = true, modifier = Modifier.fillMaxWidth().height(72.dp))
+            Text(formatEventTime(event, showDate), fontSize = 12.sp, color = BrowseColors.TextSecondary)
+            Text(sportsDescriptionForPresentation(event.description).ifBlank { event.title },
+                fontSize = 12.sp, color = BrowseColors.TextSecondary, maxLines = 3, overflow = TextOverflow.Ellipsis)
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                event.broadcastsForPresentation().firstOrNull()?.let { broadcast ->
+                    SportsChannelButton(channel = broadcast.channel, compact = true, onClick = { onPlayBroadcast(broadcast) })
+                }
+                TvButton(onClick = { onShowDetails(event) }) {
+                    Text(stringResource(R.string.epg_program_details_show), fontSize = 12.sp)
+                }
+            }
+            Text(stringResource(R.string.live_sports_channel_choices, event.broadcasts.size),
+                fontSize = 11.sp, color = BrowseColors.TextTertiary)
+        }
+        return
+    }
     Row(
         modifier = Modifier.fillMaxWidth().height(180.dp + 18.dp * event.attributionCredits.sumOf { it.lineCount })
             .clip(RoundedCornerShape(12.dp))

@@ -1,7 +1,11 @@
 package com.streamvault.feature.live.presentation.epg
 
+import com.streamvault.core.ui.layout.isPortraitLayout
+
 import com.streamvault.core.ui.design.BrowseShapes
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -45,13 +49,13 @@ fun LiveGuideToolbarRow(
     modifier: Modifier = Modifier
 ) {
     Row(
-        modifier = modifier,
+        modifier = if (isPortraitLayout()) modifier.horizontalScroll(rememberScrollState()) else modifier,
         horizontalArrangement = Arrangement.spacedBy(5.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         LiveGuideToolbarButton(
             label = selectedCategoryName,
-            modifier = Modifier.widthIn(min = 200.dp, max = 280.dp),
+            modifier = Modifier.widthIn(min = if (isPortraitLayout()) 120.dp else 200.dp, max = 280.dp),
             onClick = onOpenCategoryPicker,
             onFocused = onGuideInteract
         )

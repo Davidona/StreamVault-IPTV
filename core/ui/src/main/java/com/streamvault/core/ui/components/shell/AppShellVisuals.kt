@@ -1,5 +1,9 @@
 package com.streamvault.core.ui.components.shell
 
+import com.streamvault.core.ui.layout.AdaptiveRow
+
+import androidx.compose.foundation.layout.FlowRow
+
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -21,6 +25,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -75,6 +82,7 @@ import com.streamvault.core.ui.design.LocalAppSpacing
 import com.streamvault.core.ui.interaction.TvIconButton
 import com.streamvault.core.ui.interaction.mouseClickable
 import com.streamvault.core.ui.interaction.rememberTvInteractionSounds
+import com.streamvault.core.ui.layout.isPortraitLayout
 
 enum class NavigationChrome {
     Rail,
@@ -114,7 +122,19 @@ fun CoreAppScreenScaffold(
             }
             .browseBackdrop()
     ) {
-        if (navigationChrome == NavigationChrome.Rail) {
+        if (isPortraitLayout()) {
+            Column(Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.safeDrawing)) {
+                Column(Modifier.weight(1f).fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp)) {
+                    if (showScreenHeader) {
+                        AppScreenHeader(title = title, subtitle = subtitle, compact = true)
+                        Spacer(Modifier.height(8.dp))
+                    }
+                    header?.invoke(this)
+                    Column(Modifier.weight(1f).fillMaxWidth().padding(contentPadding), content = content)
+                }
+                PortraitNavigation(currentDestinationId, destinations, onDestinationSelected, topBarActions)
+            }
+        } else if (navigationChrome == NavigationChrome.Rail) {
             Row(modifier = Modifier.fillMaxSize()) {
                 DestinationRail(
                     currentDestinationId = currentDestinationId,
@@ -438,12 +458,13 @@ fun AppHeroHeader(
                         colors = listOf(BrowseColors.Surface, BrowseColors.SurfaceEmphasis, BrowseColors.Brand.copy(alpha = 0.16f))
                     )
                 )
-                .padding(32.dp)
+                .padding(if (isPortraitLayout()) 18.dp else 32.dp)
         ) {
             Column(verticalArrangement = Arrangement.spacedBy(18.dp)) {
-                AppScreenHeader(title = title, subtitle = subtitle, eyebrow = eyebrow)
+                AppScreenHeader(title = title, subtitle = subtitle, eyebrow = eyebrow, compact = isPortraitLayout())
                 if (actions != null) {
                     Row(
+                        modifier = if (isPortraitLayout()) Modifier.horizontalScroll(rememberScrollState()) else Modifier,
                         horizontalArrangement = Arrangement.spacedBy(12.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         content = actions
@@ -612,16 +633,17 @@ fun LoadMoreCard(
     }
 }
 
+@OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
 @Composable
 fun ContentMetadataStrip(
     values: List<String>,
     modifier: Modifier = Modifier
 ) {
     val filteredValues = values.filter { it.isNotBlank() }
-    Row(
+    AdaptiveRow(
         modifier = modifier,
         horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalAlignment = Alignment.CenterVertically
+        verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
         filteredValues.forEachIndexed { index, value ->
             Text(text = value, style = MaterialTheme.typography.labelMedium, color = BrowseColors.TextSecondary)

@@ -420,6 +420,7 @@ class PreferencesRepository @Inject constructor(
         val DEFAULT_CATEGORY_ID = longPreferencesKey("default_category_id")
         val APP_LANGUAGE = stringPreferencesKey("app_language")
         val APP_LANDING_DESTINATION = stringPreferencesKey("app_landing_destination")
+        val DONT_ASK_PROVIDER_SETUP_AGAIN = booleanPreferencesKey("dont_ask_provider_setup_again")
         val APP_TOP_LEVEL_DESTINATIONS = stringPreferencesKey("app_top_level_destinations")
         val APP_HOME_DASHBOARD_SHELVES = stringPreferencesKey("app_home_dashboard_shelves")
         val APP_TIME_FORMAT = stringPreferencesKey("app_time_format")
@@ -2065,6 +2066,10 @@ class PreferencesRepository @Inject constructor(
         AppLandingDestination.fromStorage(preferences[PreferencesKeys.APP_LANDING_DESTINATION])
     }
 
+    val dontAskProviderSetupAgain: Flow<Boolean> = context.dataStore.data
+        .map { preferences -> preferences[PreferencesKeys.DONT_ASK_PROVIDER_SETUP_AGAIN] ?: false }
+        .distinctUntilChanged()
+
     override val appTopLevelDestinations: Flow<List<AppTopLevelDestination>> = context.dataStore.data.map { preferences ->
         decodeAppTopLevelDestinations(preferences[PreferencesKeys.APP_TOP_LEVEL_DESTINATIONS])
     }
@@ -2076,6 +2081,12 @@ class PreferencesRepository @Inject constructor(
     override suspend fun setAppLandingDestination(destination: AppLandingDestination) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.APP_LANDING_DESTINATION] = destination.storageValue
+        }
+    }
+
+    suspend fun setDontAskProviderSetupAgain(dontAskAgain: Boolean) {
+        context.dataStore.edit { preferences ->
+            preferences[PreferencesKeys.DONT_ASK_PROVIDER_SETUP_AGAIN] = dontAskAgain
         }
     }
 

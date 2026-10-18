@@ -59,4 +59,5 @@
     <string name="plugins_back_to_plugins">Eklentilere geri dön</string>
     <string name="plugins_refresh_configuration">Yenile</string>
     <string name="plugins_save_configuration">Kaydet</string>
+<string name="welcome_dont_ask_again">Bana bir daha sorma</string>
 </resources>

@@ -15,6 +15,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -35,6 +39,7 @@ import androidx.compose.ui.unit.sp
 import androidx.tv.material3.Border
 import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.MaterialTheme
+import androidx.tv.material3.Icon
 import androidx.tv.material3.Text
 import com.streamvault.core.ui.image.ChannelLogoBadge
 import com.streamvault.core.ui.interaction.TvClickableSurface
@@ -156,7 +161,7 @@ fun LiveGuideGridRow(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                ChannelLogoBadge(
+                if (channelRailWidth >= 150.dp) ChannelLogoBadge(
                     channelName = channel.name,
                     logoUrl = channel.logoUrl,
                     modifier = Modifier
@@ -193,7 +198,14 @@ fun LiveGuideGridRow(
                         overflow = TextOverflow.Ellipsis
                     )
                 }
-                if (isFavorite || hasUsableArchive) {
+                if (channelRailWidth < 150.dp && (isFavorite || hasUsableArchive)) {
+                    Icon(
+                        imageVector = if (hasUsableArchive) Icons.Default.History else Icons.Default.Star,
+                        contentDescription = if (hasUsableArchive) labels.archiveBadge else labels.favoriteBadge,
+                        tint = Primary,
+                        modifier = Modifier.size(14.dp)
+                    )
+                } else if (isFavorite || hasUsableArchive) {
                     Box(
                         modifier = Modifier
                             .background(

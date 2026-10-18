@@ -1,4 +1,10 @@
+@file:OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
+
 package com.streamvault.feature.stremio.presentation
+
+import com.streamvault.core.ui.layout.AdaptiveRow
+
+import androidx.compose.foundation.layout.FlowRow
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -11,6 +17,7 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -156,10 +163,10 @@ internal fun StremioCatalogBrowseContent(
     }
     // Only these two compact rows sit above the artwork. Search and filters are transient.
     Column(modifier = modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-        Row(
-            modifier = Modifier.fillMaxWidth().height(32.dp),
+        AdaptiveRow(
+            modifier = Modifier.fillMaxWidth().heightIn(min = 32.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalAlignment = Alignment.CenterVertically
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             TvIconButton(onClick = onManageAddons, modifier = Modifier.size(32.dp)) {
                 Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.stremio_manage_addons))

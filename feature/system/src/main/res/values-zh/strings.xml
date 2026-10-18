@@ -59,4 +59,5 @@
     <string name="plugins_back_to_plugins">返回插件</string>
     <string name="plugins_refresh_configuration">刷新</string>
     <string name="plugins_save_configuration">保存</string>
+<string name="welcome_dont_ask_again">不再询问</string>
 </resources>

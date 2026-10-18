@@ -12,6 +12,15 @@ import androidx.tv.material3.MaterialTheme
 import org.junit.Rule
 import org.junit.Test
 import com.google.common.truth.Truth.assertThat
+import android.content.res.Configuration
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
+import com.streamvault.core.ui.theme.StreamVaultTheme
 
 class CoreAppScreenScaffoldTest {
 
@@ -22,6 +31,11 @@ class CoreAppScreenScaffoldTest {
     fun exposesDestinationSemanticsAndForwardsSelection() {
         var selectedDestination: String? = null
         composeRule.setContent {
+            CompositionLocalProvider(LocalConfiguration provides Configuration().apply {
+                orientation = Configuration.ORIENTATION_LANDSCAPE
+                screenWidthDp = 960
+                screenHeightDp = 540
+            }) {
             MaterialTheme {
                 CoreAppScreenScaffold(
                     currentDestinationId = "home",
@@ -33,6 +47,7 @@ class CoreAppScreenScaffoldTest {
                     title = "Home"
                 ) {}
             }
+            }
         }
 
         composeRule.onNodeWithContentDescription("streamvault.destination:home").assertExists()
@@ -43,5 +58,45 @@ class CoreAppScreenScaffoldTest {
         composeRule.runOnIdle {
             assertThat(selectedDestination).isEqualTo("settings")
         }
+    }
+
+    @Test
+    fun portraitMenuReachesEveryDestinationAndRotationRestoresTopNavigation() {
+        val configuration = mutableStateOf(Configuration().apply {
+            orientation = Configuration.ORIENTATION_PORTRAIT
+            screenWidthDp = 390
+            screenHeightDp = 840
+        })
+        val currentDestination = mutableStateOf("tab0")
+        val destinations = (0..9).map { UiDestination("tab$it", "Destination $it", Icons.Default.Home) }
+        composeRule.setContent {
+            CompositionLocalProvider(LocalConfiguration provides configuration.value) {
+                StreamVaultTheme {
+                    CoreAppScreenScaffold(
+                        currentDestinationId = currentDestination.value,
+                        destinations = destinations,
+                        onDestinationSelected = { currentDestination.value = it },
+                        navigationChrome = NavigationChrome.TopBar,
+                        title = "Screen title",
+                        topBarVisible = configuration.value.orientation == Configuration.ORIENTATION_LANDSCAPE
+                    ) {}
+                }
+            }
+        }
+        composeRule.onNodeWithContentDescription("Destination 0").assertIsDisplayed()
+        composeRule.onNodeWithContentDescription("Navigation menu").performClick()
+        composeRule.onNodeWithText("Destination 9").performScrollTo().performClick()
+        composeRule.runOnIdle { assertThat(currentDestination.value).isEqualTo("tab9") }
+        composeRule.onNodeWithText("Destination 9").assertDoesNotExist()
+        composeRule.runOnIdle {
+            configuration.value = Configuration(configuration.value).apply {
+                orientation = Configuration.ORIENTATION_LANDSCAPE
+                screenWidthDp = 960
+                screenHeightDp = 540
+            }
+        }
+        composeRule.onNodeWithContentDescription("Navigation menu").assertDoesNotExist()
+        composeRule.onNodeWithContentDescription("streamvault.destination:tab9").assertExists()
+        composeRule.onNodeWithText("Destination 9").assertExists()
     }
 }

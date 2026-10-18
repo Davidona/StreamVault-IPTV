@@ -59,4 +59,5 @@
     <string name="plugins_back_to_plugins">Volver a Plugins</string>
     <string name="plugins_refresh_configuration">Actualizar</string>
     <string name="plugins_save_configuration">Guardar</string>
+<string name="welcome_dont_ask_again">No volver a preguntarme</string>
 </resources>

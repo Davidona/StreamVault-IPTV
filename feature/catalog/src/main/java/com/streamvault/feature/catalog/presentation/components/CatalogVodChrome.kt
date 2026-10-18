@@ -58,6 +58,8 @@ import com.streamvault.core.ui.interaction.TvClickableSurface
 import com.streamvault.core.ui.interaction.TvButton
 import com.streamvault.core.ui.interaction.TvIconButton
 import com.streamvault.core.ui.components.shell.AppSectionHeader
+import com.streamvault.core.ui.layout.AdaptiveRow
+import com.streamvault.core.ui.layout.isPortraitLayout
 
 @Composable
 fun VodSectionHeader(
@@ -115,7 +117,7 @@ fun VodHeroStrip(
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 20.dp)
-            .height(132.dp),
+            .then(if (isPortraitLayout()) Modifier else Modifier.height(132.dp)),
         shape = ClickableSurfaceDefaults.shape(BrowseShapes.Panel),
         colors = ClickableSurfaceDefaults.colors(
             containerColor = SurfaceHighlight,
@@ -129,7 +131,7 @@ fun VodHeroStrip(
         ),
         scale = ClickableSurfaceDefaults.scale(focusedScale = 1f)
     ) {
-        Row(
+        AdaptiveRow(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 20.dp, vertical = 18.dp),
@@ -137,7 +139,7 @@ fun VodHeroStrip(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column(
-                modifier = Modifier.weight(1f),
+                modifier = if (isPortraitLayout()) Modifier.fillMaxWidth() else Modifier.weight(1f),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Text(

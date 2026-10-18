@@ -1,5 +1,7 @@
 package com.streamvault.feature.live.home
 
+import com.streamvault.core.ui.layout.isPortraitLayout
+
 import com.streamvault.core.ui.design.browsePanel
 import com.streamvault.core.ui.design.BrowseShapes
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -126,7 +128,8 @@ fun LiveHomeScreen(
     }
     val shouldShowLiveSourceSwitcher = uiState.showLiveSourceSwitcher && uiState.liveSourceOptions.isNotEmpty()
     val isReorderMode = uiState.isChannelReorderMode
-    val isProMode = uiState.liveTvChannelMode == LiveTvChannelMode.PRO
+    val portrait = isPortraitLayout()
+    val isProMode = uiState.liveTvChannelMode == LiveTvChannelMode.PRO && !portrait
     val isDenseMode = uiState.liveTvChannelMode != LiveTvChannelMode.COMFORTABLE
     val isTelevisionDevice = rememberIsTelevisionDevice()
     val layoutMetrics = liveHomeLayoutMetrics(
@@ -147,7 +150,9 @@ fun LiveHomeScreen(
     var showAddQuickFilterDialog by rememberSaveable { mutableStateOf(false) }
     var showHiddenCategoriesDialog by rememberSaveable { mutableStateOf(false) }
     var showHiddenChannelsDialog by rememberSaveable { mutableStateOf(false) }
-    var isCategorySidebarHidden by rememberSaveable { mutableStateOf(false) }
+    val landscapeSidebarHidden = rememberSaveable { mutableStateOf(false) }
+    val portraitSidebarHidden = rememberSaveable { mutableStateOf(true) }
+    var isCategorySidebarHidden by if (portrait) portraitSidebarHidden else landscapeSidebarHidden
     var sidebarRevealNonce by remember { mutableStateOf(0) }
     var pendingCategoryContentJumpCategoryId by rememberSaveable { mutableStateOf<Long?>(null) }
 
@@ -213,12 +218,16 @@ fun LiveHomeScreen(
         }
     }
 
-    BackHandler(enabled = isCategorySidebarHidden && !hasOverlay) {
+    BackHandler(enabled = !portrait && isCategorySidebarHidden && !hasOverlay) {
         revealCategorySidebar()
     }
 
-    LaunchedEffect(uiState.liveTvAutoHideCategories) {
-        if (!uiState.liveTvAutoHideCategories && isCategorySidebarHidden) {
+    BackHandler(enabled = portrait && !isCategorySidebarHidden && !hasOverlay) {
+        isCategorySidebarHidden = true
+    }
+
+    LaunchedEffect(uiState.liveTvAutoHideCategories, portrait) {
+        if (!portrait && !uiState.liveTvAutoHideCategories && isCategorySidebarHidden) {
             revealCategorySidebar()
         }
     }
@@ -331,7 +340,7 @@ fun LiveHomeScreen(
                 Row(modifier = Modifier.fillMaxSize()) {
                     Box(
                         modifier = Modifier
-                            .width(sidebarWidth)
+                            .width(if (portrait) (LocalConfiguration.current.screenWidthDp - 24).dp else sidebarWidth)
                             .fillMaxHeight()
                             .background(SurfaceElevated)
                             .padding(horizontal = 16.dp, vertical = 24.dp)
@@ -438,7 +447,7 @@ fun LiveHomeScreen(
 
                 fun collapseCategorySidebarForSelection(isLocked: Boolean = false): Boolean {
                     val shouldCollapse = shouldCollapseLiveCategorySidebar(
-                        autoHideCategories = uiState.liveTvAutoHideCategories,
+                        autoHideCategories = portrait || uiState.liveTvAutoHideCategories,
                         isLocked = isLocked,
                         isReorderMode = isReorderMode
                     )
@@ -713,12 +722,17 @@ fun LiveHomeScreen(
                     ) {
                         Column(
                             modifier = Modifier
-                                .width(sidebarWidth)
+                                .then(if (portrait) Modifier.fillMaxWidth() else Modifier.width(sidebarWidth))
                                 .fillMaxHeight()
                                 .browsePanel()
                                 .padding(top = 10.dp)
                                 .focusGroup()
                         ) {
+                        if (portrait) {
+                            androidx.compose.material3.TextButton(onClick = { isCategorySidebarHidden = true }) {
+                                Text(stringResource(R.string.settings_cancel))
+                            }
+                        }
                         LiveCategorySidebarHeader(
                             title = stringResource(R.string.home_categories_title),
                             currentSource = uiState.activeLiveSource,
@@ -837,6 +851,7 @@ fun LiveHomeScreen(
                     }
 
                 // Content - Channel Grid / Pro Preview
+                if (!portrait || isCategorySidebarHidden) {
                 Row(
                     modifier = Modifier
                         .weight(1f)
@@ -879,7 +894,7 @@ fun LiveHomeScreen(
                             onChannelSearchQueryChanged = viewModel::updateChannelSearchQuery,
                             searchPlaceholder = stringResource(R.string.home_search_channels),
                             channelSearchFocusRequester = channelSearchFocusRequester,
-                            channelSearchWidth = channelSearchWidth,
+                            channelSearchWidth = if (portrait) LocalConfiguration.current.screenWidthDp.dp else channelSearchWidth,
                             isReorderMode = isReorderMode,
                             showCategoriesButton = isCategorySidebarHidden,
                             onShowCategories = ::revealCategorySidebar,
@@ -1051,6 +1066,7 @@ fun LiveHomeScreen(
                                 .fillMaxHeight()
                         )
                     }
+                }
                 }
                 }
             }

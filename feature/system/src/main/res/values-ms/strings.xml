@@ -60,4 +60,5 @@
     <string name="plugins_back_to_plugins">Kembali ke Pemalam</string>
     <string name="plugins_refresh_configuration">Muat semula</string>
     <string name="plugins_save_configuration">Simpan</string>
+<string name="welcome_dont_ask_again">Jangan tanya saya lagi</string>
 </resources>
