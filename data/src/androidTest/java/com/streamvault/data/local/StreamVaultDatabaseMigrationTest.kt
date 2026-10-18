@@ -2149,14 +2149,7 @@ class StreamVaultDatabaseMigrationTest {
                 "CREATE UNIQUE INDEX `index_episodes_provider_id_episode_id` " +
                     "ON `episodes` (`provider_id`, `episode_id`)"
             )
-            listOf(
-                "sealed_session_id",
-                "sealed_row_count",
-                "sealed_configuration_generation",
-                "sealed_mapping_profile"
-            ).forEach { column ->
-                execSQL("ALTER TABLE `xtream_live_onboarding_state` DROP COLUMN `$column`")
-            }
+            createPreReceiptXtreamOnboardingStateTable()
 
             insertProvider78(1, "Synthetic Xtream", "XTREAM_CODES")
             execSQL(
@@ -2268,6 +2261,54 @@ class StreamVaultDatabaseMigrationTest {
         execSQL(
             "INSERT INTO providers (id,name,type,is_active,status,last_synced_at,created_at) VALUES (?,?,?,1,'UNKNOWN',0,0)",
             arrayOf<Any?>(id, name, type)
+        )
+    }
+
+    /** Rebuilds the empty current-schema table as the pre-merge v83 shape. */
+    private fun SupportSQLiteDatabase.createPreReceiptXtreamOnboardingStateTable() {
+        execSQL("DROP TABLE `xtream_live_onboarding_state`")
+        execSQL(
+            """
+            CREATE TABLE `xtream_live_onboarding_state` (
+                `provider_id` INTEGER NOT NULL,
+                `provider_type` TEXT NOT NULL,
+                `content_type` TEXT NOT NULL,
+                `phase` TEXT NOT NULL,
+                `staged_session_id` INTEGER,
+                `import_strategy` TEXT,
+                `next_category_index` INTEGER NOT NULL,
+                `accepted_row_count` INTEGER NOT NULL,
+                `staged_flush_count` INTEGER NOT NULL,
+                `sync_profile_tier` TEXT,
+                `sync_profile_batch_size` INTEGER NOT NULL,
+                `sync_profile_strategy` TEXT,
+                `sync_profile_low_memory` INTEGER NOT NULL,
+                `sync_profile_memory_class_mb` INTEGER NOT NULL,
+                `sync_profile_available_mem_mb` INTEGER NOT NULL,
+                `last_error` TEXT,
+                `created_at` INTEGER NOT NULL,
+                `updated_at` INTEGER NOT NULL,
+                `completed_at` INTEGER,
+                PRIMARY KEY(`provider_id`),
+                FOREIGN KEY(`provider_id`) REFERENCES `providers`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE
+            )
+            """.trimIndent()
+        )
+        execSQL(
+            "CREATE INDEX `index_xtream_live_onboarding_state_provider_id` " +
+                "ON `xtream_live_onboarding_state` (`provider_id`)"
+        )
+        execSQL(
+            "CREATE INDEX `index_xtream_live_onboarding_state_phase` " +
+                "ON `xtream_live_onboarding_state` (`phase`)"
+        )
+        execSQL(
+            "CREATE INDEX `index_xtream_live_onboarding_state_updated_at` " +
+                "ON `xtream_live_onboarding_state` (`updated_at`)"
+        )
+        execSQL(
+            "CREATE INDEX `index_xtream_live_onboarding_state_staged_session_id` " +
+                "ON `xtream_live_onboarding_state` (`staged_session_id`)"
         )
     }
 
