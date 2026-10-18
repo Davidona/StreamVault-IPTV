@@ -9,7 +9,6 @@
     <string name="nav_series">Serialet</string>
     <string name="nav_epg">Guida</string>
     <string name="nav_settings">Cilësimet</string>
-    <string name="nav_plugins">Shtojcat</string>
     <string name="nav_close_app">Mbyll aplikacionin</string>
 
 
@@ -30,7 +29,7 @@
     <string name="home_last_channel">Kanali i fundit</string>
     <string name="home_last_channel_label">I fundit: %1$s</string>
     <string name="home_last_group_label">I fundit: %1$s</string>
-    <string name="home_loading">Po ngarkohet...</string>
+    <string name="home_loading">Po ngarkohet…</string>
     <string name="home_locked_short">KYÇUR</string>
     <string name="live_shell_subtitle">Skano shpejt kategoritë live, mbaj navigimin të parashikueshëm dhe shfaq në ekran vetëm të dhënat e programit që kanë rëndësi.</string>
     <string name="live_shell_context">%1$d kategori • %2$d kanale</string>
@@ -180,7 +179,7 @@
     <string name="settings_buffer_duration">Kohëzgjatja e buferit</string>
     <string name="settings_buffer_5s">5 sekonda</string>
     <string name="settings_about_subtitle">Detajet e versionit, ndërtimit dhe mbështetjes për këtë instalim.</string>
-    <string name="settings_syncing">Po sinkronizohen të dhënat, ju lutem pritni...</string>
+    <string name="settings_syncing">Po sinkronizohen të dhënat, ju lutem pritni…</string>
     <string name="settings_cancel">Anulo</string>
     <string name="settings_sync_option_all">Sinkronizo të gjitha</string>
     <string name="settings_sync_option_fast">Sinkronizim i shpejtë</string>
@@ -212,7 +211,7 @@
     <string name="search_title">Kërko</string>
     <string name="parental_group_shell_subtitle">Shqyrto grupet e mbrojtura live, filmash dhe serialesh pa u larguar nga cilësimet premium.</string>
     <string name="search_command_title">Kërkim me komanda</string>
-    <string name="search_hint">Kërko...</string>
+    <string name="search_hint">Kërko…</string>
     <string name="search_actions_title">%1$s</string>
     <string name="search_actions_pin_subtitle">Fut PIN-in prindëror për të konfirmuar</string>
     <string name="a11y_locked">I kyçur</string>
@@ -269,7 +268,7 @@
 
 
     <string name="parental_group_title">Grupet e mbrojtura</string>
-    <string name="parental_group_search">Kërko kategori...</string>
+    <string name="parental_group_search">Kërko kategori…</string>
     <string name="player_live_timeshift_ready">Zhvendosja kohore gati.</string>
     <string name="player_live_timeshift_failed">Kthimi prapa live lokal nuk disponohet për këtë transmetim.</string>
 
@@ -343,7 +342,6 @@
     <string name="torrent_playback_start_failed">Riprodhimi i torrentit nuk mund të nisej. Provo sërish.</string>
     <string name="torrent_cache_capacity_reached">Luajtja e torrentit arriti kufirin e hapësirës së përkohshme. Pastro memorien ose liro hapësirë dhe provo përsëri.</string>
     <string name="torrent_storage_check_failed">Nuk mund të kontrollohej hapësira e disponueshme. Luajtja e torrentit nuk mund të vazhdojë në mënyrë të sigurt.</string>
-    <string name="nav_addons">Shtesa Stremio</string>
     <string name="nav_extensions">Zgjerimet</string>
     <string name="nav_sports">Sport</string>
 </resources>

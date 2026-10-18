@@ -19,7 +19,7 @@
     <string name="home_last_channel">הערוץ האחרון</string>
     <string name="home_last_channel_label">אחרון: %1$s</string>
     <string name="home_last_group_label">אחרון: %1$s</string>
-    <string name="home_loading">טוען...</string>
+    <string name="home_loading">טוען…</string>
     <string name="home_locked_short">נעול</string>
     <string name="live_shell_subtitle">סרוק קטגוריות חיות במהירות, שמור על הניווט דטרמיניסטי והצג רק את נתוני לוח הזמנים החשובים על המסך.</string>
     <string name="live_shell_context">%1$d קטגוריות • %2$d ערוצים</string>
@@ -125,7 +125,7 @@
     <string name="settings_buffer_duration">משך המאגר</string>
     <string name="settings_buffer_5s">5 שניות</string>
     <string name="settings_about_subtitle">פרטי גרסה, בנייה ותמיכה עבור התקנה זו.</string>
-    <string name="settings_syncing">מסנכרן נתונים, אנא המתן...</string>
+    <string name="settings_syncing">מסנכרן נתונים, אנא המתן…</string>
     <string name="settings_cancel">בטל</string>
     <string name="settings_sync_option_all">סנכרן הכל</string>
     <string name="settings_sync_option_fast">סנכרון מהיר</string>
@@ -148,7 +148,7 @@
     <string name="search_title">חפש</string>
     <string name="parental_group_shell_subtitle">סקור קבוצות חיים, סרטים וסדרות מוגנות מבלי לעזוב את מעטפת הגדרות הפרימיום.</string>
     <string name="search_command_title">חיפוש פקודות</string>
-    <string name="search_hint">חפש...</string>
+    <string name="search_hint">חפש…</string>
     <string name="a11y_locked">נעול</string>
     <string name="a11y_favorite">מועדף</string>
     <string name="a11y_catch_up_available">השג זמין</string>
@@ -187,7 +187,7 @@
     <string name="epg_provider_troubleshooting_missing_template">ההפעלה החוזרת עלולה להיכשל מכיוון שהספק חשף תמיכה בהשגה ללא תבנית הפעלה חוזרת שמישה.</string>
     <string name="epg_provider_troubleshooting_missing_stream_id">הפעלה חוזרת עלולה להיכשל מכיוון שהספק לא חשף מזהה זרם חוזר.</string>
     <string name="parental_group_title">קבוצות מוגנות</string>
-    <string name="parental_group_search">חפש קטגוריות...</string>
+    <string name="parental_group_search">חפש קטגוריות…</string>
     <string name="multiview_add_to_split">הוסף למסך מפוצל</string>
     <string name="multiview_queued">במסך מפוצל</string>
     <string name="settings_privacy_subtitle">נהל היסטוריית צפייה ומצב גלישה בסתר.</string>
@@ -240,7 +240,6 @@
     <string name="settings_backup_share_failed">אף אפליקציה לא יכלה לקבל את קובץ הגיבוי.</string>
     <string name="settings_catalog_count_pending">ממתין</string>
     <string name="settings_live_timeshift_backend_value">אוטומטי</string>
-    <string name="nav_plugins">תוספים</string>
     <string name="nav_close_app">סגור אפליקציה</string>
     <string name="nav_vod">VOD</string>
     <string name="nav_downloads">הורדות</string>
@@ -290,7 +289,6 @@
     <string name="torrent_playback_start_failed">לא ניתן להתחיל את הפעלת הטורנט. נסה שוב.</string>
     <string name="torrent_cache_capacity_reached">ניגון הטורנט הגיע למגבלת האחסון הזמני. יש לנקות את המטמון או לפנות מקום ולנסות שוב.</string>
     <string name="torrent_storage_check_failed">לא ניתן לבדוק את נפח האחסון הזמין. אי אפשר להמשיך לנגן את הטורנט בבטחה.</string>
-    <string name="nav_addons">תוספי Stremio</string>
     <string name="nav_extensions">הרחבות</string>
     <string name="nav_sports">ספורט</string>
 </resources>

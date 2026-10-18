@@ -9,7 +9,6 @@
     <string name="nav_series">سریال‌ها</string>
     <string name="nav_epg">راهنما</string>
     <string name="nav_settings">تنظیمات</string>
-    <string name="nav_plugins">افزونه‌ها</string>
     <string name="nav_close_app">بستن برنامه</string>
 
 
@@ -30,7 +29,7 @@
     <string name="home_last_channel">آخرین کانال</string>
     <string name="home_last_channel_label">آخرین: %1$s</string>
     <string name="home_last_group_label">آخرین: %1$s</string>
-    <string name="home_loading">در حال بارگذاری...</string>
+    <string name="home_loading">در حال بارگذاری…</string>
     <string name="home_locked_short">قفل</string>
     <string name="live_shell_subtitle">دسته‌های زنده را سریع مرور کنید، ناوبری را قابل‌اعتماد نگه دارید و فقط داده‌های برنامه‌ای را که روی صفحه مهم است نمایش دهید.</string>
     <string name="live_shell_context">%1$d دسته • %2$d کانال</string>
@@ -180,7 +179,7 @@
     <string name="settings_buffer_duration">مدت بافر</string>
     <string name="settings_buffer_5s">۵ ثانیه</string>
     <string name="settings_about_subtitle">جزئیات نسخه، ساخت و پشتیبانی این نصب.</string>
-    <string name="settings_syncing">در حال همگام‌سازی داده‌ها، لطفاً صبر کنید...</string>
+    <string name="settings_syncing">در حال همگام‌سازی داده‌ها، لطفاً صبر کنید…</string>
     <string name="settings_cancel">لغو</string>
     <string name="settings_sync_option_all">همگام‌سازی همه</string>
     <string name="settings_sync_option_fast">همگام‌سازی سریع</string>
@@ -212,7 +211,7 @@
     <string name="search_title">جست‌وجو</string>
     <string name="parental_group_shell_subtitle">گروه‌های زنده، فیلم و سریال محافظت‌شده را بدون خروج از پوسته تنظیمات ویژه بررسی کنید.</string>
     <string name="search_command_title">جست‌وجوی فرمان</string>
-    <string name="search_hint">جست‌وجو...</string>
+    <string name="search_hint">جست‌وجو…</string>
     <string name="search_actions_title">%1$s</string>
     <string name="search_actions_pin_subtitle">برای تأیید، پین والدین خود را وارد کنید</string>
     <string name="a11y_locked">قفل‌شده</string>
@@ -270,7 +269,7 @@
 
 
     <string name="parental_group_title">گروه‌های محافظت‌شده</string>
-    <string name="parental_group_search">جست‌وجوی دسته‌ها...</string>
+    <string name="parental_group_search">جست‌وجوی دسته‌ها…</string>
     <string name="player_live_timeshift_ready">پخش تأخیری آماده است.</string>
     <string name="player_live_timeshift_failed">عقب‌بردن پخش زنده محلی برای این جریان در دسترس نیست.</string>
 
@@ -346,7 +345,6 @@
     <string name="torrent_playback_start_failed">پخش تورنت شروع نشد. لطفاً دوباره امتحان کنید.</string>
     <string name="torrent_cache_capacity_reached">پخش تورنت به محدودیت فضای موقت رسیده است. حافظه را پاک کنید یا فضا آزاد کنید و دوباره تلاش کنید.</string>
     <string name="torrent_storage_check_failed">بررسی فضای ذخیره‌سازی ممکن نشد و پخش تورنت نمی‌تواند با اطمینان ادامه یابد.</string>
-    <string name="nav_addons">افزونه‌های Stremio</string>
     <string name="nav_extensions">افزونه‌ها</string>
     <string name="nav_sports">ورزش</string>
 </resources>

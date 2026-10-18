@@ -21,6 +21,7 @@ import com.streamvault.domain.model.stremio.StremioVideo
 import com.streamvault.domain.model.stremio.installFingerprint
 import com.streamvault.domain.repository.DownloadManager
 import com.streamvault.domain.repository.StremioAddonRepository
+import com.streamvault.feature.stremio.R
 import com.streamvault.feature.stremio.api.StremioDownloadStarter
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
@@ -37,7 +38,9 @@ import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
+import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.whenever
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class StremioItemDetailViewModelTest {
@@ -324,7 +327,7 @@ class StremioItemDetailViewModelTest {
         viewModel.loadStreams("tt123")
         advanceUntilIdle()
 
-        assertThat(viewModel.state.value.metadataError).isNotNull()
+        assertThat(viewModel.state.value.metadataError).isEqualTo(R.string.stremio_error_generic.toString())
         assertThat(viewModel.state.value.catalogOriginKey).isEqualTo(addon(11L).installFingerprint())
         assertThat(viewModel.state.value.streams).hasSize(1)
     }
@@ -383,7 +386,7 @@ class StremioItemDetailViewModelTest {
                 StremioItemDetailViewModel.ARG_REPLAY_VIDEO_ID to "exact:saved:episode",
                 StremioItemDetailViewModel.ARG_REPLAY_ORIGIN_KEY to origin.installFingerprint(),
                 StremioItemDetailViewModel.ARG_REPLAY_REQUIRES_ORIGIN to true
-            )), repository, FakeStremioContentAccess(), mock<DownloadManager>(), StremioDownloadStarter { }, mock<Context>()
+            )), repository, FakeStremioContentAccess(), mock<DownloadManager>(), StremioDownloadStarter { }, contextWithResourceIds()
         )
         runCurrent()
 
@@ -394,7 +397,7 @@ class StremioItemDetailViewModelTest {
         metadataResult.completeExceptionally(java.io.IOException("metadata unavailable"))
         advanceUntilIdle()
 
-        assertThat(viewModel.state.value.metadataError).isNotNull()
+        assertThat(viewModel.state.value.metadataError).isEqualTo(R.string.stremio_error_generic.toString())
         assertThat(viewModel.state.value.streams).hasSize(1)
         assertThat(repository.streamCalls).hasSize(1)
     }
@@ -436,8 +439,14 @@ class StremioItemDetailViewModelTest {
         contentAccess = contentAccess,
         downloadManager = mock<DownloadManager>(),
         downloadStarter = StremioDownloadStarter { },
-            context = mock<Context>()
+            context = contextWithResourceIds()
     )
+
+    private fun contextWithResourceIds(): Context = mock<Context>().also { context ->
+        whenever(context.getString(any<Int>())).thenAnswer { invocation ->
+            invocation.getArgument<Int>(0).toString()
+        }
+    }
 
     private fun addon(id: Long) = StremioAddon(
         id = id,

@@ -19,7 +19,7 @@
     <string name="home_last_channel">上次频道</string>
     <string name="home_last_channel_label">上次：%1$s</string>
     <string name="home_last_group_label">上次：%1$s</string>
-    <string name="home_loading">加载中...</string>
+    <string name="home_loading">加载中…</string>
     <string name="home_locked_short">已锁定</string>
     <string name="live_shell_subtitle">快速浏览直播分类，保持导航确定性，并仅显示屏幕上真正需要的节目数据。</string>
     <string name="live_shell_context">%1$d 个分类 • %2$d 个频道</string>
@@ -125,7 +125,7 @@
     <string name="settings_buffer_duration">缓冲时长</string>
     <string name="settings_buffer_5s">5秒</string>
     <string name="settings_about_subtitle">此安装的版本、构建和支持信息。</string>
-    <string name="settings_syncing">正在同步数据，请稍候...</string>
+    <string name="settings_syncing">正在同步数据，请稍候…</string>
     <string name="settings_cancel">取消</string>
     <string name="settings_sync_option_all">同步全部</string>
     <string name="settings_sync_option_fast">快速同步</string>
@@ -148,7 +148,7 @@
     <string name="search_title">搜索</string>
     <string name="parental_group_shell_subtitle">在不离开高级设置界面的情况下，查看受保护的直播、电影和剧集分组。</string>
     <string name="search_command_title">命令搜索</string>
-    <string name="search_hint">搜索...</string>
+    <string name="search_hint">搜索…</string>
     <string name="a11y_locked">已锁定</string>
     <string name="a11y_favorite">收藏</string>
     <string name="a11y_catch_up_available">可回看</string>
@@ -187,7 +187,7 @@
     <string name="epg_provider_troubleshooting_missing_template">提供商已公开回看支持，但没有可用的回看模板，可能导致回看失败。</string>
     <string name="epg_provider_troubleshooting_missing_stream_id">提供商未公开回看流标识，可能导致回看失败。</string>
     <string name="parental_group_title">受保护分组</string>
-    <string name="parental_group_search">搜索分类...</string>
+    <string name="parental_group_search">搜索分类…</string>
     <string name="multiview_add_to_split">添加到分屏</string>
     <string name="multiview_queued">已在分屏中</string>
     <string name="settings_privacy_subtitle">管理观看历史和隐身模式。</string>
@@ -241,7 +241,6 @@
     <string name="settings_catalog_count_pending">待处理</string>
     <string name="settings_live_timeshift_backend_value">自动</string>
     <!-- M2: Google Drive backup sync -->
-    <string name="nav_plugins">插件</string>
     <string name="nav_vod">VOD</string>
     <string name="nav_close_app">关闭应用</string>
     <string name="nav_downloads">下载</string>
@@ -290,7 +289,6 @@
     <string name="torrent_playback_start_failed">无法开始播放种子。请重试。</string>
     <string name="torrent_cache_capacity_reached">种子播放已达到临时存储上限。请清除缓存或释放设备空间后重试。</string>
     <string name="torrent_storage_check_failed">无法检查可用存储空间，无法安全地继续播放种子内容。</string>
-    <string name="nav_addons">Stremio 扩展</string>
     <string name="nav_extensions">扩展功能</string>
     <string name="nav_sports">体育</string>
 </resources>

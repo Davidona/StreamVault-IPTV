@@ -1,6 +1,7 @@
 package com.streamvault.data.sync
 
 import android.content.Context
+import androidx.core.content.edit
 import com.streamvault.domain.model.ContentType
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
@@ -52,7 +53,7 @@ class ProviderSyncWorkScheduler @Inject constructor(
     ) {
         val origins = applicationContext.getSharedPreferences("automatic_sync_work", Context.MODE_PRIVATE)
         val replaceAutomatic = !automatic && origins.getBoolean("xtream_$providerId", false)
-        origins.edit().putBoolean("xtream_$providerId", automatic).apply()
+        origins.edit { putBoolean("xtream_$providerId", automatic) }
         XtreamIndexWorker.enqueue(
             context = applicationContext,
             providerId = providerId,
@@ -72,7 +73,7 @@ class ProviderSyncWorkScheduler @Inject constructor(
     ) {
         val origins = applicationContext.getSharedPreferences("automatic_sync_work", Context.MODE_PRIVATE)
         val replaceAutomatic = !automatic && origins.getBoolean("stalker_$providerId", false)
-        origins.edit().putBoolean("stalker_$providerId", automatic).apply()
+        origins.edit { putBoolean("stalker_$providerId", automatic) }
         // Stalker section requests are intentionally coalesced into the durable
         // provider job. This preserves the existing worker contract: the worker
         // selects the next pending section from its persisted job state.

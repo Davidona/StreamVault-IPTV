@@ -19,7 +19,7 @@
     <string name="home_last_channel">Последний канал</string>
     <string name="home_last_channel_label">Последний: %1$s</string>
     <string name="home_last_group_label">Последняя: %1$s</string>
-    <string name="home_loading">Загрузка...</string>
+    <string name="home_loading">Загрузка…</string>
     <string name="home_locked_short">ЗАБЛОК.</string>
     <string name="live_shell_subtitle">Быстро просматривайте категории Live, сохраняйте удобную навигацию и выводите на экран только нужные данные программы.</string>
     <string name="live_shell_context">%1$d категорий • %2$d каналов</string>
@@ -125,7 +125,7 @@
     <string name="settings_buffer_duration">Длительность буфера</string>
     <string name="settings_buffer_5s">5 секунд</string>
     <string name="settings_about_subtitle">Версия, сборка и сведения о поддержке для этой установки.</string>
-    <string name="settings_syncing">Синхронизация данных, подождите...</string>
+    <string name="settings_syncing">Синхронизация данных, подождите…</string>
     <string name="settings_cancel">Отмена</string>
     <string name="settings_sync_option_all">Синхронизировать все</string>
     <string name="settings_sync_option_fast">Быстрая синхронизация</string>
@@ -148,7 +148,7 @@
     <string name="search_title">Поиск</string>
     <string name="parental_group_shell_subtitle">Просматривайте защищённые группы прямого эфира, фильмов и сериалов, не выходя из оболочки премиум-настроек.</string>
     <string name="search_command_title">Командный поиск</string>
-    <string name="search_hint">Поиск...</string>
+    <string name="search_hint">Поиск…</string>
     <string name="a11y_locked">Заблокировано</string>
     <string name="a11y_favorite">Избранное</string>
     <string name="a11y_catch_up_available">Доступен просмотр назад</string>
@@ -187,7 +187,7 @@
     <string name="epg_provider_troubleshooting_missing_template">Архив может не работать, потому что провайдер указал поддержку catch-up без подходящего шаблона архива.</string>
     <string name="epg_provider_troubleshooting_missing_stream_id">Архив может не работать, потому что провайдер не указал идентификатор потока архива.</string>
     <string name="parental_group_title">Защищённые группы</string>
-    <string name="parental_group_search">Поиск категорий...</string>
+    <string name="parental_group_search">Поиск категорий…</string>
     <string name="multiview_add_to_split">Добавить в разделенный экран</string>
     <string name="multiview_queued">В разделенном экране</string>
     <string name="settings_privacy_subtitle">Управляйте историей просмотра и режимом инкогнито.</string>
@@ -241,7 +241,6 @@
     <string name="settings_catalog_count_pending">Ожидает</string>
     <string name="settings_live_timeshift_backend_value">Авто</string>
     <!-- M2: Google Drive backup sync -->
-    <string name="nav_plugins">Плагины</string>
     <string name="nav_close_app">Закрыть приложение</string>
     <string name="hidden_categories_dialog_title">Скрытые категории</string>
     <string name="hidden_categories_dialog_subtitle">Выберите те, что нужно восстановить.</string>
@@ -290,7 +289,6 @@
     <string name="torrent_playback_start_failed">Не удалось начать воспроизведение торрента. Попробуйте ещё раз.</string>
     <string name="torrent_cache_capacity_reached">Воспроизведение торрента достигло лимита временного хранилища. Очистите кэш или освободите место и повторите попытку.</string>
     <string name="torrent_storage_check_failed">Не удалось проверить доступное место. Воспроизведение торрента нельзя безопасно продолжить.</string>
-    <string name="nav_addons">Дополнения Stremio</string>
     <string name="nav_extensions">Расширения</string>
     <string name="nav_sports">Спорт</string>
 </resources>

@@ -487,6 +487,12 @@ private class FakeStremioAddonDao : StremioAddonDao {
         return id
     }
 
+    override suspend fun update(entity: StremioAddonEntity) {
+        addons.value = addons.value.map { current ->
+            if (current.id == entity.id) entity else current
+        }
+    }
+
     override suspend fun updateManifest(
         id: Long,
         manifestId: String,

@@ -9,7 +9,6 @@
     <string name="nav_series">Serije</string>
     <string name="nav_epg">Vodič</string>
     <string name="nav_settings">Postavke</string>
-    <string name="nav_plugins">Dodaci</string>
     <string name="nav_close_app">Zatvori aplikaciju</string>
 
 
@@ -30,7 +29,7 @@
     <string name="home_last_channel">Posljednji kanal</string>
     <string name="home_last_channel_label">Posljednji: %1$s</string>
     <string name="home_last_group_label">Posljednja: %1$s</string>
-    <string name="home_loading">Učitavanje...</string>
+    <string name="home_loading">Učitavanje…</string>
     <string name="home_locked_short">ZAKLJUČANO</string>
     <string name="live_shell_subtitle">Brzo pregledajte kategorije uživo, održite dosljednu navigaciju i prikažite samo podatke o rasporedu koji su važni na zaslonu.</string>
     <string name="live_shell_context">%1$d kategorija • %2$d kanala</string>
@@ -180,7 +179,7 @@
     <string name="settings_buffer_duration">Trajanje međuspremnika</string>
     <string name="settings_buffer_5s">5 sekundi</string>
     <string name="settings_about_subtitle">Verzija, build i pojedinosti podrške za ovu instalaciju.</string>
-    <string name="settings_syncing">Sinkronizacija podataka, pričekajte...</string>
+    <string name="settings_syncing">Sinkronizacija podataka, pričekajte…</string>
     <string name="settings_cancel">Odustani</string>
     <string name="settings_sync_option_all">Sinkroniziraj sve</string>
     <string name="settings_sync_option_fast">Brza sinkronizacija</string>
@@ -212,7 +211,7 @@
     <string name="search_title">Pretraži</string>
     <string name="parental_group_shell_subtitle">Pregledajte zaštićene grupe uživo, filmova i serija bez napuštanja sučelja postavki.</string>
     <string name="search_command_title">Naredbeno pretraživanje</string>
-    <string name="search_hint">Pretraži...</string>
+    <string name="search_hint">Pretraži…</string>
     <string name="search_actions_title">%1$s</string>
     <string name="search_actions_pin_subtitle">Unesite roditeljski PIN za potvrdu</string>
     <string name="a11y_locked">Zaključano</string>
@@ -269,7 +268,7 @@
 
 
     <string name="parental_group_title">Zaštićene grupe</string>
-    <string name="parental_group_search">Pretraži kategorije...</string>
+    <string name="parental_group_search">Pretraži kategorije…</string>
     <string name="player_live_timeshift_ready">Vremenski pomak je spreman.</string>
     <string name="player_live_timeshift_failed">Lokalno premotavanje uživo nije dostupno za ovaj stream.</string>
 
@@ -343,7 +342,6 @@
     <string name="torrent_playback_start_failed">Reprodukciju torrenta nije moguće pokrenuti. Pokušajte ponovno.</string>
     <string name="torrent_cache_capacity_reached">Reprodukcija torrenta dosegla je ograničenje privremene pohrane. Očistite predmemoriju ili oslobodite prostor pa pokušajte ponovno.</string>
     <string name="torrent_storage_check_failed">Nije moguće provjeriti dostupnu pohranu. Reprodukcija torrenta ne može se sigurno nastaviti.</string>
-    <string name="nav_addons">Stremio dodaci</string>
     <string name="nav_extensions">Proširenja</string>
     <string name="nav_sports">Sport</string>
 </resources>

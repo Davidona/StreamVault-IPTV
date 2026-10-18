@@ -19,7 +19,7 @@
     <string name="home_last_channel">Sidste kanal</string>
     <string name="home_last_channel_label">Sidste: %1$s</string>
     <string name="home_last_group_label">Sidste: %1$s</string>
-    <string name="home_loading">Indlæser...</string>
+    <string name="home_loading">Indlæser…</string>
     <string name="home_locked_short">LÅST</string>
     <string name="live_shell_subtitle">Scan livekategorier hurtigt, hold navigationen forudsigelig, og vis kun de programdata, der betyder noget på skærmen.</string>
     <string name="live_shell_context">%1$d kategorier • %2$d kanaler</string>
@@ -125,7 +125,7 @@
     <string name="settings_buffer_duration">Buffervarighed</string>
     <string name="settings_buffer_5s">5 sekunder</string>
     <string name="settings_about_subtitle">Version, build og supportdetaljer for denne installation.</string>
-    <string name="settings_syncing">Synkroniserer data, vent venligst...</string>
+    <string name="settings_syncing">Synkroniserer data, vent venligst…</string>
     <string name="settings_cancel">Annuller</string>
     <string name="settings_sync_option_all">Synkroniser alle</string>
     <string name="settings_sync_option_fast">Hurtig synkronisering</string>
@@ -148,7 +148,7 @@
     <string name="search_title">Søg</string>
     <string name="parental_group_shell_subtitle">Gennemgå beskyttede live-, film- og seriegrupper uden at forlade shellen med premium-indstillinger.</string>
     <string name="search_command_title">Kommandosøgning</string>
-    <string name="search_hint">Søg...</string>
+    <string name="search_hint">Søg…</string>
     <string name="a11y_locked">Låst</string>
     <string name="a11y_favorite">Favorit</string>
     <string name="a11y_catch_up_available">Catch-up tilgængelig</string>
@@ -187,7 +187,7 @@
     <string name="epg_provider_troubleshooting_missing_template">Afspilning kan fejle, fordi udbyderen har angivet catch-up-understøttelse uden en brugbar afspilningsskabelon.</string>
     <string name="epg_provider_troubleshooting_missing_stream_id">Afspilning kan fejle, fordi udbyderen ikke har angivet et replay-stream-id.</string>
     <string name="parental_group_title">Beskyttede grupper</string>
-    <string name="parental_group_search">Søg kategorier...</string>
+    <string name="parental_group_search">Søg kategorier…</string>
     <string name="multiview_add_to_split">Tilføj til delt skærm</string>
     <string name="multiview_queued">I Split Screen</string>
     <string name="settings_privacy_subtitle">Administrer afspilningshistorik og inkognitotilstand.</string>
@@ -241,7 +241,6 @@
     <string name="settings_catalog_count_pending">Afventer</string>
     <string name="settings_live_timeshift_backend_value">Automatisk</string>
     <!-- M2: Google Drive backup sync -->
-    <string name="nav_plugins">Plugins</string>
     <string name="nav_downloads">Downloads</string>
     <string name="nav_vod">VOD</string>
     <string name="nav_close_app">Luk app</string>
@@ -290,7 +289,6 @@
     <string name="torrent_playback_start_failed">Torrentafspilningen kunne ikke startes. Prøv igen.</string>
     <string name="torrent_cache_capacity_reached">Torrentafspilningen nåede grænsen for midlertidig lagerplads. Ryd cachen eller frigør plads, og prøv igen.</string>
     <string name="torrent_storage_check_failed">Den ledige lagerplads kunne ikke kontrolleres. Torrentafspilningen kan ikke fortsætte sikkert.</string>
-    <string name="nav_addons">Stremio-tilføjelser</string>
     <string name="nav_extensions">Udvidelser</string>
     <string name="nav_sports">Sport</string>
 </resources>

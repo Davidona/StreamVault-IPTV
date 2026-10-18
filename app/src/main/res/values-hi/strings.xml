@@ -9,7 +9,6 @@
     <string name="nav_series">सीरीज़</string>
     <string name="nav_epg">गाइड</string>
     <string name="nav_settings">सेटिंग्स</string>
-    <string name="nav_plugins">प्लगइन</string>
     <string name="nav_close_app">ऐप बंद करें</string>
 
 
@@ -30,7 +29,7 @@
     <string name="home_last_channel">अंतिम चैनल</string>
     <string name="home_last_channel_label">अंतिम: %1$s</string>
     <string name="home_last_group_label">अंतिम: %1$s</string>
-    <string name="home_loading">लोड हो रहा है...</string>
+    <string name="home_loading">लोड हो रहा है…</string>
     <string name="home_locked_short">LOCKED</string>
     <string name="live_shell_subtitle">लाइव श्रेणियाँ तेज़ी से स्कैन करें, नेविगेशन स्थिर रखें और स्क्रीन पर केवल ज़रूरी शेड्यूल डेटा दिखाएँ।</string>
     <string name="live_shell_context">%1$d श्रेणियाँ • %2$d चैनल</string>
@@ -180,7 +179,7 @@
     <string name="settings_buffer_duration">बफ़र अवधि</string>
     <string name="settings_buffer_5s">5 सेकंड</string>
     <string name="settings_about_subtitle">इस इंस्टॉलेशन के लिए वर्शन, बिल्ड और सहायता विवरण।</string>
-    <string name="settings_syncing">डेटा सिंक हो रहा है, कृपया प्रतीक्षा करें...</string>
+    <string name="settings_syncing">डेटा सिंक हो रहा है, कृपया प्रतीक्षा करें…</string>
     <string name="settings_cancel">रद्द करें</string>
     <string name="settings_sync_option_all">सभी सिंक करें</string>
     <string name="settings_sync_option_fast">त्वरित सिंक</string>
@@ -212,7 +211,7 @@
     <string name="search_title">खोज</string>
     <string name="parental_group_shell_subtitle">प्रीमियम सेटिंग्स शेल छोड़े बिना संरक्षित लाइव, फ़िल्म और सीरीज़ समूह देखें।</string>
     <string name="search_command_title">कमांड खोज</string>
-    <string name="search_hint">खोजें...</string>
+    <string name="search_hint">खोजें…</string>
     <string name="search_actions_title">%1$s</string>
     <string name="search_actions_pin_subtitle">पुष्टि के लिए अपना पैरेंटल PIN दर्ज करें</string>
     <string name="a11y_locked">लॉक किया गया</string>
@@ -269,7 +268,7 @@
 
 
     <string name="parental_group_title">संरक्षित समूह</string>
-    <string name="parental_group_search">श्रेणियाँ खोजें...</string>
+    <string name="parental_group_search">श्रेणियाँ खोजें…</string>
     <string name="player_live_timeshift_ready">टाइमशिफ़्ट तैयार।</string>
     <string name="player_live_timeshift_failed">इस स्ट्रीम के लिए स्थानीय लाइव रिवाइंड उपलब्ध नहीं है।</string>
 
@@ -343,7 +342,6 @@
     <string name="torrent_playback_start_failed">टोरेंट प्लेबैक शुरू नहीं हो सका। कृपया फिर से कोशिश करें।</string>
     <string name="torrent_cache_capacity_reached">टोरेंट प्लेबैक अस्थायी स्टोरेज सीमा तक पहुँच गया है। कैश साफ़ करें या जगह खाली करके फिर कोशिश करें।</string>
     <string name="torrent_storage_check_failed">उपलब्ध स्टोरेज की जाँच नहीं हो सकी। टोरेंट प्लेबैक सुरक्षित रूप से जारी नहीं रह सकता।</string>
-    <string name="nav_addons">Stremio ऐड-ऑन</string>
     <string name="nav_extensions">एक्सटेंशन</string>
     <string name="nav_sports">खेल</string>
 </resources>

@@ -12,6 +12,7 @@ import com.streamvault.domain.model.StreamInfo
 import com.streamvault.domain.model.VodHttpProtocolMode
 import com.streamvault.domain.repository.ProviderRepository
 import com.streamvault.domain.settings.PlayerPreferences
+import com.streamvault.domain.settings.PlaybackQualityPreferences
 import com.streamvault.feature.playback.api.PlaybackStreamPreparer
 import com.streamvault.player.PlayerEngine
 import com.streamvault.player.playback.ResolvedStreamType
@@ -56,6 +57,7 @@ class PlayerPreparationCoordinatorContentKindTest {
             whenever(playerPlaybackBufferMode).thenReturn(flowOf(PlaybackBufferMode.AUTO))
             whenever(playerVodHttpProtocolMode).thenReturn(flowOf(VodHttpProtocolMode.COMPATIBILITY_HTTP1))
             whenever(playerFastRetryOnTransientFailures).thenReturn(flowOf(false))
+            whenever(playbackQualityPreferences).thenReturn(flowOf(PlaybackQualityPreferences()))
         }
         val coordinator = PlayerPreparationCoordinator(
             streamPreparer = preparer,

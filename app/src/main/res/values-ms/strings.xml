@@ -9,7 +9,6 @@
     <string name="nav_series">Siri</string>
     <string name="nav_epg">Panduan</string>
     <string name="nav_settings">Tetapan</string>
-    <string name="nav_plugins">Pemalam</string>
     <string name="nav_close_app">Tutup apl</string>
 
 
@@ -30,7 +29,7 @@
     <string name="home_last_channel">Saluran Terakhir</string>
     <string name="home_last_channel_label">Terakhir: %1$s</string>
     <string name="home_last_group_label">Terakhir: %1$s</string>
-    <string name="home_loading">Memuatkan...</string>
+    <string name="home_loading">Memuatkan…</string>
     <string name="home_locked_short">TERKUNCI</string>
     <string name="live_shell_subtitle">Imbas kategori langsung dengan pantas, kekalkan navigasi yang konsisten dan paparkan hanya data jadual yang penting pada skrin.</string>
     <string name="live_shell_context">%1$d kategori • %2$d saluran</string>
@@ -180,7 +179,7 @@
     <string name="settings_buffer_duration">Tempoh Penimbalan</string>
     <string name="settings_buffer_5s">5 saat</string>
     <string name="settings_about_subtitle">Butiran versi, binaan dan sokongan untuk pemasangan ini.</string>
-    <string name="settings_syncing">Menyegerakkan data, sila tunggu...</string>
+    <string name="settings_syncing">Menyegerakkan data, sila tunggu…</string>
     <string name="settings_cancel">Batal</string>
     <string name="settings_sync_option_all">Segerakkan Semua</string>
     <string name="settings_sync_option_fast">Segerak Pantas</string>
@@ -212,7 +211,7 @@
     <string name="search_title">Cari</string>
     <string name="parental_group_shell_subtitle">Semak kumpulan langsung, filem dan siri yang dilindungi tanpa meninggalkan antara muka tetapan premium.</string>
     <string name="search_command_title">Carian Arahan</string>
-    <string name="search_hint">Cari...</string>
+    <string name="search_hint">Cari…</string>
     <string name="search_actions_title">%1$s</string>
     <string name="search_actions_pin_subtitle">Masukkan PIN ibu bapa anda untuk mengesahkan</string>
     <string name="a11y_locked">Terkunci</string>
@@ -269,7 +268,7 @@
 
 
     <string name="parental_group_title">Kumpulan Dilindungi</string>
-    <string name="parental_group_search">Cari kategori...</string>
+    <string name="parental_group_search">Cari kategori…</string>
     <string name="player_live_timeshift_ready">Timeshift sedia.</string>
     <string name="player_live_timeshift_failed">Gulung semula langsung setempat tidak tersedia untuk strim ini.</string>
 
@@ -344,7 +343,6 @@
     <string name="torrent_cache_capacity_reached">Main balik torrent mencapai had storan sementara. Kosongkan cache atau ruang storan, kemudian cuba lagi.</string>
     <string name="torrent_storage_check_failed">Storan yang tersedia tidak dapat diperiksa. Main balik torrent tidak dapat diteruskan dengan selamat.</string>
 
-    <string name="nav_addons">Alat tambah Stremio</string>
     <string name="nav_extensions">Sambungan</string>
     <string name="nav_sports">Sukan</string>
 </resources>

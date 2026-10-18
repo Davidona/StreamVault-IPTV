@@ -55,5 +55,7 @@ class PreferenceBackupRegistryTest {
         }).isEmpty()
         assertThat(PreferenceBackupRegistry.classification("hideStremioAddons"))
             .isEqualTo(PreferenceBackupClassification.PORTABLE_GLOBAL)
+        assertThat(PreferenceBackupRegistry.classification("dontAskProviderSetupAgain"))
+            .isEqualTo(PreferenceBackupClassification.PORTABLE_GLOBAL)
     }
 }

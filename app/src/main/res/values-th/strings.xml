@@ -9,7 +9,6 @@
     <string name="nav_series">ซีรีส์</string>
     <string name="nav_epg">ผังรายการ</string>
     <string name="nav_settings">ตั้งค่า</string>
-    <string name="nav_plugins">ปลั๊กอิน</string>
     <string name="nav_close_app">ปิดแอป</string>
 
 
@@ -30,7 +29,7 @@
     <string name="home_last_channel">ช่องล่าสุด</string>
     <string name="home_last_channel_label">ล่าสุด: %1$s</string>
     <string name="home_last_group_label">ล่าสุด: %1$s</string>
-    <string name="home_loading">กำลังโหลด...</string>
+    <string name="home_loading">กำลังโหลด…</string>
     <string name="home_locked_short">ล็อก</string>
     <string name="live_shell_subtitle">สแกนหมวดหมู่ช่องสดได้อย่างรวดเร็ว การนำทางที่แน่นอน และแสดงเฉพาะข้อมูลผังรายการที่สำคัญบนหน้าจอ</string>
     <string name="live_shell_context">%1$d หมวดหมู่ • %2$d ช่อง</string>
@@ -180,7 +179,7 @@
     <string name="settings_buffer_duration">ระยะเวลาบัฟเฟอร์</string>
     <string name="settings_buffer_5s">5 วินาที</string>
     <string name="settings_about_subtitle">รายละเอียดเวอร์ชัน บิลด์ และการสนับสนุนสำหรับการติดตั้งนี้</string>
-    <string name="settings_syncing">กำลังซิงค์ข้อมูล โปรดรอสักครู่...</string>
+    <string name="settings_syncing">กำลังซิงค์ข้อมูล โปรดรอสักครู่…</string>
     <string name="settings_cancel">ยกเลิก</string>
     <string name="settings_sync_option_all">ซิงค์ทั้งหมด</string>
     <string name="settings_sync_option_fast">ซิงค์ด่วน</string>
@@ -212,7 +211,7 @@
     <string name="search_title">ค้นหา</string>
     <string name="parental_group_shell_subtitle">ตรวจสอบกลุ่มช่องสด ภาพยนตร์ และซีรีส์ที่ได้รับการป้องกันโดยไม่ต้องออกจากหน้าตั้งค่า</string>
     <string name="search_command_title">ค้นหาแบบคำสั่ง</string>
-    <string name="search_hint">ค้นหา...</string>
+    <string name="search_hint">ค้นหา…</string>
     <string name="search_actions_title">%1$s</string>
     <string name="search_actions_pin_subtitle">กรอกรหัส PIN ผู้ปกครองเพื่อยืนยัน</string>
     <string name="a11y_locked">ล็อกอยู่</string>
@@ -269,7 +268,7 @@
 
 
     <string name="parental_group_title">กลุ่มที่ได้รับการป้องกัน</string>
-    <string name="parental_group_search">ค้นหาหมวดหมู่...</string>
+    <string name="parental_group_search">ค้นหาหมวดหมู่…</string>
     <string name="player_live_timeshift_ready">ไทม์ชิฟต์พร้อมใช้งาน</string>
     <string name="player_live_timeshift_failed">ไม่สามารถย้อนดูช่องสดในเครื่องได้สำหรับสตรีมนี้</string>
 
@@ -343,7 +342,6 @@
     <string name="torrent_playback_start_failed">ไม่สามารถเริ่มเล่นทอร์เรนต์ได้ โปรดลองอีกครั้ง</string>
     <string name="torrent_cache_capacity_reached">การเล่นทอร์เรนต์ถึงขีดจำกัดพื้นที่จัดเก็บชั่วคราวแล้ว ล้างแคชหรือเพิ่มพื้นที่ว่างแล้วลองอีกครั้ง</string>
     <string name="torrent_storage_check_failed">ไม่สามารถตรวจสอบพื้นที่จัดเก็บที่พร้อมใช้งานได้ จึงไม่สามารถเล่นทอร์เรนต์ต่อได้อย่างปลอดภัย</string>
-    <string name="nav_addons">ส่วนเสริม Stremio</string>
     <string name="nav_extensions">ส่วนขยาย</string>
     <string name="nav_sports">กีฬา</string>
 </resources>

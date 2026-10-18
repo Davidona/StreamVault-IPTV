@@ -31,6 +31,7 @@ class StremioVisibilityPreferenceTest {
     private fun repository() = PreferencesRepository(
         context = context,
         channelPreferenceDao = mock(),
+        playbackQualityPreferenceDao = mock(),
         searchHistoryDao = mock(),
         corruptionRecovery = mock()
     )

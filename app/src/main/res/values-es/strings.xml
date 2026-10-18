@@ -19,7 +19,7 @@
     <string name="home_last_channel">Último canal</string>
     <string name="home_last_channel_label">Último: %1$s</string>
     <string name="home_last_group_label">Último: %1$s</string>
-    <string name="home_loading">Cargando...</string>
+    <string name="home_loading">Cargando…</string>
     <string name="home_locked_short">BLOQUEADO</string>
     <string name="live_shell_subtitle">Explora categorías en vivo rápidamente, mantén una navegación predecible y muestra solo los datos de programación que importan en pantalla.</string>
     <string name="live_shell_context">%1$d categorías • %2$d canales</string>
@@ -125,7 +125,7 @@
     <string name="settings_buffer_duration">Duración del búfer</string>
     <string name="settings_buffer_5s">5 segundos</string>
     <string name="settings_about_subtitle">Detalles de versión, compilación y soporte de esta instalación.</string>
-    <string name="settings_syncing">Sincronizando datos, por favor espera...</string>
+    <string name="settings_syncing">Sincronizando datos, por favor espera…</string>
     <string name="settings_cancel">Cancelar</string>
     <string name="settings_sync_option_all">Sincronizar todo</string>
     <string name="settings_sync_option_fast">Sincronización rápida</string>
@@ -148,7 +148,7 @@
     <string name="search_title">Buscar</string>
     <string name="parental_group_shell_subtitle">Revisa grupos protegidos de directo, películas y series sin salir del panel premium de ajustes.</string>
     <string name="search_command_title">Búsqueda de comandos</string>
-    <string name="search_hint">Buscar...</string>
+    <string name="search_hint">Buscar…</string>
     <string name="a11y_locked">bloqueado</string>
     <string name="a11y_favorite">Favorito</string>
     <string name="a11y_catch_up_available">Ponerse al día disponible</string>
@@ -187,7 +187,7 @@
     <string name="epg_provider_troubleshooting_missing_template">La repetición puede fallar porque el proveedor expuso compatibilidad con catch-up sin una plantilla de repetición utilizable.</string>
     <string name="epg_provider_troubleshooting_missing_stream_id">La repetición puede fallar porque el proveedor no expuso un identificador de flujo de repetición.</string>
     <string name="parental_group_title">Grupos protegidos</string>
-    <string name="parental_group_search">Buscar categorías...</string>
+    <string name="parental_group_search">Buscar categorías…</string>
     <string name="multiview_add_to_split">Agregar a pantalla dividida</string>
     <string name="multiview_queued">En pantalla dividida</string>
     <string name="settings_privacy_subtitle">Gestiona el historial de visionado y el modo incógnito.</string>
@@ -240,7 +240,6 @@
     <string name="settings_backup_share_failed">Ninguna app pudo recibir el archivo de copia de seguridad.</string>
     <string name="settings_catalog_count_pending">Pendiente</string>
     <string name="settings_live_timeshift_backend_value">Automático</string>
-    <string name="nav_plugins">Complementos</string>
     <string name="nav_close_app">Cerrar la app</string>
     <string name="hidden_categories_dialog_title">Categorías ocultas</string>
     <string name="hidden_categories_dialog_subtitle">Elige las que quieras restaurar.</string>
@@ -290,7 +289,6 @@
     <string name="torrent_playback_start_failed">No se pudo iniciar la reproducción del torrent. Inténtalo de nuevo.</string>
     <string name="torrent_cache_capacity_reached">La reproducción del torrent alcanzó el límite de almacenamiento temporal. Borra la caché o libera espacio e inténtalo de nuevo.</string>
     <string name="torrent_storage_check_failed">No se pudo comprobar el espacio disponible. La reproducción del torrent no puede continuar de forma segura.</string>
-    <string name="nav_addons">Complementos de Stremio</string>
     <string name="nav_extensions">Extensiones</string>
     <string name="nav_sports">Deportes</string>
 </resources>

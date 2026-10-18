@@ -19,7 +19,7 @@
     <string name="home_last_channel">마지막 채널</string>
     <string name="home_last_channel_label">마지막: %1$s</string>
     <string name="home_last_group_label">마지막: %1$s</string>
-    <string name="home_loading">불러오는 중...</string>
+    <string name="home_loading">불러오는 중…</string>
     <string name="home_locked_short">잠김</string>
     <string name="live_shell_subtitle">라이브 카테고리를 빠르게 탐색하고, 내비게이션을 일정하게 유지하며, 화면에 필요한 일정 정보만 표시합니다.</string>
     <string name="live_shell_context">%1$d개 카테고리 • %2$d개 채널</string>
@@ -125,7 +125,7 @@
     <string name="settings_buffer_duration">버퍼 지속 시간</string>
     <string name="settings_buffer_5s">5초</string>
     <string name="settings_about_subtitle">이 설치의 버전, 빌드 및 지원 정보입니다.</string>
-    <string name="settings_syncing">데이터를 동기화하는 중입니다. 잠시만 기다려 주세요...</string>
+    <string name="settings_syncing">데이터를 동기화하는 중입니다. 잠시만 기다려 주세요…</string>
     <string name="settings_cancel">취소</string>
     <string name="settings_sync_option_all">모두 동기화</string>
     <string name="settings_sync_option_fast">빠른 동기화</string>
@@ -148,7 +148,7 @@
     <string name="search_title">검색</string>
     <string name="parental_group_shell_subtitle">프리미엄 설정 화면을 벗어나지 않고 보호된 라이브, 영화, 시리즈 그룹을 확인하세요.</string>
     <string name="search_command_title">명령 검색</string>
-    <string name="search_hint">검색...</string>
+    <string name="search_hint">검색…</string>
     <string name="a11y_locked">잠김</string>
     <string name="a11y_favorite">즐겨찾기</string>
     <string name="a11y_catch_up_available">다시보기 가능</string>
@@ -187,7 +187,7 @@
     <string name="epg_provider_troubleshooting_missing_template">제공업체가 사용 가능한 다시보기 템플릿 없이 다시보기 지원을 제공해 재생이 실패할 수 있습니다.</string>
     <string name="epg_provider_troubleshooting_missing_stream_id">제공업체가 다시보기 스트림 식별자를 제공하지 않아 다시보기에 실패할 수 있습니다.</string>
     <string name="parental_group_title">보호된 그룹</string>
-    <string name="parental_group_search">카테고리 검색...</string>
+    <string name="parental_group_search">카테고리 검색…</string>
     <string name="multiview_add_to_split">분할 화면에 추가</string>
     <string name="multiview_queued">분할 화면에 있음</string>
     <string name="settings_privacy_subtitle">시청 기록과 시크릿 모드를 관리합니다.</string>
@@ -241,7 +241,6 @@
     <string name="settings_catalog_count_pending">대기 중</string>
     <string name="settings_live_timeshift_backend_value">자동</string>
     <!-- M2: Google Drive backup sync -->
-    <string name="nav_plugins">플러그인</string>
     <string name="nav_close_app">앱 종료</string>
     <string name="hidden_categories_dialog_title">숨긴 카테고리</string>
     <string name="hidden_categories_dialog_subtitle">복원할 항목을 선택하세요.</string>
@@ -290,7 +289,6 @@
     <string name="torrent_playback_start_failed">토렌트 재생을 시작하지 못했습니다. 다시 시도하세요.</string>
     <string name="torrent_cache_capacity_reached">토렌트 재생이 임시 저장 공간 한도에 도달했습니다. 캐시를 지우거나 공간을 확보한 후 다시 시도하세요.</string>
     <string name="torrent_storage_check_failed">사용 가능한 저장 공간을 확인할 수 없어 토렌트 재생을 안전하게 계속할 수 없습니다.</string>
-    <string name="nav_addons">Stremio 애드온</string>
     <string name="nav_extensions">확장 기능</string>
     <string name="nav_sports">스포츠</string>
 </resources>

@@ -19,7 +19,7 @@
     <string name="home_last_channel">Viimeinen kanava</string>
     <string name="home_last_channel_label">Viimeisin: %1$s</string>
     <string name="home_last_group_label">Viimeisin: %1$s</string>
-    <string name="home_loading">Ladataan...</string>
+    <string name="home_loading">Ladataan…</string>
     <string name="home_locked_short">LUKITTU</string>
     <string name="live_shell_subtitle">Selaa live-kategorioita nopeasti, pidä navigointi johdonmukaisena ja näytä vain ruudulla tärkeät ohjelmatiedot.</string>
     <string name="live_shell_context">%1$d luokat • %2$d kanavat</string>
@@ -125,7 +125,7 @@
     <string name="settings_buffer_duration">Puskurin kesto</string>
     <string name="settings_buffer_5s">5 sekuntia</string>
     <string name="settings_about_subtitle">Tämän asennuksen versio-, rakennus- ja tukitiedot.</string>
-    <string name="settings_syncing">Synkronoidaan tietoja, odota...</string>
+    <string name="settings_syncing">Synkronoidaan tietoja, odota…</string>
     <string name="settings_cancel">Peruuta</string>
     <string name="settings_sync_option_all">Synkronoi kaikki</string>
     <string name="settings_sync_option_fast">Nopea synkronointi</string>
@@ -148,7 +148,7 @@
     <string name="search_title">Etsi</string>
     <string name="parental_group_shell_subtitle">Tarkista suojatut live-, elokuva- ja sarjaryhmät poistumatta premium-asetusten kuoresta.</string>
     <string name="search_command_title">Komentohaku</string>
-    <string name="search_hint">Hae...</string>
+    <string name="search_hint">Hae…</string>
     <string name="a11y_locked">Lukittu</string>
     <string name="a11y_favorite">Suosikki</string>
     <string name="a11y_catch_up_available">Kiinniotto saatavilla</string>
@@ -187,7 +187,7 @@
     <string name="epg_provider_troubleshooting_missing_template">Toisto voi epäonnistua, koska palveluntarjoaja ilmoitti catch-up-tuen ilman käyttökelpoista toistomallia.</string>
     <string name="epg_provider_troubleshooting_missing_stream_id">Toisto saattaa epäonnistua, koska palveluntarjoaja ei paljastanut toistovirran tunnistetta.</string>
     <string name="parental_group_title">Suojatut ryhmät</string>
-    <string name="parental_group_search">Hae luokkia...</string>
+    <string name="parental_group_search">Hae luokkia…</string>
     <string name="multiview_add_to_split">Lisää jaettuun näyttöön</string>
     <string name="multiview_queued">Jaetussa näytössä</string>
     <string name="settings_privacy_subtitle">Hallinnoi katseluhistoriaa ja incognito-tilaa.</string>
@@ -284,13 +284,11 @@
     <string name="downloads_empty">Ei vielä latauksia</string>
     <string name="downloads_delete_confirm">Poistetaanko tämä lataus?</string>
     <string name="download_play_local">Toista</string>
-    <string name="nav_plugins">Liitännäiset</string>
     <string name="nav_close_app">Sulje sovellus</string>
     <string name="nav_vod">VOD</string>
     <string name="torrent_playback_start_failed">Torrentin toistoa ei voitu käynnistää. Yritä uudelleen.</string>
     <string name="torrent_cache_capacity_reached">Torrentin toisto saavutti väliaikaisen tallennustilan rajan. Tyhjennä välimuisti tai vapauta tilaa ja yritä uudelleen.</string>
     <string name="torrent_storage_check_failed">Vapaata tallennustilaa ei voitu tarkistaa. Torrentin toistoa ei voida jatkaa turvallisesti.</string>
-    <string name="nav_addons">Stremio-lisäosat</string>
     <string name="nav_extensions">Laajennukset</string>
     <string name="nav_sports">Urheilu</string>
 </resources>

@@ -135,6 +135,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import okhttp3.OkHttpClient
 
+private const val PLAYBACK_PERF_TAG = "PlaybackPerf"
+
 @OptIn(UnstableApi::class)
 class Media3PlayerEngine @Inject constructor(
     @param:ApplicationContext private val context: Context,
@@ -458,8 +460,8 @@ class Media3PlayerEngine @Inject constructor(
         decoderPressureMaxHeight = change.maxHeight
         decoderPressureMaxBitrate = change.maxHeight?.let { change.maxBitrate }
         if (parameters != player.trackSelectionParameters) player.trackSelectionParameters = parameters
-        if (Log.isLoggable("PlaybackPerf", Log.DEBUG)) {
-            Log.d("PlaybackPerf", "decode-pressure maxHeight=${change.maxHeight ?: "auto"} " +
+        if (Log.isLoggable(PLAYBACK_PERF_TAG, Log.DEBUG)) {
+            Log.d(PLAYBACK_PERF_TAG, "decode-pressure maxHeight=${change.maxHeight ?: "auto"} " +
                 "restorationStableMs=${change.restorationStableMs ?: "n/a"} " +
                 "drops=${counters.droppedBufferCount} rendered=${counters.renderedOutputBufferCount}")
         }
@@ -478,9 +480,9 @@ class Media3PlayerEngine @Inject constructor(
                 val stats = _playerStats.value
                 updateAdaptiveDecodePressure(SystemClock.elapsedRealtime())
                 updateForegroundPreloadPriority()
-                if (lastStreamInfo != null && Log.isLoggable("PlaybackPerf", Log.DEBUG)) {
+                if (lastStreamInfo != null && Log.isLoggable(PLAYBACK_PERF_TAG, Log.DEBUG)) {
                     Log.d(
-                        "PlaybackPerf",
+                        PLAYBACK_PERF_TAG,
                         "mediaId=${lastMediaId.orEmpty()} " +
                             "type=$currentResolvedStreamType state=${_playbackState.value} " +
                             "bufferMs=${stats.bufferedDurationMs} rebuffers=${stats.rebufferCount} " +

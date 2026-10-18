@@ -12,7 +12,8 @@ internal object PreferenceBackupRegistry {
     private val portableStorageKeys = setOf(
         "last_active_provider_id", "active_live_source_type", "active_live_source_id",
         "default_view_mode", "parental_control_level", "parental_pin_hash", "parental_pin_salt",
-        "default_category_id", "app_language", "app_landing_destination", "app_top_level_destinations",
+        "default_category_id", "app_language", "app_landing_destination", "dont_ask_provider_setup_again",
+        "app_top_level_destinations",
         "sports_event_source_mode", "sports_event_source_instance_id",
         "sports_score_source_mode", "sports_score_source_instance_id",
         "sports_standings_source_mode", "sports_standings_source_instance_id",
@@ -104,7 +105,8 @@ internal object PreferenceBackupRegistry {
     )
     private val globalKeys = setOf(
         "automaticSyncDefaults", "parentalControlLevel", "parentalPinHash", "parentalPinSalt", "appLanguage", "appTimeFormat", "appTheme",
-        "defaultViewMode", "appLandingDestination", "appTopLevelDestinations", "appHomeDashboardShelves",
+        "defaultViewMode", "appLandingDestination", "dontAskProviderSetupAgain", "appTopLevelDestinations",
+        "appHomeDashboardShelves",
         "sportsEventSourceMode", "sportsEventSourceInstanceId",
         "sportsScoreSourceMode", "sportsScoreSourceInstanceId",
         "sportsStandingsSourceMode", "sportsStandingsSourceInstanceId",

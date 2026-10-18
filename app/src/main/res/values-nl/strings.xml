@@ -19,7 +19,7 @@
     <string name="home_last_channel">Laatste kanaal</string>
     <string name="home_last_channel_label">Laatste: %1$s</string>
     <string name="home_last_group_label">Laatste: %1$s</string>
-    <string name="home_loading">Laden...</string>
+    <string name="home_loading">Laden…</string>
     <string name="home_locked_short">GESLOTEN</string>
     <string name="live_shell_subtitle">Scan live categorieën snel, houd de navigatie deterministisch en laat alleen de planningsgegevens zien die er toe doen op het scherm.</string>
     <string name="live_shell_context">%1$d categorieën • %2$d kanalen</string>
@@ -125,7 +125,7 @@
     <string name="settings_buffer_duration">Bufferduur</string>
     <string name="settings_buffer_5s">5 seconden</string>
     <string name="settings_about_subtitle">Versie-, build- en ondersteuningsgegevens voor deze installatie.</string>
-    <string name="settings_syncing">Gegevens worden gesynchroniseerd. Even geduld a.u.b....</string>
+    <string name="settings_syncing">Gegevens worden gesynchroniseerd. Even geduld a.u.b….</string>
     <string name="settings_cancel">Annuleer</string>
     <string name="settings_sync_option_all">Alles synchroniseren</string>
     <string name="settings_sync_option_fast">Snelle synchronisatie</string>
@@ -148,7 +148,7 @@
     <string name="search_title">Zoeken</string>
     <string name="parental_group_shell_subtitle">Bekijk beveiligde live-, film- en seriegroepen zonder de shell met premiuminstellingen te verlaten.</string>
     <string name="search_command_title">Commando zoeken</string>
-    <string name="search_hint">Zoeken...</string>
+    <string name="search_hint">Zoeken…</string>
     <string name="a11y_locked">Vergrendeld</string>
     <string name="a11y_favorite">Favoriet</string>
     <string name="a11y_catch_up_available">Inhaalmogelijkheid beschikbaar</string>
@@ -187,7 +187,7 @@
     <string name="epg_provider_troubleshooting_missing_template">Opnieuw afspelen kan mislukken omdat de aanbieder inhaalondersteuning heeft aangeboden zonder een bruikbaar herhalingssjabloon.</string>
     <string name="epg_provider_troubleshooting_missing_stream_id">Het opnieuw afspelen mislukt mogelijk omdat de provider geen ID voor de herhalingsstroom heeft vrijgegeven.</string>
     <string name="parental_group_title">Beschermde groepen</string>
-    <string name="parental_group_search">Categorieën zoeken...</string>
+    <string name="parental_group_search">Categorieën zoeken…</string>
     <string name="multiview_add_to_split">Toevoegen aan gesplitst scherm</string>
     <string name="multiview_queued">In gesplitst scherm</string>
     <string name="settings_privacy_subtitle">Beheer de kijkgeschiedenis en de incognitomodus.</string>
@@ -242,7 +242,6 @@
     <string name="settings_live_timeshift_backend_value">Automatisch</string>
     <!-- M2: Google Drive backup sync -->
     <string name="settings_drive_cancel_backup_choice_subtitle">Terug naar de Drive-back-upacties.</string>
-    <string name="nav_plugins">Plugins</string>
     <string name="nav_close_app">App sluiten</string>
     <string name="nav_vod">VOD</string>
     <string name="nav_downloads">Downloads</string>
@@ -290,7 +289,6 @@
     <string name="torrent_playback_start_failed">Torrent afspelen kon niet worden gestart. Probeer het opnieuw.</string>
     <string name="torrent_cache_capacity_reached">De torrentweergave heeft de limiet voor tijdelijke opslag bereikt. Wis de cache of maak ruimte vrij en probeer het opnieuw.</string>
     <string name="torrent_storage_check_failed">De beschikbare opslagruimte kon niet worden gecontroleerd. De torrentweergave kan niet veilig doorgaan.</string>
-    <string name="nav_addons">Stremio-add-ons</string>
     <string name="nav_extensions">Extensies</string>
     <string name="nav_sports">Sport</string>
 </resources>

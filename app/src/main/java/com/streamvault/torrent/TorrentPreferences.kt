@@ -2,31 +2,30 @@ package com.streamvault.torrent
 
 import android.content.Context
 import android.content.SharedPreferences
+import androidx.core.content.edit
 
 class TorrentPreferences(context: Context) {
     private val store: SharedPreferences = context.getSharedPreferences("torrent_playback", Context.MODE_PRIVATE)
 
     var downloadLimitBytesPerSecond: Int
         get() = store.getInt(KEY_DOWNLOAD_LIMIT, 0).coerceIn(0, MAX_SPEED_LIMIT_BYTES_PER_SECOND)
-        set(value) = store.edit().putInt(
-            KEY_DOWNLOAD_LIMIT,
-            value.coerceIn(0, MAX_SPEED_LIMIT_BYTES_PER_SECOND)
-        ).apply()
+        set(value) = store.edit {
+            putInt(KEY_DOWNLOAD_LIMIT, value.coerceIn(0, MAX_SPEED_LIMIT_BYTES_PER_SECOND))
+        }
 
     var uploadLimitBytesPerSecond: Int
         get() = store.getInt(KEY_UPLOAD_LIMIT, 64 * 1024).coerceIn(0, MAX_SPEED_LIMIT_BYTES_PER_SECOND)
-        set(value) = store.edit().putInt(
-            KEY_UPLOAD_LIMIT,
-            value.coerceIn(0, MAX_SPEED_LIMIT_BYTES_PER_SECOND)
-        ).apply()
+        set(value) = store.edit {
+            putInt(KEY_UPLOAD_LIMIT, value.coerceIn(0, MAX_SPEED_LIMIT_BYTES_PER_SECOND))
+        }
 
     var bufferMiB: Int
         get() = store.getInt(KEY_BUFFER_MIB, 32).coerceIn(MIN_BUFFER_MIB, MAX_BUFFER_MIB)
-        set(value) = store.edit().putInt(KEY_BUFFER_MIB, value.coerceIn(MIN_BUFFER_MIB, MAX_BUFFER_MIB)).apply()
+        set(value) = store.edit { putInt(KEY_BUFFER_MIB, value.coerceIn(MIN_BUFFER_MIB, MAX_BUFFER_MIB)) }
 
     var storageLocationIndex: Int
         get() = store.getInt(KEY_STORAGE_LOCATION, 0).coerceAtLeast(0)
-        set(value) = store.edit().putInt(KEY_STORAGE_LOCATION, value.coerceAtLeast(0)).apply()
+        set(value) = store.edit { putInt(KEY_STORAGE_LOCATION, value.coerceAtLeast(0)) }
 
     companion object {
         const val MIN_BUFFER_MIB = 4

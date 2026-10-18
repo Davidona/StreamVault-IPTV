@@ -14,6 +14,7 @@ import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 import java.util.concurrent.ConcurrentHashMap
 
+private const val PLAYBACK_PERF_TAG = "PlaybackPerf"
 private const val FAST_TRANSIENT_RETRY_DELAY_MS = 500L
 private const val MAX_WHOLE_SOURCE_RETRIES_PER_OUTAGE = 1
 private const val LIVE_TRANSIENT_RETRY_ATTEMPTS = 10
@@ -187,13 +188,13 @@ class PlayerRetryPolicy(
         } else {
             C.TIME_UNSET
         }
-        if (Log.isLoggable("PlaybackPerf", Log.DEBUG)) {
+        if (Log.isLoggable(PLAYBACK_PERF_TAG, Log.DEBUG)) {
             val causeTypes = generateSequence<Throwable>(error) { it.cause }
                 .map { it.javaClass.simpleName }
                 .distinct()
                 .joinToString(">")
             Log.d(
-                "PlaybackPerf",
+                PLAYBACK_PERF_TAG,
                 "load-retry category=$category attempt=$attempt delayMs=$retryDelayMs " +
                     "started=$started streamType=${streamContext.resolvedStreamType} " +
                     "contentKind=${streamContext.playbackContentKind} causes=$causeTypes"

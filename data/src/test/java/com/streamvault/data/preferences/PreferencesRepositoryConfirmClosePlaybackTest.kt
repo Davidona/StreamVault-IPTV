@@ -35,6 +35,7 @@ class PreferencesRepositoryConfirmClosePlaybackTest {
         val repository = PreferencesRepository(
             context = context,
             channelPreferenceDao = mock<ChannelPreferenceDao>(),
+            playbackQualityPreferenceDao = mock(),
             searchHistoryDao = mock<SearchHistoryDao>(),
             corruptionRecovery = mock<PreferencesCorruptionRecovery>()
         )

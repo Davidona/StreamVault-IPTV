@@ -19,7 +19,7 @@
     <string name="home_last_channel">Saluran Terakhir</string>
     <string name="home_last_channel_label">Terakhir: %1$s</string>
     <string name="home_last_group_label">Terakhir: %1$s</string>
-    <string name="home_loading">Memuat...</string>
+    <string name="home_loading">Memuat…</string>
     <string name="home_locked_short">TERKUNCI</string>
     <string name="live_shell_subtitle">Pindai kategori langsung dengan cepat, pertahankan deterministik navigasi, dan hanya tampilkan data jadwal yang penting di layar.</string>
     <string name="live_shell_context">%1$d kategori • %2$d saluran</string>
@@ -125,7 +125,7 @@
     <string name="settings_buffer_duration">Durasi Penyangga</string>
     <string name="settings_buffer_5s">5 detik</string>
     <string name="settings_about_subtitle">Detail versi, build, dan dukungan untuk instalasi ini.</string>
-    <string name="settings_syncing">Menyinkronkan data, harap tunggu...</string>
+    <string name="settings_syncing">Menyinkronkan data, harap tunggu…</string>
     <string name="settings_cancel">Batalkan</string>
     <string name="settings_sync_option_all">Sinkronkan Semua</string>
     <string name="settings_sync_option_fast">Sinkronisasi Cepat</string>
@@ -148,7 +148,7 @@
     <string name="search_title">Cari</string>
     <string name="parental_group_shell_subtitle">Tinjau grup siaran langsung, film, dan serial yang dilindungi tanpa meninggalkan cangkang pengaturan premium.</string>
     <string name="search_command_title">Pencarian Perintah</string>
-    <string name="search_hint">Cari...</string>
+    <string name="search_hint">Cari…</string>
     <string name="a11y_locked">Terkunci</string>
     <string name="a11y_favorite">Favorit</string>
     <string name="a11y_catch_up_available">Tersedia tangkapan</string>
@@ -187,7 +187,7 @@
     <string name="epg_provider_troubleshooting_missing_template">Pemutaran ulang mungkin gagal karena penyedia mengekspos dukungan mengejar ketinggalan tanpa templat pemutaran ulang yang dapat digunakan.</string>
     <string name="epg_provider_troubleshooting_missing_stream_id">Pemutaran ulang mungkin gagal karena penyedia tidak menampilkan pengidentifikasi aliran pemutaran ulang.</string>
     <string name="parental_group_title">Grup yang Dilindungi</string>
-    <string name="parental_group_search">Kategori pencarian...</string>
+    <string name="parental_group_search">Kategori pencarian…</string>
     <string name="multiview_add_to_split">Tambahkan ke Layar Terpisah</string>
     <string name="multiview_queued">Di Layar Terpisah</string>
     <string name="settings_privacy_subtitle">Kelola riwayat tontonan dan mode penyamaran.</string>
@@ -242,7 +242,6 @@
     <string name="settings_live_timeshift_backend_value">Otomatis</string>
     <!-- M2: Google Drive backup sync -->
     <string name="settings_drive_cancel_backup_choice_subtitle">Kembali ke tindakan pencadangan Drive.</string>
-    <string name="nav_plugins">Plugin</string>
     <string name="nav_close_app">Tutup aplikasi</string>
     <string name="hidden_categories_dialog_title">Kategori tersembunyi</string>
     <string name="hidden_categories_dialog_subtitle">Pilih yang ingin dipulihkan.</string>
@@ -290,7 +289,6 @@
     <string name="torrent_playback_start_failed">Pemutaran torrent tidak dapat dimulai. Silakan coba lagi.</string>
     <string name="torrent_cache_capacity_reached">Pemutaran torrent mencapai batas penyimpanan sementara. Hapus cache atau kosongkan ruang lalu coba lagi.</string>
     <string name="torrent_storage_check_failed">Penyimpanan yang tersedia tidak dapat diperiksa. Pemutaran torrent tidak dapat dilanjutkan dengan aman.</string>
-    <string name="nav_addons">Add-on Stremio</string>
     <string name="nav_extensions">Ekstensi</string>
     <string name="nav_sports">Olahraga</string>
 </resources>

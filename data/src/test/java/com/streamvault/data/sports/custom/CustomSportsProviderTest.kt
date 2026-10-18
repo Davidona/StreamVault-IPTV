@@ -103,7 +103,7 @@ class CustomSportsProviderTest {
               "auth": { "mode": "none" },
               "scopes": [{ "sport": "soccer", "leagueId": "league-1", "leagueName": "Premier League" }],
               "events": {
-                "endpoint": "/events",
+                "endpoint": "/events/{date}",
                 "items": "events",
                 "id": "id",
                 "title": "name",
@@ -311,7 +311,7 @@ class CustomSportsProviderTest {
     ) = SportsProviderConfig(
         instanceId = id,
         typeId = CUSTOM_SPORTS_PROVIDER_TYPE_ID,
-        baseUrl = server.url("/").newBuilder().host("localhost").build().toString().trimEnd('/'),
+        baseUrl = server.url("/").newBuilder().scheme("https").host("localhost").build().toString().trimEnd('/'),
         customDefinitionJson = definition,
     )
 

@@ -266,6 +266,7 @@ class BackupManagerImpl @Inject constructor(
                 put("appTheme", preferencesRepository.appTheme.first().storageValue)
                 put("defaultViewMode", preferencesRepository.defaultViewMode.first().orEmpty())
                 put("appLandingDestination", preferencesRepository.appLandingDestination.first().storageValue)
+                put("dontAskProviderSetupAgain", preferencesRepository.dontAskProviderSetupAgain.first().toString())
                 put(
                     "appTopLevelDestinations",
                     preferencesRepository.appTopLevelDestinations.first().joinToString(",") { it.storageValue }
@@ -3523,6 +3524,7 @@ class BackupManagerImpl @Inject constructor(
             put("appTheme", preferencesRepository.appTheme.first().storageValue)
             put("defaultViewMode", preferencesRepository.defaultViewMode.first().orEmpty())
             put("appLandingDestination", preferencesRepository.appLandingDestination.first().storageValue)
+            put("dontAskProviderSetupAgain", preferencesRepository.dontAskProviderSetupAgain.first().toString())
             put("appTopLevelDestinations", preferencesRepository.appTopLevelDestinations.first().joinToString(",") { it.storageValue })
             putAll(sportsSourcePreferenceBackup())
             put("appHomeDashboardShelves", preferencesRepository.appHomeDashboardShelves.first().joinToString(",") { it.storageValue })
@@ -4156,6 +4158,8 @@ class BackupManagerImpl @Inject constructor(
                 com.streamvault.domain.model.AppLandingDestination.fromStorage(savedDestination)
             )
         }
+        prefs["dontAskProviderSetupAgain"]?.toBooleanStrictOrNull()
+            ?.let { preferencesRepository.setDontAskProviderSetupAgain(it) }
         prefs["appTopLevelDestinations"]?.let { encoded ->
             val destinations = encoded
                 .split(',')

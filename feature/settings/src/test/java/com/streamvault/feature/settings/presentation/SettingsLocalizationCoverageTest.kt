@@ -21,18 +21,27 @@ class SettingsLocalizationCoverageTest {
 
         assertThat(localeDirectories).isNotEmpty()
         localeDirectories.forEach { directory ->
-            val localized = resourceEntries(File(directory, "settings_redesign.xml"))
-            assertWithMessage(directory.name).that(localized.keys)
-                .containsExactlyElementsIn(required.keys)
-            required.forEach { (key, sourceValue) ->
+            val localized = resourceEntries(
+                File(directory, "settings_navigation.xml"),
+                File(directory, "settings_redesign.xml"),
+            )
+            assertWithMessage(directory.name).that(required.keys - localized.keys)
+                .isEmpty()
+            required.forEach { (key, sourceValues) ->
+                val sourcePlaceholderContracts = sourceValues.map(::placeholders).distinct()
                 assertWithMessage("${directory.name}:$key")
-                    .that(placeholders(localized.getValue(key)))
-                    .containsExactlyElementsIn(placeholders(sourceValue))
+                    .that(sourcePlaceholderContracts)
+                    .hasSize(1)
+                localized.getValue(key).forEach { value ->
+                    assertWithMessage("${directory.name}:$key")
+                        .that(placeholders(value))
+                        .containsExactlyElementsIn(sourcePlaceholderContracts.single())
+                }
             }
         }
     }
 
-    private fun resourceEntries(vararg files: File): Map<String, String> = buildMap {
+    private fun resourceEntries(vararg files: File): Map<String, List<String>> = buildMap {
         files.forEach { file ->
             assertWithMessage(file.path).that(file.isFile).isTrue()
             val document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(file)
@@ -41,15 +50,16 @@ class SettingsLocalizationCoverageTest {
                 val element = nodes.item(index) as? Element ?: continue
                 val name = element.getAttribute("name")
                 when (element.tagName) {
-                    "string" -> put(name, element.textContent)
+                    "string" -> put(name, listOf(element.textContent))
                     "plurals" -> {
-                        val items = element.childNodes
-                        for (itemIndex in 0 until items.length) {
-                            val item = items.item(itemIndex) as? Element ?: continue
-                            if (item.tagName == "item") {
-                                put("$name:${item.getAttribute("quantity")}", item.textContent)
+                        val values = buildList {
+                            val items = element.childNodes
+                            for (itemIndex in 0 until items.length) {
+                                val item = items.item(itemIndex) as? Element ?: continue
+                                if (item.tagName == "item") add(item.textContent)
                             }
                         }
+                        put(name, values)
                     }
                 }
             }

@@ -125,7 +125,7 @@
     <string name="settings_buffer_duration">مدة التخزين المؤقت</string>
     <string name="settings_buffer_5s">5 ثوانٍ</string>
     <string name="settings_about_subtitle">تفاصيل الإصدار والبنية والدعم لهذا التثبيت.</string>
-    <string name="settings_syncing">جارٍ مزامنة البيانات، يُرجى الانتظار...</string>
+    <string name="settings_syncing">جارٍ مزامنة البيانات، يُرجى الانتظار…</string>
     <string name="settings_cancel">إلغاء</string>
     <string name="settings_sync_option_all">مزامنة الكل</string>
     <string name="settings_sync_option_fast">مزامنة سريعة</string>
@@ -148,7 +148,7 @@
     <string name="search_title">بحث</string>
     <string name="parental_group_shell_subtitle">راجع مجموعات البث المباشر والأفلام والمسلسلات المحمية دون مغادرة واجهة الإعدادات المميزة.</string>
     <string name="search_command_title">بحث بالأوامر</string>
-    <string name="search_hint">بحث...</string>
+    <string name="search_hint">بحث…</string>
     <string name="a11y_locked">مقفل</string>
     <string name="a11y_favorite">مفضل</string>
     <string name="a11y_catch_up_available">متاح للمشاهدة اللاحقة</string>
@@ -187,7 +187,7 @@
     <string name="epg_provider_troubleshooting_missing_template">قد تفشل الإعادة لأن المزوّد وفّر دعم catch-up بدون قالب إعادة صالح.</string>
     <string name="epg_provider_troubleshooting_missing_stream_id">قد تفشل الإعادة لأن المزوّد لم يوفّر معرّف بث للإعادة.</string>
     <string name="parental_group_title">المجموعات المحمية</string>
-    <string name="parental_group_search">ابحث في الفئات...</string>
+    <string name="parental_group_search">ابحث في الفئات…</string>
     <string name="multiview_add_to_split">أضف إلى الشاشة المقسمة</string>
     <string name="multiview_queued">في الشاشة المقسمة</string>
     <string name="settings_privacy_subtitle">إدارة سجل المشاهدة ووضع التصفح المتخفي.</string>
@@ -260,7 +260,6 @@
     <string name="m3u_series_review_subtitle">راجع الاقتراحات التلقائية أو عيّن كل إدخال إلى مسلسل وموسم وحلقة.</string>
     <string name="m3u_episode_unresolved">رقم الحلقة غير محدد — سيبقى مميزًا للتصحيح.</string>
 
-    <string name="nav_plugins">الإضافات</string>
     <string name="hidden_categories_dialog_title">الفئات المخفية</string>
     <string name="hidden_categories_dialog_subtitle">اختر الفئات التي تريد استعادتها.</string>
     <string name="hidden_categories_dialog_unhide_all">إظهار الكل</string>
@@ -292,7 +291,6 @@
     <string name="torrent_playback_start_failed">تعذّر بدء تشغيل التورنت. يُرجى المحاولة مرة أخرى.</string>
     <string name="torrent_cache_capacity_reached">وصل تشغيل التورنت إلى حد التخزين المؤقت. امسح الذاكرة أو أفرغ مساحة ثم حاول مرة أخرى.</string>
     <string name="torrent_storage_check_failed">تعذر التحقق من مساحة التخزين المتاحة، ولا يمكن متابعة تشغيل التورنت بأمان.</string>
-    <string name="nav_addons">إضافات Stremio</string>
     <string name="nav_extensions">التمديدات</string>
     <string name="nav_sports">الرياضة</string>
 </resources>
