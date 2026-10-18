@@ -870,7 +870,11 @@ interface CatalogSyncDao {
             provider_id,
             is_adult,
             is_user_protected,
-            sync_fingerprint
+            sync_fingerprint,
+            cache_state,
+            detail_hydrated_at,
+            remote_stale_at,
+            catalog_origin
         )
         SELECT
             stage.series_id,
@@ -899,7 +903,11 @@ interface CatalogSyncDao {
                   AND category.type = 'SERIES'
                   AND category.is_user_protected = 1
             ) THEN 1 ELSE 0 END,
-            stage.sync_fingerprint
+            stage.sync_fingerprint,
+            'SUMMARY_ONLY',
+            0,
+            0,
+            'NATIVE'
         FROM series_import_stage AS stage
         WHERE stage.session_id = :sessionId
           AND stage.provider_id = :providerId
