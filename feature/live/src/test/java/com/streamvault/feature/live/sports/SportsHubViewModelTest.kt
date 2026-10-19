@@ -32,8 +32,10 @@ import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.TestCoroutineScheduler
+import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.setMain
@@ -97,6 +99,7 @@ class SportsHubViewModelTest {
     private val providerEventResolver = SportsProviderEventResolver(InMemorySportsProviderEventLinkCache())
     private val store = ViewModelStore()
     private val scheduler = TestCoroutineScheduler()
+    private val dispatcher = StandardTestDispatcher(scheduler)
     private lateinit var repositoryScope: CoroutineScope
     private var modelCount = 0
     private val subscriptions = AtomicInteger()
@@ -112,7 +115,7 @@ class SportsHubViewModelTest {
 
     @Before
     fun setUp() = runBlocking<Unit> {
-        Dispatchers.setMain(UnconfinedTestDispatcher(scheduler))
+        Dispatchers.setMain(dispatcher)
         repositoryScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
         val provider = LegacyProvider(7L, "Test", ProviderType.XTREAM_CODES, "https://example.test")
         whenever(providers.getActiveProvider()).thenReturn(flowOf(provider))
@@ -146,11 +149,12 @@ class SportsHubViewModelTest {
     fun tearDown() {
         store.clear()
         repositoryScope.cancel()
+        scheduler.runCurrent()
         Dispatchers.resetMain()
     }
 
     @Test
-    fun `new ViewModel immediately retains results while repository refresh is blocked`() = runBlocking<Unit> {
+    fun `new ViewModel immediately retains results while repository refresh is blocked`() = sportsTest {
         val repository = createRepository()
         val first = createModel(repository)
         await { !first.uiState.value.isLoading }
@@ -173,7 +177,7 @@ class SportsHubViewModelTest {
     }
 
     @Test
-    fun `expired retained event is removed before another screen observes`() = runBlocking {
+    fun `expired retained event is removed before another screen observes`() = sportsTest {
         val now = System.currentTimeMillis()
         whenever(epg.getResolvedProgramsForChannels(any(), any(), any(), any())).thenReturn(
             mapOf("1" to listOf(Program(
@@ -186,7 +190,7 @@ class SportsHubViewModelTest {
         await { !first.uiState.value.isLoading }
         assertThat(first.uiState.value.events).hasSize(1)
         store.clear()
-        delay(1_100L)
+        withContext(Dispatchers.IO) { delay(1_100L) }
 
         val second = SportsHubViewModel(repository)
 
@@ -194,7 +198,7 @@ class SportsHubViewModelTest {
     }
 
     @Test
-    fun `no EPG reloads while the repository has no screen observer`() = runBlocking {
+    fun `no EPG reloads while the repository has no screen observer`() = sportsTest {
         val repository = createRepository()
         val model = createModel(repository)
         await { !model.uiState.value.isLoading }
@@ -207,7 +211,7 @@ class SportsHubViewModelTest {
     }
 
     @Test
-    fun `hidden category invalidates retained results before a new ViewModel observes`() = runBlocking {
+    fun `hidden category invalidates retained results before a new ViewModel observes`() = sportsTest {
         val repository = createRepository()
         val first = createModel(repository)
         await { !first.uiState.value.isLoading }
@@ -222,7 +226,7 @@ class SportsHubViewModelTest {
     }
 
     @Test
-    fun `Today queries from current time while retaining an ongoing programme`() = runBlocking {
+    fun `Today queries from current time while retaining an ongoing programme`() = sportsTest {
         val model = createModel()
         await { !model.uiState.value.isLoading }
         val before = System.currentTimeMillis()
@@ -236,7 +240,7 @@ class SportsHubViewModelTest {
     }
 
     @Test
-    fun `minute refresh reads current programmes without reloading channel catalog`() = runBlocking {
+    fun `minute refresh reads current programmes without reloading channel catalog`() = sportsTest {
         val model = createModel()
         await { !model.uiState.value.isLoading }
         val firstReads = programmeReads.get()
@@ -249,7 +253,7 @@ class SportsHubViewModelTest {
     }
 
     @Test
-    fun `range changes reuse channels and hidden categories invalidate cached events`() = runBlocking {
+    fun `range changes reuse channels and hidden categories invalidate cached events`() = sportsTest {
         val model = createModel()
         await { !model.uiState.value.isLoading }
         model.selectTimeRange(SportsTimeRange.TODAY)
@@ -265,7 +269,7 @@ class SportsHubViewModelTest {
     }
 
     @Test
-    fun `manual search and remembered choices work with deferred fallback indexing`() = runBlocking {
+    fun `manual search and remembered choices work with deferred fallback indexing`() = sportsTest {
         val model = createModel()
         await { !model.uiState.value.isLoading }
         val event = model.uiState.value.events.single()
@@ -277,7 +281,7 @@ class SportsHubViewModelTest {
     }
 
     @Test
-    fun `changing provider replaces channel subscription and playback choices`() = runBlocking {
+    fun `changing provider replaces channel subscription and playback choices`() = sportsTest {
         whenever(channels.getChannels(8L)).thenReturn(flowOf(listOf(channel.copy(providerId = 8L))))
         whenever(preferences.getHiddenCategoryIds(8L, ContentType.LIVE)).thenReturn(flowOf(emptySet()))
         val model = createModel()
@@ -291,7 +295,7 @@ class SportsHubViewModelTest {
     }
 
     @Test
-    fun `retry recovers a failed initial channel subscription`() = runBlocking {
+    fun `retry recovers a failed initial channel subscription`() = sportsTest {
         val attempts = AtomicInteger()
         whenever(channels.getChannels(7L)).thenReturn(flow {
             if (attempts.incrementAndGet() == 1) error("Catalog temporarily unavailable")
@@ -308,7 +312,7 @@ class SportsHubViewModelTest {
     }
 
     @Test
-    fun `catalog changes replace cached playback choices`() = runBlocking {
+    fun `catalog changes replace cached playback choices`() = sportsTest {
         val model = createModel()
         await { !model.uiState.value.isLoading }
         channelRows.value = listOf(channel.copy(name = "Renamed Sports", streamUrl = "https://example.test/new"))
@@ -321,7 +325,7 @@ class SportsHubViewModelTest {
     }
 
     @Test
-    fun `guide is published while provider discovery is pending`() = runBlocking<Unit> {
+    fun `guide is published while provider discovery is pending`() = sportsTest {
         val gate = CompletableDeferred<Unit>()
         val started = CompletableDeferred<Unit>()
         val factory = enrichmentFactory(events = {
@@ -341,7 +345,7 @@ class SportsHubViewModelTest {
     }
 
     @Test
-    fun `API events appear while a long guide scan remains pending across clock ticks`() = runBlocking<Unit> {
+    fun `API events appear while a long guide scan remains pending across clock ticks`() = sportsTest {
         val guideGate = CompletableDeferred<Map<String, List<Program>>>()
         val guideReads = AtomicInteger()
         whenever(epg.getResolvedProgramsForChannels(any(), any(), any(), any())).doSuspendableAnswer {
@@ -367,7 +371,7 @@ class SportsHubViewModelTest {
     }
 
     @Test
-    fun `saving provider configuration reloads the retained sports tab`() = runBlocking {
+    fun `saving provider configuration reloads the retained sports tab`() = sportsTest {
         val calls = AtomicInteger()
         val factory = enrichmentFactory(events = { calls.incrementAndGet(); emptyList() })
         val registry = SportsProviderRegistry(listOf(factory), SportsProviderReleasePolicy(development = true))
@@ -383,7 +387,7 @@ class SportsHubViewModelTest {
     }
 
     @Test
-    fun `events remain usable while scores and metadata are pending`() = runBlocking<Unit> {
+    fun `events remain usable while scores and metadata are pending`() = sportsTest {
         val scoresStarted = CompletableDeferred<Unit>()
         val scoresGate = CompletableDeferred<Unit>()
         val metadataStarted = CompletableDeferred<Unit>()
@@ -411,7 +415,7 @@ class SportsHubViewModelTest {
     }
 
     @Test
-    fun `clock refresh never publishes unscored replacements for scored fixtures`() = runBlocking<Unit> {
+    fun `clock refresh never publishes unscored replacements for scored fixtures`() = sportsTest {
         val eventStart = java.time.Instant.now().minusSeconds(60)
         val score = ProviderScore("match", listOf(
             ProviderCompetitorScore(ProviderCompetitor("Arsenal", "arsenal"), "2"),
@@ -445,6 +449,12 @@ class SportsHubViewModelTest {
         collector.cancel()
         assertThat(observed).isNotEmpty()
         assertThat(observed.all { state -> state.events.isNotEmpty() && state.events.all { it.provenance.score != null } }).isTrue()
+    }
+
+    private fun sportsTest(block: suspend TestScope.() -> Unit) = runTest(scheduler) {
+        repositoryScope.cancel()
+        repositoryScope = backgroundScope
+        block()
     }
 
     private fun enrichmentFactory(
@@ -495,17 +505,25 @@ class SportsHubViewModelTest {
         metadataSourceSettings,
         providerEventResolver,
         repositoryScope,
+        SportsHubDispatchers(dispatcher, dispatcher),
     )
 
     private fun createModel(repository: SportsHubRepository = createRepository()) = SportsHubViewModel(repository)
         .also { model ->
             store.put("sports-${modelCount++}", model)
             model.viewModelScope.launch { model.uiState.collect {} }
+            scheduler.runCurrent()
         }
 
-    private suspend fun await(condition: () -> Boolean) = withContext(Dispatchers.Default) {
+    private suspend fun await(condition: () -> Boolean) {
         withTimeout(10_000L) {
-            while (!condition()) delay(10L)
+            // Drain queued work before checking presentation state. isLoading can become
+            // false while enrichment is still in flight; it is not a load-completion signal.
+            scheduler.runCurrent()
+            while (!condition()) {
+                delay(10L)
+                scheduler.runCurrent()
+            }
         }
     }
 }
