@@ -75,7 +75,7 @@ fun PlayerViewModel.toggleAspectRatio() {
     }
     _aspectRatio.value = nextRatio
 
-    if (currentContentId != -1L) {
+    if (currentContentType == ContentType.LIVE && currentContentId > 0L) {
         viewModelScope.launch {
             playerPreferencesCoordinator.setAspectRatioForChannel(currentContentId, nextRatio.name)
         }

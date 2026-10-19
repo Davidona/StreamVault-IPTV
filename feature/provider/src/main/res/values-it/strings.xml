@@ -105,4 +105,17 @@
     <string name="setup_phone_pairing_security_warning">Sicurezza: L’associazione invia le credenziali senza crittografia sulla rete locale. Usa solo una rete Wi-Fi privata e affidabile.</string>
     <string name="setup_phone_pairing_error_help">Impossibile completare l’associazione. Controlla i dati del provider e riprova. Se la sessione QR è scaduta, avviane una nuova sulla TV.</string>
     <string name="setup_phone_pairing_mac_label">Indirizzo MAC</string>
+    <string name="setup_phone_pairing_continue_on_tv">Continua sulla TV per controllare e completare questo passaggio.</string>
+    <string name="setup_phone_pairing_stalker_certificate_error">Non è stato possibile controllare il certificato in sicurezza. Verifica questa connessione sulla TV.</string>
+    <string name="stalker_transport_invalid_tls_title">Impossibile verificare il certificato di sicurezza di questo provider</string>
+    <string name="stalker_transport_invalid_tls_body">La connessione a %1$s potrebbe essere ancora crittografata, ma l’app non può confermare che appartenga davvero a questo provider. Qualcuno sulla rete potrebbe leggere i tuoi dati di accesso o i dettagli dello streaming.</string>
+    <string name="stalker_transport_http_title">Questo provider usa una connessione non crittografata</string>
+    <string name="stalker_transport_http_body">Qualcuno sulla rete può leggere o modificare le richieste di accesso e riproduzione inviate a %1$s.</string>
+    <string name="stalker_transport_origin_changed_title">Questo provider vuole usare un indirizzo diverso</string>
+    <string name="stalker_transport_origin_changed_body">Il provider ha reindirizzato la connessione a %1$s. Continua solo se riconosci questo indirizzo.</string>
+    <string name="stalker_verification_inconclusive_title">Impossibile verificare la TV in diretta</string>
+    <string name="stalker_verification_inconclusive_body">Il provider ha accettato il tuo accesso, ma il controllo della TV in diretta non è terminato. Puoi salvarlo con la verifica in sospeso; resterà inattivo finché una sincronizzazione non confermerà che la TV in diretta è riproducibile.</string>
+    <string name="stalker_transport_go_back">Torna indietro</string>
+    <string name="stalker_transport_connect_anyway">Connetti comunque</string>
+    <string name="stalker_save_without_verification">Salva senza verifica</string>
 </resources>

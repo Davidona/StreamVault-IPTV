@@ -18,7 +18,6 @@ enum class TraktPlaybackEligibility { SUPPORTED, LIVE, CATCH_UP, OTHER }
 
 enum class PlayerTraktTrackingStatus {
     HIDDEN,
-    CONNECT_REQUIRED,
     NOT_SUPPORTED,
     NO_MATCH,
     STARTING,
@@ -158,9 +157,9 @@ class PlayerTraktCoordinator @Inject constructor(
         isTrackingEnabled: Boolean,
     ) {
         val next = when {
-            !isTrackingEnabled -> PlayerTraktTrackingStatus.HIDDEN
+            // Trakt is optional; account setup belongs in settings, never over playback.
+            !isTrackingEnabled || !isConnected -> PlayerTraktTrackingStatus.HIDDEN
             eligibility != TraktPlaybackEligibility.SUPPORTED -> PlayerTraktTrackingStatus.NOT_SUPPORTED
-            !isConnected -> PlayerTraktTrackingStatus.CONNECT_REQUIRED
             identity == null -> PlayerTraktTrackingStatus.NO_MATCH
             terminalStatus != null -> terminalStatus!!
             phase == TraktPlaybackPhase.STOPPED || phase == TraktPlaybackPhase.ENDED -> mutableStatus.value
@@ -180,7 +179,7 @@ class PlayerTraktCoordinator @Inject constructor(
         outcome: TraktScrobbleOutcome,
     ) {
         if (generation != eventGeneration) return
-        if (!scrobblingEnabled) {
+        if (!scrobblingEnabled || !account.state.value.connected) {
             mutableStatus.value = PlayerTraktTrackingStatus.HIDDEN
             return
         }
@@ -191,13 +190,13 @@ class PlayerTraktCoordinator @Inject constructor(
                 TraktScrobbleAction.STOP -> PlayerTraktTrackingStatus.SENT
             }
             TraktScrobbleOutcome.DUPLICATE -> PlayerTraktTrackingStatus.SENT
-            TraktScrobbleOutcome.DISCONNECTED -> PlayerTraktTrackingStatus.CONNECT_REQUIRED
+            TraktScrobbleOutcome.DISCONNECTED -> PlayerTraktTrackingStatus.HIDDEN
             TraktScrobbleOutcome.UNMATCHED -> PlayerTraktTrackingStatus.NO_MATCH
             TraktScrobbleOutcome.FAILED -> PlayerTraktTrackingStatus.FAILED
         }
         if (next == PlayerTraktTrackingStatus.FAILED ||
             next == PlayerTraktTrackingStatus.NO_MATCH ||
-            next == PlayerTraktTrackingStatus.CONNECT_REQUIRED) {
+            next == PlayerTraktTrackingStatus.HIDDEN) {
             terminalStatus = next
         }
         mutableStatus.value = next

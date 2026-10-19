@@ -105,19 +105,21 @@
     <string name="settings_drive_choose_backup_subtitle" translatable="false">Select a saved snapshot to preview and restore.</string>
     <string name="settings_drive_cancel_backup_choice" translatable="false">Cancel backup choice</string>
     <string name="setup_import_from_drive">นำเข้าจาก Drive</string>
-    <string name="stalker_transport_invalid_tls_title" translatable="false">This provider\'s security certificate can\'t be verified</string>
-    <string name="stalker_transport_invalid_tls_body" translatable="false">The connection to %1$s may still be encrypted, but the app can\'t confirm it is really this provider. Someone on the network could read your login or stream details.</string>
-    <string name="stalker_transport_http_title" translatable="false">This provider uses an unencrypted connection</string>
-    <string name="stalker_transport_http_body" translatable="false">Your login and viewing requests to %1$s can be read or changed by someone on the network.</string>
-    <string name="stalker_transport_origin_changed_title" translatable="false">This provider wants to use a different address</string>
-    <string name="stalker_transport_origin_changed_body" translatable="false">The provider redirected the connection to %1$s. Continue only if you recognize this address.</string>
-    <string name="stalker_transport_go_back" translatable="false">Go back</string>
-    <string name="stalker_transport_connect_anyway" translatable="false">Connect anyway</string>
-    <string name="stalker_verification_inconclusive_title" translatable="false">Live TV could not be verified</string>
-    <string name="stalker_verification_inconclusive_body" translatable="false">The provider accepted your login, but the Live TV check did not finish. You can save it with verification pending; it will remain inactive until a sync confirms playable Live TV.</string>
-    <string name="stalker_save_without_verification" translatable="false">Save without verification</string>
+    <string name="stalker_transport_invalid_tls_title">ยืนยันใบรับรองความปลอดภัยของผู้ให้บริการนี้ไม่ได้</string>
+    <string name="stalker_transport_invalid_tls_body">การเชื่อมต่อกับ %1$s อาจยังเข้ารหัสอยู่ แต่แอปยืนยันไม่ได้ว่าเป็นของผู้ให้บริการนี้จริง บุคคลอื่นในเครือข่ายอาจอ่านข้อมูลเข้าสู่ระบบหรือรายละเอียดสตรีมของคุณได้</string>
+    <string name="stalker_transport_http_title">ผู้ให้บริการนี้ใช้การเชื่อมต่อที่ไม่มีการเข้ารหัส</string>
+    <string name="stalker_transport_http_body">บุคคลอื่นในเครือข่ายอาจอ่านหรือเปลี่ยนคำขอเข้าสู่ระบบและรับชมที่ส่งไปยัง %1$s ได้</string>
+    <string name="stalker_transport_origin_changed_title">ผู้ให้บริการนี้ต้องการใช้ที่อยู่อื่น</string>
+    <string name="stalker_transport_origin_changed_body">ผู้ให้บริการเปลี่ยนเส้นทางการเชื่อมต่อไปยัง %1$s ดำเนินการต่อเฉพาะเมื่อคุณรู้จักที่อยู่นี้</string>
+    <string name="stalker_transport_go_back">กลับ</string>
+    <string name="stalker_transport_connect_anyway">เชื่อมต่อต่อไป</string>
+    <string name="stalker_verification_inconclusive_title">ยืนยัน Live TV ไม่ได้</string>
+    <string name="stalker_verification_inconclusive_body">ผู้ให้บริการยอมรับการเข้าสู่ระบบของคุณ แต่ตรวจสอบ Live TV ไม่เสร็จ คุณบันทึกไว้โดยรอการยืนยันได้ โดยจะยังไม่ทำงานจนกว่าการซิงค์จะยืนยันว่าเล่น Live TV ได้</string>
+    <string name="stalker_save_without_verification">บันทึกโดยไม่ยืนยัน</string>
     <string name="stalker_repair_connection" translatable="false">Repair connection</string>
     <string name="setup_phone_pairing_security_warning">ความปลอดภัย: การจับคู่จะส่งข้อมูลเข้าสู่ระบบผ่านเครือข่ายท้องถิ่นโดยไม่มีการเข้ารหัส ใช้เฉพาะเครือข่าย Wi-Fi ส่วนตัวที่เชื่อถือได้เท่านั้น</string>
     <string name="setup_phone_pairing_error_help">จับคู่ไม่สำเร็จ ตรวจสอบรายละเอียดผู้ให้บริการแล้วลองอีกครั้ง หากเซสชัน QR หมดอายุ ให้เริ่มเซสชันใหม่บนทีวี</string>
     <string name="setup_phone_pairing_mac_label">ที่อยู่ MAC</string>
+    <string name="setup_phone_pairing_continue_on_tv">ดำเนินการต่อบนทีวีเพื่อตรวจสอบและทำขั้นตอนนี้ให้เสร็จ</string>
+    <string name="setup_phone_pairing_stalker_certificate_error">ตรวจสอบใบรับรองอย่างปลอดภัยไม่ได้ โปรดตรวจสอบการเชื่อมต่อนี้บนทีวี</string>
 </resources>

@@ -105,4 +105,17 @@
     <string name="setup_phone_pairing_security_warning">Bezpieczeństwo: Parowanie wysyła dane logowania bez szyfrowania przez sieć lokalną. Korzystaj tylko z zaufanej, prywatnej sieci Wi-Fi.</string>
     <string name="setup_phone_pairing_error_help">Nie udało się ukończyć parowania. Sprawdź dane dostawcy i spróbuj ponownie. Jeśli sesja QR wygasła, rozpocznij nową na telewizorze.</string>
     <string name="setup_phone_pairing_mac_label">Adres MAC</string>
+    <string name="setup_phone_pairing_continue_on_tv">Kontynuuj na telewizorze, aby sprawdzić i ukończyć ten krok.</string>
+    <string name="setup_phone_pairing_stalker_certificate_error">Nie można było bezpiecznie sprawdzić certyfikatu. Sprawdź to połączenie na telewizorze.</string>
+    <string name="stalker_transport_invalid_tls_title">Nie można zweryfikować certyfikatu bezpieczeństwa tego dostawcy</string>
+    <string name="stalker_transport_invalid_tls_body">Połączenie z %1$s może być nadal szyfrowane, ale aplikacja nie może potwierdzić, że należy do tego dostawcy. Ktoś w sieci może odczytać dane logowania lub informacje o transmisji.</string>
+    <string name="stalker_transport_http_title">Ten dostawca używa nieszyfrowanego połączenia</string>
+    <string name="stalker_transport_http_body">Ktoś w sieci może odczytać lub zmienić żądania logowania i oglądania wysyłane do %1$s.</string>
+    <string name="stalker_transport_origin_changed_title">Ten dostawca chce użyć innego adresu</string>
+    <string name="stalker_transport_origin_changed_body">Dostawca przekierował połączenie do %1$s. Kontynuuj tylko wtedy, gdy rozpoznajesz ten adres.</string>
+    <string name="stalker_verification_inconclusive_title">Nie udało się zweryfikować telewizji na żywo</string>
+    <string name="stalker_verification_inconclusive_body">Dostawca zaakceptował logowanie, ale sprawdzanie telewizji na żywo nie zostało ukończone. Możesz zapisać źródło z oczekującą weryfikacją; pozostanie nieaktywne, dopóki synchronizacja nie potwierdzi, że telewizję na żywo można odtwarzać.</string>
+    <string name="stalker_transport_go_back">Wróć</string>
+    <string name="stalker_transport_connect_anyway">Połącz mimo to</string>
+    <string name="stalker_save_without_verification">Zapisz bez weryfikacji</string>
 </resources>

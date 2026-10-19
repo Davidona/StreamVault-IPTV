@@ -105,4 +105,17 @@
     <string name="setup_phone_pairing_security_warning">Sikkerhed: Parring sender loginoplysninger uden kryptering via dit lokale netværk. Brug kun et privat Wi-Fi-netværk, du har tillid til.</string>
     <string name="setup_phone_pairing_error_help">Parringen kunne ikke gennemføres. Kontrollér udbyderoplysningerne, og prøv igen. Hvis QR-sessionen er udløbet, skal du starte en ny på tv’et.</string>
     <string name="setup_phone_pairing_mac_label">MAC-adresse</string>
+    <string name="setup_phone_pairing_continue_on_tv">Fortsæt på tv'et for at gennemgå og fuldføre dette trin.</string>
+    <string name="setup_phone_pairing_stalker_certificate_error">Certifikatet kunne ikke kontrolleres sikkert. Gennemgå denne forbindelse på tv'et.</string>
+    <string name="stalker_transport_invalid_tls_title">Denne udbyders sikkerhedscertifikat kan ikke bekræftes</string>
+    <string name="stalker_transport_invalid_tls_body">Forbindelsen til %1$s kan stadig være krypteret, men appen kan ikke bekræfte, at den faktisk tilhører denne udbyder. En person på netværket kan muligvis læse dine login- eller streamoplysninger.</string>
+    <string name="stalker_transport_http_title">Denne udbyder bruger en ukrypteret forbindelse</string>
+    <string name="stalker_transport_http_body">En person på netværket kan læse eller ændre dine login- og afspilningsanmodninger til %1$s.</string>
+    <string name="stalker_transport_origin_changed_title">Denne udbyder vil bruge en anden adresse</string>
+    <string name="stalker_transport_origin_changed_body">Udbyderen omdirigerede forbindelsen til %1$s. Fortsæt kun, hvis du genkender denne adresse.</string>
+    <string name="stalker_verification_inconclusive_title">Live-tv kunne ikke bekræftes</string>
+    <string name="stalker_verification_inconclusive_body">Udbyderen accepterede dit login, men kontrollen af live-tv blev ikke færdig. Du kan gemme det, mens bekræftelsen afventer; det forbliver inaktivt, indtil en synkronisering bekræfter, at live-tv kan afspilles.</string>
+    <string name="stalker_transport_go_back">Gå tilbage</string>
+    <string name="stalker_transport_connect_anyway">Opret forbindelse alligevel</string>
+    <string name="stalker_save_without_verification">Gem uden bekræftelse</string>
 </resources>

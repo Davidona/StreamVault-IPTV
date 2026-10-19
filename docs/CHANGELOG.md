@@ -2,6 +2,15 @@
 
 All notable product changes are recorded in this document.
 
+## [1.2.1]
+
+### Changed
+- Removed Trakt badge from player when not logged in.
+
+### Fixed
+- QR pairing now routes Xtream `get.php` URLs with embedded credentials through the same URL setup flow as manual entry.
+- QR pairing now reports provider-specific setup errors in the web flow and handles Stalker TV review prompts through the native setup dialogs.
+
 ## [1.2.0]
 
 ### Added

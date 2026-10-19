@@ -15,6 +15,8 @@ import com.streamvault.domain.model.GuideSourcePolicy
 import com.streamvault.domain.model.ProviderEpgSyncMode
 import com.streamvault.domain.model.ProviderXtreamLiveSyncMode
 import com.streamvault.domain.model.StalkerAuthMode
+import com.streamvault.domain.model.StalkerTransportChallenge
+import com.streamvault.domain.model.StalkerTransportChallengeReason
 import com.streamvault.domain.usecase.JellyfinProviderSetupCommand
 import com.streamvault.domain.usecase.M3uProviderSetupCommand
 import com.streamvault.domain.usecase.StalkerProviderSetupCommand
@@ -22,6 +24,7 @@ import com.streamvault.domain.usecase.ValidateAndAddProvider
 import com.streamvault.domain.usecase.ValidateAndAddProviderResult
 import com.streamvault.domain.usecase.XtreamProviderSetupCommand
 import com.streamvault.feature.provider.R
+import com.streamvault.feature.provider.setup.ProviderSetupErrorMessages
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.io.OutputStream
 import java.net.Inet4Address
@@ -31,6 +34,7 @@ import java.net.NetworkInterface
 import java.net.ServerSocket
 import java.net.Socket
 import java.net.SocketTimeoutException
+import java.net.URI
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
 import java.security.SecureRandom
@@ -292,33 +296,69 @@ class ProviderQrPairingManager @Inject constructor(
                     )
                     try {
                         val result = try {
-                            addProviderFromForm(form, session)
+                            addProviderFromForm(form, session, phoneContext)
                         } catch (error: CancellationException) {
                             throw error
                         } catch (error: Exception) {
                             Log.w(TAG, "Provider setup from phone failed")
-                            ProviderPairingSubmitResult.Error
+                            val type = form["type"].orEmpty().lowercase(Locale.US)
+                            ProviderPairingSubmitResult.Failed(
+                                providerErrorMessage(
+                                    errorFormatterType(type, form["serverUrl"].orEmpty()),
+                                    ValidateAndAddProviderResult.Error(
+                                        message = error.message ?: phoneContext.getString(
+                                            R.string.setup_phone_pairing_error_help,
+                                        ),
+                                        exception = error,
+                                    ),
+                                    phoneContext,
+                                ),
+                            )
                         }
 
                         when (result) {
-                            ProviderPairingSubmitResult.Success -> {
-                                writeHtml(client.getOutputStream(), 200, successPage(phoneContext))
+                            is ProviderPairingSubmitResult.Added -> {
+                                writeHtml(client.getOutputStream(), 200, successPage(phoneContext, result.warning))
                                 stopSession(
                                     session,
                                     ProviderQrPairingState(
                                         status = ProviderQrPairingStatus.COMPLETE,
                                         message = context.getString(R.string.setup_phone_pairing_complete),
+                                        createdProviderId = result.providerId,
+                                        createdProviderName = result.providerName,
+                                        completionWarning = result.warning,
+                                        offerCombinedAttach = result.offerCombinedAttach,
                                     ),
                                 )
                             }
 
-                            ProviderPairingSubmitResult.Error -> {
+                            is ProviderPairingSubmitResult.StalkerTransportConsentRequired -> {
+                                updateSessionStalkerPrompt(
+                                    session = session,
+                                    message = phoneContext.getString(R.string.setup_phone_pairing_continue_on_tv),
+                                    command = result.command,
+                                    challenge = result.challenge,
+                                )
+                                writeHtml(client.getOutputStream(), 400, errorPage(phoneContext, result.details))
+                            }
+
+                            is ProviderPairingSubmitResult.StalkerVerificationInconclusive -> {
+                                updateSessionStalkerPrompt(
+                                    session = session,
+                                    message = phoneContext.getString(R.string.setup_phone_pairing_continue_on_tv),
+                                    command = result.command,
+                                    verificationInconclusive = result.verificationMessage,
+                                )
+                                writeHtml(client.getOutputStream(), 400, errorPage(phoneContext, result.details))
+                            }
+
+                            is ProviderPairingSubmitResult.Failed -> {
                                 updateSessionState(
                                     session,
                                     ProviderQrPairingStatus.READY,
                                     context.getString(R.string.setup_phone_pairing_error_help),
                                 )
-                                writeHtml(client.getOutputStream(), 400, errorPage(phoneContext))
+                                writeHtml(client.getOutputStream(), 400, errorPage(phoneContext, result.message))
                             }
                         }
                     } finally {
@@ -337,9 +377,27 @@ class ProviderQrPairingManager @Inject constructor(
     private suspend fun addProviderFromForm(
         form: Map<String, String>,
         session: PairingSession,
+        phoneContext: Context,
     ): ProviderPairingSubmitResult {
         val type = form["type"].orEmpty().lowercase(Locale.US)
         val name = form["name"].orEmpty().trim()
+        val serverUrl = form["serverUrl"].orEmpty()
+        val xtreamPlaylistUrl = type == "xtream" && isXtreamPlaylistUrl(serverUrl)
+        val stalkerCommand = if (type == "stalker") {
+            StalkerProviderSetupCommand(
+                portalUrl = serverUrl,
+                macAddress = form["macAddress"].orEmpty(),
+                authMode = StalkerAuthMode.AUTO,
+                username = form["username"].orEmpty(),
+                password = form["password"].orEmpty(),
+                name = name,
+                epgSyncMode = ProviderEpgSyncMode.BACKGROUND,
+                guideSourcePolicy = GuideSourcePolicy.AUTO,
+                channelLogoSourcePolicy = ChannelLogoSourcePolicy.SUPPLIER_PREFERRED,
+            )
+        } else {
+            null
+        }
         val onProgress: (String) -> Unit = { progress ->
             updateSessionState(
                 session,
@@ -361,17 +419,7 @@ class ProviderQrPairingManager @Inject constructor(
             )
 
             "stalker" -> validateAndAddProvider.loginStalker(
-                StalkerProviderSetupCommand(
-                    portalUrl = form["serverUrl"].orEmpty(),
-                    macAddress = form["macAddress"].orEmpty(),
-                    authMode = StalkerAuthMode.AUTO,
-                    username = form["username"].orEmpty(),
-                    password = form["password"].orEmpty(),
-                    name = name,
-                    epgSyncMode = ProviderEpgSyncMode.BACKGROUND,
-                    guideSourcePolicy = GuideSourcePolicy.AUTO,
-                    channelLogoSourcePolicy = ChannelLogoSourcePolicy.SUPPLIER_PREFERRED,
-                ),
+                checkNotNull(stalkerCommand),
                 onProgress = onProgress,
             )
 
@@ -385,32 +433,184 @@ class ProviderQrPairingManager @Inject constructor(
                 onProgress = onProgress,
             )
 
-            "xtream" -> validateAndAddProvider.loginXtream(
-                XtreamProviderSetupCommand(
-                    serverUrl = form["serverUrl"].orEmpty(),
-                    username = form["username"].orEmpty(),
-                    password = form["password"].orEmpty(),
-                    name = name,
-                    epgSyncMode = ProviderEpgSyncMode.BACKGROUND,
-                    xtreamLiveSyncMode = ProviderXtreamLiveSyncMode.AUTO,
-                    guideSourcePolicy = GuideSourcePolicy.AUTO,
-                    channelLogoSourcePolicy = ChannelLogoSourcePolicy.SUPPLIER_PREFERRED,
-                ),
-                onProgress = onProgress,
-            )
+            "xtream" -> if (xtreamPlaylistUrl) {
+                // Match the native M3U URL flow, which recognizes Xtream get.php links and
+                // converts their embedded credentials into an Xtream provider.
+                validateAndAddProvider.addM3u(
+                    M3uProviderSetupCommand(
+                        url = serverUrl,
+                        name = name,
+                        epgSyncMode = ProviderEpgSyncMode.BACKGROUND,
+                        guideSourcePolicy = GuideSourcePolicy.AUTO,
+                        channelLogoSourcePolicy = ChannelLogoSourcePolicy.SUPPLIER_PREFERRED,
+                    ),
+                    onProgress = onProgress,
+                )
+            } else {
+                validateAndAddProvider.loginXtream(
+                    XtreamProviderSetupCommand(
+                        serverUrl = serverUrl,
+                        username = form["username"].orEmpty(),
+                        password = form["password"].orEmpty(),
+                        name = name,
+                        epgSyncMode = ProviderEpgSyncMode.BACKGROUND,
+                        xtreamLiveSyncMode = ProviderXtreamLiveSyncMode.AUTO,
+                        guideSourcePolicy = GuideSourcePolicy.AUTO,
+                        channelLogoSourcePolicy = ChannelLogoSourcePolicy.SUPPLIER_PREFERRED,
+                    ),
+                    onProgress = onProgress,
+                )
+            }
 
-            else -> return ProviderPairingSubmitResult.Error
+            else -> return ProviderPairingSubmitResult.Failed(
+                phoneContext.getString(R.string.setup_phone_pairing_error_help),
+            )
         }
 
         return when (result) {
-            is ValidateAndAddProviderResult.Success,
-            is ValidateAndAddProviderResult.SavedWithWarning -> ProviderPairingSubmitResult.Success
+            is ValidateAndAddProviderResult.Success -> ProviderPairingSubmitResult.Added(
+                providerId = result.provider.id,
+                providerName = result.provider.name,
+                offerCombinedAttach = type == "m3u" || xtreamPlaylistUrl,
+            )
 
-            is ValidateAndAddProviderResult.ValidationError,
-            is ValidateAndAddProviderResult.TransportConsentRequired,
-            is ValidateAndAddProviderResult.VerificationInconclusive,
-            is ValidateAndAddProviderResult.Error -> ProviderPairingSubmitResult.Error
+            is ValidateAndAddProviderResult.SavedWithWarning -> ProviderPairingSubmitResult.Added(
+                providerId = result.provider.id,
+                providerName = result.provider.name,
+                warning = result.warning,
+                offerCombinedAttach = type == "m3u" || xtreamPlaylistUrl,
+            )
+
+            is ValidateAndAddProviderResult.ValidationError ->
+                ProviderPairingSubmitResult.Failed(result.message)
+
+            is ValidateAndAddProviderResult.TransportConsentRequired -> {
+                val command = stalkerCommand ?: return ProviderPairingSubmitResult.Failed(
+                    phoneContext.getString(R.string.setup_phone_pairing_error_help),
+                )
+                ProviderPairingSubmitResult.StalkerTransportConsentRequired(
+                    challenge = result.challenge,
+                    command = command,
+                    details = stalkerTransportChallengeMessage(result.challenge, phoneContext),
+                )
+            }
+
+            is ValidateAndAddProviderResult.VerificationInconclusive -> {
+                val command = stalkerCommand ?: return ProviderPairingSubmitResult.Failed(
+                    phoneContext.getString(R.string.setup_phone_pairing_error_help),
+                )
+                ProviderPairingSubmitResult.StalkerVerificationInconclusive(
+                    command = command,
+                    verificationMessage = result.message,
+                    details = listOf(
+                        phoneContext.getString(R.string.stalker_verification_inconclusive_title),
+                        phoneContext.getString(R.string.stalker_verification_inconclusive_body),
+                        phoneContext.getString(R.string.setup_phone_pairing_continue_on_tv),
+                    ).joinToString("\n\n"),
+                )
+            }
+
+            is ValidateAndAddProviderResult.Error -> ProviderPairingSubmitResult.Failed(
+                providerErrorMessage(errorFormatterType(type, serverUrl), result, phoneContext),
+            )
         }
+    }
+
+    private fun errorFormatterType(type: String, serverUrl: String): String =
+        if (type == "xtream" && isXtreamPlaylistUrl(serverUrl)) "m3u" else type
+
+    private fun isXtreamPlaylistUrl(value: String): Boolean = runCatching {
+        val uri = URI(value.trim())
+        val scheme = uri.scheme?.lowercase(Locale.US)
+        val queryKeys = uri.rawQuery.orEmpty()
+            .split('&')
+            .mapNotNull { part ->
+                runCatching {
+                    URLDecoder.decode(part.substringBefore('='), StandardCharsets.UTF_8.name())
+                }.getOrNull()
+            }
+            .toSet()
+        (scheme == "http" || scheme == "https") &&
+            !uri.host.isNullOrBlank() &&
+            uri.path.orEmpty().endsWith("/get.php", ignoreCase = true) &&
+            "username" in queryKeys &&
+            "password" in queryKeys
+    }.getOrDefault(false)
+
+    private fun providerErrorMessage(
+        type: String,
+        result: ValidateAndAddProviderResult.Error,
+        strings: Context,
+    ): String {
+        val message = when (type) {
+            "m3u" -> ProviderSetupErrorMessages.m3u(result)
+            "stalker" -> ProviderSetupErrorMessages.stalker(result)
+            "jellyfin" -> ProviderSetupErrorMessages.jellyfin(result)
+            "xtream" -> ProviderSetupErrorMessages.xtream(result)
+            else -> result.message
+        }
+        return message.ifBlank { strings.getString(R.string.setup_phone_pairing_error_help) }
+    }
+
+    private fun updateSessionStalkerPrompt(
+        session: PairingSession,
+        message: String,
+        command: StalkerProviderSetupCommand,
+        challenge: StalkerTransportChallenge? = null,
+        verificationInconclusive: String? = null,
+    ) {
+        synchronized(stateLock) {
+            if (activeSession === session) {
+                _state.value = _state.value.copy(
+                    status = ProviderQrPairingStatus.READY,
+                    message = message,
+                    pendingStalkerCommand = command,
+                    stalkerTransportChallenge = challenge,
+                    stalkerVerificationInconclusive = verificationInconclusive,
+                )
+            }
+        }
+    }
+
+    fun clearPendingStalkerPrompt() {
+        synchronized(stateLock) {
+            val current = _state.value
+            if (current.pendingStalkerCommand != null) {
+                _state.value = current.copy(
+                    message = context.getString(R.string.setup_phone_pairing_same_wifi),
+                    pendingStalkerCommand = null,
+                    stalkerTransportChallenge = null,
+                    stalkerVerificationInconclusive = null,
+                )
+            }
+        }
+    }
+
+    private fun stalkerTransportChallengeMessage(
+        challenge: StalkerTransportChallenge,
+        strings: Context,
+    ): String {
+        val (title, body) = when (challenge.reason) {
+            StalkerTransportChallengeReason.INVALID_TLS ->
+                R.string.stalker_transport_invalid_tls_title to R.string.stalker_transport_invalid_tls_body
+
+            StalkerTransportChallengeReason.CLEARTEXT_HTTP ->
+                R.string.stalker_transport_http_title to R.string.stalker_transport_http_body
+
+            StalkerTransportChallengeReason.ORIGIN_CHANGED ->
+                R.string.stalker_transport_origin_changed_title to R.string.stalker_transport_origin_changed_body
+        }
+        return buildList {
+            add(strings.getString(title))
+            add(strings.getString(body, challenge.displayHost))
+            if (
+                challenge.reason == StalkerTransportChallengeReason.INVALID_TLS &&
+                challenge.proposedSpkiSha256.isNullOrBlank()
+            ) {
+                add(strings.getString(R.string.setup_phone_pairing_stalker_certificate_error))
+            }
+            add(strings.getString(R.string.setup_phone_pairing_continue_on_tv))
+        }.joinToString("\n\n")
     }
 
     private fun updateSessionState(
@@ -690,9 +890,11 @@ class ProviderQrPairingManager @Inject constructor(
         """.trimIndent()
     }
 
-    private fun successPage(strings: Context): String = resultPage(strings, success = true)
+    private fun successPage(strings: Context, warning: String?): String =
+        resultPage(strings, success = true, details = warning)
 
-    private fun errorPage(strings: Context): String = resultPage(strings, success = false)
+    private fun errorPage(strings: Context, details: String? = null): String =
+        resultPage(strings, success = false, details = details)
 
     private fun pageDirection(strings: Context): String =
         if (strings.resources.configuration.layoutDirection == android.view.View.LAYOUT_DIRECTION_RTL) "rtl" else "ltr"
@@ -704,24 +906,41 @@ class ProviderQrPairingManager @Inject constructor(
         </div>
     """.trimIndent()
 
-    private fun resultPage(strings: Context, success: Boolean): String {
+    private fun resultPage(strings: Context, success: Boolean, details: String? = null): String {
         val title = strings.getString(
             if (success) R.string.setup_phone_pairing_complete else R.string.setup_phone_pairing_error,
         ).escapeHtml()
-        val help = if (success) "" else "<p>${strings.getString(R.string.setup_phone_pairing_error_help).escapeHtml()}</p>"
+        val hasDetails = !details.isNullOrBlank()
+        val help = if (success || hasDetails) {
+            ""
+        } else {
+            "<p>${strings.getString(R.string.setup_phone_pairing_error_help).escapeHtml()}</p>"
+        }
+        val detailsHtml = details
+            ?.trim()
+            ?.takeIf(String::isNotEmpty)
+            ?.let(::paragraphsHtml)
+            .orEmpty()
         return """
             <!doctype html><html lang="${strings.resources.configuration.locales[0].toLanguageTag().escapeHtml()}" dir="${pageDirection(strings)}">
             <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
             <meta name="color-scheme" content="dark"><meta name="theme-color" content="#0b0e14">
             <title>$title</title><style>${pageStyles()}</style></head>
             <body><main>${pageBrand(strings)}
-              <section class="form-card result" role="status">
+              <section class="form-card result" role="${if (success) "status" else "alert"}">
                 <span class="result-icon ${if (success) "success" else "failure"}" aria-hidden="true">${if (success) "&#10003;" else "!"}</span>
-                <h1>$title</h1>$help
+                <h1>$title</h1>$detailsHtml$help
               </section>
             </main></body></html>
         """.trimIndent()
     }
+
+    private fun paragraphsHtml(value: String): String = value
+        .split(Regex("\\n\\s*\\n"))
+        .filter(String::isNotBlank)
+        .joinToString(separator = "") { paragraph ->
+            "<p class=\"result-detail\">${paragraph.trim().escapeHtml().replace("\n", "<br>")}</p>"
+        }
 
     private fun pageStyles(): String = """
         *{box-sizing:border-box}
@@ -759,7 +978,7 @@ class ProviderQrPairingManager @Inject constructor(
         .warning p{font-size:12px;line-height:1.6;color:#b9a789}
         .warning-icon{display:grid;place-items:center;flex-shrink:0;width:17px;height:17px;border:1px solid #b9a789;border-radius:50%;font-size:11px;font-weight:700;color:#b9a789;margin-top:2px}
         footer{padding:20px 20px 0;color:#828a9e;font-size:11px;line-height:1.7;text-align:center}
-        .result{text-align:center;padding:48px 28px}.result p{max-width:420px;margin:auto}
+        .result{text-align:center;padding:48px 28px}.result p{max-width:420px;margin:0 auto 14px}.result .result-detail{color:#e8eaf2;white-space:pre-line;overflow-wrap:anywhere}.result .result-detail:last-of-type{margin-bottom:20px}
         .result-icon{display:grid;place-items:center;width:64px;height:64px;margin:0 auto 24px;border-radius:50%;font-size:30px}
         .success{color:#9cd6bc;background:#9cd6bc12;border:1px solid #9cd6bc40}
         .failure{color:#e6ad9b;background:#e6ad9b12;border:1px solid #e6ad9b40}
@@ -787,9 +1006,27 @@ class ProviderQrPairingManager @Inject constructor(
         @Volatile var timeoutJob: Job? = null
     }
 
-    private enum class ProviderPairingSubmitResult {
-        Success,
-        Error,
+    private sealed interface ProviderPairingSubmitResult {
+        data class Added(
+            val providerId: Long,
+            val providerName: String,
+            val warning: String? = null,
+            val offerCombinedAttach: Boolean = false,
+        ) : ProviderPairingSubmitResult
+
+        data class StalkerTransportConsentRequired(
+            val challenge: StalkerTransportChallenge,
+            val command: StalkerProviderSetupCommand,
+            val details: String,
+        ) : ProviderPairingSubmitResult
+
+        data class StalkerVerificationInconclusive(
+            val command: StalkerProviderSetupCommand,
+            val verificationMessage: String,
+            val details: String,
+        ) : ProviderPairingSubmitResult
+
+        data class Failed(val message: String) : ProviderPairingSubmitResult
     }
 }
 
@@ -799,6 +1036,13 @@ data class ProviderQrPairingState(
     val qrBitmap: Bitmap? = null,
     val expiresAtMs: Long = 0L,
     val message: String? = null,
+    val createdProviderId: Long? = null,
+    val createdProviderName: String? = null,
+    val completionWarning: String? = null,
+    val offerCombinedAttach: Boolean = false,
+    val pendingStalkerCommand: StalkerProviderSetupCommand? = null,
+    val stalkerTransportChallenge: StalkerTransportChallenge? = null,
+    val stalkerVerificationInconclusive: String? = null,
 )
 
 enum class ProviderQrPairingStatus {

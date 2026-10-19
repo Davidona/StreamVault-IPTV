@@ -105,4 +105,17 @@
     <string name="setup_phone_pairing_security_warning">Sécurité : l’association envoie les identifiants sans chiffrement sur votre réseau local. Utilisez uniquement un réseau Wi-Fi privé de confiance.</string>
     <string name="setup_phone_pairing_error_help">Impossible de terminer l’association. Vérifiez les informations du fournisseur et réessayez. Si la session QR a expiré, démarrez-en une nouvelle sur le téléviseur.</string>
     <string name="setup_phone_pairing_mac_label">Adresse MAC</string>
+    <string name="setup_phone_pairing_continue_on_tv">Continuez sur le téléviseur pour vérifier et terminer cette étape.</string>
+    <string name="setup_phone_pairing_stalker_certificate_error">Le certificat n’a pas pu être vérifié en toute sécurité. Examinez cette connexion sur le téléviseur.</string>
+    <string name="stalker_transport_invalid_tls_title">Le certificat de sécurité de ce fournisseur ne peut pas être vérifié</string>
+    <string name="stalker_transport_invalid_tls_body">La connexion à %1$s est peut-être encore chiffrée, mais l’application ne peut pas confirmer qu’elle appartient bien à ce fournisseur. Une personne sur le réseau pourrait lire vos identifiants ou les détails du flux.</string>
+    <string name="stalker_transport_http_title">Ce fournisseur utilise une connexion non chiffrée</string>
+    <string name="stalker_transport_http_body">Une personne sur le réseau peut lire ou modifier vos demandes de connexion et de lecture vers %1$s.</string>
+    <string name="stalker_transport_origin_changed_title">Ce fournisseur veut utiliser une autre adresse</string>
+    <string name="stalker_transport_origin_changed_body">Le fournisseur a redirigé la connexion vers %1$s. Continuez uniquement si vous reconnaissez cette adresse.</string>
+    <string name="stalker_verification_inconclusive_title">La télévision en direct n’a pas pu être vérifiée</string>
+    <string name="stalker_verification_inconclusive_body">Le fournisseur a accepté votre connexion, mais la vérification de la télévision en direct n’a pas abouti. Vous pouvez l’enregistrer avec une vérification en attente ; elle restera inactive jusqu’à ce qu’une synchronisation confirme que la télévision en direct peut être lue.</string>
+    <string name="stalker_transport_go_back">Retour</string>
+    <string name="stalker_transport_connect_anyway">Se connecter quand même</string>
+    <string name="stalker_save_without_verification">Enregistrer sans vérification</string>
 </resources>

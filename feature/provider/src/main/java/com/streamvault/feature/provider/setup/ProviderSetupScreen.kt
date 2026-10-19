@@ -102,7 +102,6 @@ import com.streamvault.domain.model.StalkerAuthMode
 import com.streamvault.domain.usecase.JellyfinProviderSetupCommand
 import com.streamvault.domain.usecase.JellyfinQuickConnectProviderSetupCommand
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
@@ -243,10 +242,20 @@ fun ProviderSetupScreen(
             onProviderAdded()
         }
     }
-    LaunchedEffect(pairingState.status) {
+    LaunchedEffect(pairingState.pendingStalkerCommand) {
+        val command = pairingState.pendingStalkerCommand ?: return@LaunchedEffect
+        viewModel.presentPhonePairingStalkerPrompt(pairingState)
+        selectedTab = 1
+        name = command.name
+        serverUrl = command.portalUrl
+        username = command.username
+        password = command.password
+        stalkerMacAddress = command.macAddress
+        stalkerAuthMode = command.authMode
+    }
+    LaunchedEffect(pairingState.status, pairingState.createdProviderId) {
         if (pairingState.status == ProviderQrPairingStatus.COMPLETE) {
-            delay(1200)
-            onProviderAdded()
+            viewModel.completePhonePairing(pairingState)
         }
     }
     ProviderSetupCompletionLayer(

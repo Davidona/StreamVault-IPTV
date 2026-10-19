@@ -169,13 +169,78 @@ class PlayerTraktCoordinatorTest {
         coordinator.report(10, movie, TraktPlaybackPhase.PLAYING, 100, 1000)
         runCurrent()
         assertTrue(events.isEmpty())
+        assertEquals(PlayerTraktTrackingStatus.HIDDEN, coordinator.status.value)
         state.value = state.value.copy(connected = true)
         coordinator.report(10, movie, TraktPlaybackPhase.PLAYING, 200, 1000)
         runCurrent()
         assertEquals(1, events.size)
+        assertEquals(PlayerTraktTrackingStatus.TRACKING, coordinator.status.value)
         coordinator.report(9, next, TraktPlaybackPhase.PLAYING, 100, 1000)
         runCurrent()
         assertEquals(1, events.size)
+        coordinator.close()
+    }
+
+    @Test fun `disconnected movies and episodes never prompt for Trakt during playback`() = runTest {
+        state.value = state.value.copy(connected = false)
+        var sends = 0
+        val sender = object : TraktScrobbler {
+            override suspend fun send(event: TraktScrobbleEvent): TraktScrobbleOutcome {
+                sends++
+                return TraktScrobbleOutcome.SENT
+            }
+        }
+        val coordinator = PlayerTraktCoordinator(account, sender, backgroundScope)
+        listOf(movie, next).forEachIndexed { index, identity ->
+            listOf(TraktPlaybackPhase.BUFFERING, TraktPlaybackPhase.PLAYING,
+                TraktPlaybackPhase.PAUSED, TraktPlaybackPhase.ENDED).forEach { phase ->
+                coordinator.report(index.toLong(), identity, phase, 500, 1000)
+                runCurrent()
+                assertEquals(PlayerTraktTrackingStatus.HIDDEN, coordinator.status.value)
+            }
+        }
+        coordinator.close()
+        runCurrent()
+        assertEquals(0, sends)
+    }
+
+    @Test fun `expired Trakt session stays hidden on subsequent playback ticks`() = runTest {
+        var sends = 0
+        val sender = object : TraktScrobbler {
+            override suspend fun send(event: TraktScrobbleEvent): TraktScrobbleOutcome {
+                sends++
+                return TraktScrobbleOutcome.DISCONNECTED
+            }
+        }
+        val coordinator = PlayerTraktCoordinator(account, sender, backgroundScope)
+        coordinator.report(1, movie, TraktPlaybackPhase.PLAYING, 100, 1000)
+        runCurrent()
+        assertEquals(PlayerTraktTrackingStatus.HIDDEN, coordinator.status.value)
+        coordinator.report(1, movie, TraktPlaybackPhase.PLAYING, 200, 1000)
+        runCurrent()
+        assertEquals(PlayerTraktTrackingStatus.HIDDEN, coordinator.status.value)
+        assertEquals(1, sends)
+        coordinator.close()
+    }
+
+    @Test fun `in flight tracking result stays hidden after account disconnects`() = runTest {
+        val release = CompletableDeferred<Unit>()
+        val sender = object : TraktScrobbler {
+            override suspend fun send(event: TraktScrobbleEvent): TraktScrobbleOutcome {
+                release.await()
+                return TraktScrobbleOutcome.SENT
+            }
+        }
+        val coordinator = PlayerTraktCoordinator(account, sender, backgroundScope)
+        coordinator.report(1, movie, TraktPlaybackPhase.PLAYING, 100, 1000)
+        runCurrent()
+        state.value = state.value.copy(connected = false)
+        release.complete(Unit)
+        runCurrent()
+        assertEquals(PlayerTraktTrackingStatus.HIDDEN, coordinator.status.value)
+        coordinator.report(1, movie, TraktPlaybackPhase.PLAYING, 200, 1000)
+        runCurrent()
+        assertEquals(PlayerTraktTrackingStatus.HIDDEN, coordinator.status.value)
         coordinator.close()
     }
 

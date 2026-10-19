@@ -105,4 +105,17 @@
     <string name="setup_phone_pairing_security_warning">Seguridad: El emparejamiento envía las credenciales sin cifrar por tu red local. Usa solo una red Wi-Fi privada y de confianza.</string>
     <string name="setup_phone_pairing_error_help">No se pudo completar el emparejamiento. Comprueba los datos del proveedor e inténtalo de nuevo. Si la sesión QR ha caducado, inicia otra en el televisor.</string>
     <string name="setup_phone_pairing_mac_label">Dirección MAC</string>
+    <string name="setup_phone_pairing_continue_on_tv">Continúa en el televisor para revisar y completar este paso.</string>
+    <string name="setup_phone_pairing_stalker_certificate_error">No se pudo comprobar el certificado de forma segura. Revisa esta conexión en el televisor.</string>
+    <string name="stalker_transport_invalid_tls_title">No se puede verificar el certificado de seguridad de este proveedor</string>
+    <string name="stalker_transport_invalid_tls_body">Es posible que la conexión con %1$s siga cifrada, pero la aplicación no puede confirmar que realmente pertenezca a este proveedor. Alguien en la red podría leer tus datos de inicio de sesión o de reproducción.</string>
+    <string name="stalker_transport_http_title">Este proveedor usa una conexión sin cifrar</string>
+    <string name="stalker_transport_http_body">Alguien en la red puede leer o modificar tus solicitudes de inicio de sesión y reproducción a %1$s.</string>
+    <string name="stalker_transport_origin_changed_title">Este proveedor quiere usar una dirección diferente</string>
+    <string name="stalker_transport_origin_changed_body">El proveedor redirigió la conexión a %1$s. Continúa solo si reconoces esta dirección.</string>
+    <string name="stalker_verification_inconclusive_title">No se pudo verificar la televisión en directo</string>
+    <string name="stalker_verification_inconclusive_body">El proveedor aceptó tu inicio de sesión, pero no terminó la comprobación de televisión en directo. Puedes guardarlo con la verificación pendiente; permanecerá inactivo hasta que una sincronización confirme que se puede reproducir la televisión en directo.</string>
+    <string name="stalker_transport_go_back">Volver</string>
+    <string name="stalker_transport_connect_anyway">Conectar de todos modos</string>
+    <string name="stalker_save_without_verification">Guardar sin verificar</string>
 </resources>

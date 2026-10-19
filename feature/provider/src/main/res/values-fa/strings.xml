@@ -105,19 +105,21 @@
     <string name="settings_drive_choose_backup_subtitle" translatable="false">Select a saved snapshot to preview and restore.</string>
     <string name="settings_drive_cancel_backup_choice" translatable="false">Cancel backup choice</string>
     <string name="setup_import_from_drive">وارد کردن از Drive</string>
-    <string name="stalker_transport_invalid_tls_title" translatable="false">This provider\'s security certificate can\'t be verified</string>
-    <string name="stalker_transport_invalid_tls_body" translatable="false">The connection to %1$s may still be encrypted, but the app can\'t confirm it is really this provider. Someone on the network could read your login or stream details.</string>
-    <string name="stalker_transport_http_title" translatable="false">This provider uses an unencrypted connection</string>
-    <string name="stalker_transport_http_body" translatable="false">Your login and viewing requests to %1$s can be read or changed by someone on the network.</string>
-    <string name="stalker_transport_origin_changed_title" translatable="false">This provider wants to use a different address</string>
-    <string name="stalker_transport_origin_changed_body" translatable="false">The provider redirected the connection to %1$s. Continue only if you recognize this address.</string>
-    <string name="stalker_transport_go_back" translatable="false">Go back</string>
-    <string name="stalker_transport_connect_anyway" translatable="false">Connect anyway</string>
-    <string name="stalker_verification_inconclusive_title" translatable="false">Live TV could not be verified</string>
-    <string name="stalker_verification_inconclusive_body" translatable="false">The provider accepted your login, but the Live TV check did not finish. You can save it with verification pending; it will remain inactive until a sync confirms playable Live TV.</string>
-    <string name="stalker_save_without_verification" translatable="false">Save without verification</string>
+    <string name="stalker_transport_invalid_tls_title">گواهی امنیتی این ارائه‌دهنده قابل تأیید نیست</string>
+    <string name="stalker_transport_invalid_tls_body">ممکن است اتصال به %1$s همچنان رمزگذاری شده باشد، اما برنامه نمی‌تواند تأیید کند که واقعاً متعلق به همین ارائه‌دهنده است. ممکن است فردی در شبکه اطلاعات ورود یا جزئیات پخش شما را بخواند.</string>
+    <string name="stalker_transport_http_title">این ارائه‌دهنده از اتصال رمزگذاری‌نشده استفاده می‌کند</string>
+    <string name="stalker_transport_http_body">فردی در شبکه می‌تواند درخواست‌های ورود و تماشای شما به %1$s را بخواند یا تغییر دهد.</string>
+    <string name="stalker_transport_origin_changed_title">این ارائه‌دهنده می‌خواهد از نشانی دیگری استفاده کند</string>
+    <string name="stalker_transport_origin_changed_body">ارائه‌دهنده اتصال را به %1$s هدایت کرد. فقط در صورتی ادامه دهید که این نشانی را می‌شناسید.</string>
+    <string name="stalker_transport_go_back">بازگشت</string>
+    <string name="stalker_transport_connect_anyway">با این حال متصل شو</string>
+    <string name="stalker_verification_inconclusive_title">تأیید تلویزیون زنده ممکن نشد</string>
+    <string name="stalker_verification_inconclusive_body">ارائه‌دهنده ورود شما را پذیرفت، اما بررسی تلویزیون زنده کامل نشد. می‌توانید آن را درحالی‌که تأیید در انتظار است ذخیره کنید؛ تا زمانی که همگام‌سازی قابل پخش بودن تلویزیون زنده را تأیید نکند، غیرفعال می‌ماند.</string>
+    <string name="stalker_save_without_verification">ذخیره بدون تأیید</string>
     <string name="stalker_repair_connection" translatable="false">Repair connection</string>
     <string name="setup_phone_pairing_security_warning">امنیت: اطلاعات ورود هنگام جفت‌سازی بدون رمزگذاری از شبکه محلی شما فرستاده می‌شود. فقط از شبکه خصوصی Wi-Fi مطمئن استفاده کنید.</string>
     <string name="setup_phone_pairing_error_help">جفت‌سازی کامل نشد. اطلاعات ارائه‌دهنده را بررسی و دوباره امتحان کنید. اگر نشست QR منقضی شده است، نشست تازه‌ای در تلویزیون شروع کنید.</string>
     <string name="setup_phone_pairing_mac_label">نشانی MAC</string>
+    <string name="setup_phone_pairing_continue_on_tv">برای بررسی و تکمیل این مرحله، روی تلویزیون ادامه دهید.</string>
+    <string name="setup_phone_pairing_stalker_certificate_error">گواهی را نمی‌توان با اطمینان بررسی کرد. این اتصال را روی تلویزیون بررسی کنید.</string>
 </resources>

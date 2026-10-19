@@ -105,4 +105,17 @@
     <string name="setup_phone_pairing_security_warning">Bảo mật: Quá trình ghép nối gửi thông tin đăng nhập qua mạng cục bộ mà không mã hóa. Chỉ sử dụng mạng Wi-Fi riêng tư đáng tin cậy.</string>
     <string name="setup_phone_pairing_error_help">Không thể hoàn tất ghép nối. Hãy kiểm tra thông tin nhà cung cấp rồi thử lại. Nếu phiên QR đã hết hạn, hãy bắt đầu phiên mới trên TV.</string>
     <string name="setup_phone_pairing_mac_label">Địa chỉ MAC</string>
+    <string name="setup_phone_pairing_continue_on_tv">Tiếp tục trên TV để xem lại và hoàn tất bước này.</string>
+    <string name="setup_phone_pairing_stalker_certificate_error">Không thể kiểm tra chứng chỉ một cách an toàn. Hãy xem lại kết nối này trên TV.</string>
+    <string name="stalker_transport_invalid_tls_title">Không thể xác minh chứng chỉ bảo mật của nhà cung cấp này</string>
+    <string name="stalker_transport_invalid_tls_body">Kết nối đến %1$s có thể vẫn được mã hóa, nhưng ứng dụng không thể xác nhận đó thực sự là nhà cung cấp này. Người khác trên mạng có thể đọc thông tin đăng nhập hoặc chi tiết luồng phát của bạn.</string>
+    <string name="stalker_transport_http_title">Nhà cung cấp này sử dụng kết nối không được mã hóa</string>
+    <string name="stalker_transport_http_body">Người khác trên mạng có thể đọc hoặc thay đổi yêu cầu đăng nhập và xem nội dung gửi đến %1$s.</string>
+    <string name="stalker_transport_origin_changed_title">Nhà cung cấp này muốn sử dụng địa chỉ khác</string>
+    <string name="stalker_transport_origin_changed_body">Nhà cung cấp đã chuyển hướng kết nối đến %1$s. Chỉ tiếp tục nếu bạn nhận ra địa chỉ này.</string>
+    <string name="stalker_verification_inconclusive_title">Không thể xác minh TV trực tiếp</string>
+    <string name="stalker_verification_inconclusive_body">Nhà cung cấp đã chấp nhận thông tin đăng nhập nhưng chưa hoàn tất kiểm tra TV trực tiếp. Bạn có thể lưu khi đang chờ xác minh; nguồn sẽ không hoạt động cho đến khi quá trình đồng bộ xác nhận có thể phát TV trực tiếp.</string>
+    <string name="stalker_transport_go_back">Quay lại</string>
+    <string name="stalker_transport_connect_anyway">Vẫn kết nối</string>
+    <string name="stalker_save_without_verification">Lưu mà không xác minh</string>
 </resources>

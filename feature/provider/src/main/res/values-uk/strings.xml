@@ -105,4 +105,17 @@
     <string name="setup_phone_pairing_security_warning">Безпека: Під час сполучення дані для входу передаються локальною мережею без шифрування. Використовуйте лише довірену приватну мережу Wi-Fi.</string>
     <string name="setup_phone_pairing_error_help">Не вдалося завершити сполучення. Перевірте дані постачальника й повторіть спробу. Якщо термін дії QR-сеансу минув, запустіть новий на телевізорі.</string>
     <string name="setup_phone_pairing_mac_label">MAC-адреса</string>
+    <string name="setup_phone_pairing_continue_on_tv">Продовжте на телевізорі, щоб перевірити й завершити цей крок.</string>
+    <string name="setup_phone_pairing_stalker_certificate_error">Не вдалося безпечно перевірити сертифікат. Перевірте це з’єднання на телевізорі.</string>
+    <string name="stalker_transport_invalid_tls_title">Не вдалося перевірити сертифікат безпеки цього провайдера</string>
+    <string name="stalker_transport_invalid_tls_body">З’єднання з %1$s може залишатися зашифрованим, але додаток не може підтвердити, що воно справді належить цьому провайдеру. Хтось у мережі може прочитати ваші дані для входу або відомості про трансляцію.</string>
+    <string name="stalker_transport_http_title">Цей провайдер використовує незашифроване з’єднання</string>
+    <string name="stalker_transport_http_body">Хтось у мережі може читати або змінювати ваші запити на вхід і перегляд для %1$s.</string>
+    <string name="stalker_transport_origin_changed_title">Цей провайдер хоче використовувати іншу адресу</string>
+    <string name="stalker_transport_origin_changed_body">Провайдер перенаправив з’єднання на %1$s. Продовжуйте, лише якщо впізнаєте цю адресу.</string>
+    <string name="stalker_verification_inconclusive_title">Не вдалося перевірити прямий ефір</string>
+    <string name="stalker_verification_inconclusive_body">Провайдер прийняв ваші дані для входу, але перевірка прямого ефіру не завершилася. Його можна зберегти з очікуванням перевірки; він залишатиметься неактивним, доки синхронізація не підтвердить можливість відтворення прямого ефіру.</string>
+    <string name="stalker_transport_go_back">Назад</string>
+    <string name="stalker_transport_connect_anyway">Усе одно під’єднатися</string>
+    <string name="stalker_save_without_verification">Зберегти без перевірки</string>
 </resources>

@@ -105,4 +105,17 @@
     <string name="setup_phone_pairing_security_warning">セキュリティ: ペアリングではログイン情報が暗号化されずにローカルネットワーク経由で送信されます。信頼できるプライベート Wi-Fi のみ使用してください。</string>
     <string name="setup_phone_pairing_error_help">ペアリングを完了できませんでした。プロバイダー情報を確認して再試行してください。QR セッションの有効期限が切れた場合は、テレビで新しいセッションを開始してください。</string>
     <string name="setup_phone_pairing_mac_label">MAC アドレス</string>
+    <string name="setup_phone_pairing_continue_on_tv">この手順を確認して完了するには、テレビで続行してください。</string>
+    <string name="setup_phone_pairing_stalker_certificate_error">証明書を安全に確認できませんでした。この接続はテレビで確認してください。</string>
+    <string name="stalker_transport_invalid_tls_title">このプロバイダーのセキュリティ証明書を確認できません</string>
+    <string name="stalker_transport_invalid_tls_body">%1$s への接続は暗号化されている可能性がありますが、このプロバイダーの接続であることをアプリで確認できません。ネットワーク上の第三者にログイン情報やストリームの詳細を見られるおそれがあります。</string>
+    <string name="stalker_transport_http_title">このプロバイダーは暗号化されていない接続を使用しています</string>
+    <string name="stalker_transport_http_body">ネットワーク上の第三者が %1$s へのログイン要求や視聴要求を読み取ったり変更したりする可能性があります。</string>
+    <string name="stalker_transport_origin_changed_title">このプロバイダーは別のアドレスを使用しようとしています</string>
+    <string name="stalker_transport_origin_changed_body">プロバイダーが接続先を %1$s に変更しました。このアドレスを認識できる場合にのみ続行してください。</string>
+    <string name="stalker_verification_inconclusive_title">ライブ TV を確認できませんでした</string>
+    <string name="stalker_verification_inconclusive_body">プロバイダーはログインを受け付けましたが、ライブ TV の確認が完了しませんでした。確認保留の状態で保存できますが、同期でライブ TV の再生が確認されるまで無効のままです。</string>
+    <string name="stalker_transport_go_back">戻る</string>
+    <string name="stalker_transport_connect_anyway">接続する</string>
+    <string name="stalker_save_without_verification">確認せずに保存</string>
 </resources>

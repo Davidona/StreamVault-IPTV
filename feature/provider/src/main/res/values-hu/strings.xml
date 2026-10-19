@@ -105,4 +105,17 @@
     <string name="setup_phone_pairing_security_warning">Biztonság: A párosítás titkosítás nélkül küldi a bejelentkezési adatokat a helyi hálózaton. Csak megbízható, privát Wi-Fi-hálózatot használj.</string>
     <string name="setup_phone_pairing_error_help">A párosítást nem sikerült befejezni. Ellenőrizd a szolgáltató adatait, majd próbáld újra. Ha lejárt a QR-munkamenet, indíts újat a tévén.</string>
     <string name="setup_phone_pairing_mac_label">MAC-cím</string>
+    <string name="setup_phone_pairing_continue_on_tv">A lépés ellenőrzéséhez és befejezéséhez folytassa a tévén.</string>
+    <string name="setup_phone_pairing_stalker_certificate_error">A tanúsítványt nem lehetett biztonságosan ellenőrizni. Ellenőrizze ezt a kapcsolatot a tévén.</string>
+    <string name="stalker_transport_invalid_tls_title">A szolgáltató biztonsági tanúsítványa nem ellenőrizhető</string>
+    <string name="stalker_transport_invalid_tls_body">A(z) %1$s címmel való kapcsolat továbbra is titkosított lehet, de az alkalmazás nem tudja megerősíteni, hogy valóban ehhez a szolgáltatóhoz tartozik. A hálózaton valaki elolvashatja a bejelentkezési vagy streamelési adatait.</string>
+    <string name="stalker_transport_http_title">Ez a szolgáltató titkosítatlan kapcsolatot használ</string>
+    <string name="stalker_transport_http_body">A hálózaton valaki elolvashatja vagy módosíthatja a(z) %1$s címhez küldött bejelentkezési és lejátszási kéréseit.</string>
+    <string name="stalker_transport_origin_changed_title">Ez a szolgáltató másik címet szeretne használni</string>
+    <string name="stalker_transport_origin_changed_body">A szolgáltató átirányította a kapcsolatot ide: %1$s. Csak akkor folytassa, ha felismeri ezt a címet.</string>
+    <string name="stalker_verification_inconclusive_title">Az élő TV-adás ellenőrzése nem sikerült</string>
+    <string name="stalker_verification_inconclusive_body">A szolgáltató elfogadta a bejelentkezést, de az élő TV-adás ellenőrzése nem fejeződött be. Függőben lévő ellenőrzéssel is mentheti; inaktív marad, amíg a szinkronizálás meg nem erősíti, hogy az élő TV-adás lejátszható.</string>
+    <string name="stalker_transport_go_back">Vissza</string>
+    <string name="stalker_transport_connect_anyway">Kapcsolódás mindenképpen</string>
+    <string name="stalker_save_without_verification">Mentés ellenőrzés nélkül</string>
 </resources>

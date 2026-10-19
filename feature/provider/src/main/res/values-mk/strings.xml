@@ -105,19 +105,21 @@
     <string name="settings_drive_choose_backup_subtitle" translatable="false">Select a saved snapshot to preview and restore.</string>
     <string name="settings_drive_cancel_backup_choice" translatable="false">Cancel backup choice</string>
     <string name="setup_import_from_drive">Увези од Drive</string>
-    <string name="stalker_transport_invalid_tls_title" translatable="false">This provider\'s security certificate can\'t be verified</string>
-    <string name="stalker_transport_invalid_tls_body" translatable="false">The connection to %1$s may still be encrypted, but the app can\'t confirm it is really this provider. Someone on the network could read your login or stream details.</string>
-    <string name="stalker_transport_http_title" translatable="false">This provider uses an unencrypted connection</string>
-    <string name="stalker_transport_http_body" translatable="false">Your login and viewing requests to %1$s can be read or changed by someone on the network.</string>
-    <string name="stalker_transport_origin_changed_title" translatable="false">This provider wants to use a different address</string>
-    <string name="stalker_transport_origin_changed_body" translatable="false">The provider redirected the connection to %1$s. Continue only if you recognize this address.</string>
-    <string name="stalker_transport_go_back" translatable="false">Go back</string>
-    <string name="stalker_transport_connect_anyway" translatable="false">Connect anyway</string>
-    <string name="stalker_verification_inconclusive_title" translatable="false">Live TV could not be verified</string>
-    <string name="stalker_verification_inconclusive_body" translatable="false">The provider accepted your login, but the Live TV check did not finish. You can save it with verification pending; it will remain inactive until a sync confirms playable Live TV.</string>
-    <string name="stalker_save_without_verification" translatable="false">Save without verification</string>
+    <string name="stalker_transport_invalid_tls_title">Безбедносниот сертификат на овој провајдер не може да се потврди</string>
+    <string name="stalker_transport_invalid_tls_body">Врската со %1$s можеби е сè уште шифрирана, но апликацијата не може да потврди дека навистина му припаѓа на овој провајдер. Некој на мрежата може да ги прочита вашите податоци за најава или детали за стримот.</string>
+    <string name="stalker_transport_http_title">Овој провајдер користи нешифрирана врска</string>
+    <string name="stalker_transport_http_body">Некој на мрежата може да ги прочита или измени вашите барања за најава и гледање до %1$s.</string>
+    <string name="stalker_transport_origin_changed_title">Овој провајдер сака да користи друга адреса</string>
+    <string name="stalker_transport_origin_changed_body">Провајдерот ја пренасочи врската кон %1$s. Продолжете само ако ја препознавате оваа адреса.</string>
+    <string name="stalker_transport_go_back">Назад</string>
+    <string name="stalker_transport_connect_anyway">Сепак поврзи се</string>
+    <string name="stalker_verification_inconclusive_title">ТВ во живо не може да се потврди</string>
+    <string name="stalker_verification_inconclusive_body">Провајдерот ја прифати вашата најава, но проверката на ТВ во живо не заврши. Може да ја зачувате со проверка на чекање; ќе остане неактивна сè додека синхронизацијата не потврди дека ТВ во живо може да се репродуцира.</string>
+    <string name="stalker_save_without_verification">Зачувај без проверка</string>
     <string name="stalker_repair_connection" translatable="false">Repair connection</string>
     <string name="setup_phone_pairing_security_warning">Безбедност: Спарувањето ги испраќа податоците за најава нешифрирани преку локалната мрежа. Користете само доверлива приватна Wi-Fi мрежа.</string>
     <string name="setup_phone_pairing_error_help">Спарувањето не беше завршено. Проверете ги податоците за провајдерот и обидете се повторно. Ако QR-сесијата истекла, започнете нова на телевизорот.</string>
     <string name="setup_phone_pairing_mac_label">MAC-адреса</string>
+    <string name="setup_phone_pairing_continue_on_tv">Продолжете на телевизорот за да го прегледате и довршите овој чекор.</string>
+    <string name="setup_phone_pairing_stalker_certificate_error">Сертификатот не можеше безбедно да се провери. Проверете ја оваа врска на телевизорот.</string>
 </resources>
