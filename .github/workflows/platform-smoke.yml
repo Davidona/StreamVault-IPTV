@@ -105,6 +105,9 @@ jobs:
       # failure still fails on the second attempt.
       - name: Run compatibility instrumentation suite (retry)
         if: steps.platform-smoke-run.outcome == 'failure'
+        # Refresh Gradle's cached missing-artifact results after a transient repository failure.
+        env:
+          PLATFORM_SMOKE_REFRESH_DEPENDENCIES: '1'
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: ${{ matrix.api-level }}
