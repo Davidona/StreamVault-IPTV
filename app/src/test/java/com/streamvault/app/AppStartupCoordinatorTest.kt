@@ -17,6 +17,35 @@ import com.google.common.truth.Truth.assertThat
 class AppStartupCoordinatorTest {
 
     @Test
+    fun foregroundChecksRepeatForRetainedProcessesButThrottleQuickResumes() = runTest {
+        var now = 0L
+        var checks = 0
+        val coordinator = AppStartupCoordinator(emptyList(), emptyList(), this,
+            foregroundCheck = { checks++ }, monotonicTimeMillis = { now })
+        coordinator.onAppForegrounded()
+        coordinator.onAppForegrounded()
+        now = 29_999L
+        coordinator.onAppForegrounded()
+        assertThat(checks).isEqualTo(1)
+        now = 86_400_000L
+        coordinator.onAppForegrounded()
+        assertThat(checks).isEqualTo(2)
+    }
+
+    @Test
+    fun foregroundSchedulingFailureDoesNotCrashOrThrottleTheNextAttempt() = runTest {
+        var attempts = 0
+        val failures = mutableListOf<String>()
+        val coordinator = AppStartupCoordinator(emptyList(), emptyList(), this,
+            foregroundCheck = { if (++attempts == 1) error("unavailable") },
+            onTaskFailure = { name, _ -> failures += name })
+        coordinator.onAppForegrounded()
+        coordinator.onAppForegrounded()
+        assertThat(attempts).isEqualTo(2)
+        assertThat(failures).containsExactly("foreground-sync-check")
+    }
+
+    @Test
     fun processMaintenanceStartsOnceWithoutAnActivity() = runTest {
         val dispatcher = StandardTestDispatcher(testScheduler)
         val scope = CoroutineScope(SupervisorJob() + dispatcher)

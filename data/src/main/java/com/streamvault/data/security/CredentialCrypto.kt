@@ -43,22 +43,51 @@ class AndroidKeystoreCredentialCrypto @Inject constructor(
     private val SOFTWARE_KEY_FILE_NAME = "streamvault_credential_software.key"
     private val SOFTWARE_KEY_ALGORITHM = "AES"
     private val SOFTWARE_KEY_SIZE_BITS = 256
-    private val secretKeyProvider = CachingSecretKeyProvider(::loadOrCreateSecretKey)
+    private val softwareKeyFile: File
+        get() = File(context.filesDir, SOFTWARE_KEY_FILE_NAME)
+    private val hardwareSecretKeyProvider = CachingSecretKeyProvider(::loadOrCreateHardwareSecretKey)
+    private val softwareSecretKeyProvider = CachingSecretKeyProvider(::loadOrCreateSoftwareSecretKey)
+
+    @Volatile
+    private var preferSoftwareKey = false
+
+    private enum class KeySource {
+        HARDWARE,
+        SOFTWARE
+    }
+
+    private data class SelectedKey(
+        val secretKey: SecretKey,
+        val source: KeySource
+    )
 
     override fun encryptIfNeeded(value: String): String {
         if (value.isBlank() || value.startsWith(PREFIX)) return value
 
-        return try {
-            val cipher = Cipher.getInstance(TRANSFORMATION)
-            cipher.init(Cipher.ENCRYPT_MODE, secretKeyProvider.get())
-            val iv = cipher.iv
-            val encrypted = cipher.doFinal(value.toByteArray(Charsets.UTF_8))
-            val packed = iv + encrypted
-            PREFIX + java.util.Base64.getEncoder().encodeToString(packed)
+        val selectedKey = try {
+            selectPreferredKey()
         } catch (e: Exception) {
-            // Do NOT fall back to plaintext — rethrow so the caller can surface the failure.
-            Log.e(TAG, "Keystore encryption failed. Credential will NOT be stored.", e)
-            throw SecurityException("Failed to encrypt credential: ${e.message}", e)
+            throw encryptionFailure(e)
+        }
+
+        return try {
+            encryptWithKey(value, selectedKey.secretKey)
+        } catch (e: Exception) {
+            if (selectedKey.source == KeySource.SOFTWARE) {
+                throw encryptionFailure(e)
+            }
+
+            // A hardware key can be returned successfully while failing during cipher.init or
+            // doFinal. Pin the app to the software key after the first successful fallback.
+            Log.w(TAG, "Hardware-backed credential encryption failed; retrying with a software key.", e)
+            try {
+                val softwareKey = softwareSecretKeyProvider.get()
+                preferSoftwareKey = true
+                encryptWithKey(value, softwareKey)
+            } catch (fallbackException: Exception) {
+                if (fallbackException !== e) e.addSuppressed(fallbackException)
+                throw encryptionFailure(e)
+            }
         }
     }
 
@@ -75,29 +104,97 @@ class AndroidKeystoreCredentialCrypto @Inject constructor(
             val iv = bytes.copyOfRange(0, IV_SIZE_BYTES)
             val ciphertext = bytes.copyOfRange(IV_SIZE_BYTES, bytes.size)
 
-            val cipher = Cipher.getInstance(TRANSFORMATION)
-            cipher.init(
-                Cipher.DECRYPT_MODE,
-                secretKeyProvider.get(),
-                GCMParameterSpec(AUTH_TAG_BITS, iv)
-            )
-            String(cipher.doFinal(ciphertext), Charsets.UTF_8)
+            val selectedKey = selectPreferredKey()
+            try {
+                decryptWithKey(selectedKey.secretKey, iv, ciphertext)
+            } catch (primaryException: Exception) {
+                val alternateKey = try {
+                    when (selectedKey.source) {
+                        KeySource.HARDWARE -> softwareKeyFile
+                            .takeIf(File::exists)
+                            ?.let { softwareSecretKeyProvider.get() }
+
+                        KeySource.SOFTWARE -> loadExistingHardwareSecretKey()
+                    }
+                } catch (alternateKeyException: Exception) {
+                    if (alternateKeyException !== primaryException) {
+                        primaryException.addSuppressed(alternateKeyException)
+                    }
+                    null
+                }
+
+                if (alternateKey == null || alternateKey === selectedKey.secretKey) {
+                    throw primaryException
+                }
+
+                try {
+                    decryptWithKey(alternateKey, iv, ciphertext)
+                } catch (alternateException: Exception) {
+                    if (alternateException !== primaryException) {
+                        primaryException.addSuppressed(alternateException)
+                    }
+                    throw primaryException
+                }
+            }
         } catch (e: Exception) {
             Log.e(TAG, "Keystore decryption failed. Stored credential is unreadable.", e)
             throw CredentialDecryptionException(cause = e)
         }
     }
 
-    private fun loadOrCreateSecretKey(): SecretKey {
-        return try {
-            loadOrCreateHardwareSecretKey()
-        } catch (e: Exception) {
-            // Some devices (notably budget Android TV boxes) ship a broken Keymaster/TEE whose
-            // hardware-backed Keystore cannot generate keys. Fall back to a software key so
-            // credential persistence keeps working instead of crashing on those devices.
-            Log.w(TAG, "Hardware-backed Keystore unavailable; falling back to a software key.", e)
-            loadOrCreateSoftwareSecretKey()
+    @Synchronized
+    private fun selectPreferredKey(): SelectedKey {
+        if (preferSoftwareKey || softwareKeyFile.exists()) {
+            preferSoftwareKey = true
+            return SelectedKey(softwareSecretKeyProvider.get(), KeySource.SOFTWARE)
         }
+
+        return try {
+            val hardwareKey = hardwareSecretKeyProvider.get()
+            if (preferSoftwareKey || softwareKeyFile.exists()) {
+                preferSoftwareKey = true
+                SelectedKey(softwareSecretKeyProvider.get(), KeySource.SOFTWARE)
+            } else {
+                SelectedKey(hardwareKey, KeySource.HARDWARE)
+            }
+        } catch (e: Exception) {
+            // Some devices ship a broken Keystore that cannot load or generate hardware keys.
+            // Keep using the app-private key if one is needed; its file also records that this
+            // installation may already have credentials encrypted with that key.
+            Log.w(TAG, "Hardware-backed Keystore unavailable; falling back to a software key.", e)
+            preferSoftwareKey = true
+            SelectedKey(softwareSecretKeyProvider.get(), KeySource.SOFTWARE)
+        }
+    }
+
+    private fun encryptWithKey(value: String, secretKey: SecretKey): String {
+        val cipher = Cipher.getInstance(TRANSFORMATION)
+        cipher.init(Cipher.ENCRYPT_MODE, secretKey)
+        val iv = cipher.iv
+        val encrypted = cipher.doFinal(value.toByteArray(Charsets.UTF_8))
+        val packed = iv + encrypted
+        return PREFIX + java.util.Base64.getEncoder().encodeToString(packed)
+    }
+
+    private fun decryptWithKey(secretKey: SecretKey, iv: ByteArray, ciphertext: ByteArray): String {
+        val cipher = Cipher.getInstance(TRANSFORMATION)
+        cipher.init(
+            Cipher.DECRYPT_MODE,
+            secretKey,
+            GCMParameterSpec(AUTH_TAG_BITS, iv)
+        )
+        return String(cipher.doFinal(ciphertext), Charsets.UTF_8)
+    }
+
+    private fun encryptionFailure(cause: Exception): SecurityException {
+        // Do NOT fall back to plaintext — surface the failure so the credential is never stored unencrypted.
+        Log.e(TAG, "Credential encryption failed. Credential will NOT be stored.", cause)
+        return SecurityException("Failed to encrypt credential: ${cause.message}", cause)
+    }
+
+    private fun loadExistingHardwareSecretKey(): SecretKey? {
+        val keyStore = KeyStore.getInstance(KEYSTORE_TYPE).apply { load(null) }
+        return keyStore.getKey(KEY_ALIAS, null) as? SecretKey
     }
 
     private fun loadOrCreateHardwareSecretKey(): SecretKey {
@@ -121,21 +218,20 @@ class AndroidKeystoreCredentialCrypto @Inject constructor(
     }
 
     /**
-     * Best-effort software AES key persisted in app-private storage. This is only reached when the
-     * hardware-backed Keystore is unusable, where a hardware-protected key is impossible by
-     * definition. The key material lives in the app sandbox (invisible to other apps) and keeps
-     * credentials encrypted at rest rather than storing them as plaintext.
+     * Best-effort software AES key persisted in app-private storage. This is used when hardware key
+     * creation or a hardware-backed cipher operation fails. Keeping the same file-backed key across
+     * app updates lets the app continue reading credentials written while this fallback was active.
+     * The key material stays in the app sandbox and credentials remain encrypted at rest.
      */
     private fun loadOrCreateSoftwareSecretKey(): SecretKey {
-        val keyFile = File(context.filesDir, SOFTWARE_KEY_FILE_NAME)
-        if (keyFile.exists()) {
-            return SecretKeySpec(keyFile.readBytes(), SOFTWARE_KEY_ALGORITHM)
+        if (softwareKeyFile.exists()) {
+            return SecretKeySpec(softwareKeyFile.readBytes(), SOFTWARE_KEY_ALGORITHM)
         }
 
         val keyGenerator = KeyGenerator.getInstance(SOFTWARE_KEY_ALGORITHM)
         keyGenerator.init(SOFTWARE_KEY_SIZE_BITS)
         val key = keyGenerator.generateKey()
-        keyFile.writeBytes(key.encoded)
+        softwareKeyFile.writeBytes(key.encoded)
         return key
     }
 }

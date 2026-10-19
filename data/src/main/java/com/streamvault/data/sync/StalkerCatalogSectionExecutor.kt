@@ -29,7 +29,8 @@ internal class StalkerCatalogSectionExecutor(
     private val updateIndexJob: suspend (Long, ContentType, Int, Long) -> Unit,
     private val emitSectionProgress: (Long, Section, Int, Int) -> Unit,
     private val progress: (Long, ((String) -> Unit)?, String) -> Unit,
-    private val hasPendingIndex: suspend (Long, ContentType) -> Boolean = { _, _ -> false }
+    private val hasPendingIndex: suspend (Long, ContentType) -> Boolean = { _, _ -> false },
+    private val invalidateUnifiedVod: suspend (Long) -> Unit = {}
 ) {
     suspend fun queueIndexSection(
         providerId: Long,
@@ -86,6 +87,9 @@ internal class StalkerCatalogSectionExecutor(
             }
         )
         if (!indexCatalog || unified) {
+            // Refresh category contents lazily, retaining cached rows until replacement.
+            movieCategoryHydrationDao.deleteByProvider(provider.id)
+            if (unified) invalidateUnifiedVod(provider.id)
             val current = syncMetadataRepository.getMetadata(provider.id) ?: SyncMetadata(provider.id)
             syncMetadataRepository.updateMetadata(current.copy(lastMovieSync = now, lastMovieSuccess = now))
             return SyncOutcome(activation = SyncActivation.ACTIVATED_CATALOG)
@@ -147,6 +151,7 @@ internal class StalkerCatalogSectionExecutor(
         )
         val now = System.currentTimeMillis()
         if (!indexCatalog) {
+            seriesCategoryHydrationDao.deleteByProvider(provider.id)
             val current = syncMetadataRepository.getMetadata(provider.id) ?: SyncMetadata(provider.id)
             syncMetadataRepository.updateMetadata(current.copy(lastSeriesSync = now, lastSeriesSuccess = now))
             return SyncOutcome(activation = SyncActivation.ACTIVATED_CATALOG)

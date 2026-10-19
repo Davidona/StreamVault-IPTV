@@ -44,8 +44,9 @@ internal class M3uCatalogSyncExecutor(
     private val progress: (Long, ((String) -> Unit)?, String) -> Unit,
     private val sanitizeThrowableMessage: (Throwable) -> String
 ) {
-    suspend fun refreshCatalog(provider: Provider, live: Boolean, movies: Boolean): SyncOutcome {
-        val stats = withContext(Dispatchers.IO) { importer.importPlaylist(provider, null, includeLive = live, includeMovies = movies) }
+    suspend fun refreshCatalog(provider: Provider, live: Boolean, movies: Boolean, onProgress: ((String) -> Unit)? = null): SyncOutcome {
+        require(live || movies)
+        val stats = withContext(Dispatchers.IO) { importer.importPlaylist(provider, onProgress, includeLive = live, includeMovies = movies) }
         if (stats.liveCount == 0 && stats.movieCount == 0) throw IllegalStateException("Playlist contains no supported entries for the selected sections")
         val now = System.currentTimeMillis()
         val metadata = syncMetadataRepository.getMetadata(provider.id) ?: SyncMetadata(provider.id)
@@ -57,8 +58,9 @@ internal class M3uCatalogSyncExecutor(
             lastMovieSuccess = if (movies) now else metadata.lastMovieSuccess,
             movieCount = if (movies) stats.movieCount else metadata.movieCount
         ))
-        if (provider.epgUrl.isBlank()) assignPlaylistEpgSources(provider, stats, mutableListOf())
-        return SyncOutcome(partial = stats.warnings.isNotEmpty(), warnings = stats.warnings,
+        val warnings = stats.warnings.toMutableList()
+        if (provider.epgUrl.isBlank()) assignPlaylistEpgSources(provider, stats, warnings)
+        return SyncOutcome(partial = warnings.isNotEmpty(), warnings = warnings.distinct(),
             activation = SyncActivation.ACTIVATED_CATALOG)
     }
 

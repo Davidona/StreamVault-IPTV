@@ -941,4 +941,5 @@
     <string name="settings_sports_custom_definition_file_too_large">JSON датотека премашује ограничење од 32 KB</string>
     <string name="settings_sports_custom_definition_file_error">Није могуће учитати ову JSON датотеку</string>
     <string name="settings_experimental_badge">Експериментално</string>
+    <string name="settings_sync_index_progress">%1$s · %2$s</string>
 </resources>

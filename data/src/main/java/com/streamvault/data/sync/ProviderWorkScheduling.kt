@@ -15,6 +15,12 @@ internal fun providerEpgWorkUniqueName(providerId: Long): String {
     return PROVIDER_EPG_WORK_UNIQUE_PREFIX + providerId
 }
 
+/** Automatic constraints must never become prerequisites of an explicit refresh. */
+internal fun providerAutomaticIndexWorkUniqueName(providerId: Long): String {
+    require(providerId > 0L)
+    return "provider-automatic-index-$providerId"
+}
+
 internal fun providerWorkExistingPolicy(supersede: Boolean): ExistingWorkPolicy =
     if (supersede) {
         ExistingWorkPolicy.REPLACE

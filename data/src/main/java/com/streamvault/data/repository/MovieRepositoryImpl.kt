@@ -1748,6 +1748,10 @@ class MovieRepositoryImpl @Inject constructor(
                     )
                     return@launch
                 }
+            } catch (cancelled: kotlinx.coroutines.CancellationException) {
+                throw cancelled
+            } catch (error: Exception) {
+                Log.w("MovieRepositoryImpl", "Background Movie refresh failed for provider $providerId: ${error.javaClass.simpleName}")
             } finally {
                 backgroundRefreshes.remove(key)
             }
@@ -1764,6 +1768,7 @@ class MovieRepositoryImpl @Inject constructor(
         val hasEmptySuccessfulCheckpoint = localCount == 0 &&
             (hydration?.lastSuccessfulPage ?: hydration?.lastLoadedPage ?: 0) > 0
         if (hasEmptySuccessfulCheckpoint) return true
+        if (hydration == null || (hydration.isComplete && ContentCachePolicy.shouldRefresh(hydration.lastHydratedAt, ContentCachePolicy.CATALOG_TTL_MILLIS, now))) return true
         if (hydration?.isComplete == true) return false
         if (loadCompletely) return true
         if (localCount >= requiredCount) return false
@@ -1791,9 +1796,13 @@ class MovieRepositoryImpl @Inject constructor(
             if (!allowWildcard && stalkerProvider.isWildcardCategory(ContentType.MOVIE, categoryId)) return@withLock
             var currentCount = localCount ?: movieDao.getCountByCategory(providerId, categoryId).first()
             var currentHydration = persistedHydration ?: hydration
-            if ((currentHydration?.isComplete == true && currentCount > 0) ||
+            val refreshExpired = currentHydration == null || (currentHydration.isComplete && ContentCachePolicy.shouldRefresh(
+                currentHydration.lastHydratedAt, ContentCachePolicy.CATALOG_TTL_MILLIS
+            ))
+            if (refreshExpired) currentHydration = null
+            if (!refreshExpired && ((currentHydration?.isComplete == true && currentCount > 0) ||
                 (!loadCompletely && currentCount >= requiredCount)
-            ) return@withLock
+            )) return@withLock
             if (currentCount == 0 && currentHydration?.isEmptyRetryCoolingDown() == true) return@withLock
 
             val isPreviewLoad = requiredCount <= STALKER_PREVIEW_REQUIRED_COUNT_THRESHOLD
@@ -1824,7 +1833,7 @@ class MovieRepositoryImpl @Inject constructor(
             var firstIteration = true
             var remotePagesRequested = 0
             val seenPageFingerprints = mutableSetOf<String>()
-            while (currentCount < targetCount) {
+            while (currentCount < targetCount || (refreshExpired && firstIteration)) {
                 val attemptStartedAt = System.currentTimeMillis()
                 if (isPreviewLoad && nextPage > STALKER_PREVIEW_MAX_REMOTE_PAGES) break
                 if (remotePagesRequested >= maxRemotePages) break

@@ -105,8 +105,8 @@
     <string name="setup_phone_pairing_security_warning">Güvenlik: Eşleştirme, oturum açma bilgilerini yerel ağınız üzerinden şifrelemeden gönderir. Yalnızca güvendiğiniz özel bir Wi-Fi ağı kullanın.</string>
     <string name="setup_phone_pairing_error_help">Eşleştirme tamamlanamadı. Sağlayıcı bilgilerini kontrol edip yeniden deneyin. QR oturumunun süresi dolduysa TV’de yeni bir oturum başlatın.</string>
     <string name="setup_phone_pairing_mac_label">MAC adresi</string>
-    <string name="setup_phone_pairing_continue_on_tv">Bu adımı inceleyip tamamlamak için TV'de devam edin.</string>
-    <string name="setup_phone_pairing_stalker_certificate_error">Sertifika güvenli şekilde denetlenemedi. Bu bağlantıyı TV'de inceleyin.</string>
+    <string name="setup_phone_pairing_continue_on_tv">Bu adımı inceleyip tamamlamak için TV\'de devam edin.</string>
+    <string name="setup_phone_pairing_stalker_certificate_error">Sertifika güvenli şekilde denetlenemedi. Bu bağlantıyı TV\'de inceleyin.</string>
     <string name="stalker_transport_invalid_tls_title">Bu sağlayıcının güvenlik sertifikası doğrulanamıyor</string>
     <string name="stalker_transport_invalid_tls_body">%1$s bağlantısı hâlâ şifreli olabilir ancak uygulama bunun gerçekten bu sağlayıcıya ait olduğunu doğrulayamıyor. Ağdaki biri oturum açma veya yayın ayrıntılarınızı okuyabilir.</string>
     <string name="stalker_transport_http_title">Bu sağlayıcı şifrelenmemiş bağlantı kullanıyor</string>
@@ -114,7 +114,7 @@
     <string name="stalker_transport_origin_changed_title">Bu sağlayıcı farklı bir adres kullanmak istiyor</string>
     <string name="stalker_transport_origin_changed_body">Sağlayıcı bağlantıyı %1$s adresine yönlendirdi. Yalnızca bu adresi tanıyorsanız devam edin.</string>
     <string name="stalker_verification_inconclusive_title">Canlı TV doğrulanamadı</string>
-    <string name="stalker_verification_inconclusive_body">Sağlayıcı oturum açmanızı kabul etti ancak Canlı TV denetimi tamamlanmadı. Doğrulama beklemedeyken kaydedebilirsiniz; eşitleme Canlı TV'nin oynatılabildiğini doğrulayana kadar etkin olmayacaktır.</string>
+    <string name="stalker_verification_inconclusive_body">Sağlayıcı oturum açmanızı kabul etti ancak Canlı TV denetimi tamamlanmadı. Doğrulama beklemedeyken kaydedebilirsiniz; eşitleme Canlı TV\'nin oynatılabildiğini doğrulayana kadar etkin olmayacaktır.</string>
     <string name="stalker_transport_go_back">Geri dön</string>
     <string name="stalker_transport_connect_anyway">Yine de bağlan</string>
     <string name="stalker_save_without_verification">Doğrulamadan kaydet</string>

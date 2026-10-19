@@ -936,4 +936,5 @@
     <string name="settings_sports_custom_definition_file_too_large">JSON 文件超过 32 KB 限制</string>
     <string name="settings_sports_custom_definition_file_error">无法加载此 JSON 文件</string>
     <string name="settings_experimental_badge">实验性</string>
+    <string name="settings_sync_index_progress">%1$s · %2$s</string>
 </resources>

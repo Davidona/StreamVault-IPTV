@@ -614,7 +614,8 @@ class SyncManager @Inject constructor(
                     com.streamvault.domain.model.StalkerIndexState.RUNNING,
                     com.streamvault.domain.model.StalkerIndexState.RETRY_WAIT
                 )
-            }
+            },
+            invalidateUnifiedVod = { providerId -> vodCategoryHydrationDao.deleteByProvider(providerId) }
         )
     }
     private val xtreamCatalogExecutor by lazy {
@@ -896,7 +897,11 @@ class SyncManager @Inject constructor(
         StalkerProvider.clearCachesForProvider(providerId)
     }
 
-    override fun scheduleAutomaticSyncCheck() { ProviderSyncWorker.enqueueLaunchStaleCheck(applicationContext) }
+    override fun scheduleAutomaticSyncCheck() { ProviderSyncWorker.enqueueForegroundCheck(applicationContext) }
+
+    override fun scheduleManualEpgSync(providerId: Long) {
+        providerSyncWorkScheduler.scheduleBackgroundEpg(providerId, force = true)
+    }
 
     override fun scheduleBackgroundEpgSync(providerId: Long) {
         runCatching {
@@ -1414,7 +1419,6 @@ class SyncManager @Inject constructor(
                     )
                     0
                 }
-                scheduleXtreamIndexSync(providerId, ContentType.MOVIE, force = true)
 
                 xtreamCatalogSectionExecutor.syncCategoryShell(
                     provider = provider,
@@ -1435,7 +1439,9 @@ class SyncManager @Inject constructor(
                     )
                     0
                 }
-                scheduleXtreamIndexSync(providerId, ContentType.SERIES, force = true)
+                // Replace the previous chain once. A provider-wide worker handles both
+                // rebuilt sections without the Series request cancelling Movies.
+                scheduleXtreamIndexSync(providerId, section = null, force = true)
 
                 syncStatusPublicationCoordinator.markMovieIndexRebuildAttempt(providerId, now)
             }
@@ -1491,10 +1497,16 @@ class SyncManager @Inject constructor(
         retryFailedCategoriesOnly = false
     )
 
-    override suspend fun refreshScheduledPlaylist(providerId: Long, live: Boolean, movies: Boolean): Result<com.streamvault.domain.sync.ProviderSectionSyncResult> = withProviderLock(providerId) {
+    override suspend fun refreshPlaylistCatalog(providerId: Long, onProgress: ((String) -> Unit)?): Result<com.streamvault.domain.sync.ProviderSectionSyncResult> =
+        refreshPlaylist(providerId, live = true, movies = true, onProgress = onProgress)
+
+    override suspend fun refreshScheduledPlaylist(providerId: Long, live: Boolean, movies: Boolean): Result<com.streamvault.domain.sync.ProviderSectionSyncResult> =
+        refreshPlaylist(providerId, live, movies, null)
+
+    private suspend fun refreshPlaylist(providerId: Long, live: Boolean, movies: Boolean, onProgress: ((String) -> Unit)?): Result<com.streamvault.domain.sync.ProviderSectionSyncResult> = withProviderLock(providerId) {
         val provider = loadCompatibilityProvider(providerId) ?: return@withProviderLock Result.error("Provider configuration is unavailable")
         try {
-            val outcome = m3uCatalogExecutor.refreshCatalog(provider, live, movies)
+            val outcome = m3uCatalogExecutor.refreshCatalog(provider, live, movies, onProgress)
             Result.success(com.streamvault.domain.sync.ProviderSectionSyncResult(partial = outcome.partial, warnings = outcome.warnings, catalogChanged = true))
         } catch (cancelled: CancellationException) { throw cancelled }
         catch (error: Exception) { Result.error(syncErrorSanitizer.userMessage(error, "Playlist refresh failed"), error) }

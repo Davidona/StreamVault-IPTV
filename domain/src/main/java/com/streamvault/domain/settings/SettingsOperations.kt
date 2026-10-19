@@ -16,6 +16,8 @@ interface SettingsOperations {
         section: SettingsSyncSection,
         onProgress: ((String) -> Unit)? = null
     ): Result<ProviderSectionSyncResult>
+    suspend fun syncPlaylistCatalog(providerId: Long, onProgress: ((String) -> Unit)? = null): Result<ProviderSectionSyncResult> =
+        syncProviderSection(providerId, SettingsSyncSection.LIVE, onProgress)
     suspend fun retryProviderSection(
         providerId: Long,
         section: SettingsSyncSection,

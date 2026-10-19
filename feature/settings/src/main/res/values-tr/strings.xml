@@ -940,4 +940,5 @@
     <string name="settings_sports_custom_definition_file_too_large">JSON dosyası 32 KB sınırını aşıyor</string>
     <string name="settings_sports_custom_definition_file_error">Bu JSON dosyası yüklenemedi</string>
     <string name="settings_experimental_badge">Deneysel</string>
+    <string name="settings_sync_index_progress">%1$s · %2$s</string>
 </resources>

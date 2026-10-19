@@ -26,10 +26,16 @@ object CrashReportStore {
     const val MIME_TYPE_TEXT = "text/plain"
     private const val CRASH_DIR = "diagnostics/crash"
     private const val LATEST_FILE_NAME = "latest-crash.txt"
+    private const val TEMP_FILE_NAME = "$LATEST_FILE_NAME.tmp"
+    private const val ARCHIVED_FILE_PREFIX = "crash-"
+    private const val ARCHIVED_FILE_SUFFIX = ".txt"
+    private const val MAX_STORED_REPORTS = 5
+    private const val MAX_ARCHIVED_REPORTS = MAX_STORED_REPORTS - 1
     private const val PLAYBACK_SUPPORT_FILE_NAME = "latest-playback-support.txt"
     private const val MAX_REPORT_CHARS = 64_000
     private val installed = AtomicBoolean(false)
     private val writingCrash = AtomicBoolean(false)
+    private val reportLock = Any()
     private val formatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME
     private val urlPattern = Regex("""https?://[^\s"'<>]+""", RegexOption.IGNORE_CASE)
     private val sensitiveParamPattern = Regex(
@@ -42,10 +48,7 @@ object CrashReportStore {
         Thread.setDefaultUncaughtExceptionHandler { thread, throwable ->
             if (writingCrash.compareAndSet(false, true)) {
                 runCatching {
-                    latestReportFile(application).writeText(
-                        buildReport(application, thread, throwable),
-                        Charsets.UTF_8
-                    )
+                    saveReport(application, buildReport(application, thread, throwable))
                 }
                 writingCrash.set(false)
             }
@@ -75,16 +78,28 @@ object CrashReportStore {
             file.parentFile?.mkdirs()
         }
 
-    fun deleteLatestReport(context: Context): Boolean =
-        latestReportFile(context).delete()
+    fun deleteLatestReport(context: Context): Boolean = synchronized(reportLock) {
+        val latest = latestReportFile(context)
+        val directory = latest.parentFile ?: return@synchronized false
+        val reports = archivedReports(directory) + latest + File(directory, TEMP_FILE_NAME)
+        var foundReport = false
+        var allDeleted = true
+        reports.distinct().forEach { file ->
+            if (file.exists()) {
+                foundReport = true
+                if (!file.delete()) allDeleted = false
+            }
+        }
+        foundReport && allDeleted
+    }
 
     fun recordHandledFailure(context: Context, operation: String, throwable: Throwable) {
         runCatching {
-            latestReportFile(context).writeText(
+            saveReport(
+                context,
                 buildReport(context, Thread.currentThread(), throwable)
                     .replaceFirst("StreamVault Crash Report", "StreamVault Failure Report")
-                    .plus("\nOperation: ${sanitize(operation)}\n"),
-                Charsets.UTF_8
+                    .plus("\nOperation: ${sanitize(operation)}\n")
             )
         }
     }
@@ -134,6 +149,62 @@ object CrashReportStore {
             }
         }.take(MAX_REPORT_CHARS)
     }
+
+    private fun saveReport(context: Context, content: String) = synchronized(reportLock) {
+        val latest = latestReportFile(context)
+        val directory = latest.parentFile ?: return@synchronized
+        val temporary = File(directory, TEMP_FILE_NAME)
+
+        // Write the new report before rotating so a failed write preserves the current report.
+        temporary.writeText(content, Charsets.UTF_8)
+
+        if (latest.isFile && latest.length() > 0L) {
+            archiveLatestReport(latest)
+        } else {
+            latest.delete()
+        }
+        trimArchivedReports(directory)
+
+        if (!temporary.renameTo(latest)) {
+            temporary.copyTo(latest, overwrite = true)
+            temporary.delete()
+        }
+    }
+
+    private fun archiveLatestReport(latest: File) {
+        val directory = latest.parentFile ?: return
+        val timestamp = latest.lastModified().takeIf { it > 0L } ?: System.currentTimeMillis()
+        var suffix = 0
+        var archived: File
+        do {
+            archived = File(directory, "$ARCHIVED_FILE_PREFIX$timestamp-$suffix$ARCHIVED_FILE_SUFFIX")
+            suffix++
+        } while (archived.exists())
+
+        if (!latest.renameTo(archived)) {
+            runCatching { latest.copyTo(archived, overwrite = false) }
+                .onSuccess { latest.delete() }
+        }
+    }
+
+    private fun trimArchivedReports(directory: File) {
+        val reports = archivedReports(directory)
+            .sortedWith(compareBy<File> { archiveTimestamp(it) }.thenBy { it.name })
+        reports.take((reports.size - MAX_ARCHIVED_REPORTS).coerceAtLeast(0))
+            .forEach(File::delete)
+    }
+
+    private fun archiveTimestamp(file: File): Long =
+        file.name.removePrefix(ARCHIVED_FILE_PREFIX)
+            .substringBefore('-')
+            .toLongOrNull()
+            ?: file.lastModified()
+
+    private fun archivedReports(directory: File): List<File> =
+        directory.listFiles { file ->
+            file.isFile && file.name.startsWith(ARCHIVED_FILE_PREFIX) &&
+                file.name.endsWith(ARCHIVED_FILE_SUFFIX)
+        }?.toList().orEmpty()
 
     private fun latestPlaybackSupport(context: Context): String? {
         val file = File(context.filesDir, "$CRASH_DIR/$PLAYBACK_SUPPORT_FILE_NAME")

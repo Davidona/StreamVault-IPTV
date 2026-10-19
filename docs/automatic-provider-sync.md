@@ -9,18 +9,24 @@ Default behavior:
 - Connected network and battery not low; charging, unmetered networking and device idle are optional.
 - Automatic work waits while local playback (including paused/buffering players) or recording is active. An idle transition requests a catch-up check.
 - No preferred time window by default. Windows can cross midnight and use device-local time.
-- A durable hourly check plans due work; process startup and provider selection also request checks. Android decides actual execution times.
+- A durable hourly check plans due work; process startup, provider selection and policy edits also request checks. Returning to an existing app process requests an immediate check, throttled to once per 30 seconds. Android decides actual execution times.
 
 The shared ProviderRefreshPlanner selects supported sections using successful refresh timestamps. Attempt timestamps do not make failed work fresh. Explicit Settings refreshes share capability selection and the current catalog executors while ignoring automatic enablement and freshness. Interrupted provider setup/configuration recovery remains independent of automatic refresh settings.
+
+On the first automatic check with the corrected sync engine, each provider gets a persisted catch-up checkpoint. Selected sections last refreshed before that checkpoint are due even if their inherited timestamps are otherwise recent. The checkpoint completes only after those sections succeed; failed and queued work remain recoverable. Global/provider disablement and automatic constraints still apply. These runtime checkpoints are not included in portable backups.
 
 Provider behavior:
 
 - Xtream: current Live strategy plus resumable Movies/Series index jobs.
-- Stalker: current Live executor and its own index-job store. On-demand VOD refreshes category shells; background-index mode queues resumable item indexing. Unified VOD does not request split Series.
+- Stalker: current Live executor and its own index-job store. On-demand VOD refreshes category shells and invalidates completed content checkpoints while retaining cached rows; revisiting a category can fetch new entries. Background-index mode queues resumable item indexing. Unified VOD does not request split Series.
 - M3U: one playlist download applies the selected Live/Movie sections. Complete snapshots add, update and prune entries using existing import safety rules.
 - Jellyfin: Movies and Series refresh only when due, including for inactive saved providers; there are no Live/guide requests.
 
 Automatic index continuations retain their policy/provenance, recheck restrictions and section selections, and preserve pending progress. Explicit manual index work can replace pending automatic work with restrictive constraints. Permanent index failures require explicit retry. Scheduled refreshes do not change the selected provider or deactivate it after a refresh failure.
+
+Automatic index requests use a separate WorkManager identity from manual/configuration work. A changed automatic policy replaces its old constrained request without cancelling manual work; manual requests cancel automatic index work and reuse durable checkpoints. Old mixed-origin automatic chains are reconciled when first rescheduled. Pending index checkpoints are resumed independently of the previous successful refresh's age.
+
+Settings keeps manual Movie/Series and index-rebuild progress visible through durable indexing, including localized section labels and item counts. Cancel stops the foreground wait; admitted library work continues. Rebuild Index replaces the prior chain once with one provider-wide index request. A complete M3U selection downloads and reconciles both catalog sections together, including an emptied opposite section and playlist guide-source discovery. Manual guide refreshes force the provider download, supersede unforced pending requests, and do not wait for unrelated queued catalog indexing. Successful external-only guide refreshes advance provider-level guide freshness.
 
 Settings displays per-section last successful timestamps, the next due time, and the last automatic-check result, distinguishing fresh data, queued indexing, running work, deferral, warnings and failure. Automatic policy defaults and overrides are included in backup/restore through portable provider identities; runtime status is not backed up.
 
@@ -45,3 +51,13 @@ Final validation:
 Local evidence is retained in `tmp/automatic-sync/`: build logs, final instrumentation result, UI hierarchy captures and the interval-picker screenshot. Build artifacts are `app/build/outputs/apk/debug/app-debug.apk` and `app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk`.
 
 This validation exercises scheduled catalog synchronization. It does not claim live playback, real-provider availability, or exact wall-clock background execution timing.
+
+## Sync correction validation (2026-10-19)
+
+- Full domain, data and Settings unit suites plus the targeted app startup suite passed: **1,973 tests** (249 domain, 1,628 data, 89 Settings and seven startup tests), zero failures or skips.
+- WorkManager integration tests cover changed automatic constraints, manual/automatic queue isolation, forced guide replacement, appended foreground checks and failure handling. Regression tests cover upgrade catch-up, pending jobs, Live admission, complete M3U reconciliation, Stalker cache refresh and durable Settings progress.
+- Debug application and instrumentation APKs assembled successfully after the final production change.
+- Both opt-in runtime tests passed on a disposable read-only Android emulator against the final APK: `XtreamMovieRefreshRuntimeTest` and `AutomaticProviderSyncRuntimeTest` (**two tests, 62.545 seconds**). Local HTTP fixtures exercise newly added Xtream movies, inherited fresh timestamps requiring upgrade catch-up, stable existing row IDs, inactive providers, complete M3U refresh/pruning and automatic disablement.
+- Localization checks found no missing affected keys across all 38 advertised locales; the new progress formatter preserves its argument contract in every locale. `git diff --check` passed.
+
+Evidence is retained locally under `tmp/sync-review/`: `fixed-unit-results.json`, `final-data-suite.log`, `final-settings-tests.log`, `queue-final-validation.log`, `fixed-runtime-final.txt`, `fix-localization.txt` and `fix-format-contracts.txt`. The disposable emulator was shut down after validation. These checks use synthetic providers; the reporting user's account and live playback were not exercised.

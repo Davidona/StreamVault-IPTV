@@ -7,16 +7,19 @@ import com.streamvault.domain.model.ProviderType
 import com.streamvault.domain.model.Result
 import com.streamvault.domain.settings.SettingsOperations
 import com.streamvault.domain.settings.SettingsSyncSection
+import com.streamvault.domain.settings.SettingsXtreamIndexJob
 import com.streamvault.domain.sync.ProviderSectionSyncResult
 import com.streamvault.feature.settings.R
 import com.streamvault.feature.settings.api.SettingsSurfaceRefreshPort
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
+import org.junit.Before
 import org.mockito.Answers
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doSuspendableAnswer
@@ -45,6 +48,8 @@ class SettingsSyncActionsTest {
                 R.string.settings_sync_cancelled -> "Sync cancelled."
                 R.string.settings_sync_stopped_queued -> "Refresh stopped. Already queued work will continue."
                 R.string.settings_syncing_section -> "Refreshing %1\$s"
+                R.string.settings_sync_index_progress -> "%1\$s · %2\$s"
+                R.string.settings_sync_incomplete -> "Refresh is incomplete; cached content was preserved."
                 else -> "Preparing"
             }
             String.format(format, *invocation.arguments.drop(1).toTypedArray())
@@ -58,6 +63,13 @@ class SettingsSyncActionsTest {
     private val state = MutableStateFlow(SettingsUiState(providers = listOf(provider)))
     private val actions = SettingsSyncActions(context, operations, surfaces, state) { _, _ ->
         error("A section refresh must not rebuild the index")
+    }
+
+    @Before fun completedIndexes() {
+        whenever(operations.observeXtreamIndexJobs()).thenReturn(flowOf(listOf(
+            SettingsXtreamIndexJob(7L, "MOVIE", "SUCCESS", 30, null),
+            SettingsXtreamIndexJob(7L, "SERIES", "SUCCESS", 20, null)
+        )))
     }
 
     @Test
@@ -74,7 +86,8 @@ class SettingsSyncActionsTest {
         verify(operations).syncProviderSection(eq(7L), eq(SettingsSyncSection.SERIES), any())
         verify(operations, never()).syncProviderSection(eq(7L), eq(SettingsSyncSection.EPG), any())
         verify(operations).scheduleBackgroundEpgSync(7L)
-        assertThat(state.value.userMessage).contains("Series refresh queued")
+        assertThat(state.value.userMessage).contains("Series")
+        assertThat(state.value.userMessage).doesNotContain("Series refresh queued")
         assertThat(state.value.userMessage).contains("EPG refresh queued")
         assertThat(state.value.isSyncing).isFalse()
     }
@@ -90,7 +103,8 @@ class SettingsSyncActionsTest {
         advanceUntilIdle()
 
         assertThat(state.value.userMessage).contains("Incomplete")
-        assertThat(state.value.syncWarningsByProvider[7L]).containsExactly("TV: Sports unavailable")
+        assertThat(state.value.syncWarningsByProvider[7L].orEmpty().single()).contains("Refresh is incomplete")
+        assertThat(state.value.userMessage).doesNotContain("Sports unavailable")
         verify(surfaces).enqueueTvInputCatalogRefresh()
     }
 
@@ -103,8 +117,9 @@ class SettingsSyncActionsTest {
         actions.retryWarningAction(this, 7L, ProviderWarningAction.MOVIES)
         advanceUntilIdle()
 
-        assertThat(state.value.syncWarningsByProvider[7L]).containsExactly("Movies: Missing rows")
-        assertThat(state.value.userMessage).contains("Movies refresh queued")
+        assertThat(state.value.syncWarningsByProvider[7L]).isNull()
+        assertThat(state.value.userMessage).contains("Movies")
+        assertThat(state.value.userMessage).doesNotContain("Movies refresh queued")
     }
 
     @Test
@@ -115,8 +130,8 @@ class SettingsSyncActionsTest {
         )
         actions.retryWarningAction(this, 7L, ProviderWarningAction.EPG)
         advanceUntilIdle()
-        assertThat(state.value.userMessage).contains("XMLTV unavailable")
-        assertThat(state.value.syncWarningsByProvider[7L]).contains("EPG: XMLTV unavailable")
+        assertThat(state.value.userMessage).contains("Refresh is incomplete")
+        assertThat(state.value.userMessage).doesNotContain("XMLTV unavailable")
 
         whenever(operations.syncProviderSection(eq(7L), eq(SettingsSyncSection.EPG), any())).thenReturn(
             Result.success(ProviderSectionSyncResult())
@@ -137,7 +152,7 @@ class SettingsSyncActionsTest {
         assertThat(state.value.isSyncing).isFalse()
         assertThat(state.value.syncCanCancel).isFalse()
         assertThat(state.value.syncProgress).isNull()
-        assertThat(state.value.userMessage).contains("Guide unavailable")
+        assertThat(state.value.userMessage).contains("Refresh is incomplete")
     }
 
     @Test
@@ -185,5 +200,48 @@ class SettingsSyncActionsTest {
             ProviderSyncSelection.TV, ProviderSyncSelection.MOVIES,
             ProviderSyncSelection.SERIES, ProviderSyncSelection.EPG
         ).inOrder()
+    }
+
+    @Test fun `manual catalog loading stays visible through queued running and completed states`() = runTest {
+        val jobs = MutableStateFlow(listOf(SettingsXtreamIndexJob(7L, "MOVIE", "QUEUED", 0, null)))
+        whenever(operations.observeXtreamIndexJobs()).thenReturn(jobs)
+        whenever(operations.syncProviderSection(eq(7L), eq(SettingsSyncSection.MOVIES), any()))
+            .thenReturn(Result.success(ProviderSectionSyncResult(queued = true)))
+        actions.syncProviderSection(this, 7L, ProviderSyncSelection.MOVIES)
+        runCurrent()
+        assertThat(state.value.isSyncing).isTrue()
+        jobs.value = listOf(SettingsXtreamIndexJob(7L, "MOVIE", "RUNNING", 25, null))
+        runCurrent()
+        assertThat(state.value.syncProgress).contains("25")
+        jobs.value = listOf(SettingsXtreamIndexJob(7L, "MOVIE", "SUCCESS", 50, null))
+        advanceUntilIdle()
+        assertThat(state.value.isSyncing).isFalse()
+        assertThat(state.value.userMessage).contains("Movies")
+        assertThat(state.value.userMessage).doesNotContain("queued")
+    }
+
+    @Test fun `cancel while awaiting durable indexing explains that the work continues`() = runTest {
+        whenever(operations.observeXtreamIndexJobs()).thenReturn(MutableStateFlow(listOf(
+            SettingsXtreamIndexJob(7L, "MOVIE", "QUEUED", 0, null)
+        )))
+        whenever(operations.syncProviderSection(eq(7L), eq(SettingsSyncSection.MOVIES), any()))
+            .thenReturn(Result.success(ProviderSectionSyncResult(queued = true)))
+        actions.syncProviderSection(this, 7L, ProviderSyncSelection.MOVIES)
+        runCurrent()
+        actions.cancelSync()
+        advanceUntilIdle()
+        assertThat(state.value.isSyncing).isFalse()
+        assertThat(state.value.userMessage).contains("queued work will continue")
+    }
+
+    @Test fun `M3U combined refresh uses one complete playlist operation`() = runTest {
+        state.value = state.value.copy(providers = listOf(provider.copy(type = ProviderType.M3U)))
+        whenever(operations.syncPlaylistCatalog(eq(7L), any())).thenReturn(Result.success(ProviderSectionSyncResult(catalogChanged = true)))
+        actions.syncProviderCustom(this, 7L, setOf(ProviderSyncSelection.TV, ProviderSyncSelection.MOVIES))
+        advanceUntilIdle()
+        verify(operations).syncPlaylistCatalog(eq(7L), any())
+        verify(operations, never()).syncProviderSection(any(), any(), any())
+        assertThat(state.value.userMessage).contains("Movies")
+        verify(surfaces).enqueueTvInputCatalogRefresh()
     }
 }

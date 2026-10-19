@@ -105,8 +105,8 @@
     <string name="setup_phone_pairing_security_warning">Sikkerhed: Parring sender loginoplysninger uden kryptering via dit lokale netværk. Brug kun et privat Wi-Fi-netværk, du har tillid til.</string>
     <string name="setup_phone_pairing_error_help">Parringen kunne ikke gennemføres. Kontrollér udbyderoplysningerne, og prøv igen. Hvis QR-sessionen er udløbet, skal du starte en ny på tv’et.</string>
     <string name="setup_phone_pairing_mac_label">MAC-adresse</string>
-    <string name="setup_phone_pairing_continue_on_tv">Fortsæt på tv'et for at gennemgå og fuldføre dette trin.</string>
-    <string name="setup_phone_pairing_stalker_certificate_error">Certifikatet kunne ikke kontrolleres sikkert. Gennemgå denne forbindelse på tv'et.</string>
+    <string name="setup_phone_pairing_continue_on_tv">Fortsæt på tv\'et for at gennemgå og fuldføre dette trin.</string>
+    <string name="setup_phone_pairing_stalker_certificate_error">Certifikatet kunne ikke kontrolleres sikkert. Gennemgå denne forbindelse på tv\'et.</string>
     <string name="stalker_transport_invalid_tls_title">Denne udbyders sikkerhedscertifikat kan ikke bekræftes</string>
     <string name="stalker_transport_invalid_tls_body">Forbindelsen til %1$s kan stadig være krypteret, men appen kan ikke bekræfte, at den faktisk tilhører denne udbyder. En person på netværket kan muligvis læse dine login- eller streamoplysninger.</string>
     <string name="stalker_transport_http_title">Denne udbyder bruger en ukrypteret forbindelse</string>

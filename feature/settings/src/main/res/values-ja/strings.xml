@@ -938,4 +938,5 @@
     <string name="settings_sports_custom_definition_file_too_large">JSON ファイルが 32 KB の上限を超えています</string>
     <string name="settings_sports_custom_definition_file_error">この JSON ファイルを読み込めませんでした</string>
     <string name="settings_experimental_badge">試験運用</string>
+    <string name="settings_sync_index_progress">%1$s · %2$s</string>
 </resources>

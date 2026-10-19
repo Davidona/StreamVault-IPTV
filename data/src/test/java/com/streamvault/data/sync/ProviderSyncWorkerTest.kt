@@ -30,6 +30,14 @@ import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 
 class ProviderSyncWorkerTest {
+    @Test fun foregroundFailuresDoNotPoisonTheNextQueuedCheck() {
+        for (retryable in listOf(false, true)) for (permanent in listOf(false, true)) {
+            assertThat(providerCheckWorkResult(true, retryable, permanent))
+                .isEqualTo(androidx.work.ListenableWorker.Result.success())
+        }
+        assertThat(providerCheckWorkResult(false, true, false)).isEqualTo(androidx.work.ListenableWorker.Result.retry())
+        assertThat(providerCheckWorkResult(false, false, true)).isEqualTo(androidx.work.ListenableWorker.Result.failure())
+    }
     @Test
     fun `permanent index rejection is not retried merely because success timestamp is absent`() {
         assertThat(shouldRunPersistedIndexJob(

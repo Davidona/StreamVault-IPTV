@@ -938,4 +938,5 @@
     <string name="settings_sports_custom_definition_file_too_large">JSON फ़ाइल 32 KB की सीमा से बड़ी है</string>
     <string name="settings_sports_custom_definition_file_error">यह JSON फ़ाइल लोड नहीं की जा सकी</string>
     <string name="settings_experimental_badge">प्रायोगिक</string>
+    <string name="settings_sync_index_progress">%1$s · %2$s</string>
 </resources>

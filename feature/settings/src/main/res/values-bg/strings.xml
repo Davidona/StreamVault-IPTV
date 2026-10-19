@@ -938,4 +938,5 @@
     <string name="settings_sports_custom_definition_file_too_large">JSON файлът надвишава ограничението от 32 KB</string>
     <string name="settings_sports_custom_definition_file_error">Този JSON файл не може да бъде зареден</string>
     <string name="settings_experimental_badge">Експериментално</string>
+    <string name="settings_sync_index_progress">%1$s · %2$s</string>
 </resources>

@@ -29,8 +29,9 @@ class ProviderSyncWorkScheduler @Inject constructor(
         StalkerIndexWorker.cancel(applicationContext, providerId)
     }
 
-    fun scheduleBackgroundEpg(providerId: Long) {
-        BackgroundEpgSyncWorker.enqueue(applicationContext, providerId)
+    fun scheduleBackgroundEpg(providerId: Long, force: Boolean = false) {
+        BackgroundEpgSyncWorker.enqueue(applicationContext, providerId, force = force,
+            initialDelaySeconds = if (force) 0L else 30L)
     }
 
     fun scheduleProviderResume(providerId: Long, configurationGeneration: Long? = null) {
@@ -52,8 +53,21 @@ class ProviderSyncWorkScheduler @Inject constructor(
         automatic: Boolean = (AutomaticSyncExecution.automatic.get() == true)
     ) {
         val origins = applicationContext.getSharedPreferences("automatic_sync_work", Context.MODE_PRIVATE)
-        val replaceAutomatic = !automatic && origins.getBoolean("xtream_$providerId", false)
-        origins.edit { putBoolean("xtream_$providerId", automatic) }
+        val manager = androidx.work.WorkManager.getInstance(applicationContext)
+        val policy = AutomaticSyncExecution.policy.get() ?: com.streamvault.domain.sync.AutomaticSyncSettings()
+        val wasAutomatic = origins.getBoolean("xtream_$providerId", false)
+        // Migrate an old mixed-origin chain once. New automatic chains have their own
+        // identity, so policy edits cannot cancel a manual sibling or block it.
+        if (!origins.getBoolean("xtream_split_queue_$providerId", false) && wasAutomatic) {
+            manager.cancelUniqueWork(providerWorkUniqueName(providerId))
+        }
+        if (!automatic) manager.cancelUniqueWork(providerAutomaticIndexWorkUniqueName(providerId))
+        val replaceAutomatic = automatic && wasAutomatic && origins.getString("xtream_policy_$providerId", null) != policy.toString()
+        origins.edit {
+            putBoolean("xtream_split_queue_$providerId", true)
+            putBoolean("xtream_$providerId", automatic)
+            putString("xtream_policy_$providerId", if (automatic) policy.toString() else null)
+        }
         XtreamIndexWorker.enqueue(
             context = applicationContext,
             providerId = providerId,
@@ -72,8 +86,19 @@ class ProviderSyncWorkScheduler @Inject constructor(
         appendSuccessor: Boolean = false
     ) {
         val origins = applicationContext.getSharedPreferences("automatic_sync_work", Context.MODE_PRIVATE)
-        val replaceAutomatic = !automatic && origins.getBoolean("stalker_$providerId", false)
-        origins.edit { putBoolean("stalker_$providerId", automatic) }
+        val manager = androidx.work.WorkManager.getInstance(applicationContext)
+        val policy = AutomaticSyncExecution.policy.get() ?: com.streamvault.domain.sync.AutomaticSyncSettings()
+        val wasAutomatic = origins.getBoolean("stalker_$providerId", false)
+        if (!origins.getBoolean("stalker_split_queue_$providerId", false) && wasAutomatic) {
+            manager.cancelUniqueWork(providerWorkUniqueName(providerId))
+        }
+        if (!automatic) manager.cancelUniqueWork(providerAutomaticIndexWorkUniqueName(providerId))
+        val replaceAutomatic = automatic && wasAutomatic && origins.getString("stalker_policy_$providerId", null) != policy.toString()
+        origins.edit {
+            putBoolean("stalker_split_queue_$providerId", true)
+            putBoolean("stalker_$providerId", automatic)
+            putString("stalker_policy_$providerId", if (automatic) policy.toString() else null)
+        }
         // Stalker section requests are intentionally coalesced into the durable
         // provider job. This preserves the existing worker contract: the worker
         // selects the next pending section from its persisted job state.

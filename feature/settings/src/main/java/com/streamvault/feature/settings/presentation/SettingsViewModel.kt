@@ -93,7 +93,6 @@ import kotlinx.coroutines.launch
 import kotlin.math.max
 import javax.inject.Inject
 
-private const val BACKGROUND_INDEX_STATUS_PREFIX = "Background index:"
 
 @HiltViewModel
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -174,6 +173,7 @@ class SettingsViewModel @Inject constructor(
         uiState = _uiState
     )
     private val providerActions: SettingsProviderActions = SettingsProviderActions(
+        appContext = application,
         providerRepository = providerRepository,
         combinedM3uRepository = combinedM3uRepository,
         preferencesRepository = preferencesRepository,
@@ -326,6 +326,8 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
+    private var previousIndexWarnings = emptySet<String>()
+
     private fun registerXtreamIndexJobObserver() {
         viewModelScope.launch {
             settingsOperations.observeXtreamIndexJobs().collect { jobs ->
@@ -335,6 +337,8 @@ class SettingsViewModel @Inject constructor(
                         providerJobs.mapNotNull { job -> job.toSettingsWarningMessage() }
                     }
                     .filterValues { it.isNotEmpty() }
+                val outdatedWarnings = previousIndexWarnings
+                previousIndexWarnings = jobWarningsByProvider.values.flatten().toSet()
 
                 _uiState.update { state ->
                     val providerIds = state.providers.map { it.id }.toSet()
@@ -353,7 +357,7 @@ class SettingsViewModel @Inject constructor(
                         .filterKeys { it in providerIds }
                         .mapValues { (providerId, warnings) ->
                             warnings.filterNot { warning ->
-                                warning.startsWith(BACKGROUND_INDEX_STATUS_PREFIX) ||
+                                warning in outdatedWarnings ||
                                     completedLabelsByProvider[providerId].orEmpty().any { warning.startsWith("$it:") }
                             }
                         }
@@ -416,20 +420,18 @@ class SettingsViewModel @Inject constructor(
 
     private fun SettingsXtreamIndexJob.toSettingsWarningMessage(): String? {
         val label = when (section) {
-            "LIVE" -> "Live TV"
-            "MOVIE" -> "Movies"
-            "SERIES" -> "Series"
-            "EPG" -> "EPG"
-            else -> section.lowercase().replaceFirstChar { it.titlecase() }
+            "LIVE" -> appContext.getString(R.string.settings_sync_option_tv)
+            "MOVIE" -> appContext.getString(R.string.settings_sync_option_movies)
+            "SERIES" -> appContext.getString(R.string.settings_sync_option_series)
+            "EPG" -> appContext.getString(R.string.settings_sync_option_epg)
+            else -> return null
         }
-        return when (state) {
-            "PARTIAL" -> "$BACKGROUND_INDEX_STATUS_PREFIX $label partial: ${indexedRows} indexed"
-            "TRUNCATED" -> "$BACKGROUND_INDEX_STATUS_PREFIX $label truncated: ${indexedRows} indexed"
-            "FAILED" -> "$BACKGROUND_INDEX_STATUS_PREFIX $label failed${lastError?.let { ": $it" }.orEmpty()}"
-            "FAILED_RETRYABLE" -> "$BACKGROUND_INDEX_STATUS_PREFIX $label retryable failed${lastError?.let { ": $it" }.orEmpty()}"
-            "FAILED_PERMANENT" -> "$BACKGROUND_INDEX_STATUS_PREFIX $label permanently failed${lastError?.let { ": $it" }.orEmpty()}"
+        val message = when (state) {
+            "PARTIAL", "TRUNCATED" -> appContext.getString(R.string.settings_sync_incomplete)
+            "FAILED", "FAILED_RETRYABLE", "FAILED_PERMANENT" -> appContext.getString(R.string.settings_auto_sync_status_failed)
             else -> null
         }
+        return message?.let { appContext.getString(R.string.settings_sync_index_progress, label, it) }
     }
 
     fun setActiveProvider(providerId: Long) {
