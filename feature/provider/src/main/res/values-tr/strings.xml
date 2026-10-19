@@ -118,4 +118,11 @@
     <string name="stalker_transport_go_back">Geri dön</string>
     <string name="stalker_transport_connect_anyway">Yine de bağlan</string>
     <string name="stalker_save_without_verification">Doğrulamadan kaydet</string>
+
+    <string name="setup_stalker_catalog_title">Film ve dizi kataloğu</string>
+    <string name="setup_stalker_catalog_description">Program rehberinden ayrıdır. Arka plan dizin oluşturma, kurulumdan sonra aranabilir bir katalog hazırlar.</string>
+    <string name="setup_stalker_catalog_on_demand_title">İsteğe bağlı</string>
+    <string name="setup_stalker_catalog_on_demand_description">Rafları ve kategorileri açıldıklarında yükler. Önbelleğe alınan başlıkları korur.</string>
+    <string name="setup_stalker_catalog_background_title">Tam arka plan dizini (önerilen)</string>
+    <string name="setup_stalker_catalog_background_description">Önce sağlayıcı kurulumunu tamamlayın, ardından aranabilmeleri için tüm filmleri ve dizileri arka planda dizine ekleyin.</string>
 </resources>

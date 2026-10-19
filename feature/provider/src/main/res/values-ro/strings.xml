@@ -118,4 +118,11 @@
     <string name="stalker_transport_go_back">Înapoi</string>
     <string name="stalker_transport_connect_anyway">Conectează oricum</string>
     <string name="stalker_save_without_verification">Salvează fără verificare</string>
+
+    <string name="setup_stalker_catalog_title">Catalog de filme și seriale</string>
+    <string name="setup_stalker_catalog_description">Este separat de ghidul TV. Indexarea în fundal creează un catalog în care poți căuta după configurare.</string>
+    <string name="setup_stalker_catalog_on_demand_title">La cerere</string>
+    <string name="setup_stalker_catalog_on_demand_description">Încarcă rafturile și categoriile când sunt deschise. Păstrează titlurile din memoria cache.</string>
+    <string name="setup_stalker_catalog_background_title">Indexare completă în fundal (recomandată)</string>
+    <string name="setup_stalker_catalog_background_description">Finalizează mai întâi configurarea furnizorului, apoi indexează în fundal toate filmele și serialele pentru a le putea căuta.</string>
 </resources>

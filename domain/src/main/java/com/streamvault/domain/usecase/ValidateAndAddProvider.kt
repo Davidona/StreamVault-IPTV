@@ -79,7 +79,7 @@ data class StalkerProviderSetupCommand(
     val repairConnection: Boolean = false,
     val requestedProfileId: String = StalkerCompatibilityProfileIds.AUTO,
     val epgSyncMode: ProviderEpgSyncMode = ProviderEpgSyncMode.BACKGROUND,
-    val catalogMode: StalkerCatalogMode = StalkerCatalogMode.ON_DEMAND,
+    val catalogMode: StalkerCatalogMode = StalkerCatalogMode.BACKGROUND_INDEX,
     val guideSourcePolicy: GuideSourcePolicy = GuideSourcePolicy.AUTO,
     val channelLogoSourcePolicy: ChannelLogoSourcePolicy = ChannelLogoSourcePolicy.SUPPLIER_PREFERRED,
     val existingProviderId: Long? = null

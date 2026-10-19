@@ -1085,6 +1085,78 @@ class StalkerProviderTest {
     }
 
     @Test
+    fun vodPaging_detectsZeroBasedPortalAndPersistsOffsetAcrossProviderInstances() = runTest {
+        val dao = FakePortalStateDao()
+        val store = StalkerPortalStateStore(dao, TestCredentialCrypto())
+        val api = FakeStalkerApiService(
+            profile = StalkerProviderProfile(accountName = "Room"),
+            vodPageResultsByPage = mapOf(
+                0 to stalkerVodPage(0, "zero-first", "First page"),
+                1 to stalkerVodPage(1, "zero-second", "Second page"),
+                2 to stalkerVodPage(2, "zero-third", "Third page")
+            )
+        )
+        fun provider() = StalkerProvider(
+            providerId = 47L,
+            api = api,
+            portalUrl = "https://portal.example.com/c/",
+            macAddress = "00:1A:79:12:34:56",
+            deviceProfile = "MAG250",
+            timezone = "UTC",
+            locale = "en",
+            configurationGeneration = 9L,
+            portalStateStore = store
+        )
+
+        val first = provider().getVodStreamsPage(categoryId = null, page = 1) as Result.Success
+        assertThat(first.data.items.single().name).isEqualTo("First page")
+        assertThat(first.data.page).isEqualTo(1)
+        assertThat(api.vodPageRequests).containsExactly(0, 1).inOrder()
+        assertThat(store.getVodPageBase(47L, 9L)).isEqualTo(0)
+
+        val resumed = provider().getVodStreamsPage(categoryId = null, page = 2) as Result.Success
+        assertThat(resumed.data.items.single().name).isEqualTo("Second page")
+        assertThat(resumed.data.page).isEqualTo(2)
+        assertThat(api.vodPageRequests).containsExactly(0, 1, 1).inOrder()
+        assertThat(api.authenticateCalls).isEqualTo(1)
+    }
+
+    @Test
+    fun vodPaging_detectsOneBasedPortalWhenPageZeroAliasesPageOne() = runTest {
+        val api = FakeStalkerApiService(
+            profile = StalkerProviderProfile(accountName = "Room"),
+            vodPageResultsByPage = mapOf(
+                0 to stalkerVodPage(0, "one-first", "First page"),
+                1 to stalkerVodPage(1, "one-first", "First page"),
+                2 to stalkerVodPage(2, "one-second", "Second page")
+            )
+        )
+        val provider = categoryReuseProvider(api)
+
+        val first = provider.getVodStreamsPage(categoryId = null, page = 1) as Result.Success
+        val second = provider.getVodStreamsPage(categoryId = null, page = 2) as Result.Success
+
+        assertThat(first.data.items.single().name).isEqualTo("First page")
+        assertThat(second.data.items.single().name).isEqualTo("Second page")
+        assertThat(api.vodPageRequests).containsExactly(0, 1, 2).inOrder()
+    }
+
+    private fun stalkerVodPage(page: Int, id: String, title: String) = StalkerPagedItems(
+        items = listOf(
+            StalkerItemRecord(
+                id = id,
+                name = title,
+                cmd = "ffmpeg http://cdn.example.com/$id.mp4"
+            )
+        ),
+        page = page,
+        totalPages = 3,
+        pageSize = 1,
+        advertisedTotalItems = 3,
+        advertisedTotalPages = 3
+    )
+
+    @Test
     fun getSeriesListPage_preservesRequestedCategoryWhenOnlyReverseIdentityIsCached() = runTest {
         val resolver = StalkerRemoteIdentityResolver(FakeIdentityDao(), DirectTransactionRunner)
         resolver.resolveAll(7L, ContentType.SERIES, listOf("30"))
@@ -1840,8 +1912,9 @@ class StalkerProviderTest {
         private val authenticationError: Throwable? = null,
         private val vodFiles: List<StalkerItemRecord> = emptyList(),
         private val vodFilesResult: Result<List<StalkerItemRecord>>? = null,
-        private val createLinkResultsByCmd: Map<String, Result<String>> = emptyMap()
-    ) : StalkerApiService {
+        private val createLinkResultsByCmd: Map<String, Result<String>> = emptyMap(),
+        private val vodPageResultsByPage: Map<Int, StalkerPagedItems> = emptyMap()
+    ) : StalkerApiService, StalkerRawVodPageApi {
         var createLinkCalls: Int = 0
             private set
         var seriesCategoryCalls: Int = 0
@@ -1855,6 +1928,7 @@ class StalkerProviderTest {
         val shortEpgCalls: MutableList<String> = mutableListOf()
         val epgCalls: MutableList<String> = mutableListOf()
         val vodFileLookupCalls: MutableList<String> = mutableListOf()
+        val vodPageRequests: MutableList<Int> = mutableListOf()
         val createLinkCmds: MutableList<String> = mutableListOf()
         var lastVodSearchQuery: String? = null
 
@@ -1916,7 +1990,11 @@ class StalkerProviderTest {
             profile: StalkerDeviceProfile,
             categoryId: String?,
             page: Int
-        ) = Result.success(StalkerPagedItems(vodPageItems, page, page, vodPageItems.size))
+        ): Result<StalkerPagedItems> {
+            vodPageRequests += page
+            return Result.success(vodPageResultsByPage[page]?.copy(page = page)
+                ?: StalkerPagedItems(vodPageItems, page, page, vodPageItems.size))
+        }
 
         override suspend fun getVodStreamsPage(
             session: StalkerSession,
@@ -1926,7 +2004,21 @@ class StalkerProviderTest {
             searchQuery: String?
         ) = run {
             lastVodSearchQuery = searchQuery
-            Result.success(StalkerPagedItems(vodPageItems, page, page, vodPageItems.size))
+            vodPageRequests += page
+            Result.success(vodPageResultsByPage[page]?.copy(page = page)
+                ?: StalkerPagedItems(vodPageItems, page, page, vodPageItems.size))
+        }
+
+        override suspend fun getVodStreamsPageAtPortalPage(
+            session: StalkerSession,
+            profile: StalkerDeviceProfile,
+            categoryId: String?,
+            portalPage: Int,
+            searchQuery: String?
+        ): Result<StalkerPagedItems> = if (searchQuery == null) {
+            getVodStreamsPage(session, profile, categoryId, portalPage)
+        } else {
+            getVodStreamsPage(session, profile, categoryId, portalPage, searchQuery)
         }
 
         override suspend fun getVodFiles(

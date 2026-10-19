@@ -118,4 +118,11 @@
     <string name="stalker_transport_go_back">חזרה</string>
     <string name="stalker_transport_connect_anyway">התחבר בכל זאת</string>
     <string name="stalker_save_without_verification">שמירה ללא אימות</string>
+
+    <string name="setup_stalker_catalog_title">קטלוג סרטים וסדרות</string>
+    <string name="setup_stalker_catalog_description">נפרד ממדריך התוכניות. יצירת אינדקס ברקע בונה קטלוג שניתן לחפש בו לאחר ההגדרה.</string>
+    <string name="setup_stalker_catalog_on_demand_title">לפי דרישה</string>
+    <string name="setup_stalker_catalog_on_demand_description">טעינת המדפים והקטגוריות בעת פתיחתם. שמירת הכותרים שבמטמון.</string>
+    <string name="setup_stalker_catalog_background_title">יצירת אינדקס מלאה ברקע (מומלץ)</string>
+    <string name="setup_stalker_catalog_background_description">יש להשלים תחילה את הגדרת הספק, ולאחר מכן ליצור ברקע אינדקס לכל הסרטים והסדרות כדי שאפשר יהיה לחפש בהם.</string>
 </resources>

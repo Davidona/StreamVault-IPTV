@@ -1265,7 +1265,7 @@ data class ProviderSetupState(
     val driveSignedIn: Boolean = false,
     val driveBackupOptions: List<DriveBackupSnapshot> = emptyList(),
     val epgSyncMode: ProviderEpgSyncMode = ProviderEpgSyncMode.BACKGROUND,
-    val stalkerCatalogMode: StalkerCatalogMode = StalkerCatalogMode.ON_DEMAND,
+    val stalkerCatalogMode: StalkerCatalogMode = StalkerCatalogMode.BACKGROUND_INDEX,
     val xtreamLiveSyncMode: ProviderXtreamLiveSyncMode = ProviderXtreamLiveSyncMode.AUTO,
     val guideSourcePolicy: GuideSourcePolicy = GuideSourcePolicy.AUTO,
     val channelLogoSourcePolicy: ChannelLogoSourcePolicy = ChannelLogoSourcePolicy.SUPPLIER_PREFERRED,

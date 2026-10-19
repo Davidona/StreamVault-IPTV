@@ -3,9 +3,11 @@ package com.streamvault.data.security
 import android.content.Context
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
+import android.util.AtomicFile
 import android.util.Log
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.io.File
+import java.io.IOException
 import java.security.KeyStore
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
@@ -22,7 +24,25 @@ import javax.inject.Singleton
 interface CredentialCrypto {
     fun encryptIfNeeded(value: String): String
     fun decryptIfNeeded(value: String): String
+
+    /** Reports whether encryption used the key selected as preferred for future reads. */
+    fun encryptWithKeyMigration(value: String): CredentialEncryptionResult =
+        CredentialEncryptionResult(encryptedValue = encryptIfNeeded(value))
+
+    /** Indicates whether a successful fallback decrypt should be persisted with the preferred key. */
+    fun decryptWithKeyMigration(value: String): CredentialDecryptionResult =
+        CredentialDecryptionResult(cleartext = decryptIfNeeded(value))
 }
+
+data class CredentialEncryptionResult(
+    val encryptedValue: String,
+    val usesPreferredKey: Boolean = true
+)
+
+data class CredentialDecryptionResult(
+    val cleartext: String,
+    val requiresReencryption: Boolean = false
+)
 
 /**
  * Production implementation backed by the Android Keystore system.
@@ -45,6 +65,8 @@ class AndroidKeystoreCredentialCrypto @Inject constructor(
     private val SOFTWARE_KEY_SIZE_BITS = 256
     private val softwareKeyFile: File
         get() = File(context.filesDir, SOFTWARE_KEY_FILE_NAME)
+    private val softwareKeyAtomicFile: AtomicFile
+        get() = AtomicFile(softwareKeyFile)
     private val hardwareSecretKeyProvider = CachingSecretKeyProvider(::loadOrCreateHardwareSecretKey)
     private val softwareSecretKeyProvider = CachingSecretKeyProvider(::loadOrCreateSoftwareSecretKey)
 
@@ -61,8 +83,13 @@ class AndroidKeystoreCredentialCrypto @Inject constructor(
         val source: KeySource
     )
 
-    override fun encryptIfNeeded(value: String): String {
-        if (value.isBlank() || value.startsWith(PREFIX)) return value
+    override fun encryptIfNeeded(value: String): String =
+        encryptWithKeyMigration(value).encryptedValue
+
+    override fun encryptWithKeyMigration(value: String): CredentialEncryptionResult {
+        if (value.isBlank() || value.startsWith(PREFIX)) {
+            return CredentialEncryptionResult(encryptedValue = value)
+        }
 
         val selectedKey = try {
             selectPreferredKey()
@@ -71,28 +98,42 @@ class AndroidKeystoreCredentialCrypto @Inject constructor(
         }
 
         return try {
-            encryptWithKey(value, selectedKey.secretKey)
-        } catch (e: Exception) {
-            if (selectedKey.source == KeySource.SOFTWARE) {
-                throw encryptionFailure(e)
-            }
-
-            // A hardware key can be returned successfully while failing during cipher.init or
-            // doFinal. Pin the app to the software key after the first successful fallback.
-            Log.w(TAG, "Hardware-backed credential encryption failed; retrying with a software key.", e)
+            CredentialEncryptionResult(encryptedValue = encryptWithKey(value, selectedKey.secretKey))
+        } catch (primaryException: Exception) {
+            // Either key can fail after it has loaded. Try the other available source before
+            // failing; decryption will also try that source if it opens this ciphertext later.
+            Log.w(
+                TAG,
+                "Preferred credential key encryption failed; retrying with an alternate key.",
+                primaryException
+            )
             try {
-                val softwareKey = softwareSecretKeyProvider.get()
-                preferSoftwareKey = true
-                encryptWithKey(value, softwareKey)
+                when (selectedKey.source) {
+                    KeySource.HARDWARE -> {
+                        val softwareKey = softwareSecretKeyProvider.get()
+                        preferSoftwareKey = true
+                        CredentialEncryptionResult(
+                            encryptedValue = encryptWithKey(value, softwareKey)
+                        )
+                    }
+                    KeySource.SOFTWARE -> CredentialEncryptionResult(
+                        encryptedValue = encryptWithKey(value, hardwareSecretKeyProvider.get()),
+                        usesPreferredKey = false
+                    )
+                }
             } catch (fallbackException: Exception) {
-                if (fallbackException !== e) e.addSuppressed(fallbackException)
-                throw encryptionFailure(e)
+                if (fallbackException !== primaryException) {
+                    primaryException.addSuppressed(fallbackException)
+                }
+                throw encryptionFailure(primaryException)
             }
         }
     }
 
-    override fun decryptIfNeeded(value: String): String {
-        if (!value.startsWith(PREFIX)) return value
+    override fun decryptIfNeeded(value: String): String = decryptWithKeyMigration(value).cleartext
+
+    override fun decryptWithKeyMigration(value: String): CredentialDecryptionResult {
+        if (!value.startsWith(PREFIX)) return CredentialDecryptionResult(cleartext = value)
 
         return try {
             val payload = value.removePrefix(PREFIX)
@@ -106,13 +147,17 @@ class AndroidKeystoreCredentialCrypto @Inject constructor(
 
             val selectedKey = selectPreferredKey()
             try {
-                decryptWithKey(selectedKey.secretKey, iv, ciphertext)
+                CredentialDecryptionResult(
+                    cleartext = decryptWithKey(selectedKey.secretKey, iv, ciphertext)
+                )
             } catch (primaryException: Exception) {
                 val alternateKey = try {
                     when (selectedKey.source) {
-                        KeySource.HARDWARE -> softwareKeyFile
-                            .takeIf(File::exists)
-                            ?.let { softwareSecretKeyProvider.get() }
+                        KeySource.HARDWARE -> if (softwareKeyFile.exists()) {
+                            softwareSecretKeyProvider.get()
+                        } else {
+                            null
+                        }
 
                         KeySource.SOFTWARE -> loadExistingHardwareSecretKey()
                     }
@@ -128,7 +173,10 @@ class AndroidKeystoreCredentialCrypto @Inject constructor(
                 }
 
                 try {
-                    decryptWithKey(alternateKey, iv, ciphertext)
+                    CredentialDecryptionResult(
+                        cleartext = decryptWithKey(alternateKey, iv, ciphertext),
+                        requiresReencryption = true
+                    )
                 } catch (alternateException: Exception) {
                     if (alternateException !== primaryException) {
                         primaryException.addSuppressed(alternateException)
@@ -144,9 +192,31 @@ class AndroidKeystoreCredentialCrypto @Inject constructor(
 
     @Synchronized
     private fun selectPreferredKey(): SelectedKey {
-        if (preferSoftwareKey || softwareKeyFile.exists()) {
-            preferSoftwareKey = true
-            return SelectedKey(softwareSecretKeyProvider.get(), KeySource.SOFTWARE)
+        val softwareFileExists = softwareKeyFile.exists()
+        if (preferSoftwareKey || softwareFileExists) {
+            try {
+                val softwareKey = softwareSecretKeyProvider.get()
+                preferSoftwareKey = true
+                return SelectedKey(softwareKey, KeySource.SOFTWARE)
+            } catch (softwareException: Exception) {
+                if (softwareFileExists) {
+                    // Preserve any hardware-encrypted credentials if the software key file was
+                    // damaged or could not be read. Do not overwrite it with a new random key.
+                    Log.w(
+                        TAG,
+                        "The existing software credential key is unavailable; trying hardware.",
+                        softwareException
+                    )
+                }
+                return try {
+                    SelectedKey(hardwareSecretKeyProvider.get(), KeySource.HARDWARE)
+                } catch (hardwareException: Exception) {
+                    if (hardwareException !== softwareException) {
+                        softwareException.addSuppressed(hardwareException)
+                    }
+                    throw softwareException
+                }
+            }
         }
 
         return try {
@@ -224,14 +294,32 @@ class AndroidKeystoreCredentialCrypto @Inject constructor(
      * The key material stays in the app sandbox and credentials remain encrypted at rest.
      */
     private fun loadOrCreateSoftwareSecretKey(): SecretKey {
+        val atomicFile = softwareKeyAtomicFile
         if (softwareKeyFile.exists()) {
-            return SecretKeySpec(softwareKeyFile.readBytes(), SOFTWARE_KEY_ALGORITHM)
+            return readSoftwareSecretKey(atomicFile)
         }
 
         val keyGenerator = KeyGenerator.getInstance(SOFTWARE_KEY_ALGORITHM)
         keyGenerator.init(SOFTWARE_KEY_SIZE_BITS)
         val key = keyGenerator.generateKey()
-        softwareKeyFile.writeBytes(key.encoded)
-        return key
+        val output = atomicFile.startWrite()
+        try {
+            output.write(key.encoded)
+            atomicFile.finishWrite(output)
+        } catch (e: Exception) {
+            runCatching { atomicFile.failWrite(output) }
+                .onFailure { cleanupException -> e.addSuppressed(cleanupException) }
+            throw e
+        }
+        // Read the committed bytes back so this provider caches exactly what survives a restart.
+        return readSoftwareSecretKey(atomicFile)
+    }
+
+    private fun readSoftwareSecretKey(atomicFile: AtomicFile): SecretKey {
+        val encoded = atomicFile.openRead().use { it.readBytes() }
+        if (encoded.size != SOFTWARE_KEY_SIZE_BITS / 8) {
+            throw IOException("Software credential key has an invalid length")
+        }
+        return SecretKeySpec(encoded, SOFTWARE_KEY_ALGORITHM)
     }
 }

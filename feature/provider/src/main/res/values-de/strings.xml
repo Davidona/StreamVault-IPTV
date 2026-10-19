@@ -118,4 +118,11 @@
     <string name="stalker_transport_go_back">Zurück</string>
     <string name="stalker_transport_connect_anyway">Trotzdem verbinden</string>
     <string name="stalker_save_without_verification">Ohne Überprüfung speichern</string>
+
+    <string name="setup_stalker_catalog_title">Film- und Serienkatalog</string>
+    <string name="setup_stalker_catalog_description">Unabhängig vom EPG. Die Hintergrundindizierung erstellt nach der Einrichtung einen durchsuchbaren Katalog.</string>
+    <string name="setup_stalker_catalog_on_demand_title">Bei Bedarf</string>
+    <string name="setup_stalker_catalog_on_demand_description">Regale und Kategorien werden beim Öffnen geladen. Zwischengespeicherte Titel bleiben erhalten.</string>
+    <string name="setup_stalker_catalog_background_title">Vollständige Hintergrundindizierung (empfohlen)</string>
+    <string name="setup_stalker_catalog_background_description">Schließe zuerst die Anbietereinrichtung ab. Danach werden alle Filme und Serien im Hintergrund für die Suche indiziert.</string>
 </resources>

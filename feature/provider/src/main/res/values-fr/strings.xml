@@ -118,4 +118,11 @@
     <string name="stalker_transport_go_back">Retour</string>
     <string name="stalker_transport_connect_anyway">Se connecter quand même</string>
     <string name="stalker_save_without_verification">Enregistrer sans vérification</string>
+
+    <string name="setup_stalker_catalog_title">Catalogue de films et de séries</string>
+    <string name="setup_stalker_catalog_description">Séparé du guide des programmes. L’indexation en arrière-plan crée un catalogue consultable après la configuration.</string>
+    <string name="setup_stalker_catalog_on_demand_title">À la demande</string>
+    <string name="setup_stalker_catalog_on_demand_description">Charge les rayons et les catégories à leur ouverture. Conserve les titres en cache.</string>
+    <string name="setup_stalker_catalog_background_title">Indexation complète en arrière-plan (recommandée)</string>
+    <string name="setup_stalker_catalog_background_description">Terminez d’abord la configuration du fournisseur, puis indexez tous les films et séries en arrière-plan pour les rendre consultables.</string>
 </resources>

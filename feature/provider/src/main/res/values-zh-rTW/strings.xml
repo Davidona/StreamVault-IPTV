@@ -122,4 +122,10 @@
     <string name="setup_phone_pairing_mac_label">MAC 位址</string>
     <string name="setup_phone_pairing_continue_on_tv">請在電視上繼續，以檢查並完成此步驟。</string>
     <string name="setup_phone_pairing_stalker_certificate_error">無法安全地檢查憑證。請在電視上檢查此連線。</string>
+    <string name="setup_stalker_catalog_title">電影與影集目錄</string>
+    <string name="setup_stalker_catalog_description">與節目表分開。設定完成後，背景索引會建立可搜尋的目錄。</string>
+    <string name="setup_stalker_catalog_on_demand_title">視需要載入</string>
+    <string name="setup_stalker_catalog_on_demand_description">開啟時載入各區和類別。保留已快取的片名。</string>
+    <string name="setup_stalker_catalog_background_title">完整背景索引（建議）</string>
+    <string name="setup_stalker_catalog_background_description">先完成供應商設定，再於背景為所有電影與影集建立索引，方便搜尋。</string>
 </resources>

@@ -139,7 +139,7 @@ class AutomaticSyncRunner @Inject constructor(
             val content = when (section) { RefreshSection.MOVIES -> ContentType.MOVIE; RefreshSection.SERIES -> ContentType.SERIES; else -> return false }
             return when (snapshot.provider.type) {
                 ProviderType.XTREAM_CODES -> xtreamJobs.get(providerId, content.name)?.state == "FAILED_PERMANENT"
-                ProviderType.STALKER_PORTAL -> snapshot.accountRuntime.catalogLayout != CatalogLayout.UNIFIED_VOD &&
+                ProviderType.STALKER_PORTAL ->
                     stalkerJobs.get(providerId, content)?.state == StalkerIndexState.FAILED
                 else -> false
             }
@@ -196,8 +196,7 @@ class AutomaticSyncRunner @Inject constructor(
                 lastMovieSuccess = indexSuccess(xtreamJobs.get(providerId, ContentType.MOVIE.name), metadata?.lastMovieSuccess ?: 0L),
                 lastSeriesSuccess = indexSuccess(xtreamJobs.get(providerId, ContentType.SERIES.name), metadata?.lastSeriesSuccess ?: 0L)
             )
-        } else if ((snapshot.configuration as? StalkerConfig)?.catalogMode == StalkerCatalogMode.BACKGROUND_INDEX &&
-            snapshot.accountRuntime.catalogLayout != CatalogLayout.UNIFIED_VOD) {
+        } else if ((snapshot.configuration as? StalkerConfig)?.catalogMode == StalkerCatalogMode.BACKGROUND_INDEX) {
             suspend fun success(section: ContentType, fallback: Long): Long {
                 val job = stalkerJobs.get(providerId, section)
                 return if (job?.state in setOf(StalkerIndexState.QUEUED, StalkerIndexState.RUNNING, StalkerIndexState.RETRY_WAIT, StalkerIndexState.PARTIAL)) 0L

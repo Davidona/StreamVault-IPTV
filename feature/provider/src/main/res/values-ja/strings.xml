@@ -118,4 +118,11 @@
     <string name="stalker_transport_go_back">戻る</string>
     <string name="stalker_transport_connect_anyway">接続する</string>
     <string name="stalker_save_without_verification">確認せずに保存</string>
+
+    <string name="setup_stalker_catalog_title">映画・シリーズのカタログ</string>
+    <string name="setup_stalker_catalog_description">番組表とは別の機能です。セットアップ後にバックグラウンドでインデックスを作成し、検索できるカタログを用意します。</string>
+    <string name="setup_stalker_catalog_on_demand_title">必要なときに読み込む</string>
+    <string name="setup_stalker_catalog_on_demand_description">棚とカテゴリは開いたときに読み込みます。キャッシュ済みのタイトルは保持します。</string>
+    <string name="setup_stalker_catalog_background_title">バックグラウンドで全件インデックス（おすすめ）</string>
+    <string name="setup_stalker_catalog_background_description">先にプロバイダーのセットアップを完了し、その後、検索できるようにすべての映画とシリーズをバックグラウンドでインデックスします。</string>
 </resources>

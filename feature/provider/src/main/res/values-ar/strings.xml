@@ -118,4 +118,11 @@
     <string name="stalker_transport_go_back">الرجوع</string>
     <string name="stalker_transport_connect_anyway">الاتصال على أي حال</string>
     <string name="stalker_save_without_verification">الحفظ بدون تحقق</string>
+
+    <string name="setup_stalker_catalog_title">كتالوج الأفلام والمسلسلات</string>
+    <string name="setup_stalker_catalog_description">ينفصل عن دليل البرامج. يفهرس الفهرس في الخلفية بعد الإعداد ليتيح البحث.</string>
+    <string name="setup_stalker_catalog_on_demand_title">عند الطلب</string>
+    <string name="setup_stalker_catalog_on_demand_description">حمّل الرفوف والفئات عند فتحها. احتفظ بالعناوين المخزنة مؤقتًا.</string>
+    <string name="setup_stalker_catalog_background_title">فهرسة كاملة في الخلفية (موصى بها)</string>
+    <string name="setup_stalker_catalog_background_description">أكمل إعداد المزوّد أولًا، ثم افهرس جميع عناوين الأفلام والمسلسلات في الخلفية للبحث.</string>
 </resources>

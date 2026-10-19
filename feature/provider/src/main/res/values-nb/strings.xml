@@ -118,4 +118,11 @@
     <string name="stalker_transport_go_back">Gå tilbake</string>
     <string name="stalker_transport_connect_anyway">Koble til likevel</string>
     <string name="stalker_save_without_verification">Lagre uten bekreftelse</string>
+
+    <string name="setup_stalker_catalog_title">Film- og seriekatalog</string>
+    <string name="setup_stalker_catalog_description">Uavhengig av programguiden. Bakgrunnsindeksering lager en søkbar katalog etter oppsettet.</string>
+    <string name="setup_stalker_catalog_on_demand_title">Ved behov</string>
+    <string name="setup_stalker_catalog_on_demand_description">Hyller og kategorier lastes inn når de åpnes. Bufrede titler beholdes.</string>
+    <string name="setup_stalker_catalog_background_title">Full bakgrunnsindeksering (anbefalt)</string>
+    <string name="setup_stalker_catalog_background_description">Fullfør først oppsettet av leverandøren, og indekser deretter alle filmer og serier i bakgrunnen slik at de kan søkes opp.</string>
 </resources>

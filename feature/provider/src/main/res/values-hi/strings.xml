@@ -122,4 +122,11 @@
     <string name="setup_phone_pairing_mac_label">MAC पता</string>
     <string name="setup_phone_pairing_continue_on_tv">इस चरण की समीक्षा और पूर्ति के लिए टीवी पर आगे बढ़ें।</string>
     <string name="setup_phone_pairing_stalker_certificate_error">प्रमाणपत्र की सुरक्षित रूप से जाँच नहीं हो सकी। इस कनेक्शन की समीक्षा टीवी पर करें।</string>
+
+    <string name="setup_stalker_catalog_title">फ़िल्म और सीरीज़ कैटलॉग</string>
+    <string name="setup_stalker_catalog_description">यह कार्यक्रम गाइड से अलग है। सेटअप के बाद बैकग्राउंड इंडेक्सिंग खोजने योग्य कैटलॉग बनाती है।</string>
+    <string name="setup_stalker_catalog_on_demand_title">ज़रूरत पड़ने पर</string>
+    <string name="setup_stalker_catalog_on_demand_description">शेल्फ़ और श्रेणियाँ खोलने पर लोड करें। कैश किए गए शीर्षक रखें।</string>
+    <string name="setup_stalker_catalog_background_title">पूरा बैकग्राउंड इंडेक्स (अनुशंसित)</string>
+    <string name="setup_stalker_catalog_background_description">पहले प्रदाता का सेटअप पूरा करें, फिर खोज के लिए सभी फ़िल्मों और सीरीज़ को बैकग्राउंड में इंडेक्स करें।</string>
 </resources>

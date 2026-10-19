@@ -16,6 +16,23 @@ abstract class ProviderSnapshotDao {
     @Query("SELECT * FROM provider_configs WHERE provider_id = :providerId LIMIT 1")
     abstract suspend fun getConfig(providerId: Long): ProviderConfigEntity?
 
+    @Query(
+        """
+        UPDATE provider_configs
+        SET encrypted_config_json = :replacementJson, updated_at = :updatedAt
+        WHERE provider_id = :providerId
+          AND configuration_generation = :configurationGeneration
+          AND encrypted_config_json = :expectedJson
+        """
+    )
+    abstract suspend fun rekeyConfigIfUnchanged(
+        providerId: Long,
+        configurationGeneration: Long,
+        expectedJson: String,
+        replacementJson: String,
+        updatedAt: Long
+    ): Int
+
     @Query("SELECT * FROM provider_configs WHERE provider_id = :providerId LIMIT 1")
     abstract fun getConfigSync(providerId: Long): ProviderConfigEntity?
 

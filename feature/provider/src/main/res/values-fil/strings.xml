@@ -122,4 +122,11 @@
     <string name="setup_phone_pairing_mac_label">Address ng MAC</string>
     <string name="setup_phone_pairing_continue_on_tv">Magpatuloy sa TV para suriin at kumpletuhin ang hakbang na ito.</string>
     <string name="setup_phone_pairing_stalker_certificate_error">Hindi ligtas na nasuri ang certificate. Suriin ang koneksyong ito sa TV.</string>
+
+    <string name="setup_stalker_catalog_title">Katalogo ng mga pelikula at serye</string>
+    <string name="setup_stalker_catalog_description">Hiwalay ito sa gabay sa programa. Gumagawa ang pag-index sa background ng mahahanap na katalogo pagkatapos ng setup.</string>
+    <string name="setup_stalker_catalog_on_demand_title">Kapag kailangan</string>
+    <string name="setup_stalker_catalog_on_demand_description">Nilo-load ang mga shelf at kategorya kapag binuksan. Pinananatili ang mga naka-cache na pamagat.</string>
+    <string name="setup_stalker_catalog_background_title">Kumpletong pag-index sa background (inirerekomenda)</string>
+    <string name="setup_stalker_catalog_background_description">Tapusin muna ang setup ng provider, saka i-index sa background ang lahat ng pelikula at serye para madaling hanapin.</string>
 </resources>

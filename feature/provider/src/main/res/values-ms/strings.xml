@@ -122,4 +122,11 @@
     <string name="setup_phone_pairing_mac_label">Alamat MAC</string>
     <string name="setup_phone_pairing_continue_on_tv">Teruskan pada TV untuk menyemak dan melengkapkan langkah ini.</string>
     <string name="setup_phone_pairing_stalker_certificate_error">Sijil tidak dapat diperiksa dengan selamat. Semak sambungan ini pada TV.</string>
+
+    <string name="setup_stalker_catalog_title">Katalog filem dan siri</string>
+    <string name="setup_stalker_catalog_description">Berasingan daripada panduan program. Pengindeksan latar belakang membina katalog yang boleh dicari selepas persediaan.</string>
+    <string name="setup_stalker_catalog_on_demand_title">Atas permintaan</string>
+    <string name="setup_stalker_catalog_on_demand_description">Muatkan rak dan kategori apabila dibuka. Kekalkan tajuk yang dicache.</string>
+    <string name="setup_stalker_catalog_background_title">Indeks latar belakang lengkap (disyorkan)</string>
+    <string name="setup_stalker_catalog_background_description">Selesaikan persediaan penyedia dahulu, kemudian indeks semua filem dan siri di latar belakang untuk carian.</string>
 </resources>

@@ -118,4 +118,11 @@
     <string name="stalker_transport_go_back">Wróć</string>
     <string name="stalker_transport_connect_anyway">Połącz mimo to</string>
     <string name="stalker_save_without_verification">Zapisz bez weryfikacji</string>
+
+    <string name="setup_stalker_catalog_title">Katalog filmów i seriali</string>
+    <string name="setup_stalker_catalog_description">Działa niezależnie od przewodnika TV. Indeksowanie w tle tworzy przeszukiwalny katalog po konfiguracji.</string>
+    <string name="setup_stalker_catalog_on_demand_title">Na żądanie</string>
+    <string name="setup_stalker_catalog_on_demand_description">Półki i kategorie są wczytywane po otwarciu. Tytuły w pamięci podręcznej są zachowywane.</string>
+    <string name="setup_stalker_catalog_background_title">Pełne indeksowanie w tle (zalecane)</string>
+    <string name="setup_stalker_catalog_background_description">Najpierw zakończ konfigurację dostawcy, a następnie indeksuj w tle wszystkie filmy i seriale, aby można je było wyszukiwać.</string>
 </resources>

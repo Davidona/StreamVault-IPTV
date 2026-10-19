@@ -339,7 +339,7 @@ class ProviderQrPairingManager @Inject constructor(
                                     command = result.command,
                                     challenge = result.challenge,
                                 )
-                                writeHtml(client.getOutputStream(), 400, errorPage(phoneContext, result.details))
+                                writeHtml(client.getOutputStream(), 200, continuationPage(phoneContext, result.details))
                             }
 
                             is ProviderPairingSubmitResult.StalkerVerificationInconclusive -> {
@@ -349,7 +349,7 @@ class ProviderQrPairingManager @Inject constructor(
                                     command = result.command,
                                     verificationInconclusive = result.verificationMessage,
                                 )
-                                writeHtml(client.getOutputStream(), 400, errorPage(phoneContext, result.details))
+                                writeHtml(client.getOutputStream(), 200, continuationPage(phoneContext, result.details))
                             }
 
                             is ProviderPairingSubmitResult.Failed -> {
@@ -896,6 +896,15 @@ class ProviderQrPairingManager @Inject constructor(
     private fun errorPage(strings: Context, details: String? = null): String =
         resultPage(strings, success = false, details = details)
 
+    private fun continuationPage(strings: Context, details: String): String =
+        resultPage(
+            strings = strings,
+            success = false,
+            details = details,
+            titleResource = R.string.setup_phone_pairing_continue_on_tv,
+            pending = true,
+        )
+
     private fun pageDirection(strings: Context): String =
         if (strings.resources.configuration.layoutDirection == android.view.View.LAYOUT_DIRECTION_RTL) "rtl" else "ltr"
 
@@ -906,15 +915,35 @@ class ProviderQrPairingManager @Inject constructor(
         </div>
     """.trimIndent()
 
-    private fun resultPage(strings: Context, success: Boolean, details: String? = null): String {
+    private fun resultPage(
+        strings: Context,
+        success: Boolean,
+        details: String? = null,
+        titleResource: Int? = null,
+        pending: Boolean = false,
+    ): String {
         val title = strings.getString(
-            if (success) R.string.setup_phone_pairing_complete else R.string.setup_phone_pairing_error,
+            titleResource ?: if (success) {
+                R.string.setup_phone_pairing_complete
+            } else {
+                R.string.setup_phone_pairing_error
+            },
         ).escapeHtml()
         val hasDetails = !details.isNullOrBlank()
-        val help = if (success || hasDetails) {
+        val help = if (success || pending || hasDetails) {
             ""
         } else {
             "<p>${strings.getString(R.string.setup_phone_pairing_error_help).escapeHtml()}</p>"
+        }
+        val resultKind = when {
+            success -> "success"
+            pending -> "pending"
+            else -> "failure"
+        }
+        val icon = when {
+            success -> "&#10003;"
+            pending -> "&#8230;"
+            else -> "!"
         }
         val detailsHtml = details
             ?.trim()
@@ -927,8 +956,8 @@ class ProviderQrPairingManager @Inject constructor(
             <meta name="color-scheme" content="dark"><meta name="theme-color" content="#0b0e14">
             <title>$title</title><style>${pageStyles()}</style></head>
             <body><main>${pageBrand(strings)}
-              <section class="form-card result" role="${if (success) "status" else "alert"}">
-                <span class="result-icon ${if (success) "success" else "failure"}" aria-hidden="true">${if (success) "&#10003;" else "!"}</span>
+              <section class="form-card result" role="${if (success || pending) "status" else "alert"}">
+                <span class="result-icon $resultKind" aria-hidden="true">$icon</span>
                 <h1>$title</h1>$detailsHtml$help
               </section>
             </main></body></html>
@@ -981,6 +1010,7 @@ class ProviderQrPairingManager @Inject constructor(
         .result{text-align:center;padding:48px 28px}.result p{max-width:420px;margin:0 auto 14px}.result .result-detail{color:#e8eaf2;white-space:pre-line;overflow-wrap:anywhere}.result .result-detail:last-of-type{margin-bottom:20px}
         .result-icon{display:grid;place-items:center;width:64px;height:64px;margin:0 auto 24px;border-radius:50%;font-size:30px}
         .success{color:#9cd6bc;background:#9cd6bc12;border:1px solid #9cd6bc40}
+        .pending{color:#c4b5f6;background:#c4b5f612;border:1px solid #c4b5f640}
         .failure{color:#e6ad9b;background:#e6ad9b12;border:1px solid #e6ad9b40}
         @media(max-width:480px){body{padding:28px 20px}.brand{margin-bottom:34px}.source-section{padding:20px}.details-section{padding:4px 20px}.submit-section{padding:22px 20px}.credentials-row{grid-template-columns:1fr;gap:0}.form-card{border-radius:18px}}
         @media(prefers-reduced-motion:reduce){*{transition:none!important}}

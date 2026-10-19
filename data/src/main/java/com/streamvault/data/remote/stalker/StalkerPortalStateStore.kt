@@ -38,6 +38,49 @@ class StalkerPortalStateStore @Inject constructor(
 
     suspend fun get(providerId: Long): StalkerPortalStateEntity? = dao.get(providerId)
 
+    /** Returns a learned VOD page offset only while it belongs to this provider configuration. */
+    suspend fun getVodPageBase(providerId: Long, configurationGeneration: Long): Int? {
+        if (providerId <= 0L) return null
+        val state = dao.get(providerId) ?: return null
+        if (state.configurationGeneration != configurationGeneration) return null
+        val learning = runCatching {
+            json.parseToJsonElement(state.learningJson.ifBlank { "{}" }).jsonObject
+        }.getOrNull() ?: return null
+        if (learning["configurationGeneration"]?.jsonPrimitive?.longOrNull != configurationGeneration) {
+            return null
+        }
+        val observation = learning["vodPageBase"]?.jsonObject ?: return null
+        if (observation["configurationGeneration"]?.jsonPrimitive?.longOrNull != configurationGeneration) {
+            return null
+        }
+        return observation["value"]?.jsonPrimitive?.content?.toIntOrNull()?.takeIf { it in 0..1 }
+    }
+
+    /** Stores the portal's 0- or 1-based VOD page offset in the existing generation-fenced envelope. */
+    suspend fun recordVodPageBase(
+        providerId: Long,
+        pageBase: Int,
+        configurationGeneration: Long
+    ) {
+        if (providerId <= 0L || pageBase !in 0..1) return
+        update(providerId, configurationGeneration) { state ->
+            val learning = mutableLearning(state.learningJson)
+            learning["configurationGeneration"] = JsonPrimitive(configurationGeneration)
+            learning["vodPageBase"] = observationJson(
+                pageBase,
+                configurationGeneration,
+                System.currentTimeMillis(),
+                "CATALOG"
+            )
+            state.copy(
+                configurationGeneration = configurationGeneration,
+                learningJson = JsonObject(learning).toString(),
+                observationSource = "CATALOG",
+                observedAt = System.currentTimeMillis()
+            )
+        }
+    }
+
     /**
      * Durable session resurrected after a process restart. The session envelope is encrypted
      * with the app's Keystore-backed credential crypto and is only reused for the same

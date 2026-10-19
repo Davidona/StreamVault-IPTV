@@ -122,4 +122,11 @@
     <string name="setup_phone_pairing_mac_label">MAC адрес</string>
     <string name="setup_phone_pairing_continue_on_tv">Продължете на телевизора, за да прегледате и завършите тази стъпка.</string>
     <string name="setup_phone_pairing_stalker_certificate_error">Сертификатът не можа да бъде проверен безопасно. Прегледайте тази връзка на телевизора.</string>
+
+    <string name="setup_stalker_catalog_title">Каталог с филми и сериали</string>
+    <string name="setup_stalker_catalog_description">Отделно е от програмния справочник. След настройката фоновото индексиране създава каталог за търсене.</string>
+    <string name="setup_stalker_catalog_on_demand_title">При поискване</string>
+    <string name="setup_stalker_catalog_on_demand_description">Зареждайте рафтовете и категориите при отваряне. Запазвайте кешираните заглавия.</string>
+    <string name="setup_stalker_catalog_background_title">Пълно фоново индексиране (препоръчително)</string>
+    <string name="setup_stalker_catalog_background_description">Първо завършете настройката на доставчика, след което индексирайте всички филми и сериали във фонов режим за търсене.</string>
 </resources>

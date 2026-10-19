@@ -118,4 +118,11 @@
     <string name="stalker_transport_go_back">Назад</string>
     <string name="stalker_transport_connect_anyway">Всё равно подключиться</string>
     <string name="stalker_save_without_verification">Сохранить без проверки</string>
+
+    <string name="setup_stalker_catalog_title">Каталог фильмов и сериалов</string>
+    <string name="setup_stalker_catalog_description">Работает отдельно от телепрограммы. После настройки фоновая индексация создаст каталог для поиска.</string>
+    <string name="setup_stalker_catalog_on_demand_title">По запросу</string>
+    <string name="setup_stalker_catalog_on_demand_description">Полки и категории загружаются при открытии. Загруженные в кэш названия сохраняются.</string>
+    <string name="setup_stalker_catalog_background_title">Полная фоновая индексация (рекомендуется)</string>
+    <string name="setup_stalker_catalog_background_description">Сначала завершите настройку провайдера, затем проиндексируйте все фильмы и сериалы в фоне, чтобы их можно было найти через поиск.</string>
 </resources>

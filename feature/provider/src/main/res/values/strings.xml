@@ -122,4 +122,10 @@
     <string name="setup_phone_pairing_mac_label">MAC address</string>
     <string name="setup_phone_pairing_continue_on_tv">Continue on the TV to review and complete this step.</string>
     <string name="setup_phone_pairing_stalker_certificate_error">The certificate could not be checked safely. Review this connection on the TV.</string>
+    <string name="setup_stalker_catalog_title">Movie and series catalog</string>
+    <string name="setup_stalker_catalog_description">Separate from the TV guide. Background indexing builds a searchable catalog after setup.</string>
+    <string name="setup_stalker_catalog_on_demand_title">On demand</string>
+    <string name="setup_stalker_catalog_on_demand_description">Load shelves and categories when opened. Keep cached titles.</string>
+    <string name="setup_stalker_catalog_background_title">Complete background index (recommended)</string>
+    <string name="setup_stalker_catalog_background_description">Finish provider setup first, then index all movie and series titles in the background so you can search them.</string>
 </resources>

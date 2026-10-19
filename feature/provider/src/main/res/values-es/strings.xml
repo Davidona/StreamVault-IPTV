@@ -118,4 +118,11 @@
     <string name="stalker_transport_go_back">Volver</string>
     <string name="stalker_transport_connect_anyway">Conectar de todos modos</string>
     <string name="stalker_save_without_verification">Guardar sin verificar</string>
+
+    <string name="setup_stalker_catalog_title">Catálogo de películas y series</string>
+    <string name="setup_stalker_catalog_description">Es independiente de la guía de programación. La indexación en segundo plano crea un catálogo que se puede buscar después de la configuración.</string>
+    <string name="setup_stalker_catalog_on_demand_title">A petición</string>
+    <string name="setup_stalker_catalog_on_demand_description">Carga las secciones y categorías al abrirlas. Conserva los títulos en caché.</string>
+    <string name="setup_stalker_catalog_background_title">Indexación completa en segundo plano (recomendada)</string>
+    <string name="setup_stalker_catalog_background_description">Primero termina de configurar el proveedor y luego indexa todas las películas y series en segundo plano para que puedas buscarlas.</string>
 </resources>

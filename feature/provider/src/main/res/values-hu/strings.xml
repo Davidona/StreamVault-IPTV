@@ -118,4 +118,11 @@
     <string name="stalker_transport_go_back">Vissza</string>
     <string name="stalker_transport_connect_anyway">Kapcsolódás mindenképpen</string>
     <string name="stalker_save_without_verification">Mentés ellenőrzés nélkül</string>
+
+    <string name="setup_stalker_catalog_title">Film- és sorozatkatalógus</string>
+    <string name="setup_stalker_catalog_description">A műsorújságtól külön működik. A háttérben végzett indexelés a beállítás után kereshető katalógust hoz létre.</string>
+    <string name="setup_stalker_catalog_on_demand_title">Igény szerint</string>
+    <string name="setup_stalker_catalog_on_demand_description">A polcok és kategóriák megnyitáskor töltődnek be. A gyorsítótárazott címek megmaradnak.</string>
+    <string name="setup_stalker_catalog_background_title">Teljes háttérindexelés (ajánlott)</string>
+    <string name="setup_stalker_catalog_background_description">Először fejezze be a szolgáltató beállítását, majd indexelje a háttérben az összes filmet és sorozatot a kereséshez.</string>
 </resources>

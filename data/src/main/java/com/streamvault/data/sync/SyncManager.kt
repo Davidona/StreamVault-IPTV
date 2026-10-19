@@ -254,9 +254,7 @@ class SyncManager @Inject constructor(
     private val stalkerIndexContinuationCoordinator by lazy {
         StalkerIndexContinuationCoordinator(
             stalkerIndexJobStore = stalkerIndexJobStore,
-            loadCategories = { providerId, contentType ->
-                categoryDao.getByProviderAndTypeSync(providerId, contentType.name)
-            },
+            loadCategories = ::stalkerIndexCategoriesForSection,
             loadHydration = stalkerIndexCheckpointStore::getHydrationSnapshot,
             visibleCategories = { providerId, contentType, categories, api ->
                 visibleStalkerIndexCategories(
@@ -290,13 +288,7 @@ class SyncManager @Inject constructor(
             operations = CallbackStalkerIncrementalIndexOperations(
                 StalkerIncrementalIndexCallbacks(
                     runtimeProfile = { CatalogSyncRuntimeProfile.from(applicationContext) },
-                    allVisibleCategories = { providerId, contentType ->
-                        allVisibleStalkerIndexCategories(
-                            providerId = providerId,
-                            contentType = contentType,
-                            categories = categoryDao.getByProviderAndTypeSync(providerId, contentType.name)
-                        )
-                    },
+                    allVisibleCategories = ::stalkerIndexCategoriesForSection,
                     visibleCategories = { contentType, categories, api ->
                         visibleStalkerIndexCategories(contentType, categories, api)
                     },
@@ -316,6 +308,7 @@ class SyncManager @Inject constructor(
                     fetchSummaryPage = { provider, api, contentType, categoryId, page ->
                         withStalkerFetchPermit(provider, contentType, categoryId, page) {
                             fetchStalkerSummaryPageWithRecovery(
+                                provider = provider,
                                 api = api,
                                 contentType = contentType,
                                 categoryId = categoryId,
@@ -326,7 +319,7 @@ class SyncManager @Inject constructor(
                     },
                     fetchWildcardPage = { provider, api, contentType, categoryId, page ->
                         withStalkerFetchPermit(provider, contentType, categoryId, page) {
-                            fetchStalkerWildcardSummaryPageWithRecovery(api, contentType, categoryId, page)
+                            fetchStalkerWildcardSummaryPageWithRecovery(provider, api, contentType, categoryId, page)
                         }
                     },
                     markAttemptStarted = { providerId, contentType, categoryId, hydration, attemptedPage, now ->
@@ -1813,6 +1806,7 @@ class SyncManager @Inject constructor(
     }
 
     private suspend fun fetchStalkerSummaryPageWithRecovery(
+        provider: Provider,
         api: StalkerProvider,
         contentType: ContentType,
         categoryId: Long,
@@ -1820,6 +1814,9 @@ class SyncManager @Inject constructor(
         splitVod: Boolean = false
     ): Result<com.streamvault.data.remote.stalker.StalkerPagedResult<out Any>> {
         suspend fun fetch(): Result<com.streamvault.data.remote.stalker.StalkerPagedResult<out Any>> {
+            if (contentType == ContentType.MOVIE && provider.catalogLayout == CatalogLayout.UNIFIED_VOD) {
+                return api.getUnifiedVodPage(categoryId, page)
+            }
             if (splitVod && contentType == ContentType.MOVIE) {
                 val seriesCategoryId = api.projectVodCategoryToSeries(categoryId)
                     ?: return Result.error("Unable to resolve VOD-derived Series category")
@@ -1863,19 +1860,26 @@ class SyncManager @Inject constructor(
     }
 
     private suspend fun fetchStalkerWildcardSummaryPageWithRecovery(
+        provider: Provider,
         api: StalkerProvider,
         contentType: ContentType,
         categoryId: Long,
         page: Int
     ): Result<com.streamvault.data.remote.stalker.StalkerPagedResult<out Any>> {
-        val initial = fetchStalkerWildcardSummaryPage(api, contentType, categoryId, page)
+        suspend fun fetch(): Result<com.streamvault.data.remote.stalker.StalkerPagedResult<out Any>> =
+            if (contentType == ContentType.MOVIE && provider.catalogLayout == CatalogLayout.UNIFIED_VOD) {
+                api.getUnifiedVodPage(categoryId, page)
+            } else {
+                fetchStalkerWildcardSummaryPage(api, contentType, categoryId, page)
+            }
+        val initial = fetch()
         if (initial is Result.Error && StalkerIndexRecoveryPolicy.isLikelyAuthFailure(initial.message, initial.exception)) {
             Log.w(
                 TAG,
                 "Retrying Stalker wildcard ${contentType.name} page $page after auth refresh for category $categoryId"
             )
             api.invalidateAuthentication()
-            return fetchStalkerWildcardSummaryPage(api, contentType, categoryId, page)
+            return fetch()
         }
         return initial
     }
@@ -1944,6 +1948,23 @@ class SyncManager @Inject constructor(
         }
     }
 
+    private suspend fun stalkerIndexCategoriesForSection(
+        providerId: Long,
+        section: ContentType
+    ): List<CategoryEntity> {
+        val catalogLayout = providerSnapshotRepository?.getSnapshot(providerId)?.accountRuntime?.catalogLayout
+            ?: loadCompatibilityProvider(providerId)?.catalogLayout
+        val categoryType = if (
+            section == ContentType.MOVIE &&
+            catalogLayout == CatalogLayout.UNIFIED_VOD
+        ) ContentType.VOD else section
+        return allVisibleStalkerIndexCategories(
+            providerId = providerId,
+            contentType = categoryType,
+            categories = categoryDao.getByProviderAndTypeSync(providerId, categoryType.name)
+        )
+    }
+
     private suspend fun visibleStalkerIndexCategories(
         contentType: ContentType,
         categories: List<CategoryEntity>,
@@ -1951,7 +1972,7 @@ class SyncManager @Inject constructor(
     ): List<CategoryEntity> {
         val visible = categories
         if (visible.isEmpty()) return emptyList()
-        val normalCategories = visible.filterNot { category -> api.isWildcardCategory(contentType, category.categoryId) }
+        val normalCategories = visible.filterNot { category -> api.isWildcardCategory(category.type, category.categoryId) }
         return if (normalCategories.isNotEmpty()) normalCategories else visible
     }
 

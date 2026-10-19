@@ -42,7 +42,19 @@ internal class StalkerIndexContinuationCoordinator(
         now: Long
     ): StalkerCatalogDecision {
         val movie = sectionState(provider, api, ContentType.MOVIE, force, now)
-        val series = sectionState(provider, api, ContentType.SERIES, force, now)
+        val series = if (provider.catalogLayout == com.streamvault.domain.model.CatalogLayout.UNIFIED_VOD) {
+            val job = stalkerIndexJobStore.get(provider.id, ContentType.SERIES)
+            StalkerCatalogSectionState(
+                contentType = ContentType.SERIES,
+                runnable = false,
+                retryDelaySeconds = 0L,
+                pending = false,
+                jobState = job?.state?.let(stalkerIndexJobStore::toLegacyState),
+                updatedAt = job?.updatedAt ?: 0L
+            )
+        } else {
+            sectionState(provider, api, ContentType.SERIES, force, now)
+        }
         return StalkerIndexPolicy.chooseNextSection(
             layout = provider.catalogLayout,
             requestedSection = requestedSection,
@@ -87,7 +99,12 @@ internal class StalkerIndexContinuationCoordinator(
             val provider = loadProvider(providerId) ?: return@forEach
             // v62 and older reused Xtream rows. They are never valid Stalker owners now.
             deleteLegacyJobs(provider.id)
-            val hasPendingOneTime = listOf(ContentType.MOVIE, ContentType.SERIES).any { section ->
+            val sections = if (provider.catalogLayout == com.streamvault.domain.model.CatalogLayout.UNIFIED_VOD) {
+                listOf(ContentType.MOVIE)
+            } else {
+                listOf(ContentType.MOVIE, ContentType.SERIES)
+            }
+            val hasPendingOneTime = sections.any { section ->
                 stalkerIndexJobStore.get(provider.id, section)?.state in setOf(
                     StalkerIndexState.QUEUED,
                     StalkerIndexState.RUNNING,

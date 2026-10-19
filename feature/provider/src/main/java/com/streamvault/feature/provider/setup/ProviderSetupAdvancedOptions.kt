@@ -12,6 +12,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
@@ -461,24 +462,24 @@ internal fun AdvancedProviderOptionsSection(
                         verticalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
                         Text(
-                            text = "Movie and series catalog",
+                            text = stringResource(R.string.setup_stalker_catalog_title),
                             style = MaterialTheme.typography.titleSmall,
                             color = TextPrimary
                         )
                         Text(
-                            text = "This is separate from EPG loading. On demand makes the provider ready after categories load; background indexing downloads the complete catalog later.",
+                            text = stringResource(R.string.setup_stalker_catalog_description),
                             style = MaterialTheme.typography.bodySmall,
                             color = OnSurfaceDim
                         )
                         PolicyOptionRow(
-                            title = "On demand (recommended)",
-                            description = "Load visible shelves and opened categories as needed. Existing cached items are kept.",
+                            title = stringResource(R.string.setup_stalker_catalog_on_demand_title),
+                            description = stringResource(R.string.setup_stalker_catalog_on_demand_description),
                             selected = uiState.stalkerCatalogMode == StalkerCatalogMode.ON_DEMAND,
                             onSelect = { onSelectStalkerCatalogMode(StalkerCatalogMode.ON_DEMAND) }
                         )
                         PolicyOptionRow(
-                            title = "Complete background index",
-                            description = "Make the provider ready first, then maintain a complete searchable catalog in the background.",
+                            title = stringResource(R.string.setup_stalker_catalog_background_title),
+                            description = stringResource(R.string.setup_stalker_catalog_background_description),
                             selected = uiState.stalkerCatalogMode == StalkerCatalogMode.BACKGROUND_INDEX,
                             onSelect = { onSelectStalkerCatalogMode(StalkerCatalogMode.BACKGROUND_INDEX) }
                         )

@@ -118,4 +118,11 @@
     <string name="stalker_transport_go_back">Kembali</string>
     <string name="stalker_transport_connect_anyway">Tetap sambungkan</string>
     <string name="stalker_save_without_verification">Simpan tanpa verifikasi</string>
+
+    <string name="setup_stalker_catalog_title">Katalog film dan serial</string>
+    <string name="setup_stalker_catalog_description">Terpisah dari panduan acara. Pengindeksan latar belakang membuat katalog yang dapat dicari setelah penyiapan.</string>
+    <string name="setup_stalker_catalog_on_demand_title">Sesuai permintaan</string>
+    <string name="setup_stalker_catalog_on_demand_description">Muat rak dan kategori saat dibuka. Pertahankan judul yang tersimpan di cache.</string>
+    <string name="setup_stalker_catalog_background_title">Indeks latar belakang lengkap (disarankan)</string>
+    <string name="setup_stalker_catalog_background_description">Selesaikan penyiapan penyedia terlebih dahulu, lalu indeks semua film dan serial di latar belakang agar dapat dicari.</string>
 </resources>

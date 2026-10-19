@@ -122,4 +122,11 @@
     <string name="setup_phone_pairing_mac_label">ที่อยู่ MAC</string>
     <string name="setup_phone_pairing_continue_on_tv">ดำเนินการต่อบนทีวีเพื่อตรวจสอบและทำขั้นตอนนี้ให้เสร็จ</string>
     <string name="setup_phone_pairing_stalker_certificate_error">ตรวจสอบใบรับรองอย่างปลอดภัยไม่ได้ โปรดตรวจสอบการเชื่อมต่อนี้บนทีวี</string>
+
+    <string name="setup_stalker_catalog_title">แค็ตตาล็อกภาพยนตร์และซีรีส์</string>
+    <string name="setup_stalker_catalog_description">แยกจากคู่มือรายการทีวี การจัดทำดัชนีเบื้องหลังจะสร้างแค็ตตาล็อกที่ค้นหาได้หลังตั้งค่าเสร็จ</string>
+    <string name="setup_stalker_catalog_on_demand_title">โหลดเมื่อต้องการ</string>
+    <string name="setup_stalker_catalog_on_demand_description">โหลดชั้นวางและหมวดหมู่เมื่อเปิด เก็บชื่อเรื่องที่อยู่ในแคชไว้</string>
+    <string name="setup_stalker_catalog_background_title">จัดทำดัชนีเบื้องหลังทั้งหมด (แนะนำ)</string>
+    <string name="setup_stalker_catalog_background_description">ตั้งค่าผู้ให้บริการให้เสร็จก่อน จากนั้นจัดทำดัชนีภาพยนตร์และซีรีส์ทั้งหมดเบื้องหลังเพื่อให้ค้นหาได้</string>
 </resources>

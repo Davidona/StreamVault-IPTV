@@ -86,7 +86,7 @@ internal class StalkerCatalogSectionExecutor(
                 )
             }
         )
-        if (!indexCatalog || unified) {
+        if (!indexCatalog) {
             // Refresh category contents lazily, retaining cached rows until replacement.
             movieCategoryHydrationDao.deleteByProvider(provider.id)
             if (unified) invalidateUnifiedVod(provider.id)
@@ -94,6 +94,7 @@ internal class StalkerCatalogSectionExecutor(
             syncMetadataRepository.updateMetadata(current.copy(lastMovieSync = now, lastMovieSuccess = now))
             return SyncOutcome(activation = SyncActivation.ACTIVATED_CATALOG)
         }
+        if (unified) invalidateUnifiedVod(provider.id)
         queueIndexSection(provider.id, ContentType.MOVIE, categories.size, now)
         val metadata = (syncMetadataRepository.getMetadata(provider.id) ?: SyncMetadata(provider.id))
             .copy(

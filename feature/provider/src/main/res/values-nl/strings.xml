@@ -118,4 +118,11 @@
     <string name="stalker_transport_go_back">Terug</string>
     <string name="stalker_transport_connect_anyway">Toch verbinden</string>
     <string name="stalker_save_without_verification">Opslaan zonder verificatie</string>
+
+    <string name="setup_stalker_catalog_title">Film- en seriecatalogus</string>
+    <string name="setup_stalker_catalog_description">Staat los van de programgids. Indexeren op de achtergrond maakt na de installatie een doorzoekbare catalogus.</string>
+    <string name="setup_stalker_catalog_on_demand_title">Op aanvraag</string>
+    <string name="setup_stalker_catalog_on_demand_description">Laad planken en categorieën wanneer ze worden geopend. Bewaar titels in de cache.</string>
+    <string name="setup_stalker_catalog_background_title">Volledige achtergrondindex (aanbevolen)</string>
+    <string name="setup_stalker_catalog_background_description">Rond eerst de installatie van de provider af en indexeer daarna alle films en series op de achtergrond, zodat je ze kunt zoeken.</string>
 </resources>

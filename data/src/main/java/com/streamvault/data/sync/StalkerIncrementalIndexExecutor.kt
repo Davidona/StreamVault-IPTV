@@ -172,7 +172,7 @@ internal class StalkerIncrementalIndexExecutor(
         val allVisibleCategories = operations.allVisibleCategories(provider.id, contentType)
         val visibleCategories = operations.visibleCategories(contentType, allVisibleCategories, api)
         val wildcardCategory = allVisibleCategories.firstOrNull { category ->
-            api.isWildcardCategory(contentType, category.categoryId)
+            api.isWildcardCategory(category.type, category.categoryId)
         }
         if (visibleCategories.isEmpty()) {
             val deletedRows = operations.pruneStaleRows(provider.id, contentType)
@@ -584,7 +584,7 @@ internal class StalkerIncrementalIndexExecutor(
         val now = System.currentTimeMillis()
         val normalVisibleCategoryIds = mutableSetOf<Long>()
         visibleCategories.forEach { category ->
-            if (!api.isWildcardCategory(contentType, category.categoryId)) {
+            if (!api.isWildcardCategory(category.type, category.categoryId)) {
                 normalVisibleCategoryIds += category.categoryId
             }
         }

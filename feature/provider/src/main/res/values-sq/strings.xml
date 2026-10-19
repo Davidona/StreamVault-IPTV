@@ -122,4 +122,11 @@
     <string name="setup_phone_pairing_mac_label">Adresa MAC</string>
     <string name="setup_phone_pairing_continue_on_tv">Vazhdo në televizor për ta shqyrtuar dhe përfunduar këtë hap.</string>
     <string name="setup_phone_pairing_stalker_certificate_error">Certifikata nuk mund të kontrollohej në mënyrë të sigurt. Shqyrtoje këtë lidhje në televizor.</string>
+
+    <string name="setup_stalker_catalog_title">Katalogu i filmave dhe serialeve</string>
+    <string name="setup_stalker_catalog_description">Është i ndarë nga guida e programeve. Indeksimi në sfond krijon katalog të kërkueshëm pas konfigurimit.</string>
+    <string name="setup_stalker_catalog_on_demand_title">Sipas kërkesës</string>
+    <string name="setup_stalker_catalog_on_demand_description">Raftet dhe kategoritë ngarkohen kur hapen. Titujt e ruajtur në memorien e përkohshme mbahen.</string>
+    <string name="setup_stalker_catalog_background_title">Indeksim i plotë në sfond (i rekomanduar)</string>
+    <string name="setup_stalker_catalog_background_description">Përfundoni fillimisht konfigurimin e ofruesit, pastaj indeksoni në sfond të gjithë filmat dhe serialet për t’i kërkuar.</string>
 </resources>

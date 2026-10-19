@@ -122,4 +122,11 @@
     <string name="setup_phone_pairing_mac_label">MAC adresa</string>
     <string name="setup_phone_pairing_continue_on_tv">Nastavite na televizoru da biste pregledali i dovršili ovaj korak.</string>
     <string name="setup_phone_pairing_stalker_certificate_error">Certifikat nije bilo moguće sigurno provjeriti. Pregledajte ovu vezu na televizoru.</string>
+
+    <string name="setup_stalker_catalog_title">Katalog filmova i serija</string>
+    <string name="setup_stalker_catalog_description">Odvojeno od TV vodiča. Indeksiranje u pozadini nakon postavljanja stvara katalog koji se može pretraživati.</string>
+    <string name="setup_stalker_catalog_on_demand_title">Na zahtjev</string>
+    <string name="setup_stalker_catalog_on_demand_description">Police i kategorije učitavaju se pri otvaranju. Predmemorirani naslovi ostaju spremljeni.</string>
+    <string name="setup_stalker_catalog_background_title">Potpuno indeksiranje u pozadini (preporučeno)</string>
+    <string name="setup_stalker_catalog_background_description">Najprije dovršite postavljanje pružatelja, a zatim u pozadini indeksirajte sve filmove i serije kako biste ih mogli pretraživati.</string>
 </resources>

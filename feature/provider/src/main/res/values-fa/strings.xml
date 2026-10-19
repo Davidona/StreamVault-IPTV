@@ -122,4 +122,11 @@
     <string name="setup_phone_pairing_mac_label">نشانی MAC</string>
     <string name="setup_phone_pairing_continue_on_tv">برای بررسی و تکمیل این مرحله، روی تلویزیون ادامه دهید.</string>
     <string name="setup_phone_pairing_stalker_certificate_error">گواهی را نمی‌توان با اطمینان بررسی کرد. این اتصال را روی تلویزیون بررسی کنید.</string>
+
+    <string name="setup_stalker_catalog_title">فهرست فیلم و سریال</string>
+    <string name="setup_stalker_catalog_description">این گزینه جدا از راهنمای برنامه است. فهرست‌سازی پس‌زمینه پس از راه‌اندازی، فهرستی قابل جست‌وجو می‌سازد.</string>
+    <string name="setup_stalker_catalog_on_demand_title">هنگام نیاز</string>
+    <string name="setup_stalker_catalog_on_demand_description">قفسه‌ها و دسته‌ها را هنگام باز شدن بارگیری می‌کند. عنوان‌های ذخیره‌شده در حافظه موقت حفظ می‌شوند.</string>
+    <string name="setup_stalker_catalog_background_title">فهرست‌سازی کامل در پس‌زمینه (پیشنهادی)</string>
+    <string name="setup_stalker_catalog_background_description">ابتدا راه‌اندازی ارائه‌دهنده را کامل کنید، سپس همه فیلم‌ها و سریال‌ها را برای جست‌وجو در پس‌زمینه فهرست کنید.</string>
 </resources>

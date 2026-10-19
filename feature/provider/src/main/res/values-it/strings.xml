@@ -118,4 +118,11 @@
     <string name="stalker_transport_go_back">Torna indietro</string>
     <string name="stalker_transport_connect_anyway">Connetti comunque</string>
     <string name="stalker_save_without_verification">Salva senza verifica</string>
+
+    <string name="setup_stalker_catalog_title">Catalogo di film e serie</string>
+    <string name="setup_stalker_catalog_description">È separato dalla guida TV. L’indicizzazione in background crea un catalogo ricercabile dopo la configurazione.</string>
+    <string name="setup_stalker_catalog_on_demand_title">Su richiesta</string>
+    <string name="setup_stalker_catalog_on_demand_description">Carica gli scaffali e le categorie quando vengono aperti. Mantiene i titoli nella cache.</string>
+    <string name="setup_stalker_catalog_background_title">Indicizzazione completa in background (consigliata)</string>
+    <string name="setup_stalker_catalog_background_description">Completa prima la configurazione del provider, poi indicizza tutti i film e le serie in background per renderli ricercabili.</string>
 </resources>

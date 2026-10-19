@@ -118,4 +118,11 @@
     <string name="stalker_transport_go_back">Takaisin</string>
     <string name="stalker_transport_connect_anyway">Yhdistä silti</string>
     <string name="stalker_save_without_verification">Tallenna vahvistamatta</string>
+
+    <string name="setup_stalker_catalog_title">Elokuva- ja sarjaluettelo</string>
+    <string name="setup_stalker_catalog_description">Erillään ohjelmaoppaasta. Taustalla tehtävä indeksointi luo haettavan luettelon käyttöönoton jälkeen.</string>
+    <string name="setup_stalker_catalog_on_demand_title">Tarvittaessa</string>
+    <string name="setup_stalker_catalog_on_demand_description">Lataa hyllyt ja kategoriat avattaessa. Säilyttää välimuistissa olevat nimikkeet.</string>
+    <string name="setup_stalker_catalog_background_title">Täysi taustaindeksointi (suositeltu)</string>
+    <string name="setup_stalker_catalog_background_description">Viimeistele ensin palveluntarjoajan käyttöönotto. Sen jälkeen kaikki elokuvat ja sarjat indeksoidaan taustalla hakua varten.</string>
 </resources>
