@@ -105,4 +105,24 @@
     <string name="setup_phone_pairing_security_warning">Beveiliging: Koppelen verstuurt inloggegevens onversleuteld via je lokale netwerk. Gebruik alleen een vertrouwd privé-Wi-Fi-netwerk.</string>
     <string name="setup_phone_pairing_error_help">Koppelen is niet voltooid. Controleer de providergegevens en probeer het opnieuw. Als de QR-sessie is verlopen, start je een nieuwe op de tv.</string>
     <string name="setup_phone_pairing_mac_label">MAC-adres</string>
+    <string name="setup_phone_pairing_continue_on_tv">Ga verder op de tv om deze stap te controleren en af te ronden.</string>
+    <string name="setup_phone_pairing_stalker_certificate_error">Het certificaat kon niet veilig worden gecontroleerd. Controleer deze verbinding op de tv.</string>
+    <string name="stalker_transport_invalid_tls_title">Het beveiligingscertificaat van deze provider kan niet worden gecontroleerd</string>
+    <string name="stalker_transport_invalid_tls_body">De verbinding met %1$s is mogelijk nog versleuteld, maar de app kan niet bevestigen dat deze echt bij deze provider hoort. Iemand op het netwerk kan je inloggegevens of streaminformatie lezen.</string>
+    <string name="stalker_transport_http_title">Deze provider gebruikt een niet-versleutelde verbinding</string>
+    <string name="stalker_transport_http_body">Iemand op het netwerk kan je inlog- en kijkverzoeken naar %1$s lezen of wijzigen.</string>
+    <string name="stalker_transport_origin_changed_title">Deze provider wil een ander adres gebruiken</string>
+    <string name="stalker_transport_origin_changed_body">De provider heeft de verbinding omgeleid naar %1$s. Ga alleen verder als je dit adres herkent.</string>
+    <string name="stalker_verification_inconclusive_title">Live-tv kon niet worden gecontroleerd</string>
+    <string name="stalker_verification_inconclusive_body">De provider heeft je aanmelding geaccepteerd, maar de controle van live-tv is niet afgerond. Je kunt de provider opslaan terwijl de controle nog loopt; deze blijft inactief totdat een synchronisatie bevestigt dat live-tv kan worden afgespeeld.</string>
+    <string name="stalker_transport_go_back">Terug</string>
+    <string name="stalker_transport_connect_anyway">Toch verbinden</string>
+    <string name="stalker_save_without_verification">Opslaan zonder verificatie</string>
+
+    <string name="setup_stalker_catalog_title">Film- en seriecatalogus</string>
+    <string name="setup_stalker_catalog_description">Staat los van de programgids. Indexeren op de achtergrond maakt na de installatie een doorzoekbare catalogus.</string>
+    <string name="setup_stalker_catalog_on_demand_title">Op aanvraag</string>
+    <string name="setup_stalker_catalog_on_demand_description">Laad planken en categorieën wanneer ze worden geopend. Bewaar titels in de cache.</string>
+    <string name="setup_stalker_catalog_background_title">Volledige achtergrondindex (aanbevolen)</string>
+    <string name="setup_stalker_catalog_background_description">Rond eerst de installatie van de provider af en indexeer daarna alle films en series op de achtergrond, zodat je ze kunt zoeken.</string>
 </resources>

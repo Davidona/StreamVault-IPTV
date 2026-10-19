@@ -29,7 +29,6 @@ import com.streamvault.data.provider.ProviderObservationStreams
 import com.streamvault.data.provider.StalkerClientOptions
 import com.streamvault.data.provider.TypedProviderClientFactory
 import com.streamvault.data.provider.toAccountRuntime
-import com.streamvault.data.provider.redactedCredentials
 import com.streamvault.data.provider.toTypedConfiguration
 import com.streamvault.data.provider.toLegacyProvider
 import com.streamvault.data.provider.guidePolicy
@@ -169,8 +168,10 @@ class ProviderRepositoryImpl @Inject constructor(
 
     override fun getActiveProvider(): Flow<Provider?> = observationStreams.activeProvider
 
-    override suspend fun getProvider(id: Long): Provider? =
-        loadLegacyProvider(id)?.redactedCredentials()
+    override suspend fun getProvider(id: Long): Provider? {
+        if (providerSnapshotDao.getConfig(id) == null) return null
+        return observationStreams.providers.first().firstOrNull { it.id == id }
+    }
 
     override suspend fun addProvider(provider: Provider): Result<Long> = try {
         val id = transactionRunner.inTransaction {
@@ -215,13 +216,20 @@ class ProviderRepositoryImpl @Inject constructor(
                 return Result.error("Complete search indexing is only available for Stalker providers")
             }
             val now = System.currentTimeMillis()
+            val sections = if (
+                providerSnapshotDao.getRuntime(providerId)?.catalogLayout == CatalogLayout.UNIFIED_VOD
+            ) {
+                listOf(ContentType.MOVIE)
+            } else {
+                listOf(ContentType.MOVIE, ContentType.SERIES)
+            }
             transactionRunner.inTransaction {
                 // A manual rebuild is an explicit retry of every category, including rows
                 // previously marked COMPLETE, TRUNCATED, or terminally failed. Keep the
                 // current searchable content visible while resetting only crawl progress.
                 movieCategoryHydrationDao.deleteByProvider(providerId)
                 seriesCategoryHydrationDao.deleteByProvider(providerId)
-                listOf(ContentType.MOVIE, ContentType.SERIES).forEach { section ->
+                sections.forEach { section ->
                     stalkerIndexJobDao.upsert(
                         StalkerIndexJobEntity(
                             providerId = providerId,
@@ -905,7 +913,7 @@ class ProviderRepositoryImpl @Inject constructor(
         repairConnection: Boolean = false,
         requestedProfileId: String = StalkerCompatibilityProfileIds.AUTO,
         epgSyncMode: ProviderEpgSyncMode = ProviderEpgSyncMode.BACKGROUND,
-        catalogMode: StalkerCatalogMode = StalkerCatalogMode.ON_DEMAND,
+        catalogMode: StalkerCatalogMode = StalkerCatalogMode.BACKGROUND_INDEX,
         guideSourcePolicy: GuideSourcePolicy = GuideSourcePolicy.AUTO,
         channelLogoSourcePolicy: ChannelLogoSourcePolicy = ChannelLogoSourcePolicy.SUPPLIER_PREFERRED,
         onProgress: ((String) -> Unit)? = null,
@@ -1795,16 +1803,24 @@ class ProviderRepositoryImpl @Inject constructor(
         epgChannelId: String?,
         limit: Int
     ): Result<List<Program>> {
-        val providerEntity = loadLegacyProvider(providerId)
+        val providerEntity = try {
+            loadLegacyProvider(providerId)
+        } catch (error: CredentialDecryptionException) {
+            return Result.error(error.message ?: CredentialDecryptionException.MESSAGE, error)
+        }
             ?: return Result.error("Provider $providerId not found")
         if (!allowsOnDemandGuide(providerEntity)) {
             return Result.error("On-demand guide lookup is disabled for this provider.")
         }
-        val guide = when (val resolution = resolveGuideCapability(providerId)) {
-            is CapabilityResolution.Available -> resolution.capability
-            is CapabilityResolution.ConfigurationError -> return Result.error(resolution.reason)
-            is CapabilityResolution.Restricted -> return Result.error(resolution.reason)
-            is CapabilityResolution.Unsupported -> return Result.error(resolution.reason)
+        val guide = try {
+            when (val resolution = resolveGuideCapability(providerId)) {
+                is CapabilityResolution.Available -> resolution.capability
+                is CapabilityResolution.ConfigurationError -> return Result.error(resolution.reason)
+                is CapabilityResolution.Restricted -> return Result.error(resolution.reason)
+                is CapabilityResolution.Unsupported -> return Result.error(resolution.reason)
+            }
+        } catch (error: CredentialDecryptionException) {
+            return Result.error(error.message ?: CredentialDecryptionException.MESSAGE, error)
         }
         val result = fetchProgramsForLiveStream(
             providerId = providerId,
@@ -1833,7 +1849,13 @@ class ProviderRepositoryImpl @Inject constructor(
             return emptyMap()
         }
 
-        val providerEntity = loadLegacyProvider(providerId)
+        val providerEntity = try {
+            loadLegacyProvider(providerId)
+        } catch (error: CredentialDecryptionException) {
+            return normalizedRequests.associateWith {
+                Result.error(error.message ?: CredentialDecryptionException.MESSAGE, error)
+            }
+        }
             ?: return normalizedRequests.associateWith { Result.error("Provider $providerId not found") }
         if (!allowsOnDemandGuide(providerEntity)) {
             return normalizedRequests.associateWith {
@@ -1841,11 +1863,17 @@ class ProviderRepositoryImpl @Inject constructor(
             }
         }
 
-        val guide = when (val resolution = resolveGuideCapability(providerId)) {
-            is CapabilityResolution.Available -> resolution.capability
-            is CapabilityResolution.ConfigurationError -> return normalizedRequests.associateWith { Result.error(resolution.reason) }
-            is CapabilityResolution.Restricted -> return normalizedRequests.associateWith { Result.error(resolution.reason) }
-            is CapabilityResolution.Unsupported -> return normalizedRequests.associateWith { Result.error(resolution.reason) }
+        val guide = try {
+            when (val resolution = resolveGuideCapability(providerId)) {
+                is CapabilityResolution.Available -> resolution.capability
+                is CapabilityResolution.ConfigurationError -> return normalizedRequests.associateWith { Result.error(resolution.reason) }
+                is CapabilityResolution.Restricted -> return normalizedRequests.associateWith { Result.error(resolution.reason) }
+                is CapabilityResolution.Unsupported -> return normalizedRequests.associateWith { Result.error(resolution.reason) }
+            }
+        } catch (error: CredentialDecryptionException) {
+            return normalizedRequests.associateWith {
+                Result.error(error.message ?: CredentialDecryptionException.MESSAGE, error)
+            }
         }
         return coroutineScope {
             val requestDispatcher = Dispatchers.IO.limitedParallelism(XTREAM_GUIDE_BATCH_CONCURRENCY)

@@ -940,4 +940,5 @@
     <string name="settings_sports_custom_definition_file_too_large">A JSON-fájl meghaladja a 32 KB-os korlátot</string>
     <string name="settings_sports_custom_definition_file_error">Ez a JSON-fájl nem tölthető be</string>
     <string name="settings_experimental_badge">Kísérleti</string>
+    <string name="settings_sync_index_progress">%1$s · %2$s</string>
 </resources>

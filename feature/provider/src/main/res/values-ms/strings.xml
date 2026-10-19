@@ -105,19 +105,28 @@
     <string name="settings_drive_choose_backup_subtitle" translatable="false">Select a saved snapshot to preview and restore.</string>
     <string name="settings_drive_cancel_backup_choice" translatable="false">Cancel backup choice</string>
     <string name="setup_import_from_drive">Import dari Drive</string>
-    <string name="stalker_transport_invalid_tls_title" translatable="false">This provider\'s security certificate can\'t be verified</string>
-    <string name="stalker_transport_invalid_tls_body" translatable="false">The connection to %1$s may still be encrypted, but the app can\'t confirm it is really this provider. Someone on the network could read your login or stream details.</string>
-    <string name="stalker_transport_http_title" translatable="false">This provider uses an unencrypted connection</string>
-    <string name="stalker_transport_http_body" translatable="false">Your login and viewing requests to %1$s can be read or changed by someone on the network.</string>
-    <string name="stalker_transport_origin_changed_title" translatable="false">This provider wants to use a different address</string>
-    <string name="stalker_transport_origin_changed_body" translatable="false">The provider redirected the connection to %1$s. Continue only if you recognize this address.</string>
-    <string name="stalker_transport_go_back" translatable="false">Go back</string>
-    <string name="stalker_transport_connect_anyway" translatable="false">Connect anyway</string>
-    <string name="stalker_verification_inconclusive_title" translatable="false">Live TV could not be verified</string>
-    <string name="stalker_verification_inconclusive_body" translatable="false">The provider accepted your login, but the Live TV check did not finish. You can save it with verification pending; it will remain inactive until a sync confirms playable Live TV.</string>
-    <string name="stalker_save_without_verification" translatable="false">Save without verification</string>
+    <string name="stalker_transport_invalid_tls_title">Sijil keselamatan penyedia ini tidak dapat disahkan</string>
+    <string name="stalker_transport_invalid_tls_body">Sambungan ke %1$s mungkin masih disulitkan, tetapi aplikasi tidak dapat mengesahkan bahawa sambungan itu benar-benar milik penyedia ini. Seseorang pada rangkaian mungkin membaca maklumat log masuk atau strim anda.</string>
+    <string name="stalker_transport_http_title">Penyedia ini menggunakan sambungan yang tidak disulitkan</string>
+    <string name="stalker_transport_http_body">Seseorang pada rangkaian boleh membaca atau mengubah permintaan log masuk dan tontonan anda ke %1$s.</string>
+    <string name="stalker_transport_origin_changed_title">Penyedia ini mahu menggunakan alamat yang berbeza</string>
+    <string name="stalker_transport_origin_changed_body">Penyedia mengubah hala sambungan ke %1$s. Teruskan hanya jika anda mengenali alamat ini.</string>
+    <string name="stalker_transport_go_back">Kembali</string>
+    <string name="stalker_transport_connect_anyway">Sambung juga</string>
+    <string name="stalker_verification_inconclusive_title">TV langsung tidak dapat disahkan</string>
+    <string name="stalker_verification_inconclusive_body">Penyedia menerima log masuk anda, tetapi pemeriksaan TV langsung tidak selesai. Anda boleh menyimpannya sementara pengesahan masih tertunda; sumber akan kekal tidak aktif sehingga penyegerakan mengesahkan TV langsung boleh dimainkan.</string>
+    <string name="stalker_save_without_verification">Simpan tanpa pengesahan</string>
     <string name="stalker_repair_connection" translatable="false">Repair connection</string>
     <string name="setup_phone_pairing_security_warning">Keselamatan: Proses gandingan menghantar kelayakan tanpa penyulitan melalui rangkaian setempat anda. Gunakan rangkaian Wi-Fi peribadi yang dipercayai sahaja.</string>
     <string name="setup_phone_pairing_error_help">Gandingan tidak dapat diselesaikan. Semak butiran penyedia dan cuba lagi. Jika sesi QR telah tamat tempoh, mulakan sesi baharu pada TV.</string>
     <string name="setup_phone_pairing_mac_label">Alamat MAC</string>
+    <string name="setup_phone_pairing_continue_on_tv">Teruskan pada TV untuk menyemak dan melengkapkan langkah ini.</string>
+    <string name="setup_phone_pairing_stalker_certificate_error">Sijil tidak dapat diperiksa dengan selamat. Semak sambungan ini pada TV.</string>
+
+    <string name="setup_stalker_catalog_title">Katalog filem dan siri</string>
+    <string name="setup_stalker_catalog_description">Berasingan daripada panduan program. Pengindeksan latar belakang membina katalog yang boleh dicari selepas persediaan.</string>
+    <string name="setup_stalker_catalog_on_demand_title">Atas permintaan</string>
+    <string name="setup_stalker_catalog_on_demand_description">Muatkan rak dan kategori apabila dibuka. Kekalkan tajuk yang dicache.</string>
+    <string name="setup_stalker_catalog_background_title">Indeks latar belakang lengkap (disyorkan)</string>
+    <string name="setup_stalker_catalog_background_description">Selesaikan persediaan penyedia dahulu, kemudian indeks semua filem dan siri di latar belakang untuk carian.</string>
 </resources>

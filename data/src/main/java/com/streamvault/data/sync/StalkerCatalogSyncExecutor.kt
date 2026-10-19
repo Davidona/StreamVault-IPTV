@@ -243,14 +243,15 @@ internal class StalkerCatalogSyncExecutor(
             catalogActivated = true
             if (effectiveCatalogLayout == CatalogLayout.SPLIT) {
                 movieCategoryHydrationDao.deleteByProvider(provider.id)
+            } else {
+                vodCategoryHydrationDao.deleteByProvider(provider.id)
             }
             categoryDao.deleteByProviderAndType(
                 provider.id,
                 if (storedCategoryType == ContentType.VOD) ContentType.MOVIE.name else ContentType.VOD.name
             )
             movieCategoryCount = categories.size
-            if (!bootstrap && effectiveCatalogLayout != CatalogLayout.UNIFIED_VOD &&
-                provider.stalkerCatalogMode == StalkerCatalogMode.BACKGROUND_INDEX
+            if (!bootstrap && provider.stalkerCatalogMode == StalkerCatalogMode.BACKGROUND_INDEX
             ) {
                 sectionExecutor.queueIndexSection(provider.id, ContentType.MOVIE, categories.size, now)
             }

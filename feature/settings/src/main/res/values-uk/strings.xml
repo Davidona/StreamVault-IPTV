@@ -946,4 +946,5 @@
     <string name="settings_sports_custom_definition_file_too_large">Файл JSON перевищує обмеження 32 КБ</string>
     <string name="settings_sports_custom_definition_file_error">Не вдалося завантажити цей файл JSON</string>
     <string name="settings_experimental_badge">Експериментально</string>
+    <string name="settings_sync_index_progress">%1$s · %2$s</string>
 </resources>

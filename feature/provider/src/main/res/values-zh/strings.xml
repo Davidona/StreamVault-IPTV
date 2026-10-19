@@ -105,4 +105,24 @@
     <string name="setup_phone_pairing_security_warning">安全提示：配对会通过本地网络以未加密的方式发送登录凭据。请仅使用可信的私人 Wi-Fi 网络。</string>
     <string name="setup_phone_pairing_error_help">无法完成配对。请检查服务提供商信息并重试。如果二维码会话已过期，请在电视上重新开始。</string>
     <string name="setup_phone_pairing_mac_label">MAC 地址</string>
+    <string name="setup_phone_pairing_continue_on_tv">请在电视上继续，以检查并完成此步骤。</string>
+    <string name="setup_phone_pairing_stalker_certificate_error">无法安全地检查证书。请在电视上检查此连接。</string>
+    <string name="stalker_transport_invalid_tls_title">无法验证此提供商的安全证书</string>
+    <string name="stalker_transport_invalid_tls_body">与 %1$s 的连接可能仍经过加密，但应用无法确认它确实属于此提供商。网络中的其他人可能会读取你的登录信息或流媒体详情。</string>
+    <string name="stalker_transport_http_title">此提供商使用未加密的连接</string>
+    <string name="stalker_transport_http_body">网络中的其他人可能会读取或更改你发送到 %1$s 的登录和播放请求。</string>
+    <string name="stalker_transport_origin_changed_title">此提供商要使用其他地址</string>
+    <string name="stalker_transport_origin_changed_body">提供商将连接重定向到了 %1$s。只有在你认识此地址时才继续。</string>
+    <string name="stalker_verification_inconclusive_title">无法验证直播电视</string>
+    <string name="stalker_verification_inconclusive_body">提供商已接受你的登录，但直播电视检查未完成。你可以在验证待处理时保存；在同步确认直播电视可以播放之前，它会保持停用状态。</string>
+    <string name="stalker_transport_go_back">返回</string>
+    <string name="stalker_transport_connect_anyway">仍然连接</string>
+    <string name="stalker_save_without_verification">未经验证保存</string>
+
+    <string name="setup_stalker_catalog_title">电影和剧集目录</string>
+    <string name="setup_stalker_catalog_description">与节目指南分开。设置完成后，后台索引会建立可搜索的目录。</string>
+    <string name="setup_stalker_catalog_on_demand_title">按需加载</string>
+    <string name="setup_stalker_catalog_on_demand_description">打开时加载各栏和类别。保留已缓存的标题。</string>
+    <string name="setup_stalker_catalog_background_title">完整后台索引（推荐）</string>
+    <string name="setup_stalker_catalog_background_description">先完成服务商设置，然后在后台为所有电影和剧集建立索引，以便搜索。</string>
 </resources>

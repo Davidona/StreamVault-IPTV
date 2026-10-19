@@ -105,4 +105,24 @@
     <string name="setup_phone_pairing_security_warning">Säkerhet: Parkopplingen skickar inloggningsuppgifter okrypterade via ditt lokala nätverk. Använd endast ett privat Wi-Fi-nätverk som du litar på.</string>
     <string name="setup_phone_pairing_error_help">Det gick inte att slutföra parkopplingen. Kontrollera leverantörsuppgifterna och försök igen. Om QR-sessionen har gått ut startar du en ny på tv:n.</string>
     <string name="setup_phone_pairing_mac_label">MAC-adress</string>
+    <string name="setup_phone_pairing_continue_on_tv">Fortsätt på tv:n för att granska och slutföra det här steget.</string>
+    <string name="setup_phone_pairing_stalker_certificate_error">Certifikatet kunde inte kontrolleras på ett säkert sätt. Granska anslutningen på tv:n.</string>
+    <string name="stalker_transport_invalid_tls_title">Den här leverantörens säkerhetscertifikat kan inte verifieras</string>
+    <string name="stalker_transport_invalid_tls_body">Anslutningen till %1$s kan fortfarande vara krypterad, men appen kan inte bekräfta att den verkligen tillhör den här leverantören. Någon på nätverket kan läsa dina inloggnings- eller streamuppgifter.</string>
+    <string name="stalker_transport_http_title">Den här leverantören använder en okrypterad anslutning</string>
+    <string name="stalker_transport_http_body">Någon på nätverket kan läsa eller ändra dina inloggnings- och visningsförfrågningar till %1$s.</string>
+    <string name="stalker_transport_origin_changed_title">Den här leverantören vill använda en annan adress</string>
+    <string name="stalker_transport_origin_changed_body">Leverantören omdirigerade anslutningen till %1$s. Fortsätt bara om du känner igen adressen.</string>
+    <string name="stalker_verification_inconclusive_title">Live-tv kunde inte verifieras</string>
+    <string name="stalker_verification_inconclusive_body">Leverantören accepterade din inloggning, men kontrollen av live-tv blev inte klar. Du kan spara den medan verifieringen väntar; den förblir inaktiv tills en synkronisering bekräftar att live-tv kan spelas upp.</string>
+    <string name="stalker_transport_go_back">Gå tillbaka</string>
+    <string name="stalker_transport_connect_anyway">Anslut ändå</string>
+    <string name="stalker_save_without_verification">Spara utan verifiering</string>
+
+    <string name="setup_stalker_catalog_title">Film- och seriekatalog</string>
+    <string name="setup_stalker_catalog_description">Separat från programguiden. Bakgrundsindexering skapar en sökbar katalog efter konfigurationen.</string>
+    <string name="setup_stalker_catalog_on_demand_title">Vid behov</string>
+    <string name="setup_stalker_catalog_on_demand_description">Läs in hyllor och kategorier när de öppnas. Behåll titlar i cacheminnet.</string>
+    <string name="setup_stalker_catalog_background_title">Fullständig bakgrundsindexering (rekommenderas)</string>
+    <string name="setup_stalker_catalog_background_description">Slutför först konfigurationen av leverantören och indexera sedan alla filmer och serier i bakgrunden så att de går att söka efter.</string>
 </resources>

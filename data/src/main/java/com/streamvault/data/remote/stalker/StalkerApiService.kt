@@ -244,6 +244,17 @@ data class StalkerPagedItems(
         get() = !isTruncated && if (hasAdvertisedTotal) page >= totalPages else items.isEmpty()
 }
 
+/** Optional transport capability for probing raw portal page numbers, including `p=0`. */
+interface StalkerRawVodPageApi {
+    suspend fun getVodStreamsPageAtPortalPage(
+        session: StalkerSession,
+        profile: StalkerDeviceProfile,
+        categoryId: String?,
+        portalPage: Int,
+        searchQuery: String? = null
+    ): Result<StalkerPagedItems>
+}
+
 data class StalkerSeriesDetails(
     val series: StalkerItemRecord,
     val seasons: List<StalkerSeasonRecord>,

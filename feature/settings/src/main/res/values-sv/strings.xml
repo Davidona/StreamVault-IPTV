@@ -940,4 +940,5 @@
     <string name="settings_sports_custom_definition_file_too_large">JSON-filen överskrider gränsen på 32 kB</string>
     <string name="settings_sports_custom_definition_file_error">Det gick inte att läsa in den här JSON-filen</string>
     <string name="settings_experimental_badge">Experimentell</string>
+    <string name="settings_sync_index_progress">%1$s · %2$s</string>
 </resources>

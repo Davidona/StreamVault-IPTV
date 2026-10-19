@@ -1892,6 +1892,9 @@ class SyncManagerTest {
 
         assertThat(result.isSuccess).isTrue()
         verify(xtreamContentIndexDao).markVodAndSeriesRowsStaleForRebuild(1L)
+        verify(workScheduler).scheduleXtreamIndex(1L, null, true)
+        verify(workScheduler, org.mockito.kotlin.never()).scheduleXtreamIndex(1L, ContentType.MOVIE, true)
+        verify(workScheduler, org.mockito.kotlin.never()).scheduleXtreamIndex(1L, ContentType.SERIES, true)
         assertThat(xtreamBackend.requestedActions).contains("get_vod_categories")
         assertThat(xtreamBackend.requestedActions).contains("get_series_categories")
         assertThat(xtreamBackend.requestedActions).doesNotContain("get_vod_streams")

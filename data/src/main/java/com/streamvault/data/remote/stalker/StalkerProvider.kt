@@ -86,6 +86,16 @@ data class StalkerVodCatalogItem(
 
 private object LiveStreamLimitReached : Exception("live stream cap reached")
 
+private sealed interface VodPageBaseResolution {
+    data class Known(val pageBase: Int) : VodPageBaseResolution
+    data class Probed(
+        val pageBase: Int,
+        val pageZero: Result<StalkerPagedItems>,
+        val pageOne: Result<StalkerPagedItems>
+    ) : VodPageBaseResolution
+    data class Failed(val result: Result<StalkerPagedItems>) : VodPageBaseResolution
+}
+
 class StalkerProvider(
     val providerId: Long,
     private val api: StalkerApiService,
@@ -151,6 +161,8 @@ internal companion object {
         private val sharedPortalAuthCache = ConcurrentHashMap<String, CachedAuth>()
         private val sharedAuthFailureCache = ConcurrentHashMap<String, CachedAuthFailure>()
         private val sharedAuthMutexes = KeyedMutexRegistry<String>()
+        private val sharedVodPageBaseCache = ConcurrentHashMap<String, Int>()
+        private val sharedVodPageBaseMutexes = KeyedMutexRegistry<String>()
         private val resolvedStreamUrlCache = ConcurrentHashMap<String, CachedResolvedUrl>()
         private val missingVodClassificationLogged = ConcurrentHashMap.newKeySet<Long>()
 
@@ -159,6 +171,7 @@ internal companion object {
             sharedAuthCache.clear()
             sharedPortalAuthCache.clear()
             sharedAuthFailureCache.clear()
+            sharedVodPageBaseCache.clear()
         }
 
         fun clearResolvedStreamUrlCacheForTests() {
@@ -174,6 +187,8 @@ internal companion object {
             val portalPrefix = "portal:$providerId|"
             sharedPortalAuthCache.keys.filter { it.startsWith(portalPrefix) }.forEach(sharedPortalAuthCache::remove)
             sharedAuthFailureCache.keys.filter { it.startsWith(authPrefix) }.forEach(sharedAuthFailureCache::remove)
+            sharedVodPageBaseCache.keys.filter { it.startsWith("portal:$providerId|") }
+                .forEach(sharedVodPageBaseCache::remove)
             resolvedStreamUrlCache.keys
                 .filter { it.startsWith("$providerId|") }
                 .forEach(resolvedStreamUrlCache::remove)
@@ -581,23 +596,23 @@ internal companion object {
             api.getVodStreams(session, profile, rawCategoryId)
         }
         return mapResolvedItems(ContentType.MOVIE, result) { item ->
-            toMovie(item, requestedCategoryId = categoryId)
+                toMovie(item, requestedCategoryId = categoryId)
         }
     }
 
     suspend fun getVodStreamsPage(categoryId: Long?, page: Int): Result<StalkerPagedResult<Movie>> =
-        mapPagedItems(ContentType.MOVIE, categoryId) { session, profile, rawCategoryId ->
-            api.getVodStreamsPage(session, profile, rawCategoryId, page)
-        }.let { result -> mapResolvedPage(ContentType.MOVIE, result) { item ->
+        loadVodPageWithPortalPageBase(ContentType.MOVIE, categoryId, page).let { result ->
+            mapResolvedPage(ContentType.MOVIE, result) { item ->
             toMovie(item, requestedCategoryId = categoryId)
-        } }
+            }
+        }
 
     suspend fun getVodStreamsPageUsingItemCategories(categoryId: Long?, page: Int): Result<StalkerPagedResult<Movie>> =
-        mapPagedItems(ContentType.MOVIE, categoryId) { session, profile, rawCategoryId ->
-            api.getVodStreamsPage(session, profile, rawCategoryId, page)
-        }.let { result -> mapResolvedPage(ContentType.MOVIE, result) { item ->
-            toMovie(item, requestedCategoryId = null)
-        } }
+        loadVodPageWithPortalPageBase(ContentType.MOVIE, categoryId, page).let { result ->
+            mapResolvedPage(ContentType.MOVIE, result) { item ->
+                toMovie(item, requestedCategoryId = null)
+            }
+        }
 
     suspend fun getUnifiedVodPage(categoryId: Long, page: Int): Result<StalkerPagedResult<StalkerVodCatalogItem>> =
         getClassifiedVodPage(ContentType.VOD, categoryId, page)
@@ -678,13 +693,7 @@ internal companion object {
         seriesCategoryId: Long? = categoryId,
         searchQuery: String? = null
     ): Result<StalkerPagedResult<StalkerVodCatalogItem>> {
-        val rawResult = mapPagedItems(categoryType, categoryId) { session, profile, rawCategoryId ->
-            if (searchQuery == null) {
-                api.getVodStreamsPage(session, profile, rawCategoryId, page)
-            } else {
-                api.getVodStreamsPage(session, profile, rawCategoryId, page, searchQuery)
-            }
-        }
+        val rawResult = loadVodPageWithPortalPageBase(categoryType, categoryId, page, searchQuery)
         return when (rawResult) {
             is Result.Success -> {
                 val raw = rawResult.data
@@ -788,19 +797,18 @@ internal companion object {
         // empty (providers that serve series inside VOD). Only triggers when the primary
         // path produces zero items, so portals using type=series are unaffected.
         if (primary is Result.Success && primary.data.items.isEmpty()) {
-            val vodPage = mapPagedItems(ContentType.SERIES, categoryId) { session, profile, rawCategoryId ->
-                api.getVodStreamsPage(session, profile, rawCategoryId, page)
-            }.let { result -> mapResolvedPage(ContentType.SERIES, result) { item ->
-                if (item.isSeries) {
-                    toSeries(
-                        item,
-                        requestedCategoryId = categoryId,
-                        origin = SeriesCatalogOrigin.VOD_DERIVED
-                    )
-                } else {
-                    null
-                }
-            } }
+            val vodPage = loadVodPageWithPortalPageBase(ContentType.SERIES, categoryId, page)
+                .let { result -> mapResolvedPage(ContentType.SERIES, result) { item ->
+                    if (item.isSeries) {
+                        toSeries(
+                            item,
+                            requestedCategoryId = categoryId,
+                            origin = SeriesCatalogOrigin.VOD_DERIVED
+                        )
+                    } else {
+                        null
+                    }
+                } }
             return vodPage
         }
         return primary
@@ -1593,6 +1601,185 @@ is Result.Success -> {
             val rawCategoryId = resolveRawCategoryId(type, categoryId)
             loader(session, currentDeviceProfile(), rawCategoryId)
         }
+    }
+
+    /**
+     * The UI and durable index checkpoints use 1-based pages, but Stalker portals differ on
+     * whether `p` starts at zero or one. Probe both values once per provider configuration,
+     * then keep translating logical pages to the portal's raw cursor.
+     */
+    private suspend fun loadVodPageWithPortalPageBase(
+        categoryType: ContentType,
+        categoryId: Long?,
+        logicalPage: Int,
+        searchQuery: String? = null
+    ): Result<StalkerPagedItems> = runWithAuthorizedSession { session, _ ->
+        val profile = currentDeviceProfile()
+        val rawCategoryId = resolveRawCategoryId(categoryType, categoryId)
+        val pageNumber = logicalPage.coerceAtLeast(1)
+        val cacheKey = vodPageBaseCacheKey()
+        if (api !is StalkerRawVodPageApi) {
+            // Legacy transports do not expose a raw p=0 cursor. Keep their established
+            // 1-based call shape and avoid extra requests that cannot teach an offset.
+            val pageResult = if (searchQuery == null) {
+                api.getVodStreamsPage(session, profile, rawCategoryId, pageNumber)
+            } else {
+                api.getVodStreamsPage(session, profile, rawCategoryId, pageNumber, searchQuery)
+            }
+            return@runWithAuthorizedSession normalizeVodPage(pageResult, pageNumber)
+        }
+
+        val resolution = sharedVodPageBaseCache[cacheKey]?.let { VodPageBaseResolution.Known(it) }
+            ?: sharedVodPageBaseMutexes.withLock(cacheKey) {
+                val learnedBase = sharedVodPageBaseCache[cacheKey]
+                    ?: portalStateStore?.getVodPageBase(providerId, configurationGeneration)
+                        ?.also { sharedVodPageBaseCache[cacheKey] = it }
+                if (learnedBase != null) {
+                    return@withLock VodPageBaseResolution.Known(learnedBase)
+                }
+
+                val pageZero = requestVodPageAtPortalPage(
+                    session,
+                    profile,
+                    rawCategoryId,
+                    portalPage = 0,
+                    searchQuery = searchQuery
+                )
+                if (pageZero is Result.Error && isAuthorizationFailure(pageZero.message, pageZero.exception)) {
+                    return@withLock VodPageBaseResolution.Failed(pageZero)
+                }
+                if (pageZero is Result.Loading) {
+                    return@withLock VodPageBaseResolution.Failed(Result.error("Unexpected loading state"))
+                }
+
+                val pageOne = requestVodPageAtPortalPage(
+                    session,
+                    profile,
+                    rawCategoryId,
+                    portalPage = 1,
+                    searchQuery = searchQuery
+                )
+                if (pageOne is Result.Error && isAuthorizationFailure(pageOne.message, pageOne.exception)) {
+                    return@withLock VodPageBaseResolution.Failed(pageOne)
+                }
+                if (pageOne is Result.Loading) {
+                    return@withLock VodPageBaseResolution.Failed(Result.error("Unexpected loading state"))
+                }
+
+                val detectedBase = inferVodPageBase(pageZero, pageOne)
+                if (detectedBase != null) {
+                    sharedVodPageBaseCache[cacheKey] = detectedBase
+                    portalStateStore?.recordVodPageBase(
+                        providerId = providerId,
+                        pageBase = detectedBase,
+                        configurationGeneration = configurationGeneration
+                    )
+                } else if (pageZero is Result.Error) {
+                    // A transient failure on p=0 must not silently map page two to page one.
+                    return@withLock VodPageBaseResolution.Failed(pageZero)
+                }
+                VodPageBaseResolution.Probed(detectedBase ?: 1, pageZero, pageOne)
+            }
+
+        when (resolution) {
+            is VodPageBaseResolution.Failed -> resolution.result
+            is VodPageBaseResolution.Known -> {
+                val portalPage = (pageNumber - 1 + resolution.pageBase).coerceAtLeast(0)
+                normalizeVodPage(
+                    requestVodPageAtPortalPage(
+                        session,
+                        profile,
+                        rawCategoryId,
+                        portalPage,
+                        searchQuery
+                    ),
+                    pageNumber
+                )
+            }
+            is VodPageBaseResolution.Probed -> {
+                val portalPage = (pageNumber - 1 + resolution.pageBase).coerceAtLeast(0)
+                val target = when (portalPage) {
+                    0 -> resolution.pageZero
+                    1 -> resolution.pageOne
+                    else -> requestVodPageAtPortalPage(
+                        session,
+                        profile,
+                        rawCategoryId,
+                        portalPage,
+                        searchQuery
+                    )
+                }
+                normalizeVodPage(target, pageNumber)
+            }
+        }
+    }
+
+    private fun inferVodPageBase(
+        pageZero: Result<StalkerPagedItems>,
+        pageOne: Result<StalkerPagedItems>
+    ): Int? = when (pageZero) {
+        is Result.Success -> when (pageOne) {
+            is Result.Success -> {
+                val first = pageZero.data.items
+                val second = pageOne.data.items
+                when {
+                    first.isEmpty() && second.isEmpty() -> null
+                    first.isNotEmpty() && second.isNotEmpty() && sameVodPage(first, second) -> 1
+                    first.isNotEmpty() -> 0
+                    else -> 1
+                }
+            }
+            is Result.Error -> if (pageZero.data.items.isNotEmpty()) 0 else null
+            is Result.Loading -> null
+        }
+        is Result.Error -> if (isPortalZeroPageRejection(pageZero) && pageOne is Result.Success) 1 else null
+        is Result.Loading -> null
+    }
+
+    private fun sameVodPage(
+        first: List<StalkerItemRecord>,
+        second: List<StalkerItemRecord>
+    ): Boolean = first.map { it.id.trim() to it.name.trim() } ==
+        second.map { it.id.trim() to it.name.trim() }
+
+    private fun isPortalZeroPageRejection(result: Result.Error): Boolean {
+        val error = result.exception ?: return false
+        if (error.isStalkerAuthorizationFailure()) return false
+        return when (error) {
+            is StalkerApiError.EmptyBody,
+            is StalkerApiError.Malformed -> true
+            is StalkerApiError -> error.httpStatus?.let { it in 400..499 && it !in setOf(401, 403, 429) } == true
+            else -> false
+        }
+    }
+
+    private fun normalizeVodPage(
+        result: Result<StalkerPagedItems>?,
+        logicalPage: Int
+    ): Result<StalkerPagedItems> = when (result) {
+        is Result.Success -> Result.success(result.data.copy(page = logicalPage))
+        is Result.Error -> Result.error(result.message, result.exception)
+        is Result.Loading -> Result.error("Unexpected loading state")
+        null -> Result.error("Portal returned no page response")
+    }
+
+    private fun vodPageBaseCacheKey(): String =
+        "${portalIdentityKey()}|generation:$configurationGeneration|vod-page-base"
+
+    private suspend fun requestVodPageAtPortalPage(
+        session: StalkerSession,
+        profile: StalkerDeviceProfile,
+        categoryId: String?,
+        portalPage: Int,
+        searchQuery: String?
+    ): Result<StalkerPagedItems> {
+        return (api as StalkerRawVodPageApi).getVodStreamsPageAtPortalPage(
+            session,
+            profile,
+            categoryId,
+            portalPage,
+            searchQuery
+        )
     }
 
     private suspend fun mapPagedItems(

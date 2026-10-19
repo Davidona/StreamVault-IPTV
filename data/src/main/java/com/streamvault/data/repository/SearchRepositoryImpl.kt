@@ -4,21 +4,26 @@ import android.database.sqlite.SQLiteException
 import android.util.Log
 import com.streamvault.data.local.dao.SearchDao
 import com.streamvault.data.local.dao.ProviderDao
+import com.streamvault.data.local.dao.ProviderSnapshotDao
 import com.streamvault.data.local.dao.StalkerIndexJobDao
 import com.streamvault.data.local.dao.SearchHitEntity
 import com.streamvault.data.util.toFtsPrefixQuery
 import com.streamvault.domain.model.Channel
+import com.streamvault.domain.model.CatalogLayout
 import com.streamvault.domain.model.CatalogCompleteness
 import com.streamvault.domain.model.ContentType
 import com.streamvault.domain.model.Movie
 import com.streamvault.domain.model.Series
 import com.streamvault.domain.model.ProviderType
 import com.streamvault.domain.model.StalkerIndexState
+import com.streamvault.domain.model.VodCatalogItem
+import com.streamvault.domain.model.Result
 import com.streamvault.domain.repository.ChannelRepository
 import com.streamvault.domain.repository.MovieRepository
 import com.streamvault.domain.repository.SearchRepository
 import com.streamvault.domain.repository.SearchRepositoryResult
 import com.streamvault.domain.repository.SeriesRepository
+import com.streamvault.domain.repository.VodRepository
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -27,8 +32,11 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.onStart
 
 @Singleton
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -38,7 +46,9 @@ class SearchRepositoryImpl @Inject constructor(
     private val movieRepository: MovieRepository,
     private val seriesRepository: SeriesRepository,
     private val providerDao: ProviderDao,
-    private val stalkerIndexJobDao: StalkerIndexJobDao
+    private val stalkerIndexJobDao: StalkerIndexJobDao,
+    private val providerSnapshotDao: ProviderSnapshotDao,
+    private val vodRepository: VodRepository
 ) : SearchRepository {
     override fun searchContent(
         providerId: Long,
@@ -56,7 +66,7 @@ class SearchRepositoryImpl @Inject constructor(
             return flowOf(SearchRepositoryResult())
         }
 
-        return searchHits(
+        val localResults = searchHits(
             providerId = providerId,
             ftsQuery = ftsQuery,
             rawQuery = normalizedQuery,
@@ -151,6 +161,34 @@ class SearchRepositoryImpl @Inject constructor(
                     )
                 )
             }
+
+        return flow {
+            val provider = providerDao.getById(providerId)
+            if (provider?.type != ProviderType.STALKER_PORTAL || (!includeMovies && !includeSeries)) {
+                emitAll(localResults)
+                return@flow
+            }
+
+            val completeness = catalogCompleteness(providerId, includeMovies, includeSeries)
+            if (completeness == CatalogCompleteness.COMPLETE) {
+                emitAll(localResults)
+                return@flow
+            }
+
+            emitAll(
+                combine(
+                    localResults,
+                    searchPortalVod(
+                        providerId = providerId,
+                        query = normalizedQuery,
+                        includeMovies = includeMovies,
+                        includeSeries = includeSeries,
+                        maxResultsPerSection = maxResultsPerSection
+                    )
+                        .onStart { emit(SearchRepositoryResult()) }
+                ) { local, remote -> mergeVodSearchResults(local, remote, maxResultsPerSection) }
+            )
+        }
     }
 
     private suspend fun catalogCompleteness(
@@ -161,9 +199,15 @@ class SearchRepositoryImpl @Inject constructor(
         if (!includeMovies && !includeSeries) return CatalogCompleteness.COMPLETE
         val provider = providerDao.getById(providerId) ?: return CatalogCompleteness.PARTIAL
         if (provider.type != ProviderType.STALKER_PORTAL) return CatalogCompleteness.COMPLETE
-        val sections = buildList {
-            if (includeMovies) add(ContentType.MOVIE)
-            if (includeSeries) add(ContentType.SERIES)
+        val sections = if (
+            providerSnapshotDao.getRuntime(providerId)?.catalogLayout == CatalogLayout.UNIFIED_VOD
+        ) {
+            listOf(ContentType.MOVIE)
+        } else {
+            buildList {
+                if (includeMovies) add(ContentType.MOVIE)
+                if (includeSeries) add(ContentType.SERIES)
+            }
         }
         val states = sections.map { section -> stalkerIndexJobDao.get(providerId, section.name)?.state }
         return when {
@@ -174,6 +218,68 @@ class SearchRepositoryImpl @Inject constructor(
             else -> CatalogCompleteness.PARTIAL
         }
     }
+
+    private fun searchPortalVod(
+        providerId: Long,
+        query: String,
+        includeMovies: Boolean,
+        includeSeries: Boolean,
+        maxResultsPerSection: Int
+    ): Flow<SearchRepositoryResult> = flow {
+        val movies = linkedMapOf<Long, Movie>()
+        val series = linkedMapOf<String, Series>()
+        var page = 1
+        var hasMore: Boolean
+        do {
+            val result = try {
+                vodRepository.searchVod(providerId, query, page)
+            } catch (cancelled: kotlinx.coroutines.CancellationException) {
+                throw cancelled
+            } catch (_: Throwable) {
+                break
+            }
+            when (result) {
+                is Result.Success -> {
+                    result.data.items.forEach { item ->
+                        when (item) {
+                            is VodCatalogItem.MovieItem -> if (includeMovies) {
+                                movies.putIfAbsent(item.movie.id, item.movie)
+                            }
+                            is VodCatalogItem.SeriesItem -> if (includeSeries) {
+                                series.putIfAbsent(item.series.id.toString(), item.series)
+                            }
+                        }
+                    }
+                    hasMore = result.data.hasMore
+                    page = result.data.page + 1
+                }
+                is Result.Error,
+                is Result.Loading -> break
+            }
+        } while (
+            hasMore && page <= MAX_PORTAL_SEARCH_PAGES &&
+                ((includeMovies && movies.size < maxResultsPerSection) ||
+                    (includeSeries && series.size < maxResultsPerSection))
+        )
+
+        emit(
+            SearchRepositoryResult(
+                movies = movies.values.take(maxResultsPerSection),
+                series = series.values.take(maxResultsPerSection)
+            )
+        )
+    }
+
+    private fun mergeVodSearchResults(
+        local: SearchRepositoryResult,
+        remote: SearchRepositoryResult,
+        maxResultsPerSection: Int
+    ): SearchRepositoryResult = local.copy(
+        movies = (local.movies + remote.movies).distinctBy(Movie::id).take(maxResultsPerSection),
+        series = (local.series + remote.series).distinctBy {
+            it.id
+        }.take(maxResultsPerSection)
+    )
 
     override fun searchChannels(providerId: Long, query: String): Flow<List<Channel>> =
         channelRepository.searchChannels(providerId, query)
@@ -350,6 +456,7 @@ class SearchRepositoryImpl @Inject constructor(
         const val SERIES_TYPE = "SERIES"
         const val SLOW_FTS_LOG_THRESHOLD_MS = 250L
         const val SLOW_TOTAL_LOG_THRESHOLD_MS = 500L
+        const val MAX_PORTAL_SEARCH_PAGES = 12
     }
 
     private sealed interface SearchLookupState {

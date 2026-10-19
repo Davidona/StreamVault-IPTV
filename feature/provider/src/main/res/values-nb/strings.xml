@@ -105,4 +105,24 @@
     <string name="setup_phone_pairing_security_warning">Sikkerhet: Paringen sender påloggingsinformasjon ukryptert over det lokale nettverket. Bruk bare et privat Wi-Fi-nettverk du stoler på.</string>
     <string name="setup_phone_pairing_error_help">Paringen kunne ikke fullføres. Kontroller leverandøropplysningene og prøv igjen. Hvis QR-økten er utløpt, starter du en ny på TV-en.</string>
     <string name="setup_phone_pairing_mac_label">MAC-adresse</string>
+    <string name="setup_phone_pairing_continue_on_tv">Fortsett på TV-en for å kontrollere og fullføre dette trinnet.</string>
+    <string name="setup_phone_pairing_stalker_certificate_error">Sertifikatet kunne ikke kontrolleres på en trygg måte. Kontroller denne tilkoblingen på TV-en.</string>
+    <string name="stalker_transport_invalid_tls_title">Sikkerhetssertifikatet til denne leverandøren kan ikke bekreftes</string>
+    <string name="stalker_transport_invalid_tls_body">Tilkoblingen til %1$s kan fortsatt være kryptert, men appen kan ikke bekrefte at den faktisk tilhører denne leverandøren. Noen på nettverket kan lese innloggings- eller strømdetaljene dine.</string>
+    <string name="stalker_transport_http_title">Denne leverandøren bruker en ukryptert tilkobling</string>
+    <string name="stalker_transport_http_body">Noen på nettverket kan lese eller endre innloggings- og visningsforespørslene dine til %1$s.</string>
+    <string name="stalker_transport_origin_changed_title">Denne leverandøren vil bruke en annen adresse</string>
+    <string name="stalker_transport_origin_changed_body">Leverandøren omdirigerte tilkoblingen til %1$s. Fortsett bare hvis du kjenner igjen denne adressen.</string>
+    <string name="stalker_verification_inconclusive_title">Direkte-TV kunne ikke bekreftes</string>
+    <string name="stalker_verification_inconclusive_body">Leverandøren godtok innloggingen din, men kontrollen av direkte-TV ble ikke fullført. Du kan lagre den mens bekreftelsen venter; den forblir inaktiv til en synkronisering bekrefter at direkte-TV kan spilles av.</string>
+    <string name="stalker_transport_go_back">Gå tilbake</string>
+    <string name="stalker_transport_connect_anyway">Koble til likevel</string>
+    <string name="stalker_save_without_verification">Lagre uten bekreftelse</string>
+
+    <string name="setup_stalker_catalog_title">Film- og seriekatalog</string>
+    <string name="setup_stalker_catalog_description">Uavhengig av programguiden. Bakgrunnsindeksering lager en søkbar katalog etter oppsettet.</string>
+    <string name="setup_stalker_catalog_on_demand_title">Ved behov</string>
+    <string name="setup_stalker_catalog_on_demand_description">Hyller og kategorier lastes inn når de åpnes. Bufrede titler beholdes.</string>
+    <string name="setup_stalker_catalog_background_title">Full bakgrunnsindeksering (anbefalt)</string>
+    <string name="setup_stalker_catalog_background_description">Fullfør først oppsettet av leverandøren, og indekser deretter alle filmer og serier i bakgrunnen slik at de kan søkes opp.</string>
 </resources>

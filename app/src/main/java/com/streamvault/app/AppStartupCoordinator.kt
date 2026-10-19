@@ -49,7 +49,9 @@ internal class AppStartupCoordinator internal constructor(
     private val tvTasks: List<AppStartupTask>,
     private val scope: CoroutineScope,
     private val traceSection: TraceSection = ::runWithoutAndroidTrace,
-    private val onTaskFailure: (String, Throwable) -> Unit = { _, _ -> }
+    private val onTaskFailure: (String, Throwable) -> Unit = { _, _ -> },
+    private val foregroundCheck: () -> Unit = {},
+    private val monotonicTimeMillis: () -> Long = { System.nanoTime() / 1_000_000L }
 ) {
 
     @Inject
@@ -98,11 +100,27 @@ internal class AppStartupCoordinator internal constructor(
         ),
         scope = CoroutineScope(SupervisorJob() + Dispatchers.IO),
         traceSection = ::runWithAndroidTrace,
-        onTaskFailure = ::logTaskFailure
+        onTaskFailure = ::logTaskFailure,
+        foregroundCheck = { com.streamvault.data.sync.ProviderSyncWorker.enqueueForegroundCheck(context) }
     )
 
     private val processMaintenanceStarted = AtomicBoolean(false)
     private val firstUiFrameHandled = AtomicBoolean(false)
+    private var lastForegroundCheckAt: Long? = null
+
+    /** Returning to a retained process must also check for newly stale catalogs. */
+    @Synchronized
+    fun onAppForegrounded() {
+        val now = monotonicTimeMillis()
+        val last = lastForegroundCheckAt
+        if (last != null && now >= last && now - last < 30_000L) return
+        try {
+            foregroundCheck()
+            lastForegroundCheckAt = now
+        } catch (error: Exception) {
+            onTaskFailure("foreground-sync-check", error)
+        }
+    }
 
     /** Starts process maintenance once, even when no Activity is created. */
     fun startProcessMaintenance() {

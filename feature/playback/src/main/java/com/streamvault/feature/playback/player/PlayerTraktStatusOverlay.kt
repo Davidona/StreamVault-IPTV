@@ -26,7 +26,6 @@ internal fun PlayerTraktStatusOverlay(
 
     val label = when (status) {
         PlayerTraktTrackingStatus.HIDDEN -> return
-        PlayerTraktTrackingStatus.CONNECT_REQUIRED -> R.string.player_trakt_connect_required
         PlayerTraktTrackingStatus.NOT_SUPPORTED -> R.string.player_trakt_not_supported
         PlayerTraktTrackingStatus.NO_MATCH -> R.string.player_trakt_no_match
         PlayerTraktTrackingStatus.STARTING -> R.string.player_trakt_starting
@@ -42,7 +41,6 @@ internal fun PlayerTraktStatusOverlay(
         PlayerTraktTrackingStatus.PAUSED,
         PlayerTraktTrackingStatus.STARTING -> palette.info
         PlayerTraktTrackingStatus.FAILED,
-        PlayerTraktTrackingStatus.CONNECT_REQUIRED,
         PlayerTraktTrackingStatus.NO_MATCH -> palette.warning
         PlayerTraktTrackingStatus.NOT_SUPPORTED -> palette.textSecondary
         PlayerTraktTrackingStatus.HIDDEN -> palette.surface

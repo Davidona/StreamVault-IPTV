@@ -105,4 +105,24 @@
     <string name="setup_phone_pairing_security_warning">Безопасность: При сопряжении данные для входа передаются по локальной сети без шифрования. Используйте только доверенную частную сеть Wi-Fi.</string>
     <string name="setup_phone_pairing_error_help">Не удалось завершить сопряжение. Проверьте данные провайдера и попробуйте снова. Если срок действия QR-сеанса истёк, запустите новый на телевизоре.</string>
     <string name="setup_phone_pairing_mac_label">MAC-адрес</string>
+    <string name="setup_phone_pairing_continue_on_tv">Продолжите на телевизоре, чтобы проверить и завершить этот шаг.</string>
+    <string name="setup_phone_pairing_stalker_certificate_error">Не удалось безопасно проверить сертификат. Проверьте это подключение на телевизоре.</string>
+    <string name="stalker_transport_invalid_tls_title">Не удалось проверить сертификат безопасности этого провайдера</string>
+    <string name="stalker_transport_invalid_tls_body">Подключение к %1$s может оставаться зашифрованным, но приложение не может подтвердить, что оно действительно принадлежит этому провайдеру. Кто-то в сети может прочитать ваши данные для входа или сведения о трансляции.</string>
+    <string name="stalker_transport_http_title">Этот провайдер использует незашифрованное подключение</string>
+    <string name="stalker_transport_http_body">Кто-то в сети может прочитать или изменить ваши запросы на вход и просмотр для %1$s.</string>
+    <string name="stalker_transport_origin_changed_title">Этот провайдер хочет использовать другой адрес</string>
+    <string name="stalker_transport_origin_changed_body">Провайдер перенаправил подключение на %1$s. Продолжайте, только если вы узнаёте этот адрес.</string>
+    <string name="stalker_verification_inconclusive_title">Не удалось проверить прямой эфир</string>
+    <string name="stalker_verification_inconclusive_body">Провайдер принял ваши данные для входа, но проверка прямого эфира не завершилась. Можно сохранить его с ожидающей проверкой; он останется неактивным, пока синхронизация не подтвердит возможность воспроизведения прямого эфира.</string>
+    <string name="stalker_transport_go_back">Назад</string>
+    <string name="stalker_transport_connect_anyway">Всё равно подключиться</string>
+    <string name="stalker_save_without_verification">Сохранить без проверки</string>
+
+    <string name="setup_stalker_catalog_title">Каталог фильмов и сериалов</string>
+    <string name="setup_stalker_catalog_description">Работает отдельно от телепрограммы. После настройки фоновая индексация создаст каталог для поиска.</string>
+    <string name="setup_stalker_catalog_on_demand_title">По запросу</string>
+    <string name="setup_stalker_catalog_on_demand_description">Полки и категории загружаются при открытии. Загруженные в кэш названия сохраняются.</string>
+    <string name="setup_stalker_catalog_background_title">Полная фоновая индексация (рекомендуется)</string>
+    <string name="setup_stalker_catalog_background_description">Сначала завершите настройку провайдера, затем проиндексируйте все фильмы и сериалы в фоне, чтобы их можно было найти через поиск.</string>
 </resources>

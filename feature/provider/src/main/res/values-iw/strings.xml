@@ -105,4 +105,24 @@
     <string name="setup_phone_pairing_security_warning">אבטחה: הצימוד שולח פרטי התחברות ללא הצפנה דרך הרשת המקומית. יש להשתמש רק ברשת Wi-Fi פרטית ומהימנה.</string>
     <string name="setup_phone_pairing_error_help">לא ניתן להשלים את הצימוד. יש לבדוק את פרטי הספק ולנסות שוב. אם פג תוקף הפעלת ה-QR, יש להתחיל הפעלה חדשה בטלוויזיה.</string>
     <string name="setup_phone_pairing_mac_label">כתובת MAC</string>
+    <string name="setup_phone_pairing_continue_on_tv">יש להמשיך בטלוויזיה כדי לבדוק ולהשלים את השלב הזה.</string>
+    <string name="setup_phone_pairing_stalker_certificate_error">לא ניתן לבדוק את האישור בבטחה. יש לבדוק את החיבור הזה בטלוויזיה.</string>
+    <string name="stalker_transport_invalid_tls_title">לא ניתן לאמת את אישור האבטחה של הספק הזה</string>
+    <string name="stalker_transport_invalid_tls_body">ייתכן שהחיבור אל %1$s עדיין מוצפן, אך האפליקציה לא יכולה לאשר שהוא אכן שייך לספק הזה. אדם ברשת עלול לקרוא את פרטי הכניסה או את פרטי השידור שלך.</string>
+    <string name="stalker_transport_http_title">הספק הזה משתמש בחיבור לא מוצפן</string>
+    <string name="stalker_transport_http_body">אדם ברשת יכול לקרוא או לשנות את בקשות הכניסה והצפייה שלך אל %1$s.</string>
+    <string name="stalker_transport_origin_changed_title">הספק הזה מבקש להשתמש בכתובת אחרת</string>
+    <string name="stalker_transport_origin_changed_body">הספק הפנה את החיבור אל %1$s. יש להמשיך רק אם הכתובת מוכרת לך.</string>
+    <string name="stalker_verification_inconclusive_title">לא ניתן לאמת את השידור החי</string>
+    <string name="stalker_verification_inconclusive_body">הספק אישר את הכניסה שלך, אך בדיקת השידור החי לא הושלמה. אפשר לשמור אותו כשהאימות עדיין ממתין; הוא יישאר לא פעיל עד שסנכרון יאשר שניתן להפעיל שידור חי.</string>
+    <string name="stalker_transport_go_back">חזרה</string>
+    <string name="stalker_transport_connect_anyway">התחבר בכל זאת</string>
+    <string name="stalker_save_without_verification">שמירה ללא אימות</string>
+
+    <string name="setup_stalker_catalog_title">קטלוג סרטים וסדרות</string>
+    <string name="setup_stalker_catalog_description">נפרד ממדריך התוכניות. יצירת אינדקס ברקע בונה קטלוג שניתן לחפש בו לאחר ההגדרה.</string>
+    <string name="setup_stalker_catalog_on_demand_title">לפי דרישה</string>
+    <string name="setup_stalker_catalog_on_demand_description">טעינת המדפים והקטגוריות בעת פתיחתם. שמירת הכותרים שבמטמון.</string>
+    <string name="setup_stalker_catalog_background_title">יצירת אינדקס מלאה ברקע (מומלץ)</string>
+    <string name="setup_stalker_catalog_background_description">יש להשלים תחילה את הגדרת הספק, ולאחר מכן ליצור ברקע אינדקס לכל הסרטים והסדרות כדי שאפשר יהיה לחפש בהם.</string>
 </resources>

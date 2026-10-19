@@ -222,11 +222,11 @@ class ProviderSyncWorker(
                 else entryPoint.providerDao().getAllSync()
             }
             if (providers.isEmpty()) {
-                return if (sawRetryableFailure) Result.retry() else Result.success()
+                return if (sawRetryableFailure && !inputData.getBoolean("foreground_check", false)) Result.retry() else Result.success()
             }
 
             var sawPermanentFailure = false
-            providers.filterNot { it.id in providerIdsWithPendingEdits }.forEach { provider ->
+            providers.filterNot { it.id in providerIdsWithPendingEdits }.sortedByDescending { it.isActive }.forEach { provider ->
                 val disposition = entryPoint.providerWorkflowRunner().execute(
                     providerId = provider.id,
                     phase = ProviderWorkflowPhase.PRIMARY_CATALOG,
@@ -289,16 +289,12 @@ class ProviderSyncWorker(
                 }
             }
 
-            when {
-                sawRetryableFailure -> Result.retry()
-                sawPermanentFailure -> Result.failure()
-                else -> Result.success()
-            }
+            providerCheckWorkResult(inputData.getBoolean("foreground_check", false), sawRetryableFailure, sawPermanentFailure)
         } catch (cancelled: kotlinx.coroutines.CancellationException) {
             throw cancelled
         } catch (e: Exception) {
             Log.e(TAG, "Provider sync worker failed", e)
-            if (shouldRetry(e)) Result.retry() else Result.failure()
+            providerCheckWorkResult(inputData.getBoolean("foreground_check", false), shouldRetry(e), !shouldRetry(e))
         }
     }
 
@@ -578,6 +574,18 @@ class ProviderSyncWorker(
             WorkManager.getInstance(context).enqueueUniqueWork("provider-sync-idle-check", ExistingWorkPolicy.KEEP, request)
         }
 
+        fun enqueueForegroundCheck(context: Context) {
+            val request = OneTimeWorkRequestBuilder<ProviderSyncWorker>()
+                .setInputData(workDataOf("foreground_check" to true))
+                .setConstraints(automaticSyncConstraints(com.streamvault.domain.sync.AutomaticSyncSettings()))
+                .build()
+            WorkManager.getInstance(context).enqueueUniqueWork(
+                // Keep an in-flight check, but do not lose a policy edit that arrives
+                // after that check read its policy. Foreground checks never back off.
+                "provider-sync-foreground-check", ExistingWorkPolicy.APPEND_OR_REPLACE, request
+            )
+        }
+
         fun enqueueLaunchStaleCheck(context: Context) {
             val request = OneTimeWorkRequestBuilder<ProviderSyncWorker>()
                 .setConstraints(
@@ -686,4 +694,16 @@ class ProviderSyncWorker(
             result = result
         )
     }
+}
+
+/** Provider outcomes are durable; a foreground event must not poison its appended successor. */
+internal fun providerCheckWorkResult(
+    foreground: Boolean,
+    retryableFailure: Boolean,
+    permanentFailure: Boolean
+): androidx.work.ListenableWorker.Result = when {
+    foreground -> androidx.work.ListenableWorker.Result.success()
+    retryableFailure -> androidx.work.ListenableWorker.Result.retry()
+    permanentFailure -> androidx.work.ListenableWorker.Result.failure()
+    else -> androidx.work.ListenableWorker.Result.success()
 }

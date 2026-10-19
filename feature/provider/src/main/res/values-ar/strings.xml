@@ -105,4 +105,24 @@
     <string name="setup_phone_pairing_security_warning">تنبيه أمني: يرسل الاقتران بيانات تسجيل الدخول عبر شبكتك المحلية دون تشفير. استخدم شبكة Wi-Fi خاصة وموثوقة فقط.</string>
     <string name="setup_phone_pairing_error_help">تعذر إكمال الاقتران. تحقق من بيانات المزوّد وحاول مجددًا. إذا انتهت صلاحية جلسة QR، فابدأ جلسة جديدة على التلفاز.</string>
     <string name="setup_phone_pairing_mac_label">عنوان MAC</string>
+    <string name="setup_phone_pairing_continue_on_tv">تابع على التلفاز لمراجعة هذه الخطوة وإكمالها.</string>
+    <string name="setup_phone_pairing_stalker_certificate_error">تعذّر التحقق من الشهادة بأمان. راجع هذا الاتصال على التلفاز.</string>
+    <string name="stalker_transport_invalid_tls_title">تعذّر التحقق من شهادة الأمان الخاصة بهذا المزوّد</string>
+    <string name="stalker_transport_invalid_tls_body">قد يظل الاتصال بـ %1$s مشفّرًا، لكن يتعذّر على التطبيق التأكد من أنه يعود فعلًا إلى هذا المزوّد. قد يتمكن شخص على الشبكة من قراءة بيانات تسجيل الدخول أو تفاصيل البث.</string>
+    <string name="stalker_transport_http_title">يستخدم هذا المزوّد اتصالًا غير مشفّر</string>
+    <string name="stalker_transport_http_body">يمكن لشخص على الشبكة قراءة طلبات تسجيل الدخول والمشاهدة إلى %1$s أو تغييرها.</string>
+    <string name="stalker_transport_origin_changed_title">يريد هذا المزوّد استخدام عنوان مختلف</string>
+    <string name="stalker_transport_origin_changed_body">أعاد المزوّد توجيه الاتصال إلى %1$s. تابع فقط إذا كنت تتعرّف على هذا العنوان.</string>
+    <string name="stalker_verification_inconclusive_title">تعذّر التحقق من البث التلفزيوني المباشر</string>
+    <string name="stalker_verification_inconclusive_body">قبل المزوّد تسجيل دخولك، لكن لم يكتمل التحقق من البث التلفزيوني المباشر. يمكنك حفظه مع بقاء التحقق معلّقًا؛ وسيظل غير نشط حتى يؤكد التحديث إمكانية تشغيل البث المباشر.</string>
+    <string name="stalker_transport_go_back">الرجوع</string>
+    <string name="stalker_transport_connect_anyway">الاتصال على أي حال</string>
+    <string name="stalker_save_without_verification">الحفظ بدون تحقق</string>
+
+    <string name="setup_stalker_catalog_title">كتالوج الأفلام والمسلسلات</string>
+    <string name="setup_stalker_catalog_description">ينفصل عن دليل البرامج. يفهرس الفهرس في الخلفية بعد الإعداد ليتيح البحث.</string>
+    <string name="setup_stalker_catalog_on_demand_title">عند الطلب</string>
+    <string name="setup_stalker_catalog_on_demand_description">حمّل الرفوف والفئات عند فتحها. احتفظ بالعناوين المخزنة مؤقتًا.</string>
+    <string name="setup_stalker_catalog_background_title">فهرسة كاملة في الخلفية (موصى بها)</string>
+    <string name="setup_stalker_catalog_background_description">أكمل إعداد المزوّد أولًا، ثم افهرس جميع عناوين الأفلام والمسلسلات في الخلفية للبحث.</string>
 </resources>

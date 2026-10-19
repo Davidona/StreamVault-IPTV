@@ -130,7 +130,77 @@ class ProviderSetupViewModel @Inject constructor(
     }
 
     fun stopPhonePairing() {
+        val phoneStalkerReviewPending = providerQrPairingManager.state.value.pendingStalkerCommand != null
+        providerQrPairingManager.clearPendingStalkerPrompt()
+        if (phoneStalkerReviewPending) {
+            pendingStalkerCommand = null
+            _uiState.update {
+                it.copy(
+                    stalkerTransportChallenge = null,
+                    stalkerVerificationInconclusive = null,
+                )
+            }
+        }
         providerQrPairingManager.stopPairing()
+    }
+
+    fun presentPhonePairingStalkerPrompt(pairingState: ProviderQrPairingState) {
+        val command = pairingState.pendingStalkerCommand ?: return
+        pendingStalkerCommand = command
+        _uiState.update {
+            it.copy(
+                isLoading = false,
+                loginSuccess = false,
+                onboardingCompletion = OnboardingCompletion.NONE,
+                selectedTab = 1,
+                name = command.name,
+                serverUrl = command.portalUrl,
+                username = command.username,
+                password = command.password,
+                stalkerMacAddress = command.macAddress,
+                stalkerAuthMode = command.authMode,
+                error = null,
+                validationError = null,
+                syncProgress = null,
+                stalkerTransportChallenge = pairingState.stalkerTransportChallenge,
+                stalkerVerificationInconclusive = pairingState.stalkerVerificationInconclusive,
+            )
+        }
+    }
+
+    fun completePhonePairing(pairingState: ProviderQrPairingState) {
+        val providerId = pairingState.createdProviderId ?: return
+        viewModelScope.launch {
+            val activeCombinedProfileId = if (pairingState.offerCombinedAttach) {
+                (combinedM3uRepository.getActiveLiveSource().first()
+                    as? ActiveLiveSource.CombinedM3uSource)?.profileId
+            } else {
+                null
+            }
+            val activeCombinedProfileName = activeCombinedProfileId?.let { profileId ->
+                combinedM3uRepository.getProfile(profileId)?.name
+            }
+            val warning = pairingState.completionWarning?.takeIf(String::isNotBlank)
+            _uiState.update {
+                it.copy(
+                    isLoading = false,
+                    loginSuccess = activeCombinedProfileId == null && warning == null,
+                    onboardingCompletion = if (warning == null) {
+                        OnboardingCompletion.READY
+                    } else {
+                        OnboardingCompletion.SAVED_RESUMING
+                    },
+                    createdProviderId = providerId,
+                    createdProviderName = pairingState.createdProviderName,
+                    pendingCombinedAttachProfileId = activeCombinedProfileId,
+                    pendingCombinedAttachProfileName = activeCombinedProfileName,
+                    completionWarning = warning,
+                    error = null,
+                    validationError = null,
+                    syncProgress = null,
+                )
+            }
+        }
     }
 
     fun completeDriveSignIn(intentData: android.content.Intent?) {
@@ -416,6 +486,7 @@ class ProviderSetupViewModel @Inject constructor(
     fun acceptStalkerTransportChallenge() {
         val challenge = _uiState.value.stalkerTransportChallenge ?: return
         val command = pendingStalkerCommand ?: return
+        providerQrPairingManager.clearPendingStalkerPrompt()
         if (challenge.reason == StalkerTransportChallengeReason.INVALID_TLS &&
             challenge.proposedSpkiSha256.isNullOrBlank()
         ) {
@@ -434,6 +505,7 @@ class ProviderSetupViewModel @Inject constructor(
     }
 
     fun dismissStalkerTransportChallenge() {
+        providerQrPairingManager.clearPendingStalkerPrompt()
         pendingStalkerCommand = null
         _uiState.update {
             it.copy(
@@ -446,12 +518,14 @@ class ProviderSetupViewModel @Inject constructor(
 
     fun saveStalkerWithoutVerification() {
         val command = pendingStalkerCommand ?: return
+        providerQrPairingManager.clearPendingStalkerPrompt()
         pendingStalkerCommand = null
         _uiState.update { it.copy(stalkerVerificationInconclusive = null) }
         submitStalker(command.copy(saveWithoutVerification = true))
     }
 
     fun dismissStalkerVerificationInconclusive() {
+        providerQrPairingManager.clearPendingStalkerPrompt()
         pendingStalkerCommand = null
         _uiState.update {
             it.copy(
@@ -1191,7 +1265,7 @@ data class ProviderSetupState(
     val driveSignedIn: Boolean = false,
     val driveBackupOptions: List<DriveBackupSnapshot> = emptyList(),
     val epgSyncMode: ProviderEpgSyncMode = ProviderEpgSyncMode.BACKGROUND,
-    val stalkerCatalogMode: StalkerCatalogMode = StalkerCatalogMode.ON_DEMAND,
+    val stalkerCatalogMode: StalkerCatalogMode = StalkerCatalogMode.BACKGROUND_INDEX,
     val xtreamLiveSyncMode: ProviderXtreamLiveSyncMode = ProviderXtreamLiveSyncMode.AUTO,
     val guideSourcePolicy: GuideSourcePolicy = GuideSourcePolicy.AUTO,
     val channelLogoSourcePolicy: ChannelLogoSourcePolicy = ChannelLogoSourcePolicy.SUPPLIER_PREFERRED,

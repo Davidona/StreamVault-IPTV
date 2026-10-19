@@ -105,4 +105,24 @@
     <string name="setup_phone_pairing_security_warning">Tietoturva: Pariliitos lähettää kirjautumistiedot salaamattomina lähiverkkosi kautta. Käytä vain luotettua yksityistä Wi-Fi-verkkoa.</string>
     <string name="setup_phone_pairing_error_help">Pariliitosta ei voitu viimeistellä. Tarkista palveluntarjoajan tiedot ja yritä uudelleen. Jos QR-istunto on vanhentunut, aloita televisiossa uusi.</string>
     <string name="setup_phone_pairing_mac_label">MAC-osoite</string>
+    <string name="setup_phone_pairing_continue_on_tv">Jatka televisiossa tarkistaaksesi ja suorittaaksesi tämän vaiheen loppuun.</string>
+    <string name="setup_phone_pairing_stalker_certificate_error">Varmennetta ei voitu tarkistaa turvallisesti. Tarkista tämä yhteys televisiossa.</string>
+    <string name="stalker_transport_invalid_tls_title">Palveluntarjoajan tietoturvavarmennetta ei voi vahvistaa</string>
+    <string name="stalker_transport_invalid_tls_body">Yhteys kohteeseen %1$s voi silti olla salattu, mutta sovellus ei voi varmistaa, että se kuuluu tälle palveluntarjoajalle. Joku verkossa voi lukea kirjautumis- tai suoratoistotietosi.</string>
+    <string name="stalker_transport_http_title">Tämä palveluntarjoaja käyttää salaamatonta yhteyttä</string>
+    <string name="stalker_transport_http_body">Joku verkossa voi lukea tai muuttaa kirjautumis- ja katselupyyntöjäsi kohteeseen %1$s.</string>
+    <string name="stalker_transport_origin_changed_title">Tämä palveluntarjoaja haluaa käyttää eri osoitetta</string>
+    <string name="stalker_transport_origin_changed_body">Palveluntarjoaja ohjasi yhteyden osoitteeseen %1$s. Jatka vain, jos tunnistat tämän osoitteen.</string>
+    <string name="stalker_verification_inconclusive_title">Suoraa TV-lähetystä ei voitu vahvistaa</string>
+    <string name="stalker_verification_inconclusive_body">Palveluntarjoaja hyväksyi kirjautumisesi, mutta suoran TV-lähetyksen tarkistus ei valmistunut. Voit tallentaa sen odottavalla vahvistuksella; se pysyy passiivisena, kunnes synkronointi vahvistaa suoran TV-lähetyksen toistettavaksi.</string>
+    <string name="stalker_transport_go_back">Takaisin</string>
+    <string name="stalker_transport_connect_anyway">Yhdistä silti</string>
+    <string name="stalker_save_without_verification">Tallenna vahvistamatta</string>
+
+    <string name="setup_stalker_catalog_title">Elokuva- ja sarjaluettelo</string>
+    <string name="setup_stalker_catalog_description">Erillään ohjelmaoppaasta. Taustalla tehtävä indeksointi luo haettavan luettelon käyttöönoton jälkeen.</string>
+    <string name="setup_stalker_catalog_on_demand_title">Tarvittaessa</string>
+    <string name="setup_stalker_catalog_on_demand_description">Lataa hyllyt ja kategoriat avattaessa. Säilyttää välimuistissa olevat nimikkeet.</string>
+    <string name="setup_stalker_catalog_background_title">Täysi taustaindeksointi (suositeltu)</string>
+    <string name="setup_stalker_catalog_background_description">Viimeistele ensin palveluntarjoajan käyttöönotto. Sen jälkeen kaikki elokuvat ja sarjat indeksoidaan taustalla hakua varten.</string>
 </resources>

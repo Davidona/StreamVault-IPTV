@@ -68,7 +68,9 @@ internal class VodCategoryHydrationCoordinator(
             if (provider.type != ProviderType.STALKER_PORTAL) {
                 return@withVodCategoryLock Result.success(Unit)
             }
-            val current = vodCategoryHydrationDao.get(providerId, categoryId)
+            val current = vodCategoryHydrationDao.get(providerId, categoryId)?.takeUnless {
+                it.isComplete && ContentCachePolicy.shouldRefresh(it.lastHydratedAt, ContentCachePolicy.CATALOG_TTL_MILLIS)
+            }
             if (current?.isComplete == true ||
                 (requestedPage != null && current != null && current.lastSuccessfulPage >= requestedPage) ||
                 (request == VodCategoryHydrationRequest.OPEN && (current?.lastSuccessfulPage ?: 0) > 0)
@@ -268,7 +270,9 @@ internal class VodCategoryHydrationCoordinator(
             if (provider.type != ProviderType.STALKER_PORTAL || provider.catalogLayout != CatalogLayout.SPLIT) {
                 return@withVodCategoryLock Result.success(Unit)
             }
-            var hydration = movieCategoryHydrationDao.get(providerId, movieCategoryId)
+            var hydration = movieCategoryHydrationDao.get(providerId, movieCategoryId)?.takeUnless {
+                it.isComplete && ContentCachePolicy.shouldRefresh(it.lastHydratedAt, ContentCachePolicy.CATALOG_TTL_MILLIS)
+            }
             var movieCount = movieDao.getCountByCategory(providerId, movieCategoryId).first()
             if (hydration?.isComplete == true ||
                 (requestedPage != null && hydration != null && hydration.lastSuccessfulPage >= requestedPage) ||

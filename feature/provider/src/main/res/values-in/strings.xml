@@ -105,4 +105,24 @@
     <string name="setup_phone_pairing_security_warning">Keamanan: Proses pemasangan mengirim kredensial tanpa enkripsi melalui jaringan lokal Anda. Gunakan hanya Wi-Fi pribadi yang tepercaya.</string>
     <string name="setup_phone_pairing_error_help">Pemasangan tidak dapat diselesaikan. Periksa detail penyedia lalu coba lagi. Jika sesi QR telah kedaluwarsa, mulai sesi baru di TV.</string>
     <string name="setup_phone_pairing_mac_label">Alamat MAC</string>
+    <string name="setup_phone_pairing_continue_on_tv">Lanjutkan di TV untuk meninjau dan menyelesaikan langkah ini.</string>
+    <string name="setup_phone_pairing_stalker_certificate_error">Sertifikat tidak dapat diperiksa dengan aman. Tinjau koneksi ini di TV.</string>
+    <string name="stalker_transport_invalid_tls_title">Sertifikat keamanan penyedia ini tidak dapat diverifikasi</string>
+    <string name="stalker_transport_invalid_tls_body">Koneksi ke %1$s mungkin tetap terenkripsi, tetapi aplikasi tidak dapat memastikan bahwa koneksi tersebut benar-benar milik penyedia ini. Seseorang di jaringan dapat membaca informasi login atau streaming Anda.</string>
+    <string name="stalker_transport_http_title">Penyedia ini menggunakan koneksi tanpa enkripsi</string>
+    <string name="stalker_transport_http_body">Seseorang di jaringan dapat membaca atau mengubah permintaan login dan tontonan Anda ke %1$s.</string>
+    <string name="stalker_transport_origin_changed_title">Penyedia ini ingin menggunakan alamat yang berbeda</string>
+    <string name="stalker_transport_origin_changed_body">Penyedia mengalihkan koneksi ke %1$s. Lanjutkan hanya jika Anda mengenali alamat ini.</string>
+    <string name="stalker_verification_inconclusive_title">TV langsung tidak dapat diverifikasi</string>
+    <string name="stalker_verification_inconclusive_body">Penyedia menerima login Anda, tetapi pemeriksaan TV langsung tidak selesai. Anda dapat menyimpannya dengan verifikasi tertunda; sumber akan tetap nonaktif sampai sinkronisasi memastikan TV langsung dapat diputar.</string>
+    <string name="stalker_transport_go_back">Kembali</string>
+    <string name="stalker_transport_connect_anyway">Tetap sambungkan</string>
+    <string name="stalker_save_without_verification">Simpan tanpa verifikasi</string>
+
+    <string name="setup_stalker_catalog_title">Katalog film dan serial</string>
+    <string name="setup_stalker_catalog_description">Terpisah dari panduan acara. Pengindeksan latar belakang membuat katalog yang dapat dicari setelah penyiapan.</string>
+    <string name="setup_stalker_catalog_on_demand_title">Sesuai permintaan</string>
+    <string name="setup_stalker_catalog_on_demand_description">Muat rak dan kategori saat dibuka. Pertahankan judul yang tersimpan di cache.</string>
+    <string name="setup_stalker_catalog_background_title">Indeks latar belakang lengkap (disarankan)</string>
+    <string name="setup_stalker_catalog_background_description">Selesaikan penyiapan penyedia terlebih dahulu, lalu indeks semua film dan serial di latar belakang agar dapat dicari.</string>
 </resources>

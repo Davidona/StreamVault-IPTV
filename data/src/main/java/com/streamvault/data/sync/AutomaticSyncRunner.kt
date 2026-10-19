@@ -58,9 +58,11 @@ class AutomaticSyncRunner @Inject constructor(
     suspend fun indexEnabled(providerId: Long, section: ContentType?): Boolean {
         val policy = preferences.automaticSyncConfiguration.first().forProvider(providerId)
         return policy.enabled && when (section) {
+            ContentType.LIVE -> policy.live
             ContentType.MOVIE -> policy.movies
             ContentType.SERIES -> policy.series
-            else -> policy.movies || policy.series
+            null -> policy.live || policy.movies || policy.series
+            else -> false
         }
     }
 
@@ -73,11 +75,11 @@ class AutomaticSyncRunner @Inject constructor(
         val previous = preferences.automaticSyncStatuses.first()[providerId] ?: AutomaticSyncStatus()
         val snapshot = snapshots.getSnapshot(providerId) ?: return
         val policy = settings(providerId)
-        val pending = listOf(ContentType.MOVIE, ContentType.SERIES).filter {
-            if (it == ContentType.MOVIE) policy.movies else policy.series
+        val pending = listOf(ContentType.LIVE, ContentType.MOVIE, ContentType.SERIES).filter {
+            when (it) { ContentType.LIVE -> policy.live; ContentType.MOVIE -> policy.movies; else -> policy.series }
         }.any { section ->
             if (snapshot.provider.type == ProviderType.STALKER_PORTAL) {
-                stalkerJobs.get(providerId, section)?.state in setOf(StalkerIndexState.QUEUED, StalkerIndexState.RUNNING, StalkerIndexState.RETRY_WAIT, StalkerIndexState.PARTIAL)
+                section != ContentType.LIVE && stalkerJobs.get(providerId, section)?.state in setOf(StalkerIndexState.QUEUED, StalkerIndexState.RUNNING, StalkerIndexState.RETRY_WAIT, StalkerIndexState.PARTIAL)
             } else {
                 xtreamJobs.get(providerId, section.name)?.state in setOf("QUEUED", "RUNNING", "PARTIAL", "FAILED_RETRYABLE")
             }
@@ -102,19 +104,8 @@ class AutomaticSyncRunner @Inject constructor(
             is M3uConfig -> config.epgSyncMode
             is JellyfinConfig -> ProviderEpgSyncMode.SKIP
         }
-        var metadata = metadataRepository.getMetadata(providerId)
-        // Index completion is authoritative; catalog-shell setup is not a completed index.
-        if (snapshot.provider.type == ProviderType.XTREAM_CODES) {
-            metadata = (metadata ?: SyncMetadata(providerId)).copy(
-                lastMovieSuccess = xtreamJobs.get(providerId, ContentType.MOVIE.name)?.lastSuccessAt ?: metadata?.lastMovieSuccess ?: 0,
-                lastSeriesSuccess = xtreamJobs.get(providerId, ContentType.SERIES.name)?.lastSuccessAt ?: metadata?.lastSeriesSuccess ?: 0
-            )
-        } else if ((snapshot.configuration as? StalkerConfig)?.catalogMode == StalkerCatalogMode.BACKGROUND_INDEX) {
-            metadata = (metadata ?: SyncMetadata(providerId)).copy(
-                lastMovieSuccess = stalkerJobs.get(providerId, ContentType.MOVIE)?.lastSuccessAt ?: metadata?.lastMovieSuccess ?: 0,
-                lastSeriesSuccess = stalkerJobs.get(providerId, ContentType.SERIES)?.lastSuccessAt ?: metadata?.lastSeriesSuccess ?: 0
-            )
-        }
+        val upgradeStartedAt = if (policy.enabled) preferences.catalogSyncUpgradeStartedAt(providerId) else null
+        val metadata = planningMetadata(snapshot, upgradeStartedAt)
         val plan = ProviderRefreshPlanner.plan(snapshot.provider.type, metadata, policy, now,
             epgAvailable = epgMode != ProviderEpgSyncMode.SKIP,
             unifiedVod = snapshot.accountRuntime.catalogLayout == CatalogLayout.UNIFIED_VOD)
@@ -127,16 +118,29 @@ class AutomaticSyncRunner @Inject constructor(
                 ProviderSyncWorker.enqueueAutomaticCheck(context, providerId, policy)
             return@withContext Result.success(Unit)
         }
-        if (plan.sections.isEmpty()) { report(AutomaticSyncOutcome.UP_TO_DATE); return@withContext Result.success(Unit) }
+        // A queued Live search backfill is independent of catalog freshness.
+        val liveBackfillPending = snapshot.provider.type == ProviderType.XTREAM_CODES && policy.live &&
+            xtreamJobs.get(providerId, ContentType.LIVE.name)?.state in setOf("QUEUED", "RUNNING", "PARTIAL", "STALE", "FAILED_RETRYABLE")
+        if (liveBackfillPending) {
+            withContext(AutomaticSyncExecution.policy.asContextElement(policy)) {
+                commands.scheduleXtreamIndexSync(providerId, ContentType.LIVE, force = false)
+            }
+        }
+        if (plan.sections.isEmpty()) {
+            if (upgradeStartedAt != null && !liveBackfillPending) preferences.completeCatalogSyncUpgrade(providerId)
+            report(if (liveBackfillPending) AutomaticSyncOutcome.QUEUED else AutomaticSyncOutcome.UP_TO_DATE)
+            return@withContext Result.success(Unit)
+        }
         report(AutomaticSyncOutcome.RUNNING)
-        var queued = false
+        var queued = liveBackfillPending
         var partial = false
         var failure: Result.Error? = null
         suspend fun permanentlyRejected(section: RefreshSection): Boolean {
             val content = when (section) { RefreshSection.MOVIES -> ContentType.MOVIE; RefreshSection.SERIES -> ContentType.SERIES; else -> return false }
             return when (snapshot.provider.type) {
                 ProviderType.XTREAM_CODES -> xtreamJobs.get(providerId, content.name)?.state == "FAILED_PERMANENT"
-                ProviderType.STALKER_PORTAL -> stalkerJobs.get(providerId, content)?.state == StalkerIndexState.FAILED
+                ProviderType.STALKER_PORTAL ->
+                    stalkerJobs.get(providerId, content)?.state == StalkerIndexState.FAILED
                 else -> false
             }
         }
@@ -149,15 +153,16 @@ class AutomaticSyncRunner @Inject constructor(
             when (val result = commands.refreshScheduledPlaylist(providerId,
                 RefreshSection.LIVE in catalogSections, RefreshSection.MOVIES in catalogSections)) {
                 is Result.Error -> failure = result
-                is Result.Success -> partial = result.data.partial
+                is Result.Success -> partial = partial || result.data.partial
                 Result.Loading -> failure = Result.error("Playlist refresh did not complete")
             }
             runnableSections.filter { it == RefreshSection.EPG }
-        } else runnableSections
+        } else runnableSections.sortedBy {
+            when (it) { RefreshSection.MOVIES -> 0; RefreshSection.SERIES -> 1; RefreshSection.LIVE -> 2; RefreshSection.EPG -> 3 }
+        }
         for (section in sections) {
             val blocked = waitingReason(providerId)
             if (blocked != null) { report(blocked); return@withContext failure ?: Result.success(Unit) }
-            // A switched-off section must also stop an already queued automatic check.
             val latest = preferences.automaticSyncConfiguration.first().forProvider(providerId)
             val enabled = when (section) { RefreshSection.LIVE -> latest.live; RefreshSection.MOVIES -> latest.movies; RefreshSection.SERIES -> latest.series; RefreshSection.EPG -> latest.epg }
             if (!enabled) continue
@@ -170,12 +175,48 @@ class AutomaticSyncRunner @Inject constructor(
                 Result.Loading -> failure = Result.error("Scheduled refresh did not complete")
             }
         }
-        val latestMetadata = metadataRepository.getMetadata(providerId)
-        val nextPlan = ProviderRefreshPlanner.plan(snapshot.provider.type, latestMetadata, policy, System.currentTimeMillis(),
+        val latestPolicy = settings(providerId)
+        val nextPlan = ProviderRefreshPlanner.plan(snapshot.provider.type, planningMetadata(snapshot, upgradeStartedAt), latestPolicy, System.currentTimeMillis(),
             epgAvailable = epgMode != ProviderEpgSyncMode.SKIP, unifiedVod = snapshot.accountRuntime.catalogLayout == CatalogLayout.UNIFIED_VOD)
+        if (upgradeStartedAt != null && latestPolicy.enabled && nextPlan.sections.isEmpty() && failure == null && !partial && !queued) {
+            preferences.completeCatalogSyncUpgrade(providerId)
+        }
         preferences.recordAutomaticSyncStatus(providerId, AutomaticSyncStatus(System.currentTimeMillis(),
-            when { failure != null -> AutomaticSyncOutcome.FAILED; partial -> AutomaticSyncOutcome.PARTIAL; queued -> AutomaticSyncOutcome.QUEUED; else -> AutomaticSyncOutcome.REFRESHED },
+            when { !latestPolicy.enabled -> AutomaticSyncOutcome.DISABLED; failure != null -> AutomaticSyncOutcome.FAILED; partial -> AutomaticSyncOutcome.PARTIAL; queued -> AutomaticSyncOutcome.QUEUED; else -> AutomaticSyncOutcome.REFRESHED },
             nextPlan.nextDueAt, plan.sections))
         failure ?: Result.success(Unit)
     }
+
+    private suspend fun planningMetadata(snapshot: ProviderSnapshot, upgradeStartedAt: Long?): SyncMetadata? {
+        val providerId = snapshot.provider.id
+        var metadata = metadataRepository.getMetadata(providerId)
+        // Index completion is authoritative; catalog-shell setup is not a completed index.
+        if (snapshot.provider.type == ProviderType.XTREAM_CODES) {
+            metadata = (metadata ?: SyncMetadata(providerId)).copy(
+                lastMovieSuccess = indexSuccess(xtreamJobs.get(providerId, ContentType.MOVIE.name), metadata?.lastMovieSuccess ?: 0L),
+                lastSeriesSuccess = indexSuccess(xtreamJobs.get(providerId, ContentType.SERIES.name), metadata?.lastSeriesSuccess ?: 0L)
+            )
+        } else if ((snapshot.configuration as? StalkerConfig)?.catalogMode == StalkerCatalogMode.BACKGROUND_INDEX) {
+            suspend fun success(section: ContentType, fallback: Long): Long {
+                val job = stalkerJobs.get(providerId, section)
+                return if (job?.state in setOf(StalkerIndexState.QUEUED, StalkerIndexState.RUNNING, StalkerIndexState.RETRY_WAIT, StalkerIndexState.PARTIAL)) 0L
+                else job?.lastSuccessAt ?: fallback
+            }
+            metadata = (metadata ?: SyncMetadata(providerId)).copy(
+                lastMovieSuccess = success(ContentType.MOVIE, metadata?.lastMovieSuccess ?: 0L),
+                lastSeriesSuccess = success(ContentType.SERIES, metadata?.lastSeriesSuccess ?: 0L)
+            )
+        }
+        return metadata?.let { current ->
+            fun freshness(success: Long) = if (upgradeStartedAt != null && success < upgradeStartedAt) 0L else success
+            current.copy(lastLiveSuccess = freshness(current.lastLiveSuccess),
+                lastMovieSuccess = freshness(current.lastMovieSuccess), lastSeriesSuccess = freshness(current.lastSeriesSuccess),
+                lastEpgSuccess = freshness(current.lastEpgSuccess))
+        }
+    }
+
+    private fun indexSuccess(job: com.streamvault.data.local.entity.XtreamIndexJobEntity?, fallback: Long): Long =
+        if (job?.state in setOf("QUEUED", "RUNNING", "PARTIAL", "STALE", "FAILED_RETRYABLE")) 0L
+        else job?.lastSuccessAt ?: fallback
+
 }

@@ -1,5 +1,8 @@
 package com.streamvault.feature.settings.presentation
 
+import android.content.Context
+import com.streamvault.feature.settings.R
+
 import com.streamvault.feature.settings.api.SettingsSurfaceRefreshPort
 import com.streamvault.domain.model.ActiveLiveSource
 import com.streamvault.domain.model.ChannelLogoSourcePolicy
@@ -33,6 +36,7 @@ internal fun shouldAutoSyncProvider(
 ): Boolean = !PersistedTimestampPolicy.isFresh(lastSyncedAt, now, staleAfterMillis)
 
 internal class SettingsProviderActions(
+    private val appContext: Context,
     private val providerRepository: ProviderRepository,
     private val combinedM3uRepository: CombinedM3uRepository,
     private val preferencesRepository: SettingsPreferences,
@@ -269,9 +273,9 @@ internal class SettingsProviderActions(
                 it.copy(
                     isSyncing = true,
                     syncingProviderName = providerName,
-                    syncProgress = "Queueing index rebuild...",
+                    syncProgress = appContext.getString(R.string.settings_syncing_preparing),
                     syncStartedAt = System.currentTimeMillis(),
-                    syncSectionLabel = "Rebuild index",
+                    syncSectionLabel = appContext.getString(R.string.settings_sync_option_rebuild_index),
                     syncCanCancel = true
                 )
             }
@@ -286,7 +290,7 @@ internal class SettingsProviderActions(
                         syncStartedAt = 0L,
                         syncSectionLabel = null,
                         syncCanCancel = false,
-                        userMessage = "Refresh stopped. Already queued library work will continue."
+                        userMessage = appContext.getString(R.string.settings_sync_stopped_queued)
                     )
                 }
                 throw e
@@ -299,7 +303,7 @@ internal class SettingsProviderActions(
                         syncStartedAt = 0L,
                         syncSectionLabel = null,
                         syncCanCancel = false,
-                        userMessage = "Sync failed: ${e.message}"
+                        userMessage = appContext.getString(R.string.settings_sync_failed, appContext.getString(R.string.settings_sync_incomplete))
                     )
                 }
             }
@@ -308,14 +312,14 @@ internal class SettingsProviderActions(
 
     suspend fun prepareProviderRefresh(providerId: Long): Result<ProviderSectionSyncResult> {
         val provider = providerRepository.getProvider(providerId)
-            ?: return Result.error("Provider is no longer available")
+            ?: return Result.error(appContext.getString(R.string.settings_sync_provider_missing))
         if (provider.type != ProviderType.XTREAM_CODES) return Result.success(ProviderSectionSyncResult())
         val generation = preferencesRepository.getXtreamTextImportGeneration()
         if (generation <= preferencesRepository.getXtreamTextImportAppliedGeneration(providerId)) {
             return Result.success(ProviderSectionSyncResult())
         }
         val result = settingsOperations.rebuildXtreamIndex(providerId) { message ->
-            uiState.update { it.copy(syncProgress = message) }
+            uiState.update { it.copy(syncProgress = appContext.getString(R.string.settings_syncing_preparing)) }
         }
         if (result is Result.Success && !result.data.partial) {
             preferencesRepository.markXtreamTextImportApplied(providerId, generation)
@@ -335,7 +339,7 @@ internal class SettingsProviderActions(
         val result = if (provider?.type == ProviderType.XTREAM_CODES) {
             settingsOperations.rebuildXtreamIndex(providerId) { message ->
                 uiState.update { state ->
-                    state.copy(syncProgress = message, syncingProviderName = providerName)
+                    state.copy(syncProgress = appContext.getString(R.string.settings_syncing_preparing), syncingProviderName = providerName)
                 }
             }
         } else {
@@ -348,7 +352,7 @@ internal class SettingsProviderActions(
                 ),
                 onProgress = { message ->
                     uiState.update { state ->
-                        state.copy(syncProgress = message, syncingProviderName = providerName)
+                        state.copy(syncProgress = appContext.getString(R.string.settings_syncing_preparing), syncingProviderName = providerName)
                     }
                 }
             )
@@ -364,6 +368,17 @@ internal class SettingsProviderActions(
                 preferencesRepository.markXtreamTextImportApplied(providerId, generation)
             }
         }
+        val finalResult = if (provider?.type == ProviderType.XTREAM_CODES && result is Result.Success && result.data.queued) {
+            val jobs = awaitSettingsCatalogIndex(settingsOperations, providerId, setOf("MOVIE", "SERIES")) { job ->
+                val label = appContext.getString(if (job.section == "MOVIE") R.string.settings_sync_option_movies else R.string.settings_sync_option_series)
+                val stage = if (job.state in setOf("QUEUED", "STALE", "RETRY_WAIT")) R.string.settings_sync_section_queued
+                    else R.string.settings_syncing_section
+                uiState.update { it.copy(syncSectionLabel = label, syncProgress = appContext.getString(
+                    R.string.settings_sync_index_progress, appContext.getString(stage, label),
+                    java.text.NumberFormat.getIntegerInstance().format(job.indexedRows))) }
+            }
+            Result.success(ProviderSectionSyncResult(partial = result.data.partial || jobs.size != 2 || jobs.any { it.state !in setOf("SUCCESS", "COMPLETE") }))
+        } else result
         uiState.update { state ->
             state.copy(
                 isSyncing = false,
@@ -373,12 +388,11 @@ internal class SettingsProviderActions(
                 syncSectionLabel = null,
                 syncCanCancel = false,
                 userMessage = when {
-                    result is Result.Error -> "Rebuild index failed: ${result.message}"
-                    result is Result.Success && result.data.partial ->
-                        "Index rebuild queued with warnings: ${result.data.warnings.joinToString()}"
-                    result is Result.Success && !result.data.queued -> "Index rebuild completed"
-                    result is Result.Loading -> "Index rebuild did not complete"
-                    else -> "Index rebuild queued"
+                    finalResult is Result.Error -> appContext.getString(R.string.settings_sync_failed, appContext.getString(R.string.settings_sync_incomplete))
+                    finalResult is Result.Success && finalResult.data.partial -> appContext.getString(R.string.settings_sync_incomplete)
+                    finalResult is Result.Success && !finalResult.data.queued -> appContext.getString(R.string.settings_sync_sections_success, appContext.getString(R.string.settings_sync_option_rebuild_index))
+                    finalResult is Result.Loading -> appContext.getString(R.string.settings_sync_no_result)
+                    else -> appContext.getString(R.string.settings_sync_section_queued, appContext.getString(R.string.settings_sync_option_rebuild_index))
                 },
                 syncWarningsByProvider = state.syncWarningsByProvider
             )

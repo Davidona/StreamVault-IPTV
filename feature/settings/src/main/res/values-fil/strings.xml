@@ -938,4 +938,5 @@
     <string name="settings_sports_custom_definition_file_too_large">Lumampas ang JSON file sa limit na 32 KB</string>
     <string name="settings_sports_custom_definition_file_error">Hindi ma-load ang JSON file na ito</string>
     <string name="settings_experimental_badge">Eksperimental</string>
+    <string name="settings_sync_index_progress">%1$s · %2$s</string>
 </resources>

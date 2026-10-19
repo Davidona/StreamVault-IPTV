@@ -70,7 +70,8 @@ class AutomaticProviderSyncRuntimeTest {
         try {
             graph.preferences().setAutomaticSyncSettings(null, original.defaults.copy(enabled = true))
             val added = graph.providers().addProvider(LegacyProvider(name = "Automatic sync fixture", type = ProviderType.M3U,
-                serverUrl = "$base/playlist.m3u", m3uUrl = "$base/playlist.m3u", isActive = false, epgSyncMode = ProviderEpgSyncMode.SKIP))
+                serverUrl = "$base/playlist.m3u", m3uUrl = "$base/playlist.m3u", isActive = false, epgSyncMode = ProviderEpgSyncMode.SKIP,
+                m3uVodClassificationEnabled = true))
             check(added is Result.Success)
             val id = added.data
             providerId = id
@@ -114,6 +115,18 @@ class AutomaticProviderSyncRuntimeTest {
             assertThat(requests.get()).isEqualTo(disabledRequests)
             assertThat(graph.sync().syncSection(id, SyncRepairSection.LIVE)).isInstanceOf(Result.Success::class.java)
             assertThat(requests.get()).isGreaterThan(disabledRequests)
+
+            // Explicit complete-playlist refresh remains available with automatic sync
+            // disabled, downloads once, and reconciles an emptied opposite section.
+            playlist.set("#EXTM3U\n" + entry("a", "Updated") +
+                "#EXTINF:-1 group-title=\"Movies\",New Movie\n$base/movie/new.mp4\n")
+            val beforeManual = requests.get()
+            assertThat(graph.sync().refreshPlaylistCatalog(id)).isInstanceOf(Result.Success::class.java)
+            assertThat(requests.get()).isEqualTo(beforeManual + 1)
+            assertThat(graph.database().movieDao().getByProvider(id).first().map { it.name }).containsExactly("New Movie")
+            playlist.set("#EXTM3U\n" + entry("a", "Updated"))
+            assertThat(graph.sync().refreshPlaylistCatalog(id)).isInstanceOf(Result.Success::class.java)
+            assertThat(graph.database().movieDao().getByProvider(id).first()).isEmpty()
         } finally {
             providerId?.let { id -> graph.providers().deleteProvider(id); graph.preferences().setAutomaticSyncSettings(id, null) }
             graph.preferences().setAutomaticSyncSettings(null, original.defaults)

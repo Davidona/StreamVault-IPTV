@@ -105,19 +105,27 @@
     <string name="settings_drive_choose_backup_subtitle" translatable="false">Select a saved snapshot to preview and restore.</string>
     <string name="settings_drive_cancel_backup_choice" translatable="false">Cancel backup choice</string>
     <string name="setup_import_from_drive">從 Drive 匯入</string>
-    <string name="stalker_transport_invalid_tls_title" translatable="false">This provider\'s security certificate can\'t be verified</string>
-    <string name="stalker_transport_invalid_tls_body" translatable="false">The connection to %1$s may still be encrypted, but the app can\'t confirm it is really this provider. Someone on the network could read your login or stream details.</string>
-    <string name="stalker_transport_http_title" translatable="false">This provider uses an unencrypted connection</string>
-    <string name="stalker_transport_http_body" translatable="false">Your login and viewing requests to %1$s can be read or changed by someone on the network.</string>
-    <string name="stalker_transport_origin_changed_title" translatable="false">This provider wants to use a different address</string>
-    <string name="stalker_transport_origin_changed_body" translatable="false">The provider redirected the connection to %1$s. Continue only if you recognize this address.</string>
-    <string name="stalker_transport_go_back" translatable="false">Go back</string>
-    <string name="stalker_transport_connect_anyway" translatable="false">Connect anyway</string>
-    <string name="stalker_verification_inconclusive_title" translatable="false">Live TV could not be verified</string>
-    <string name="stalker_verification_inconclusive_body" translatable="false">The provider accepted your login, but the Live TV check did not finish. You can save it with verification pending; it will remain inactive until a sync confirms playable Live TV.</string>
-    <string name="stalker_save_without_verification" translatable="false">Save without verification</string>
+    <string name="stalker_transport_invalid_tls_title">無法驗證此提供者的安全性憑證</string>
+    <string name="stalker_transport_invalid_tls_body">與 %1$s 的連線可能仍經過加密，但應用程式無法確認它確實屬於此提供者。網路上的其他人可能會讀取您的登入資訊或串流詳細資料。</string>
+    <string name="stalker_transport_http_title">此提供者使用未加密的連線</string>
+    <string name="stalker_transport_http_body">網路上的其他人可能會讀取或變更您傳送至 %1$s 的登入和播放要求。</string>
+    <string name="stalker_transport_origin_changed_title">此提供者想要使用不同的位址</string>
+    <string name="stalker_transport_origin_changed_body">提供者將連線重新導向至 %1$s。只有在您認得此位址時才繼續。</string>
+    <string name="stalker_transport_go_back">返回</string>
+    <string name="stalker_transport_connect_anyway">仍要連線</string>
+    <string name="stalker_verification_inconclusive_title">無法驗證 Live TV</string>
+    <string name="stalker_verification_inconclusive_body">提供者已接受您的登入，但 Live TV 檢查尚未完成。您可以在驗證待處理時儲存；在同步確認 Live TV 可以播放之前，來源會維持停用狀態。</string>
+    <string name="stalker_save_without_verification">未經驗證儲存</string>
     <string name="stalker_repair_connection" translatable="false">Repair connection</string>
     <string name="setup_phone_pairing_security_warning">安全性：配對會透過本機網路以未加密方式傳送登入憑證。請只使用可信任的私人 Wi-Fi 網路。</string>
     <string name="setup_phone_pairing_error_help">無法完成配對。請檢查服務提供者資料並重試。如果 QR 工作階段已逾期，請在電視上重新開始。</string>
     <string name="setup_phone_pairing_mac_label">MAC 位址</string>
+    <string name="setup_phone_pairing_continue_on_tv">請在電視上繼續，以檢查並完成此步驟。</string>
+    <string name="setup_phone_pairing_stalker_certificate_error">無法安全地檢查憑證。請在電視上檢查此連線。</string>
+    <string name="setup_stalker_catalog_title">電影與影集目錄</string>
+    <string name="setup_stalker_catalog_description">與節目表分開。設定完成後，背景索引會建立可搜尋的目錄。</string>
+    <string name="setup_stalker_catalog_on_demand_title">視需要載入</string>
+    <string name="setup_stalker_catalog_on_demand_description">開啟時載入各區和類別。保留已快取的片名。</string>
+    <string name="setup_stalker_catalog_background_title">完整背景索引（建議）</string>
+    <string name="setup_stalker_catalog_background_description">先完成供應商設定，再於背景為所有電影與影集建立索引，方便搜尋。</string>
 </resources>

@@ -105,19 +105,28 @@
     <string name="settings_drive_choose_backup_subtitle" translatable="false">Select a saved snapshot to preview and restore.</string>
     <string name="settings_drive_cancel_backup_choice" translatable="false">Cancel backup choice</string>
     <string name="setup_import_from_drive">Увези са Drive-а</string>
-    <string name="stalker_transport_invalid_tls_title" translatable="false">This provider\'s security certificate can\'t be verified</string>
-    <string name="stalker_transport_invalid_tls_body" translatable="false">The connection to %1$s may still be encrypted, but the app can\'t confirm it is really this provider. Someone on the network could read your login or stream details.</string>
-    <string name="stalker_transport_http_title" translatable="false">This provider uses an unencrypted connection</string>
-    <string name="stalker_transport_http_body" translatable="false">Your login and viewing requests to %1$s can be read or changed by someone on the network.</string>
-    <string name="stalker_transport_origin_changed_title" translatable="false">This provider wants to use a different address</string>
-    <string name="stalker_transport_origin_changed_body" translatable="false">The provider redirected the connection to %1$s. Continue only if you recognize this address.</string>
-    <string name="stalker_transport_go_back" translatable="false">Go back</string>
-    <string name="stalker_transport_connect_anyway" translatable="false">Connect anyway</string>
-    <string name="stalker_verification_inconclusive_title" translatable="false">Live TV could not be verified</string>
-    <string name="stalker_verification_inconclusive_body" translatable="false">The provider accepted your login, but the Live TV check did not finish. You can save it with verification pending; it will remain inactive until a sync confirms playable Live TV.</string>
-    <string name="stalker_save_without_verification" translatable="false">Save without verification</string>
+    <string name="stalker_transport_invalid_tls_title">Безбедносни сертификат овог провајдера не може да се провери</string>
+    <string name="stalker_transport_invalid_tls_body">Веза са %1$s је можда и даље шифрована, али апликација не може да потврди да заиста припада овом провајдеру. Неко на мрежи може да прочита ваше податке за пријаву или детаље стрима.</string>
+    <string name="stalker_transport_http_title">Овај провајдер користи нешифровану везу</string>
+    <string name="stalker_transport_http_body">Неко на мрежи може да чита или мења ваше захтеве за пријаву и гледање ка %1$s.</string>
+    <string name="stalker_transport_origin_changed_title">Овај провајдер жели да користи другу адресу</string>
+    <string name="stalker_transport_origin_changed_body">Провајдер је преусмерио везу на %1$s. Наставите само ако препознајете ову адресу.</string>
+    <string name="stalker_transport_go_back">Назад</string>
+    <string name="stalker_transport_connect_anyway">Ипак се повежи</string>
+    <string name="stalker_verification_inconclusive_title">ТВ уживо није могао да се провери</string>
+    <string name="stalker_verification_inconclusive_body">Провајдер је прихватио вашу пријаву, али провера ТВ-а уживо није завршена. Можете да га сачувате док је провера на чекању; остаће неактиван док синхронизација не потврди да ТВ уживо може да се репродукује.</string>
+    <string name="stalker_save_without_verification">Сачувај без провере</string>
     <string name="stalker_repair_connection" translatable="false">Repair connection</string>
     <string name="setup_phone_pairing_security_warning">Безбедност: Упаривање шаље податке за пријаву нешифроване преко локалне мреже. Користите само поуздану приватну Wi-Fi мрежу.</string>
     <string name="setup_phone_pairing_error_help">Упаривање није довршено. Проверите податке добављача и покушајте поново. Ако је QR сесија истекла, покрените нову на телевизору.</string>
     <string name="setup_phone_pairing_mac_label">MAC адреса</string>
+    <string name="setup_phone_pairing_continue_on_tv">Наставите на телевизору да бисте прегледали и довршили овај корак.</string>
+    <string name="setup_phone_pairing_stalker_certificate_error">Сертификат није могао безбедно да се провери. Прегледајте ову везу на телевизору.</string>
+
+    <string name="setup_stalker_catalog_title">Каталог филмова и серија</string>
+    <string name="setup_stalker_catalog_description">Одвојен је од ТВ водича. Индексирање у позадини после подешавања прави каталог који може да се претражује.</string>
+    <string name="setup_stalker_catalog_on_demand_title">На захтев</string>
+    <string name="setup_stalker_catalog_on_demand_description">Полице и категорије се учитавају када их отворите. Кеширани наслови се чувају.</string>
+    <string name="setup_stalker_catalog_background_title">Потпуно индексирање у позадини (препоручено)</string>
+    <string name="setup_stalker_catalog_background_description">Прво довршите подешавање провајдера, а затим у позадини индексирајте све филмове и серије да бисте могли да их претражујете.</string>
 </resources>

@@ -105,4 +105,24 @@
     <string name="setup_phone_pairing_security_warning">Sicherheit: Bei der Kopplung werden Zugangsdaten unverschlüsselt über dein lokales Netzwerk gesendet. Verwende nur ein vertrauenswürdiges privates WLAN.</string>
     <string name="setup_phone_pairing_error_help">Die Kopplung konnte nicht abgeschlossen werden. Prüfe die Anbieterdaten und versuche es erneut. Wenn die QR-Sitzung abgelaufen ist, starte am Fernseher eine neue.</string>
     <string name="setup_phone_pairing_mac_label">MAC-Adresse</string>
+    <string name="setup_phone_pairing_continue_on_tv">Fahre auf dem Fernseher fort, um diesen Schritt zu prüfen und abzuschließen.</string>
+    <string name="setup_phone_pairing_stalker_certificate_error">Das Zertifikat konnte nicht sicher geprüft werden. Überprüfe diese Verbindung auf dem Fernseher.</string>
+    <string name="stalker_transport_invalid_tls_title">Das Sicherheitszertifikat dieses Anbieters kann nicht überprüft werden</string>
+    <string name="stalker_transport_invalid_tls_body">Die Verbindung zu %1$s ist möglicherweise weiterhin verschlüsselt, aber die App kann nicht bestätigen, dass sie wirklich zu diesem Anbieter gehört. Jemand im Netzwerk könnte deine Anmelde- oder Streamingdaten lesen.</string>
+    <string name="stalker_transport_http_title">Dieser Anbieter verwendet eine unverschlüsselte Verbindung</string>
+    <string name="stalker_transport_http_body">Jemand im Netzwerk kann deine Anmelde- und Wiedergabeanfragen an %1$s lesen oder ändern.</string>
+    <string name="stalker_transport_origin_changed_title">Dieser Anbieter möchte eine andere Adresse verwenden</string>
+    <string name="stalker_transport_origin_changed_body">Der Anbieter hat die Verbindung zu %1$s umgeleitet. Fahre nur fort, wenn du diese Adresse erkennst.</string>
+    <string name="stalker_verification_inconclusive_title">Live-TV konnte nicht überprüft werden</string>
+    <string name="stalker_verification_inconclusive_body">Der Anbieter hat deine Anmeldung akzeptiert, aber die Prüfung von Live-TV wurde nicht abgeschlossen. Du kannst den Anbieter mit ausstehender Prüfung speichern; er bleibt inaktiv, bis eine Synchronisierung bestätigt, dass Live-TV wiedergegeben werden kann.</string>
+    <string name="stalker_transport_go_back">Zurück</string>
+    <string name="stalker_transport_connect_anyway">Trotzdem verbinden</string>
+    <string name="stalker_save_without_verification">Ohne Überprüfung speichern</string>
+
+    <string name="setup_stalker_catalog_title">Film- und Serienkatalog</string>
+    <string name="setup_stalker_catalog_description">Unabhängig vom EPG. Die Hintergrundindizierung erstellt nach der Einrichtung einen durchsuchbaren Katalog.</string>
+    <string name="setup_stalker_catalog_on_demand_title">Bei Bedarf</string>
+    <string name="setup_stalker_catalog_on_demand_description">Regale und Kategorien werden beim Öffnen geladen. Zwischengespeicherte Titel bleiben erhalten.</string>
+    <string name="setup_stalker_catalog_background_title">Vollständige Hintergrundindizierung (empfohlen)</string>
+    <string name="setup_stalker_catalog_background_description">Schließe zuerst die Anbietereinrichtung ab. Danach werden alle Filme und Serien im Hintergrund für die Suche indiziert.</string>
 </resources>

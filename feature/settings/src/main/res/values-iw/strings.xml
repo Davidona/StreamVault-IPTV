@@ -943,4 +943,5 @@
     <string name="settings_sports_custom_definition_file_too_large">קובץ JSON חורג מהמגבלה של 32 KB</string>
     <string name="settings_sports_custom_definition_file_error">לא ניתן לטעון את קובץ ה-JSON הזה</string>
     <string name="settings_experimental_badge">ניסיוני</string>
+    <string name="settings_sync_index_progress">%1$s · %2$s</string>
 </resources>

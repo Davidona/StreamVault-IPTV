@@ -277,6 +277,7 @@ class MainActivity : ComponentActivity(), CatalogPlatformHost {
     override fun onResume() {
         super.onResume()
         applyImmersiveSystemUi()
+        appStartupCoordinator.onAppForegrounded()
     }
 
     private fun closeApp() {

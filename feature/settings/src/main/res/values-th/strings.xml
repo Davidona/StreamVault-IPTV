@@ -935,4 +935,5 @@
     <string name="settings_sports_custom_definition_file_too_large">ไฟล์ JSON มีขนาดเกินขีดจำกัด 32 KB</string>
     <string name="settings_sports_custom_definition_file_error">ไม่สามารถโหลดไฟล์ JSON นี้ได้</string>
     <string name="settings_experimental_badge">ฟีเจอร์ทดลอง</string>
+    <string name="settings_sync_index_progress">%1$s · %2$s</string>
 </resources>

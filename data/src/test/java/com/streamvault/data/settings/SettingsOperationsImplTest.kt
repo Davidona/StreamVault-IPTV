@@ -170,6 +170,6 @@ class SettingsOperationsImplTest {
     fun `schedule background epg forwards provider id`() {
         operations.scheduleBackgroundEpgSync(7L)
 
-        verify(syncCommands).scheduleBackgroundEpgSync(7L)
+        verify(syncCommands).scheduleManualEpgSync(7L)
     }
 }

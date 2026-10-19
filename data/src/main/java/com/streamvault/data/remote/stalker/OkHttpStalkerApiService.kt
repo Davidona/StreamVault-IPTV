@@ -91,7 +91,7 @@ class OkHttpStalkerApiService @Inject constructor(
     private val json: Json,
     private val transportFactory: StalkerTransportFactory = StalkerTransportFactory(okHttpClient),
     private val requestCoordinator: StalkerRequestCoordinator = StalkerRequestCoordinator()
-) : StalkerApiService {
+) : StalkerApiService, StalkerRawVodPageApi {
     private class DirectCreateLinkResponse(val playbackUrl: String) : IOException()
 
     private data class SessionScope(
@@ -791,6 +791,28 @@ class OkHttpStalkerApiService @Inject constructor(
             session = session,
             profile = profile,
             page = page,
+            baseQuery = buildMap {
+                put("type", "vod")
+                put("action", "get_ordered_list")
+                put("JsHttpRequest", "1-xml")
+                categoryId?.takeIf { it.isNotBlank() }?.let { put("category", it) }
+                searchQuery?.trim()?.takeIf { it.isNotBlank() }?.let { put("search", it) }
+            }
+        )
+    }
+
+    override suspend fun getVodStreamsPageAtPortalPage(
+        session: StalkerSession,
+        profile: StalkerDeviceProfile,
+        categoryId: String?,
+        portalPage: Int,
+        searchQuery: String?
+    ): Result<StalkerPagedItems> = runApiCall("Failed to load movies") {
+        fetchPagedItemPage(
+            session = session,
+            profile = profile,
+            page = portalPage,
+            allowPageZero = true,
             baseQuery = buildMap {
                 put("type", "vod")
                 put("action", "get_ordered_list")
@@ -1508,11 +1530,12 @@ class OkHttpStalkerApiService @Inject constructor(
         session: StalkerSession,
         profile: StalkerDeviceProfile,
         baseQuery: Map<String, String>,
-        page: Int
+        page: Int,
+        allowPageZero: Boolean = false
     ): StalkerPagedItems {
         // The aggregate safety limit belongs to bulk loads. A single-page request must preserve
         // the requested cursor so a resumed catalog can move past the historical page-200 cap.
-        val safePage = page.coerceAtLeast(1)
+        val safePage = page.coerceAtLeast(if (allowPageZero) 0 else 1)
         val payload = requestJson(
             url = session.loadUrl,
             profile = profile,

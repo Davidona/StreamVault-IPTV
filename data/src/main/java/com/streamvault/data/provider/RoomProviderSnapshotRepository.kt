@@ -1,5 +1,6 @@
 package com.streamvault.data.provider
 
+import android.util.Log
 import com.streamvault.domain.model.Provider as StableProvider
 
 import com.google.gson.Gson
@@ -56,6 +57,28 @@ class RoomProviderSnapshotRepository internal constructor(
                 storedConfig.configurationGeneration
             )
         } else null
+        val decodedConfiguration = codec.decodeForKeyMigration(
+            storedConfig.type,
+            storedConfig.encryptedConfigJson
+        )
+        if (decodedConfiguration.requiresReencryption) {
+            runCatching {
+                val replacement = codec.encodeForKeyMigration(decodedConfiguration.configuration)
+                if (replacement.usesPreferredKey &&
+                    replacement.payload != storedConfig.encryptedConfigJson
+                ) {
+                    snapshotDao.rekeyConfigIfUnchanged(
+                        providerId = providerId,
+                        configurationGeneration = storedConfig.configurationGeneration,
+                        expectedJson = storedConfig.encryptedConfigJson,
+                        replacementJson = replacement.payload,
+                        updatedAt = System.currentTimeMillis()
+                    )
+                }
+            }.onFailure { error ->
+                Log.w(TAG, "Could not migrate provider credential encryption for $providerId.", error)
+            }
+        }
         ProviderSnapshot(
             provider = StableProvider(
                 id = provider.id,
@@ -66,7 +89,7 @@ class RoomProviderSnapshotRepository internal constructor(
                 lastSyncedAt = provider.lastSyncedAt,
                 createdAt = provider.createdAt
             ),
-            configuration = codec.decode(storedConfig.type, storedConfig.encryptedConfigJson),
+            configuration = decodedConfiguration.configuration,
             configurationGeneration = storedConfig.configurationGeneration,
             accountRuntime = runtime?.let {
                 ProviderAccountRuntime(
@@ -104,4 +127,7 @@ class RoomProviderSnapshotRepository internal constructor(
         snapshotDao.updateCatalogLayout(providerId, layout, detectionVersion)
     }
 
+    private companion object {
+        const val TAG = "ProviderSnapshotRepository"
+    }
 }

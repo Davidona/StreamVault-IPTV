@@ -29,6 +29,15 @@ import java.util.zip.GZIPOutputStream
 
 class SyncManagerM3uImporterTest {
 
+    @Test fun `complete Live-only playlist commits an empty Movie section for reconciliation`() = runTest {
+        val fixture = fixture(
+            body = playlistEntry("News", "https://stream.example.com/news.ts").toByteArray(),
+            limits = CatalogSizeLimits(maxM3uDecompressedBytes = 4096, maxM3uLineBytes = 1024)
+        )
+        fixture.importer.importPlaylist(provider(), onProgress = null, includeLive = true, includeMovies = true)
+        verify(fixture.store).finalizeStagedImport(eq(PROVIDER_ID), eq(SESSION_ID), anyOrNull(), anyOrNull(), eq(true), eq(true), any())
+    }
+
     @Test
     fun `unknown length input accepts the exact decompressed byte limit`() = runTest {
         val playlist = playlistEntry("News", "https://stream.example.com/news.ts").toByteArray()

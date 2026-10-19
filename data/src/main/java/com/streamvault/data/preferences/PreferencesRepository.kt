@@ -384,7 +384,27 @@ class PreferencesRepository @Inject constructor(
         }
         // Update durable work immediately; the worker re-reads policy before each section.
         com.streamvault.data.sync.ProviderSyncWorker.enqueuePeriodic(context)
-        com.streamvault.data.sync.ProviderSyncWorker.enqueueLaunchStaleCheck(context)
+        com.streamvault.data.sync.ProviderSyncWorker.enqueueForegroundCheck(context)
+    }
+
+    /** Runtime-only upgrade catch-up; completion is recorded only after successful sections. */
+    suspend fun catalogSyncUpgradeStartedAt(providerId: Long): Long? {
+        val applied = intPreferencesKey("catalog_sync_engine_$providerId")
+        val started = longPreferencesKey("catalog_sync_upgrade_started_$providerId")
+        val values = preferencesDataStore.edit { values ->
+            val now = System.currentTimeMillis()
+            if ((values[applied] ?: 0) < 1 && ((values[started] ?: 0L) <= 0L || (values[started] ?: 0L) > now)) {
+                values[started] = now
+            }
+        }
+        return if ((values[applied] ?: 0) >= 1) null else values[started]
+    }
+
+    suspend fun completeCatalogSyncUpgrade(providerId: Long) {
+        preferencesDataStore.edit { values ->
+            values[intPreferencesKey("catalog_sync_engine_$providerId")] = 1
+            values.remove(longPreferencesKey("catalog_sync_upgrade_started_$providerId"))
+        }
     }
 
     suspend fun recordAutomaticSyncStatus(providerId: Long, status: com.streamvault.domain.sync.AutomaticSyncStatus) {

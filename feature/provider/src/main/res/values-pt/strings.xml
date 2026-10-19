@@ -105,4 +105,24 @@
     <string name="setup_phone_pairing_security_warning">Segurança: O emparelhamento envia as credenciais sem encriptação pela rede local. Utilize apenas uma rede Wi-Fi privada e de confiança.</string>
     <string name="setup_phone_pairing_error_help">Não foi possível concluir o emparelhamento. Verifique os dados do fornecedor e tente novamente. Se a sessão QR expirou, inicie outra na TV.</string>
     <string name="setup_phone_pairing_mac_label">Endereço MAC</string>
+    <string name="setup_phone_pairing_continue_on_tv">Continue na TV para revisar e concluir esta etapa.</string>
+    <string name="setup_phone_pairing_stalker_certificate_error">Não foi possível verificar o certificado com segurança. Revise esta conexão na TV.</string>
+    <string name="stalker_transport_invalid_tls_title">Não foi possível verificar o certificado de segurança deste provedor</string>
+    <string name="stalker_transport_invalid_tls_body">A conexão com %1$s ainda pode estar criptografada, mas o aplicativo não consegue confirmar que ela pertence mesmo a este provedor. Alguém na rede pode ler seus dados de login ou detalhes da transmissão.</string>
+    <string name="stalker_transport_http_title">Este provedor usa uma conexão sem criptografia</string>
+    <string name="stalker_transport_http_body">Alguém na rede pode ler ou alterar suas solicitações de login e reprodução para %1$s.</string>
+    <string name="stalker_transport_origin_changed_title">Este provedor quer usar um endereço diferente</string>
+    <string name="stalker_transport_origin_changed_body">O provedor redirecionou a conexão para %1$s. Continue somente se reconhecer este endereço.</string>
+    <string name="stalker_verification_inconclusive_title">Não foi possível verificar a TV ao vivo</string>
+    <string name="stalker_verification_inconclusive_body">O provedor aceitou seu login, mas a verificação da TV ao vivo não terminou. Você pode salvar com a verificação pendente; o conteúdo ficará inativo até que uma sincronização confirme que a TV ao vivo pode ser reproduzida.</string>
+    <string name="stalker_transport_go_back">Voltar</string>
+    <string name="stalker_transport_connect_anyway">Conectar mesmo assim</string>
+    <string name="stalker_save_without_verification">Salvar sem verificar</string>
+
+    <string name="setup_stalker_catalog_title">Catálogo de filmes e séries</string>
+    <string name="setup_stalker_catalog_description">É independente do guia de programação. A indexação em segundo plano cria um catálogo pesquisável após a configuração.</string>
+    <string name="setup_stalker_catalog_on_demand_title">Sob demanda</string>
+    <string name="setup_stalker_catalog_on_demand_description">Carrega prateleiras e categorias quando são abertas. Mantém os títulos em cache.</string>
+    <string name="setup_stalker_catalog_background_title">Indexação completa em segundo plano (recomendada)</string>
+    <string name="setup_stalker_catalog_background_description">Conclua primeiro a configuração do fornecedor e depois indexe todos os filmes e séries em segundo plano para poder pesquisá-los.</string>
 </resources>

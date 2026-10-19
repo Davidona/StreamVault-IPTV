@@ -938,4 +938,5 @@
     <string name="settings_sports_custom_definition_file_too_large">اندازه فایل JSON از حد ۳۲ کیلوبایت بیشتر است</string>
     <string name="settings_sports_custom_definition_file_error">بارگذاری این فایل JSON ممکن نبود</string>
     <string name="settings_experimental_badge">آزمایشی</string>
+    <string name="settings_sync_index_progress">%1$s · %2$s</string>
 </resources>

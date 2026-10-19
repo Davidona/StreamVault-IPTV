@@ -61,7 +61,7 @@ class BackgroundEpgSyncWorker(
                 BackgroundEpgSyncWorkerEntryPoint::class.java
             )
             val provider = entryPoint.providerDao().getById(providerId)
-            if (provider?.type == ProviderType.XTREAM_CODES &&
+            if (!force && provider?.type == ProviderType.XTREAM_CODES &&
                 entryPoint.xtreamIndexJobDao().hasPendingCatalogWork(providerId)
             ) {
                 Log.i(TAG, "Deferring guide work for provider $providerId until queued catalog indexing completes")
@@ -173,7 +173,7 @@ class BackgroundEpgSyncWorker(
 
             WorkManager.getInstance(context).enqueueUniqueWork(
                 providerEpgWorkUniqueName(providerId),
-                ExistingWorkPolicy.KEEP,
+                if (force) ExistingWorkPolicy.REPLACE else ExistingWorkPolicy.KEEP,
                 request
             )
         }

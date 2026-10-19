@@ -19,11 +19,49 @@ class ProviderConfigurationCodec @Inject constructor(
     private val gson: Gson,
     private val credentialCrypto: CredentialCrypto
 ) {
+    internal data class MigrationDecodeResult(
+        val configuration: ProviderConfiguration,
+        val requiresReencryption: Boolean
+    )
+
+    internal data class MigrationEncodeResult(
+        val payload: String,
+        val usesPreferredKey: Boolean
+    )
+
     fun encode(configuration: ProviderConfiguration): String =
         encodeProviderConfiguration(gson, credentialCrypto, configuration)
 
+    internal fun encodeForKeyMigration(configuration: ProviderConfiguration): MigrationEncodeResult {
+        var usesPreferredKey = true
+        fun encrypt(value: String): String {
+            val result = credentialCrypto.encryptWithKeyMigration(value)
+            usesPreferredKey = usesPreferredKey && result.usesPreferredKey
+            return result.encryptedValue
+        }
+        val encrypted = when (configuration) {
+            is XtreamConfig -> configuration.copy(password = encrypt(configuration.password))
+            is M3uConfig -> configuration
+            is StalkerConfig -> configuration.copy(password = encrypt(configuration.password))
+            is JellyfinConfig -> configuration.copy(credential = encrypt(configuration.credential))
+        }
+        return MigrationEncodeResult(gson.toJson(encrypted), usesPreferredKey)
+    }
+
     fun decode(type: ProviderType, payload: String): ProviderConfiguration =
         decodeProviderConfigurationCompat(gson, credentialCrypto, type, payload)
+
+    internal fun decodeForKeyMigration(type: ProviderType, payload: String): MigrationDecodeResult {
+        var requiresReencryption = false
+        val configuration = decodeProviderConfigurationCompat(
+            gson = gson,
+            credentialCrypto = credentialCrypto,
+            type = type,
+            payload = payload,
+            onCredentialReencrypted = { requiresReencryption = true }
+        )
+        return MigrationDecodeResult(configuration, requiresReencryption)
+    }
 
     /**
      * Decode provider metadata for public projections without asking Android Keystore to open

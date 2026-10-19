@@ -96,6 +96,11 @@ interface ProviderSyncCommands {
     suspend fun refreshScheduledPlaylist(providerId: Long, live: Boolean, movies: Boolean): Result<ProviderSectionSyncResult> =
         syncSection(providerId, if (live) SyncRepairSection.LIVE else SyncRepairSection.MOVIES)
 
+    suspend fun refreshPlaylistCatalog(providerId: Long, onProgress: ((String) -> Unit)? = null): Result<ProviderSectionSyncResult> =
+        refreshScheduledPlaylist(providerId, live = true, movies = true)
+
+    fun scheduleManualEpgSync(providerId: Long) { scheduleBackgroundEpgSync(providerId) }
+
     suspend fun refreshScheduledSection(providerId: Long, section: SyncRepairSection): Result<ProviderSectionSyncResult> =
         syncSection(providerId, section)
 

@@ -52,6 +52,9 @@ class SettingsOperationsImpl @Inject constructor(
         providerId, section.toSyncRepairSection(), onProgress
     )
 
+    override suspend fun syncPlaylistCatalog(providerId: Long, onProgress: ((String) -> Unit)?): Result<ProviderSectionSyncResult> =
+        syncCommands.refreshPlaylistCatalog(providerId, onProgress)
+
     override suspend fun retryProviderSection(
         providerId: Long,
         section: SettingsSyncSection,
@@ -68,7 +71,7 @@ class SettingsOperationsImpl @Inject constructor(
     ): Result<ProviderSectionSyncResult> = syncCommands.rebuildIndex(providerId, onProgress)
 
     override fun scheduleBackgroundEpgSync(providerId: Long) {
-        syncCommands.scheduleBackgroundEpgSync(providerId)
+        syncCommands.scheduleManualEpgSync(providerId)
     }
 
     private fun XtreamIndexJobEntity.toSettingsSnapshot() = SettingsXtreamIndexJob(

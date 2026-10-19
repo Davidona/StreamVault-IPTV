@@ -936,4 +936,5 @@
     <string name="settings_sports_custom_definition_file_too_large">Die JSON-Datei überschreitet das Limit von 32 KB</string>
     <string name="settings_sports_custom_definition_file_error">Diese JSON-Datei konnte nicht geladen werden</string>
     <string name="settings_experimental_badge">Experimentell</string>
+    <string name="settings_sync_index_progress">%1$s · %2$s</string>
 </resources>

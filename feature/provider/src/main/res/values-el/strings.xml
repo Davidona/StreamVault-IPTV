@@ -105,4 +105,24 @@
     <string name="setup_phone_pairing_security_warning">Ασφάλεια: Η σύζευξη στέλνει στοιχεία σύνδεσης χωρίς κρυπτογράφηση μέσω του τοπικού δικτύου σας. Χρησιμοποιήστε μόνο ιδιωτικό δίκτυο Wi-Fi που εμπιστεύεστε.</string>
     <string name="setup_phone_pairing_error_help">Δεν ήταν δυνατή η ολοκλήρωση της σύζευξης. Ελέγξτε τα στοιχεία του παρόχου και δοκιμάστε ξανά. Αν έληξε η συνεδρία QR, ξεκινήστε νέα από την τηλεόραση.</string>
     <string name="setup_phone_pairing_mac_label">Διεύθυνση MAC</string>
+    <string name="setup_phone_pairing_continue_on_tv">Συνεχίστε στην τηλεόραση για να ελέγξετε και να ολοκληρώσετε αυτό το βήμα.</string>
+    <string name="setup_phone_pairing_stalker_certificate_error">Δεν ήταν δυνατός ο ασφαλής έλεγχος του πιστοποιητικού. Ελέγξτε αυτήν τη σύνδεση στην τηλεόραση.</string>
+    <string name="stalker_transport_invalid_tls_title">Δεν είναι δυνατή η επαλήθευση του πιστοποιητικού ασφαλείας αυτού του παρόχου</string>
+    <string name="stalker_transport_invalid_tls_body">Η σύνδεση με το %1$s μπορεί να είναι κρυπτογραφημένη, αλλά η εφαρμογή δεν μπορεί να επιβεβαιώσει ότι ανήκει πράγματι σε αυτόν τον πάροχο. Κάποιος στο δίκτυο μπορεί να διαβάσει τα στοιχεία σύνδεσης ή τις πληροφορίες ροής σας.</string>
+    <string name="stalker_transport_http_title">Αυτός ο πάροχος χρησιμοποιεί μη κρυπτογραφημένη σύνδεση</string>
+    <string name="stalker_transport_http_body">Κάποιος στο δίκτυο μπορεί να διαβάσει ή να αλλάξει τα αιτήματα σύνδεσης και προβολής προς το %1$s.</string>
+    <string name="stalker_transport_origin_changed_title">Αυτός ο πάροχος θέλει να χρησιμοποιήσει διαφορετική διεύθυνση</string>
+    <string name="stalker_transport_origin_changed_body">Ο πάροχος ανακατεύθυνε τη σύνδεση στο %1$s. Συνεχίστε μόνο αν αναγνωρίζετε αυτήν τη διεύθυνση.</string>
+    <string name="stalker_verification_inconclusive_title">Δεν ήταν δυνατή η επαλήθευση της ζωντανής τηλεόρασης</string>
+    <string name="stalker_verification_inconclusive_body">Ο πάροχος αποδέχτηκε τη σύνδεσή σας, αλλά ο έλεγχος ζωντανής τηλεόρασης δεν ολοκληρώθηκε. Μπορείτε να το αποθηκεύσετε με την επαλήθευση σε εκκρεμότητα· θα παραμείνει ανενεργό μέχρι να επιβεβαιώσει ένας συγχρονισμός ότι η ζωντανή τηλεόραση αναπαράγεται.</string>
+    <string name="stalker_transport_go_back">Επιστροφή</string>
+    <string name="stalker_transport_connect_anyway">Σύνδεση ούτως ή άλλως</string>
+    <string name="stalker_save_without_verification">Αποθήκευση χωρίς επαλήθευση</string>
+
+    <string name="setup_stalker_catalog_title">Κατάλογος ταινιών και σειρών</string>
+    <string name="setup_stalker_catalog_description">Είναι ξεχωριστός από τον οδηγό προγράμματος. Η ευρετηρίαση στο παρασκήνιο δημιουργεί κατάλογο αναζήτησης μετά τη ρύθμιση.</string>
+    <string name="setup_stalker_catalog_on_demand_title">Κατά απαίτηση</string>
+    <string name="setup_stalker_catalog_on_demand_description">Φόρτωση ραφιών και κατηγοριών όταν ανοίγουν. Διατήρηση των αποθηκευμένων τίτλων.</string>
+    <string name="setup_stalker_catalog_background_title">Πλήρης ευρετηρίαση στο παρασκήνιο (συνιστάται)</string>
+    <string name="setup_stalker_catalog_background_description">Ολοκληρώστε πρώτα τη ρύθμιση του παρόχου και έπειτα ευρετηριάστε όλες τις ταινίες και σειρές στο παρασκήνιο για αναζήτηση.</string>
 </resources>

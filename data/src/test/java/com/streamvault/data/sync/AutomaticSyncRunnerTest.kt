@@ -62,6 +62,35 @@ class AutomaticSyncRunnerTest {
         verify(preferences).recordAutomaticSyncStatus(eq(7L), argThat { outcome == AutomaticSyncOutcome.UP_TO_DATE })
     }
 
+    @Test fun `pending Xtream movies resume even when their last success is recent`() = runTest {
+        snapshot(XtreamConfig("https://example.test", "user", "password"))
+        whenever(xtream.get(7L, ContentType.MOVIE.name)).thenReturn(
+            com.streamvault.data.local.entity.XtreamIndexJobEntity(7L, "MOVIE", "QUEUED", lastSuccessAt = now)
+        )
+        runner.check(7L)
+        verify(commands).refreshScheduledSection(7L, SyncRepairSection.MOVIES)
+    }
+
+    @Test fun `upgrade catchup refreshes inherited fresh catalogs and records completion only after success`() = runTest {
+        snapshot(M3uConfig("https://example.test/list"))
+        whenever(preferences.catalogSyncUpgradeStartedAt(7L)).thenReturn(now)
+        whenever(metadata.getMetadata(7L)).thenReturn(
+            fresh.copy(lastLiveSuccess = now - 1, lastMovieSuccess = now - 1), fresh
+        )
+        runner.check(7L)
+        verify(commands).refreshScheduledPlaylist(7L, true, true)
+        verify(preferences).completeCatalogSyncUpgrade(7L)
+    }
+
+    @Test fun `failed upgrade catchup stays pending for recovery`() = runTest {
+        snapshot(M3uConfig("https://example.test/list"))
+        whenever(preferences.catalogSyncUpgradeStartedAt(7L)).thenReturn(now)
+        whenever(metadata.getMetadata(7L)).thenReturn(fresh.copy(lastLiveSuccess = now - 1, lastMovieSuccess = now - 1))
+        whenever(commands.refreshScheduledPlaylist(any(), any(), any())).thenReturn(Result.error("offline", java.io.IOException()))
+        runner.check(7L)
+        verify(preferences, never()).completeCatalogSyncUpgrade(any())
+    }
+
     @Test fun `Stalker freshness reads Stalker jobs rather than Xtream jobs`() = runTest {
         snapshot(StalkerConfig(portalUrl = "https://example.test", device = StalkerDeviceIdentity(macAddress = "00:11:22:33:44:55"), catalogMode = StalkerCatalogMode.BACKGROUND_INDEX))
         whenever(metadata.getMetadata(7L)).thenReturn(fresh.copy(lastMovieSuccess = 0, lastSeriesSuccess = 0))

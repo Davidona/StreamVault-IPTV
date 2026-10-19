@@ -1926,6 +1926,40 @@ class OkHttpStalkerApiServiceTest {
     }
 
     @Test
+    fun getVodStreamsPageAtPortalPage_preserves_zero_based_probe_cursor() = runTest {
+        var requestedPage: String? = null
+        val service = OkHttpStalkerApiService(
+            okHttpClient = OkHttpClient.Builder()
+                .addInterceptor { chain ->
+                    requestedPage = chain.request().url.queryParameter("p")
+                    Response.Builder()
+                        .request(chain.request())
+                        .protocol(Protocol.HTTP_1_1)
+                        .code(200)
+                        .message("OK")
+                        .body(
+                            """{"js":{"total_items":2,"max_page_items":1,"data":[{"id":"1","name":"First movie","category_id":"42","cmd":"ffmpeg http://example.com/movie.mp4"}]}}"""
+                                .toResponseBody("application/json".toMediaType())
+                        )
+                        .build()
+                }
+                .build(),
+            json = Json { ignoreUnknownKeys = true }
+        )
+
+        val result = service.getVodStreamsPageAtPortalPage(
+            stalkerSession(),
+            stalkerProfile(),
+            categoryId = "42",
+            portalPage = 0
+        )
+
+        assertThat(result).isInstanceOf(Result.Success::class.java)
+        assertThat(requestedPage).isEqualTo("0")
+        assertThat((result as Result.Success).data.page).isEqualTo(0)
+    }
+
+    @Test
     fun getVodFiles_requests_movie_files_by_movie_id() = runTest {
         var requestedMovieId: String? = null
         var requestedAction: String? = null

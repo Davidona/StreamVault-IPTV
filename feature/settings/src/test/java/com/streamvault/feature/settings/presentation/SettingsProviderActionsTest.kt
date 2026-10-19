@@ -18,6 +18,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.runCurrent
 import org.junit.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doThrow
@@ -41,6 +42,9 @@ class SettingsProviderActionsTest {
     private val requestedSyncs = mutableListOf<Long>()
 
     private val actions = SettingsProviderActions(
+        appContext = mock<android.content.Context>(defaultAnswer = org.mockito.stubbing.Answer { call ->
+            if (call.method.name == "getString") "Localized" else org.mockito.Answers.RETURNS_DEFAULTS.answer(call)
+        }),
         providerRepository = providerRepository,
         combinedM3uRepository = combinedM3uRepository,
         preferencesRepository = preferencesRepository,
@@ -51,6 +55,28 @@ class SettingsProviderActionsTest {
         uiState = uiState,
         onSyncRequested = { _, provider -> requestedSyncs += provider.id }
     )
+
+    @Test fun rebuildRemainsVisibleUntilBothDurableSectionsComplete() = runTest {
+        whenever(providerRepository.getProvider(7L)).thenReturn(Provider(
+            id = 7L, name = "Xtream", type = ProviderType.XTREAM_CODES, serverUrl = "https://example.test"
+        ))
+        whenever(preferencesRepository.getXtreamTextImportGeneration()).thenReturn(0L)
+        whenever(preferencesRepository.getXtreamTextImportAppliedGeneration(7L)).thenReturn(0L)
+        whenever(settingsOperations.rebuildXtreamIndex(eq(7L), any())).thenReturn(
+            Result.success(ProviderSectionSyncResult(queued = true))
+        )
+        val jobs = MutableStateFlow(listOf(
+            com.streamvault.domain.settings.SettingsXtreamIndexJob(7L, "MOVIE", "QUEUED", 0, null),
+            com.streamvault.domain.settings.SettingsXtreamIndexJob(7L, "SERIES", "QUEUED", 0, null)
+        ))
+        whenever(settingsOperations.observeXtreamIndexJobs()).thenReturn(jobs)
+        actions.rebuildProviderIndex(this, 7L).start()
+        runCurrent()
+        assertThat(uiState.value.isSyncing).isTrue()
+        jobs.value = jobs.value.map { it.copy(state = "SUCCESS", indexedRows = 20) }
+        advanceUntilIdle()
+        assertThat(uiState.value.isSyncing).isFalse()
+    }
 
     @Test
     fun successfulManualLiveRefreshPreventsRepeatedSyncOnProviderSwitch() = runTest {

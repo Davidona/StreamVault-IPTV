@@ -105,19 +105,28 @@
     <string name="settings_drive_choose_backup_subtitle" translatable="false">Select a saved snapshot to preview and restore.</string>
     <string name="settings_drive_cancel_backup_choice" translatable="false">Cancel backup choice</string>
     <string name="setup_import_from_drive">Importovať z Disku</string>
-    <string name="stalker_transport_invalid_tls_title" translatable="false">This provider\'s security certificate can\'t be verified</string>
-    <string name="stalker_transport_invalid_tls_body" translatable="false">The connection to %1$s may still be encrypted, but the app can\'t confirm it is really this provider. Someone on the network could read your login or stream details.</string>
-    <string name="stalker_transport_http_title" translatable="false">This provider uses an unencrypted connection</string>
-    <string name="stalker_transport_http_body" translatable="false">Your login and viewing requests to %1$s can be read or changed by someone on the network.</string>
-    <string name="stalker_transport_origin_changed_title" translatable="false">This provider wants to use a different address</string>
-    <string name="stalker_transport_origin_changed_body" translatable="false">The provider redirected the connection to %1$s. Continue only if you recognize this address.</string>
-    <string name="stalker_transport_go_back" translatable="false">Go back</string>
-    <string name="stalker_transport_connect_anyway" translatable="false">Connect anyway</string>
-    <string name="stalker_verification_inconclusive_title" translatable="false">Live TV could not be verified</string>
-    <string name="stalker_verification_inconclusive_body" translatable="false">The provider accepted your login, but the Live TV check did not finish. You can save it with verification pending; it will remain inactive until a sync confirms playable Live TV.</string>
-    <string name="stalker_save_without_verification" translatable="false">Save without verification</string>
+    <string name="stalker_transport_invalid_tls_title">Bezpečnostný certifikát tohto poskytovateľa sa nedá overiť</string>
+    <string name="stalker_transport_invalid_tls_body">Pripojenie k %1$s môže byť stále šifrované, ale aplikácia nemôže potvrdiť, že skutočne patrí tomuto poskytovateľovi. Niekto v sieti by mohol čítať vaše prihlasovacie údaje alebo podrobnosti o streame.</string>
+    <string name="stalker_transport_http_title">Tento poskytovateľ používa nešifrované pripojenie</string>
+    <string name="stalker_transport_http_body">Niekto v sieti môže čítať alebo meniť vaše požiadavky na prihlásenie a prehrávanie smerované na %1$s.</string>
+    <string name="stalker_transport_origin_changed_title">Tento poskytovateľ chce použiť inú adresu</string>
+    <string name="stalker_transport_origin_changed_body">Poskytovateľ presmeroval pripojenie na %1$s. Pokračujte len vtedy, ak túto adresu poznáte.</string>
+    <string name="stalker_transport_go_back">Späť</string>
+    <string name="stalker_transport_connect_anyway">Napriek tomu pripojiť</string>
+    <string name="stalker_verification_inconclusive_title">Živú televíziu sa nepodarilo overiť</string>
+    <string name="stalker_verification_inconclusive_body">Poskytovateľ prijal vaše prihlásenie, ale kontrola živej televízie sa nedokončila. Môžete ju uložiť s čakajúcim overením; zostane neaktívna, kým synchronizácia nepotvrdí, že sa živá televízia dá prehrávať.</string>
+    <string name="stalker_save_without_verification">Uložiť bez overenia</string>
     <string name="stalker_repair_connection" translatable="false">Repair connection</string>
     <string name="setup_phone_pairing_security_warning">Zabezpečenie: Pri párovaní sa prihlasovacie údaje odosielajú cez miestnu sieť bez šifrovania. Používajte iba dôveryhodnú súkromnú Wi-Fi sieť.</string>
     <string name="setup_phone_pairing_error_help">Párovanie sa nepodarilo dokončiť. Skontrolujte údaje poskytovateľa a skúste to znova. Ak platnosť QR relácie vypršala, spustite na televízore novú.</string>
     <string name="setup_phone_pairing_mac_label">MAC adresa</string>
+    <string name="setup_phone_pairing_continue_on_tv">Pokračujte na televízore a skontrolujte a dokončite tento krok.</string>
+    <string name="setup_phone_pairing_stalker_certificate_error">Certifikát sa nepodarilo bezpečne skontrolovať. Skontrolujte toto pripojenie na televízore.</string>
+
+    <string name="setup_stalker_catalog_title">Katalóg filmov a seriálov</string>
+    <string name="setup_stalker_catalog_description">Je oddelený od TV programu. Indexovanie na pozadí po nastavení vytvorí prehľadávateľný katalóg.</string>
+    <string name="setup_stalker_catalog_on_demand_title">Na požiadanie</string>
+    <string name="setup_stalker_catalog_on_demand_description">Police a kategórie sa načítajú po otvorení. Tituly vo vyrovnávacej pamäti zostanú zachované.</string>
+    <string name="setup_stalker_catalog_background_title">Úplné indexovanie na pozadí (odporúčané)</string>
+    <string name="setup_stalker_catalog_background_description">Najprv dokončite nastavenie poskytovateľa a potom na pozadí zaindexujte všetky filmy a seriály, aby sa dali vyhľadávať.</string>
 </resources>

@@ -564,6 +564,12 @@ internal class ProviderEpgSyncExecutor(
                 epgSourceRepository.resolveForProvider(provider.id, hiddenLiveCategoryIds)
             }
         }
+        if (provider.guideSourcePolicy == GuideSourcePolicy.EXTERNAL_ONLY && warnings.isEmpty() && !hasRetryableFailure) {
+            val current = syncMetadataRepository.getMetadata(provider.id) ?: metadata
+            syncMetadataRepository.updateMetadata(current.copy(
+                lastEpgSync = now, lastEpgSuccess = now, epgCount = programDao.countByProvider(provider.id)
+            ))
+        }
         return ProviderGuideSyncResult(warnings, hasRetryableFailure)
     }
 

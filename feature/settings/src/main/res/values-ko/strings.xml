@@ -936,4 +936,5 @@
     <string name="settings_sports_custom_definition_file_too_large">JSON 파일이 32KB 제한을 초과합니다</string>
     <string name="settings_sports_custom_definition_file_error">이 JSON 파일을 불러오지 못했습니다</string>
     <string name="settings_experimental_badge">실험적 기능</string>
+    <string name="settings_sync_index_progress">%1$s · %2$s</string>
 </resources>

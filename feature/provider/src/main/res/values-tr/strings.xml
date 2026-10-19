@@ -105,4 +105,24 @@
     <string name="setup_phone_pairing_security_warning">Güvenlik: Eşleştirme, oturum açma bilgilerini yerel ağınız üzerinden şifrelemeden gönderir. Yalnızca güvendiğiniz özel bir Wi-Fi ağı kullanın.</string>
     <string name="setup_phone_pairing_error_help">Eşleştirme tamamlanamadı. Sağlayıcı bilgilerini kontrol edip yeniden deneyin. QR oturumunun süresi dolduysa TV’de yeni bir oturum başlatın.</string>
     <string name="setup_phone_pairing_mac_label">MAC adresi</string>
+    <string name="setup_phone_pairing_continue_on_tv">Bu adımı inceleyip tamamlamak için TV\'de devam edin.</string>
+    <string name="setup_phone_pairing_stalker_certificate_error">Sertifika güvenli şekilde denetlenemedi. Bu bağlantıyı TV\'de inceleyin.</string>
+    <string name="stalker_transport_invalid_tls_title">Bu sağlayıcının güvenlik sertifikası doğrulanamıyor</string>
+    <string name="stalker_transport_invalid_tls_body">%1$s bağlantısı hâlâ şifreli olabilir ancak uygulama bunun gerçekten bu sağlayıcıya ait olduğunu doğrulayamıyor. Ağdaki biri oturum açma veya yayın ayrıntılarınızı okuyabilir.</string>
+    <string name="stalker_transport_http_title">Bu sağlayıcı şifrelenmemiş bağlantı kullanıyor</string>
+    <string name="stalker_transport_http_body">Ağdaki biri %1$s adresine gönderdiğiniz oturum açma ve izleme isteklerini okuyabilir veya değiştirebilir.</string>
+    <string name="stalker_transport_origin_changed_title">Bu sağlayıcı farklı bir adres kullanmak istiyor</string>
+    <string name="stalker_transport_origin_changed_body">Sağlayıcı bağlantıyı %1$s adresine yönlendirdi. Yalnızca bu adresi tanıyorsanız devam edin.</string>
+    <string name="stalker_verification_inconclusive_title">Canlı TV doğrulanamadı</string>
+    <string name="stalker_verification_inconclusive_body">Sağlayıcı oturum açmanızı kabul etti ancak Canlı TV denetimi tamamlanmadı. Doğrulama beklemedeyken kaydedebilirsiniz; eşitleme Canlı TV\'nin oynatılabildiğini doğrulayana kadar etkin olmayacaktır.</string>
+    <string name="stalker_transport_go_back">Geri dön</string>
+    <string name="stalker_transport_connect_anyway">Yine de bağlan</string>
+    <string name="stalker_save_without_verification">Doğrulamadan kaydet</string>
+
+    <string name="setup_stalker_catalog_title">Film ve dizi kataloğu</string>
+    <string name="setup_stalker_catalog_description">Program rehberinden ayrıdır. Arka plan dizin oluşturma, kurulumdan sonra aranabilir bir katalog hazırlar.</string>
+    <string name="setup_stalker_catalog_on_demand_title">İsteğe bağlı</string>
+    <string name="setup_stalker_catalog_on_demand_description">Rafları ve kategorileri açıldıklarında yükler. Önbelleğe alınan başlıkları korur.</string>
+    <string name="setup_stalker_catalog_background_title">Tam arka plan dizini (önerilen)</string>
+    <string name="setup_stalker_catalog_background_description">Önce sağlayıcı kurulumunu tamamlayın, ardından aranabilmeleri için tüm filmleri ve dizileri arka planda dizine ekleyin.</string>
 </resources>

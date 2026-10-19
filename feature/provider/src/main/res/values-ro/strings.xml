@@ -105,4 +105,24 @@
     <string name="setup_phone_pairing_security_warning">Securitate: Asocierea trimite datele de conectare necriptate prin rețeaua locală. Folosiți numai o rețea Wi-Fi privată și de încredere.</string>
     <string name="setup_phone_pairing_error_help">Asocierea nu a putut fi finalizată. Verificați datele furnizorului și încercați din nou. Dacă sesiunea QR a expirat, porniți una nouă pe televizor.</string>
     <string name="setup_phone_pairing_mac_label">Adresă MAC</string>
+    <string name="setup_phone_pairing_continue_on_tv">Continuă pe televizor pentru a verifica și a finaliza acest pas.</string>
+    <string name="setup_phone_pairing_stalker_certificate_error">Certificatul nu a putut fi verificat în siguranță. Verifică această conexiune pe televizor.</string>
+    <string name="stalker_transport_invalid_tls_title">Certificatul de securitate al acestui furnizor nu poate fi verificat</string>
+    <string name="stalker_transport_invalid_tls_body">Este posibil ca legătura cu %1$s să fie în continuare criptată, dar aplicația nu poate confirma că aparține într-adevăr acestui furnizor. Cineva din rețea ar putea citi datele de conectare sau detaliile fluxului.</string>
+    <string name="stalker_transport_http_title">Acest furnizor folosește o conexiune necriptată</string>
+    <string name="stalker_transport_http_body">Cineva din rețea poate citi sau modifica solicitările de conectare și redare către %1$s.</string>
+    <string name="stalker_transport_origin_changed_title">Acest furnizor dorește să folosească o altă adresă</string>
+    <string name="stalker_transport_origin_changed_body">Furnizorul a redirecționat conexiunea către %1$s. Continuă doar dacă recunoști această adresă.</string>
+    <string name="stalker_verification_inconclusive_title">Televiziunea în direct nu a putut fi verificată</string>
+    <string name="stalker_verification_inconclusive_body">Furnizorul a acceptat autentificarea, dar verificarea televiziunii în direct nu s-a încheiat. O poți salva cu verificarea în așteptare; va rămâne inactivă până când o sincronizare confirmă că televiziunea în direct poate fi redată.</string>
+    <string name="stalker_transport_go_back">Înapoi</string>
+    <string name="stalker_transport_connect_anyway">Conectează oricum</string>
+    <string name="stalker_save_without_verification">Salvează fără verificare</string>
+
+    <string name="setup_stalker_catalog_title">Catalog de filme și seriale</string>
+    <string name="setup_stalker_catalog_description">Este separat de ghidul TV. Indexarea în fundal creează un catalog în care poți căuta după configurare.</string>
+    <string name="setup_stalker_catalog_on_demand_title">La cerere</string>
+    <string name="setup_stalker_catalog_on_demand_description">Încarcă rafturile și categoriile când sunt deschise. Păstrează titlurile din memoria cache.</string>
+    <string name="setup_stalker_catalog_background_title">Indexare completă în fundal (recomandată)</string>
+    <string name="setup_stalker_catalog_background_description">Finalizează mai întâi configurarea furnizorului, apoi indexează în fundal toate filmele și serialele pentru a le putea căuta.</string>
 </resources>

@@ -2,6 +2,24 @@
 
 All notable product changes are recorded in this document.
 
+## [1.2.1]
+
+### Changed
+- Removed Trakt badge from player when not logged in.
+- Crash diagnostics now retain the five most recent reports, removing the oldest as new reports are saved.
+
+### Fixed
+- QR pairing now routes Xtream `get.php` URLs with embedded credentials through the same URL setup flow as manual entry.
+- QR pairing now shows provider-specific setup errors, and presents Stalker transport or verification review as a continue-on-TV state with native setup dialogs.
+- Fixed aspect ratio button causing crash in VOD.
+- Fixed provider observation and switching crashes on devices where saved credentials cannot be decrypted by using redacted provider projections and returning credential errors from guide fallback requests.
+- Fixed credential encryption fallback changing key sources after an update: an existing software key remains preferred, encryption retries with the alternate key when either cipher fails, and provider credentials recovered through the alternate key are re-encrypted with the preferred key.
+- Fixed Settings Sync Now for Xtream providers so movie and series indexing is not cancelled by a competing section request, and progress remains visible until indexing finishes.
+- Fixed automatic sync for existing providers after upgrade: catalogs that predate the updated sync engine are caught up, and overdue checks are requested when the app opens or returns to the foreground.
+- Fixed scheduled index work when sync policies change, pending Live sections, and rebuilding an index for all provider sections.
+- Fixed complete M3U refreshes and manual guide sync so they reconcile the selected catalog sections and fetch fresh guide data.
+- Fixed Stalker VOD refreshes to invalidate completed category caches so newly added movies and series can be fetched.
+
 ## [1.2.0]
 
 ### Added
@@ -41,7 +59,6 @@ All notable product changes are recorded in this document.
 - Fixed QR provider pairing session cleanup and request validation, including expired sessions, malformed or oversized submissions, slow clients, and duplicate submissions.
 - Fixed the VOD playback settings sheet remaining visible over picture-in-picture playback.
 - Fixed live channels in custom groups showing **Add** instead of **Remove** in the channel options dialog.
-- Fixed provider observation crashes on devices where saved credentials cannot be decrypted by skipping unnecessary credential decryption in public provider projections.
 - Fixed successful new-provider setup staying on Add Provider; new providers now navigate to Home, while edits return to the previous screen.
 - Fixed repeated stream restarts during network outages and unnecessary recovery from nonfatal audio errors.
 - Fixed stalled live playback recovery to refresh the live window without interrupting active network retries.

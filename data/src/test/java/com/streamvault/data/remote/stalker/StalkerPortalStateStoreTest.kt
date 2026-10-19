@@ -18,6 +18,23 @@ import java.util.Base64
 
 class StalkerPortalStateStoreTest {
     @Test
+    fun `VOD page base is persisted and isolated by configuration generation`() = runTest {
+        val store = StalkerPortalStateStore(FakePortalStateDao(), TestCredentialCrypto())
+
+        store.recordVodPageBase(providerId = 42L, pageBase = 0, configurationGeneration = 7L)
+
+        assertThat(store.getVodPageBase(providerId = 42L, configurationGeneration = 7L)).isEqualTo(0)
+        assertThat(store.getVodPageBase(providerId = 42L, configurationGeneration = 8L)).isNull()
+        val learning = Json.parseToJsonElement(requireNotNull(store.get(42L)).learningJson).jsonObject
+        assertThat(learning.getValue("vodPageBase").jsonObject.getValue("source").jsonPrimitive.content)
+            .isEqualTo("CATALOG")
+
+        store.recordVodPageBase(providerId = 42L, pageBase = 1, configurationGeneration = 7L)
+        assertThat(store.getVodPageBase(providerId = 42L, configurationGeneration = 7L)).isEqualTo(1)
+        assertThat(store.getVodPageBase(providerId = 42L, configurationGeneration = 8L)).isNull()
+    }
+
+    @Test
     fun `rate limit cooldown is persisted independently and can be cleared`() = runTest {
         val dao = FakePortalStateDao()
         val store = StalkerPortalStateStore(dao, TestCredentialCrypto())

@@ -6,6 +6,8 @@ import com.streamvault.feature.settings.api.SettingsSurfaceRefreshPort
 import com.streamvault.domain.settings.SettingsOperations
 import com.streamvault.domain.settings.SettingsSyncSection
 import com.streamvault.domain.model.Result
+import com.streamvault.domain.model.ProviderType
+import com.streamvault.domain.settings.SettingsXtreamIndexJob
 import com.streamvault.domain.model.LegacyProvider as Provider
 import com.streamvault.domain.sync.ProviderSectionSyncResult
 import kotlinx.coroutines.CoroutineScope
@@ -14,6 +16,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
@@ -125,20 +128,24 @@ internal class SettingsSyncActions(
         try {
             val failures = mutableListOf<String>()
             val completed = mutableListOf<String>()
+            val queuedCatalogSections = mutableSetOf<ProviderSyncSelection>()
+            val combinedPlaylist = uiState.value.providers.firstOrNull { it.id == providerId }?.type == ProviderType.M3U &&
+                ProviderSyncSelection.TV in selections && ProviderSyncSelection.MOVIES in selections
             if (queueEpg) {
                 // A changed text-decoding preference intentionally rebuilds Xtream indexes;
                 // ordinary refreshes retain their existing checkpoints.
                 when (val preparation = prepareRefresh(providerId)) {
                     is Result.Success -> {
                         hasQueuedWork = preparation.data.queued
-                        failures += preparation.data.warnings
+                        if (preparation.data.partial || preparation.data.warnings.isNotEmpty()) failures += appContext.getString(R.string.settings_sync_incomplete)
                     }
-                    is Result.Error -> failures += preparation.message
+                    is Result.Error -> failures += appContext.getString(R.string.settings_sync_incomplete)
                     Result.Loading -> failures += appContext.getString(R.string.settings_sync_no_result)
                 }
             }
             selections.forEach { selection ->
                 currentCoroutineContext().ensureActive()
+                if (combinedPlaylist && selection == ProviderSyncSelection.MOVIES) return@forEach
                 val sectionLabel = selection.label(appContext)
                 val section = when (selection) {
                     ProviderSyncSelection.TV -> SettingsSyncSection.LIVE
@@ -159,25 +166,35 @@ internal class SettingsSyncActions(
                     completed += appContext.getString(R.string.settings_sync_section_queued, sectionLabel)
                     return@forEach
                 }
-                when (val result = settingsOperations.syncProviderSection(providerId, section) { progress ->
-                    uiState.update { it.copy(syncProgress = progress) }
-                }) {
-                    is Result.Error -> failures += "$sectionLabel: ${result.message}"
+                val onProgress: (String) -> Unit = {
+                    uiState.update { it.copy(syncProgress = appContext.getString(R.string.settings_syncing_section, sectionLabel)) }
+                }
+                val result = if (combinedPlaylist && section == SettingsSyncSection.LIVE) {
+                    settingsOperations.syncPlaylistCatalog(providerId, onProgress)
+                } else settingsOperations.syncProviderSection(providerId, section, onProgress)
+                when (result) {
+                    is Result.Error -> failures += appContext.getString(R.string.settings_sync_incomplete)
                     Result.Loading -> failures += "$sectionLabel: ${appContext.getString(R.string.settings_sync_no_result)}"
                     is Result.Success -> {
                         val receipt = result.data
                         hasQueuedWork = hasQueuedWork || receipt.queued
+                        if (receipt.queued && selection in setOf(ProviderSyncSelection.MOVIES, ProviderSyncSelection.SERIES)) {
+                            queuedCatalogSections += selection
+                        }
                         if (section == SettingsSyncSection.LIVE && receipt.catalogChanged) {
                             // Refresh TV integration immediately, even if a later section is cancelled.
                             surfaceRefreshPort.enqueueTvInputCatalogRefresh()
                         }
-                        val warnings = receipt.warnings.ifEmpty {
-                            if (receipt.partial) listOf(appContext.getString(R.string.settings_sync_incomplete)) else emptyList()
-                        }.map { "$sectionLabel: $it" }
+                        // Provider diagnostics retain technical details. Product messages
+                        // are rendered from this module's localized resources.
+                        val warnings = if (receipt.partial || receipt.warnings.isNotEmpty()) {
+                            listOf(appContext.getString(R.string.settings_sync_index_progress,
+                                sectionLabel, appContext.getString(R.string.settings_sync_incomplete)))
+                        } else emptyList()
                         uiState.update { state ->
                             val previous = state.syncWarningsByProvider[providerId].orEmpty()
                             val updated = if (receipt.queued) previous + warnings else {
-                                previous.filterNot { it.startsWith("$sectionLabel:") } + warnings
+                                previous.filterNot { it.startsWith("$sectionLabel:") || it.startsWith("$sectionLabel ·") } + warnings
                             }.distinct()
                             state.copy(syncWarningsByProvider = if (updated.isEmpty()) {
                                 state.syncWarningsByProvider - providerId
@@ -188,8 +205,40 @@ internal class SettingsSyncActions(
                             completed += if (receipt.queued) {
                                 appContext.getString(R.string.settings_sync_section_queued, sectionLabel)
                             } else sectionLabel
+                            if (combinedPlaylist && section == SettingsSyncSection.LIVE) {
+                                completed += ProviderSyncSelection.MOVIES.label(appContext)
+                            }
                         }
                     }
+                }
+            }
+            if (queuedCatalogSections.isNotEmpty()) {
+                val sections = queuedCatalogSections.associateBy {
+                    if (it == ProviderSyncSelection.MOVIES) "MOVIE" else "SERIES"
+                }
+                val jobs = awaitSettingsCatalogIndex(settingsOperations, providerId, sections.keys) { job ->
+                    val selection = sections.getValue(job.section)
+                    val stage = if (job.state in setOf("QUEUED", "STALE", "RETRY_WAIT")) R.string.settings_sync_section_queued
+                        else R.string.settings_syncing_section
+                    uiState.update { it.copy(
+                        syncSectionLabel = selection.label(appContext),
+                        syncProgress = appContext.getString(R.string.settings_sync_index_progress,
+                            appContext.getString(stage, selection.label(appContext)),
+                            java.text.NumberFormat.getIntegerInstance().format(job.indexedRows))
+                    ) }
+                }
+                sections.forEach { (key, selection) ->
+                    completed.remove(appContext.getString(R.string.settings_sync_section_queued, selection.label(appContext)))
+                    if (jobs.any { it.section == key && it.state in setOf("SUCCESS", "COMPLETE") }) {
+                        completed += selection.label(appContext)
+                        uiState.update { state ->
+                            val warnings = state.syncWarningsByProvider[providerId].orEmpty().filterNot {
+                                it.startsWith("${selection.label(appContext)}:") || it.startsWith("${selection.label(appContext)} ·")
+                            }
+                            state.copy(syncWarningsByProvider = if (warnings.isEmpty()) state.syncWarningsByProvider - providerId
+                                else state.syncWarningsByProvider + (providerId to warnings))
+                        }
+                    } else failures += appContext.getString(R.string.settings_sync_incomplete)
                 }
             }
             uiState.update {
@@ -213,7 +262,7 @@ internal class SettingsSyncActions(
             }
             throw e
         } catch (e: Exception) {
-            uiState.update { it.copy(userMessage = appContext.getString(R.string.settings_sync_failed, e.message.orEmpty())) }
+            uiState.update { it.copy(userMessage = appContext.getString(R.string.settings_sync_failed, appContext.getString(R.string.settings_sync_incomplete))) }
         } finally {
             uiState.update {
                 it.copy(
@@ -223,4 +272,19 @@ internal class SettingsSyncActions(
             }
         }
     }
+}
+
+/** Foreground ownership lasts until durable indexing terminates; cancelling only stops waiting. */
+internal suspend fun awaitSettingsCatalogIndex(
+    operations: SettingsOperations,
+    providerId: Long,
+    sections: Set<String>,
+    onProgress: (SettingsXtreamIndexJob) -> Unit
+): List<SettingsXtreamIndexJob> {
+    val terminal = setOf("SUCCESS", "COMPLETE", "PARTIAL", "TRUNCATED", "FAILED", "FAILED_RETRYABLE", "FAILED_PERMANENT")
+    return operations.observeXtreamIndexJobs().first { all ->
+        val jobs = all.filter { it.providerId == providerId && it.section in sections }
+        jobs.firstOrNull { it.state !in terminal }?.let(onProgress)
+        jobs.size < sections.size || jobs.all { it.state in terminal }
+    }.filter { it.providerId == providerId && it.section in sections }
 }

@@ -28,7 +28,8 @@ internal fun decodeProviderConfigurationCompat(
     credentialCrypto: CredentialCrypto,
     type: ProviderType,
     payload: String,
-    decryptCredentials: Boolean = true
+    decryptCredentials: Boolean = true,
+    onCredentialReencrypted: (() -> Unit)? = null
 ): ProviderConfiguration {
     val payloadHasType = gson.fromJson(payload, Map::class.java)?.containsKey("type") == true
     val decoded = when (type) {
@@ -53,10 +54,19 @@ internal fun decodeProviderConfigurationCompat(
 
     if (!decryptCredentials) return normalized
 
+    fun decryptCredential(encryptedValue: String): String {
+        if (onCredentialReencrypted == null) {
+            return credentialCrypto.decryptIfNeeded(encryptedValue)
+        }
+        val result = credentialCrypto.decryptWithKeyMigration(encryptedValue)
+        if (result.requiresReencryption) onCredentialReencrypted()
+        return result.cleartext
+    }
+
     return when (normalized) {
-        is XtreamConfig -> normalized.copy(password = credentialCrypto.decryptIfNeeded(normalized.password))
+        is XtreamConfig -> normalized.copy(password = decryptCredential(normalized.password))
         is M3uConfig -> normalized
-        is StalkerConfig -> normalized.copy(password = credentialCrypto.decryptIfNeeded(normalized.password))
-        is JellyfinConfig -> normalized.copy(credential = credentialCrypto.decryptIfNeeded(normalized.credential))
+        is StalkerConfig -> normalized.copy(password = decryptCredential(normalized.password))
+        is JellyfinConfig -> normalized.copy(credential = decryptCredential(normalized.credential))
     }
 }

@@ -6,6 +6,7 @@ import com.streamvault.domain.model.CatalogLayout
 import com.streamvault.domain.model.ContentType
 import com.streamvault.domain.model.Movie
 import com.streamvault.domain.model.Series
+import com.streamvault.domain.model.VodCatalogItem
 import java.security.MessageDigest
 
 /** Durable state projected into the decisions made by the Stalker index worker. */
@@ -218,8 +219,21 @@ internal object StalkerIndexPolicy {
         contentType: ContentType,
         visibleCategoryIds: Set<Long>?
     ): List<out Any> = when (contentType) {
-        ContentType.MOVIE -> items.filterIsInstance<Movie>().filter { movie ->
-            visibleCategoryIds == null || movie.categoryId in visibleCategoryIds
+        ContentType.MOVIE -> {
+            val classified = items.filterIsInstance<StalkerVodCatalogItem>()
+            if (classified.isNotEmpty()) {
+                classified.filter { entry ->
+                    val categoryId = when (val item = entry.item) {
+                        is VodCatalogItem.MovieItem -> item.movie.categoryId
+                        is VodCatalogItem.SeriesItem -> item.series.categoryId
+                    }
+                    visibleCategoryIds == null || categoryId in visibleCategoryIds
+                }
+            } else {
+                items.filterIsInstance<Movie>().filter { movie ->
+                    visibleCategoryIds == null || movie.categoryId in visibleCategoryIds
+                }
+            }
         }
         ContentType.SERIES -> items.filterIsInstance<Series>().filter { series ->
             visibleCategoryIds == null || series.categoryId in visibleCategoryIds

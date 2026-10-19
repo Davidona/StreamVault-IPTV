@@ -105,4 +105,24 @@
     <string name="setup_phone_pairing_security_warning">Zabezpečení: Při párování se přihlašovací údaje odesílají přes místní síť bez šifrování. Používejte pouze důvěryhodnou soukromou Wi-Fi síť.</string>
     <string name="setup_phone_pairing_error_help">Párování se nepodařilo dokončit. Zkontrolujte údaje poskytovatele a zkuste to znovu. Pokud platnost QR relace vypršela, spusťte na televizoru novou.</string>
     <string name="setup_phone_pairing_mac_label">MAC adresa</string>
+    <string name="setup_phone_pairing_continue_on_tv">Pokračujte na televizoru a zkontrolujte a dokončete tento krok.</string>
+    <string name="setup_phone_pairing_stalker_certificate_error">Certifikát nebylo možné bezpečně zkontrolovat. Toto připojení zkontrolujte na televizoru.</string>
+    <string name="stalker_transport_invalid_tls_title">Bezpečnostní certifikát tohoto poskytovatele nelze ověřit</string>
+    <string name="stalker_transport_invalid_tls_body">Připojení k %1$s může být stále šifrované, ale aplikace nemůže potvrdit, že skutečně patří tomuto poskytovateli. Někdo v síti by mohl číst vaše přihlašovací údaje nebo podrobnosti o streamu.</string>
+    <string name="stalker_transport_http_title">Tento poskytovatel používá nešifrované připojení</string>
+    <string name="stalker_transport_http_body">Někdo v síti může číst nebo měnit vaše požadavky na přihlášení a přehrávání vůči %1$s.</string>
+    <string name="stalker_transport_origin_changed_title">Tento poskytovatel chce použít jinou adresu</string>
+    <string name="stalker_transport_origin_changed_body">Poskytovatel přesměroval připojení na %1$s. Pokračujte pouze tehdy, pokud tuto adresu poznáváte.</string>
+    <string name="stalker_verification_inconclusive_title">Živé vysílání se nepodařilo ověřit</string>
+    <string name="stalker_verification_inconclusive_body">Poskytovatel přijal vaše přihlášení, ale kontrola živého vysílání nebyla dokončena. Můžete zdroj uložit s čekajícím ověřením; zůstane neaktivní, dokud synchronizace nepotvrdí, že lze živé vysílání přehrát.</string>
+    <string name="stalker_transport_go_back">Zpět</string>
+    <string name="stalker_transport_connect_anyway">Přesto se připojit</string>
+    <string name="stalker_save_without_verification">Uložit bez ověření</string>
+
+    <string name="setup_stalker_catalog_title">Katalog filmů a seriálů</string>
+    <string name="setup_stalker_catalog_description">Je oddělený od televizního programu. Po nastavení vytvoří index na pozadí katalog, ve kterém lze vyhledávat.</string>
+    <string name="setup_stalker_catalog_on_demand_title">Na vyžádání</string>
+    <string name="setup_stalker_catalog_on_demand_description">Police a kategorie načítá při otevření. Uložené tituly ponechá v mezipaměti.</string>
+    <string name="setup_stalker_catalog_background_title">Úplné indexování na pozadí (doporučeno)</string>
+    <string name="setup_stalker_catalog_background_description">Nejprve dokončí nastavení poskytovatele a pak na pozadí zaindexuje všechny filmy a seriály pro vyhledávání.</string>
 </resources>
