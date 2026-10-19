@@ -37,6 +37,7 @@ import java.time.ZoneId
 import kotlinx.coroutines.async
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.currentCoroutineContext
@@ -82,6 +83,14 @@ internal fun shouldRefreshSportsOnClock(
     dateChanged: Boolean,
 ): Boolean = range == SportsTimeRange.ON_NOW || hasLiveEvents || dateChanged
 
+/** Keep background work on the same scheduler as Main in repository tests. */
+internal class SportsHubDispatchers(
+    val default: CoroutineDispatcher,
+    val io: CoroutineDispatcher,
+) {
+    @Inject constructor() : this(Dispatchers.Default, Dispatchers.IO)
+}
+
 @Singleton
 @OptIn(ExperimentalCoroutinesApi::class)
 internal class SportsHubRepository @Inject constructor(
@@ -104,6 +113,7 @@ internal class SportsHubRepository @Inject constructor(
     private val sportsMetadataSourceSettings: SportsMetadataSourceSettings,
     private val sportsProviderEventResolver: SportsProviderEventResolver,
     applicationScope: CoroutineScope,
+    private val dispatchers: SportsHubDispatchers,
 ) {
     private val scope = CoroutineScope(applicationScope.coroutineContext + Dispatchers.Main.immediate)
     private val _uiState = MutableStateFlow(SportsHubUiState())
@@ -210,7 +220,7 @@ internal class SportsHubRepository @Inject constructor(
                                 initialSnapshot = false
                             }
                         }
-                    }.distinctUntilChanged().flowOn(Dispatchers.Default)
+                    }.distinctUntilChanged().flowOn(dispatchers.default)
                 }) { it.toList() }
             }
         }.distinctUntilChanged().retryWhen { _, _ ->
@@ -389,7 +399,7 @@ internal class SportsHubRepository @Inject constructor(
             val cachedEvents = cacheKey?.let(::cachedEventsFor)
             val (baseEvents, reusableProviderEvents) = cachedEvents?.let { cached ->
                 cached.events to cached.providerEvents
-            } ?: withContext(Dispatchers.Default) {
+            } ?: withContext(dispatchers.default) {
                 val (requestFromMillis, requestUntilMillis) = providerEventRequestWindow(range, now, window)
                 availableChannelEntries = providerChannels.flatMap { provider ->
                     provider.channels.map { SportsChannelIndexEntry(it, provider.combinedProfileId) }
@@ -493,7 +503,7 @@ internal class SportsHubRepository @Inject constructor(
                 selectedEventProviderInstanceId,
             )
             val (requestFromMillis, requestUntilMillis) = providerEventRequestWindow(range, now, window)
-            val scoreLoad = withContext(Dispatchers.Default) {
+            val scoreLoad = withContext(dispatchers.default) {
                 withTimeoutOrNull(ENRICHMENT_TIMEOUT_MS) { sportsProviderScoreSourceRouter.load(
                     providers = scoreProviders,
                     reusableEventLoad = reusableProviderEvents,
@@ -518,7 +528,7 @@ internal class SportsHubRepository @Inject constructor(
                     )
                 }
             }
-            val resolvedEvents = withContext(Dispatchers.Default) {
+            val resolvedEvents = withContext(dispatchers.default) {
                 val scoreResolutionStartedAt = SystemClock.elapsedRealtime()
                 val resolved = sportsProviderEventResolver.resolve(
                     epgEvents = baseEvents,
@@ -544,7 +554,7 @@ internal class SportsHubRepository @Inject constructor(
                 ),
             )
             publishEvents(resolvedEvents, range, now, window)
-            val metadata = withContext(Dispatchers.Default) {
+            val metadata = withContext(dispatchers.default) {
                 withTimeoutOrNull(ENRICHMENT_TIMEOUT_MS) { sportsProviderMetadataRouter.load(
                     configs = configuredProviders,
                     preference = inputs.metadataSourcePreference,
@@ -661,7 +671,7 @@ internal class SportsHubRepository @Inject constructor(
         val providerSource = sourcedLeague?.source as? SportsSourceRef.Provider
         val league = sourcedLeague?.value ?: event.league?.let(::ProviderLeague)
         val providers = sportsProviderStandingsRouter.eligibleProviders(configs, preference, providerSource)
-        return withContext(Dispatchers.Default) {
+        return withContext(dispatchers.default) {
             sportsProviderStandingsRouter.load(
                 providers = providers,
                 eventLeague = league,
@@ -670,7 +680,7 @@ internal class SportsHubRepository @Inject constructor(
         }
     }
 
-    suspend fun loadExtraDetails(event: SportsEvent): LoadedSportsEventExtraDetails? = withContext(Dispatchers.IO) {
+    suspend fun loadExtraDetails(event: SportsEvent): LoadedSportsEventExtraDetails? = withContext(dispatchers.io) {
         sportsProviderExtraDetailsRouter.load(event)
     }
 
@@ -803,7 +813,7 @@ internal class SportsHubRepository @Inject constructor(
     suspend fun searchChannels(event: SportsEvent, query: String): List<SportsBroadcast> {
         val entries = availableChannelEntries
         if (entries.isEmpty()) return emptyList()
-        return withContext(Dispatchers.Default) {
+        return withContext(dispatchers.default) {
             val index = getFallbackChannelIndex(entries)
             if (availableChannelEntries != entries) return@withContext emptyList()
             SportsChannelFallbackMatcher.searchChannels(event, index, query).map { match ->
@@ -904,7 +914,7 @@ internal class SportsHubRepository @Inject constructor(
 
         val classificationStartedAt = SystemClock.elapsedRealtime()
         val cacheStatsBefore = classificationCache.stats()
-        val candidates = withContext(Dispatchers.Default) {
+        val candidates = withContext(dispatchers.default) {
             val coroutineContext = currentCoroutineContext()
             buildList {
                 channels.forEach { channel ->
