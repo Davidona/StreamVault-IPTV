@@ -23,7 +23,7 @@ import java.util.Locale
 import kotlin.math.min
 
 private const val STALKER_INCREMENTAL_WILDCARD_PAGE_SLICE_SIZE = 192
-private const val STALKER_INCREMENTAL_MAX_PARALLEL_CATEGORY_FETCHES = 2
+private const val STALKER_INCREMENTAL_MAX_PARALLEL_CATEGORY_FETCHES = 8
 private const val STALKER_INCREMENTAL_MAX_SECTION_RUN_MILLIS = 240_000L
 private const val TAG = "StalkerIncrementalIndexExecutor"
 
@@ -165,9 +165,39 @@ internal class StalkerIncrementalIndexExecutor(
         BuildConfig.STALKER_INDEX_PAGE_CONCURRENCY
     } else {
         1
-    }
+    },
+    private val adaptiveCategoryPaging: Boolean = BuildConfig.STALKER_ADAPTIVE_INDEXING
 ) {
-    private val wildcardPageConcurrency = configuredWildcardPageConcurrency.coerceIn(1, 2)
+    private val wildcardPageConcurrency = configuredWildcardPageConcurrency.coerceIn(1, 8)
+
+    /** Warm page one for every visible category before starting the full catalog walk. */
+    suspend fun processCategoryHeads(
+        provider: Provider,
+        api: StalkerProvider,
+        contentType: ContentType,
+        onProgress: ((String) -> Unit)?
+    ) {
+        require(contentType == ContentType.MOVIE || contentType == ContentType.SERIES) {
+            "Unsupported Stalker category-head section: $contentType"
+        }
+        val allCategories = operations.allVisibleCategories(provider.id, contentType)
+        val visibleCategories = operations.visibleCategories(contentType, allCategories, api)
+        if (visibleCategories.isNotEmpty() && visibleCategories.all { category ->
+            (operations.getHydration(provider.id, contentType, category.categoryId)?.lastSuccessfulPage ?: 0) >= 1
+        }) return
+        val headCategoryCount = visibleCategories.size.coerceAtLeast(1)
+        processSummary(
+            provider = provider,
+            api = api,
+            contentType = contentType,
+            maxCategories = headCategoryCount,
+            onProgress = onProgress,
+            maxPages = headCategoryCount,
+            bypassWildcardProbe = true,
+            maxParallelFetches = if (adaptiveCategoryPaging) headCategoryCount else 2,
+            categoryHeadsOnly = true
+        )
+    }
 
     suspend fun processSummary(
         provider: Provider,
@@ -175,7 +205,10 @@ internal class StalkerIncrementalIndexExecutor(
         contentType: ContentType,
         maxCategories: Int,
         onProgress: ((String) -> Unit)?,
-        maxPages: Int? = null
+        maxPages: Int? = null,
+        bypassWildcardProbe: Boolean = false,
+        maxParallelFetches: Int? = null,
+        categoryHeadsOnly: Boolean = false
     ) {
         require(contentType == ContentType.MOVIE || contentType == ContentType.SERIES) {
             "Unsupported Stalker summary index section: $contentType"
@@ -218,7 +251,16 @@ internal class StalkerIncrementalIndexExecutor(
             }
         }
         var categoryPlan = visibleCategories
-        if (wildcardCategory != null && learnedWildcardSupport != false) {
+        val explicitCategoryPaging = adaptiveCategoryPaging && visibleCategories.any {
+            !api.isWildcardCategory(it.type, it.categoryId)
+        }
+        val wildcardCheckpoint = wildcardCategory?.let {
+            operations.getHydration(provider.id, contentType, it.categoryId)
+        }
+        val wildcardProbePending = !explicitCategoryPaging || wildcardCheckpoint?.isComplete == true ||
+            (wildcardCheckpoint?.lastSuccessfulPage ?: 0) == 0
+        if ((!bypassWildcardProbe || explicitCategoryPaging) && wildcardProbePending &&
+            wildcardCategory != null && learnedWildcardSupport != false) {
             val wildcardIsSoleCategory = visibleCategories.size == 1 &&
                 visibleCategories.first().categoryId == wildcardCategory.categoryId
             StalkerTelemetry.strategySelected(
@@ -236,32 +278,36 @@ internal class StalkerIncrementalIndexExecutor(
                 contentType = contentType,
                 wildcardCategory = wildcardCategory,
                 visibleCategories = allVisibleCategories,
-                maxPages = maxPages?.coerceAtLeast(1) ?: STALKER_INCREMENTAL_WILDCARD_PAGE_SLICE_SIZE,
+                maxPages = if (explicitCategoryPaging) 1 else
+                    maxPages?.coerceAtLeast(1) ?: STALKER_INCREMENTAL_WILDCARD_PAGE_SLICE_SIZE,
                 initialJob = initialJob,
-                onProgress = onProgress
+                onProgress = onProgress,
+                wholeResponseProbe = explicitCategoryPaging
             )
             outcome.capabilitySupported?.let { supported ->
                 api.recordWildcardCapability(contentType, supported)
             }
             if (!outcome.shouldFallback) {
-                if (!outcome.complete) return
-                val backfill = wildcardBackfillCategories(
-                    provider = provider,
-                    api = api,
-                    contentType = contentType,
-                    visibleCategories = visibleCategories
-                )
-                if (backfill.isEmpty()) {
-                    if (!wildcardIsSoleCategory) {
-                        operations.pruneStaleRows(provider.id, contentType)
+                if (!outcome.complete && !explicitCategoryPaging) return
+                if (outcome.complete) {
+                    val backfill = wildcardBackfillCategories(
+                        provider = provider,
+                        api = api,
+                        contentType = contentType,
+                        visibleCategories = visibleCategories
+                    )
+                    if (backfill.isEmpty()) {
+                        if (!wildcardIsSoleCategory) {
+                            operations.pruneStaleRows(provider.id, contentType)
+                        }
+                        return
                     }
-                    return
+                    operations.log(
+                        "Stalker ${contentType.name} wildcard index complete for provider ${provider.id}; " +
+                            "backfilling ${backfill.size} categories without wildcard rows."
+                    )
+                    categoryPlan = backfill
                 }
-                operations.log(
-                    "Stalker ${contentType.name} wildcard index complete for provider ${provider.id}; " +
-                        "backfilling ${backfill.size} categories without wildcard rows."
-                )
-                categoryPlan = backfill
             }
         } else if (wildcardCategory != null && learnedWildcardSupport == false) {
             StalkerTelemetry.strategySelected(provider.id, "${contentType.name}_CATEGORY", "WILDCARD_KNOWN_UNSUPPORTED")
@@ -292,6 +338,7 @@ internal class StalkerIncrementalIndexExecutor(
                 categoryPlan.forEach { category ->
                     if (size >= maxCategories) return@forEach
                     val hydration = hydrationByCategory[category.categoryId]
+                    if (categoryHeadsOnly && (hydration?.lastSuccessfulPage ?: 0) >= 1) return@forEach
                     if (!canAttempt(hydration, now)) return@forEach
                     add(category)
                 }
@@ -328,7 +375,10 @@ internal class StalkerIncrementalIndexExecutor(
             var pagesCommitted = 0
             var rowsCommitted = 0
             val sectionStartedAt = System.currentTimeMillis()
-            val parallelFetchLimit = categoryFetchConcurrencyLimit(provider, maxCategories)
+            val parallelFetchLimit = if (categoryHeadsOnly && adaptiveCategoryPaging) {
+                (maxParallelFetches ?: 8).coerceIn(1, 8)
+            } else if (adaptiveCategoryPaging) wildcardPageConcurrency else
+                categoryFetchConcurrencyLimit(provider, maxCategories, maxParallelFetches)
             val runDeadlineAt = System.currentTimeMillis() + STALKER_INCREMENTAL_MAX_SECTION_RUN_MILLIS
             val pendingQueue = ArrayDeque(pending)
             var forceSequential = parallelFetchLimit <= 1
@@ -343,10 +393,11 @@ internal class StalkerIncrementalIndexExecutor(
                 }
                 val windowSize = minOf(
                     if (forceSequential) 1 else parallelFetchLimit,
-                    pendingQueue.size
+                    if (adaptiveCategoryPaging && !categoryHeadsOnly) Int.MAX_VALUE else pendingQueue.size,
+                    maxPages?.let { (it - pagesCommitted).coerceAtLeast(1) } ?: Int.MAX_VALUE
                 )
                 val window = buildList {
-                    repeat(windowSize) { add(pendingQueue.removeFirst()) }
+                    repeat(minOf(windowSize, pendingQueue.size)) { add(pendingQueue.removeFirst()) }
                 }
                 val attempts = window.mapNotNull { category ->
                     val hydration = operations.getHydration(provider.id, contentType, category.categoryId)
@@ -366,20 +417,35 @@ internal class StalkerIncrementalIndexExecutor(
                         now = System.currentTimeMillis()
                     )
                     CategoryFetchAttempt(category, hydration, nextPage)
+                }.let { firsts ->
+                    if (!adaptiveCategoryPaging || categoryHeadsOnly || firsts.isEmpty()) firsts else buildList {
+                        addAll(firsts)
+                        // Known totals let even a single large category fill the shared page pool.
+                        for (first in firsts) {
+                            val lastPage = first.hydration?.advertisedTotalPages
+                                ?: first.hydration?.totalPages ?: first.nextPage
+                            for (page in first.nextPage + 1..lastPage.coerceAtMost(first.nextPage + windowSize - 1)) {
+                                if (size >= windowSize) break
+                                add(first.copy(nextPage = page))
+                            }
+                        }
+                    }.sortedWith(compareBy({ it.category.categoryId }, { it.nextPage }))
                 }
                 if (attempts.isEmpty()) continue
                 val fetchedResults = coroutineScope {
                     attempts.map { attempt ->
                         async {
+                            val result = operations.fetchSummaryPage(
+                                provider = provider,
+                                api = api,
+                                contentType = contentType,
+                                categoryId = attempt.category.categoryId,
+                                page = attempt.nextPage
+                            )
+                            if (result is Result.Error) operations.recordRequestFailure(provider.id, result.exception)
                             CategoryFetchResult(
                                 attempt = attempt,
-                                result = operations.fetchSummaryPage(
-                                    provider = provider,
-                                    api = api,
-                                    contentType = contentType,
-                                    categoryId = attempt.category.categoryId,
-                                    page = attempt.nextPage
-                                )
+                                result = result
                             )
                         }
                     }.awaitAll()
@@ -387,13 +453,14 @@ internal class StalkerIncrementalIndexExecutor(
 
                 var windowRetryableFailures = 0
                 val successfulPages = mutableListOf<SuccessfulPage>()
+                val validationHydration = mutableMapOf<Long, StalkerHydrationSnapshot?>()
+                val blockedCategories = mutableSetOf<Long>()
+                val failedAttempts = mutableListOf<suspend () -> Unit>()
                 for (fetched in fetchedResults) {
                     val category = fetched.attempt.category
-                    val hydration = fetched.attempt.hydration
+                    if (category.categoryId in blockedCategories) continue
+                    val hydration = validationHydration[category.categoryId] ?: fetched.attempt.hydration
                     val nextPage = fetched.attempt.nextPage
-                    if (fetched.result is Result.Error) {
-                        operations.recordRequestFailure(provider.id, fetched.result.exception)
-                    }
                     when (val result = fetched.result) {
                         is Result.Success -> {
                             val pageFingerprint = StalkerIndexPolicy.pageFingerprint(result.data.items, contentType)
@@ -408,7 +475,8 @@ internal class StalkerIncrementalIndexExecutor(
                                 skippedMalformedRows += result.data.items.size
                                 val shouldRetryImmediately = category.categoryId !in retriedImmediately &&
                                     ((hydration?.failureCount ?: 0) == 0)
-                                operations.markAttemptFailed(
+                                blockedCategories += category.categoryId
+                                failedAttempts += suspend { operations.markAttemptFailed(
                                     providerId = provider.id,
                                     contentType = contentType,
                                     categoryId = category.categoryId,
@@ -418,7 +486,7 @@ internal class StalkerIncrementalIndexExecutor(
                                     message = anomaly,
                                     retryable = true,
                                     pageFingerprint = pageFingerprint
-                                )
+                                ) }
                                 if (shouldRetryImmediately) {
                                     retriedImmediately += category.categoryId
                                     pendingQueue.addLast(category)
@@ -451,6 +519,15 @@ internal class StalkerIncrementalIndexExecutor(
                                 terminationReason = result.data.terminationReason,
                                 pageFingerprint = pageFingerprint
                             )
+                            if (hydration != null) validationHydration[category.categoryId] = hydration.copy(
+                                lastSuccessfulPage = nextPage,
+                                lastLoadedPage = nextPage,
+                                itemCount = hydration.itemCount + dedupedItems.size,
+                                lastPageFingerprint = pageFingerprint,
+                                advertisedTotalItems = result.data.advertisedTotalItems,
+                                advertisedTotalPages = result.data.advertisedTotalPages
+                            )
+                            if (result.data.isComplete || result.data.isTruncated) blockedCategories += category.categoryId
                         }
                         is Result.Error -> {
                             val failedAt = System.currentTimeMillis()
@@ -461,7 +538,8 @@ internal class StalkerIncrementalIndexExecutor(
                             val shouldRetryImmediately = retryable &&
                                 category.categoryId !in retriedImmediately &&
                                 ((hydration?.failureCount ?: 0) == 0)
-                            operations.markAttemptFailed(
+                            blockedCategories += category.categoryId
+                            failedAttempts += suspend { operations.markAttemptFailed(
                                 providerId = provider.id,
                                 contentType = contentType,
                                 categoryId = category.categoryId,
@@ -471,12 +549,11 @@ internal class StalkerIncrementalIndexExecutor(
                                 message = result.message,
                                 retryable = retryable,
                                 pageFingerprint = hydration?.lastPageFingerprint
-                            )
+                            ) }
                             if (shouldRetryImmediately) {
                                 retriedImmediately += category.categoryId
                                 pendingQueue.addLast(category)
                             }
-                            if (!retryable) throw IllegalStateException(result.message, result.exception)
                             upsertIndexJob(
                                 providerId = provider.id,
                                 section = contentType.name,
@@ -542,12 +619,29 @@ internal class StalkerIncrementalIndexExecutor(
                             terminationReason = page.terminationReason,
                             pageFingerprint = page.pageFingerprint
                         )
-                        if (!pageComplete && !page.isTruncated && System.currentTimeMillis() < runDeadlineAt) {
-                            pendingQueue.addLast(page.category)
+                    }
+                    val visibleRowCount = operations.currentIndexedRowCount(provider.id, contentType)
+                    operations.updateSummaryMetadata(provider.id, contentType, visibleRowCount, "RUNNING", indexedAt)
+                    upsertIndexJob(
+                        providerId = provider.id,
+                        section = contentType.name,
+                        state = "RUNNING",
+                        now = indexedAt,
+                        indexedRows = visibleRowCount,
+                        lastAttemptAt = indexedAt
+                    )
+                }
+                failedAttempts.forEach { it() }
+                if (!categoryHeadsOnly) {
+                    successfulPages.map { it.category }.distinctBy { it.categoryId }.forEach { category ->
+                        if (category.categoryId !in blockedCategories &&
+                            pendingQueue.none { it.categoryId == category.categoryId } &&
+                            canAttempt(operations.getHydration(provider.id, contentType, category.categoryId), System.currentTimeMillis())) {
+                            pendingQueue.addLast(category)
                         }
                     }
                 }
-                if (!forceSequential && windowRetryableFailures >= minOf(2, attempts.size)) {
+                if (!adaptiveCategoryPaging && !forceSequential && windowRetryableFailures >= minOf(2, attempts.size)) {
                     forceSequential = true
                     operations.log(
                         "Stalker ${contentType.name} category fetch downgraded to sequential mode for provider ${provider.id} after retryable parallel failures."
@@ -624,7 +718,8 @@ internal class StalkerIncrementalIndexExecutor(
         visibleCategories: List<CategoryEntity>,
         maxPages: Int,
         initialJob: StalkerIndexJobEntity?,
-        onProgress: ((String) -> Unit)?
+        onProgress: ((String) -> Unit)?,
+        wholeResponseProbe: Boolean = false
     ): WildcardRunOutcome {
         val now = System.currentTimeMillis()
         val normalVisibleCategoryIds = mutableSetOf<Long>()
@@ -677,10 +772,14 @@ internal class StalkerIncrementalIndexExecutor(
                 val currentHydration = operations.getHydration(provider.id, contentType, wildcardCategory.categoryId)
                 if (!canAttempt(currentHydration, System.currentTimeMillis())) break
                 val nextPage = nextAttemptPage(currentHydration)
+                val remainingPages = currentHydration?.advertisedTotalPages
+                    ?: currentHydration?.totalPages?.takeIf { it > 0 }
                 val windowSize = minOf(
                     wildcardPageConcurrency,
                     maxPages - pagesProcessed,
-                    STALKER_INCREMENTAL_MAX_PARALLEL_CATEGORY_FETCHES
+                    STALKER_INCREMENTAL_MAX_PARALLEL_CATEGORY_FETCHES,
+                    if (adaptiveCategoryPaging) remainingPages?.let { (it - nextPage + 1).coerceAtLeast(1) } ?: 1
+                        else STALKER_INCREMENTAL_MAX_PARALLEL_CATEGORY_FETCHES
                 ).coerceAtLeast(1)
                 val requestedPages = (nextPage until nextPage + windowSize).toList()
                 requestedPages.forEach { page ->
@@ -815,7 +914,9 @@ internal class StalkerIncrementalIndexExecutor(
                             }
                             indexedRowsEstimate += visibleItems.size
                             rowsCommitted += visibleItems.size
-                            val pageComplete = !result.data.isTruncated && (
+                            val completeResponse = !wholeResponseProbe ||
+                                (result.data.advertisedTotalItems?.let { it > 0 && result.data.items.size >= it } == true)
+                            val pageComplete = completeResponse && !result.data.isTruncated && (
                                 result.data.isComplete ||
                                     (result.data.items.isEmpty() && result.data.totalPages in 1..requestedPage)
                                 )
@@ -934,7 +1035,16 @@ internal class StalkerIncrementalIndexExecutor(
         }
         if (normalCategories.isEmpty()) return emptyList()
         val localRows = operations.categoriesWithLocalRows(provider.id, contentType)
-        return StalkerIndexPolicy.wildcardBackfillCategories(normalCategories, localRows)
+        val advertisedTotals = normalCategories.mapNotNull { category ->
+            operations.getHydration(provider.id, contentType, category.categoryId)
+                ?.advertisedTotalItems
+                ?.let { total -> category.categoryId to total }
+        }.toMap()
+        return StalkerIndexPolicy.wildcardBackfillCategories(
+            normalCategories = normalCategories,
+            localRowCounts = localRows,
+            advertisedTotals = advertisedTotals
+        )
     }
 
     private fun canAttempt(hydration: StalkerHydrationSnapshot?, now: Long): Boolean =
@@ -943,11 +1053,15 @@ internal class StalkerIncrementalIndexExecutor(
     private fun nextAttemptPage(hydration: StalkerHydrationSnapshot?): Int =
         StalkerIndexPolicy.nextAttemptPage(hydration)
 
-    private fun categoryFetchConcurrencyLimit(provider: Provider, maxCategories: Int): Int =
+    private fun categoryFetchConcurrencyLimit(
+        provider: Provider,
+        maxCategories: Int,
+        requestedLimit: Int? = null
+    ): Int =
         minOf(
             maxCategories.coerceAtLeast(1),
-            operations.runtimeProfile.maxCategoryConcurrency.coerceAtLeast(1),
-            STALKER_INCREMENTAL_MAX_PARALLEL_CATEGORY_FETCHES
+            (requestedLimit ?: operations.runtimeProfile.maxCategoryConcurrency).coerceAtLeast(1),
+            2
         ).coerceAtLeast(1)
 
     private fun throughputSummary(startedAt: Long, pages: Int, rows: Int): String {

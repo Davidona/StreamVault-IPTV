@@ -61,7 +61,6 @@ private const val STALKER_BULK_LIVE_UNSUPPORTED_TTL_MILLIS = 6 * 60 * 60 * 1000L
 private const val LIVE_CATEGORY_SEQUENTIAL_MODE_WARNING =
     "Live category sync downgraded to sequential mode after provider stress signals."
 private const val FALLBACK_STAGE_BATCH_SIZE = 500
-private const val STALKER_BOOTSTRAP_LIVE_CHANNEL_CAP = 200
 
 /** Owns Stalker authentication, full catalog orchestration, and Live repair execution. */
 internal class StalkerCatalogSyncExecutor(
@@ -178,7 +177,6 @@ internal class StalkerCatalogSyncExecutor(
                 hiddenLiveCategoryIds = hiddenLiveCategoryIds,
                 requiredHiddenLiveCategoryIds = requiredHiddenLiveCategoryIds,
                 onProgress = onProgress,
-                maxChannels = STALKER_BOOTSTRAP_LIVE_CHANNEL_CAP.takeIf { bootstrap },
                 afterCatalogApply = catalogCommitCallback,
                 retryPendingCategoriesOnly = !force && !bootstrap
             )
@@ -187,7 +185,7 @@ internal class StalkerCatalogSyncExecutor(
             } else metadata.liveCount
             metadata = metadata.copy(
                 lastLiveSync = now,
-                lastLiveSuccess = if (!bootstrap && liveCatalogResult.coverageComplete) now
+                lastLiveSuccess = if (liveCatalogResult.coverageComplete) now
                 else metadata.lastLiveSuccess,
                 liveCount = committedLiveCount
             )
@@ -336,16 +334,10 @@ internal class StalkerCatalogSyncExecutor(
                 force = force
             )
         }
-        if (bootstrap && provider.stalkerCatalogMode == StalkerCatalogMode.BACKGROUND_INDEX) {
+        if (bootstrap) {
             continuationWork += SyncContinuation(
                 operation = SyncContinuationOperation.STALKER_BOOTSTRAP_RESUME,
-                reason = "bootstrap category shells are committed; fetch the first VOD page and finish live onboarding"
-            )
-        } else if (bootstrap) {
-            continuationWork += SyncContinuation(
-                operation = SyncContinuationOperation.FULL_CATALOG,
-                reason = "bootstrap catalog is committed; durable full provider sync is queued",
-                force = true
+                reason = "full live catalog and VOD category shells are committed; fetch every VOD category head"
             )
         } else when (provider.epgSyncMode) {
             ProviderEpgSyncMode.UPFRONT -> warnings += syncProviderEpg(

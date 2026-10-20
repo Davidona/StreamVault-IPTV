@@ -21,46 +21,50 @@ class StalkerPortalStateStoreTest {
     fun `first run adopts learning generation created after handshake`() = runTest {
         val dao = FakePortalStateDao()
         val store = StalkerPortalStateStore(dao, TestCredentialCrypto())
-        val coordinator = StalkerRequestCoordinator(store, true) { testScheduler.currentTime }
+        val coordinator = StalkerRequestCoordinator(store, true, { testScheduler.currentTime }, 8)
         coordinator.acquireNetworkPermit(83L, StalkerNetworkPriority.FOREGROUND).also {
             coordinator.releaseNetworkPermit(it)
         }
         dao.upsert(StalkerPortalStateEntity(providerId = 83L, configurationGeneration = 9L))
         val page = coordinator.acquireNetworkPermit(83L, StalkerNetworkPriority.INDEX)
         coordinator.recordIndexResponse(page, java.net.SocketTimeoutException())
+        coordinator.releaseNetworkPermit(page)
         val persisted = requireNotNull(store.get(83L))
         assertThat(persisted.configurationGeneration).isEqualTo(9L)
-        assertThat(store.indexPacing(persisted).intervalMillis).isEqualTo(10_000L)
+        assertThat(store.indexPacing(persisted).concurrency).isEqualTo(1)
     }
 
     @Test
-    fun `learned index interval and stress ceiling survive coordinator restart`() = runTest {
+    fun `stressed window survives restart and configuration changes reset learning`() = runTest {
         val dao = FakePortalStateDao()
         val store = StalkerPortalStateStore(dao, TestCredentialCrypto())
         dao.upsert(StalkerPortalStateEntity(providerId = 82L, configurationGeneration = 7L))
-        val firstCoordinator = StalkerRequestCoordinator(store, true) { testScheduler.currentTime }
+        val firstCoordinator = StalkerRequestCoordinator(store, true, { testScheduler.currentTime }, 8)
         val permit = firstCoordinator.acquireNetworkPermit(82L, StalkerNetworkPriority.INDEX)
         firstCoordinator.recordIndexResponse(permit, java.net.SocketTimeoutException())
-        val learned = store.indexPacing(requireNotNull(store.get(82L)))
-        assertThat(learned.intervalMillis).isEqualTo(10_000L)
-        assertThat(learned.minimumIntervalMillis).isEqualTo(10_000L)
-
-        val restarted = StalkerRequestCoordinator(store, true) { testScheduler.currentTime }
-        val first = restarted.acquireNetworkPermit(82L, StalkerNetworkPriority.INDEX)
-        val second = restarted.acquireNetworkPermit(82L, StalkerNetworkPriority.INDEX)
-        assertThat(second.admittedAt - first.admittedAt).isEqualTo(10_000L)
-        // A changed configuration cannot inherit pacing from the old generation.
+        firstCoordinator.releaseNetworkPermit(permit)
+        val restarted = StalkerRequestCoordinator(store, true, { testScheduler.currentTime }, 8)
+        assertThat(restarted.effectiveIndexConcurrencyLimit(82L)).isEqualTo(1)
         val changed = requireNotNull(store.get(82L)).copy(configurationGeneration = 8L)
-        assertThat(store.indexPacing(changed).intervalMillis).isEqualTo(5_000L)
+        assertThat(store.indexPacing(changed).concurrency).isEqualTo(3)
     }
 
     @Test
-    fun `malformed pacing falls back safely and valid values are bounded`() = runTest {
+    fun `restart caps healthy learned window at three and ignores old timed profiles`() = runTest {
         val store = StalkerPortalStateStore(FakePortalStateDao(), TestCredentialCrypto())
-        assertThat(store.indexPacing(StalkerPortalStateEntity(1L, learningJson = "bad")).intervalMillis)
-            .isEqualTo(5_000L)
-        store.recordIndexPacing(1L, 3L, 1L, 1L)
-        assertThat(store.indexPacing(requireNotNull(store.get(1L))).intervalMillis).isEqualTo(500L)
+        store.recordIndexPacing(84L, configurationGeneration = 4L, concurrency = 8)
+        assertThat(store.indexPacing(requireNotNull(store.get(84L))).concurrency).isEqualTo(3)
+        assertThat(store.indexPacing(StalkerPortalStateEntity(85L,
+            learningJson = """{"indexPacing":{"intervalMillis":30000}}""")).concurrency).isEqualTo(3)
+    }
+
+    @Test
+    fun `malformed concurrency falls back safely and learned values are bounded`() = runTest {
+        val store = StalkerPortalStateStore(FakePortalStateDao(), TestCredentialCrypto())
+        assertThat(store.indexPacing(StalkerPortalStateEntity(1L, learningJson = "bad")).concurrency)
+            .isEqualTo(3)
+        store.recordIndexPacing(1L, 3L, 0)
+        assertThat(store.indexPacing(requireNotNull(store.get(1L))).concurrency).isEqualTo(1)
     }
 
     @Test

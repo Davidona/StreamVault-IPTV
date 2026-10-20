@@ -19,8 +19,8 @@ android {
         val requestedStalkerPageConcurrency = providers.gradleProperty("stalkerIndexPageConcurrency")
             .orNull
             ?.toIntOrNull()
-            ?.coerceIn(1, 2)
-            ?: 1
+            ?.coerceIn(1, 8)
+            ?: 8
         buildConfigField("int", "STALKER_INDEX_PAGE_CONCURRENCY", requestedStalkerPageConcurrency.toString())
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

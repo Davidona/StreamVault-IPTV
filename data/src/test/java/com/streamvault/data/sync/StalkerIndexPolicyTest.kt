@@ -97,14 +97,15 @@ class StalkerIndexPolicyTest {
     }
 
     @Test
-    fun `wildcard backfill targets categories without local rows`() {
+    fun `wildcard backfill targets missing and partially covered categories`() {
         val covered = category(1L, "Action")
-        val excluded = category(2L, "Adult")
+        val partiallyCovered = category(2L, "Adult")
         val empty = category(3L, "Empty")
 
         val backfill = StalkerIndexPolicy.wildcardBackfillCategories(
-            normalCategories = listOf(covered, excluded, empty),
-            localRowCounts = mapOf(1L to 25, 2L to 0)
+            normalCategories = listOf(covered, partiallyCovered, empty),
+            localRowCounts = mapOf(1L to 25, 2L to 14),
+            advertisedTotals = mapOf(1L to 25, 2L to 38)
         )
 
         assertThat(backfill.map { it.categoryId }).containsExactly(2L, 3L)

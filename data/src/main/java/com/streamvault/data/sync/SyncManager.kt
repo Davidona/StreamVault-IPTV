@@ -1,5 +1,7 @@
 package com.streamvault.data.sync
 
+import com.streamvault.data.BuildConfig
+
 import android.content.Context
 import android.util.Log
 import com.streamvault.data.local.DatabaseTransactionRunner
@@ -1249,23 +1251,26 @@ class SyncManager @Inject constructor(
             return Result.error("Provider $providerId is not a Stalker portal")
         }
 
-        val firstPage = processQueuedStalkerIndexJobs(
-            providerId = providerId,
-            force = false,
-            maxCategoriesPerSection = 1,
-            maxPagesPerSection = 1
-        )
-        if (firstPage is Result.Error) {
-            Log.w(TAG, "Initial Stalker VOD page could not be indexed for provider $providerId: ${firstPage.message}")
-            scheduleStalkerIndexSync(providerId, section = null, force = false)
+        if ((syncMetadataRepository.getMetadata(providerId)?.lastLiveSuccess ?: 0L) <= 0L) {
+            val live = syncSection(
+                providerId = providerId,
+                section = SyncRepairSection.LIVE
+            )
+            if (live is Result.Error) return live
+            if (live is Result.Loading) return Result.error("Stalker live bootstrap resume did not complete")
+            if ((syncMetadataRepository.getMetadata(providerId)?.lastLiveSuccess ?: 0L) <= 0L) {
+                return Result.error("Stalker live bootstrap resume did not complete")
+            }
         }
 
-        val live = syncSection(
-            providerId = providerId,
-            section = SyncRepairSection.LIVE
-        )
-        if (live is Result.Error) return live
-        if (live is Result.Loading) return Result.error("Stalker live bootstrap resume did not complete")
+        withStalkerSummaryLock(providerId, ContentType.MOVIE) {
+            warmStalkerCategoryHeads(provider)
+        }
+
+        // Live is complete before the page-one VOD sweep. Start the full VOD walk only after
+        // these category heads are committed, so they are immediately usable and Live setup
+        // does not compete with the catalog crawl.
+        scheduleStalkerIndexSync(providerId, section = null, force = false)
 
         when (provider.epgSyncMode) {
             ProviderEpgSyncMode.UPFRONT -> return syncEpg(providerId = providerId, force = true, onProgress = null)
@@ -1273,6 +1278,26 @@ class SyncManager @Inject constructor(
             ProviderEpgSyncMode.SKIP -> Unit
         }
         return Result.success(Unit)
+    }
+
+    /** Caller owns the provider lane; sections share wire admission but keep their own cursors. */
+    private suspend fun warmStalkerCategoryHeads(provider: Provider, sections: List<ContentType>? = null) {
+        val headSections = sections ?: if (provider.catalogLayout == CatalogLayout.UNIFIED_VOD) {
+            listOf(ContentType.MOVIE)
+        } else listOf(ContentType.MOVIE, ContentType.SERIES)
+        coroutineScope {
+            headSections.map { contentType -> async {
+                withStalkerIndexSectionLock(provider.id, contentType) {
+                    runSuspendCatching {
+                        stalkerIncrementalIndexExecutor.processCategoryHeads(
+                            provider, createStalkerSyncProvider(provider), contentType, null
+                        )
+                    }.exceptionOrNull()?.let { error ->
+                        Log.w(TAG, "Initial Stalker ${contentType.name} category heads failed for provider ${provider.id}: ${sanitizeThrowableMessage(error)}")
+                    }
+                }
+            } }.awaitAll()
+        }
     }
 
     private suspend fun syncProviderInternal(
@@ -1759,7 +1784,9 @@ class SyncManager @Inject constructor(
         force: Boolean,
         maxCategoriesPerSection: Int?,
         onProgress: ((String) -> Unit)?,
-        maxPagesPerSection: Int?
+        maxPagesPerSection: Int?,
+        categoryHeadsOnly: Boolean,
+        scheduleContinuation: Boolean
     ): com.streamvault.domain.model.Result<Unit> {
         return withStalkerSummaryLock(providerId, section) lock@{
         val playbackDelayMillis = if (StalkerTrafficCoordinator.shouldDeferIndexForPlayback(providerId)) 2_000L else 0L
@@ -1787,6 +1814,15 @@ class SyncManager @Inject constructor(
             when { it.movies && !it.series -> ContentType.MOVIE; it.series && !it.movies -> ContentType.SERIES; else -> null }
         }
         val api = createStalkerSyncProvider(provider)
+        if (BuildConfig.STALKER_ADAPTIVE_INDEXING && !categoryHeadsOnly && automaticPolicy?.enabled != false) {
+            val sections = listOf(ContentType.MOVIE, ContentType.SERIES).filter { type ->
+                (type != ContentType.SERIES || provider.catalogLayout != CatalogLayout.UNIFIED_VOD) &&
+                    (automaticPolicy == null || if (type == ContentType.MOVIE) automaticPolicy.movies else automaticPolicy.series)
+            }
+            // Recovery may run before the bootstrap continuation. Finish all missing heads
+            // before any category starts its remaining-page crawl.
+            warmStalkerCategoryHeads(provider, sections)
+        }
         val decision = stalkerIndexContinuationCoordinator.chooseNextSection(
             provider = provider,
             api = api,
@@ -1810,6 +1846,10 @@ class SyncManager @Inject constructor(
             }
             return@lock com.streamvault.domain.model.Result.success(Unit)
         }
+        if (categoryHeadsOnly && section != null && contentType != section) {
+            Log.i(TAG, "Stalker category-head warmup skipped ${contentType.name} for provider $providerId while ${section.name} was requested.")
+            return@lock com.streamvault.domain.model.Result.success(Unit)
+        }
         Log.i(TAG, "Stalker catalog worker selected ${contentType.name} for provider $providerId: ${decision.reason}")
 
         val warnings = mutableListOf<String>()
@@ -1817,14 +1857,23 @@ class SyncManager @Inject constructor(
         var sawRetryableFailure = false
         val categoryLimit = maxCategoriesPerSection?.coerceAtLeast(1) ?: STALKER_INDEX_CATEGORY_SLICE_SIZE
         val failure = runSuspendCatching {
-            stalkerIncrementalIndexExecutor.processSummary(
-                provider = provider,
-                api = api,
-                contentType = contentType,
-                maxCategories = categoryLimit,
-                onProgress = onProgress,
-                maxPages = maxPagesPerSection
-            )
+            if (categoryHeadsOnly) {
+                stalkerIncrementalIndexExecutor.processCategoryHeads(
+                    provider = provider,
+                    api = api,
+                    contentType = contentType,
+                    onProgress = onProgress
+                )
+            } else {
+                stalkerIncrementalIndexExecutor.processSummary(
+                    provider = provider,
+                    api = api,
+                    contentType = contentType,
+                    maxCategories = categoryLimit,
+                    onProgress = onProgress,
+                    maxPages = maxPagesPerSection
+                )
+            }
         }.exceptionOrNull()
         if (failure != null) {
             val failedAt = System.currentTimeMillis()
@@ -1848,8 +1897,10 @@ class SyncManager @Inject constructor(
             val exception = if (sawRetryableFailure) IOException(message, cause) else IllegalStateException(message, cause)
             com.streamvault.domain.model.Result.error(warnings.first(), exception)
         } else {
-            stalkerIndexContinuationCoordinator.scheduleNextSection(provider, api)
-            stalkerIndexContinuationCoordinator.scheduleEpgIfCatalogIdle(provider)
+            if (scheduleContinuation) {
+                stalkerIndexContinuationCoordinator.scheduleNextSection(provider, api)
+                stalkerIndexContinuationCoordinator.scheduleEpgIfCatalogIdle(provider)
+            }
             com.streamvault.domain.model.Result.success(Unit)
         }
         result.alsoApplyPendingRestore(providerId)
@@ -1866,12 +1917,16 @@ class SyncManager @Inject constructor(
     ): Result<com.streamvault.data.remote.stalker.StalkerPagedResult<out Any>> {
         suspend fun fetch(): Result<com.streamvault.data.remote.stalker.StalkerPagedResult<out Any>> {
             if (contentType == ContentType.MOVIE && provider.catalogLayout == CatalogLayout.UNIFIED_VOD) {
-                return api.getUnifiedVodPage(categoryId, page)
+                return if (BuildConfig.STALKER_ADAPTIVE_INDEXING) {
+                    api.getUnifiedVodPage(categoryId, page, sortBy = StalkerProvider.WILDCARD_INDEX_SORT)
+                } else api.getUnifiedVodPage(categoryId, page)
             }
             if (splitVod && contentType == ContentType.MOVIE) {
                 val seriesCategoryId = api.projectVodCategoryToSeries(categoryId)
                     ?: return Result.error("Unable to resolve VOD-derived Series category")
-                return api.getSplitVodPage(categoryId, seriesCategoryId, page)
+                return if (BuildConfig.STALKER_ADAPTIVE_INDEXING) {
+                    api.getSplitVodPage(categoryId, seriesCategoryId, page, sortBy = StalkerProvider.WILDCARD_INDEX_SORT)
+                } else api.getSplitVodPage(categoryId, seriesCategoryId, page)
             }
             return fetchStalkerSummaryPage(api, contentType, categoryId, page)
         }
@@ -1969,8 +2024,12 @@ class SyncManager @Inject constructor(
         categoryId: Long,
         page: Int
     ): Result<com.streamvault.data.remote.stalker.StalkerPagedResult<out Any>> = when (contentType) {
-        ContentType.MOVIE -> api.getVodStreamsPage(categoryId, page)
-        ContentType.SERIES -> api.getSeriesListPage(categoryId, page)
+        ContentType.MOVIE -> if (BuildConfig.STALKER_ADAPTIVE_INDEXING) {
+            api.getVodStreamsPage(categoryId, page, sortBy = StalkerProvider.WILDCARD_INDEX_SORT)
+        } else api.getVodStreamsPage(categoryId, page)
+        ContentType.SERIES -> if (BuildConfig.STALKER_ADAPTIVE_INDEXING) {
+            api.getSeriesListPage(categoryId, page, sortBy = StalkerProvider.WILDCARD_INDEX_SORT)
+        } else api.getSeriesListPage(categoryId, page)
         else -> Result.error("Unsupported Stalker summary page section: $contentType")
     }
 

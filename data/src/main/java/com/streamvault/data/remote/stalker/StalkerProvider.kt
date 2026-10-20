@@ -270,8 +270,10 @@ internal companion object {
     private var sessionCache: StalkerSession? = null
     private var accountProfileCache: StalkerProviderProfile? = null
     private var authFailureCache: CachedAuthFailure? = null
-    private val categoryCache = mutableMapOf<ContentType, List<CategorySeed>>()
-    private val categoryLookups = mutableMapOf<ContentType, CategoryLookup>()
+    private val categoryCache = ConcurrentHashMap<ContentType, List<CategorySeed>>()
+    private val categoryLoadMutexes = KeyedMutexRegistry<ContentType>()
+    private val loadedCategoryTypes = ConcurrentHashMap.newKeySet<ContentType>()
+    private val categoryLookups = ConcurrentHashMap<ContentType, CategoryLookup>()
     private var resolvedCategorySnapshot: StalkerResolvedCategoryHandoff.Snapshot? = null
     private val remoteIdentityCache = ConcurrentHashMap<Pair<ContentType, String>, Long>()
 
@@ -283,6 +285,7 @@ internal companion object {
             accountProfileCache = null
             authFailureCache = null
             categoryCache.clear()
+            loadedCategoryTypes.clear()
             categoryLookups.clear()
             sharedAuthCache.remove(authCacheKey())
             if (providerId > 0L) {
@@ -603,7 +606,10 @@ internal companion object {
     }
 
     suspend fun getVodStreamsPage(categoryId: Long?, page: Int): Result<StalkerPagedResult<Movie>> =
-        loadVodPageWithPortalPageBase(ContentType.MOVIE, categoryId, page).let { result ->
+        getVodStreamsPage(categoryId, page, sortBy = null)
+
+    suspend fun getVodStreamsPage(categoryId: Long?, page: Int, sortBy: String?): Result<StalkerPagedResult<Movie>> =
+        loadVodPageWithPortalPageBase(ContentType.MOVIE, categoryId, page, sortBy = sortBy).let { result ->
             mapResolvedPage(ContentType.MOVIE, result) { item ->
             toMovie(item, requestedCategoryId = categoryId)
             }
@@ -664,6 +670,14 @@ internal companion object {
     ): Result<StalkerPagedResult<StalkerVodCatalogItem>> =
         getClassifiedVodPage(ContentType.MOVIE, categoryId, page, seriesCategoryId)
 
+    suspend fun getSplitVodPage(
+        categoryId: Long,
+        seriesCategoryId: Long,
+        page: Int,
+        sortBy: String?
+    ): Result<StalkerPagedResult<StalkerVodCatalogItem>> =
+        getClassifiedVodPage(ContentType.MOVIE, categoryId, page, seriesCategoryId, sortBy = sortBy)
+
     suspend fun projectVodCategoryToSeries(categoryId: Long): Long? {
         val rawId = resolveRawCategoryId(ContentType.MOVIE, categoryId) ?: return null
         val name = categoryCache[ContentType.MOVIE]
@@ -675,9 +689,9 @@ internal companion object {
             ContentType.SERIES,
             listOf(rawId to name)
         )?.get(rawId) ?: fallbackStableId(ContentType.SERIES, rawId)
-        categoryCache[ContentType.SERIES] = categoryCache[ContentType.SERIES]
-            .orEmpty()
-            .filterNot { it.rawId == rawId } + CategorySeed(projectedId, rawId, name)
+        categoryCache.compute(ContentType.SERIES) { _, current ->
+            current.orEmpty().filterNot { it.rawId == rawId } + CategorySeed(projectedId, rawId, name)
+        }
         putRemoteIdentity(ContentType.SERIES to rawId, projectedId)
         return projectedId
     }
@@ -693,9 +707,9 @@ internal companion object {
             ContentType.MOVIE,
             listOf(rawId to name)
         )?.get(rawId) ?: fallbackStableId(ContentType.MOVIE, rawId)
-        categoryCache[ContentType.MOVIE] = categoryCache[ContentType.MOVIE]
-            .orEmpty()
-            .filterNot { it.rawId == rawId } + CategorySeed(projectedId, rawId, name)
+        categoryCache.compute(ContentType.MOVIE) { _, current ->
+            current.orEmpty().filterNot { it.rawId == rawId } + CategorySeed(projectedId, rawId, name)
+        }
         putRemoteIdentity(ContentType.MOVIE to rawId, projectedId)
         return projectedId
     }
@@ -806,13 +820,16 @@ internal companion object {
         return mapped
     }
 
-    suspend fun getSeriesListPage(categoryId: Long?, page: Int): Result<StalkerPagedResult<Series>> {
-        val primary = getNativeSeriesListPage(categoryId, page)
+    suspend fun getSeriesListPage(categoryId: Long?, page: Int): Result<StalkerPagedResult<Series>> =
+        getSeriesListPage(categoryId, page, sortBy = null)
+
+    suspend fun getSeriesListPage(categoryId: Long?, page: Int, sortBy: String?): Result<StalkerPagedResult<Series>> {
+        val primary = getNativeSeriesListPage(categoryId, page, sortBy)
         // Fall back to VOD items with is_series=1 when the type=series endpoint returns
         // empty (providers that serve series inside VOD). Only triggers when the primary
         // path produces zero items, so portals using type=series are unaffected.
         if (primary is Result.Success && primary.data.items.isEmpty()) {
-            val vodPage = loadVodPageWithPortalPageBase(ContentType.SERIES, categoryId, page)
+            val vodPage = loadVodPageWithPortalPageBase(ContentType.SERIES, categoryId, page, sortBy = sortBy)
                 .let { result -> mapResolvedPage(ContentType.SERIES, result) { item ->
                     if (item.isSeries) {
                         toSeries(
@@ -830,8 +847,12 @@ internal companion object {
     }
 
     suspend fun getNativeSeriesListPage(categoryId: Long?, page: Int): Result<StalkerPagedResult<Series>> =
+        getNativeSeriesListPage(categoryId, page, sortBy = null)
+
+    suspend fun getNativeSeriesListPage(categoryId: Long?, page: Int, sortBy: String?): Result<StalkerPagedResult<Series>> =
         mapPagedItems(ContentType.SERIES, categoryId) { session, profile, rawCategoryId ->
-            api.getSeriesPage(session, profile, rawCategoryId, page)
+            if (sortBy == null) api.getSeriesPage(session, profile, rawCategoryId, page)
+            else api.getSeriesPage(session, profile, rawCategoryId, page, sortBy)
         }.let { result -> mapResolvedPage(ContentType.SERIES, result) { item ->
             toSeries(item, requestedCategoryId = categoryId)
         } }
@@ -1590,6 +1611,7 @@ is Result.Success -> {
                         )
                     }
                     categoryCache[type] = categories
+                    loadedCategoryTypes.add(type)
                     Result.success(
                         categories.map { seed ->
                             Category(
@@ -2679,20 +2701,23 @@ private fun playbackTransportChallengeFor(url: String): StalkerTransportChalleng
             else -> type
         }
         val targetId = categoryId ?: return null
-        val cached = categoryCache[normalizedType]
-        if (cached != null) {
-            return cached.firstOrNull { it.id == targetId }?.rawId
-        }
-        identityResolver?.reverse(providerId, normalizedType, targetId)?.let { return it }
-        when (val categoriesResult = when (normalizedType) {
-            ContentType.LIVE -> getLiveCategories()
-            ContentType.VOD -> getVodCategories()
-            ContentType.MOVIE -> getVodCategories()
-            ContentType.SERIES -> getSeriesCategories()
-            ContentType.SERIES_EPISODE -> Result.success(emptyList())
-        }) {
-            is Result.Success -> return categoryCache[normalizedType]?.firstOrNull { it.id == targetId }?.rawId
-            else -> return null
+        return categoryLoadMutexes.withLock(normalizedType) {
+            val cached = categoryCache[normalizedType]
+            cached?.firstOrNull { it.id == targetId }?.rawId?.let { return@withLock it }
+            identityResolver?.reverse(providerId, normalizedType, targetId)?.let { return@withLock it }
+            // A cross-catalog projection can seed only part of this cache. That does not
+            // mean the portal's complete category list has already been loaded.
+            if (normalizedType in loadedCategoryTypes) return@withLock null
+            when (val categoriesResult = when (normalizedType) {
+                ContentType.LIVE -> getLiveCategories()
+                ContentType.VOD -> getUnifiedVodCategories()
+                ContentType.MOVIE -> getVodCategories()
+                ContentType.SERIES -> getSeriesCategories()
+                ContentType.SERIES_EPISODE -> Result.success(emptyList())
+            }) {
+                is Result.Success -> categoryCache[normalizedType]?.firstOrNull { it.id == targetId }?.rawId
+                else -> null
+            }
         }
     }
 

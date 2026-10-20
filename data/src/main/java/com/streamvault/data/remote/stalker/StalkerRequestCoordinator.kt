@@ -10,6 +10,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
@@ -114,6 +115,8 @@ class StalkerRequestCoordinator internal constructor(
         val inFlight = mutableMapOf<String, CompletableDeferred<Any?>>()
         var active = 0
         var activeBackground = 0
+        var activeBackgroundMetadata = 0
+        var indexNetworkInFlight = 0
         var safeMetadataConcurrency = NORMAL_METADATA_CONCURRENCY
         var stressCooldownUntil = 0L
         var rateLimitCooldownUntil = 0L
@@ -173,17 +176,19 @@ class StalkerRequestCoordinator internal constructor(
             while (!acquired) {
                 acquired = state.mutex.withLock {
                     val now = nowMillis()
-                    val limit = state.currentLimit(now)
                     val first = state.waiters.minWithOrNull(
                         compareBy<Waiter>({ it.priority.ordinal }, { it.ticket })
                     )
                     val backgroundAllowed = priority != StalkerRequestPriority.BACKGROUND_INDEX ||
                         state.activeBackground < indexExecutionConcurrency
-                    if (first == waiter && state.active < limit && backgroundAllowed) {
+                    if (first == waiter && state.canAcquireMetadata(priority, now) && backgroundAllowed) {
                         state.waiters.remove(waiter)
                         state.active += 1
                         operationStarted = true
-                        if (priority == StalkerRequestPriority.BACKGROUND_INDEX) state.activeBackground += 1
+                        if (priority == StalkerRequestPriority.BACKGROUND_INDEX) {
+                            state.activeBackground += 1
+                            state.activeBackgroundMetadata += 1
+                        }
                         true
                     } else {
                         false
@@ -197,6 +202,7 @@ class StalkerRequestCoordinator internal constructor(
                 yieldMetadata = if (canYieldMetadata) ({
                     if (acquired) {
                         state.active -= 1
+                        state.activeBackgroundMetadata -= 1
                         acquired = false
                         state.waiters += waiter
                     }
@@ -204,9 +210,10 @@ class StalkerRequestCoordinator internal constructor(
                 resumeMetadata = if (canYieldMetadata) ({
                     if (acquired) true else {
                         val first = state.waiters.minWithOrNull(compareBy<Waiter>({ it.priority.ordinal }, { it.ticket }))
-                        if (first == waiter && state.active < state.currentLimit(nowMillis())) {
+                        if (first == waiter && state.canAcquireMetadata(priority, nowMillis())) {
                             state.waiters.remove(waiter)
                             state.active += 1
+                            state.activeBackgroundMetadata += 1
                             acquired = true
                             true
                         } else false
@@ -253,10 +260,13 @@ class StalkerRequestCoordinator internal constructor(
             deferred.completeExceptionally(error)
             throw error
         } finally {
-            val finalSnapshot = state.mutex.withLock {
+            val finalSnapshot = withContext(NonCancellable) { state.mutex.withLock {
                 state.waiters.remove(waiter)
                 if (acquired) {
                     state.active = (state.active - 1).coerceAtLeast(0)
+                    if (priority == StalkerRequestPriority.BACKGROUND_INDEX) {
+                        state.activeBackgroundMetadata = (state.activeBackgroundMetadata - 1).coerceAtLeast(0)
+                    }
                 }
                 if (operationStarted && priority == StalkerRequestPriority.BACKGROUND_INDEX) {
                     state.activeBackground = (state.activeBackground - 1).coerceAtLeast(0)
@@ -264,7 +274,7 @@ class StalkerRequestCoordinator internal constructor(
                 if (state.inFlight[requestKey] === deferred) state.inFlight.remove(requestKey)
                 val limit = state.currentLimit(nowMillis())
                 StalkerRequestSnapshot(state.active, state.waiters.size, limit, state.stressCooldownUntil)
-            }
+            } }
             StalkerTelemetry.requestCompleted(
                 providerId = providerId,
                 priority = priority,
@@ -294,6 +304,12 @@ class StalkerRequestCoordinator internal constructor(
         val state = states.computeIfAbsent(providerId) { ProviderState(nowMillis()) }
         hydratePersistedState(providerId, state)
         return state.mutex.withLock { state.currentLimit(nowMillis()) }
+    }
+
+    internal suspend fun effectiveIndexConcurrencyLimit(providerId: Long): Int {
+        val state = states.computeIfAbsent(providerId) { ProviderState(nowMillis()) }
+        hydratePersistedState(providerId, state)
+        return state.mutex.withLock { state.indexLimit() }
     }
 
     suspend fun recordFailure(providerId: Long, error: Throwable?) {
@@ -350,26 +366,28 @@ class StalkerRequestCoordinator internal constructor(
                     val backgroundBlocked = lowPriority &&
                         (state.interactiveWaiters > 0 || state.interactiveInFlight > 0)
                     val adaptiveIndex = adaptiveIndexingEnabled && priority == StalkerNetworkPriority.INDEX
-                    val indexInterval = if (StalkerTrafficCoordinator.isPlaybackActive(providerId)) {
-                        maxOf(state.indexPacing.intervalMillis, StalkerAdaptiveIndexPolicy.PLAYBACK_INTERVAL_MILLIS)
-                    } else state.indexPacing.intervalMillis
-                    val indexWait = if (adaptiveIndex) {
-                        state.lastIndexRequestAt?.let { (it + indexInterval - now).coerceAtLeast(0L) } ?: 0L
+                    val playbackActive = StalkerTrafficCoordinator.isPlaybackActive(providerId)
+                    val indexWait = if (adaptiveIndex && playbackActive) {
+                        state.lastIndexRequestAt?.let {
+                            (it + StalkerAdaptiveIndexPolicy.PLAYBACK_INTERVAL_MILLIS - now).coerceAtLeast(0L)
+                        } ?: 0L
                     } else 0L
-                    val backgroundWait = if (lowPriority) {
+                    val indexWindowFull = adaptiveIndex && state.indexNetworkInFlight >=
+                        (if (playbackActive) 1 else state.indexLimit())
+                    val backgroundWait = if (lowPriority && !adaptiveIndex) {
                         (state.nextBackgroundRequestAt - now).coerceAtLeast(0L)
                     } else {
                         0L
                     }
                     val canBorrow = interactive && state.networkTokens > INTERACTIVE_TOKEN_FLOOR
-                    val tokenWait = if (state.networkTokens >= 1.0 || canBorrow) {
+                    val tokenWait = if (adaptiveIndex || state.networkTokens >= 1.0 || canBorrow) {
                         0L
                     } else {
                         (((1.0 - state.networkTokens) * NETWORK_TOKEN_REFILL_MILLIS).toLong())
                             .coerceAtLeast(1L)
                     }
                     waitMillis = maxOf(
-                        NETWORK_ADMISSION_POLL_MILLIS.takeIf { backgroundBlocked } ?: 0L,
+                        NETWORK_ADMISSION_POLL_MILLIS.takeIf { backgroundBlocked || indexWindowFull } ?: 0L,
                         maxOf(backgroundWait, indexWait),
                         tokenWait
                     )
@@ -382,10 +400,13 @@ class StalkerRequestCoordinator internal constructor(
                         return@withLock null
                     }
 
-                    // Index admission has its own strict spacing (no burst capacity). It still
-                    // waits for foreground tokens and interactive work, but cannot drain them.
+                    // Bound actual HTTP calls, including page-base probes. Foreground tokens
+                    // remain available for browsing and stream resolution.
                     if (!adaptiveIndex) state.networkTokens -= 1.0
-                    if (adaptiveIndex) state.lastIndexRequestAt = now
+                    if (adaptiveIndex) {
+                        state.lastIndexRequestAt = now
+                        state.indexNetworkInFlight += 1
+                    }
                     if (lowPriority && !adaptiveIndex) {
                         val interval = if (priority == StalkerNetworkPriority.BACKGROUND || priority == StalkerNetworkPriority.INDEX) {
                             BACKGROUND_REQUEST_INTERVAL_MILLIS
@@ -404,9 +425,9 @@ class StalkerRequestCoordinator internal constructor(
             }
         } finally {
             if (protectedForeground) {
-                state.mutex.withLock {
+                withContext(NonCancellable) { state.mutex.withLock {
                     state.interactiveWaiters = (state.interactiveWaiters - 1).coerceAtLeast(0)
-                }
+                } }
             }
         }
     }
@@ -414,11 +435,14 @@ class StalkerRequestCoordinator internal constructor(
     suspend fun releaseNetworkPermit(permit: StalkerNetworkPermit) {
         val protectedForeground = permit.priority == StalkerNetworkPriority.INTERACTIVE ||
             (adaptiveIndexingEnabled && permit.priority == StalkerNetworkPriority.FOREGROUND)
-        if (permit.providerId <= 0L || !protectedForeground) return
+        if (permit.providerId <= 0L) return
         val state = states[permit.providerId] ?: return
-        state.mutex.withLock {
-            state.interactiveInFlight = (state.interactiveInFlight - 1).coerceAtLeast(0)
-        }
+        withContext(NonCancellable) { state.mutex.withLock {
+            if (protectedForeground) state.interactiveInFlight = (state.interactiveInFlight - 1).coerceAtLeast(0)
+            if (adaptiveIndexingEnabled && permit.priority == StalkerNetworkPriority.INDEX) {
+                state.indexNetworkInFlight = (state.indexNetworkInFlight - 1).coerceAtLeast(0)
+            }
+        } }
     }
 
     /** One parsed HTTP result per index permit; retries and local circuit rejections do not train health. */
@@ -429,20 +453,17 @@ class StalkerRequestCoordinator internal constructor(
         val state = states[permit.providerId] ?: return
         state.mutex.withLock {
             val changed = when {
-                error == null -> state.indexPacing.success(
-                    nowMillis(), (nowMillis() - permit.admittedAt).coerceAtLeast(0L),
-                    StalkerTrafficCoordinator.isPlaybackActive(permit.providerId)
-                )
+                error == null -> state.indexPacing.success(StalkerTrafficCoordinator.isPlaybackActive(permit.providerId))
                 error.isProviderStressSignal() -> state.indexPacing.stress()
                 else -> { state.indexPacing.resetHealth(); false }
             }
             if (changed) {
                 portalStateStore?.recordIndexPacing(
                     permit.providerId, state.configurationGeneration,
-                    state.indexPacing.intervalMillis, state.indexPacing.minimumIntervalMillis
+                    state.indexPacing.concurrency
                 )
                 StalkerTelemetry.capabilityChanged(
-                    permit.providerId, "INDEX_INTERVAL_MILLIS", state.indexPacing.intervalMillis.toString()
+                    permit.providerId, "INDEX_CONCURRENCY", state.indexPacing.concurrency.toString()
                 )
             }
         }
@@ -464,6 +485,10 @@ class StalkerRequestCoordinator internal constructor(
         val rateLimit = error.findRateLimit()
         if (rateLimit != null) {
             recordRateLimit(permit.providerId, rateLimit.retryAfterMillis)
+            return
+        }
+        (error as? StalkerApiError.Server)?.retryAfterMillis?.takeIf { it > 0L }?.let { retryAfter ->
+            recordRateLimit(permit.providerId, retryAfter)
             return
         }
         if (!permit.halfOpenProbe) return
@@ -534,6 +559,18 @@ class StalkerRequestCoordinator internal constructor(
     private fun ProviderState.currentLimit(now: Long): Int =
         if (safeMetadataConcurrency <= 1 || stressCooldownUntil > now) 1 else NORMAL_METADATA_CONCURRENCY
 
+    private fun ProviderState.indexLimit(): Int = minOf(indexExecutionConcurrency, indexPacing.concurrency)
+
+    private fun ProviderState.canAcquireMetadata(priority: StalkerRequestPriority, now: Long): Boolean {
+        if (!adaptiveIndexingEnabled) return active < currentLimit(now)
+        return if (priority == StalkerRequestPriority.BACKGROUND_INDEX) {
+            activeBackgroundMetadata < indexLimit()
+        } else {
+            // Index pages cannot occupy the slots needed by browsing and playback.
+            active - activeBackgroundMetadata < currentLimit(now)
+        }
+    }
+
     private fun ProviderState.refillNetworkTokens(now: Long) {
         val elapsed = (now - lastNetworkRefillAt).coerceAtLeast(0L)
         if (elapsed <= 0L) return
@@ -546,7 +583,9 @@ class StalkerRequestCoordinator internal constructor(
 
     private fun Throwable.isProviderStressSignal(): Boolean = when (this) {
         is StalkerApiError.RateLimited -> true
-        is StalkerApiError.Server -> httpStatus == 503
+        is StalkerApiError.Authorization -> httpStatus == 403
+        is StalkerApiError.BlockedOrConfiguration -> portalReason in setOf("http_403_forbidden", "html_error_page")
+        is StalkerApiError.Server -> httpStatus in 500..599
         is StalkerApiError.Transport -> cause is SocketTimeoutException ||
             message.orEmpty().contains("timeout", ignoreCase = true) ||
             message.orEmpty().contains("reset", ignoreCase = true)
@@ -577,7 +616,7 @@ class StalkerRequestCoordinator internal constructor(
     }
 
     private companion object {
-        const val MAX_INDEX_EXECUTION_CONCURRENCY = 2
+        const val MAX_INDEX_EXECUTION_CONCURRENCY = 8
         const val NORMAL_METADATA_CONCURRENCY = 2
         const val ADMISSION_POLL_MILLIS = 20L
         const val STRESS_COOLDOWN_MILLIS = 5L * 60L * 1000L

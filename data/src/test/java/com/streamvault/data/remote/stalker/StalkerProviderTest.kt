@@ -22,6 +22,8 @@ import com.streamvault.domain.model.StalkerTransportMode
 import com.streamvault.domain.model.StalkerTransportOrigin
 import java.time.Instant
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import org.junit.Before
 import org.junit.Test
 import java.util.Base64
@@ -39,6 +41,37 @@ class StalkerProviderTest {
         macAddress = "00:1A:79:12:34:56", deviceProfile = "MAG250", timezone = "UTC", locale = "en",
         resolvedCategoryHandoffKey = key
     )
+
+    @Test
+    fun coldUnifiedCategoryLookupsLoadTheCorrectCacheOnlyOnce() = runTest {
+        val api = FakeStalkerApiService(
+            profile = StalkerProviderProfile(accountName = "Room"),
+            vodCategories = listOf(StalkerCategoryRecord("10", "Mixed"))
+        )
+        val source = categoryReuseProvider(api)
+        val category = (source.getUnifiedVodCategories() as Result.Success).data.single()
+        val before = api.vodCategoryCalls
+        val cold = categoryReuseProvider(api)
+        (1..24).map { async { cold.isWildcardCategory(ContentType.VOD, category.id) } }.awaitAll()
+        assertThat(api.vodCategoryCalls - before).isEqualTo(1)
+        cold.isWildcardCategory(ContentType.VOD, category.id)
+        assertThat(api.vodCategoryCalls - before).isEqualTo(1)
+    }
+
+    @Test
+    fun projectedCategoryDoesNotHideTheRestOfTheMovieCategoryList() = runTest {
+        val api = FakeStalkerApiService(
+            profile = StalkerProviderProfile(accountName = "Room"),
+            seriesCategories = listOf(StalkerCategoryRecord("10", "Series")),
+            vodCategories = listOf(StalkerCategoryRecord("10", "Mixed"), StalkerCategoryRecord("11", "Movies"))
+        )
+        val source = categoryReuseProvider(api)
+        val remaining = (source.getVodCategories() as Result.Success).data.single { it.name == "Movies" }
+        val target = categoryReuseProvider(api)
+        val series = (target.getSeriesCategories() as Result.Success).data.single()
+        target.projectSeriesCategoryToVod(series.id)
+        assertThat(target.projectVodCategoryToSeries(remaining.id)).isNotNull()
+    }
 
     @Test
     fun layoutDetectionCategoriesAreConsumedOnceWithoutRepeatingDiscovery() = runTest {

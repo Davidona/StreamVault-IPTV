@@ -916,6 +916,14 @@ class OkHttpStalkerApiService @Inject constructor(
         profile: StalkerDeviceProfile,
         categoryId: String?,
         page: Int
+    ): Result<StalkerPagedItems> = getSeriesPage(session, profile, categoryId, page, sortBy = null)
+
+    override suspend fun getSeriesPage(
+        session: StalkerSession,
+        profile: StalkerDeviceProfile,
+        categoryId: String?,
+        page: Int,
+        sortBy: String?
     ): Result<StalkerPagedItems> = runApiCall("Failed to load series") {
         fetchPagedItemPage(
             session = session,
@@ -926,6 +934,7 @@ class OkHttpStalkerApiService @Inject constructor(
                 put("action", "get_ordered_list")
                 put("JsHttpRequest", "1-xml")
                 categoryId?.takeIf { it.isNotBlank() }?.let { put("category", it) }
+                sortBy?.takeIf { it.isNotBlank() }?.let { put("sortby", it) }
             }
         )
     }
@@ -2853,7 +2862,7 @@ class OkHttpStalkerApiService @Inject constructor(
             else -> StalkerNetworkPriority.FOREGROUND
         }
         val permit = requestCoordinator.acquireNetworkPermit(profile.providerId, requestPriority)
-        var nonRateLimitedResponseObserved = false
+        var successfulResponseObserved = false
         return try {
             val baseClient = stalkerHttpClientFor(profile, request.url.toString())
             val remainingMillis = profile.discoveryRuntime.remainingMillis()
@@ -2865,8 +2874,8 @@ class OkHttpStalkerApiService @Inject constructor(
                     .build()
             }
             withCancellableStalkerCall(client.newCall(request)) { response ->
-                if (response.code != 429) {
-                    nonRateLimitedResponseObserved = true
+                if (response.isSuccessful) {
+                    successfulResponseObserved = true
                     requestCoordinator.recordNetworkSuccess(permit)
                 }
                 block(response)
@@ -2875,7 +2884,7 @@ class OkHttpStalkerApiService @Inject constructor(
             throw error
         } catch (error: Throwable) {
             requestCoordinator.recordIndexResponse(permit, error)
-            if (!nonRateLimitedResponseObserved) {
+            if (!successfulResponseObserved) {
                 requestCoordinator.recordNetworkFailure(permit, error)
             }
             if (error is StalkerApiError.TransportConsentRequired) throw error
@@ -3132,7 +3141,8 @@ class OkHttpStalkerApiService @Inject constructor(
             )
             in 500..599 -> StalkerApiError.Server(
                 message = "Portal request failed with HTTP $code.",
-                httpStatus = code
+                httpStatus = code,
+                retryAfterMillis = retryAfterMillis
             )
             else -> StalkerApiError.BlockedOrConfiguration(
                 message = "Portal request failed with HTTP $code."

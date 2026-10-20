@@ -131,7 +131,9 @@ interface ProviderSyncCommands {
         force: Boolean = false,
         maxCategoriesPerSection: Int? = null,
         onProgress: ((String) -> Unit)? = null,
-        maxPagesPerSection: Int? = null
+        maxPagesPerSection: Int? = null,
+        categoryHeadsOnly: Boolean = false,
+        scheduleContinuation: Boolean = true
     ): Result<Unit>
 
     suspend fun rebuildXtreamIndex(

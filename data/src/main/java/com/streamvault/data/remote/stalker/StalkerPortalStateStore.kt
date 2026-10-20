@@ -39,25 +39,22 @@ class StalkerPortalStateStore @Inject constructor(
     suspend fun get(providerId: Long): StalkerPortalStateEntity? = dao.get(providerId)
 
     internal fun indexPacing(state: StalkerPortalStateEntity): StalkerAdaptiveIndexPolicy = runCatching {
-        val pacing = json.parseToJsonElement(state.learningJson).jsonObject.getValue("indexPacing").jsonObject
+        val pacing = json.parseToJsonElement(state.learningJson).jsonObject.getValue("indexConcurrency").jsonObject
         require(pacing.getValue("configurationGeneration").jsonPrimitive.longOrNull == state.configurationGeneration)
-        StalkerAdaptiveIndexPolicy(
-            pacing.getValue("intervalMillis").jsonPrimitive.content.toLong(),
-            pacing.getValue("minimumIntervalMillis").jsonPrimitive.content.toLong()
-        )
+        // Relearn upward from at most three after a restart; a stressed serial profile stays serial.
+        StalkerAdaptiveIndexPolicy(pacing.getValue("limit").jsonPrimitive.content.toInt()
+            .coerceIn(StalkerAdaptiveIndexPolicy.MIN_CONCURRENCY, StalkerAdaptiveIndexPolicy.INITIAL_CONCURRENCY))
     }.getOrElse { StalkerAdaptiveIndexPolicy() }
 
     internal suspend fun recordIndexPacing(
         providerId: Long,
         configurationGeneration: Long,
-        intervalMillis: Long,
-        minimumIntervalMillis: Long
+        concurrency: Int
     ) = update(providerId, configurationGeneration) { state ->
         val learning = mutableLearning(state.learningJson)
-        learning["indexPacing"] = JsonObject(mapOf(
+        learning["indexConcurrency"] = JsonObject(mapOf(
             "configurationGeneration" to JsonPrimitive(configurationGeneration),
-            "intervalMillis" to JsonPrimitive(intervalMillis),
-            "minimumIntervalMillis" to JsonPrimitive(minimumIntervalMillis)
+            "limit" to JsonPrimitive(concurrency)
         ))
         state.copy(configurationGeneration = configurationGeneration, learningJson = JsonObject(learning).toString())
     }

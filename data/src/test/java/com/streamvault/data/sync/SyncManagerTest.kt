@@ -4109,7 +4109,7 @@ class SyncManagerTest {
     }
 
     @Test
-    fun sync_stalker_bootstrap_imports_prefix_without_certifying_bulk_fidelity() = runTest {
+    fun sync_stalker_bootstrap_imports_all_live_channels_and_certifies_bulk_fidelity() = runTest {
         val provider = sampleProvider(ProviderType.STALKER_PORTAL).copy(
             serverUrl = "http://example.com", username = "", password = "",
             stalkerMacAddress = "00:11:22:33:44:55", epgSyncMode = ProviderEpgSyncMode.SKIP
@@ -4133,12 +4133,13 @@ class SyncManagerTest {
         assertThat(manager.sync(1L, bootstrap = true)).isInstanceOf(Result.Success::class.java)
         val writes = argumentCaptor<List<com.streamvault.data.local.entity.ChannelImportStageEntity>>()
         verify(catalogSyncDao, atLeastOnce()).insertChannelStages(writes.capture())
-        assertThat(writes.allValues.flatten()).hasSize(200)
-        verify(portalState, org.mockito.kotlin.never()).recordBulkLive(any(), eq(true), anyOrNull(), any(), anyOrNull())
+        assertThat(writes.allValues.flatten()).hasSize(1000)
+        verify(portalState).recordBulkLive(any(), eq(true), anyOrNull(), any(), anyOrNull())
         assertThat(readinessTracker.current(1L)?.state)
             .isEqualTo(com.streamvault.domain.model.StalkerReadiness.READY)
-        assertThat(syncMetadataRepo.getMetadata(1L)?.lastLiveSuccess).isEqualTo(0L)
-        verify(workScheduler).scheduleProviderResume(1L)
+        assertThat(syncMetadataRepo.getMetadata(1L)?.lastLiveSuccess).isGreaterThan(0L)
+        verify(workScheduler).scheduleStalkerBootstrapResume(1L)
+        verify(workScheduler, org.mockito.kotlin.never()).scheduleProviderResume(1L)
     }
 
     @Test
@@ -4177,7 +4178,7 @@ class SyncManagerTest {
     }
 
     @Test
-    fun sync_stalker_bootstrap_category_fallback_stops_after_the_accepted_prefix() = runTest {
+    fun sync_stalker_bootstrap_category_fallback_imports_every_live_category() = runTest {
         val provider = sampleProvider(ProviderType.STALKER_PORTAL).copy(
             serverUrl = "http://example.com", username = "", password = "",
             stalkerMacAddress = "00:11:22:33:44:55", epgSyncMode = ProviderEpgSyncMode.SKIP
@@ -4216,11 +4217,12 @@ class SyncManagerTest {
 
         val writes = argumentCaptor<List<com.streamvault.data.local.entity.ChannelImportStageEntity>>()
         verify(catalogSyncDao, atLeastOnce()).insertChannelStages(writes.capture())
-        assertThat(writes.allValues.flatten()).hasSize(200)
+        assertThat(writes.allValues.flatten()).hasSize(251)
         verify(stalkerApiService).getLiveStreams(any(), any(), eq("10"))
-        verify(stalkerApiService, org.mockito.kotlin.never()).getLiveStreams(any(), any(), eq("20"))
+        verify(stalkerApiService).getLiveStreams(any(), any(), eq("20"))
         verify(portalState, org.mockito.kotlin.never()).recordBulkLive(any(), eq(true), anyOrNull(), any(), anyOrNull())
-        verify(workScheduler).scheduleProviderResume(1L)
+        verify(workScheduler).scheduleStalkerBootstrapResume(1L)
+        verify(workScheduler, org.mockito.kotlin.never()).scheduleProviderResume(1L)
     }
 
     @Test

@@ -426,6 +426,14 @@ interface StalkerApiService {
         page: Int
     ): Result<StalkerPagedItems>
 
+    suspend fun getSeriesPage(
+        session: StalkerSession,
+        profile: StalkerDeviceProfile,
+        categoryId: String?,
+        page: Int,
+        sortBy: String?
+    ): Result<StalkerPagedItems> = getSeriesPage(session, profile, categoryId, page)
+
     suspend fun getSeriesDetails(
         session: StalkerSession,
         profile: StalkerDeviceProfile,

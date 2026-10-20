@@ -1995,6 +1995,26 @@ class OkHttpStalkerApiServiceTest {
     }
 
     @Test
+    fun getSeriesPage_ordersIndexByAddedAndKeepsInteractiveDefault() = runTest {
+        val requestedSorts = mutableListOf<String?>()
+        val service = OkHttpStalkerApiService(
+            okHttpClient = OkHttpClient.Builder().addInterceptor { chain ->
+                requestedSorts += chain.request().url.queryParameter("sortby")
+                Response.Builder().request(chain.request()).protocol(Protocol.HTTP_1_1)
+                    .code(200).message("OK")
+                    .body("""{"js":{"total_items":1,"max_page_items":14,"data":[{"id":"1","name":"Series"}]}}"""
+                        .toResponseBody("application/json".toMediaType())).build()
+            }.build(),
+            json = Json { ignoreUnknownKeys = true }
+        )
+        assertThat(service.getSeriesPage(stalkerSession(), stalkerProfile(), "42", 1, "added"))
+            .isInstanceOf(Result.Success::class.java)
+        assertThat(service.getSeriesPage(stalkerSession(), stalkerProfile(), "42", 1))
+            .isInstanceOf(Result.Success::class.java)
+        assertThat(requestedSorts).containsExactly("added", null).inOrder()
+    }
+
+    @Test
     fun getVodStreamsPage_omits_sortby_when_not_requested() = runTest {
         var requestedSortBy: String? = "unset"
         val service = OkHttpStalkerApiService(

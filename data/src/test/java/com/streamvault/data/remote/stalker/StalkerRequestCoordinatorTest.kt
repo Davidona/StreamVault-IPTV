@@ -57,9 +57,9 @@ class StalkerRequestCoordinatorTest {
             val background = async {
                 coordinator.execute(79L, StalkerRequestPriority.BACKGROUND_INDEX,
                     StalkerRequestDescriptor("MOVIE", "PAGE", page = 1)) {
-                    coordinator.acquireNetworkPermit(79L, StalkerNetworkPriority.INDEX)
+                    coordinator.acquireNetworkPermit(79L, StalkerNetworkPriority.INDEX).also { coordinator.releaseNetworkPermit(it) }
                     // The page-base probe's second HTTP call waits inside the same logical page.
-                    coordinator.acquireNetworkPermit(79L, StalkerNetworkPriority.INDEX)
+                    coordinator.acquireNetworkPermit(79L, StalkerNetworkPriority.INDEX).also { coordinator.releaseNetworkPermit(it) }
                 }
             }
             runCurrent()
@@ -87,37 +87,46 @@ class StalkerRequestCoordinatorTest {
     }
 
     @Test
-    fun healthyIndexWalkRampsToTwoPerSecondWithoutTokenBucketBottleneck() = runTest {
-        val coordinator = StalkerRequestCoordinator(null, true) { testScheduler.currentTime }
-        val times = (1..715).map {
+    fun movieAndSeriesShareThreeWireSlotsAndGrowToEightWithoutTimedSpacing() = runTest {
+        val coordinator = StalkerRequestCoordinator(null, true, { testScheduler.currentTime }, 8)
+        val held = (1..3).map { coordinator.acquireNetworkPermit(71L, StalkerNetworkPriority.INDEX) }
+        val fourth = async { coordinator.acquireNetworkPermit(71L, StalkerNetworkPriority.INDEX) }
+        runCurrent()
+        assertThat(fourth.isCompleted).isFalse()
+        coordinator.releaseNetworkPermit(held.first())
+        testScheduler.advanceTimeBy(100)
+        runCurrent()
+        coordinator.releaseNetworkPermit(fourth.await())
+        held.drop(1).forEach { coordinator.releaseNetworkPermit(it) }
+        repeat(100) {
             val permit = coordinator.acquireNetworkPermit(71L, StalkerNetworkPriority.INDEX)
             coordinator.recordIndexResponse(permit)
-            testScheduler.currentTime
+            coordinator.releaseNetworkPermit(permit)
         }
-        assertThat(times[1] - times[0]).isEqualTo(5_000L)
-        assertThat(times.zipWithNext { a, b -> b - a }.minOrNull()).isEqualTo(500L)
-        assertThat(times.takeLast(100).zipWithNext { a, b -> b - a }.toSet()).containsExactly(500L)
-        // Virtual admission benchmark, excluding transport/DB work: 715 pages / 10k rows.
-        assertThat(times.last()).isLessThan(600_000L)
-        println("Stalker virtual admission benchmark: pages=715 elapsedMillis=${times.last()} tailIntervalMillis=500")
+        assertThat(coordinator.effectiveIndexConcurrencyLimit(71L)).isEqualTo(8)
+        val eight = (1..8).map { coordinator.acquireNetworkPermit(71L, StalkerNetworkPriority.INDEX) }
+        assertThat(eight.map { it.admittedAt }.distinct()).hasSize(1)
+        val ninth = async { coordinator.acquireNetworkPermit(71L, StalkerNetworkPriority.INDEX) }
+        runCurrent()
+        assertThat(ninth.isCompleted).isFalse()
+        ninth.cancel(); ninth.join()
+        eight.forEach { coordinator.releaseNetworkPermit(it) }
     }
 
     @Test
-    fun stressSlowsOnlyItsProviderAndCannotRampAbovePreStressRate() = runTest {
-        val coordinator = StalkerRequestCoordinator(null, true) { testScheduler.currentTime }
-        val first = coordinator.acquireNetworkPermit(72L, StalkerNetworkPriority.INDEX)
-        coordinator.recordIndexResponse(first, StalkerApiError.Server("busy", httpStatus = 503))
-        val second = coordinator.acquireNetworkPermit(72L, StalkerNetworkPriority.INDEX)
-        assertThat(second.admittedAt - first.admittedAt).isEqualTo(10_000L)
-        repeat(60) {
-            coordinator.recordIndexResponse(coordinator.acquireNetworkPermit(72L, StalkerNetworkPriority.INDEX))
+    fun stressHalvesOnlyItsProvidersWindowAndSuccessCanRelearn() = runTest {
+        val coordinator = StalkerRequestCoordinator(null, true, { testScheduler.currentTime }, 8)
+        val permit = coordinator.acquireNetworkPermit(72L, StalkerNetworkPriority.INDEX)
+        coordinator.recordIndexResponse(permit, StalkerApiError.Server("busy", httpStatus = 500))
+        coordinator.releaseNetworkPermit(permit)
+        assertThat(coordinator.effectiveIndexConcurrencyLimit(72L)).isEqualTo(1)
+        assertThat(coordinator.effectiveIndexConcurrencyLimit(73L)).isEqualTo(3)
+        repeat(20) {
+            val next = coordinator.acquireNetworkPermit(72L, StalkerNetworkPriority.INDEX)
+            coordinator.recordIndexResponse(next)
+            coordinator.releaseNetworkPermit(next)
         }
-        val before = testScheduler.currentTime
-        coordinator.acquireNetworkPermit(72L, StalkerNetworkPriority.INDEX)
-        assertThat(testScheduler.currentTime - before).isEqualTo(10_000L)
-        val other = coordinator.acquireNetworkPermit(73L, StalkerNetworkPriority.INDEX)
-        val otherNext = coordinator.acquireNetworkPermit(73L, StalkerNetworkPriority.INDEX)
-        assertThat(otherNext.admittedAt - other.admittedAt).isEqualTo(5_000L)
+        assertThat(coordinator.effectiveIndexConcurrencyLimit(72L)).isEqualTo(2)
     }
 
     @Test
@@ -126,6 +135,7 @@ class StalkerRequestCoordinatorTest {
         StalkerTrafficCoordinator.notePlaybackStarted(74L)
         try {
             val first = coordinator.acquireNetworkPermit(74L, StalkerNetworkPriority.INDEX)
+            coordinator.releaseNetworkPermit(first)
             val next = async { coordinator.acquireNetworkPermit(74L, StalkerNetworkPriority.INDEX) }
             runCurrent()
             val interactive = coordinator.acquireNetworkPermit(74L, StalkerNetworkPriority.INTERACTIVE)
@@ -135,13 +145,15 @@ class StalkerRequestCoordinatorTest {
             assertThat(next.isCompleted).isFalse()
             coordinator.releaseNetworkPermit(interactive)
             advanceUntilIdle()
-            assertThat(next.await().admittedAt - first.admittedAt).isAtLeast(20_000L)
+            val second = next.await()
+            assertThat(second.admittedAt - first.admittedAt).isAtLeast(20_000L)
+            coordinator.releaseNetworkPermit(second)
         } finally { StalkerTrafficCoordinator.forgetProvider(74L) }
     }
 
     @Test
-    fun foregroundTrafficYieldsNoIndexCreditAndItsStressSlowsTheIndex() = runTest {
-        val coordinator = StalkerRequestCoordinator(null, true) { testScheduler.currentTime }
+    fun foregroundStressShrinksIndexAndBlocksNewPagesUntilForegroundCompletes() = runTest {
+        val coordinator = StalkerRequestCoordinator(null, true, { testScheduler.currentTime }, 8)
         val foreground = coordinator.acquireNetworkPermit(77L, StalkerNetworkPriority.FOREGROUND)
         val background = async { coordinator.acquireNetworkPermit(77L, StalkerNetworkPriority.INDEX) }
         runCurrent()
@@ -149,15 +161,13 @@ class StalkerRequestCoordinatorTest {
         coordinator.recordIndexResponse(foreground, java.net.SocketTimeoutException())
         coordinator.releaseNetworkPermit(foreground)
         advanceUntilIdle()
-        val first = background.await()
-        val second = coordinator.acquireNetworkPermit(77L, StalkerNetworkPriority.INDEX)
-        assertThat(second.admittedAt - first.admittedAt).isEqualTo(10_000L)
+        coordinator.releaseNetworkPermit(background.await())
+        assertThat(coordinator.effectiveIndexConcurrencyLimit(77L)).isEqualTo(1)
     }
 
     @Test
-    fun cancelledInteractiveWaiterDoesNotStarveIndex() = runTest {
+    fun cancelledInteractiveWaiterDoesNotStarveIndexOrSpendForegroundCredits() = runTest {
         val coordinator = StalkerRequestCoordinator(null, true) { testScheduler.currentTime }
-        // Drain foreground credits, then exceed interactive borrowing so its next permit queues.
         repeat(8) { coordinator.acquireNetworkPermit(78L, StalkerNetworkPriority.FOREGROUND).also {
             coordinator.releaseNetworkPermit(it)
         } }
@@ -166,10 +176,10 @@ class StalkerRequestCoordinatorTest {
         } }
         val interactive = async { coordinator.acquireNetworkPermit(78L, StalkerNetworkPriority.INTERACTIVE) }
         runCurrent()
-        interactive.cancel()
-        interactive.join()
+        interactive.cancel(); interactive.join()
         val index = coordinator.acquireNetworkPermit(78L, StalkerNetworkPriority.INDEX)
-        assertThat(index.admittedAt).isEqualTo(3_000L)
+        assertThat(index.admittedAt).isEqualTo(0L)
+        coordinator.releaseNetworkPermit(index)
     }
 
     @Test
@@ -183,11 +193,12 @@ class StalkerRequestCoordinatorTest {
 
     @Test
     fun retryAfterBlocksAllLanesAndAllowsExactlyOneHalfOpenProbe() = runTest {
-        val coordinator = StalkerRequestCoordinator(null, true) { testScheduler.currentTime }
+        val coordinator = StalkerRequestCoordinator(null, true, { testScheduler.currentTime }, 8)
         val first = coordinator.acquireNetworkPermit(76L, StalkerNetworkPriority.INDEX)
         val error = StalkerApiError.RateLimited(retryAfterMillis = 1_200_000L)
         coordinator.recordIndexResponse(first, error)
         coordinator.recordNetworkFailure(first, error)
+        coordinator.releaseNetworkPermit(first)
         repeat(3) {
             try {
                 coordinator.acquireNetworkPermit(76L, StalkerNetworkPriority.INTERACTIVE)
@@ -207,8 +218,53 @@ class StalkerRequestCoordinatorTest {
         }
         coordinator.recordNetworkSuccess(probe)
         coordinator.recordIndexResponse(probe)
+        coordinator.releaseNetworkPermit(probe)
+        assertThat(coordinator.effectiveIndexConcurrencyLimit(76L)).isEqualTo(1)
         val next = coordinator.acquireNetworkPermit(76L, StalkerNetworkPriority.INDEX)
-        assertThat(next.admittedAt - probe.admittedAt).isEqualTo(10_000L)
+        assertThat(next.admittedAt).isEqualTo(probe.admittedAt)
+        coordinator.releaseNetworkPermit(next)
+    }
+
+    @Test
+    fun fullIndexWindowLeavesMetadataSlotForInteractiveWork() = runTest {
+        val coordinator = StalkerRequestCoordinator(null, true, { testScheduler.currentTime }, 8)
+        val finish = CompletableDeferred<Unit>()
+        val pages = (1..3).map { page -> async {
+            coordinator.execute(81L, StalkerRequestPriority.BACKGROUND_INDEX,
+                StalkerRequestDescriptor("MOVIE", "PAGE", page = page)) { finish.await() }
+        } }
+        runCurrent()
+        assertThat(coordinator.snapshot(81L).active).isEqualTo(3)
+        val interactive = async {
+            coordinator.execute(81L, StalkerRequestPriority.OPEN_CATEGORY,
+                StalkerRequestDescriptor("SERIES", "CATEGORY")) { "ready" }
+        }
+        runCurrent()
+        assertThat(interactive.await()).isEqualTo("ready")
+        finish.complete(Unit)
+        pages.awaitAll()
+    }
+
+    @Test
+    fun serverRetryAfterPausesEveryLaneAndFailedProbeKeepsCircuitClosed() = runTest {
+        val coordinator = StalkerRequestCoordinator(null, true, { testScheduler.currentTime }, 8)
+        val first = coordinator.acquireNetworkPermit(82L, StalkerNetworkPriority.INDEX)
+        val error = StalkerApiError.Server("busy", httpStatus = 503, retryAfterMillis = 600_000L)
+        coordinator.recordIndexResponse(first, error)
+        coordinator.recordNetworkFailure(first, error)
+        coordinator.releaseNetworkPermit(first)
+        val rejected = runCatching {
+            coordinator.acquireNetworkPermit(82L, StalkerNetworkPriority.INTERACTIVE)
+        }.exceptionOrNull() as StalkerApiError.RateLimited
+        assertThat(rejected.retryAfterMillis).isEqualTo(600_000L)
+        testScheduler.advanceTimeBy(600_000L)
+        val probe = coordinator.acquireNetworkPermit(82L, StalkerNetworkPriority.INDEX)
+        coordinator.recordNetworkFailure(probe, StalkerApiError.Server("busy", httpStatus = 503))
+        coordinator.releaseNetworkPermit(probe)
+        val stillClosed = runCatching {
+            coordinator.acquireNetworkPermit(82L, StalkerNetworkPriority.FOREGROUND)
+        }.exceptionOrNull() as StalkerApiError.RateLimited
+        assertThat(stillClosed.retryAfterMillis).isEqualTo(300_000L)
     }
 
     @Test

@@ -24,9 +24,10 @@ class StalkerIncrementalIndexExecutorTest {
         val wildcard = CategoryEntity(categoryId = -9L, name = "All", type = ContentType.MOVIE, providerId = 91L)
         val operations = WildcardIndexOperations(wildcard)
         val api = mock<StalkerProvider>()
+        whenever(api.isWildcardCategory(org.mockito.kotlin.any(), org.mockito.kotlin.any())).thenReturn(false)
         whenever(api.isWildcardCategory(ContentType.MOVIE, wildcard.categoryId)).thenReturn(true)
 
-        StalkerIncrementalIndexExecutor(operations, configuredWildcardPageConcurrency = 2)
+        StalkerIncrementalIndexExecutor(operations, configuredWildcardPageConcurrency = 2, adaptiveCategoryPaging = false)
             .processSummary(
                 provider = LegacyProvider(
                     id = 91L,
@@ -54,8 +55,9 @@ class StalkerIncrementalIndexExecutorTest {
         val wildcard = CategoryEntity(categoryId = -9L, name = "All", type = ContentType.MOVIE, providerId = 91L)
         val operations = WildcardIndexOperations(wildcard, failPageOneOnce = true)
         val api = mock<StalkerProvider>()
+        whenever(api.isWildcardCategory(org.mockito.kotlin.any(), org.mockito.kotlin.any())).thenReturn(false)
         whenever(api.isWildcardCategory(ContentType.MOVIE, wildcard.categoryId)).thenReturn(true)
-        val executor = StalkerIncrementalIndexExecutor(operations, configuredWildcardPageConcurrency = 2)
+        val executor = StalkerIncrementalIndexExecutor(operations, configuredWildcardPageConcurrency = 2, adaptiveCategoryPaging = false)
         val provider = LegacyProvider(
             id = 91L,
             name = "Portal",
@@ -78,14 +80,123 @@ class StalkerIncrementalIndexExecutorTest {
         assertThat(operations.indexedMovies.map(Movie::id)).containsExactly(1L, 2L).inOrder()
     }
 
+    @Test
+    fun categoryHeadSweepFetchesPageOneForEveryVisibleCategoryWithoutWildcardWalk() = runTest {
+        val wildcard = CategoryEntity(categoryId = -9L, name = "All", type = ContentType.MOVIE, providerId = 91L)
+        val action = CategoryEntity(categoryId = 10L, name = "Action", type = ContentType.MOVIE, providerId = 91L)
+        val drama = CategoryEntity(categoryId = 20L, name = "Drama", type = ContentType.MOVIE, providerId = 91L)
+        val operations = WildcardIndexOperations(
+            wildcard,
+            categories = listOf(wildcard, action, drama),
+            categoryConcurrency = 1
+        )
+        val api = mock<StalkerProvider>()
+        whenever(api.isWildcardCategory(org.mockito.kotlin.any(), org.mockito.kotlin.any())).thenReturn(false)
+        whenever(api.isWildcardCategory(ContentType.MOVIE, wildcard.categoryId)).thenReturn(true)
+
+        StalkerIncrementalIndexExecutor(operations, configuredWildcardPageConcurrency = 2, adaptiveCategoryPaging = false)
+            .processCategoryHeads(
+                provider = LegacyProvider(
+                    id = 91L,
+                    name = "Portal",
+                    type = ProviderType.STALKER_PORTAL,
+                    serverUrl = "https://portal.invalid",
+                    catalogLayout = CatalogLayout.SPLIT
+                ),
+                api = api,
+                contentType = ContentType.MOVIE,
+                onProgress = null
+            )
+
+        assertThat(operations.summaryFetches).containsExactly(10L to 1, 20L to 1).inOrder()
+        assertThat(operations.maxConcurrentFetches).isEqualTo(2)
+        assertThat(operations.completedFetchPages).isEmpty()
+        assertThat(operations.categoryHydration(10L)?.lastSuccessfulPage).isEqualTo(1)
+        assertThat(operations.categoryHydration(20L)?.lastSuccessfulPage).isEqualTo(1)
+        assertThat(operations.indexedMovies).hasSize(2)
+    }
+
+    @Test
+    fun adaptiveHeadsProbeOnceThenFetchEveryCategoryHeadAndResumeAtPageTwo() = runTest {
+        val wildcard = CategoryEntity(categoryId = -9L, name = "All", type = ContentType.MOVIE, providerId = 91L)
+        val categories = (1L..24L).map { CategoryEntity(categoryId = it, name = "Category $it", type = ContentType.MOVIE, providerId = 91L) }
+        val operations = WildcardIndexOperations(wildcard, categories = listOf(wildcard) + categories,
+            singlePageProbe = true, summaryPageCount = 9)
+        val api = mock<StalkerProvider>()
+        whenever(api.isWildcardCategory(org.mockito.kotlin.any(), org.mockito.kotlin.any())).thenReturn(false)
+        whenever(api.isWildcardCategory(ContentType.MOVIE, wildcard.categoryId)).thenReturn(true)
+        val executor = StalkerIncrementalIndexExecutor(operations, 8, adaptiveCategoryPaging = true)
+        val provider = LegacyProvider(91L, "Portal", ProviderType.STALKER_PORTAL,
+            serverUrl = "https://portal.invalid", catalogLayout = CatalogLayout.SPLIT)
+
+        executor.processCategoryHeads(provider, api, ContentType.MOVIE, null)
+
+        assertThat(operations.completedFetchPages).containsExactly(1)
+        assertThat(operations.summaryFetches).containsExactlyElementsIn(categories.map { it.categoryId to 1 })
+        assertThat(operations.summaryFetchCountAtFirstCommit).isEqualTo(8)
+        assertThat(operations.maxConcurrentFetches).isEqualTo(8)
+        assertThat(operations.metadataPublications.any { (state, rows) -> state == "RUNNING" && rows in 2..24 }).isTrue()
+        categories.forEach { assertThat(operations.categoryHydration(it.categoryId)?.lastSuccessfulPage).isEqualTo(1) }
+        operations.summaryFetches.clear()
+        executor.processCategoryHeads(provider, api, ContentType.MOVIE, null)
+        assertThat(operations.summaryFetches).isEmpty()
+        assertThat(operations.completedFetchPages).containsExactly(1)
+    }
+
+    @Test
+    fun adaptiveSingleCategoryFillsEightPageWindowAndCommitsOutOfOrderRepliesInOrder() = runTest {
+        val category = CategoryEntity(categoryId = 10L, name = "Action", type = ContentType.MOVIE, providerId = 91L)
+        val operations = WildcardIndexOperations(category, summaryPageCount = 9)
+        val api = mock<StalkerProvider>()
+        whenever(api.isWildcardCategory(org.mockito.kotlin.any(), org.mockito.kotlin.any())).thenReturn(false)
+        val executor = StalkerIncrementalIndexExecutor(operations, 8, adaptiveCategoryPaging = true)
+        val provider = LegacyProvider(91L, "Portal", ProviderType.STALKER_PORTAL, serverUrl = "https://portal.invalid")
+        executor.processCategoryHeads(provider, api, ContentType.MOVIE, null)
+        operations.committedPages.clear()
+
+        executor.processSummary(provider, api, ContentType.MOVIE, 1, null, maxPages = 8)
+
+        assertThat(operations.maxConcurrentFetches).isEqualTo(8)
+        assertThat(operations.summaryCompletions.takeLast(8).first()).isNotEqualTo(2)
+        assertThat(operations.committedPages).containsExactlyElementsIn(2..9).inOrder()
+        assertThat(operations.categoryHydration(10L)?.itemCount).isEqualTo(9)
+        assertThat(operations.categoryHydration(10L)?.isComplete).isTrue()
+    }
+
+    @Test
+    fun adaptiveCategoryWindowNeverCheckpointsPastAFailedPage() = runTest {
+        val category = CategoryEntity(categoryId = 10L, name = "Action", type = ContentType.MOVIE, providerId = 91L)
+        val operations = WildcardIndexOperations(category, summaryPageCount = 9,
+            summaryFailurePageOnce = 4, summaryFailuresRemaining = 2)
+        val api = mock<StalkerProvider>()
+        whenever(api.isWildcardCategory(org.mockito.kotlin.any(), org.mockito.kotlin.any())).thenReturn(false)
+        val executor = StalkerIncrementalIndexExecutor(operations, 8, adaptiveCategoryPaging = true)
+        val provider = LegacyProvider(91L, "Portal", ProviderType.STALKER_PORTAL, serverUrl = "https://portal.invalid")
+        executor.processCategoryHeads(provider, api, ContentType.MOVIE, null)
+        operations.committedPages.clear()
+        executor.processSummary(provider, api, ContentType.MOVIE, 1, null, maxPages = 8)
+        assertThat(operations.committedPages).containsExactly(2, 3).inOrder()
+        operations.committedPages.clear()
+        assertThat(operations.categoryHydration(10L)?.lastSuccessfulPage).isEqualTo(3)
+        executor.processSummary(provider, api, ContentType.MOVIE, 1, null, maxPages = 8)
+        assertThat(operations.committedPages).containsExactlyElementsIn(4..9).inOrder()
+        assertThat(operations.categoryHydration(10L)?.isComplete).isTrue()
+    }
+
     private class WildcardIndexOperations(
         private val wildcard: CategoryEntity,
-        private var failPageOneOnce: Boolean = false
+        private var failPageOneOnce: Boolean = false,
+        private val categories: List<CategoryEntity> = listOf(wildcard),
+        categoryConcurrency: Int = 2,
+        private val singlePageProbe: Boolean = false,
+        private val summaryPageCount: Int = 2,
+        private var summaryFailurePageOnce: Int? = null,
+        private var summaryFailuresRemaining: Int = 1
     ) : StalkerIncrementalIndexOperations {
         override val runtimeProfile = CatalogSyncRuntimeProfile(
             tier = DeviceSyncTier.HIGH,
             stageBatchSize = 100,
-            maxCategoryConcurrency = 2,
+            maxCategoryConcurrency = categoryConcurrency,
             preferSegmentedLiveOnboarding = false,
             deferBackgroundWorkOnLowMemory = false,
             snapshot = SyncDeviceSnapshot(
@@ -104,10 +215,15 @@ class StalkerIncrementalIndexExecutorTest {
 
         var hydration: StalkerHydrationSnapshot? = null
             private set
+        private val categoryHydrations = mutableMapOf<Long, StalkerHydrationSnapshot>()
         val committedPages = mutableListOf<Int>()
         val failedPages = mutableListOf<Int>()
         val completedFetchPages = mutableListOf<Int>()
+        val summaryFetches = mutableListOf<Pair<Long, Int>>()
+        var summaryFetchCountAtFirstCommit: Int? = null
+        val summaryCompletions = mutableListOf<Int>()
         val indexedMovies = mutableListOf<Movie>()
+        val metadataPublications = mutableListOf<Pair<String, Int>>()
         var activeFetches = 0
             private set
         var maxConcurrentFetches = 0
@@ -115,13 +231,15 @@ class StalkerIncrementalIndexExecutorTest {
         private val pageOneStarted = CompletableDeferred<Unit>()
         private val pageTwoStarted = CompletableDeferred<Unit>()
 
-        override suspend fun allVisibleCategories(providerId: Long, contentType: ContentType) = listOf(wildcard)
+        override suspend fun allVisibleCategories(providerId: Long, contentType: ContentType) = categories
 
         override suspend fun visibleCategories(
             contentType: ContentType,
             categories: List<CategoryEntity>,
             api: StalkerProvider
-        ) = categories
+        ) = categories.filterNot { category ->
+            category.categoryId == wildcard.categoryId && categories.any { it.categoryId != wildcard.categoryId }
+        }
 
         override suspend fun getJob(providerId: Long, contentType: ContentType): StalkerIndexJobEntity? = null
 
@@ -129,7 +247,8 @@ class StalkerIncrementalIndexExecutorTest {
             providerId: Long,
             contentType: ContentType,
             categoryId: Long
-        ): StalkerHydrationSnapshot? = hydration
+        ): StalkerHydrationSnapshot? = categoryHydrations[categoryId]
+            ?: hydration.takeIf { categoryId == wildcard.categoryId }
 
         override suspend fun currentIndexedRowCount(providerId: Long, contentType: ContentType): Int = indexedMovies.size
 
@@ -143,7 +262,7 @@ class StalkerIncrementalIndexExecutorTest {
             indexedRows: Int,
             finalState: String,
             now: Long
-        ) = Unit
+        ) { metadataPublications += finalState to indexedRows }
 
         override suspend fun fetchSummaryPage(
             provider: LegacyProvider,
@@ -151,7 +270,30 @@ class StalkerIncrementalIndexExecutorTest {
             contentType: ContentType,
             categoryId: Long,
             page: Int
-        ): Result<StalkerPagedResult<out Any>> = Result.error("Unexpected category fetch")
+        ): Result<StalkerPagedResult<out Any>> {
+            summaryFetches += categoryId to page
+            activeFetches += 1
+            maxConcurrentFetches = maxOf(maxConcurrentFetches, activeFetches)
+            return try {
+                delay(if (page == 2) 200 else 20)
+                summaryCompletions += page
+                if (summaryFailurePageOnce == page && summaryFailuresRemaining-- > 0) {
+                    return Result.error("Temporary page failure", java.io.IOException("reset"))
+                }
+                Result.success(
+                    StalkerPagedResult(
+                        items = listOf(Movie(id = categoryId * 100 + page, name = "Category $categoryId", streamId = categoryId * 100 + page)),
+                        page = page,
+                        totalPages = summaryPageCount,
+                        pageSize = 1,
+                        advertisedTotalItems = summaryPageCount,
+                        advertisedTotalPages = summaryPageCount
+                    )
+                )
+            } finally {
+                activeFetches -= 1
+            }
+        }
 
         override suspend fun fetchWildcardPage(
             provider: LegacyProvider,
@@ -163,7 +305,9 @@ class StalkerIncrementalIndexExecutorTest {
             activeFetches += 1
             maxConcurrentFetches = maxOf(maxConcurrentFetches, activeFetches)
             try {
-                if (page == 1) {
+                if (singlePageProbe) {
+                    delay(20)
+                } else if (page == 1) {
                     pageOneStarted.complete(Unit)
                     pageTwoStarted.await()
                     delay(200)
@@ -220,7 +364,7 @@ class StalkerIncrementalIndexExecutorTest {
             pageFingerprint: String?
         ) {
             committedPages += attemptedPage
-            this.hydration = StalkerHydrationSnapshot(
+            val snapshot = StalkerHydrationSnapshot(
                 lastHydratedAt = now,
                 itemCount = itemCount,
                 lastStatus = if (truncated) "TRUNCATED" else "SUCCESS",
@@ -238,6 +382,8 @@ class StalkerIncrementalIndexExecutorTest {
                 retryBudgetRemaining = 3,
                 lastPageFingerprint = pageFingerprint
             )
+            categoryHydrations[categoryId] = snapshot
+            if (categoryId == wildcard.categoryId) this.hydration = snapshot
         }
 
         override suspend fun markAttemptFailed(
@@ -253,7 +399,7 @@ class StalkerIncrementalIndexExecutorTest {
         ) {
             failedPages += attemptedPage
             val previous = hydration
-            this.hydration = (previous ?: StalkerHydrationSnapshot(
+            val snapshot = (previous ?: StalkerHydrationSnapshot(
                 lastHydratedAt = 0L,
                 itemCount = 0,
                 lastStatus = "RUNNING",
@@ -279,9 +425,14 @@ class StalkerIncrementalIndexExecutorTest {
                 retryBudgetRemaining = ((previous?.retryBudgetRemaining ?: 3) - 1).coerceAtLeast(0),
                 lastPageFingerprint = pageFingerprint
             )
+            categoryHydrations[categoryId] = snapshot
+            if (categoryId == wildcard.categoryId) this.hydration = snapshot
         }
 
         override suspend fun upsertMovieSummaryBatch(providerId: Long, movies: List<Movie>, indexedAt: Long) {
+            if (summaryFetchCountAtFirstCommit == null && summaryFetches.isNotEmpty()) {
+                summaryFetchCountAtFirstCommit = summaryFetches.size
+            }
             indexedMovies += movies
         }
 
@@ -298,6 +449,8 @@ class StalkerIncrementalIndexExecutorTest {
         override suspend fun restoreMovieWatchProgress(providerId: Long) = Unit
 
         override suspend fun upsertJob(update: CatalogIndexJobUpdate) = Unit
+
+        fun categoryHydration(categoryId: Long): StalkerHydrationSnapshot? = categoryHydrations[categoryId]
 
         override fun log(message: String) = Unit
     }

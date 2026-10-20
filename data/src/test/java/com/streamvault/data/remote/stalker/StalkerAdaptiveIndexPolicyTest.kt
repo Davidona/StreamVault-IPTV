@@ -5,36 +5,37 @@ import org.junit.Test
 
 class StalkerAdaptiveIndexPolicyTest {
     @Test
-    fun healthyRampRequiresBothSamplesAndTimeAndStopsAtTwoRequestsPerSecond() {
+    fun twentySuccessfulResponsesAddOneSlotUpToEight() {
         val policy = StalkerAdaptiveIndexPolicy()
-        repeat(100) { policy.success(0L, 100L, false) }
-        assertThat(policy.intervalMillis).isEqualTo(5_000L)
-        policy.success(15_000L, 100L, false)
-        assertThat(policy.intervalMillis).isEqualTo(3_750L)
-        repeat(1_000) { policy.success(30_000L + it * 1_000L, 100L, false) }
-        assertThat(policy.intervalMillis).isEqualTo(500L)
+        assertThat(policy.concurrency).isEqualTo(3)
+        repeat(19) { policy.success(false) }
+        assertThat(policy.concurrency).isEqualTo(3)
+        policy.success(false)
+        assertThat(policy.concurrency).isEqualTo(4)
+        repeat(1_000) { policy.success(false) }
+        assertThat(policy.concurrency).isEqualTo(8)
     }
 
     @Test
-    fun stressPermanentlyLowersLearnedCeilingAndBoundsRepeatedBackoff() {
-        val policy = StalkerAdaptiveIndexPolicy(1_000L)
+    fun stressHalvesWindowToOneAndHealthyResponsesCanRecover() {
+        val policy = StalkerAdaptiveIndexPolicy(8)
         policy.stress()
-        repeat(1_000) { policy.success(it * 2_000L, 100L, false) }
-        assertThat(policy.intervalMillis).isEqualTo(2_000L)
-        assertThat(policy.minimumIntervalMillis).isEqualTo(2_000L)
+        assertThat(policy.concurrency).isEqualTo(4)
         repeat(100) { policy.stress() }
-        assertThat(policy.intervalMillis).isEqualTo(30_000L)
+        assertThat(policy.concurrency).isEqualTo(1)
+        repeat(20) { policy.success(false) }
+        assertThat(policy.concurrency).isEqualTo(2)
     }
 
     @Test
-    fun playbackAndFailuresBreakHealthyStreakAndSlowResponsesBackOff() {
+    fun playbackAndFailuresBreakHealthyStreak() {
         val policy = StalkerAdaptiveIndexPolicy()
-        repeat(11) { policy.success(it * 2_000L, 100L, false) }
-        policy.success(30_000L, 100L, true)
-        policy.success(32_000L, 100L, false)
-        assertThat(policy.intervalMillis).isEqualTo(5_000L)
+        repeat(19) { policy.success(false) }
+        policy.success(true)
+        policy.success(false)
+        assertThat(policy.concurrency).isEqualTo(3)
         policy.resetHealth()
-        policy.success(60_000L, 2_000L, false)
-        assertThat(policy.intervalMillis).isEqualTo(10_000L)
+        repeat(19) { policy.success(false) }
+        assertThat(policy.concurrency).isEqualTo(3)
     }
 }

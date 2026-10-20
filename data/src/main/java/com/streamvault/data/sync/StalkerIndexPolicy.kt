@@ -210,9 +210,12 @@ internal object StalkerIndexPolicy {
      */
     fun wildcardBackfillCategories(
         normalCategories: List<CategoryEntity>,
-        localRowCounts: Map<Long, Int>
+        localRowCounts: Map<Long, Int>,
+        advertisedTotals: Map<Long, Int> = emptyMap()
     ): List<CategoryEntity> = normalCategories.filter { category ->
-        (localRowCounts[category.categoryId] ?: 0) == 0
+        val localRows = localRowCounts[category.categoryId] ?: 0
+        val advertisedTotal = advertisedTotals[category.categoryId]
+        if (advertisedTotal != null) localRows < advertisedTotal else localRows == 0
     }
 
     fun dedupePageItems(items: List<out Any>, contentType: ContentType): List<out Any> {

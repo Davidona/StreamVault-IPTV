@@ -15,6 +15,7 @@ import com.streamvault.data.remote.http.buildAppUserAgent
 import com.streamvault.data.remote.http.buildOpenSubtitlesUserAgent
 import com.streamvault.data.remote.stalker.OkHttpStalkerApiService
 import com.streamvault.data.remote.stalker.StalkerApiService
+import com.streamvault.data.remote.stalker.StalkerRequestCoordinator
 import com.streamvault.data.remote.xtream.XtreamApiService
 import com.streamvault.data.remote.xtream.OkHttpXtreamApiService
 import com.streamvault.data.remote.xtream.XtreamUrlFactory
@@ -129,8 +130,12 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideStalkerApiService(okHttpClient: OkHttpClient, xtreamJson: Json): StalkerApiService =
-        OkHttpStalkerApiService(okHttpClient, xtreamJson)
+    fun provideStalkerApiService(
+        okHttpClient: OkHttpClient,
+        xtreamJson: Json,
+        requestCoordinator: StalkerRequestCoordinator
+    ): StalkerApiService =
+        OkHttpStalkerApiService(okHttpClient, xtreamJson, requestCoordinator = requestCoordinator)
 
     @Provides
     @Singleton
