@@ -33,9 +33,22 @@ class VodTrackSelectionSheetTest {
             var background by remember { mutableStateOf(0x80000000.toInt()) }
             var offset by remember { mutableStateOf(0) }
             StreamVaultTheme {
-                VodTrackSelectionSheet(TrackType.TEXT, tracks, offset, scale, background, true,
-                    { dismissals++ }, { selected = it }, { searches++ }, { imports++ },
-                    { offset += it }, { offset = 0 }, { scale = it }, { background = (it * 255 / 100) shl 24 })
+                VodTrackSelectionSheet(
+                    trackType = TrackType.TEXT,
+                    tracks = tracks,
+                    offsetMs = offset,
+                    textScale = scale,
+                    backgroundColor = background,
+                    onlineAvailable = true,
+                    onDismiss = { dismissals++ },
+                    onSelectTrack = { selected = it },
+                    onSearchOnline = { searches++ },
+                    onLoadLocal = { imports++ },
+                    onAdjustOffset = { offset += it },
+                    onResetOffset = { offset = 0 },
+                    onSetTextScale = { scale = it },
+                    onSetOpacity = { background = (it * 255 / 100) shl 24 },
+                )
             }
         }
         rule.onNodeWithText("Provider subtitles").assertIsDisplayed()
@@ -77,8 +90,22 @@ class VodTrackSelectionSheetTest {
             PlayerTrack("he", "Hebrew · Stereo", "he", TrackType.AUDIO, false))
         rule.setContent {
             StreamVaultTheme {
-                VodTrackSelectionSheet(TrackType.AUDIO, audio, 0, 1f, 0, false,
-                    {}, { selected = it }, {}, {}, {}, {}, {}, {})
+                VodTrackSelectionSheet(
+                    trackType = TrackType.AUDIO,
+                    tracks = audio,
+                    offsetMs = 0,
+                    textScale = 1f,
+                    backgroundColor = 0,
+                    onlineAvailable = false,
+                    onDismiss = {},
+                    onSelectTrack = { selected = it },
+                    onSearchOnline = {},
+                    onLoadLocal = {},
+                    onAdjustOffset = {},
+                    onResetOffset = {},
+                    onSetTextScale = {},
+                    onSetOpacity = {},
+                )
             }
         }
         rule.onNodeWithText("English · Stereo").assertIsDisplayed()

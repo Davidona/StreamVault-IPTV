@@ -12,6 +12,7 @@ import com.streamvault.domain.model.RecordingStorageState
 import com.streamvault.domain.model.Result
 import com.streamvault.domain.usecase.ScheduleRecording
 import com.streamvault.domain.usecase.ScheduleRecordingCommand
+import com.streamvault.domain.usecase.ScheduleRecordingWindow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
@@ -24,7 +25,8 @@ class PlayerRecordingCoordinatorTest {
         val manager = FakeRecordingManager()
         val coordinator = PlayerRecordingCoordinator(
             recordingManager = manager,
-            scheduleRecording = ScheduleRecording(manager)
+            scheduleRecording = ScheduleRecording(manager),
+            scheduleRecordingWindow = ScheduleRecordingWindow(manager)
         )
 
         val result = coordinator.scheduleRecording(

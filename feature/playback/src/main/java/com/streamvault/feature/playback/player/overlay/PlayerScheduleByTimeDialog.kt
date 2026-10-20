@@ -74,7 +74,8 @@ fun PlayerScheduleByTimeDialog(
     var durationMinutes by remember(now) { mutableIntStateOf(60) }
     var recurrence by remember(now) { mutableStateOf(RecordingRecurrence.NONE) }
 
-    val timeFormat = remember { LocalUiTimeFormat.current.createTimeFormat() }
+    val uiTimeFormat = LocalUiTimeFormat.current
+    val timeFormat = remember(uiTimeFormat) { uiTimeFormat.createTimeFormat() }
     val startMs = now + startOffsetMinutes * 60_000L
     val endMs = startMs + durationMinutes * 60_000L
     val confirmFocusRequester = remember { FocusRequester() }

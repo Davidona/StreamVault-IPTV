@@ -1,6 +1,18 @@
 ﻿# Changelog
 
 All notable product changes are recorded in this document.
+## [1.2.2]
+
+### Added
+- Added time-based recording scheduling so live channels without EPG data can be recorded for a chosen start time and duration, with daily and weekly repeat options, from the player's recording menu.
+
+### Changed
+- Localized player recording notices and EPG recording messages across all supported locales.
+
+### Fixed
+- Fixed audio stopping after a while.
+- Fixed the player crashing when scheduling a recording (Schedule, Record Daily, or Record Weekly): the recording coordinator called itself instead of the scheduling use case, causing a stack overflow.
+- Fixed the notification permission prompt running the recording action before the permission result was known.
 
 ## [1.2.1]
 
