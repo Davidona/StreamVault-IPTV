@@ -30,6 +30,7 @@ internal data class SyncContinuation(
 
 internal enum class SyncContinuationOperation {
     FULL_CATALOG,
+    STALKER_BOOTSTRAP_RESUME,
     INDEX_CATALOG,
     REFRESH_GUIDE
 }

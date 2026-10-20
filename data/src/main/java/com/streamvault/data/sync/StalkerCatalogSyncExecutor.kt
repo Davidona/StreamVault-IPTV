@@ -251,8 +251,7 @@ internal class StalkerCatalogSyncExecutor(
                 if (storedCategoryType == ContentType.VOD) ContentType.MOVIE.name else ContentType.VOD.name
             )
             movieCategoryCount = categories.size
-            if (!bootstrap && provider.stalkerCatalogMode == StalkerCatalogMode.BACKGROUND_INDEX
-            ) {
+            if (provider.stalkerCatalogMode == StalkerCatalogMode.BACKGROUND_INDEX) {
                 sectionExecutor.queueIndexSection(provider.id, ContentType.MOVIE, categories.size, now)
             }
             metadata = metadata.copy(
@@ -303,7 +302,7 @@ internal class StalkerCatalogSyncExecutor(
             )
             catalogActivated = true
             seriesCategoryCount = categories.size
-            if (!bootstrap && provider.stalkerCatalogMode == StalkerCatalogMode.BACKGROUND_INDEX) {
+            if (provider.stalkerCatalogMode == StalkerCatalogMode.BACKGROUND_INDEX) {
                 sectionExecutor.queueIndexSection(provider.id, ContentType.SERIES, categories.size, now)
             }
             metadata = metadata.copy(
@@ -337,7 +336,12 @@ internal class StalkerCatalogSyncExecutor(
                 force = force
             )
         }
-        if (bootstrap) {
+        if (bootstrap && provider.stalkerCatalogMode == StalkerCatalogMode.BACKGROUND_INDEX) {
+            continuationWork += SyncContinuation(
+                operation = SyncContinuationOperation.STALKER_BOOTSTRAP_RESUME,
+                reason = "bootstrap category shells are committed; fetch the first VOD page and finish live onboarding"
+            )
+        } else if (bootstrap) {
             continuationWork += SyncContinuation(
                 operation = SyncContinuationOperation.FULL_CATALOG,
                 reason = "bootstrap catalog is committed; durable full provider sync is queued",

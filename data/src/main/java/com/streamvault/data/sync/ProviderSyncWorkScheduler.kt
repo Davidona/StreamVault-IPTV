@@ -46,6 +46,10 @@ class ProviderSyncWorkScheduler @Inject constructor(
         }
     }
 
+    fun scheduleStalkerBootstrapResume(providerId: Long) {
+        ProviderSyncWorker.enqueueStalkerBootstrapResume(applicationContext, providerId)
+    }
+
     fun scheduleXtreamIndex(
         providerId: Long,
         section: ContentType? = null,

@@ -253,6 +253,20 @@ interface StalkerRawVodPageApi {
         portalPage: Int,
         searchQuery: String? = null
     ): Result<StalkerPagedItems>
+
+    /**
+     * Raw page fetch with an explicit ordering hint (for example `added`). Transports that
+     * cannot honor it keep the portal's default order by delegating to the basic overload.
+     */
+    suspend fun getVodStreamsPageAtPortalPage(
+        session: StalkerSession,
+        profile: StalkerDeviceProfile,
+        categoryId: String?,
+        portalPage: Int,
+        searchQuery: String?,
+        sortBy: String?
+    ): Result<StalkerPagedItems> =
+        getVodStreamsPageAtPortalPage(session, profile, categoryId, portalPage, searchQuery)
 }
 
 data class StalkerSeriesDetails(
@@ -371,6 +385,19 @@ interface StalkerApiService {
         page: Int,
         searchQuery: String?
     ): Result<StalkerPagedItems> = getVodStreamsPage(session, profile, categoryId, page)
+
+    /**
+     * Paged VOD fetch with an explicit ordering hint (for example `added`). Transports that
+     * cannot honor it keep the portal's default order by delegating to the basic overload.
+     */
+    suspend fun getVodStreamsPage(
+        session: StalkerSession,
+        profile: StalkerDeviceProfile,
+        categoryId: String?,
+        page: Int,
+        searchQuery: String?,
+        sortBy: String?
+    ): Result<StalkerPagedItems> = getVodStreamsPage(session, profile, categoryId, page, searchQuery)
 
     /** Returns the playable file rows exposed when opening a video-club movie. */
     suspend fun getVodFiles(

@@ -1,6 +1,7 @@
 package com.streamvault.data.sync
 
 import com.google.common.truth.Truth.assertThat
+import com.streamvault.data.local.entity.CategoryEntity
 import com.streamvault.data.remote.stalker.StalkerPagedResult
 import com.streamvault.domain.model.CatalogLayout
 import com.streamvault.domain.model.ContentType
@@ -94,6 +95,27 @@ class StalkerIndexPolicyTest {
         assertThat(StalkerIndexPolicy.canAttempt(snapshot(retryAfterMs = now), now)).isTrue()
         assertThat(StalkerIndexPolicy.canAttempt(null, now)).isTrue()
     }
+
+    @Test
+    fun `wildcard backfill targets categories without local rows`() {
+        val covered = category(1L, "Action")
+        val excluded = category(2L, "Adult")
+        val empty = category(3L, "Empty")
+
+        val backfill = StalkerIndexPolicy.wildcardBackfillCategories(
+            normalCategories = listOf(covered, excluded, empty),
+            localRowCounts = mapOf(1L to 25, 2L to 0)
+        )
+
+        assertThat(backfill.map { it.categoryId }).containsExactly(2L, 3L)
+    }
+
+    private fun category(categoryId: Long, name: String) = CategoryEntity(
+        categoryId = categoryId,
+        name = name,
+        type = ContentType.MOVIE,
+        providerId = 1L
+    )
 
     private fun section(
         contentType: ContentType,

@@ -42,6 +42,32 @@ class ProviderContinuationSchedulerTest {
     }
 
     @Test
+    fun `Stalker bootstrap continuation schedules the one-hop catalog resume`() = runTest {
+        val workScheduler = mock<ProviderSyncWorkScheduler>()
+        val snapshot = ProviderSnapshot(
+            provider = Provider(id = 8L, name = "Portal", type = ProviderType.STALKER_PORTAL),
+            configuration = StalkerConfig(
+                portalUrl = "https://portal.example.com",
+                device = StalkerDeviceIdentity(macAddress = "00:11:22:33:44:55")
+            ),
+            configurationGeneration = 1L
+        )
+
+        ProviderContinuationScheduler(workScheduler).schedule(
+            snapshot,
+            listOf(
+                SyncContinuation(
+                    operation = SyncContinuationOperation.STALKER_BOOTSTRAP_RESUME,
+                    reason = "test"
+                )
+            )
+        )
+
+        verify(workScheduler).scheduleStalkerBootstrapResume(8L)
+        verify(workScheduler, org.mockito.kotlin.never()).scheduleProviderResume(8L)
+    }
+
+    @Test
     fun `Xtream movie and series indexes are queued before delayed guide work`() = runTest {
         val workScheduler = mock<ProviderSyncWorkScheduler>()
         val snapshot = ProviderSnapshot(

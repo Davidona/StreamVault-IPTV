@@ -19,6 +19,10 @@ interface ProviderSyncCommands {
     suspend fun resumePrimaryCatalog(providerId: Long, trackInitialLiveOnboarding: Boolean): Result<Unit> =
         sync(providerId, force = false, trackInitialLiveOnboarding = trackInitialLiveOnboarding)
 
+    /** Complete Stalker bootstrap in one worker without rebuilding its committed VOD category shells. */
+    suspend fun resumeStalkerBootstrap(providerId: Long): Result<Unit> =
+        resumePrimaryCatalog(providerId, trackInitialLiveOnboarding = false)
+
     suspend fun sync(
         providerId: Long,
         force: Boolean = false,
@@ -126,7 +130,8 @@ interface ProviderSyncCommands {
         section: ContentType? = null,
         force: Boolean = false,
         maxCategoriesPerSection: Int? = null,
-        onProgress: ((String) -> Unit)? = null
+        onProgress: ((String) -> Unit)? = null,
+        maxPagesPerSection: Int? = null
     ): Result<Unit>
 
     suspend fun rebuildXtreamIndex(

@@ -18,6 +18,52 @@ import java.util.Base64
 
 class StalkerPortalStateStoreTest {
     @Test
+    fun `first run adopts learning generation created after handshake`() = runTest {
+        val dao = FakePortalStateDao()
+        val store = StalkerPortalStateStore(dao, TestCredentialCrypto())
+        val coordinator = StalkerRequestCoordinator(store, true) { testScheduler.currentTime }
+        coordinator.acquireNetworkPermit(83L, StalkerNetworkPriority.FOREGROUND).also {
+            coordinator.releaseNetworkPermit(it)
+        }
+        dao.upsert(StalkerPortalStateEntity(providerId = 83L, configurationGeneration = 9L))
+        val page = coordinator.acquireNetworkPermit(83L, StalkerNetworkPriority.INDEX)
+        coordinator.recordIndexResponse(page, java.net.SocketTimeoutException())
+        val persisted = requireNotNull(store.get(83L))
+        assertThat(persisted.configurationGeneration).isEqualTo(9L)
+        assertThat(store.indexPacing(persisted).intervalMillis).isEqualTo(10_000L)
+    }
+
+    @Test
+    fun `learned index interval and stress ceiling survive coordinator restart`() = runTest {
+        val dao = FakePortalStateDao()
+        val store = StalkerPortalStateStore(dao, TestCredentialCrypto())
+        dao.upsert(StalkerPortalStateEntity(providerId = 82L, configurationGeneration = 7L))
+        val firstCoordinator = StalkerRequestCoordinator(store, true) { testScheduler.currentTime }
+        val permit = firstCoordinator.acquireNetworkPermit(82L, StalkerNetworkPriority.INDEX)
+        firstCoordinator.recordIndexResponse(permit, java.net.SocketTimeoutException())
+        val learned = store.indexPacing(requireNotNull(store.get(82L)))
+        assertThat(learned.intervalMillis).isEqualTo(10_000L)
+        assertThat(learned.minimumIntervalMillis).isEqualTo(10_000L)
+
+        val restarted = StalkerRequestCoordinator(store, true) { testScheduler.currentTime }
+        val first = restarted.acquireNetworkPermit(82L, StalkerNetworkPriority.INDEX)
+        val second = restarted.acquireNetworkPermit(82L, StalkerNetworkPriority.INDEX)
+        assertThat(second.admittedAt - first.admittedAt).isEqualTo(10_000L)
+        // A changed configuration cannot inherit pacing from the old generation.
+        val changed = requireNotNull(store.get(82L)).copy(configurationGeneration = 8L)
+        assertThat(store.indexPacing(changed).intervalMillis).isEqualTo(5_000L)
+    }
+
+    @Test
+    fun `malformed pacing falls back safely and valid values are bounded`() = runTest {
+        val store = StalkerPortalStateStore(FakePortalStateDao(), TestCredentialCrypto())
+        assertThat(store.indexPacing(StalkerPortalStateEntity(1L, learningJson = "bad")).intervalMillis)
+            .isEqualTo(5_000L)
+        store.recordIndexPacing(1L, 3L, 1L, 1L)
+        assertThat(store.indexPacing(requireNotNull(store.get(1L))).intervalMillis).isEqualTo(500L)
+    }
+
+    @Test
     fun `VOD page base is persisted and isolated by configuration generation`() = runTest {
         val store = StalkerPortalStateStore(FakePortalStateDao(), TestCredentialCrypto())
 
@@ -32,6 +78,25 @@ class StalkerPortalStateStoreTest {
         store.recordVodPageBase(providerId = 42L, pageBase = 1, configurationGeneration = 7L)
         assertThat(store.getVodPageBase(providerId = 42L, configurationGeneration = 7L)).isEqualTo(1)
         assertThat(store.getVodPageBase(providerId = 42L, configurationGeneration = 8L)).isNull()
+    }
+
+    @Test
+    fun `largest VOD page size is learned per content type and configuration generation`() = runTest {
+        val store = StalkerPortalStateStore(FakePortalStateDao(), TestCredentialCrypto())
+
+        store.recordVodPageSize(43L, ContentType.MOVIE, pageSize = 14, configurationGeneration = 7L, now = 100L)
+        store.recordVodPageSize(43L, ContentType.MOVIE, pageSize = 8, configurationGeneration = 7L, now = 200L)
+        store.recordVodPageSize(43L, ContentType.SERIES, pageSize = 12, configurationGeneration = 7L, now = 300L)
+
+        assertThat(store.getVodPageSize(43L, ContentType.MOVIE, 7L)).isEqualTo(14)
+        assertThat(store.getVodPageSize(43L, ContentType.SERIES, 7L)).isEqualTo(12)
+        assertThat(store.getVodPageSize(43L, ContentType.MOVIE, 8L)).isNull()
+
+        store.recordVodPageSize(43L, ContentType.MOVIE, pageSize = 10, configurationGeneration = 8L, now = 400L)
+        assertThat(store.getVodPageSize(43L, ContentType.MOVIE, 8L)).isEqualTo(10)
+        assertThat(store.getVodPageSize(43L, ContentType.SERIES, 8L)).isNull()
+        store.recordVodPageSize(43L, ContentType.MOVIE, pageSize = 129, configurationGeneration = 8L)
+        assertThat(store.getVodPageSize(43L, ContentType.MOVIE, 8L)).isEqualTo(10)
     }
 
     @Test

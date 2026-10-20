@@ -14,8 +14,18 @@ android {
 
     defaultConfig {
         minSdk = 25
+        // Enable only in validation builds until portal and multi-channel playback evidence exists.
+        buildConfigField("boolean", "STALKER_ADAPTIVE_INDEXING", (providers.gradleProperty("stalkerAdaptiveIndexing").orNull == "true").toString())
+        val requestedStalkerPageConcurrency = providers.gradleProperty("stalkerIndexPageConcurrency")
+            .orNull
+            ?.toIntOrNull()
+            ?.coerceIn(1, 2)
+            ?: 1
+        buildConfigField("int", "STALKER_INDEX_PAGE_CONCURRENCY", requestedStalkerPageConcurrency.toString())
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
+
+    buildFeatures { buildConfig = true }
 
     compileOptions {
         isCoreLibraryDesugaringEnabled = true

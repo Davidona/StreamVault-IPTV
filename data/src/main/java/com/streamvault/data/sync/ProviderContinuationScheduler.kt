@@ -15,6 +15,12 @@ internal class ProviderContinuationScheduler(
             // through the configuration-edit worker path (fresh providers have no revision row).
             workScheduler.scheduleProviderResume(providerId)
         }
+        if (work.any { it.operation == SyncContinuationOperation.STALKER_BOOTSTRAP_RESUME }) {
+            check(snapshot.provider.type == ProviderType.STALKER_PORTAL) {
+                "Only Stalker providers can declare a Stalker bootstrap resume"
+            }
+            workScheduler.scheduleStalkerBootstrapResume(providerId)
+        }
         val indexWork = work.filter { it.operation == SyncContinuationOperation.INDEX_CATALOG }
         when (snapshot.provider.type) {
             ProviderType.XTREAM_CODES -> indexWork

@@ -295,6 +295,22 @@ class SyncManager @Inject constructor(
                     getJob = { providerId, contentType -> stalkerIndexJobStore.get(providerId, contentType) },
                     getHydration = stalkerIndexCheckpointStore::getHydrationSnapshot,
                     currentIndexedRowCount = ::currentStalkerIndexedRowCount,
+                    categoriesWithLocalRows = { providerId, contentType ->
+                        val counts = mutableMapOf<Long, Int>()
+                        if (contentType == ContentType.MOVIE) {
+                            movieDao.getCategoryCounts(providerId).first().forEach { count ->
+                                counts[count.categoryId] = (counts[count.categoryId] ?: 0) + count.item_count
+                            }
+                            seriesDao.getCategoryCounts(providerId).first().forEach { count ->
+                                counts[count.categoryId] = (counts[count.categoryId] ?: 0) + count.item_count
+                            }
+                        } else if (contentType == ContentType.SERIES) {
+                            seriesDao.getCategoryCounts(providerId).first().forEach { count ->
+                                counts[count.categoryId] = (counts[count.categoryId] ?: 0) + count.item_count
+                            }
+                        }
+                        counts
+                    },
                     pruneStaleRows = { providerId, contentType ->
                         inFencedStalkerIndexTransaction(providerId) {
                             xtreamContentIndexDao.pruneStaleLocalContentRows(providerId, contentType.name)
@@ -1226,6 +1242,39 @@ class SyncManager @Inject constructor(
     override suspend fun resumePrimaryCatalog(providerId: Long, trackInitialLiveOnboarding: Boolean): Result<Unit> =
         syncProviderInternal(providerId, false, null, null, null, trackInitialLiveOnboarding, null, null, false, resumeOnly = true)
 
+    override suspend fun resumeStalkerBootstrap(providerId: Long): Result<Unit> {
+        val provider = loadCompatibilityProvider(providerId)
+            ?: return Result.error("Provider $providerId has no typed configuration")
+        if (provider.type != ProviderType.STALKER_PORTAL) {
+            return Result.error("Provider $providerId is not a Stalker portal")
+        }
+
+        val firstPage = processQueuedStalkerIndexJobs(
+            providerId = providerId,
+            force = false,
+            maxCategoriesPerSection = 1,
+            maxPagesPerSection = 1
+        )
+        if (firstPage is Result.Error) {
+            Log.w(TAG, "Initial Stalker VOD page could not be indexed for provider $providerId: ${firstPage.message}")
+            scheduleStalkerIndexSync(providerId, section = null, force = false)
+        }
+
+        val live = syncSection(
+            providerId = providerId,
+            section = SyncRepairSection.LIVE
+        )
+        if (live is Result.Error) return live
+        if (live is Result.Loading) return Result.error("Stalker live bootstrap resume did not complete")
+
+        when (provider.epgSyncMode) {
+            ProviderEpgSyncMode.UPFRONT -> return syncEpg(providerId = providerId, force = true, onProgress = null)
+            ProviderEpgSyncMode.BACKGROUND -> scheduleBackgroundEpgSync(providerId)
+            ProviderEpgSyncMode.SKIP -> Unit
+        }
+        return Result.success(Unit)
+    }
+
     private suspend fun syncProviderInternal(
         providerId: Long,
         force: Boolean,
@@ -1709,10 +1758,11 @@ class SyncManager @Inject constructor(
         section: ContentType?,
         force: Boolean,
         maxCategoriesPerSection: Int?,
-        onProgress: ((String) -> Unit)?
+        onProgress: ((String) -> Unit)?,
+        maxPagesPerSection: Int?
     ): com.streamvault.domain.model.Result<Unit> {
         return withStalkerSummaryLock(providerId, section) lock@{
-        val playbackDelayMillis = if (StalkerTrafficCoordinator.isPlaybackActive(providerId)) 2_000L else 0L
+        val playbackDelayMillis = if (StalkerTrafficCoordinator.shouldDeferIndexForPlayback(providerId)) 2_000L else 0L
         if (playbackDelayMillis > 0L) {
             Log.i(TAG, "Deferring Stalker catalog work for provider $providerId because playback is active.")
             scheduleStalkerIndexSync(
@@ -1772,7 +1822,8 @@ class SyncManager @Inject constructor(
                 api = api,
                 contentType = contentType,
                 maxCategories = categoryLimit,
-                onProgress = onProgress
+                onProgress = onProgress,
+                maxPages = maxPagesPerSection
             )
         }.exceptionOrNull()
         if (failure != null) {
@@ -1868,7 +1919,7 @@ class SyncManager @Inject constructor(
     ): Result<com.streamvault.data.remote.stalker.StalkerPagedResult<out Any>> {
         suspend fun fetch(): Result<com.streamvault.data.remote.stalker.StalkerPagedResult<out Any>> =
             if (contentType == ContentType.MOVIE && provider.catalogLayout == CatalogLayout.UNIFIED_VOD) {
-                api.getUnifiedVodPage(categoryId, page)
+                api.getUnifiedVodPage(categoryId, page, sortBy = StalkerProvider.WILDCARD_INDEX_SORT)
             } else {
                 fetchStalkerWildcardSummaryPage(api, contentType, categoryId, page)
             }

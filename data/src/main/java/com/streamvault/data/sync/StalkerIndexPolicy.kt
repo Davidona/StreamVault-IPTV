@@ -1,5 +1,6 @@
 package com.streamvault.data.sync
 
+import com.streamvault.data.local.entity.CategoryEntity
 import com.streamvault.data.remote.stalker.StalkerVodCatalogItem
 import com.streamvault.data.remote.stalker.StalkerPagedResult
 import com.streamvault.domain.model.CatalogLayout
@@ -200,6 +201,18 @@ internal object StalkerIndexPolicy {
         }
         if (seeds.isEmpty()) return null
         return sha1Hex(seeds.joinToString("|"))
+    }
+
+    /**
+     * Categories the wildcard walk did not cover locally: they have no indexed rows after the
+     * sweep (adult-excluded categories, or genuinely empty ones) and need a targeted
+     * per-category backfill.
+     */
+    fun wildcardBackfillCategories(
+        normalCategories: List<CategoryEntity>,
+        localRowCounts: Map<Long, Int>
+    ): List<CategoryEntity> = normalCategories.filter { category ->
+        (localRowCounts[category.categoryId] ?: 0) == 0
     }
 
     fun dedupePageItems(items: List<out Any>, contentType: ContentType): List<out Any> {

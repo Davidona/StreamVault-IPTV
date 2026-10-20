@@ -1960,6 +1960,75 @@ class OkHttpStalkerApiServiceTest {
     }
 
     @Test
+    fun getVodStreamsPageAtPortalPage_forwards_sortby_ordering_hint() = runTest {
+        var requestedSortBy: String? = null
+        val service = OkHttpStalkerApiService(
+            okHttpClient = OkHttpClient.Builder()
+                .addInterceptor { chain ->
+                    requestedSortBy = chain.request().url.queryParameter("sortby")
+                    Response.Builder()
+                        .request(chain.request())
+                        .protocol(Protocol.HTTP_1_1)
+                        .code(200)
+                        .message("OK")
+                        .body(
+                            """{"js":{"total_items":1,"max_page_items":14,"data":[{"id":"1","name":"Newest","category_id":"42","cmd":"ffmpeg http://example.com/movie.mp4"}]}}"""
+                                .toResponseBody("application/json".toMediaType())
+                        )
+                        .build()
+                }
+                .build(),
+            json = Json { ignoreUnknownKeys = true }
+        )
+
+        val result = service.getVodStreamsPageAtPortalPage(
+            stalkerSession(),
+            stalkerProfile(),
+            categoryId = "*",
+            portalPage = 1,
+            searchQuery = null,
+            sortBy = "added"
+        )
+
+        assertThat(result).isInstanceOf(Result.Success::class.java)
+        assertThat(requestedSortBy).isEqualTo("added")
+    }
+
+    @Test
+    fun getVodStreamsPage_omits_sortby_when_not_requested() = runTest {
+        var requestedSortBy: String? = "unset"
+        val service = OkHttpStalkerApiService(
+            okHttpClient = OkHttpClient.Builder()
+                .addInterceptor { chain ->
+                    requestedSortBy = chain.request().url.queryParameter("sortby")
+                    Response.Builder()
+                        .request(chain.request())
+                        .protocol(Protocol.HTTP_1_1)
+                        .code(200)
+                        .message("OK")
+                        .body(
+                            """{"js":{"total_items":1,"max_page_items":14,"data":[{"id":"1","name":"Movie","category_id":"42","cmd":"ffmpeg http://example.com/movie.mp4"}]}}"""
+                                .toResponseBody("application/json".toMediaType())
+                        )
+                        .build()
+                }
+                .build(),
+            json = Json { ignoreUnknownKeys = true }
+        )
+
+        val result = service.getVodStreamsPage(
+            stalkerSession(),
+            stalkerProfile(),
+            "42",
+            page = 1,
+            searchQuery = null
+        )
+
+        assertThat(result).isInstanceOf(Result.Success::class.java)
+        assertThat(requestedSortBy).isNull()
+    }
+
+    @Test
     fun getVodFiles_requests_movie_files_by_movie_id() = runTest {
         var requestedMovieId: String? = null
         var requestedAction: String? = null

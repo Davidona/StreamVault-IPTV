@@ -786,18 +786,28 @@ class OkHttpStalkerApiService @Inject constructor(
         categoryId: String?,
         page: Int,
         searchQuery: String?
+    ): Result<StalkerPagedItems> = getVodStreamsPage(
+        session = session,
+        profile = profile,
+        categoryId = categoryId,
+        page = page,
+        searchQuery = searchQuery,
+        sortBy = null
+    )
+
+    override suspend fun getVodStreamsPage(
+        session: StalkerSession,
+        profile: StalkerDeviceProfile,
+        categoryId: String?,
+        page: Int,
+        searchQuery: String?,
+        sortBy: String?
     ): Result<StalkerPagedItems> = runApiCall("Failed to load movies") {
         fetchPagedItemPage(
             session = session,
             profile = profile,
             page = page,
-            baseQuery = buildMap {
-                put("type", "vod")
-                put("action", "get_ordered_list")
-                put("JsHttpRequest", "1-xml")
-                categoryId?.takeIf { it.isNotBlank() }?.let { put("category", it) }
-                searchQuery?.trim()?.takeIf { it.isNotBlank() }?.let { put("search", it) }
-            }
+            baseQuery = vodOrderedListQuery(categoryId, searchQuery, sortBy)
         )
     }
 
@@ -807,20 +817,43 @@ class OkHttpStalkerApiService @Inject constructor(
         categoryId: String?,
         portalPage: Int,
         searchQuery: String?
+    ): Result<StalkerPagedItems> = getVodStreamsPageAtPortalPage(
+        session = session,
+        profile = profile,
+        categoryId = categoryId,
+        portalPage = portalPage,
+        searchQuery = searchQuery,
+        sortBy = null
+    )
+
+    override suspend fun getVodStreamsPageAtPortalPage(
+        session: StalkerSession,
+        profile: StalkerDeviceProfile,
+        categoryId: String?,
+        portalPage: Int,
+        searchQuery: String?,
+        sortBy: String?
     ): Result<StalkerPagedItems> = runApiCall("Failed to load movies") {
         fetchPagedItemPage(
             session = session,
             profile = profile,
             page = portalPage,
             allowPageZero = true,
-            baseQuery = buildMap {
-                put("type", "vod")
-                put("action", "get_ordered_list")
-                put("JsHttpRequest", "1-xml")
-                categoryId?.takeIf { it.isNotBlank() }?.let { put("category", it) }
-                searchQuery?.trim()?.takeIf { it.isNotBlank() }?.let { put("search", it) }
-            }
+            baseQuery = vodOrderedListQuery(categoryId, searchQuery, sortBy)
         )
+    }
+
+    private fun vodOrderedListQuery(
+        categoryId: String?,
+        searchQuery: String?,
+        sortBy: String?
+    ): Map<String, String> = buildMap {
+        put("type", "vod")
+        put("action", "get_ordered_list")
+        put("JsHttpRequest", "1-xml")
+        categoryId?.takeIf { it.isNotBlank() }?.let { put("category", it) }
+        searchQuery?.trim()?.takeIf { it.isNotBlank() }?.let { put("search", it) }
+        sortBy?.trim()?.takeIf { it.isNotBlank() }?.let { put("sortby", it) }
     }
 
     override suspend fun getVodFiles(
@@ -2807,10 +2840,11 @@ class OkHttpStalkerApiService @Inject constructor(
                 StalkerNetworkPriority.INTERACTIVE
             request.url.queryParameter("action").equals("get_short_epg", ignoreCase = true) ->
                 StalkerNetworkPriority.PREFETCH
-            currentCoroutineContext()[StalkerRequestPriorityContext]?.priority in setOf(
-                com.streamvault.domain.model.StalkerRequestPriority.EPG,
-                com.streamvault.domain.model.StalkerRequestPriority.BACKGROUND_INDEX
-            ) -> StalkerNetworkPriority.BACKGROUND
+            currentCoroutineContext()[StalkerRequestPriorityContext]?.priority ==
+                com.streamvault.domain.model.StalkerRequestPriority.BACKGROUND_INDEX ->
+                StalkerNetworkPriority.INDEX
+            currentCoroutineContext()[StalkerRequestPriorityContext]?.priority ==
+                com.streamvault.domain.model.StalkerRequestPriority.EPG -> StalkerNetworkPriority.BACKGROUND
             currentCoroutineContext()[StalkerRequestPriorityContext]?.priority ==
                 com.streamvault.domain.model.StalkerRequestPriority.VISIBLE_PREVIEW ->
                 StalkerNetworkPriority.PREFETCH
@@ -2836,10 +2870,11 @@ class OkHttpStalkerApiService @Inject constructor(
                     requestCoordinator.recordNetworkSuccess(permit)
                 }
                 block(response)
-            }
+            }.also { requestCoordinator.recordIndexResponse(permit) }
         } catch (error: CancellationException) {
             throw error
         } catch (error: Throwable) {
+            requestCoordinator.recordIndexResponse(permit, error)
             if (!nonRateLimitedResponseObserved) {
                 requestCoordinator.recordNetworkFailure(permit, error)
             }

@@ -153,6 +153,8 @@ internal companion object {
         private const val AUTH_FAILURE_COOLDOWN_MILLIS = 2_000L
         private const val FALLBACK_SURROGATE_FLOOR = 4_000_000_000L
         const val CATALOG_LAYOUT_DETECTION_VERSION = 1
+        /** Ordering for the background wildcard index walk: newest titles first. */
+        internal const val WILDCARD_INDEX_SORT = "added"
         private const val VOD_FILE_SOURCE_KEY = "vod_file"
         private val BARE_VOD_MOVIE_CMD_REGEX = Regex("^/media/(\\d+)\\.mpg$", RegexOption.IGNORE_CASE)
         private val BARE_VOD_FILE_CMD_REGEX = Regex("^/media/file_(\\d+)\\.mpg$", RegexOption.IGNORE_CASE)
@@ -608,7 +610,12 @@ internal companion object {
         }
 
     suspend fun getVodStreamsPageUsingItemCategories(categoryId: Long?, page: Int): Result<StalkerPagedResult<Movie>> =
-        loadVodPageWithPortalPageBase(ContentType.MOVIE, categoryId, page).let { result ->
+        loadVodPageWithPortalPageBase(
+            ContentType.MOVIE,
+            categoryId,
+            page,
+            sortBy = WILDCARD_INDEX_SORT
+        ).let { result ->
             mapResolvedPage(ContentType.MOVIE, result) { item ->
                 toMovie(item, requestedCategoryId = null)
             }
@@ -616,6 +623,13 @@ internal companion object {
 
     suspend fun getUnifiedVodPage(categoryId: Long, page: Int): Result<StalkerPagedResult<StalkerVodCatalogItem>> =
         getClassifiedVodPage(ContentType.VOD, categoryId, page)
+
+    suspend fun getUnifiedVodPage(
+        categoryId: Long,
+        page: Int,
+        sortBy: String?
+    ): Result<StalkerPagedResult<StalkerVodCatalogItem>> =
+        getClassifiedVodPage(ContentType.VOD, categoryId, page, sortBy = sortBy)
 
     suspend fun searchVodPage(
         query: String,
@@ -691,9 +705,10 @@ internal companion object {
         categoryId: Long?,
         page: Int,
         seriesCategoryId: Long? = categoryId,
-        searchQuery: String? = null
+        searchQuery: String? = null,
+        sortBy: String? = null
     ): Result<StalkerPagedResult<StalkerVodCatalogItem>> {
-        val rawResult = loadVodPageWithPortalPageBase(categoryType, categoryId, page, searchQuery)
+        val rawResult = loadVodPageWithPortalPageBase(categoryType, categoryId, page, searchQuery, sortBy)
         return when (rawResult) {
             is Result.Success -> {
                 val raw = rawResult.data
@@ -1612,7 +1627,8 @@ is Result.Success -> {
         categoryType: ContentType,
         categoryId: Long?,
         logicalPage: Int,
-        searchQuery: String? = null
+        searchQuery: String? = null,
+        sortBy: String? = null
     ): Result<StalkerPagedItems> = runWithAuthorizedSession { session, _ ->
         val profile = currentDeviceProfile()
         val rawCategoryId = resolveRawCategoryId(categoryType, categoryId)
@@ -1621,10 +1637,17 @@ is Result.Success -> {
         if (api !is StalkerRawVodPageApi) {
             // Legacy transports do not expose a raw p=0 cursor. Keep their established
             // 1-based call shape and avoid extra requests that cannot teach an offset.
-            val pageResult = if (searchQuery == null) {
-                api.getVodStreamsPage(session, profile, rawCategoryId, pageNumber)
-            } else {
-                api.getVodStreamsPage(session, profile, rawCategoryId, pageNumber, searchQuery)
+            val pageResult = when {
+                sortBy != null -> api.getVodStreamsPage(
+                    session,
+                    profile,
+                    rawCategoryId,
+                    pageNumber,
+                    searchQuery,
+                    sortBy
+                )
+                searchQuery == null -> api.getVodStreamsPage(session, profile, rawCategoryId, pageNumber)
+                else -> api.getVodStreamsPage(session, profile, rawCategoryId, pageNumber, searchQuery)
             }
             return@runWithAuthorizedSession normalizeVodPage(pageResult, pageNumber)
         }
@@ -1643,7 +1666,8 @@ is Result.Success -> {
                     profile,
                     rawCategoryId,
                     portalPage = 0,
-                    searchQuery = searchQuery
+                    searchQuery = searchQuery,
+                    sortBy = sortBy
                 )
                 if (pageZero is Result.Error && isAuthorizationFailure(pageZero.message, pageZero.exception)) {
                     return@withLock VodPageBaseResolution.Failed(pageZero)
@@ -1657,7 +1681,8 @@ is Result.Success -> {
                     profile,
                     rawCategoryId,
                     portalPage = 1,
-                    searchQuery = searchQuery
+                    searchQuery = searchQuery,
+                    sortBy = sortBy
                 )
                 if (pageOne is Result.Error && isAuthorizationFailure(pageOne.message, pageOne.exception)) {
                     return@withLock VodPageBaseResolution.Failed(pageOne)
@@ -1691,7 +1716,8 @@ is Result.Success -> {
                         profile,
                         rawCategoryId,
                         portalPage,
-                        searchQuery
+                        searchQuery,
+                        sortBy
                     ),
                     pageNumber
                 )
@@ -1706,7 +1732,8 @@ is Result.Success -> {
                         profile,
                         rawCategoryId,
                         portalPage,
-                        searchQuery
+                        searchQuery,
+                        sortBy
                     )
                 }
                 normalizeVodPage(target, pageNumber)
@@ -1771,15 +1798,15 @@ is Result.Success -> {
         profile: StalkerDeviceProfile,
         categoryId: String?,
         portalPage: Int,
-        searchQuery: String?
+        searchQuery: String?,
+        sortBy: String? = null
     ): Result<StalkerPagedItems> {
-        return (api as StalkerRawVodPageApi).getVodStreamsPageAtPortalPage(
-            session,
-            profile,
-            categoryId,
-            portalPage,
-            searchQuery
-        )
+        val rawApi = api as StalkerRawVodPageApi
+        return if (sortBy == null) {
+            rawApi.getVodStreamsPageAtPortalPage(session, profile, categoryId, portalPage, searchQuery)
+        } else {
+            rawApi.getVodStreamsPageAtPortalPage(session, profile, categoryId, portalPage, searchQuery, sortBy)
+        }
     }
 
     private suspend fun mapPagedItems(
@@ -2121,6 +2148,15 @@ is Result.Success -> {
             contentType,
             supported,
             configurationGeneration = configurationGeneration
+        )
+    }
+
+    suspend fun recordVodPageSize(contentType: ContentType, pageSize: Int) {
+        portalStateStore?.recordVodPageSize(
+            providerId,
+            contentType,
+            pageSize,
+            configurationGeneration
         )
     }
 
