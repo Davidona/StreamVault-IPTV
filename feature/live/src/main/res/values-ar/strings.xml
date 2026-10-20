@@ -313,4 +313,5 @@
     <string name="live_sports_snooker">السنوكر</string>
     <string name="live_sports_darts">رمي السهام</string>
     <string name="live_sports_cycling">ركوب الدراجات</string>
+    <string name="epg_recording_scheduled_notice">ØªÙ…Øª Ø¬Ø¯ÙˆÙ„Ø© Ø§Ù„ØªØ³Ø¬ÙŠÙ„: %1$s</string>     <string name="epg_recording_failed_notice">ØªØ¹Ø°Ù‘Ø± Ø¬Ø¯ÙˆÙ„Ø© Ø§Ù„ØªØ³Ø¬ÙŠÙ„</string>
 </resources>

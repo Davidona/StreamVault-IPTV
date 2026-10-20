@@ -313,4 +313,5 @@
     <string name="live_sports_snooker">Snooker</string>
     <string name="live_sports_darts">Darts</string>
     <string name="live_sports_cycling">Pagbibisikleta</string>
+    <string name="epg_recording_scheduled_notice">Naka-iskedyul ang pag-record: %1$s</string>     <string name="epg_recording_failed_notice">Hindi ma-iskedyul ang pag-record</string>
 </resources>

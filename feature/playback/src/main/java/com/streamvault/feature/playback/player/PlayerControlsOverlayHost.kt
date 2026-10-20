@@ -81,6 +81,7 @@ internal fun PlayerControlsOverlayHost(
     onEnterPictureInPicture: () -> Unit,
     onRunRecordingAction: (() -> Unit) -> Unit,
     onOpenCastRouteChooser: () -> Unit,
+    onScheduleByTime: () -> Unit = {},
     showBackButton: Boolean = false,
     onBackToMenu: () -> Unit = {}
 ) {
@@ -253,6 +254,7 @@ internal fun PlayerControlsOverlayHost(
             onScheduleRecording = { onRunRecordingAction(viewModel::scheduleRecording) },
             onScheduleDailyRecording = { onRunRecordingAction(viewModel::scheduleDailyRecording) },
             onScheduleWeeklyRecording = { onRunRecordingAction(viewModel::scheduleWeeklyRecording) },
+            onScheduleByTime = onScheduleByTime,
             onToggleAspectRatio = viewModel::toggleAspectRatio,
             onOpenSubtitleTracks = onOpenSubtitleTracks,
             onOpenAudioTracks = onOpenAudioTracks,

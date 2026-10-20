@@ -139,6 +139,7 @@ fun PlayerControlsOverlay(
     onScheduleRecording: () -> Unit,
     onScheduleDailyRecording: () -> Unit = {},
     onScheduleWeeklyRecording: () -> Unit = {},
+    onScheduleByTime: () -> Unit = {},
     onToggleAspectRatio: () -> Unit,
     onOpenSubtitleTracks: () -> Unit,
     onOpenAudioTracks: () -> Unit,
@@ -234,6 +235,7 @@ fun PlayerControlsOverlay(
                 onScheduleRecording = onScheduleRecording,
                 onScheduleDailyRecording = onScheduleDailyRecording,
                 onScheduleWeeklyRecording = onScheduleWeeklyRecording,
+                onScheduleByTime = onScheduleByTime,
                 onToggleAspectRatio = onToggleAspectRatio,
                 onOpenSubtitleTracks = onOpenSubtitleTracks,
                 onOpenAudioTracks = onOpenAudioTracks,
@@ -580,6 +582,7 @@ private fun PlayerBottomBar(
     onScheduleRecording: () -> Unit,
     onScheduleDailyRecording: () -> Unit,
     onScheduleWeeklyRecording: () -> Unit,
+    onScheduleByTime: () -> Unit,
     onToggleAspectRatio: () -> Unit,
     onOpenSubtitleTracks: () -> Unit,
     onOpenAudioTracks: () -> Unit,
@@ -678,6 +681,7 @@ private fun PlayerBottomBar(
                         onScheduleRecording = onScheduleRecording,
                         onScheduleDailyRecording = onScheduleDailyRecording,
                         onScheduleWeeklyRecording = onScheduleWeeklyRecording,
+                        onScheduleByTime = onScheduleByTime,
                         onToggleAspectRatio = onToggleAspectRatio,
                         onOpenSubtitleTracks = onOpenSubtitleTracks,
                         onOpenAudioTracks = onOpenAudioTracks,
@@ -777,6 +781,7 @@ private fun PlayerLiveInfo(
     onScheduleRecording: () -> Unit,
     onScheduleDailyRecording: () -> Unit,
     onScheduleWeeklyRecording: () -> Unit,
+    onScheduleByTime: () -> Unit,
     onToggleAspectRatio: () -> Unit,
     onOpenSubtitleTracks: () -> Unit,
     onOpenAudioTracks: () -> Unit,
@@ -860,6 +865,7 @@ private fun PlayerLiveInfo(
             add(PlayerActionSpec("schedule_recording", stringResource(R.string.player_schedule_recording), onScheduleRecording))
             add(PlayerActionSpec("schedule_daily_recording", stringResource(R.string.player_schedule_daily_recording), onScheduleDailyRecording))
             add(PlayerActionSpec("schedule_weekly_recording", stringResource(R.string.player_schedule_weekly_recording), onScheduleWeeklyRecording))
+            add(PlayerActionSpec("schedule_by_time_recording", stringResource(R.string.player_schedule_by_time), onScheduleByTime))
         }
     }
     val secondaryActions = buildList {

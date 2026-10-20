@@ -313,4 +313,5 @@
     <string name="live_sports_snooker">Snooker</string>
     <string name="live_sports_darts">Darts</string>
     <string name="live_sports_cycling">Wielrennen</string>
+    <string name="epg_recording_scheduled_notice">Opname gepland: %1$s</string>     <string name="epg_recording_failed_notice">De opname kon niet worden gepland</string>
 </resources>
