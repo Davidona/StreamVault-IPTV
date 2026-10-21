@@ -125,4 +125,11 @@
     <string name="setup_stalker_catalog_on_demand_description">Încarcă rafturile și categoriile când sunt deschise. Păstrează titlurile din memoria cache.</string>
     <string name="setup_stalker_catalog_background_title">Indexare completă în fundal (recomandată)</string>
     <string name="setup_stalker_catalog_background_description">Finalizează mai întâi configurarea furnizorului, apoi indexează în fundal toate filmele și serialele pentru a le putea căuta.</string>
+    <string name="setup_stalker_load_order_title">Ordinea încărcării în fundal</string>
+    <string name="setup_stalker_load_parallel_title">Ambele simultan (implicit)</string>
+    <string name="setup_stalker_load_parallel_description">Încarcă filmele și serialele simultan.</string>
+    <string name="setup_stalker_load_movies_first_title">Mai întâi filmele</string>
+    <string name="setup_stalker_load_movies_first_description">Serialele rămân în așteptare până se termină încărcarea filmelor.</string>
+    <string name="setup_stalker_load_series_first_title">Mai întâi serialele</string>
+    <string name="setup_stalker_load_series_first_description">Filmele rămân în așteptare până se termină încărcarea serialelor.</string>
 </resources>

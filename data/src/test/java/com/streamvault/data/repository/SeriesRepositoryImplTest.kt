@@ -42,6 +42,7 @@ import com.streamvault.data.remote.stalker.StalkerSession
 import com.streamvault.data.remote.dto.XtreamCategory
 import com.streamvault.data.remote.dto.XtreamSeriesItem
 import com.streamvault.data.remote.stalker.StalkerApiService
+import com.streamvault.data.remote.stalker.delegateSortedPagingToBasicStubs
 import com.streamvault.data.remote.xtream.XtreamParsingException
 import com.streamvault.data.remote.xtream.XtreamApiService
 import com.streamvault.data.remote.xtream.XtreamStreamUrlResolver
@@ -112,6 +113,7 @@ class SeriesRepositoryImplTest {
 
     @Before
     fun clearStalkerCaches() {
+        kotlinx.coroutines.runBlocking { stalkerApiService.delegateSortedPagingToBasicStubs() }
         StalkerProvider.clearSharedAuthCacheForTests()
         StalkerProvider.clearResolvedStreamUrlCacheForTests()
     }
@@ -644,6 +646,7 @@ class SeriesRepositoryImplTest {
 
     @Test
     fun `scrolling cached stalker series category appends exactly one natural page`() = runTest {
+        whenever(seriesDao.countByCategoryAndOrigin(any(), any(), any())).thenReturn(0)
         whenever(preferencesRepository.parentalControlLevel).thenReturn(flowOf(0))
         whenever(seriesDao.getCountByCategory(7L, 77L)).thenReturn(flowOf(42), flowOf(56))
         whenever(seriesDao.getByCategoryPage(7L, 77L, 60, 60)).thenReturn(flowOf(emptyList()))
@@ -669,7 +672,7 @@ class SeriesRepositoryImplTest {
             Result.success(stalkerSeriesPage(page = 4, itemCount = 14))
         )
 
-        createRepository().getSeriesByCategoryPage(7L, 77L, limit = 60, offset = 60).first()
+        createRepository().requestCategoryHydration(7L, 77L, com.streamvault.domain.model.VodCategoryHydrationRequest.NEXT_PAGE)
 
         verify(stalkerApiService).getSeriesPage(any(), any(), anyOrNull(), eq(4))
         verify(stalkerApiService, never()).getSeriesPage(any(), any(), anyOrNull(), eq(5))

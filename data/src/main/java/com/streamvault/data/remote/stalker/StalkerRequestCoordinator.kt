@@ -367,11 +367,7 @@ class StalkerRequestCoordinator internal constructor(
                         (state.interactiveWaiters > 0 || state.interactiveInFlight > 0)
                     val adaptiveIndex = adaptiveIndexingEnabled && priority == StalkerNetworkPriority.INDEX
                     val playbackActive = StalkerTrafficCoordinator.isPlaybackActive(providerId)
-                    val indexWait = if (adaptiveIndex && playbackActive) {
-                        state.lastIndexRequestAt?.let {
-                            (it + StalkerAdaptiveIndexPolicy.PLAYBACK_INTERVAL_MILLIS - now).coerceAtLeast(0L)
-                        } ?: 0L
-                    } else 0L
+                    val indexWait = if (adaptiveIndex && playbackActive) NETWORK_ADMISSION_POLL_MILLIS else 0L
                     val indexWindowFull = adaptiveIndex && state.indexNetworkInFlight >=
                         (if (playbackActive) 1 else state.indexLimit())
                     val backgroundWait = if (lowPriority && !adaptiveIndex) {

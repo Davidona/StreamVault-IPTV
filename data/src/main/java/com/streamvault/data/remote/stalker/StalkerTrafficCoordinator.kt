@@ -47,10 +47,7 @@ internal object StalkerTrafficCoordinator {
             NORMAL_BACKGROUND_PAGE_DELAY_MILLIS
         }
 
-    fun shouldDeferIndexForPlayback(
-        providerId: Long,
-        adaptiveIndexingEnabled: Boolean = BuildConfig.STALKER_ADAPTIVE_INDEXING
-    ): Boolean = !adaptiveIndexingEnabled && isPlaybackActive(providerId)
+    fun shouldDeferIndexForPlayback(providerId: Long): Boolean = isPlaybackActive(providerId)
 
     internal fun resetForTests() {
         activePlaybackCountsByProvider.clear()

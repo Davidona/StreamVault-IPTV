@@ -1,6 +1,7 @@
 package com.streamvault.data.sync
 
 import com.streamvault.domain.model.ContentType
+import com.streamvault.data.local.DatabaseTransactionRunner
 import com.streamvault.domain.model.SyncMetadata
 import com.streamvault.domain.model.SyncState
 import com.streamvault.domain.model.VodSyncMode
@@ -19,7 +20,8 @@ import java.util.concurrent.ConcurrentHashMap
 internal class SyncStatusPublicationCoordinator(
     private val syncMetadataRepository: SyncMetadataRepository,
     private val syncProgressBus: SyncProgressBus,
-    private val syncStateTracker: SyncStateTracker = SyncStateTracker()
+    private val syncStateTracker: SyncStateTracker = SyncStateTracker(),
+    private val transactionRunner: DatabaseTransactionRunner? = null
 ) {
     val syncState: StateFlow<SyncState>
         get() = syncStateTracker.aggregateState
@@ -33,7 +35,10 @@ internal class SyncStatusPublicationCoordinator(
 
     fun currentSyncState(providerId: Long): SyncState = syncStateTracker.current(providerId)
 
-    suspend fun updateStatus(providerId: Long, status: String) {
+    private suspend fun <T> inMetadataTransaction(block: suspend () -> T): T =
+        transactionRunner?.inTransaction(block) ?: block()
+
+    suspend fun updateStatus(providerId: Long, status: String) = inMetadataTransaction {
         val metadata = (syncMetadataRepository.getMetadata(providerId) ?: SyncMetadata(providerId))
             .copy(lastSyncStatus = status)
         syncMetadataRepository.updateMetadata(metadata)
@@ -46,7 +51,7 @@ internal class SyncStatusPublicationCoordinator(
         finalState: String,
         now: Long,
         movieSyncMode: VodSyncMode
-    ) {
+    ) = inMetadataTransaction {
         val metadata = syncMetadataRepository.getMetadata(providerId) ?: SyncMetadata(providerId)
         when (contentType) {
             ContentType.MOVIE -> syncMetadataRepository.updateMetadata(

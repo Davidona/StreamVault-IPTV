@@ -125,4 +125,11 @@
     <string name="setup_stalker_catalog_on_demand_description">Полиці й категорії завантажуються під час відкриття. Кешовані назви зберігаються.</string>
     <string name="setup_stalker_catalog_background_title">Повна фонова індексація (рекомендовано)</string>
     <string name="setup_stalker_catalog_background_description">Спочатку завершіть налаштування провайдера, а потім проіндексуйте у фоновому режимі всі фільми й серіали для пошуку.</string>
+    <string name="setup_stalker_load_order_title">Порядок фонового завантаження</string>
+    <string name="setup_stalker_load_parallel_title">Одночасно (типово)</string>
+    <string name="setup_stalker_load_parallel_description">Завантажувати фільми й серіали одночасно.</string>
+    <string name="setup_stalker_load_movies_first_title">Спочатку фільми</string>
+    <string name="setup_stalker_load_movies_first_description">Серіали залишаються в черзі до завершення завантаження фільмів.</string>
+    <string name="setup_stalker_load_series_first_title">Спочатку серіали</string>
+    <string name="setup_stalker_load_series_first_description">Фільми залишаються в черзі до завершення завантаження серіалів.</string>
 </resources>

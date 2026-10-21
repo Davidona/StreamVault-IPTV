@@ -130,12 +130,10 @@ class StalkerRequestCoordinatorTest {
     }
 
     @Test
-    fun playbackTrickleUsesTwentySecondsForEveryWireRequestAndInteractiveStillWins() = runTest {
+    fun playbackPausesIndexRequestsWhileInteractiveMetadataRemainsAvailable() = runTest {
         val coordinator = StalkerRequestCoordinator(null, true) { testScheduler.currentTime }
         StalkerTrafficCoordinator.notePlaybackStarted(74L)
         try {
-            val first = coordinator.acquireNetworkPermit(74L, StalkerNetworkPriority.INDEX)
-            coordinator.releaseNetworkPermit(first)
             val next = async { coordinator.acquireNetworkPermit(74L, StalkerNetworkPriority.INDEX) }
             runCurrent()
             val interactive = coordinator.acquireNetworkPermit(74L, StalkerNetworkPriority.INTERACTIVE)
@@ -144,9 +142,10 @@ class StalkerRequestCoordinatorTest {
             runCurrent()
             assertThat(next.isCompleted).isFalse()
             coordinator.releaseNetworkPermit(interactive)
+            StalkerTrafficCoordinator.forgetProvider(74L)
             advanceUntilIdle()
             val second = next.await()
-            assertThat(second.admittedAt - first.admittedAt).isAtLeast(20_000L)
+            assertThat(second.admittedAt).isAtLeast(21_000L)
             coordinator.releaseNetworkPermit(second)
         } finally { StalkerTrafficCoordinator.forgetProvider(74L) }
     }

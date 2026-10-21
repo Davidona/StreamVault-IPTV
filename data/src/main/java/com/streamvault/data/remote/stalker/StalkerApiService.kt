@@ -446,6 +446,13 @@ interface StalkerApiService {
         seriesId: String
     ): Result<StalkerSeriesDetails> = getSeriesDetails(session, profile, seriesId)
 
+    suspend fun getSeriesDetailsInCategory(
+        session: StalkerSession,
+        profile: StalkerDeviceProfile,
+        seriesId: String,
+        categoryId: String
+    ): Result<StalkerSeriesDetails> = getSeriesDetails(session, profile, seriesId)
+
     suspend fun getShortEpg(
         session: StalkerSession,
         profile: StalkerDeviceProfile,

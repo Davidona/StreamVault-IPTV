@@ -12,6 +12,7 @@ import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.put
+import com.streamvault.domain.model.StalkerCatalogLoadOrder
 
 internal data class ProviderStalkerAdvancedOptions(
     val hwVersion: String = "",
@@ -23,6 +24,7 @@ internal data class ProviderStalkerAdvancedOptions(
     val proxyHost: String = "",
     val proxyPort: Int? = null,
     val requestRules: List<ProviderStalkerRequestRule> = emptyList(),
+    val catalogLoadOrder: StalkerCatalogLoadOrder = StalkerCatalogLoadOrder.PARALLEL,
 ) {
     val normalizedLink: String
         get() = if (xUserAgentLink.equals(LINK_WIFI, ignoreCase = true)) LINK_WIFI else LINK_ETHERNET
@@ -80,6 +82,9 @@ internal object ProviderStalkerAdvancedOptionsCodec {
     fun encode(options: ProviderStalkerAdvancedOptions): String {
         if (options == ProviderStalkerAdvancedOptions()) return ""
         return buildJsonObject {
+            if (options.catalogLoadOrder != StalkerCatalogLoadOrder.PARALLEL) {
+                put("catalogLoadOrder", options.catalogLoadOrder.name)
+            }
             put("hwVersion", options.hwVersion)
             put("apiUserAgent", options.apiUserAgent)
             put("playerUserAgent", options.playerUserAgent)
@@ -132,6 +137,8 @@ internal object ProviderStalkerAdvancedOptionsCodec {
 
     private fun decodeObject(root: JsonObject): ProviderStalkerAdvancedOptions =
         ProviderStalkerAdvancedOptions(
+            catalogLoadOrder = runCatching { StalkerCatalogLoadOrder.valueOf(root.string("catalogLoadOrder")) }
+                .getOrDefault(StalkerCatalogLoadOrder.PARALLEL),
             hwVersion = root.string("hwVersion"),
             apiUserAgent = root.string("apiUserAgent"),
             playerUserAgent = root.string("playerUserAgent"),

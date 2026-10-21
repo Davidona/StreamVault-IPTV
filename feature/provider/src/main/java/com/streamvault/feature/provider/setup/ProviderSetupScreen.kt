@@ -323,6 +323,7 @@ fun ProviderSetupScreen(
     fun buildStalkerAdvancedOptionsJson(): String =
         ProviderStalkerAdvancedOptionsCodec.encode(
             ProviderStalkerAdvancedOptions(
+                catalogLoadOrder = uiState.stalkerCatalogLoadOrder,
                 hwVersion = stalkerHwVersion.trim(),
                 apiUserAgent = stalkerApiUserAgent.trim(),
                 playerUserAgent = stalkerPlayerUserAgent.trim(),
@@ -484,6 +485,7 @@ fun ProviderSetupScreen(
                         onToggleM3uVodClassification = { viewModel.updateM3uVodClassificationEnabled(!uiState.m3uVodClassificationEnabled) },
                         onSelectEpgSyncMode = viewModel::updateEpgSyncMode,
                         onSelectStalkerCatalogMode = viewModel::updateStalkerCatalogMode,
+                        onSelectStalkerCatalogLoadOrder = viewModel::updateStalkerCatalogLoadOrder,
                         onSelectStalkerProtocolPreference = viewModel::updateStalkerProtocolPreference,
                         onSelectStalkerProfile = viewModel::updateStalkerRequestedProfile,
                         onSelectXtreamLiveSyncMode = viewModel::updateXtreamLiveSyncMode,
@@ -549,6 +551,7 @@ fun ProviderSetupScreen(
                         onToggleM3uVodClassification = { viewModel.updateM3uVodClassificationEnabled(!uiState.m3uVodClassificationEnabled) },
                         onSelectEpgSyncMode = viewModel::updateEpgSyncMode,
                         onSelectStalkerCatalogMode = viewModel::updateStalkerCatalogMode,
+                        onSelectStalkerCatalogLoadOrder = viewModel::updateStalkerCatalogLoadOrder,
                         onSelectStalkerProtocolPreference = viewModel::updateStalkerProtocolPreference,
                         onSelectStalkerProfile = viewModel::updateStalkerRequestedProfile,
                         onSelectXtreamLiveSyncMode = viewModel::updateXtreamLiveSyncMode,

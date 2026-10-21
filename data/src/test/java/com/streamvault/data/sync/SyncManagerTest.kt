@@ -71,6 +71,7 @@ import com.streamvault.data.remote.stalker.StalkerRemoteIdentityResolver
 import com.streamvault.data.remote.stalker.stalkerStableHashId
 import com.streamvault.data.remote.stalker.StalkerSession
 import com.streamvault.data.remote.stalker.StalkerApiService
+import com.streamvault.data.remote.stalker.delegateSortedPagingToBasicStubs
 import com.streamvault.data.remote.stalker.StalkerAdvancedOptions
 import com.streamvault.data.remote.stalker.StalkerAdvancedOptionsCodec
 import com.streamvault.data.remote.stalker.StalkerDeviceProfile
@@ -363,6 +364,9 @@ class SyncManagerTest {
         org.mockito.kotlin.whenever(preferencesRepo.xtreamBase64TextCompatibility).thenReturn(flowOf(false))
         org.mockito.kotlin.whenever(preferencesRepo.getHiddenCategoryIds(any(), any())).thenReturn(flowOf(emptySet()))
         runBlocking {
+            stalkerApiService.delegateSortedPagingToBasicStubs()
+            org.mockito.kotlin.whenever(movieDao.getCategoryCounts(any())).thenReturn(flowOf(emptyList()))
+            org.mockito.kotlin.whenever(seriesDao.getCategoryCounts(any())).thenReturn(flowOf(emptyList()))
             org.mockito.kotlin.whenever(
                 stalkerLiveCategoryRetryDao.getForProvider(any(), any())
             ).thenReturn(emptyList())
@@ -452,7 +456,8 @@ class SyncManagerTest {
         providerEntity: Provider? = null,
         readinessTracker: StalkerReadinessTracker = StalkerReadinessTracker(),
         portalStateStore: com.streamvault.data.remote.stalker.StalkerPortalStateStore = mock(),
-        commitFence: ProviderWorkflowCommitFence = ProviderWorkflowCommitFence()
+        commitFence: ProviderWorkflowCommitFence = ProviderWorkflowCommitFence(),
+        workLocks: ProviderWorkLockRegistry = ProviderWorkLockRegistry()
     ): SyncManager {
         val configuredProvider = if (providerPresent) providerEntity ?: sampleProvider(providerType) else null
         // Keep the existing sync fixtures on the streaming fallback contract while their
@@ -618,7 +623,7 @@ class SyncManagerTest {
 
             override suspend fun updateCatalogLayout(providerId: Long, layout: CatalogLayout, detectionVersion: Int) = Unit
         },
-        providerWorkLocks = ProviderWorkLockRegistry(),
+        providerWorkLocks = workLocks,
         providerSyncLocks = ProviderSyncLockRegistry(),
         stalkerPlaybackCapabilityCache = com.streamvault.data.provider.StalkerPlaybackCapabilityCache(typedProviderClientFactory),
         providerSyncWorkScheduler = workScheduler
@@ -2190,7 +2195,7 @@ class SyncManagerTest {
     }
 
     @Test
-    fun `processQueuedStalkerIndexJobs prefers wildcard for learned support and backfills excluded categories`() = runTest {
+    fun `processQueuedStalkerIndexJobs accepts a whole wildcard dump without another category crawl`() = runTest {
         val providerEntity = sampleProvider(ProviderType.STALKER_PORTAL).copy(
             serverUrl = "http://example.com",
             username = "",
@@ -2342,7 +2347,7 @@ class SyncManagerTest {
         assertThat(result.isSuccess).isTrue()
         assertThat(hydrationByCategory[wildcardCategoryId]?.lastError).isNull()
         verify(stalkerApiService).getVodStreamsPage(any(), any(), eq("*"), eq(1), anyOrNull(), eq("added"))
-        verify(stalkerApiService).getVodStreamsPage(any(), any(), eq("9"), eq(1))
+        verify(stalkerApiService, org.mockito.kotlin.never()).getVodStreamsPage(any(), any(), eq("9"), eq(1))
         verify(portalStateStore).recordWildcard(eq(1L), eq(ContentType.MOVIE), eq(true), any(), anyOrNull())
         verify(stalkerApiService, org.mockito.kotlin.never()).getVodStreamsPage(any(), any(), eq("5"), any())
         verify(xtreamContentIndexDao, atLeastOnce()).pruneStaleLocalContentRows(1L, ContentType.MOVIE.name)
@@ -2981,10 +2986,7 @@ class SyncManagerTest {
         assertThat(failure).isInstanceOf(ProviderWorkflowSupersededException::class.java)
         verify(stalkerApiService).getVodStreamsPage(any(), any(), eq("5"), eq(1))
         verify(movieDao, org.mockito.kotlin.never()).insertAll(any())
-        val attemptedCheckpoint = argumentCaptor<MovieCategoryHydrationEntity>()
-        verify(movieCategoryHydrationDao).upsert(attemptedCheckpoint.capture())
-        assertThat(attemptedCheckpoint.firstValue.lastStatus).isEqualTo("RUNNING")
-        assertThat(attemptedCheckpoint.firstValue.lastSuccessfulPage).isEqualTo(0)
+        verify(movieCategoryHydrationDao, org.mockito.kotlin.never()).upsert(any())
         verify(xtreamContentIndexDao, org.mockito.kotlin.never())
             .upsertAll(any())
     }
@@ -3536,7 +3538,7 @@ class SyncManagerTest {
         assertThat(readinessTracker.current(1L)?.authenticatedAt).isNotNull()
         assertThat(readinessTracker.current(1L)?.liveReadyAt).isNotNull()
         assertThat(readinessTracker.current(1L)?.categoriesReadyAt).isNotNull()
-        verify(xtreamIndexJobDao, org.mockito.kotlin.times(0)).upsert(any())
+        verify(xtreamIndexJobDao, atLeastOnce()).upsert(any())
         verify(stalkerApiService).getVodCategories(any(), any())
         verify(stalkerApiService).getSeriesCategories(any(), any())
         verify(stalkerApiService).streamLiveStreams(any(), any(), any())
@@ -3862,7 +3864,7 @@ class SyncManagerTest {
         assertThat(result).isInstanceOf(Result.Success::class.java)
         verify(stalkerApiService).getVodCategories(any(), any())
         verify(stalkerApiService).getSeriesCategories(any(), any())
-        verify(xtreamIndexJobDao, org.mockito.kotlin.times(0)).upsert(any())
+        verify(xtreamIndexJobDao, atLeastOnce()).upsert(any())
     }
 
     @Test
@@ -3915,9 +3917,33 @@ class SyncManagerTest {
             it.type == ContentType.SERIES && it.name == "All Series" &&
                 it.categoryId == stalkerSyntheticCategoryId(1L, ContentType.SERIES, "*")
         }).isTrue()
-        verify(xtreamIndexJobDao, org.mockito.kotlin.times(0)).upsert(any())
-        verify(stalkerApiService, org.mockito.kotlin.times(0)).getVodStreamsPage(any(), any(), anyOrNull(), any())
-        verify(stalkerApiService, org.mockito.kotlin.times(0)).getSeriesPage(any(), any(), anyOrNull(), any())
+        verify(xtreamIndexJobDao, atLeastOnce()).upsert(any())
+        verify(stalkerApiService, org.mockito.kotlin.never()).getVodStreamsPage(any(), any(), anyOrNull(), any())
+        verify(stalkerApiService, org.mockito.kotlin.never()).getSeriesPage(any(), any(), anyOrNull(), any())
+    }
+
+    @Test
+    fun stalker_startup_recovers_empty_guide_alongside_pending_catalog() = runTest {
+        for (mode in listOf(ProviderEpgSyncMode.UPFRONT, ProviderEpgSyncMode.BACKGROUND)) {
+            val provider = sampleProvider(ProviderType.STALKER_PORTAL).copy(epgSyncMode = mode)
+            val manager = buildManager(providerType = ProviderType.STALKER_PORTAL, providerEntity = provider)
+            org.mockito.kotlin.whenever(xtreamIndexJobDao.get(1L, ContentType.MOVIE.name)).thenReturn(
+                XtreamIndexJobEntity(providerId = 1L, section = ContentType.MOVIE.name, state = "QUEUED"))
+            org.mockito.kotlin.whenever(programDao.countByProvider(1L)).thenReturn(0)
+            manager.reconcileStalkerIndexWorkAtStartup()
+        }
+        verify(workScheduler, org.mockito.kotlin.times(2)).scheduleBackgroundEpg(1L, true)
+        verify(workScheduler, org.mockito.kotlin.times(2)).scheduleStalkerIndex(1L, false, false, 0L, false)
+    }
+
+    @Test
+    fun stalker_startup_preserves_skipped_guide_with_pending_catalog() = runTest {
+        val provider = sampleProvider(ProviderType.STALKER_PORTAL).copy(epgSyncMode = ProviderEpgSyncMode.SKIP)
+        val manager = buildManager(providerType = ProviderType.STALKER_PORTAL, providerEntity = provider)
+        org.mockito.kotlin.whenever(xtreamIndexJobDao.get(1L, ContentType.MOVIE.name)).thenReturn(
+            XtreamIndexJobEntity(providerId = 1L, section = ContentType.MOVIE.name, state = "QUEUED"))
+        manager.reconcileStalkerIndexWorkAtStartup()
+        verify(workScheduler, org.mockito.kotlin.never()).scheduleBackgroundEpg(any(), any())
     }
 
     @Test
@@ -3965,6 +3991,10 @@ class SyncManagerTest {
         val result = manager.sync(providerId = 1L, force = false)
 
         assertThat(result).isInstanceOf(Result.Success::class.java)
+        assertThat(manager.resumeStalkerBootstrap(1L)).isInstanceOf(Result.Success::class.java)
+        verify(workScheduler, atLeastOnce()).scheduleStalkerIndex(1L, false, false, 0L, false)
+        verify(workScheduler, atLeastOnce()).scheduleBackgroundEpg(1L, false)
+        verify(stalkerApiService, org.mockito.kotlin.never()).streamEpg(any(), any(), any(), any(), any())
         verify(stalkerApiService, org.mockito.kotlin.times(0)).getVodStreamsPage(any(), any(), anyOrNull(), any())
         verify(stalkerApiService, org.mockito.kotlin.times(0)).getSeriesPage(any(), any(), anyOrNull(), any())
     }
@@ -4470,7 +4500,7 @@ class SyncManagerTest {
     }
 
     @Test
-    fun sync_stalker_upfront_epg_imports_native_portal_guide_before_returning() = runTest {
+    fun sync_stalker_epg_imports_guide_while_catalog_provider_lock_is_held() = runTest {
         val providerEntity = sampleProvider(ProviderType.STALKER_PORTAL).copy(
             serverUrl = "http://example.com",
             username = "",
@@ -4479,7 +4509,9 @@ class SyncManagerTest {
             epgSyncMode = ProviderEpgSyncMode.UPFRONT,
             epgUrl = ""
         )
-        val manager = buildManager(providerType = ProviderType.STALKER_PORTAL, providerEntity = providerEntity)
+        val workLocks = ProviderWorkLockRegistry()
+        val manager = buildManager(providerType = ProviderType.STALKER_PORTAL, providerEntity = providerEntity,
+            workLocks = workLocks)
 
         org.mockito.kotlin.whenever(stalkerApiService.authenticate(any())).thenReturn(
             Result.success(
@@ -4534,12 +4566,24 @@ class SyncManagerTest {
         assertThat(result).isInstanceOf(Result.Success::class.java)
         verify(stalkerApiService).streamLiveStreams(any(), any(), any())
         verify(stalkerApiService, org.mockito.kotlin.times(0)).getLiveStreams(any(), any(), eq("10"))
+        verify(workScheduler).scheduleBackgroundEpg(1L, false)
+        verify(stalkerApiService, org.mockito.kotlin.never()).streamEpg(any(), any(), any(), any(), any())
+        val catalogEntered = CompletableDeferred<Unit>()
+        val releaseCatalog = CompletableDeferred<Unit>()
+        val catalog = async {
+            workLocks.withProviderLock(1L) { catalogEntered.complete(Unit); releaseCatalog.await() }
+        }
+        catalogEntered.await()
+        try {
+            assertThat(withTimeout(1_000) { manager.syncEpg(1L, force = true) })
+                .isInstanceOf(Result.Success::class.java)
+        } finally { releaseCatalog.complete(Unit); catalog.await() }
         verify(stalkerApiService).streamEpg(any(), any(), eq("100"), any(), any())
         verify(programDao, atLeastOnce()).insertAll(any())
     }
 
     @Test
-    fun sync_stalker_upfront_epg_imports_native_portal_guide_in_batches() = runTest {
+    fun syncEpg_stalker_imports_native_portal_guide_in_batches_after_catalog_handoff() = runTest {
         val providerEntity = sampleProvider(ProviderType.STALKER_PORTAL).copy(
             serverUrl = "http://example.com",
             username = "",
@@ -4601,6 +4645,7 @@ class SyncManagerTest {
         val result = manager.sync(providerId = 1L, force = true)
 
         assertThat(result).isInstanceOf(Result.Success::class.java)
+        assertThat(manager.syncEpg(1L, force = true)).isInstanceOf(Result.Success::class.java)
         verify(programDao, atLeastOnce()).insertAll(any())
     }
 
@@ -4765,7 +4810,7 @@ class SyncManagerTest {
     }
 
     @Test
-    fun retrySection_epg_stalker_uses_bulk_first_and_only_falls_back_for_uncovered_keys() = runTest {
+    fun retrySection_epg_stalker_finishes_after_usable_bulk_without_crawling_uncovered_channels() = runTest {
         val providerEntity = sampleProvider(ProviderType.STALKER_PORTAL).copy(
             serverUrl = "http://example.com",
             username = "",
@@ -4823,7 +4868,7 @@ class SyncManagerTest {
         assertThat(result).isInstanceOf(Result.Success::class.java)
         verify(stalkerApiService, org.mockito.kotlin.times(1)).streamBulkEpg(any(), any(), eq(6), any())
         verify(stalkerApiService, org.mockito.kotlin.times(0)).streamEpg(any(), any(), eq("shared-guide-id"), any(), any())
-        verify(stalkerApiService, org.mockito.kotlin.times(1)).streamEpg(any(), any(), eq("sports-guide-id"), any(), any())
+        verify(stalkerApiService, org.mockito.kotlin.never()).streamEpg(any(), any(), any(), any(), any())
     }
 
     @Test

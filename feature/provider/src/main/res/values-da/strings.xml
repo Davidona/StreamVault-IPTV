@@ -125,4 +125,11 @@
     <string name="setup_stalker_catalog_on_demand_description">Indlæs hylder og kategorier, når de åbnes. Behold titler i cachen.</string>
     <string name="setup_stalker_catalog_background_title">Komplet baggrundsindeksering (anbefalet)</string>
     <string name="setup_stalker_catalog_background_description">Færdiggør først udbyderopsætningen, og indekser derefter alle film og serier i baggrunden, så de kan søges frem.</string>
+    <string name="setup_stalker_load_order_title">Indlæsningsrækkefølge i baggrunden</string>
+    <string name="setup_stalker_load_parallel_title">Begge samtidig (standard)</string>
+    <string name="setup_stalker_load_parallel_description">Indlæs film og serier samtidig.</string>
+    <string name="setup_stalker_load_movies_first_title">Film først</string>
+    <string name="setup_stalker_load_movies_first_description">Lad serier vente i kø, indtil filmene er indlæst.</string>
+    <string name="setup_stalker_load_series_first_title">Serier først</string>
+    <string name="setup_stalker_load_series_first_description">Lad film vente i kø, indtil serierne er indlæst.</string>
 </resources>

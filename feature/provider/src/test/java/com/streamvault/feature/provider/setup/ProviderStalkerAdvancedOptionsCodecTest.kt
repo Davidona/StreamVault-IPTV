@@ -5,6 +5,18 @@ import org.junit.Test
 
 class ProviderStalkerAdvancedOptionsCodecTest {
     @Test
+    fun `loading order defaults to parallel and survives editing alongside portal options`() {
+        assertThat(ProviderStalkerAdvancedOptionsCodec.decode("").catalogLoadOrder)
+            .isEqualTo(com.streamvault.domain.model.StalkerCatalogLoadOrder.PARALLEL)
+        for (order in com.streamvault.domain.model.StalkerCatalogLoadOrder.entries) {
+            val options = ProviderStalkerAdvancedOptions(hwVersion = "custom", proxyHost = "proxy.example.com", catalogLoadOrder = order)
+            val restored = ProviderStalkerAdvancedOptionsCodec.decode(ProviderStalkerAdvancedOptionsCodec.encode(options))
+            assertThat(restored).isEqualTo(options)
+            assertThat(restored.copy(playerUserAgent = "changed").catalogLoadOrder).isEqualTo(order)
+        }
+    }
+
+    @Test
     fun `encode preserves the persisted Stalker options wire format`() {
         val encoded = ProviderStalkerAdvancedOptionsCodec.encode(
             ProviderStalkerAdvancedOptions(

@@ -125,4 +125,11 @@
     <string name="setup_stalker_catalog_on_demand_description">Rafları ve kategorileri açıldıklarında yükler. Önbelleğe alınan başlıkları korur.</string>
     <string name="setup_stalker_catalog_background_title">Tam arka plan dizini (önerilen)</string>
     <string name="setup_stalker_catalog_background_description">Önce sağlayıcı kurulumunu tamamlayın, ardından aranabilmeleri için tüm filmleri ve dizileri arka planda dizine ekleyin.</string>
+    <string name="setup_stalker_load_order_title">Arka planda yükleme sırası</string>
+    <string name="setup_stalker_load_parallel_title">İkisi birlikte (varsayılan)</string>
+    <string name="setup_stalker_load_parallel_description">Filmleri ve dizileri birlikte yükle.</string>
+    <string name="setup_stalker_load_movies_first_title">Önce filmler</string>
+    <string name="setup_stalker_load_movies_first_description">Filmlerin yüklenmesi bitene kadar dizileri kuyrukta tut.</string>
+    <string name="setup_stalker_load_series_first_title">Önce diziler</string>
+    <string name="setup_stalker_load_series_first_description">Dizilerin yüklenmesi bitene kadar filmleri kuyrukta tut.</string>
 </resources>

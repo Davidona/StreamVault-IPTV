@@ -125,4 +125,11 @@
     <string name="setup_stalker_catalog_on_demand_description">棚とカテゴリは開いたときに読み込みます。キャッシュ済みのタイトルは保持します。</string>
     <string name="setup_stalker_catalog_background_title">バックグラウンドで全件インデックス（おすすめ）</string>
     <string name="setup_stalker_catalog_background_description">先にプロバイダーのセットアップを完了し、その後、検索できるようにすべての映画とシリーズをバックグラウンドでインデックスします。</string>
+    <string name="setup_stalker_load_order_title">バックグラウンド読み込み順序</string>
+    <string name="setup_stalker_load_parallel_title">両方同時（デフォルト）</string>
+    <string name="setup_stalker_load_parallel_description">映画とシリーズを同時に読み込みます。</string>
+    <string name="setup_stalker_load_movies_first_title">映画を先に読み込む</string>
+    <string name="setup_stalker_load_movies_first_description">映画の読み込みが完了するまでシリーズを待機させます。</string>
+    <string name="setup_stalker_load_series_first_title">シリーズを先に読み込む</string>
+    <string name="setup_stalker_load_series_first_description">シリーズの読み込みが完了するまで映画を待機させます。</string>
 </resources>

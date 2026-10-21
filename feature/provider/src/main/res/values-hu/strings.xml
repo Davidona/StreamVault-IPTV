@@ -125,4 +125,11 @@
     <string name="setup_stalker_catalog_on_demand_description">A polcok és kategóriák megnyitáskor töltődnek be. A gyorsítótárazott címek megmaradnak.</string>
     <string name="setup_stalker_catalog_background_title">Teljes háttérindexelés (ajánlott)</string>
     <string name="setup_stalker_catalog_background_description">Először fejezze be a szolgáltató beállítását, majd indexelje a háttérben az összes filmet és sorozatot a kereséshez.</string>
+    <string name="setup_stalker_load_order_title">Háttérbetöltés sorrendje</string>
+    <string name="setup_stalker_load_parallel_title">Mindkettő egyszerre (alapértelmezett)</string>
+    <string name="setup_stalker_load_parallel_description">Filmek és sorozatok egyidejű betöltése.</string>
+    <string name="setup_stalker_load_movies_first_title">Először a filmek</string>
+    <string name="setup_stalker_load_movies_first_description">A sorozatok várakozzanak, amíg a filmek betöltődnek.</string>
+    <string name="setup_stalker_load_series_first_title">Először a sorozatok</string>
+    <string name="setup_stalker_load_series_first_description">A filmek várakozzanak, amíg a sorozatok betöltődnek.</string>
 </resources>

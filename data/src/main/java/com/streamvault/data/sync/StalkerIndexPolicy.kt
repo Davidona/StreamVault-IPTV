@@ -5,6 +5,7 @@ import com.streamvault.data.remote.stalker.StalkerVodCatalogItem
 import com.streamvault.data.remote.stalker.StalkerPagedResult
 import com.streamvault.domain.model.CatalogLayout
 import com.streamvault.domain.model.ContentType
+import com.streamvault.domain.model.StalkerCatalogLoadOrder
 import com.streamvault.domain.model.Movie
 import com.streamvault.domain.model.Series
 import com.streamvault.domain.model.VodCatalogItem
@@ -63,8 +64,17 @@ internal object StalkerIndexPolicy {
         layout: CatalogLayout,
         requestedSection: ContentType?,
         movie: StalkerCatalogSectionState,
-        series: StalkerCatalogSectionState
+        series: StalkerCatalogSectionState,
+        order: StalkerCatalogLoadOrder = StalkerCatalogLoadOrder.PARALLEL
     ): StalkerCatalogDecision {
+        if (requestedSection == null && layout != CatalogLayout.UNIFIED_VOD && order != StalkerCatalogLoadOrder.PARALLEL) {
+            val first = if (order == StalkerCatalogLoadOrder.MOVIES_FIRST) movie else series
+            if (first.pending) return StalkerCatalogDecision(
+                first.contentType.takeIf { first.runnable },
+                retryDelaySeconds = if (first.runnable) 0 else first.retryDelaySeconds.coerceAtLeast(10),
+                reason = "configured first section still has pending pages"
+            )
+        }
         if (requestedSection == ContentType.MOVIE && movie.runnable) {
             return StalkerCatalogDecision(
                 ContentType.MOVIE,

@@ -961,68 +961,71 @@ class OkHttpStalkerApiService @Inject constructor(
         contentType = "vod"
     )
 
+    override suspend fun getSeriesDetailsInCategory(
+        session: StalkerSession,
+        profile: StalkerDeviceProfile,
+        seriesId: String,
+        categoryId: String
+    ): Result<StalkerSeriesDetails> = getSeriesDetailsForType(session, profile, seriesId, "series", categoryId)
+
     private suspend fun getSeriesDetailsForType(
         session: StalkerSession,
         profile: StalkerDeviceProfile,
         seriesId: String,
-        contentType: String
+        contentType: String,
+        categoryId: String? = null
     ): Result<StalkerSeriesDetails> = runApiCall("Failed to load series details") {
+        val seasonQuery = buildMap {
+            put("type", contentType)
+            put("action", "get_ordered_list")
+            put("JsHttpRequest", "1-xml")
+            put("movie_id", seriesId)
+            categoryId?.takeIf { it.isNotBlank() }?.let { put("category", it) }
+            put("p", "1")
+            if (contentType == "vod") {
+                put("season_id", "0")
+                put("episode_id", "0")
+            }
+        }
         val seriesPayload = requestJson(
             url = session.loadUrl,
             profile = profile,
             referer = session.portalReferer,
             token = session.token,
-            query = mapOf(
-                "type" to contentType,
-                "action" to "get_ordered_list",
-                "JsHttpRequest" to "1-xml",
-                "movie_id" to seriesId,
-                "season_id" to "0",
-                "episode_id" to "0"
-            )
+            query = seasonQuery
         )
         val seedEntries = seriesPayload.extractItemEntries().toMutableList()
-        if (contentType == "vod") {
-            val seedFingerprints = mutableSetOf(
-                seedEntries.joinToString("|") { it.findString("id").orEmpty() }
+        val seedFingerprints = mutableSetOf(
+            seedEntries.joinToString("|") { it.findString("id").orEmpty() }
+        )
+        val seedTotalPages = seriesPayload.totalPages()
+        if (seedTotalPages > MAX_PAGE_COUNT) {
+            throw StalkerApiError.CatalogTruncated(
+                advertisedTotalPages = seedTotalPages,
+                pageLimit = MAX_PAGE_COUNT
             )
-            val seedTotalPages = seriesPayload.totalPages()
-            if (seedTotalPages > MAX_PAGE_COUNT) {
-                throw StalkerApiError.CatalogTruncated(
-                    advertisedTotalPages = seedTotalPages,
-                    pageLimit = MAX_PAGE_COUNT
+        }
+        for (page in 2..seedTotalPages) {
+            val pagePayload = requestJson(
+                url = session.loadUrl,
+                profile = profile,
+                referer = session.portalReferer,
+                token = session.token,
+                query = seasonQuery + ("p" to page.toString())
+            )
+            val pageEntries = pagePayload.extractItemEntries()
+            val fingerprint = pageEntries.joinToString("|") { it.findString("id").orEmpty() }
+            if (fingerprint.isNotEmpty() && !seedFingerprints.add(fingerprint)) {
+                throw StalkerApiError.Malformed(
+                    "Portal repeated a series-detail page while loading page $page."
                 )
             }
-            for (page in 2..seedTotalPages) {
-                val pagePayload = requestJson(
-                    url = session.loadUrl,
-                    profile = profile,
-                    referer = session.portalReferer,
-                    token = session.token,
-                    query = mapOf(
-                        "type" to contentType,
-                        "action" to "get_ordered_list",
-                        "JsHttpRequest" to "1-xml",
-                        "movie_id" to seriesId,
-                        "season_id" to "0",
-                        "episode_id" to "0",
-                        "p" to page.toString()
-                    )
+            if (pageEntries.isEmpty() && page < seedTotalPages) {
+                throw StalkerApiError.Malformed(
+                    "Portal returned an empty series-detail page before its advertised end."
                 )
-                val pageEntries = pagePayload.extractItemEntries()
-                val fingerprint = pageEntries.joinToString("|") { it.findString("id").orEmpty() }
-                if (fingerprint.isNotEmpty() && !seedFingerprints.add(fingerprint)) {
-                    throw StalkerApiError.Malformed(
-                        "Portal repeated a series-detail page while loading page $page."
-                    )
-                }
-                if (pageEntries.isEmpty() && page < seedTotalPages) {
-                    throw StalkerApiError.Malformed(
-                        "Portal returned an empty series-detail page before its advertised end."
-                    )
-                }
-                seedEntries += pageEntries
             }
+            seedEntries += pageEntries
         }
         val seriesItems = seriesPayload.toItemRecords(profile.timezone.toPortalZoneId())
         val series = seriesItems.firstOrNull { item -> !item.looksLikeSeasonShell() }
@@ -1048,6 +1051,7 @@ class OkHttpStalkerApiService @Inject constructor(
         val paginationEvidence = mutableListOf<StalkerEpisodePaginationEvidence>()
         val seasons = if (seasonRows.isNotEmpty()) {
             seasonRows.mapIndexed { index, (seasonId, entry) ->
+                entry.toSeasonShellRecord(index + 1)?.let { return@mapIndexed it }
                 val pages = fetchSeriesEpisodePages(
                     session = session,
                     profile = profile,
@@ -1076,24 +1080,7 @@ class OkHttpStalkerApiService @Inject constructor(
             }
         } else if (shellSeasonRows.isNotEmpty()) {
             shellSeasonRows.map { (seasonId, entry) ->
-                val episodesPayload = requestJson(
-                    url = session.loadUrl,
-                    profile = profile,
-                    referer = session.portalReferer,
-                    token = session.token,
-                    query = mapOf(
-                        "type" to contentType,
-                        "action" to "get_ordered_list",
-                        "JsHttpRequest" to "1-xml",
-                        "movie_id" to seriesId,
-                        "season_id" to seasonId,
-                        "episode_id" to "0"
-                    )
-                )
-                entry.toSeasonRecord(
-                    episodeEntries = episodesPayload.extractItemEntries(),
-                    fallbackSeasonNumber = seasonId.toIntOrNull()
-                )
+                requireNotNull(entry.toSeasonShellRecord(seasonId.toIntOrNull() ?: 1))
             }
         } else {
             listOf(
@@ -3736,6 +3723,7 @@ class OkHttpStalkerApiService @Inject constructor(
                 title = "$seasonName Episode $episodeNumber",
                 episodeNumber = episodeNumber,
                 seasonNumber = fallbackSeasonNumber,
+                playbackSelector = episodeNumber,
                 cmd = findString("cmd"),
                 coverUrl = sanitizeUrl(findString("screenshot_uri")) ?: sanitizeUrl(findString("cover")),
                 plot = findString("description") ?: findString("plot"),

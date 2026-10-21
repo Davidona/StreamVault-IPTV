@@ -125,4 +125,11 @@
     <string name="setup_stalker_catalog_on_demand_description">Laad planken en categorieën wanneer ze worden geopend. Bewaar titels in de cache.</string>
     <string name="setup_stalker_catalog_background_title">Volledige achtergrondindex (aanbevolen)</string>
     <string name="setup_stalker_catalog_background_description">Rond eerst de installatie van de provider af en indexeer daarna alle films en series op de achtergrond, zodat je ze kunt zoeken.</string>
+    <string name="setup_stalker_load_order_title">Laadvolgorde op de achtergrond</string>
+    <string name="setup_stalker_load_parallel_title">Beide tegelijk (standaard)</string>
+    <string name="setup_stalker_load_parallel_description">Films en series tegelijk laden.</string>
+    <string name="setup_stalker_load_movies_first_title">Films eerst</string>
+    <string name="setup_stalker_load_movies_first_description">Laat series in de wachtrij staan totdat de films zijn geladen.</string>
+    <string name="setup_stalker_load_series_first_title">Series eerst</string>
+    <string name="setup_stalker_load_series_first_description">Laat films in de wachtrij staan totdat de series zijn geladen.</string>
 </resources>

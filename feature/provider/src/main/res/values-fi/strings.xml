@@ -125,4 +125,11 @@
     <string name="setup_stalker_catalog_on_demand_description">Lataa hyllyt ja kategoriat avattaessa. Säilyttää välimuistissa olevat nimikkeet.</string>
     <string name="setup_stalker_catalog_background_title">Täysi taustaindeksointi (suositeltu)</string>
     <string name="setup_stalker_catalog_background_description">Viimeistele ensin palveluntarjoajan käyttöönotto. Sen jälkeen kaikki elokuvat ja sarjat indeksoidaan taustalla hakua varten.</string>
+    <string name="setup_stalker_load_order_title">Taustalatauksen järjestys</string>
+    <string name="setup_stalker_load_parallel_title">Molemmat yhdessä (oletus)</string>
+    <string name="setup_stalker_load_parallel_description">Lataa elokuvia ja sarjoja samanaikaisesti.</string>
+    <string name="setup_stalker_load_movies_first_title">Elokuvat ensin</string>
+    <string name="setup_stalker_load_movies_first_description">Pidä sarjat jonossa, kunnes elokuvat on ladattu.</string>
+    <string name="setup_stalker_load_series_first_title">Sarjat ensin</string>
+    <string name="setup_stalker_load_series_first_description">Pidä elokuvat jonossa, kunnes sarjat on ladattu.</string>
 </resources>

@@ -294,8 +294,8 @@ class StalkerPortalStateStore @Inject constructor(
         configurationGeneration: Long? = null
     ) = update(providerId, configurationGeneration) { state ->
         val capability = when (contentType) {
-            ContentType.MOVIE -> "vod"
-            ContentType.SERIES -> "series"
+            ContentType.MOVIE -> "vod_wildcard"
+            ContentType.SERIES -> "series_wildcard"
             else -> null
         }
         val learned = capability?.let {

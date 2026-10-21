@@ -171,13 +171,15 @@ internal class ProviderEpgSyncExecutor(
                     }
                     val epgCount = programDao.countByProvider(provider.id)
                     if (epgCount > 0) {
-                        syncMetadataRepository.updateMetadata(
-                            (syncMetadataRepository.getMetadata(provider.id) ?: SyncMetadata(provider.id)).copy(
-                                lastEpgSync = now,
-                                lastEpgSuccess = now,
-                                epgCount = epgCount
+                        transactionRunner.inTransaction {
+                            syncMetadataRepository.updateMetadata(
+                                (syncMetadataRepository.getMetadata(provider.id) ?: SyncMetadata(provider.id)).copy(
+                                    lastEpgSync = now,
+                                    lastEpgSuccess = now,
+                                    epgCount = epgCount
+                                )
                             )
-                        )
+                        }
                     } else {
                         warnings.add("Portal XMLTV imported zero programs; using the Stalker portal guide instead.")
                         shouldUseNativeGuide = true
@@ -284,8 +286,11 @@ internal class ProviderEpgSyncExecutor(
         }
 
         val uncoveredGuideRequests = guideRequests.filterNot { it.channelKey in bulkCoveredChannelKeys }
-        val perChannelGuideWindowed = uncoveredGuideRequests.size > STALKER_PER_CHANNEL_EPG_REQUESTS_PER_RUN
-        val fallbackGuideRequests = if (providerRateLimited) {
+        // A usable bulk guide is the completed guide result. Many portals intentionally omit
+        // channels with no programmes; probing each omitted channel can take many minutes.
+        val bulkGuideUsable = bulkCoveredChannelKeys.isNotEmpty()
+        val perChannelGuideWindowed = !bulkGuideUsable && uncoveredGuideRequests.size > STALKER_PER_CHANNEL_EPG_REQUESTS_PER_RUN
+        val fallbackGuideRequests = if (providerRateLimited || bulkGuideUsable) {
             emptyList()
         } else if (perChannelGuideWindowed) {
             val windowCount = (uncoveredGuideRequests.size + STALKER_PER_CHANNEL_EPG_REQUESTS_PER_RUN - 1) /
@@ -379,14 +384,16 @@ internal class ProviderEpgSyncExecutor(
             api.recordEpgCapability(supported = true)
         }
         val guideLooksHealthy = epgCount >= STALKER_MIN_HEALTHY_EPG_PROGRAMS || previousProgramCount == 0
-        val existingMetadata = syncMetadataRepository.getMetadata(provider.id) ?: SyncMetadata(provider.id)
-        syncMetadataRepository.updateMetadata(
-            existingMetadata.copy(
-                lastEpgSync = now,
-                lastEpgSuccess = if (guideLooksHealthy) now else existingMetadata.lastEpgSuccess,
-                epgCount = epgCount
+        transactionRunner.inTransaction {
+            val existingMetadata = syncMetadataRepository.getMetadata(provider.id) ?: SyncMetadata(provider.id)
+            syncMetadataRepository.updateMetadata(
+                existingMetadata.copy(
+                    lastEpgSync = now,
+                    lastEpgSuccess = if (guideLooksHealthy) now else existingMetadata.lastEpgSuccess,
+                    epgCount = epgCount
+                )
             )
-        )
+        }
 
         val warnings = mutableListOf<String>()
         if (providerRateLimited) {
@@ -565,10 +572,12 @@ internal class ProviderEpgSyncExecutor(
             }
         }
         if (provider.guideSourcePolicy == GuideSourcePolicy.EXTERNAL_ONLY && warnings.isEmpty() && !hasRetryableFailure) {
-            val current = syncMetadataRepository.getMetadata(provider.id) ?: metadata
-            syncMetadataRepository.updateMetadata(current.copy(
-                lastEpgSync = now, lastEpgSuccess = now, epgCount = programDao.countByProvider(provider.id)
-            ))
+            transactionRunner.inTransaction {
+                val current = syncMetadataRepository.getMetadata(provider.id) ?: metadata
+                syncMetadataRepository.updateMetadata(current.copy(
+                    lastEpgSync = now, lastEpgSuccess = now, epgCount = programDao.countByProvider(provider.id)
+                ))
+            }
         }
         return ProviderGuideSyncResult(warnings, hasRetryableFailure)
     }

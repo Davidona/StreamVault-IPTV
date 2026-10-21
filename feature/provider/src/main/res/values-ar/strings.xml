@@ -125,4 +125,11 @@
     <string name="setup_stalker_catalog_on_demand_description">حمّل الرفوف والفئات عند فتحها. احتفظ بالعناوين المخزنة مؤقتًا.</string>
     <string name="setup_stalker_catalog_background_title">فهرسة كاملة في الخلفية (موصى بها)</string>
     <string name="setup_stalker_catalog_background_description">أكمل إعداد المزوّد أولًا، ثم افهرس جميع عناوين الأفلام والمسلسلات في الخلفية للبحث.</string>
+    <string name="setup_stalker_load_order_title">ترتيب التحميل في الخلفية</string>
+    <string name="setup_stalker_load_parallel_title">كلاهما معًا (افتراضي)</string>
+    <string name="setup_stalker_load_parallel_description">تحميل الأفلام والمسلسلات معًا.</string>
+    <string name="setup_stalker_load_movies_first_title">الأفلام أولًا</string>
+    <string name="setup_stalker_load_movies_first_description">إبقاء المسلسلات في الانتظار حتى يكتمل تحميل الأفلام.</string>
+    <string name="setup_stalker_load_series_first_title">المسلسلات أولًا</string>
+    <string name="setup_stalker_load_series_first_description">إبقاء الأفلام في الانتظار حتى يكتمل تحميل المسلسلات.</string>
 </resources>

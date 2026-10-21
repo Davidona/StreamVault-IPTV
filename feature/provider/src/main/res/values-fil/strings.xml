@@ -129,4 +129,11 @@
     <string name="setup_stalker_catalog_on_demand_description">Nilo-load ang mga shelf at kategorya kapag binuksan. Pinananatili ang mga naka-cache na pamagat.</string>
     <string name="setup_stalker_catalog_background_title">Kumpletong pag-index sa background (inirerekomenda)</string>
     <string name="setup_stalker_catalog_background_description">Tapusin muna ang setup ng provider, saka i-index sa background ang lahat ng pelikula at serye para madaling hanapin.</string>
+    <string name="setup_stalker_load_order_title">Pagkakasunod ng pag-load sa background</string>
+    <string name="setup_stalker_load_parallel_title">Sabay pareho (default)</string>
+    <string name="setup_stalker_load_parallel_description">Sabay na i-load ang mga pelikula at serye.</string>
+    <string name="setup_stalker_load_movies_first_title">Mga pelikula muna</string>
+    <string name="setup_stalker_load_movies_first_description">Panatilihing nakapila ang mga serye hanggang matapos ma-load ang mga pelikula.</string>
+    <string name="setup_stalker_load_series_first_title">Mga serye muna</string>
+    <string name="setup_stalker_load_series_first_description">Panatilihing nakapila ang mga pelikula hanggang matapos ma-load ang mga serye.</string>
 </resources>

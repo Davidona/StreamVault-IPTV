@@ -259,7 +259,7 @@ internal class StalkerIndexCheckpointStore(
         }
     }
 
-    private companion object {
+    companion object {
         const val STALKER_CATEGORY_RETRY_BUDGET = 3
         const val STALKER_CATEGORY_RETRY_COOLDOWN_MILLIS = 5 * 60 * 1000L
     }

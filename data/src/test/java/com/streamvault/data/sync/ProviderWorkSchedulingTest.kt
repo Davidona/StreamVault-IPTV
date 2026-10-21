@@ -6,15 +6,15 @@ import org.junit.Test
 
 class ProviderWorkSchedulingTest {
     @Test
-    fun `all provider phases resolve to one unique work identity`() {
+    fun `Stalker catalog guide and setup have independent work identities`() {
         val identities = listOf(
             providerWorkUniqueName(7L),
-            providerWorkUniqueName(7L),
-            providerWorkUniqueName(7L),
-            providerWorkUniqueName(7L)
+            stalkerIndexWorkUniqueName(7L),
+            providerEpgWorkUniqueName(7L),
+            providerAutomaticIndexWorkUniqueName(7L)
         )
 
-        assertThat(identities.distinct()).containsExactly("provider-workflow-7")
+        assertThat(identities.distinct()).hasSize(4)
     }
 
     @Test

@@ -68,13 +68,17 @@ class BackgroundEpgSyncWorker(
                 return Result.retry()
             }
             when (
-                entryPoint.providerWorkflowRunner().execute(
-                    providerId = providerId,
-                    phase = ProviderWorkflowPhase.EPG,
-                    reason = ProviderWorkflowReason.PERIODIC,
-                    force = force
-                ) {
-                    when (val result = entryPoint.syncCommands().syncEpg(providerId, force = force)) {
+                executeBackgroundEpg(provider?.type, workflow = { sync ->
+                    entryPoint.providerWorkflowRunner().execute(
+                        providerId = providerId,
+                        phase = ProviderWorkflowPhase.EPG,
+                        reason = ProviderWorkflowReason.PERIODIC,
+                        force = force,
+                        block = sync
+                    )
+                }) {
+                    val epgResult = entryPoint.syncCommands().syncEpg(providerId, force = force)
+                    when (val result = epgResult) {
                         is com.streamvault.domain.model.Result.Success -> {
                             // A successful EPG sync may still have transient partial failures.
                             val syncState = entryPoint.syncCommands().currentSyncState(providerId)

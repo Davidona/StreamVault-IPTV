@@ -129,4 +129,11 @@
     <string name="setup_stalker_catalog_on_demand_description">โหลดชั้นวางและหมวดหมู่เมื่อเปิด เก็บชื่อเรื่องที่อยู่ในแคชไว้</string>
     <string name="setup_stalker_catalog_background_title">จัดทำดัชนีเบื้องหลังทั้งหมด (แนะนำ)</string>
     <string name="setup_stalker_catalog_background_description">ตั้งค่าผู้ให้บริการให้เสร็จก่อน จากนั้นจัดทำดัชนีภาพยนตร์และซีรีส์ทั้งหมดเบื้องหลังเพื่อให้ค้นหาได้</string>
+    <string name="setup_stalker_load_order_title">ลำดับการโหลดเบื้องหลัง</string>
+    <string name="setup_stalker_load_parallel_title">ทั้งสองพร้อมกัน (ค่าเริ่มต้น)</string>
+    <string name="setup_stalker_load_parallel_description">โหลดภาพยนตร์และซีรีส์พร้อมกัน</string>
+    <string name="setup_stalker_load_movies_first_title">ภาพยนตร์ก่อน</string>
+    <string name="setup_stalker_load_movies_first_description">ให้ซีรีส์รอในคิวจนกว่าจะโหลดภาพยนตร์เสร็จ</string>
+    <string name="setup_stalker_load_series_first_title">ซีรีส์ก่อน</string>
+    <string name="setup_stalker_load_series_first_description">ให้ภาพยนตร์รอในคิวจนกว่าจะโหลดซีรีส์เสร็จ</string>
 </resources>

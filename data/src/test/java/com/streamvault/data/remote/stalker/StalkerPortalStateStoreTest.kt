@@ -18,6 +18,15 @@ import java.util.Base64
 
 class StalkerPortalStateStoreTest {
     @Test
+    fun `rejected wildcard is a paging capability rather than a disabled catalog`() = runTest {
+        val store = StalkerPortalStateStore(FakePortalStateDao(), TestCredentialCrypto())
+        store.recordWildcard(1, ContentType.SERIES, false, configurationGeneration = 2)
+        val capabilities = Json.parseToJsonElement(requireNotNull(store.get(1)).learningJson)
+            .jsonObject.getValue("capabilities").jsonObject
+        assertThat(capabilities.keys).contains("series_wildcard")
+        assertThat(capabilities.keys).doesNotContain("series")
+    }
+    @Test
     fun `first run adopts learning generation created after handshake`() = runTest {
         val dao = FakePortalStateDao()
         val store = StalkerPortalStateStore(dao, TestCredentialCrypto())

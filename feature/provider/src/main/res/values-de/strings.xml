@@ -125,4 +125,11 @@
     <string name="setup_stalker_catalog_on_demand_description">Regale und Kategorien werden beim Öffnen geladen. Zwischengespeicherte Titel bleiben erhalten.</string>
     <string name="setup_stalker_catalog_background_title">Vollständige Hintergrundindizierung (empfohlen)</string>
     <string name="setup_stalker_catalog_background_description">Schließe zuerst die Anbietereinrichtung ab. Danach werden alle Filme und Serien im Hintergrund für die Suche indiziert.</string>
+    <string name="setup_stalker_load_order_title">Reihenfolge beim Laden im Hintergrund</string>
+    <string name="setup_stalker_load_parallel_title">Beides gleichzeitig (Standard)</string>
+    <string name="setup_stalker_load_parallel_description">Filme und Serien gleichzeitig laden.</string>
+    <string name="setup_stalker_load_movies_first_title">Filme zuerst</string>
+    <string name="setup_stalker_load_movies_first_description">Serien bleiben in der Warteschlange, bis alle Filme geladen sind.</string>
+    <string name="setup_stalker_load_series_first_title">Serien zuerst</string>
+    <string name="setup_stalker_load_series_first_description">Filme bleiben in der Warteschlange, bis alle Serien geladen sind.</string>
 </resources>

@@ -7,10 +7,9 @@ import org.junit.Test
 
 class StalkerTrafficCoordinatorTest {
     @Test
-    fun `opt in lets worker run during playback with all pacing at wire admission`() {
+    fun `background continuation yields during playback even with adaptive network admission`() {
         StalkerTrafficCoordinator.notePlaybackStarted(7L)
-        assertThat(StalkerTrafficCoordinator.shouldDeferIndexForPlayback(7L, false)).isTrue()
-        assertThat(StalkerTrafficCoordinator.shouldDeferIndexForPlayback(7L, true)).isFalse()
+        assertThat(StalkerTrafficCoordinator.shouldDeferIndexForPlayback(7L)).isTrue()
         assertThat(StalkerTrafficCoordinator.backgroundInterPageDelayMillis(7L, true)).isEqualTo(0L)
     }
 

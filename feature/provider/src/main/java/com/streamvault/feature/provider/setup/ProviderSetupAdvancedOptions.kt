@@ -35,6 +35,7 @@ import com.streamvault.domain.model.ProviderEpgSyncMode
 import com.streamvault.domain.model.ProviderXtreamLiveSyncMode
 import com.streamvault.domain.model.StalkerAuthMode
 import com.streamvault.domain.model.StalkerCatalogMode
+import com.streamvault.domain.model.StalkerCatalogLoadOrder
 
 @Composable
 internal fun AdvancedProviderOptionsSection(options: ProviderAdvancedOptions) {
@@ -48,6 +49,7 @@ internal fun AdvancedProviderOptionsSection(options: ProviderAdvancedOptions) {
         onToggleM3uVodClassification = options.onToggleM3uVodClassification,
         onSelectEpgSyncMode = options.onSelectEpgSyncMode,
         onSelectStalkerCatalogMode = options.onSelectStalkerCatalogMode,
+        onSelectStalkerCatalogLoadOrder = options.onSelectStalkerCatalogLoadOrder,
         onSelectXtreamLiveSyncMode = options.onSelectXtreamLiveSyncMode,
         onSelectGuideSourcePolicy = options.onSelectGuideSourcePolicy,
         onSelectChannelLogoSourcePolicy = options.onSelectChannelLogoSourcePolicy,
@@ -106,6 +108,7 @@ internal fun AdvancedProviderOptionsSection(
     onToggleM3uVodClassification: () -> Unit,
     onSelectEpgSyncMode: (ProviderEpgSyncMode) -> Unit,
     onSelectStalkerCatalogMode: (StalkerCatalogMode) -> Unit,
+    onSelectStalkerCatalogLoadOrder: (StalkerCatalogLoadOrder) -> Unit = {},
     onSelectXtreamLiveSyncMode: (ProviderXtreamLiveSyncMode) -> Unit,
     onSelectGuideSourcePolicy: (GuideSourcePolicy) -> Unit,
     onSelectChannelLogoSourcePolicy: (ChannelLogoSourcePolicy) -> Unit,
@@ -482,6 +485,29 @@ internal fun AdvancedProviderOptionsSection(
                             description = stringResource(R.string.setup_stalker_catalog_background_description),
                             selected = uiState.stalkerCatalogMode == StalkerCatalogMode.BACKGROUND_INDEX,
                             onSelect = { onSelectStalkerCatalogMode(StalkerCatalogMode.BACKGROUND_INDEX) }
+                        )
+                        Text(
+                            text = stringResource(R.string.setup_stalker_load_order_title),
+                            style = MaterialTheme.typography.titleSmall,
+                            color = TextPrimary
+                        )
+                        PolicyOptionRow(
+                            title = stringResource(R.string.setup_stalker_load_parallel_title),
+                            description = stringResource(R.string.setup_stalker_load_parallel_description),
+                            selected = uiState.stalkerCatalogLoadOrder == StalkerCatalogLoadOrder.PARALLEL,
+                            onSelect = { onSelectStalkerCatalogLoadOrder(StalkerCatalogLoadOrder.PARALLEL) }
+                        )
+                        PolicyOptionRow(
+                            title = stringResource(R.string.setup_stalker_load_movies_first_title),
+                            description = stringResource(R.string.setup_stalker_load_movies_first_description),
+                            selected = uiState.stalkerCatalogLoadOrder == StalkerCatalogLoadOrder.MOVIES_FIRST,
+                            onSelect = { onSelectStalkerCatalogLoadOrder(StalkerCatalogLoadOrder.MOVIES_FIRST) }
+                        )
+                        PolicyOptionRow(
+                            title = stringResource(R.string.setup_stalker_load_series_first_title),
+                            description = stringResource(R.string.setup_stalker_load_series_first_description),
+                            selected = uiState.stalkerCatalogLoadOrder == StalkerCatalogLoadOrder.SERIES_FIRST,
+                            onSelect = { onSelectStalkerCatalogLoadOrder(StalkerCatalogLoadOrder.SERIES_FIRST) }
                         )
                     }
 

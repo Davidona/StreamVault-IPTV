@@ -14,8 +14,7 @@ android {
 
     defaultConfig {
         minSdk = 25
-        // Enable only in validation builds until portal and multi-channel playback evidence exists.
-        buildConfigField("boolean", "STALKER_ADAPTIVE_INDEXING", (providers.gradleProperty("stalkerAdaptiveIndexing").orNull == "true").toString())
+        buildConfigField("boolean", "STALKER_ADAPTIVE_INDEXING", "true")
         val requestedStalkerPageConcurrency = providers.gradleProperty("stalkerIndexPageConcurrency")
             .orNull
             ?.toIntOrNull()
