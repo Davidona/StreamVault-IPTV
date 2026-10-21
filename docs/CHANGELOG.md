@@ -10,6 +10,7 @@ All notable product changes are recorded in this document.
 - Localized player recording notices and EPG recording messages across all supported locales.
 
 ### Fixed
+- Fixed selected subtitles reverting to off by saving track details before track-list refreshes and keeping the player's active preference in sync with manual selections.
 - Fixed a compile failure in the recording-by-time dialog that prevented the app from building after the recording scheduling update, which also blocked Settings backup export and import.
 - Fixed audio stopping after a while.
 - Fixed the player crashing when scheduling a recording (Schedule, Record Daily, or Record Weekly): the recording coordinator called itself instead of the scheduling use case, causing a stack overflow.
@@ -66,7 +67,6 @@ All notable product changes are recorded in this document.
 
 ### Fixed
 
-- Fixed selected subtitles reverting to off by saving track details before the player refreshes its available subtitle list.
 - Fixed Guide schedules briefly appearing and disappearing during background updates, and missing provider EPG requests for channels loaded after the first page.
 - Fixed Jellyfin Quick Connect QR links to use the Web Quick Connect route and safely encode the pairing code.
 - Fixed QR provider pairing session cleanup and request validation, including expired sessions, malformed or oversized submissions, slow clients, and duplicate submissions.

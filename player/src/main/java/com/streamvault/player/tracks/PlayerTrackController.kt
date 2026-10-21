@@ -520,6 +520,9 @@ class PlayerTrackController(
 
     fun selectSubtitleTrack(player: ExoPlayer, trackId: String?) {
         if (trackId == null) {
+            vodTrackPreferences = (vodTrackPreferences ?: VodTrackPreferences()).copy(
+                subtitle = VodTrackPreference(disabled = true)
+            )
             player.trackSelectionParameters = player.trackSelectionParameters
                 .buildUpon()
                 .setTrackTypeDisabled(C.TRACK_TYPE_TEXT, true)
@@ -528,6 +531,16 @@ class PlayerTrackController(
             return
         }
         val override = findOverride(player.currentTracks, C.TRACK_TYPE_TEXT, trackId) ?: return
+        val selectedTrack = _availableSubtitleTracks.value.firstOrNull { it.id == trackId }
+        vodTrackPreferences = (vodTrackPreferences ?: VodTrackPreferences()).copy(
+            subtitle = selectedTrack?.let { track ->
+                VodTrackPreference(
+                    trackId = track.id,
+                    language = track.language,
+                    label = track.name
+                )
+            } ?: VodTrackPreference(trackId = trackId)
+        )
         player.trackSelectionParameters = player.trackSelectionParameters
             .buildUpon()
             .setTrackTypeDisabled(C.TRACK_TYPE_TEXT, false)
