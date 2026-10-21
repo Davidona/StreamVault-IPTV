@@ -353,6 +353,13 @@
     <string name="settings_status_expired">Skaduar</string>
     <string name="settings_status_disabled">Çaktivizuar</string>
     <string name="settings_status_unknown">I panjohur</string>
+    <string name="settings_provider_connection_online">Në linjë</string>
+    <string name="settings_provider_connection_unavailable">I padisponueshëm</string>
+    <string name="settings_provider_connection_checking">Po kontrollohet…</string>
+    <string name="settings_provider_connection_check_now">Kontrollo tani</string>
+    <string name="settings_provider_connection_last_checked">Kontrolluar së fundmi</string>
+    <string name="settings_provider_connection_authentication_required">Kërkohet identifikimi</string>
+    <string name="settings_provider_connection_unknown">I panjohur</string>
     <string name="settings_select_level">Zgjidh nivelin e mbrojtjes</string>
     <string name="settings_level_off_desc">JOAKTIV - Pa kufizime</string>
     <string name="settings_level_off_subtitle">Përmbajtja për të rritur shfaqet kudo.</string>

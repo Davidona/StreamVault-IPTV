@@ -354,6 +354,13 @@
     <string name="settings_status_expired">Истекло</string>
     <string name="settings_status_disabled">Онемогућено</string>
     <string name="settings_status_unknown">Непознато</string>
+    <string name="settings_provider_connection_online">На мрежи</string>
+    <string name="settings_provider_connection_unavailable">Недоступно</string>
+    <string name="settings_provider_connection_checking">Провера…</string>
+    <string name="settings_provider_connection_check_now">Провери сада</string>
+    <string name="settings_provider_connection_last_checked">Последња провера</string>
+    <string name="settings_provider_connection_authentication_required">Потребна је пријава</string>
+    <string name="settings_provider_connection_unknown">Непознато</string>
     <string name="settings_select_level">Изаберите ниво заштите</string>
     <string name="settings_level_off_desc">ИСКЉУЧЕНО - без ограничења</string>
     <string name="settings_level_off_subtitle">Садржај за одрасле се приказује свуда.</string>

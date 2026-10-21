@@ -10,6 +10,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.tv.material3.*
 import com.streamvault.feature.settings.R
@@ -23,6 +24,7 @@ import com.streamvault.domain.model.ProviderType
 public fun ProviderSettingsCard(
     provider: Provider,
     isActive: Boolean,
+    availability: ProviderAvailabilityUiState,
     isSyncing: Boolean,
     appTimeFormat: AppTimeFormat,
     xtreamLiveOnboardingPhase: String?,
@@ -33,6 +35,7 @@ public fun ProviderSettingsCard(
     syncWarnings: List<String>,
     onRetryWarningAction: (ProviderWarningAction) -> Unit,
     onConnect: () -> Unit,
+    onCheckAvailability: () -> Unit,
     onRefresh: () -> Unit,
     onDelete: () -> Unit,
     onEdit: () -> Unit,
@@ -78,13 +81,7 @@ public fun ProviderSettingsCard(
                     color = OnSurfaceDim
                 )
             }
-            ProviderStatusBadge(
-                status = provider.status,
-                requiresAttention = provider.type == ProviderType.STALKER_PORTAL &&
-                    provider.status == ProviderStatus.PARTIAL &&
-                    provider.stalkerTransportMode ==
-                    com.streamvault.domain.model.StalkerTransportMode.AUTO_STRICT
-            )
+            ProviderConnectionStatusBadge(availability)
             if (isActive) {
                 Spacer(Modifier.width(8.dp))
                 Text(
@@ -97,6 +94,40 @@ public fun ProviderSettingsCard(
                         .padding(horizontal = 10.dp, vertical = 6.dp)
                 )
             }
+        }
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            if (availability.checkedAt > 0L) {
+                val appLocale = LocalContext.current.resources.configuration.locales[0]
+                Text(
+                    text = formatProviderSummary(
+                        listOf(
+                            stringResource(R.string.settings_provider_connection_last_checked),
+                            java.text.DateFormat.getTimeInstance(
+                                java.text.DateFormat.SHORT,
+                                appLocale
+                            ).format(java.util.Date(availability.checkedAt))
+                        )
+                    ),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = OnSurfaceDim
+                )
+            } else {
+                Spacer(Modifier.weight(1f))
+            }
+            CompactSettingsActionChip(
+                label = stringResource(
+                    if (availability.isChecking) R.string.settings_provider_connection_checking
+                    else R.string.settings_provider_connection_check_now
+                ),
+                accent = Secondary,
+                enabled = !availability.isChecking,
+                onClick = onCheckAvailability
+            )
         }
 
         // Expiration Date

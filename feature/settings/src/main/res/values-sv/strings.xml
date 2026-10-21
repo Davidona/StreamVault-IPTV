@@ -313,6 +313,13 @@
     <string name="settings_status_expired">Utgått</string>
     <string name="settings_status_disabled">Inaktiverad</string>
     <string name="settings_status_unknown">Okänd</string>
+    <string name="settings_provider_connection_online">Online</string>
+    <string name="settings_provider_connection_unavailable">Otillgänglig</string>
+    <string name="settings_provider_connection_checking">Kontrollerar…</string>
+    <string name="settings_provider_connection_check_now">Kontrollera nu</string>
+    <string name="settings_provider_connection_last_checked">Senast kontrollerad</string>
+    <string name="settings_provider_connection_authentication_required">Inloggning krävs</string>
+    <string name="settings_provider_connection_unknown">Okänd</string>
     <string name="settings_select_level">Välj skyddsnivå</string>
     <string name="settings_level_off_desc">AV - Inga begränsningar</string>
     <string name="settings_level_off_subtitle">Vuxeninnehåll visas överallt.</string>

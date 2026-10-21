@@ -313,6 +313,13 @@
     <string name="settings_status_expired">Đã hết hạn</string>
     <string name="settings_status_disabled">Đã tắt</string>
     <string name="settings_status_unknown">Không rõ</string>
+    <string name="settings_provider_connection_online">Trực tuyến</string>
+    <string name="settings_provider_connection_unavailable">Không khả dụng</string>
+    <string name="settings_provider_connection_checking">Đang kiểm tra…</string>
+    <string name="settings_provider_connection_check_now">Kiểm tra ngay</string>
+    <string name="settings_provider_connection_last_checked">Kiểm tra lần cuối</string>
+    <string name="settings_provider_connection_authentication_required">Yêu cầu đăng nhập</string>
+    <string name="settings_provider_connection_unknown">Không rõ</string>
     <string name="settings_select_level">Chọn mức bảo vệ</string>
     <string name="settings_level_off_desc">TẮT - Không có hạn chế</string>
     <string name="settings_level_off_subtitle">Nội dung người lớn xuất hiện ở mọi nơi.</string>

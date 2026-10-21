@@ -313,6 +313,13 @@
     <string name="settings_status_expired">期限切れ</string>
     <string name="settings_status_disabled">無効</string>
     <string name="settings_status_unknown">不明</string>
+    <string name="settings_provider_connection_online">オンライン</string>
+    <string name="settings_provider_connection_unavailable">利用不可</string>
+    <string name="settings_provider_connection_checking">確認中…</string>
+    <string name="settings_provider_connection_check_now">今すぐ確認</string>
+    <string name="settings_provider_connection_last_checked">最終確認</string>
+    <string name="settings_provider_connection_authentication_required">サインインが必要</string>
+    <string name="settings_provider_connection_unknown">不明</string>
     <string name="settings_select_level">保護レベルを選択</string>
     <string name="settings_level_off_desc">OFF - 制限なし</string>
     <string name="settings_level_off_subtitle">アダルトコンテンツはすべての場所に表示されます。</string>

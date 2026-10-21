@@ -4,6 +4,7 @@ All notable product changes are recorded in this document.
 ## [1.2.2]
 
 ### Added
+- Added provider connection checks to Settings → Providers, separate from sync state and **In use**, with Online, Unavailable, Authentication required, and Unknown statuses, a last-checked time, and a manual recheck action. Checks run when the section opens and refresh when results are more than five minutes old.
 - Added time-based recording scheduling so live channels without EPG data can be recorded for a chosen start time and duration, with daily and weekly repeat options, from the player's recording menu.
 
 ### Changed
@@ -11,7 +12,8 @@ All notable product changes are recorded in this document.
 - Series details now refresh every six hours instead of every 14 days, so newly aired episodes appear promptly and incomplete episode caches repair themselves.
 
 ### Fixed
-- Fixed missing and disappearing episodes for providers that return nested episode arrays, season-keyed episode maps, or unexpected metadata shapes inside episode entries.
+- Fixed missing episodes from providers that return nested episode arrays or season-keyed episode maps, which were previously skipped and left series with no episodes.
+- Fixed episodes disappearing when an episode's optional metadata block arrived in an unexpected shape: the episode is now kept and only the metadata is skipped.
 - Fixed series pages that stayed empty after a failed details request: a failure with no cached episodes now shows a localized error, and a series with no episodes shows a localized empty state.
 - Fixed selected subtitles reverting to off by saving track details before track-list refreshes and keeping the player's active preference in sync with manual selections.
 - Fixed a compile failure in the recording-by-time dialog that prevented the app from building after the recording scheduling update, which also blocked Settings backup export and import.

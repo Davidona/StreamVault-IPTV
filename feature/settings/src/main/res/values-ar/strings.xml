@@ -307,6 +307,13 @@
     <string name="settings_status_expired">منتهي الصلاحية</string>
     <string name="settings_status_disabled">معطّل</string>
     <string name="settings_status_unknown">غير معروف</string>
+    <string name="settings_provider_connection_online">متصل</string>
+    <string name="settings_provider_connection_unavailable">غير متاح</string>
+    <string name="settings_provider_connection_checking">جارٍ التحقق…</string>
+    <string name="settings_provider_connection_check_now">تحقّق الآن</string>
+    <string name="settings_provider_connection_last_checked">آخر تحقق</string>
+    <string name="settings_provider_connection_authentication_required">يتطلب تسجيل الدخول</string>
+    <string name="settings_provider_connection_unknown">غير معروف</string>
     <string name="settings_select_level">اختر مستوى الحماية</string>
     <string name="settings_level_off_desc">إيقاف - بدون قيود</string>
     <string name="settings_level_off_subtitle">يظهر محتوى البالغين في كل مكان.</string>

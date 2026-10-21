@@ -319,6 +319,13 @@
     <string name="settings_status_expired">Термін дії минув</string>
     <string name="settings_status_disabled">Вимкнено</string>
     <string name="settings_status_unknown">Невідомо</string>
+    <string name="settings_provider_connection_online">У мережі</string>
+    <string name="settings_provider_connection_unavailable">Недоступний</string>
+    <string name="settings_provider_connection_checking">Перевірка…</string>
+    <string name="settings_provider_connection_check_now">Перевірити зараз</string>
+    <string name="settings_provider_connection_last_checked">Остання перевірка</string>
+    <string name="settings_provider_connection_authentication_required">Потрібен вхід</string>
+    <string name="settings_provider_connection_unknown">Невідомо</string>
     <string name="settings_select_level">Виберіть рівень захисту</string>
     <string name="settings_level_off_desc">ВИМК. - Без обмежень</string>
     <string name="settings_level_off_subtitle">Дорослий контент відображається скрізь.</string>

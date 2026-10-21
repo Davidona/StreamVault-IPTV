@@ -34,6 +34,7 @@ import com.streamvault.core.ui.theme.Primary
 import com.streamvault.core.ui.theme.Secondary
 import com.streamvault.core.ui.theme.SurfaceElevated
 import com.streamvault.domain.model.LegacyProvider as Provider
+import com.streamvault.domain.model.ProviderAvailabilityStatus
 import com.streamvault.domain.model.ProviderStatus
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.ui.focus.FocusRequester
@@ -199,6 +200,33 @@ public fun ProviderStatusBadge(
         ProviderStatus.EXPIRED -> stringResource(R.string.settings_status_expired) to ErrorColor
         ProviderStatus.DISABLED -> stringResource(R.string.settings_status_disabled) to OnSurfaceDim
         ProviderStatus.UNKNOWN -> stringResource(R.string.settings_status_unknown) to OnSurfaceDim
+    }
+
+    Text(
+        text = label,
+        style = MaterialTheme.typography.labelSmall,
+        color = color,
+        fontWeight = FontWeight.Bold,
+        modifier = Modifier
+            .background(color.copy(alpha = 0.12f), SettingsDetailShapes.Badge)
+            .padding(horizontal = 10.dp, vertical = 6.dp)
+    )
+}
+
+@Composable
+public fun ProviderConnectionStatusBadge(availability: ProviderAvailabilityUiState) {
+    val (label, color) = when {
+        availability.isChecking -> stringResource(R.string.settings_provider_connection_checking) to Secondary
+        else -> when (availability.status) {
+            ProviderAvailabilityStatus.ONLINE ->
+                stringResource(R.string.settings_provider_connection_online) to Primary
+            ProviderAvailabilityStatus.UNAVAILABLE ->
+                stringResource(R.string.settings_provider_connection_unavailable) to ErrorColor
+            ProviderAvailabilityStatus.AUTHENTICATION_REQUIRED ->
+                stringResource(R.string.settings_provider_connection_authentication_required) to ErrorColor
+            ProviderAvailabilityStatus.UNKNOWN ->
+                stringResource(R.string.settings_provider_connection_unknown) to OnSurfaceDim
+        }
     }
 
     Text(

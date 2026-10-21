@@ -352,6 +352,13 @@
     <string name="settings_status_expired">Tamat tempoh</string>
     <string name="settings_status_disabled">Dilumpuhkan</string>
     <string name="settings_status_unknown">Tidak diketahui</string>
+    <string name="settings_provider_connection_online">Dalam talian</string>
+    <string name="settings_provider_connection_unavailable">Tidak tersedia</string>
+    <string name="settings_provider_connection_checking">Sedang menyemak…</string>
+    <string name="settings_provider_connection_check_now">Semak sekarang</string>
+    <string name="settings_provider_connection_last_checked">Kali terakhir disemak</string>
+    <string name="settings_provider_connection_authentication_required">Log masuk diperlukan</string>
+    <string name="settings_provider_connection_unknown">Tidak diketahui</string>
     <string name="settings_select_level">Pilih Tahap Perlindungan</string>
     <string name="settings_level_off_desc">MATI - Tiada sekatan</string>
     <string name="settings_level_off_subtitle">Kandungan dewasa muncul di semua tempat.</string>

@@ -313,6 +313,13 @@
     <string name="settings_status_expired">Expiré</string>
     <string name="settings_status_disabled">Désactivé</string>
     <string name="settings_status_unknown">Inconnu</string>
+    <string name="settings_provider_connection_online">En ligne</string>
+    <string name="settings_provider_connection_unavailable">Indisponible</string>
+    <string name="settings_provider_connection_checking">Vérification…</string>
+    <string name="settings_provider_connection_check_now">Vérifier maintenant</string>
+    <string name="settings_provider_connection_last_checked">Dernière vérification</string>
+    <string name="settings_provider_connection_authentication_required">Connexion requise</string>
+    <string name="settings_provider_connection_unknown">Inconnu</string>
     <string name="settings_select_level">Sélectionnez le niveau de protection</string>
     <string name="settings_level_off_desc">DÉSACTIVÉ - Aucune restriction</string>
     <string name="settings_level_off_subtitle">Le contenu adulte apparaît partout.</string>

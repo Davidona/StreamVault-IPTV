@@ -355,6 +355,13 @@
     <string name="settings_status_expired">Vypršané</string>
     <string name="settings_status_disabled">Zakázané</string>
     <string name="settings_status_unknown">Neznáme</string>
+    <string name="settings_provider_connection_online">Online</string>
+    <string name="settings_provider_connection_unavailable">Nedostupné</string>
+    <string name="settings_provider_connection_checking">Kontroluje sa…</string>
+    <string name="settings_provider_connection_check_now">Skontrolovať teraz</string>
+    <string name="settings_provider_connection_last_checked">Naposledy skontrolované</string>
+    <string name="settings_provider_connection_authentication_required">Vyžaduje sa prihlásenie</string>
+    <string name="settings_provider_connection_unknown">Neznáme</string>
     <string name="settings_select_level">Vyberte úroveň ochrany</string>
     <string name="settings_level_off_desc">VYPNUTÉ - bez obmedzení</string>
     <string name="settings_level_off_subtitle">Obsah pre dospelých sa zobrazuje všade.</string>

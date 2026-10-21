@@ -329,6 +329,13 @@
     <string name="settings_status_expired">Platnost vypršela</string>
     <string name="settings_status_disabled">Zakázáno</string>
     <string name="settings_status_unknown">Neznámé</string>
+    <string name="settings_provider_connection_online">Online</string>
+    <string name="settings_provider_connection_unavailable">Nedostupný</string>
+    <string name="settings_provider_connection_checking">Kontroluje se…</string>
+    <string name="settings_provider_connection_check_now">Zkontrolovat</string>
+    <string name="settings_provider_connection_last_checked">Poslední kontrola</string>
+    <string name="settings_provider_connection_authentication_required">Je vyžadováno přihlášení</string>
+    <string name="settings_provider_connection_unknown">Neznámé</string>
     <string name="settings_select_level">Vyberte úroveň ochrany</string>
     <string name="settings_level_off_desc">OFF - Bez omezení</string>
     <string name="settings_level_off_subtitle">Obsah pro dospělé se zobrazuje všude.</string>

@@ -8,6 +8,7 @@ import com.streamvault.data.local.entity.MovieEntity
 import com.streamvault.data.local.entity.SeriesEntity
 import com.streamvault.data.remote.http.useCancellableResponse
 import com.streamvault.domain.model.LegacyProvider as Provider
+import com.streamvault.domain.model.ProviderAvailabilityStatus
 import com.streamvault.domain.model.Result
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
@@ -57,6 +58,40 @@ class JellyfinProvider @Inject constructor(
             if (e is CancellationException) throw e
             Result.error("Jellyfin authentication failed: ${e.message}", e)
         }
+    }
+
+    suspend fun checkAvailability(
+        serverUrl: String,
+        username: String,
+        accessToken: String
+    ): ProviderAvailabilityStatus = try {
+        val request = Request.Builder()
+            .url(buildUrl(serverUrl, "/Users/Me", emptyMap()))
+            .header("Authorization", buildJellyfinAuthorizationHeader(serverUrl, username, accessToken))
+            .header("Accept", "application/json")
+            .get()
+            .build()
+        okHttpClient.newBuilder()
+            .callTimeout(4, TimeUnit.SECONDS)
+            .connectTimeout(4, TimeUnit.SECONDS)
+            .readTimeout(4, TimeUnit.SECONDS)
+            .build()
+            .newCall(request)
+            .useCancellableResponse { response ->
+                when {
+                    response.isSuccessful -> ProviderAvailabilityStatus.ONLINE
+                    response.code == 401 || response.code == 403 ->
+                        ProviderAvailabilityStatus.AUTHENTICATION_REQUIRED
+                    response.code == 429 -> ProviderAvailabilityStatus.UNKNOWN
+                    else -> ProviderAvailabilityStatus.UNAVAILABLE
+                }
+            }
+    } catch (cancelled: CancellationException) {
+        throw cancelled
+    } catch (_: IOException) {
+        ProviderAvailabilityStatus.UNAVAILABLE
+    } catch (_: Exception) {
+        ProviderAvailabilityStatus.UNKNOWN
     }
 
     suspend fun authenticateQuickConnect(

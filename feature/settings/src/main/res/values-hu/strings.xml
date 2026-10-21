@@ -313,6 +313,13 @@
     <string name="settings_status_expired">Lejárt</string>
     <string name="settings_status_disabled">Letiltva</string>
     <string name="settings_status_unknown">Ismeretlen</string>
+    <string name="settings_provider_connection_online">Online</string>
+    <string name="settings_provider_connection_unavailable">Nem érhető el</string>
+    <string name="settings_provider_connection_checking">Ellenőrzés…</string>
+    <string name="settings_provider_connection_check_now">Ellenőrzés most</string>
+    <string name="settings_provider_connection_last_checked">Utolsó ellenőrzés</string>
+    <string name="settings_provider_connection_authentication_required">Bejelentkezés szükséges</string>
+    <string name="settings_provider_connection_unknown">Ismeretlen</string>
     <string name="settings_select_level">Válassza a Védelmi szint lehetőséget</string>
     <string name="settings_level_off_desc">KI – Nincs korlátozás</string>
     <string name="settings_level_off_subtitle">A felnőtt tartalmak mindenhol megjelennek.</string>

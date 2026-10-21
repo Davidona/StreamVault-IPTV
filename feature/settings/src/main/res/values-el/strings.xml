@@ -313,6 +313,13 @@
     <string name="settings_status_expired">Έληξε</string>
     <string name="settings_status_disabled">Απενεργοποιημένο</string>
     <string name="settings_status_unknown">Άγνωστο</string>
+    <string name="settings_provider_connection_online">Σε σύνδεση</string>
+    <string name="settings_provider_connection_unavailable">Μη διαθέσιμο</string>
+    <string name="settings_provider_connection_checking">Γίνεται έλεγχος…</string>
+    <string name="settings_provider_connection_check_now">Έλεγχος τώρα</string>
+    <string name="settings_provider_connection_last_checked">Τελευταίος έλεγχος</string>
+    <string name="settings_provider_connection_authentication_required">Απαιτείται σύνδεση</string>
+    <string name="settings_provider_connection_unknown">Άγνωστο</string>
     <string name="settings_select_level">Επιλέξτε επίπεδο προστασίας</string>
     <string name="settings_level_off_desc">ΑΠΕΝΕΡΓΟΠΟΙΗΜΕΝΟ - Χωρίς περιορισμούς</string>
     <string name="settings_level_off_subtitle">Περιεχόμενο ενηλίκων εμφανίζεται παντού.</string>

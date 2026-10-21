@@ -317,6 +317,13 @@
     <string name="settings_status_expired">Udløbet</string>
     <string name="settings_status_disabled">Deaktiveret</string>
     <string name="settings_status_unknown">Ukendt</string>
+    <string name="settings_provider_connection_online">Online</string>
+    <string name="settings_provider_connection_unavailable">Utilgængelig</string>
+    <string name="settings_provider_connection_checking">Kontrollerer…</string>
+    <string name="settings_provider_connection_check_now">Tjek nu</string>
+    <string name="settings_provider_connection_last_checked">Sidst kontrolleret</string>
+    <string name="settings_provider_connection_authentication_required">Log ind påkrævet</string>
+    <string name="settings_provider_connection_unknown">Ukendt</string>
     <string name="settings_select_level">Vælg beskyttelsesniveau</string>
     <string name="settings_level_off_desc">FRA - Ingen begrænsninger</string>
     <string name="settings_level_off_subtitle">Voksenindhold vises overalt.</string>

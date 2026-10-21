@@ -349,6 +349,13 @@
     <string name="settings_status_expired">已过期</string>
     <string name="settings_status_disabled">已禁用</string>
     <string name="settings_status_unknown">未知</string>
+    <string name="settings_provider_connection_online">在线</string>
+    <string name="settings_provider_connection_unavailable">不可用</string>
+    <string name="settings_provider_connection_checking">正在检查…</string>
+    <string name="settings_provider_connection_check_now">立即检查</string>
+    <string name="settings_provider_connection_last_checked">上次检查</string>
+    <string name="settings_provider_connection_authentication_required">需要登录</string>
+    <string name="settings_provider_connection_unknown">未知</string>
     <string name="settings_select_level">选择保护级别</string>
     <string name="settings_level_off_desc">关闭 - 无限制</string>
     <string name="settings_level_off_subtitle">成人内容在所有位置显示。</string>

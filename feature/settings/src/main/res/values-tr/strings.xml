@@ -313,6 +313,13 @@
     <string name="settings_status_expired">Süresi doldu</string>
     <string name="settings_status_disabled">Devre dışı</string>
     <string name="settings_status_unknown">Bilinmiyor</string>
+    <string name="settings_provider_connection_online">Çevrimiçi</string>
+    <string name="settings_provider_connection_unavailable">Kullanılamıyor</string>
+    <string name="settings_provider_connection_checking">Kontrol ediliyor…</string>
+    <string name="settings_provider_connection_check_now">Şimdi kontrol et</string>
+    <string name="settings_provider_connection_last_checked">Son kontrol</string>
+    <string name="settings_provider_connection_authentication_required">Giriş gerekli</string>
+    <string name="settings_provider_connection_unknown">Bilinmiyor</string>
     <string name="settings_select_level">Koruma Seviyesini Seçin</string>
     <string name="settings_level_off_desc">KAPALI - Kısıtlama yok</string>
     <string name="settings_level_off_subtitle">Yetişkin içerik her yerde görünür.</string>

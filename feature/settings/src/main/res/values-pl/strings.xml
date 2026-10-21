@@ -313,6 +313,13 @@
     <string name="settings_status_expired">Wygasło</string>
     <string name="settings_status_disabled">Niepełnosprawny</string>
     <string name="settings_status_unknown">Nieznany</string>
+    <string name="settings_provider_connection_online">Online</string>
+    <string name="settings_provider_connection_unavailable">Niedostępny</string>
+    <string name="settings_provider_connection_checking">Sprawdzanie…</string>
+    <string name="settings_provider_connection_check_now">Sprawdź teraz</string>
+    <string name="settings_provider_connection_last_checked">Ostatnio sprawdzono</string>
+    <string name="settings_provider_connection_authentication_required">Wymagane logowanie</string>
+    <string name="settings_provider_connection_unknown">Nieznany</string>
     <string name="settings_select_level">Wybierz Poziom ochrony</string>
     <string name="settings_level_off_desc">WYŁ. — Brak ograniczeń</string>
     <string name="settings_level_off_subtitle">Treści dla dorosłych są widoczne wszędzie.</string>

@@ -313,6 +313,13 @@
     <string name="settings_status_expired">만료됨</string>
     <string name="settings_status_disabled">비활성화됨</string>
     <string name="settings_status_unknown">알 수 없음</string>
+    <string name="settings_provider_connection_online">온라인</string>
+    <string name="settings_provider_connection_unavailable">사용할 수 없음</string>
+    <string name="settings_provider_connection_checking">확인 중…</string>
+    <string name="settings_provider_connection_check_now">지금 확인</string>
+    <string name="settings_provider_connection_last_checked">마지막 확인</string>
+    <string name="settings_provider_connection_authentication_required">로그인 필요</string>
+    <string name="settings_provider_connection_unknown">알 수 없음</string>
     <string name="settings_select_level">보호 수준 선택</string>
     <string name="settings_level_off_desc">끔 - 제한 없음</string>
     <string name="settings_level_off_subtitle">성인 콘텐츠가 모든 곳에 표시됩니다.</string>
