@@ -68,6 +68,7 @@ import com.streamvault.domain.model.VodSeriesVariant
 import com.streamvault.domain.model.VodVariantObservation
 import com.streamvault.domain.model.VodVariantPreferenceMode
 import com.streamvault.domain.repository.PlaybackHistoryRepository
+import com.streamvault.domain.repository.SeriesDetailsUnavailableException
 import com.streamvault.domain.provider.CapabilityResolution
 import com.streamvault.domain.provider.ProviderCapabilitySet
 import com.streamvault.domain.provider.ProviderContentReference
@@ -913,7 +914,6 @@ class SeriesRepositoryImplTest {
             )
         )
         whenever(episodeDao.getBySeriesSync(15L)).thenReturn(emptyList())
-        whenever(xtreamApiService.getSeriesInfo(any(), any())).thenThrow(RuntimeException("bad response"))
 
         val repository = createRepository()
 
@@ -962,6 +962,8 @@ class SeriesRepositoryImplTest {
         assertThat(result).isInstanceOf(com.streamvault.domain.model.Result.Error::class.java)
         assertThat((result as com.streamvault.domain.model.Result.Error).message)
             .isEqualTo("Xtream series detail hydration timed out")
+        assertThat((result as com.streamvault.domain.model.Result.Error).exception)
+            .isInstanceOf(SeriesDetailsUnavailableException::class.java)
         verify(xtreamContentIndexDao).markDetailHydrationError(
             providerId = eq(7L),
             contentType = eq(ContentType.SERIES.name),
@@ -1016,6 +1018,66 @@ class SeriesRepositoryImplTest {
         assertThat(series.id).isEqualTo(15L)
         assertThat(series.name).isEqualTo("Stored Series")
         assertThat(series.seasons.flatMap { it.episodes }.map { it.title }).containsExactly("Pilot")
+    }
+
+    @Test
+    fun `getSeriesDetails returns cached series when provider access throws and episodes are cached`() = runTest {
+        val seriesEntity = SeriesEntity(
+            id = 15L,
+            seriesId = 256103980L,
+            providerSeriesId = "55000:55000",
+            name = "Stored Series",
+            providerId = 7L
+        )
+        whenever(seriesDao.getById(15L)).thenReturn(seriesEntity)
+        stubProvider(stalkerProvider())
+        whenever(providerCapabilityResolver.resolve(7L)).thenThrow(RuntimeException("portal unavailable"))
+        whenever(episodeDao.getBySeriesSync(15L)).thenReturn(
+            listOf(
+                EpisodeBrowseEntity(
+                    id = 1L,
+                    episodeId = 7001L,
+                    title = "Pilot",
+                    episodeNumber = 1,
+                    seasonNumber = 1,
+                    seriesId = 15L,
+                    providerId = 7L
+                )
+            )
+        )
+
+        val result = createRepository().getSeriesDetails(7L, 15L)
+
+        assertThat(result).isInstanceOf(com.streamvault.domain.model.Result.Success::class.java)
+        val series = (result as com.streamvault.domain.model.Result.Success).data
+        assertThat(series.seasons.flatMap { it.episodes }.map { it.title }).containsExactly("Pilot")
+    }
+
+    @Test
+    fun `getSeriesDetails returns error when provider access throws and no episodes are cached`() = runTest {
+        val seriesEntity = SeriesEntity(
+            id = 15L,
+            seriesId = 256103980L,
+            providerSeriesId = "55000:55000",
+            name = "Stored Series",
+            providerId = 7L
+        )
+        whenever(seriesDao.getById(15L)).thenReturn(seriesEntity)
+        stubProvider(stalkerProvider())
+        whenever(providerCapabilityResolver.resolve(7L)).thenThrow(RuntimeException("portal unavailable"))
+        whenever(episodeDao.getBySeriesSync(15L)).thenReturn(emptyList())
+
+        val result = createRepository().getSeriesDetails(7L, 15L)
+
+        assertThat(result).isInstanceOf(com.streamvault.domain.model.Result.Error::class.java)
+        assertThat((result as com.streamvault.domain.model.Result.Error).exception)
+            .isInstanceOf(SeriesDetailsUnavailableException::class.java)
+        verify(xtreamContentIndexDao, never()).markDetailHydrationError(
+            providerId = eq(7L),
+            contentType = eq(ContentType.SERIES.name),
+            remoteId = any(),
+            errorState = any()
+        )
     }
 
     @Test

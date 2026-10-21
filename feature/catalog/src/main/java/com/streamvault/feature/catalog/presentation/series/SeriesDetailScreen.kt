@@ -551,9 +551,7 @@ private fun SeriesDetailContent(
                             season.name
                         )
                     }
-                    val fallbackCover = series?.let {
-                            it.posterUrl ?: it.backdropUrl
-                        }
+                    val fallbackCover = series.posterUrl ?: series.backdropUrl
                     items(visibleEpisodes, key = { it.id }) { episode ->
                         EpisodeItem(
                             episode = episode,

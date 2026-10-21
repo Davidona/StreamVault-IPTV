@@ -1032,6 +1032,28 @@ class XtreamProviderTest {
     }
 
     @Test
+    fun `getSeriesInfo returns series without episodes for an info only payload`() {
+        runBlocking {
+            val provider = XtreamProvider(
+                providerId = 42,
+                api = FakeXtreamApiService(
+                    seriesInfo = XtreamSeriesInfoResponse(
+                        info = XtreamSeriesItem(name = "Info Only")
+                    )
+                ),
+                serverUrl = "https://example.com",
+                username = "user",
+                password = "pass"
+            )
+
+            val series = provider.getSeriesInfo(88).getOrNull()
+
+            assertThat(series?.name).isEqualTo("Info Only")
+            assertThat(series?.seasons).isEmpty()
+        }
+    }
+
+    @Test
     fun `getSeriesInfo preserves season metadata when provider omits episode rows`() = runBlocking {
         val provider = XtreamProvider(
             providerId = 42,

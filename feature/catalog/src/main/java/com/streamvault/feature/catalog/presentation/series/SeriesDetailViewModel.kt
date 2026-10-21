@@ -28,6 +28,7 @@ import com.streamvault.domain.repository.ExternalRatingsRepository
 import com.streamvault.domain.repository.FavoriteRepository
 import com.streamvault.domain.repository.PlaybackHistoryRepository
 import com.streamvault.domain.repository.ProviderRepository
+import com.streamvault.domain.repository.SeriesDetailsUnavailableException
 import com.streamvault.domain.repository.SeriesRepository
 import com.streamvault.domain.trakt.TraktWatchlist
 import com.streamvault.domain.trakt.TraktWatchlistActionResult
@@ -206,7 +207,11 @@ class SeriesDetailViewModel @Inject constructor(
                 }
                 is Result.Error -> {
                     _uiState.update {
-                        it.copy(isLoading = false, error = result.message, detailsUnavailable = true)
+                        it.copy(
+                            isLoading = false,
+                            error = result.message,
+                            detailsUnavailable = result.exception is SeriesDetailsUnavailableException
+                        )
                     }
                 }
                 is Result.Loading -> {

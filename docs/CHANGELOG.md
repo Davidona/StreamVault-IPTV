@@ -9,7 +9,7 @@ All notable product changes are recorded in this document.
 
 ### Changed
 - Localized player recording notices and EPG recording messages across all supported locales.
-- Series details now refresh every six hours instead of every 14 days, so newly aired episodes appear promptly and incomplete episode caches repair themselves.
+- Xtream series details now refresh every six hours and Stalker series details every 24 hours instead of every 14 days, so newly aired episodes appear promptly and incomplete episode caches repair themselves.
 
 ### Fixed
 - Fixed missing episodes from providers that return nested episode arrays or season-keyed episode maps, which were previously skipped and left series with no episodes.

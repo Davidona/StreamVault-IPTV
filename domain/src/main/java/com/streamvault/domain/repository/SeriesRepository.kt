@@ -48,3 +48,8 @@ interface SeriesRepository {
     suspend fun getEpisodeStreamInfo(episode: Episode): Result<StreamInfo>
     suspend fun refreshSeries(providerId: Long): Result<Unit>
 }
+
+class SeriesDetailsUnavailableException(
+    message: String,
+    cause: Throwable? = null
+) : Exception(message, cause)

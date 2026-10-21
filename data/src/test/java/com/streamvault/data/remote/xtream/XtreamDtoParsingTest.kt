@@ -205,4 +205,42 @@ class XtreamDtoParsingTest {
             .containsExactly("Keyed Pilot", "Keyed Third").inOrder()
         assertThat(response.episodes["3"]?.map { it.season }).containsExactly(3, 3).inOrder()
     }
+
+    @Test
+    fun `series info keeps sparse episode rows that only have an id`() {
+        val response = json.decodeFromString<XtreamSeriesInfoResponse>(
+            """
+            {
+              "episodes": {
+                "1": [
+                  { "id": "900", "custom_sid": "abc", "added": "1712345678" },
+                  { "id": "901", "episode_num": 2, "title": "Second", "season": 1 }
+                ]
+              }
+            }
+            """.trimIndent()
+        )
+
+        assertThat(response.episodes["1"]?.map { it.id }).containsExactly("900", "901").inOrder()
+        assertThat(response.episodes["1"]?.first()?.season).isEqualTo(1)
+    }
+
+    @Test
+    fun `series info inherits season key for nested episode arrays`() {
+        val response = json.decodeFromString<XtreamSeriesInfoResponse>(
+            """
+            {
+              "episodes": {
+                "1": [
+                  [
+                    { "id": "1000", "episode_num": 1, "title": "Nested" }
+                  ]
+                ]
+              }
+            }
+            """.trimIndent()
+        )
+
+        assertThat(response.episodes["1"]?.single()?.season).isEqualTo(1)
+    }
 }

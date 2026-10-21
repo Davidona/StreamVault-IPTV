@@ -26,6 +26,7 @@ import com.streamvault.domain.repository.ExternalRatingsRepository
 import com.streamvault.domain.repository.FavoriteRepository
 import com.streamvault.domain.repository.PlaybackHistoryRepository
 import com.streamvault.domain.repository.ProviderRepository
+import com.streamvault.domain.repository.SeriesDetailsUnavailableException
 import com.streamvault.domain.repository.SeriesRepository
 import com.streamvault.domain.trakt.TraktFavoriteActionResult
 import com.streamvault.domain.trakt.TraktFavoriteIdentity
@@ -223,7 +224,9 @@ class SeriesDetailViewModelCastingTest {
 
     @Test
     fun `failed details load marks episodes unavailable`() = runBlocking {
-        val viewModel = createViewModel(detailsResult = Result.error("boom"))
+        val viewModel = createViewModel(
+            detailsResult = Result.error("boom", SeriesDetailsUnavailableException("boom"))
+        )
 
         try {
             val state = withTimeout(5_000L) { viewModel.uiState.first { it.detailsUnavailable } }
@@ -231,6 +234,21 @@ class SeriesDetailViewModelCastingTest {
             assertThat(state.series).isNull()
             assertThat(state.error).isEqualTo("boom")
             assertThat(state.detailsUnavailable).isTrue()
+        } finally {
+            viewModel.viewModelScope.cancel()
+        }
+    }
+
+    @Test
+    fun `not found error stays visible and is not treated as an episodes load failure`() = runBlocking {
+        val viewModel = createViewModel(detailsResult = Result.error("Series not found"))
+
+        try {
+            val state = withTimeout(5_000L) { viewModel.uiState.first { it.error != null } }
+
+            assertThat(state.series).isNull()
+            assertThat(state.error).isEqualTo("Series not found")
+            assertThat(state.detailsUnavailable).isFalse()
         } finally {
             viewModel.viewModelScope.cancel()
         }

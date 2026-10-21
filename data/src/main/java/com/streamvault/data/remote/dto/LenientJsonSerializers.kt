@@ -303,7 +303,7 @@ private fun JsonElement?.decodeEpisodeList(
         JsonNull -> emptyList()
         is JsonArray -> element.flatMapIndexed { index, value ->
             when (value) {
-                is JsonArray -> value.decodeEpisodeList(json, seasonFallback = index)
+                is JsonArray -> value.decodeEpisodeList(json, seasonFallback = seasonFallback ?: index)
                 is JsonObject -> value.decodeEpisodeContainer(
                     json = json,
                     seasonFallback = seasonFallback,
@@ -322,8 +322,8 @@ private fun JsonObject.decodeEpisodeContainer(
     seasonFallback: Int?,
     indexFallback: Int?
 ): List<XtreamEpisode> = when {
-    looksLikeEpisodeObject() -> listOfNotNull(decodeEpisodeOrNull(json, seasonFallback))
     "episodes" in this -> this["episodes"].decodeEpisodeList(json, seasonFallback ?: indexFallback)
+    looksLikeEpisodeObject() -> listOfNotNull(decodeEpisodeOrNull(json, seasonFallback))
     else -> values.flatMap { value ->
         value.decodeEpisodeList(json, seasonFallback = seasonFallback ?: indexFallback)
     }
@@ -390,7 +390,8 @@ private fun JsonObject.looksLikeSeriesInfoObject(): Boolean =
         containsKey("tmdb_id")
 
 private fun JsonObject.looksLikeEpisodeObject(): Boolean =
-    containsKey("episode_num") ||
+    containsKey("id") ||
+        containsKey("episode_num") ||
         containsKey("season") ||
         containsKey("container_extension") ||
         containsKey("title") ||

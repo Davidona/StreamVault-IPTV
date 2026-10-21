@@ -26,6 +26,7 @@ import com.streamvault.domain.model.*
 import com.streamvault.domain.model.LegacyProvider as Provider
 import com.streamvault.domain.model.Result.Success
 import com.streamvault.domain.repository.PlaybackHistoryRepository
+import com.streamvault.domain.repository.SeriesDetailsUnavailableException
 import com.streamvault.domain.repository.SeriesRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -93,7 +94,8 @@ class SeriesRepositoryImpl @Inject constructor(
         const val STALKER_INITIAL_CATEGORY_FILL_COUNT = 40
         const val STALKER_INITIAL_CATEGORY_MAX_REMOTE_PAGES = 4
         const val STALKER_COMPLETE_PAGE_BATCH_SIZE = 200
-        const val DETAIL_REFRESH_TTL_MILLIS = 6L * 60L * 60L * 1000L
+        const val XTREAM_DETAIL_REFRESH_TTL_MILLIS = 6L * 60L * 60L * 1000L
+        const val STALKER_DETAIL_REFRESH_TTL_MILLIS = 24L * 60L * 60L * 1000L
         const val XTREAM_DETAIL_HYDRATION_TIMEOUT_MILLIS = 8_000L
         const val CACHE_STATE_SUMMARY_ONLY = "SUMMARY_ONLY"
         const val CACHE_STATE_DETAIL_HYDRATED = "DETAIL_HYDRATED"
@@ -583,14 +585,13 @@ class SeriesRepositoryImpl @Inject constructor(
                     remoteId = seriesEntity.providerSeriesId?.takeIf { it.isNotBlank() } ?: seriesEntity.seriesId.toString(),
                     errorState = "DETAIL_FAILED_RETRYABLE"
                 )
-                return cachedSeriesOrError(
-                    seriesEntity = seriesEntity,
-                    knownPresentation = knownPresentation,
-                    message = e.message ?: "Failed to load series details",
-                    exception = e
-                )
             }
-            return Result.error(e.message ?: "Failed to access provider credentials", e)
+            return cachedSeriesOrError(
+                seriesEntity = seriesEntity,
+                knownPresentation = knownPresentation,
+                message = e.message ?: "Failed to load series details",
+                exception = e
+            )
         }
 
         return when (remoteResult) {
@@ -812,7 +813,7 @@ class SeriesRepositoryImpl @Inject constructor(
         return if (hasEpisodes) {
             Result.success(localSeries)
         } else {
-            Result.error(message, exception)
+            Result.error(message, SeriesDetailsUnavailableException(message, exception))
         }
     }
 
@@ -1977,7 +1978,7 @@ class SeriesRepositoryImpl @Inject constructor(
         if (cacheState == CACHE_STATE_SUMMARY_ONLY) return false
         if (detailHydratedAt <= 0L) return false
         if (remoteStaleAt > 0L) return false
-        if (ContentCachePolicy.shouldRefresh(detailHydratedAt, DETAIL_REFRESH_TTL_MILLIS, now)) return false
+        if (ContentCachePolicy.shouldRefresh(detailHydratedAt, XTREAM_DETAIL_REFRESH_TTL_MILLIS, now)) return false
         return true
     }
 
@@ -2011,7 +2012,7 @@ class SeriesRepositoryImpl @Inject constructor(
         if (cacheState != CACHE_STATE_DETAIL_HYDRATED) return false
         if (detailHydratedAt <= 0L) return false
         if (remoteStaleAt > 0L) return false
-        return !ContentCachePolicy.shouldRefresh(detailHydratedAt, DETAIL_REFRESH_TTL_MILLIS, now)
+        return !ContentCachePolicy.shouldRefresh(detailHydratedAt, STALKER_DETAIL_REFRESH_TTL_MILLIS, now)
     }
 
     private fun Provider.contentCapabilityGeneration(): Int = listOf(
