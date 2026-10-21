@@ -371,6 +371,17 @@ class ProviderRepositoryImpl @Inject constructor(
             completedWeight += PROVIDER_ROW_STEP_WEIGHT
             pendingCleanupActions = providerDeletionCleanupDao.countByProvider(id)
         }
+        try {
+            if (preferencesRepository.activeLiveSource.first() == ActiveLiveSource.ProviderSource(id)) {
+                preferencesRepository.setActiveLiveSource(null)
+            }
+        } catch (cancelled: CancellationException) {
+            throw cancelled
+        } catch (_: Exception) {
+            // The provider is already deleted. Keep deletion successful; the live-source
+            // repository also filters out references to missing providers.
+            logger.warning("Could not clear the saved live source for deleted provider $id")
+        }
         stalkerApiService.invalidateSessionScopes(id)
         reportProgress("Provider library removed.")
         reportProgress("Finalizing provider cleanup...")

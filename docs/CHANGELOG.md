@@ -13,6 +13,7 @@ All notable product changes are recorded in this document.
 - Reduced peak memory during large M3U syncs by using staged database keys for duplicate detection and paged series reconciliation; Xtream and Stalker sync paths are unchanged.
 
 ### Fixed
+- Fixed Live TV remaining stuck loading after deleting a provider and adding another by clearing and validating the saved active source.
 - Fixed missing episodes from providers that return nested episode arrays or season-keyed episode maps, which were previously skipped and left series with no episodes.
 - Fixed episodes disappearing when an episode's optional metadata block arrived in an unexpected shape: the episode is now kept and only the metadata is skipped.
 - Fixed series pages that stayed empty after a failed details request: a failure with no cached episodes now shows a localized error, and a series with no episodes shows a localized empty state.

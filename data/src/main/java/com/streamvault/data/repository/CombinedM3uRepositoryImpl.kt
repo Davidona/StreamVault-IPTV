@@ -206,7 +206,17 @@ class CombinedM3uRepositoryImpl @Inject constructor(
         }
 
     override fun getActiveLiveSource(): Flow<ActiveLiveSource?> =
-        preferencesRepository.activeLiveSource
+        combine(
+            preferencesRepository.activeLiveSource,
+            providerRepository.getProviders()
+        ) { activeSource, providers ->
+            when (activeSource) {
+                is ActiveLiveSource.ProviderSource -> activeSource.takeIf { source ->
+                    providers.any { provider -> provider.id == source.providerId }
+                }
+                else -> activeSource
+            }
+        }
 
     override suspend fun setActiveLiveSource(source: ActiveLiveSource?): Result<Unit> = try {
         preferencesRepository.setActiveLiveSource(source)
