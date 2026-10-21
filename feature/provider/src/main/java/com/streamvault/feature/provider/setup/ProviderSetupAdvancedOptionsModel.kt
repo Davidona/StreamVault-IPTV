@@ -6,6 +6,7 @@ import com.streamvault.domain.model.ProviderEpgSyncMode
 import com.streamvault.domain.model.ProviderXtreamLiveSyncMode
 import com.streamvault.domain.model.StalkerAuthMode
 import com.streamvault.domain.model.StalkerCatalogMode
+import com.streamvault.domain.model.StalkerCatalogLoadOrder
 
 /** UI values and callbacks shared by the provider-specific advanced sections. */
 internal data class ProviderAdvancedOptions(
@@ -18,6 +19,7 @@ internal data class ProviderAdvancedOptions(
     val onToggleM3uVodClassification: () -> Unit,
     val onSelectEpgSyncMode: (ProviderEpgSyncMode) -> Unit,
     val onSelectStalkerCatalogMode: (StalkerCatalogMode) -> Unit,
+    val onSelectStalkerCatalogLoadOrder: (StalkerCatalogLoadOrder) -> Unit = {},
     val onSelectXtreamLiveSyncMode: (ProviderXtreamLiveSyncMode) -> Unit,
     val onSelectGuideSourcePolicy: (GuideSourcePolicy) -> Unit,
     val onSelectChannelLogoSourcePolicy: (ChannelLogoSourcePolicy) -> Unit,

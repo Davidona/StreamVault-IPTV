@@ -125,4 +125,11 @@
     <string name="setup_stalker_catalog_on_demand_description">선반과 카테고리를 열 때 로드합니다. 캐시된 제목은 유지합니다.</string>
     <string name="setup_stalker_catalog_background_title">백그라운드 전체 색인 (권장)</string>
     <string name="setup_stalker_catalog_background_description">먼저 제공업체 설정을 완료한 다음 검색할 수 있도록 모든 영화와 시리즈를 백그라운드에서 색인합니다.</string>
+    <string name="setup_stalker_load_order_title">백그라운드 로딩 순서</string>
+    <string name="setup_stalker_load_parallel_title">둘 다 동시에 (기본값)</string>
+    <string name="setup_stalker_load_parallel_description">영화와 시리즈를 동시에 불러옵니다.</string>
+    <string name="setup_stalker_load_movies_first_title">영화 먼저</string>
+    <string name="setup_stalker_load_movies_first_description">영화 로딩이 끝날 때까지 시리즈를 대기열에 둡니다.</string>
+    <string name="setup_stalker_load_series_first_title">시리즈 먼저</string>
+    <string name="setup_stalker_load_series_first_description">시리즈 로딩이 끝날 때까지 영화를 대기열에 둡니다.</string>
 </resources>

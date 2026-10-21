@@ -17,6 +17,7 @@ internal data class StalkerIncrementalIndexCallbacks(
     val getJob: suspend (Long, ContentType) -> StalkerIndexJobEntity?,
     val getHydration: suspend (Long, ContentType, Long) -> StalkerHydrationSnapshot?,
     val currentIndexedRowCount: suspend (Long, ContentType) -> Int,
+    val categoriesWithLocalRows: suspend (Long, ContentType) -> Map<Long, Int>,
     val pruneStaleRows: suspend (Long, ContentType) -> Int,
     val updateSummaryMetadata: suspend (Long, ContentType, Int, String, Long) -> Unit,
     val fetchSummaryPage: suspend (Provider, StalkerProvider, ContentType, Long, Int) -> Result<StalkerPagedResult<out Any>>,
@@ -58,12 +59,18 @@ internal data class StalkerIncrementalIndexCallbacks(
     val progress: (Long, ((String) -> Unit)?, String) -> Unit,
     val restoreMovieWatchProgress: suspend (Long) -> Unit,
     val upsertJob: suspend (CatalogIndexJobUpdate) -> Unit,
-    val log: (String) -> Unit
+    val log: (String) -> Unit,
+    val commitCatalogPage: suspend (Provider, Long, StalkerPagedResult<out Any>) -> Unit = { _, _, _ -> },
+    val preserveCategoryRows: suspend (Long, ContentType, Long) -> Unit = { _, _, _ -> }
 )
 
 internal class CallbackStalkerIncrementalIndexOperations(
     private val callbacks: StalkerIncrementalIndexCallbacks
 ) : StalkerIncrementalIndexOperations {
+    override suspend fun commitCatalogPage(provider: Provider, categoryId: Long, page: StalkerPagedResult<out Any>) =
+        callbacks.commitCatalogPage(provider, categoryId, page)
+    override suspend fun preserveCategoryRows(providerId: Long, type: ContentType, categoryId: Long) =
+        callbacks.preserveCategoryRows(providerId, type, categoryId)
     override val runtimeProfile: CatalogSyncRuntimeProfile
         get() = callbacks.runtimeProfile()
 
@@ -87,6 +94,11 @@ internal class CallbackStalkerIncrementalIndexOperations(
 
     override suspend fun currentIndexedRowCount(providerId: Long, contentType: ContentType): Int =
         callbacks.currentIndexedRowCount(providerId, contentType)
+
+    override suspend fun categoriesWithLocalRows(
+        providerId: Long,
+        contentType: ContentType
+    ): Map<Long, Int> = callbacks.categoriesWithLocalRows(providerId, contentType)
 
     override suspend fun pruneStaleRows(providerId: Long, contentType: ContentType): Int =
         callbacks.pruneStaleRows(providerId, contentType)

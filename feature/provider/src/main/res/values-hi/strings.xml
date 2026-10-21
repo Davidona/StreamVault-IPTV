@@ -129,4 +129,11 @@
     <string name="setup_stalker_catalog_on_demand_description">शेल्फ़ और श्रेणियाँ खोलने पर लोड करें। कैश किए गए शीर्षक रखें।</string>
     <string name="setup_stalker_catalog_background_title">पूरा बैकग्राउंड इंडेक्स (अनुशंसित)</string>
     <string name="setup_stalker_catalog_background_description">पहले प्रदाता का सेटअप पूरा करें, फिर खोज के लिए सभी फ़िल्मों और सीरीज़ को बैकग्राउंड में इंडेक्स करें।</string>
+    <string name="setup_stalker_load_order_title">बैकग्राउंड में लोड करने का क्रम</string>
+    <string name="setup_stalker_load_parallel_title">दोनों एक साथ (डिफ़ॉल्ट)</string>
+    <string name="setup_stalker_load_parallel_description">फ़िल्में और सीरीज़ एक साथ लोड करें।</string>
+    <string name="setup_stalker_load_movies_first_title">पहले फ़िल्में</string>
+    <string name="setup_stalker_load_movies_first_description">फ़िल्में लोड होने तक सीरीज़ को कतार में रखें।</string>
+    <string name="setup_stalker_load_series_first_title">पहले सीरीज़</string>
+    <string name="setup_stalker_load_series_first_description">सीरीज़ लोड होने तक फ़िल्मों को कतार में रखें।</string>
 </resources>

@@ -10,6 +10,7 @@ import kotlinx.serialization.json.booleanOrNull
 import kotlinx.serialization.json.intOrNull
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import com.streamvault.domain.model.StalkerCatalogLoadOrder
 
 @Serializable
 data class StalkerAdvancedOptions(
@@ -21,7 +22,8 @@ data class StalkerAdvancedOptions(
     val proxyEnabled: Boolean = false,
     val proxyHost: String = "",
     val proxyPort: Int? = null,
-    val requestRules: List<StalkerRequestRule> = emptyList()
+    val requestRules: List<StalkerRequestRule> = emptyList(),
+    val catalogLoadOrder: StalkerCatalogLoadOrder = StalkerCatalogLoadOrder.PARALLEL
 ) {
     val normalizedLink: String
         get() = when {
@@ -79,6 +81,7 @@ object StalkerAdvancedOptionsCodec {
     @OptIn(ExperimentalSerializationApi::class)
     private val json = Json {
         ignoreUnknownKeys = true
+        coerceInputValues = true
         encodeDefaults = true
         explicitNulls = false
     }

@@ -15,6 +15,12 @@ internal fun providerEpgWorkUniqueName(providerId: Long): String {
     return PROVIDER_EPG_WORK_UNIQUE_PREFIX + providerId
 }
 
+/** Catalog continuation must not inherit setup or guide failure/cancellation. */
+internal fun stalkerIndexWorkUniqueName(providerId: Long): String {
+    require(providerId > 0L) { "Provider work requires a positive provider ID." }
+    return "provider-stalker-index-$providerId"
+}
+
 /** Automatic constraints must never become prerequisites of an explicit refresh. */
 internal fun providerAutomaticIndexWorkUniqueName(providerId: Long): String {
     require(providerId > 0L)

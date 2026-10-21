@@ -61,7 +61,6 @@ private const val STALKER_BULK_LIVE_UNSUPPORTED_TTL_MILLIS = 6 * 60 * 60 * 1000L
 private const val LIVE_CATEGORY_SEQUENTIAL_MODE_WARNING =
     "Live category sync downgraded to sequential mode after provider stress signals."
 private const val FALLBACK_STAGE_BATCH_SIZE = 500
-private const val STALKER_BOOTSTRAP_LIVE_CHANNEL_CAP = 200
 
 /** Owns Stalker authentication, full catalog orchestration, and Live repair execution. */
 internal class StalkerCatalogSyncExecutor(
@@ -92,7 +91,8 @@ internal class StalkerCatalogSyncExecutor(
     private val emitCatalogProgress: (Long, Section, Int?, Int?) -> Unit,
     private val categoryFailureWarning: (String, String, Throwable) -> String,
     private val sanitizeThrowableMessage: (Throwable?) -> String,
-    private val requiredHiddenCategoryIds: suspend (Long, ContentType) -> Set<Long> = { _, _ -> emptySet() }
+    private val requiredHiddenCategoryIds: suspend (Long, ContentType) -> Set<Long> = { _, _ -> emptySet() },
+    private val prepareVodCatalog: suspend (Provider, Boolean, List<ContentType>, ((String) -> Unit)?) -> Unit = { _, _, _, _ -> }
 ) {
     suspend fun syncFull(
         provider: Provider,
@@ -178,7 +178,6 @@ internal class StalkerCatalogSyncExecutor(
                 hiddenLiveCategoryIds = hiddenLiveCategoryIds,
                 requiredHiddenLiveCategoryIds = requiredHiddenLiveCategoryIds,
                 onProgress = onProgress,
-                maxChannels = STALKER_BOOTSTRAP_LIVE_CHANNEL_CAP.takeIf { bootstrap },
                 afterCatalogApply = catalogCommitCallback,
                 retryPendingCategoriesOnly = !force && !bootstrap
             )
@@ -187,7 +186,7 @@ internal class StalkerCatalogSyncExecutor(
             } else metadata.liveCount
             metadata = metadata.copy(
                 lastLiveSync = now,
-                lastLiveSuccess = if (!bootstrap && liveCatalogResult.coverageComplete) now
+                lastLiveSuccess = if (liveCatalogResult.coverageComplete) now
                 else metadata.lastLiveSuccess,
                 liveCount = committedLiveCount
             )
@@ -251,10 +250,7 @@ internal class StalkerCatalogSyncExecutor(
                 if (storedCategoryType == ContentType.VOD) ContentType.MOVIE.name else ContentType.VOD.name
             )
             movieCategoryCount = categories.size
-            if (!bootstrap && provider.stalkerCatalogMode == StalkerCatalogMode.BACKGROUND_INDEX
-            ) {
-                sectionExecutor.queueIndexSection(provider.id, ContentType.MOVIE, categories.size, now)
-            }
+            sectionExecutor.queueIndexSection(provider.id, ContentType.MOVIE, categories.size, now)
             metadata = metadata.copy(
                 lastMovieSync = now,
                 lastMovieAttempt = now,
@@ -264,7 +260,7 @@ internal class StalkerCatalogSyncExecutor(
                 movieCatalogStale = true
             )
             syncMetadataRepository.updateMetadata(metadata)
-            queuedMovieIndex = provider.stalkerCatalogMode == StalkerCatalogMode.BACKGROUND_INDEX
+            queuedMovieIndex = true
         }
 
         if (effectiveCatalogLayout == CatalogLayout.UNIFIED_VOD) {
@@ -303,15 +299,13 @@ internal class StalkerCatalogSyncExecutor(
             )
             catalogActivated = true
             seriesCategoryCount = categories.size
-            if (!bootstrap && provider.stalkerCatalogMode == StalkerCatalogMode.BACKGROUND_INDEX) {
-                sectionExecutor.queueIndexSection(provider.id, ContentType.SERIES, categories.size, now)
-            }
+            sectionExecutor.queueIndexSection(provider.id, ContentType.SERIES, categories.size, now)
             metadata = metadata.copy(
                 lastSeriesSync = now,
                 seriesCount = seriesDao.getCount(provider.id).first()
             )
             syncMetadataRepository.updateMetadata(metadata)
-            queuedSeriesIndex = provider.stalkerCatalogMode == StalkerCatalogMode.BACKGROUND_INDEX
+            queuedSeriesIndex = true
         }
 
         if (liveCount == 0 && movieCategoryCount == 0 && seriesCategoryCount == 0) {
@@ -320,6 +314,14 @@ internal class StalkerCatalogSyncExecutor(
             diagnostic?.let { throw IllegalStateException(it) }
         }
         readinessTracker.categoriesReady(provider.id)
+
+        val preparedSections = buildList {
+            if (queuedMovieIndex) add(ContentType.MOVIE)
+            if (queuedSeriesIndex) add(ContentType.SERIES)
+        }
+        if (preparedSections.isNotEmpty()) {
+            prepareVodCatalog(provider.copy(catalogLayout = effectiveCatalogLayout), bootstrap, preparedSections, onProgress)
+        }
 
         if (!bootstrap && queuedMovieIndex) {
             continuationWork += SyncContinuation(
@@ -339,18 +341,11 @@ internal class StalkerCatalogSyncExecutor(
         }
         if (bootstrap) {
             continuationWork += SyncContinuation(
-                operation = SyncContinuationOperation.FULL_CATALOG,
-                reason = "bootstrap catalog is committed; durable full provider sync is queued",
-                force = true
+                operation = SyncContinuationOperation.STALKER_BOOTSTRAP_RESUME,
+                reason = "full live catalog and VOD category shells are committed; fetch every VOD category head"
             )
         } else when (provider.epgSyncMode) {
-            ProviderEpgSyncMode.UPFRONT -> warnings += syncProviderEpg(
-                provider,
-                metadata,
-                now,
-                force,
-                onProgress
-            ).warnings
+            ProviderEpgSyncMode.UPFRONT,
             ProviderEpgSyncMode.BACKGROUND -> {
                 continuationWork += SyncContinuation(
                     operation = SyncContinuationOperation.REFRESH_GUIDE,

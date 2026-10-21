@@ -46,6 +46,10 @@ class ProviderSyncWorkScheduler @Inject constructor(
         }
     }
 
+    fun scheduleStalkerBootstrapResume(providerId: Long) {
+        ProviderSyncWorker.enqueueStalkerBootstrapResume(applicationContext, providerId)
+    }
+
     fun scheduleXtreamIndex(
         providerId: Long,
         section: ContentType? = null,
@@ -89,9 +93,6 @@ class ProviderSyncWorkScheduler @Inject constructor(
         val manager = androidx.work.WorkManager.getInstance(applicationContext)
         val policy = AutomaticSyncExecution.policy.get() ?: com.streamvault.domain.sync.AutomaticSyncSettings()
         val wasAutomatic = origins.getBoolean("stalker_$providerId", false)
-        if (!origins.getBoolean("stalker_split_queue_$providerId", false) && wasAutomatic) {
-            manager.cancelUniqueWork(providerWorkUniqueName(providerId))
-        }
         if (!automatic) manager.cancelUniqueWork(providerAutomaticIndexWorkUniqueName(providerId))
         val replaceAutomatic = automatic && wasAutomatic && origins.getString("stalker_policy_$providerId", null) != policy.toString()
         origins.edit {

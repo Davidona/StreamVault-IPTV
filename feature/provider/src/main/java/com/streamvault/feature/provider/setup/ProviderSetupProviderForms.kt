@@ -28,6 +28,7 @@ import com.streamvault.domain.model.ProviderEpgSyncMode
 import com.streamvault.domain.model.ProviderXtreamLiveSyncMode
 import com.streamvault.domain.model.StalkerAuthMode
 import com.streamvault.domain.model.StalkerCatalogMode
+import com.streamvault.domain.model.StalkerCatalogLoadOrder
 import com.streamvault.domain.model.StalkerProtocolPreference
 
 @Composable
@@ -101,6 +102,7 @@ internal fun ProviderFormContent(
     onToggleM3uVodClassification: () -> Unit,
     onSelectEpgSyncMode: (ProviderEpgSyncMode) -> Unit,
     onSelectStalkerCatalogMode: (StalkerCatalogMode) -> Unit,
+    onSelectStalkerCatalogLoadOrder: (StalkerCatalogLoadOrder) -> Unit = {},
     onSelectStalkerProtocolPreference: (StalkerProtocolPreference) -> Unit,
     onSelectStalkerProfile: (String) -> Unit,
     onSelectXtreamLiveSyncMode: (ProviderXtreamLiveSyncMode) -> Unit,
@@ -120,6 +122,7 @@ internal fun ProviderFormContent(
         onToggleM3uVodClassification = onToggleM3uVodClassification,
         onSelectEpgSyncMode = onSelectEpgSyncMode,
         onSelectStalkerCatalogMode = onSelectStalkerCatalogMode,
+        onSelectStalkerCatalogLoadOrder = onSelectStalkerCatalogLoadOrder,
         onSelectXtreamLiveSyncMode = onSelectXtreamLiveSyncMode,
         onSelectGuideSourcePolicy = onSelectGuideSourcePolicy,
         onSelectChannelLogoSourcePolicy = onSelectChannelLogoSourcePolicy,

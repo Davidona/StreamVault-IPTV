@@ -74,6 +74,30 @@ class ProviderSetupViewModelTest {
     }
 
     @Test
+    fun `editing restores saved Stalker loading order while new providers default to parallel`() = runTest {
+        for (order in com.streamvault.domain.model.StalkerCatalogLoadOrder.entries) {
+            whenever(providerRepository.getProvider(7L)).thenReturn(Provider(
+                id = 7L, name = "Portal", type = ProviderType.STALKER_PORTAL, serverUrl = "https://portal.invalid",
+                stalkerAdvancedOptionsJson = ProviderStalkerAdvancedOptionsCodec.encode(
+                    ProviderStalkerAdvancedOptions(hwVersion = "custom", catalogLoadOrder = order))))
+            val viewModel = ProviderSetupViewModel(
+                providerRepository = providerRepository,
+                combinedM3uRepository = combinedM3uRepository,
+                validateAndAddProvider = validateAndAddProvider,
+                importBackup = importBackup,
+                driveBackupSyncManager = driveBackupSyncManager,
+                providerQrPairingManager = providerQrPairingManager)
+            assertThat(viewModel.uiState.value.stalkerCatalogLoadOrder)
+                .isEqualTo(com.streamvault.domain.model.StalkerCatalogLoadOrder.PARALLEL)
+            viewModel.loadProvider(7L)
+            advanceUntilIdle()
+            assertThat(viewModel.uiState.value.stalkerCatalogLoadOrder).isEqualTo(order)
+            assertThat(ProviderStalkerAdvancedOptionsCodec.decode(viewModel.uiState.value.stalkerAdvancedOptionsJson).hwVersion)
+                .isEqualTo("custom")
+        }
+    }
+
+    @Test
     fun `adding m3u while combined source is active prepares attach prompt with names`() = runTest {
         val createdProvider = Provider(
             id = 7L,

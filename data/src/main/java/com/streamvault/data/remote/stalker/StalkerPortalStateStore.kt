@@ -38,6 +38,27 @@ class StalkerPortalStateStore @Inject constructor(
 
     suspend fun get(providerId: Long): StalkerPortalStateEntity? = dao.get(providerId)
 
+    internal fun indexPacing(state: StalkerPortalStateEntity): StalkerAdaptiveIndexPolicy = runCatching {
+        val pacing = json.parseToJsonElement(state.learningJson).jsonObject.getValue("indexConcurrency").jsonObject
+        require(pacing.getValue("configurationGeneration").jsonPrimitive.longOrNull == state.configurationGeneration)
+        // Relearn upward from at most three after a restart; a stressed serial profile stays serial.
+        StalkerAdaptiveIndexPolicy(pacing.getValue("limit").jsonPrimitive.content.toInt()
+            .coerceIn(StalkerAdaptiveIndexPolicy.MIN_CONCURRENCY, StalkerAdaptiveIndexPolicy.INITIAL_CONCURRENCY))
+    }.getOrElse { StalkerAdaptiveIndexPolicy() }
+
+    internal suspend fun recordIndexPacing(
+        providerId: Long,
+        configurationGeneration: Long,
+        concurrency: Int
+    ) = update(providerId, configurationGeneration) { state ->
+        val learning = mutableLearning(state.learningJson)
+        learning["indexConcurrency"] = JsonObject(mapOf(
+            "configurationGeneration" to JsonPrimitive(configurationGeneration),
+            "limit" to JsonPrimitive(concurrency)
+        ))
+        state.copy(configurationGeneration = configurationGeneration, learningJson = JsonObject(learning).toString())
+    }
+
     /** Returns a learned VOD page offset only while it belongs to this provider configuration. */
     suspend fun getVodPageBase(providerId: Long, configurationGeneration: Long): Int? {
         if (providerId <= 0L) return null
@@ -77,6 +98,77 @@ class StalkerPortalStateStore @Inject constructor(
                 learningJson = JsonObject(learning).toString(),
                 observationSource = "CATALOG",
                 observedAt = System.currentTimeMillis()
+            )
+        }
+    }
+
+    /** Returns the largest validated page size observed for this content type and generation. */
+    internal suspend fun getVodPageSize(
+        providerId: Long,
+        contentType: ContentType,
+        configurationGeneration: Long
+    ): Int? {
+        if (providerId <= 0L || contentType !in VOD_CONTENT_TYPES) return null
+        val state = dao.get(providerId) ?: return null
+        if (state.configurationGeneration != configurationGeneration) return null
+        val learning = runCatching {
+            json.parseToJsonElement(state.learningJson.ifBlank { "{}" }).jsonObject
+        }.getOrNull() ?: return null
+        if (learning["configurationGeneration"]?.jsonPrimitive?.longOrNull != configurationGeneration) {
+            return null
+        }
+        val observation = runCatching {
+            learning["vodPageSizes"]?.jsonObject?.get(contentType.name)?.jsonObject
+        }.getOrNull() ?: return null
+        if (observation["configurationGeneration"]?.jsonPrimitive?.longOrNull != configurationGeneration) {
+            return null
+        }
+        return runCatching {
+            observation["value"]?.jsonPrimitive?.content?.toIntOrNull()
+                ?.takeIf { it in 1..MAX_LEARNED_VOD_PAGE_SIZE }
+        }.getOrNull()
+    }
+
+    /** Stores only a larger observed page size, using the existing generation-fenced learning envelope. */
+    internal suspend fun recordVodPageSize(
+        providerId: Long,
+        contentType: ContentType,
+        pageSize: Int,
+        configurationGeneration: Long,
+        now: Long = System.currentTimeMillis()
+    ) {
+        if (providerId <= 0L || contentType !in VOD_CONTENT_TYPES || pageSize !in 1..MAX_LEARNED_VOD_PAGE_SIZE) return
+        if (getVodPageSize(providerId, contentType, configurationGeneration)?.let { it >= pageSize } == true) return
+        update(providerId, configurationGeneration) { state ->
+            val learning = mutableLearning(state.learningJson)
+            val sizes = (learning["vodPageSizes"] as? JsonObject)?.toMutableMap() ?: mutableMapOf()
+            val previousObservation = sizes[contentType.name] as? JsonObject
+            val previousGeneration = runCatching {
+                previousObservation?.get("configurationGeneration")?.jsonPrimitive?.longOrNull
+            }.getOrNull()
+            val previous = if (previousGeneration == configurationGeneration) {
+                runCatching {
+                    previousObservation?.get("value")?.jsonPrimitive?.content?.toIntOrNull()
+                }.getOrNull()
+            } else {
+                null
+            }
+            if (previous != null && previous >= pageSize) return@update state
+
+            val generation = configurationGeneration
+            sizes[contentType.name] = observationJson(
+                pageSize,
+                generation,
+                now,
+                "CATALOG"
+            )
+            learning["configurationGeneration"] = JsonPrimitive(generation)
+            learning["vodPageSizes"] = JsonObject(sizes)
+            state.copy(
+                configurationGeneration = generation,
+                learningJson = JsonObject(learning).toString(),
+                observationSource = "CATALOG",
+                observedAt = now
             )
         }
     }
@@ -202,8 +294,8 @@ class StalkerPortalStateStore @Inject constructor(
         configurationGeneration: Long? = null
     ) = update(providerId, configurationGeneration) { state ->
         val capability = when (contentType) {
-            ContentType.MOVIE -> "vod"
-            ContentType.SERIES -> "series"
+            ContentType.MOVIE -> "vod_wildcard"
+            ContentType.SERIES -> "series_wildcard"
             else -> null
         }
         val learned = capability?.let {
@@ -537,6 +629,8 @@ class StalkerPortalStateStore @Inject constructor(
         .joinToString("") { byte -> "%02x".format(byte.toInt() and 0xff) }
 
     private companion object {
+        val VOD_CONTENT_TYPES = setOf(ContentType.MOVIE, ContentType.SERIES)
+        const val MAX_LEARNED_VOD_PAGE_SIZE = 128
         const val VALIDATION_TTL_MILLIS = 7L * 24L * 60L * 60L * 1000L
         const val ENDPOINT_COOLDOWN_MILLIS = 10L * 60L * 1000L
         const val RECIPE_COOLDOWN_MILLIS = 10L * 60L * 1000L

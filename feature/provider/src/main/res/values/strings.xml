@@ -128,4 +128,11 @@
     <string name="setup_stalker_catalog_on_demand_description">Load shelves and categories when opened. Keep cached titles.</string>
     <string name="setup_stalker_catalog_background_title">Complete background index (recommended)</string>
     <string name="setup_stalker_catalog_background_description">Finish provider setup first, then index all movie and series titles in the background so you can search them.</string>
+    <string name="setup_stalker_load_order_title">Background loading order</string>
+    <string name="setup_stalker_load_parallel_title">Both together (default)</string>
+    <string name="setup_stalker_load_parallel_description">Load movies and series together.</string>
+    <string name="setup_stalker_load_movies_first_title">Movies first</string>
+    <string name="setup_stalker_load_movies_first_description">Keep series queued until movies finish.</string>
+    <string name="setup_stalker_load_series_first_title">Series first</string>
+    <string name="setup_stalker_load_series_first_description">Keep movies queued until series finish.</string>
 </resources>

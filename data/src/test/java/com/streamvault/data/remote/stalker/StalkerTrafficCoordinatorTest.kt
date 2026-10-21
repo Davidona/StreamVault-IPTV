@@ -6,6 +6,13 @@ import org.junit.Before
 import org.junit.Test
 
 class StalkerTrafficCoordinatorTest {
+    @Test
+    fun `background continuation yields during playback even with adaptive network admission`() {
+        StalkerTrafficCoordinator.notePlaybackStarted(7L)
+        assertThat(StalkerTrafficCoordinator.shouldDeferIndexForPlayback(7L)).isTrue()
+        assertThat(StalkerTrafficCoordinator.backgroundInterPageDelayMillis(7L, true)).isEqualTo(0L)
+    }
+
     @Before
     fun setUp() {
         StalkerTrafficCoordinator.resetForTests()
@@ -18,10 +25,10 @@ class StalkerTrafficCoordinatorTest {
 
     @Test
     fun `background delay increases while playback is active without blocking interactive work`() {
-        val normalDelay = StalkerTrafficCoordinator.backgroundInterPageDelayMillis(providerId = 7L)
+        val normalDelay = StalkerTrafficCoordinator.backgroundInterPageDelayMillis(providerId = 7L, adaptiveIndexingEnabled = false)
         StalkerTrafficCoordinator.notePlaybackStarted(providerId = 7L)
 
-        val playbackDelay = StalkerTrafficCoordinator.backgroundInterPageDelayMillis(providerId = 7L)
+        val playbackDelay = StalkerTrafficCoordinator.backgroundInterPageDelayMillis(providerId = 7L, adaptiveIndexingEnabled = false)
 
         assertThat(StalkerTrafficCoordinator.isPlaybackActive(7L)).isTrue()
         assertThat(playbackDelay).isGreaterThan(normalDelay)

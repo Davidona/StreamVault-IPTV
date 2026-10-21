@@ -786,18 +786,28 @@ class OkHttpStalkerApiService @Inject constructor(
         categoryId: String?,
         page: Int,
         searchQuery: String?
+    ): Result<StalkerPagedItems> = getVodStreamsPage(
+        session = session,
+        profile = profile,
+        categoryId = categoryId,
+        page = page,
+        searchQuery = searchQuery,
+        sortBy = null
+    )
+
+    override suspend fun getVodStreamsPage(
+        session: StalkerSession,
+        profile: StalkerDeviceProfile,
+        categoryId: String?,
+        page: Int,
+        searchQuery: String?,
+        sortBy: String?
     ): Result<StalkerPagedItems> = runApiCall("Failed to load movies") {
         fetchPagedItemPage(
             session = session,
             profile = profile,
             page = page,
-            baseQuery = buildMap {
-                put("type", "vod")
-                put("action", "get_ordered_list")
-                put("JsHttpRequest", "1-xml")
-                categoryId?.takeIf { it.isNotBlank() }?.let { put("category", it) }
-                searchQuery?.trim()?.takeIf { it.isNotBlank() }?.let { put("search", it) }
-            }
+            baseQuery = vodOrderedListQuery(categoryId, searchQuery, sortBy)
         )
     }
 
@@ -807,20 +817,43 @@ class OkHttpStalkerApiService @Inject constructor(
         categoryId: String?,
         portalPage: Int,
         searchQuery: String?
+    ): Result<StalkerPagedItems> = getVodStreamsPageAtPortalPage(
+        session = session,
+        profile = profile,
+        categoryId = categoryId,
+        portalPage = portalPage,
+        searchQuery = searchQuery,
+        sortBy = null
+    )
+
+    override suspend fun getVodStreamsPageAtPortalPage(
+        session: StalkerSession,
+        profile: StalkerDeviceProfile,
+        categoryId: String?,
+        portalPage: Int,
+        searchQuery: String?,
+        sortBy: String?
     ): Result<StalkerPagedItems> = runApiCall("Failed to load movies") {
         fetchPagedItemPage(
             session = session,
             profile = profile,
             page = portalPage,
             allowPageZero = true,
-            baseQuery = buildMap {
-                put("type", "vod")
-                put("action", "get_ordered_list")
-                put("JsHttpRequest", "1-xml")
-                categoryId?.takeIf { it.isNotBlank() }?.let { put("category", it) }
-                searchQuery?.trim()?.takeIf { it.isNotBlank() }?.let { put("search", it) }
-            }
+            baseQuery = vodOrderedListQuery(categoryId, searchQuery, sortBy)
         )
+    }
+
+    private fun vodOrderedListQuery(
+        categoryId: String?,
+        searchQuery: String?,
+        sortBy: String?
+    ): Map<String, String> = buildMap {
+        put("type", "vod")
+        put("action", "get_ordered_list")
+        put("JsHttpRequest", "1-xml")
+        categoryId?.takeIf { it.isNotBlank() }?.let { put("category", it) }
+        searchQuery?.trim()?.takeIf { it.isNotBlank() }?.let { put("search", it) }
+        sortBy?.trim()?.takeIf { it.isNotBlank() }?.let { put("sortby", it) }
     }
 
     override suspend fun getVodFiles(
@@ -883,6 +916,14 @@ class OkHttpStalkerApiService @Inject constructor(
         profile: StalkerDeviceProfile,
         categoryId: String?,
         page: Int
+    ): Result<StalkerPagedItems> = getSeriesPage(session, profile, categoryId, page, sortBy = null)
+
+    override suspend fun getSeriesPage(
+        session: StalkerSession,
+        profile: StalkerDeviceProfile,
+        categoryId: String?,
+        page: Int,
+        sortBy: String?
     ): Result<StalkerPagedItems> = runApiCall("Failed to load series") {
         fetchPagedItemPage(
             session = session,
@@ -893,6 +934,7 @@ class OkHttpStalkerApiService @Inject constructor(
                 put("action", "get_ordered_list")
                 put("JsHttpRequest", "1-xml")
                 categoryId?.takeIf { it.isNotBlank() }?.let { put("category", it) }
+                sortBy?.takeIf { it.isNotBlank() }?.let { put("sortby", it) }
             }
         )
     }
@@ -919,68 +961,71 @@ class OkHttpStalkerApiService @Inject constructor(
         contentType = "vod"
     )
 
+    override suspend fun getSeriesDetailsInCategory(
+        session: StalkerSession,
+        profile: StalkerDeviceProfile,
+        seriesId: String,
+        categoryId: String
+    ): Result<StalkerSeriesDetails> = getSeriesDetailsForType(session, profile, seriesId, "series", categoryId)
+
     private suspend fun getSeriesDetailsForType(
         session: StalkerSession,
         profile: StalkerDeviceProfile,
         seriesId: String,
-        contentType: String
+        contentType: String,
+        categoryId: String? = null
     ): Result<StalkerSeriesDetails> = runApiCall("Failed to load series details") {
+        val seasonQuery = buildMap {
+            put("type", contentType)
+            put("action", "get_ordered_list")
+            put("JsHttpRequest", "1-xml")
+            put("movie_id", seriesId)
+            categoryId?.takeIf { it.isNotBlank() }?.let { put("category", it) }
+            put("p", "1")
+            if (contentType == "vod") {
+                put("season_id", "0")
+                put("episode_id", "0")
+            }
+        }
         val seriesPayload = requestJson(
             url = session.loadUrl,
             profile = profile,
             referer = session.portalReferer,
             token = session.token,
-            query = mapOf(
-                "type" to contentType,
-                "action" to "get_ordered_list",
-                "JsHttpRequest" to "1-xml",
-                "movie_id" to seriesId,
-                "season_id" to "0",
-                "episode_id" to "0"
-            )
+            query = seasonQuery
         )
         val seedEntries = seriesPayload.extractItemEntries().toMutableList()
-        if (contentType == "vod") {
-            val seedFingerprints = mutableSetOf(
-                seedEntries.joinToString("|") { it.findString("id").orEmpty() }
+        val seedFingerprints = mutableSetOf(
+            seedEntries.joinToString("|") { it.findString("id").orEmpty() }
+        )
+        val seedTotalPages = seriesPayload.totalPages()
+        if (seedTotalPages > MAX_PAGE_COUNT) {
+            throw StalkerApiError.CatalogTruncated(
+                advertisedTotalPages = seedTotalPages,
+                pageLimit = MAX_PAGE_COUNT
             )
-            val seedTotalPages = seriesPayload.totalPages()
-            if (seedTotalPages > MAX_PAGE_COUNT) {
-                throw StalkerApiError.CatalogTruncated(
-                    advertisedTotalPages = seedTotalPages,
-                    pageLimit = MAX_PAGE_COUNT
+        }
+        for (page in 2..seedTotalPages) {
+            val pagePayload = requestJson(
+                url = session.loadUrl,
+                profile = profile,
+                referer = session.portalReferer,
+                token = session.token,
+                query = seasonQuery + ("p" to page.toString())
+            )
+            val pageEntries = pagePayload.extractItemEntries()
+            val fingerprint = pageEntries.joinToString("|") { it.findString("id").orEmpty() }
+            if (fingerprint.isNotEmpty() && !seedFingerprints.add(fingerprint)) {
+                throw StalkerApiError.Malformed(
+                    "Portal repeated a series-detail page while loading page $page."
                 )
             }
-            for (page in 2..seedTotalPages) {
-                val pagePayload = requestJson(
-                    url = session.loadUrl,
-                    profile = profile,
-                    referer = session.portalReferer,
-                    token = session.token,
-                    query = mapOf(
-                        "type" to contentType,
-                        "action" to "get_ordered_list",
-                        "JsHttpRequest" to "1-xml",
-                        "movie_id" to seriesId,
-                        "season_id" to "0",
-                        "episode_id" to "0",
-                        "p" to page.toString()
-                    )
+            if (pageEntries.isEmpty() && page < seedTotalPages) {
+                throw StalkerApiError.Malformed(
+                    "Portal returned an empty series-detail page before its advertised end."
                 )
-                val pageEntries = pagePayload.extractItemEntries()
-                val fingerprint = pageEntries.joinToString("|") { it.findString("id").orEmpty() }
-                if (fingerprint.isNotEmpty() && !seedFingerprints.add(fingerprint)) {
-                    throw StalkerApiError.Malformed(
-                        "Portal repeated a series-detail page while loading page $page."
-                    )
-                }
-                if (pageEntries.isEmpty() && page < seedTotalPages) {
-                    throw StalkerApiError.Malformed(
-                        "Portal returned an empty series-detail page before its advertised end."
-                    )
-                }
-                seedEntries += pageEntries
             }
+            seedEntries += pageEntries
         }
         val seriesItems = seriesPayload.toItemRecords(profile.timezone.toPortalZoneId())
         val series = seriesItems.firstOrNull { item -> !item.looksLikeSeasonShell() }
@@ -1006,6 +1051,7 @@ class OkHttpStalkerApiService @Inject constructor(
         val paginationEvidence = mutableListOf<StalkerEpisodePaginationEvidence>()
         val seasons = if (seasonRows.isNotEmpty()) {
             seasonRows.mapIndexed { index, (seasonId, entry) ->
+                entry.toSeasonShellRecord(index + 1)?.let { return@mapIndexed it }
                 val pages = fetchSeriesEpisodePages(
                     session = session,
                     profile = profile,
@@ -1034,24 +1080,7 @@ class OkHttpStalkerApiService @Inject constructor(
             }
         } else if (shellSeasonRows.isNotEmpty()) {
             shellSeasonRows.map { (seasonId, entry) ->
-                val episodesPayload = requestJson(
-                    url = session.loadUrl,
-                    profile = profile,
-                    referer = session.portalReferer,
-                    token = session.token,
-                    query = mapOf(
-                        "type" to contentType,
-                        "action" to "get_ordered_list",
-                        "JsHttpRequest" to "1-xml",
-                        "movie_id" to seriesId,
-                        "season_id" to seasonId,
-                        "episode_id" to "0"
-                    )
-                )
-                entry.toSeasonRecord(
-                    episodeEntries = episodesPayload.extractItemEntries(),
-                    fallbackSeasonNumber = seasonId.toIntOrNull()
-                )
+                requireNotNull(entry.toSeasonShellRecord(seasonId.toIntOrNull() ?: 1))
             }
         } else {
             listOf(
@@ -2807,10 +2836,11 @@ class OkHttpStalkerApiService @Inject constructor(
                 StalkerNetworkPriority.INTERACTIVE
             request.url.queryParameter("action").equals("get_short_epg", ignoreCase = true) ->
                 StalkerNetworkPriority.PREFETCH
-            currentCoroutineContext()[StalkerRequestPriorityContext]?.priority in setOf(
-                com.streamvault.domain.model.StalkerRequestPriority.EPG,
-                com.streamvault.domain.model.StalkerRequestPriority.BACKGROUND_INDEX
-            ) -> StalkerNetworkPriority.BACKGROUND
+            currentCoroutineContext()[StalkerRequestPriorityContext]?.priority ==
+                com.streamvault.domain.model.StalkerRequestPriority.BACKGROUND_INDEX ->
+                StalkerNetworkPriority.INDEX
+            currentCoroutineContext()[StalkerRequestPriorityContext]?.priority ==
+                com.streamvault.domain.model.StalkerRequestPriority.EPG -> StalkerNetworkPriority.BACKGROUND
             currentCoroutineContext()[StalkerRequestPriorityContext]?.priority ==
                 com.streamvault.domain.model.StalkerRequestPriority.VISIBLE_PREVIEW ->
                 StalkerNetworkPriority.PREFETCH
@@ -2819,7 +2849,7 @@ class OkHttpStalkerApiService @Inject constructor(
             else -> StalkerNetworkPriority.FOREGROUND
         }
         val permit = requestCoordinator.acquireNetworkPermit(profile.providerId, requestPriority)
-        var nonRateLimitedResponseObserved = false
+        var successfulResponseObserved = false
         return try {
             val baseClient = stalkerHttpClientFor(profile, request.url.toString())
             val remainingMillis = profile.discoveryRuntime.remainingMillis()
@@ -2831,16 +2861,17 @@ class OkHttpStalkerApiService @Inject constructor(
                     .build()
             }
             withCancellableStalkerCall(client.newCall(request)) { response ->
-                if (response.code != 429) {
-                    nonRateLimitedResponseObserved = true
+                if (response.isSuccessful) {
+                    successfulResponseObserved = true
                     requestCoordinator.recordNetworkSuccess(permit)
                 }
                 block(response)
-            }
+            }.also { requestCoordinator.recordIndexResponse(permit) }
         } catch (error: CancellationException) {
             throw error
         } catch (error: Throwable) {
-            if (!nonRateLimitedResponseObserved) {
+            requestCoordinator.recordIndexResponse(permit, error)
+            if (!successfulResponseObserved) {
                 requestCoordinator.recordNetworkFailure(permit, error)
             }
             if (error is StalkerApiError.TransportConsentRequired) throw error
@@ -3097,7 +3128,8 @@ class OkHttpStalkerApiService @Inject constructor(
             )
             in 500..599 -> StalkerApiError.Server(
                 message = "Portal request failed with HTTP $code.",
-                httpStatus = code
+                httpStatus = code,
+                retryAfterMillis = retryAfterMillis
             )
             else -> StalkerApiError.BlockedOrConfiguration(
                 message = "Portal request failed with HTTP $code."
@@ -3691,6 +3723,7 @@ class OkHttpStalkerApiService @Inject constructor(
                 title = "$seasonName Episode $episodeNumber",
                 episodeNumber = episodeNumber,
                 seasonNumber = fallbackSeasonNumber,
+                playbackSelector = episodeNumber,
                 cmd = findString("cmd"),
                 coverUrl = sanitizeUrl(findString("screenshot_uri")) ?: sanitizeUrl(findString("cover")),
                 plot = findString("description") ?: findString("plot"),

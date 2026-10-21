@@ -129,4 +129,11 @@
     <string name="setup_stalker_catalog_on_demand_description">Зареждайте рафтовете и категориите при отваряне. Запазвайте кешираните заглавия.</string>
     <string name="setup_stalker_catalog_background_title">Пълно фоново индексиране (препоръчително)</string>
     <string name="setup_stalker_catalog_background_description">Първо завършете настройката на доставчика, след което индексирайте всички филми и сериали във фонов режим за търсене.</string>
+    <string name="setup_stalker_load_order_title">Ред на зареждане във фонов режим</string>
+    <string name="setup_stalker_load_parallel_title">Едновременно (по подразбиране)</string>
+    <string name="setup_stalker_load_parallel_description">Зареждане на филми и сериали едновременно.</string>
+    <string name="setup_stalker_load_movies_first_title">Първо филмите</string>
+    <string name="setup_stalker_load_movies_first_description">Сериалите изчакват, докато филмите се заредят.</string>
+    <string name="setup_stalker_load_series_first_title">Първо сериалите</string>
+    <string name="setup_stalker_load_series_first_description">Филмите изчакват, докато сериалите се заредят.</string>
 </resources>

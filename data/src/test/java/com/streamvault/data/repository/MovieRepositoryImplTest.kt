@@ -38,6 +38,7 @@ import com.streamvault.data.remote.stalker.stalkerStableHashId
 import com.streamvault.data.remote.dto.XtreamCategory
 import com.streamvault.data.remote.dto.XtreamStream
 import com.streamvault.data.remote.stalker.StalkerApiService
+import com.streamvault.data.remote.stalker.delegateSortedPagingToBasicStubs
 import com.streamvault.data.remote.xtream.XtreamApiService
 import com.streamvault.data.remote.xtream.XtreamStreamUrlResolver
 import com.streamvault.data.security.CredentialCrypto
@@ -806,7 +807,7 @@ class MovieRepositoryImplTest {
     }
 
     @Test
-    fun `complete request hydrates every advertised stalker movie page before returning`() = runTest {
+    fun `complete request opens one page and leaves remaining pages to background indexing`() = runTest {
         whenever(preferencesRepository.parentalControlLevel).thenReturn(flowOf(0))
         whenever(preferencesRepository.vodCategoryLoadMode).thenReturn(flowOf(VodCategoryLoadMode.PAGED))
         whenever(movieDao.getCountByCategory(7L, 42L)).thenReturn(
@@ -835,10 +836,9 @@ class MovieRepositoryImplTest {
             VodCategoryHydrationRequest.COMPLETE
         )
 
-        (1..3).forEach { page ->
-            verify(stalkerApiService).getVodStreamsPage(any(), any(), anyOrNull(), eq(page))
-        }
-        verify(stalkerApiService, never()).getVodStreamsPage(any(), any(), anyOrNull(), eq(4))
+        verify(stalkerApiService).getVodStreamsPage(any(), any(), anyOrNull(), eq(1))
+        verify(stalkerApiService, never()).getVodStreamsPage(any(), any(), anyOrNull(), eq(2))
+        verify(syncManager).prioritizeStalkerIndexCategory(7L, ContentType.MOVIE, 42L)
     }
 
     @Test
@@ -868,7 +868,7 @@ class MovieRepositoryImplTest {
             Result.success(stalkerMoviePage(page = 4, itemCount = 14))
         )
 
-        createRepository().getMoviesByCategoryPage(7L, 42L, limit = 60, offset = 60).first()
+        createRepository().requestCategoryHydration(7L, 42L, VodCategoryHydrationRequest.NEXT_PAGE)
 
         verify(stalkerApiService).getVodStreamsPage(any(), any(), anyOrNull(), eq(4))
         verify(stalkerApiService, never()).getVodStreamsPage(any(), any(), anyOrNull(), eq(5))
@@ -1333,6 +1333,7 @@ class MovieRepositoryImplTest {
     }
 
     private suspend fun stubProvider(provider: Provider) {
+        stalkerApiService.delegateSortedPagingToBasicStubs()
         whenever(providerDao.getById(provider.id)).thenReturn(provider.toEntity())
         val snapshot = provider.toProviderSnapshot()
         whenever(providerCapabilityResolver.snapshot(provider.id)).thenReturn(snapshot)

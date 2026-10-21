@@ -18,6 +18,65 @@ import java.util.Base64
 
 class StalkerPortalStateStoreTest {
     @Test
+    fun `rejected wildcard is a paging capability rather than a disabled catalog`() = runTest {
+        val store = StalkerPortalStateStore(FakePortalStateDao(), TestCredentialCrypto())
+        store.recordWildcard(1, ContentType.SERIES, false, configurationGeneration = 2)
+        val capabilities = Json.parseToJsonElement(requireNotNull(store.get(1)).learningJson)
+            .jsonObject.getValue("capabilities").jsonObject
+        assertThat(capabilities.keys).contains("series_wildcard")
+        assertThat(capabilities.keys).doesNotContain("series")
+    }
+    @Test
+    fun `first run adopts learning generation created after handshake`() = runTest {
+        val dao = FakePortalStateDao()
+        val store = StalkerPortalStateStore(dao, TestCredentialCrypto())
+        val coordinator = StalkerRequestCoordinator(store, true, { testScheduler.currentTime }, 8)
+        coordinator.acquireNetworkPermit(83L, StalkerNetworkPriority.FOREGROUND).also {
+            coordinator.releaseNetworkPermit(it)
+        }
+        dao.upsert(StalkerPortalStateEntity(providerId = 83L, configurationGeneration = 9L))
+        val page = coordinator.acquireNetworkPermit(83L, StalkerNetworkPriority.INDEX)
+        coordinator.recordIndexResponse(page, java.net.SocketTimeoutException())
+        coordinator.releaseNetworkPermit(page)
+        val persisted = requireNotNull(store.get(83L))
+        assertThat(persisted.configurationGeneration).isEqualTo(9L)
+        assertThat(store.indexPacing(persisted).concurrency).isEqualTo(1)
+    }
+
+    @Test
+    fun `stressed window survives restart and configuration changes reset learning`() = runTest {
+        val dao = FakePortalStateDao()
+        val store = StalkerPortalStateStore(dao, TestCredentialCrypto())
+        dao.upsert(StalkerPortalStateEntity(providerId = 82L, configurationGeneration = 7L))
+        val firstCoordinator = StalkerRequestCoordinator(store, true, { testScheduler.currentTime }, 8)
+        val permit = firstCoordinator.acquireNetworkPermit(82L, StalkerNetworkPriority.INDEX)
+        firstCoordinator.recordIndexResponse(permit, java.net.SocketTimeoutException())
+        firstCoordinator.releaseNetworkPermit(permit)
+        val restarted = StalkerRequestCoordinator(store, true, { testScheduler.currentTime }, 8)
+        assertThat(restarted.effectiveIndexConcurrencyLimit(82L)).isEqualTo(1)
+        val changed = requireNotNull(store.get(82L)).copy(configurationGeneration = 8L)
+        assertThat(store.indexPacing(changed).concurrency).isEqualTo(3)
+    }
+
+    @Test
+    fun `restart caps healthy learned window at three and ignores old timed profiles`() = runTest {
+        val store = StalkerPortalStateStore(FakePortalStateDao(), TestCredentialCrypto())
+        store.recordIndexPacing(84L, configurationGeneration = 4L, concurrency = 8)
+        assertThat(store.indexPacing(requireNotNull(store.get(84L))).concurrency).isEqualTo(3)
+        assertThat(store.indexPacing(StalkerPortalStateEntity(85L,
+            learningJson = """{"indexPacing":{"intervalMillis":30000}}""")).concurrency).isEqualTo(3)
+    }
+
+    @Test
+    fun `malformed concurrency falls back safely and learned values are bounded`() = runTest {
+        val store = StalkerPortalStateStore(FakePortalStateDao(), TestCredentialCrypto())
+        assertThat(store.indexPacing(StalkerPortalStateEntity(1L, learningJson = "bad")).concurrency)
+            .isEqualTo(3)
+        store.recordIndexPacing(1L, 3L, 0)
+        assertThat(store.indexPacing(requireNotNull(store.get(1L))).concurrency).isEqualTo(1)
+    }
+
+    @Test
     fun `VOD page base is persisted and isolated by configuration generation`() = runTest {
         val store = StalkerPortalStateStore(FakePortalStateDao(), TestCredentialCrypto())
 
@@ -32,6 +91,25 @@ class StalkerPortalStateStoreTest {
         store.recordVodPageBase(providerId = 42L, pageBase = 1, configurationGeneration = 7L)
         assertThat(store.getVodPageBase(providerId = 42L, configurationGeneration = 7L)).isEqualTo(1)
         assertThat(store.getVodPageBase(providerId = 42L, configurationGeneration = 8L)).isNull()
+    }
+
+    @Test
+    fun `largest VOD page size is learned per content type and configuration generation`() = runTest {
+        val store = StalkerPortalStateStore(FakePortalStateDao(), TestCredentialCrypto())
+
+        store.recordVodPageSize(43L, ContentType.MOVIE, pageSize = 14, configurationGeneration = 7L, now = 100L)
+        store.recordVodPageSize(43L, ContentType.MOVIE, pageSize = 8, configurationGeneration = 7L, now = 200L)
+        store.recordVodPageSize(43L, ContentType.SERIES, pageSize = 12, configurationGeneration = 7L, now = 300L)
+
+        assertThat(store.getVodPageSize(43L, ContentType.MOVIE, 7L)).isEqualTo(14)
+        assertThat(store.getVodPageSize(43L, ContentType.SERIES, 7L)).isEqualTo(12)
+        assertThat(store.getVodPageSize(43L, ContentType.MOVIE, 8L)).isNull()
+
+        store.recordVodPageSize(43L, ContentType.MOVIE, pageSize = 10, configurationGeneration = 8L, now = 400L)
+        assertThat(store.getVodPageSize(43L, ContentType.MOVIE, 8L)).isEqualTo(10)
+        assertThat(store.getVodPageSize(43L, ContentType.SERIES, 8L)).isNull()
+        store.recordVodPageSize(43L, ContentType.MOVIE, pageSize = 129, configurationGeneration = 8L)
+        assertThat(store.getVodPageSize(43L, ContentType.MOVIE, 8L)).isEqualTo(10)
     }
 
     @Test

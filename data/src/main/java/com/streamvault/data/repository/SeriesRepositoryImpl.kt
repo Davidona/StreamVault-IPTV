@@ -360,10 +360,11 @@ class SeriesRepositoryImpl @Inject constructor(
                 query.filterBy.type != LibraryFilterType.ALL ||
                 query.sortBy != LibrarySortBy.LIBRARY ||
                 preferencesRepository.vodDuplicateHandlingMode.first() != VodDuplicateHandlingMode.SHOW_ALL
-            if (requiresCompleteCategory) {
-                query.categoryId?.let {
-                    requestCategoryHydration(query.providerId, it, VodCategoryHydrationRequest.COMPLETE)
-                }
+            val browsingProvider = loadCompatibilityProvider(query.providerId)
+            if (browsingProvider?.type == ProviderType.STALKER_PORTAL) {
+                query.categoryId?.let { syncManager.prioritizeStalkerIndexCategory(query.providerId, ContentType.SERIES, it) }
+            } else if (requiresCompleteCategory) {
+                query.categoryId?.let { requestCategoryHydration(query.providerId, it, VodCategoryHydrationRequest.COMPLETE) }
             }
             query.categoryId
                 ?.takeIf { normalizedSearch.length < MIN_SEARCH_QUERY_LENGTH }
@@ -377,7 +378,10 @@ class SeriesRepositoryImpl @Inject constructor(
                         )
                     }
                 }
-            emit(fetchSeriesBrowseResult(query))
+            val browseQuery = if (browsingProvider?.type == ProviderType.STALKER_PORTAL &&
+                query.categoryId?.let { createStalkerProvider(query.providerId)?.isWildcardCategory(ContentType.SERIES, it) } == true
+            ) query.copy(categoryId = null) else query
+            emit(fetchSeriesBrowseResult(browseQuery))
         }.flowOn(Dispatchers.IO)
     }
 
@@ -408,10 +412,10 @@ class SeriesRepositoryImpl @Inject constructor(
     ): Result<Unit> {
         val provider = loadCompatibilityProvider(providerId) ?: return Result.error("Provider not found")
         if (provider.type != ProviderType.STALKER_PORTAL) return Result.success(Unit)
-        val mode = preferencesRepository.vodCategoryLoadMode.first()
-        val effectiveRequest = if (
-            request == VodCategoryHydrationRequest.OPEN && mode == VodCategoryLoadMode.COMPLETE_ON_OPEN
-        ) VodCategoryHydrationRequest.COMPLETE else request
+        syncManager.prioritizeStalkerIndexCategory(providerId, ContentType.SERIES, categoryId)
+        val effectiveRequest = if (request == VodCategoryHydrationRequest.COMPLETE) {
+            VodCategoryHydrationRequest.OPEN
+        } else request
         val current = seriesCategoryHydrationDao.get(providerId, categoryId)
         val requestedPage = if (effectiveRequest == VodCategoryHydrationRequest.NEXT_PAGE) {
             ((current?.lastSuccessfulPage ?: 0) + 1).coerceAtLeast(1)
@@ -440,17 +444,6 @@ class SeriesRepositoryImpl @Inject constructor(
             syncManager.hydrateSplitVodSeriesCategory(providerId, categoryId, effectiveRequest)
         } else {
             Result.success(Unit)
-        }
-        if (derivedResult is Result.Success && request == VodCategoryHydrationRequest.OPEN &&
-            mode == VodCategoryLoadMode.PAGED
-        ) {
-            repositoryScope.launch {
-                try {
-                    requestCategoryHydration(providerId, categoryId, VodCategoryHydrationRequest.NEXT_PAGE)
-                } catch (_: CredentialDecryptionException) {
-                    logUnreadableProviderCredentials(providerId)
-                }
-            }
         }
         return derivedResult
     }
@@ -539,10 +532,9 @@ class SeriesRepositoryImpl @Inject constructor(
         if (provider.type == ProviderType.STALKER_PORTAL && seriesEntity.hasFreshStalkerDetails()) {
             val localSeries = buildSeriesWithPersistedEpisodes(seriesEntity)
             // Older catalog-page REPLACE writes could cascade-delete the episodes
-            // while leaving the parent marked as freshly hydrated. A VOD-derived
-            // series with that impossible state must self-repair on the next open.
+            // while leaving the parent marked as freshly hydrated. Retry that empty
+            // episode list when the series is opened again.
             if (
-                seriesEntity.catalogOrigin != SeriesCatalogOrigin.VOD_DERIVED ||
                 localSeries.seasons.any { season -> season.episodes.isNotEmpty() }
             ) {
                 return Result.success(attachSeriesPresentation(localSeries, knownPresentation))
@@ -1740,6 +1732,7 @@ class SeriesRepositoryImpl @Inject constructor(
         requiredCount: Int,
         loadCompletely: Boolean = false
     ): Boolean {
+        if (localCount > 0) return false
         val now = System.currentTimeMillis()
         val hasEmptySuccessfulCheckpoint = localCount == 0 &&
             (hydration?.lastSuccessfulPage ?: hydration?.lastLoadedPage ?: 0) > 0

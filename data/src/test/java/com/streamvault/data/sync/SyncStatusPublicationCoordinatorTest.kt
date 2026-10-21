@@ -9,9 +9,45 @@ import com.streamvault.domain.repository.SyncMetadataRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.launch
 import org.junit.Test
 
 class SyncStatusPublicationCoordinatorTest {
+    @Test
+    fun `concurrent guide and catalog metadata preserve both counts`() = runTest {
+        val repository = FakeSyncMetadataRepository(SyncMetadata(providerId = 7L))
+        val slowRepository = object : SyncMetadataRepository by repository {
+            override suspend fun getMetadata(providerId: Long): SyncMetadata? {
+                val value = repository.getMetadata(providerId)
+                kotlinx.coroutines.delay(1)
+                return value
+            }
+        }
+        val mutex = kotlinx.coroutines.sync.Mutex()
+        val transactions = object : com.streamvault.data.local.DatabaseTransactionRunner {
+            override suspend fun <T> inTransaction(block: suspend () -> T): T {
+                mutex.lock()
+                return try { block() } finally { mutex.unlock() }
+            }
+        }
+        val coordinator = SyncStatusPublicationCoordinator(slowRepository, SyncProgressBus(), transactionRunner = transactions)
+        kotlinx.coroutines.coroutineScope {
+            launch {
+                coordinator.updateSummaryMetadata(7L, ContentType.MOVIE, 500, "RUNNING", 100, VodSyncMode.PAGED)
+            }
+            launch {
+                transactions.inTransaction {
+                    val metadata = requireNotNull(slowRepository.getMetadata(7L))
+                    slowRepository.updateMetadata(metadata.copy(epgCount = 200, lastEpgSuccess = 100))
+                }
+            }
+        }
+        val metadata = requireNotNull(repository.getMetadata(7L))
+        assertThat(metadata.movieCount).isEqualTo(500)
+        assertThat(metadata.epgCount).isEqualTo(200)
+        assertThat(metadata.lastEpgSuccess).isEqualTo(100)
+    }
+
     @Test
     fun `partial movie publication preserves the known catalog count and marks it stale`() = runTest {
         val repository = FakeSyncMetadataRepository(

@@ -125,4 +125,11 @@
     <string name="setup_stalker_catalog_on_demand_description">Carga las secciones y categorías al abrirlas. Conserva los títulos en caché.</string>
     <string name="setup_stalker_catalog_background_title">Indexación completa en segundo plano (recomendada)</string>
     <string name="setup_stalker_catalog_background_description">Primero termina de configurar el proveedor y luego indexa todas las películas y series en segundo plano para que puedas buscarlas.</string>
+    <string name="setup_stalker_load_order_title">Orden de carga en segundo plano</string>
+    <string name="setup_stalker_load_parallel_title">Ambos a la vez (predeterminado)</string>
+    <string name="setup_stalker_load_parallel_description">Cargar películas y series a la vez.</string>
+    <string name="setup_stalker_load_movies_first_title">Películas primero</string>
+    <string name="setup_stalker_load_movies_first_description">Mantener las series en cola hasta que terminen de cargarse las películas.</string>
+    <string name="setup_stalker_load_series_first_title">Series primero</string>
+    <string name="setup_stalker_load_series_first_description">Mantener las películas en cola hasta que terminen de cargarse las series.</string>
 </resources>
