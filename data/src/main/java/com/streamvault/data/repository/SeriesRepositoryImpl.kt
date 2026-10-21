@@ -93,7 +93,7 @@ class SeriesRepositoryImpl @Inject constructor(
         const val STALKER_INITIAL_CATEGORY_FILL_COUNT = 40
         const val STALKER_INITIAL_CATEGORY_MAX_REMOTE_PAGES = 4
         const val STALKER_COMPLETE_PAGE_BATCH_SIZE = 200
-        const val DETAIL_REFRESH_TTL_MILLIS = 14L * 24L * 60L * 60L * 1000L
+        const val DETAIL_REFRESH_TTL_MILLIS = 6L * 60L * 60L * 1000L
         const val XTREAM_DETAIL_HYDRATION_TIMEOUT_MILLIS = 8_000L
         const val CACHE_STATE_SUMMARY_ONLY = "SUMMARY_ONLY"
         const val CACHE_STATE_DETAIL_HYDRATED = "DETAIL_HYDRATED"
@@ -583,7 +583,12 @@ class SeriesRepositoryImpl @Inject constructor(
                     remoteId = seriesEntity.providerSeriesId?.takeIf { it.isNotBlank() } ?: seriesEntity.seriesId.toString(),
                     errorState = "DETAIL_FAILED_RETRYABLE"
                 )
-                return Result.success(attachSeriesPresentation(buildSeriesWithPersistedEpisodes(seriesEntity), knownPresentation))
+                return cachedSeriesOrError(
+                    seriesEntity = seriesEntity,
+                    knownPresentation = knownPresentation,
+                    message = e.message ?: "Failed to load series details",
+                    exception = e
+                )
             }
             return Result.error(e.message ?: "Failed to access provider credentials", e)
         }
@@ -752,8 +757,12 @@ class SeriesRepositoryImpl @Inject constructor(
                         }
                     )
                 }
-                val localSeries = attachSeriesPresentation(buildSeriesWithPersistedEpisodes(seriesEntity), knownPresentation)
-                Result.success(localSeries)
+                cachedSeriesOrError(
+                    seriesEntity = seriesEntity,
+                    knownPresentation = knownPresentation,
+                    message = remoteResult.message,
+                    exception = remoteResult.exception
+                )
             }
             is Result.Loading -> Result.error("Unexpected loading state")
         }
@@ -791,6 +800,21 @@ class SeriesRepositoryImpl @Inject constructor(
 
     override suspend fun refreshSeries(providerId: Long): Result<Unit> =
         Result.success(Unit) // Handled by ProviderRepository
+
+    private suspend fun cachedSeriesOrError(
+        seriesEntity: SeriesEntity,
+        knownPresentation: SeriesDetailPresentationHint?,
+        message: String,
+        exception: Throwable?
+    ): Result<Series> {
+        val localSeries = attachSeriesPresentation(buildSeriesWithPersistedEpisodes(seriesEntity), knownPresentation)
+        val hasEpisodes = localSeries.seasons.any { season -> season.episodes.isNotEmpty() }
+        return if (hasEpisodes) {
+            Result.success(localSeries)
+        } else {
+            Result.error(message, exception)
+        }
+    }
 
     private suspend fun buildSeriesWithPersistedEpisodes(seriesEntity: SeriesEntity): Series {
         val episodes = episodeDao.getBySeriesSync(seriesEntity.id).map { it.toDomain() }

@@ -306,6 +306,8 @@
   <string name="series_detail_resume">Folytatás · %1$d. évad %2$d. ep · %3$s</string>
   <string name="series_detail_versions">Verziók</string>
   <string name="series_episodes">Epizódok (%1$d)</string>
+  <string name="series_episodes_empty">Ehhez a sorozathoz még nem érhetők el epizódok.</string>
+  <string name="series_episodes_load_failed">Nem sikerült betölteni a sorozat epizódjait. Ellenőrizze a kapcsolatot, majd próbálja újra.</string>
   <string name="series_incorrect_pin">Hibás PIN</string>
   <string name="series_library_lens_subtitle">Kedvencek, folyamatban lévők, legjobbra értékeltek és friss sorozatok megjelenítése az ամբողջ könyvtárban.</string>
   <string name="series_loading">Sorozatok betöltése...</string>

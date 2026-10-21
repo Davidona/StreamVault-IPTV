@@ -306,6 +306,8 @@
   <string name="series_detail_resume">ادامه · فصل %1$d قسمت %2$d · %3$s</string>
   <string name="series_detail_versions">نسخه‌ها</string>
   <string name="series_episodes">قسمت‌ها (%1$d)</string>
+  <string name="series_episodes_empty">هنوز قسمتی برای این مجموعه در دسترس نیست.</string>
+  <string name="series_episodes_load_failed">بارگذاری قسمت‌های این مجموعه ناموفق بود. اتصال خود را بررسی و دوباره تلاش کنید.</string>
   <string name="series_incorrect_pin">PIN نادرست</string>
   <string name="series_library_lens_subtitle">موارد دلخواه، در حال تماشا، برترین‌ها و سریال‌های تازه را در سراسر کتابخانه ببینید.</string>
   <string name="series_loading">در حال بارگذاری سریال‌ها...</string>

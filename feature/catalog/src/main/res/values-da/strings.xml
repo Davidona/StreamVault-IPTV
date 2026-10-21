@@ -306,6 +306,8 @@
   <string name="series_detail_resume">Fortsæt · Sæson %1$d Afsnit %2$d · %3$s</string>
   <string name="series_detail_versions">Versioner</string>
   <string name="series_episodes">Afsnit (%1$d)</string>
+  <string name="series_episodes_empty">Der er endnu ingen afsnit tilgængelige for denne serie.</string>
+  <string name="series_episodes_load_failed">Kunne ikke indlæse afsnittene for denne serie. Tjek din forbindelse, og prøv igen.</string>
   <string name="series_incorrect_pin">Forkert pinkode</string>
   <string name="series_library_lens_subtitle">Vis favoritter, igangværende, topbedømte og nye serier på tværs af hele biblioteket.</string>
   <string name="series_loading">Indlæser serier...</string>

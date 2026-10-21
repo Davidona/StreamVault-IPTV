@@ -306,6 +306,8 @@
   <string name="series_detail_resume">Sambung · Musim %1$d Ep %2$d · %3$s</string>
   <string name="series_detail_versions">Versi</string>
   <string name="series_episodes">Episod (%1$d)</string>
+  <string name="series_episodes_empty">Belum ada episod tersedia untuk siri ini.</string>
+  <string name="series_episodes_load_failed">Gagal memuatkan episod siri ini. Sila periksa sambungan anda dan cuba lagi.</string>
   <string name="series_incorrect_pin">PIN salah</string>
   <string name="series_library_lens_subtitle">Paparkan kegemaran, sedang ditonton, penilaian tertinggi dan siri baharu merentas seluruh pustaka.</string>
   <string name="series_loading">Memuatkan siri...</string>

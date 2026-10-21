@@ -197,7 +197,8 @@ class SeriesDetailViewModel @Inject constructor(
                                 season.seasonNumber == selectedSeasonNumber
                             } ?: result.data.seasons.firstOrNull(),
                             resumeEpisode = findResumeEpisode(result.data),
-                            error = null
+                            error = null,
+                            detailsUnavailable = false
                         )
                     }
                     refreshTraktWatchlist()
@@ -205,7 +206,7 @@ class SeriesDetailViewModel @Inject constructor(
                 }
                 is Result.Error -> {
                     _uiState.update {
-                        it.copy(isLoading = false, error = result.message)
+                        it.copy(isLoading = false, error = result.message, detailsUnavailable = true)
                     }
                 }
                 is Result.Loading -> {
@@ -216,7 +217,8 @@ class SeriesDetailViewModel @Inject constructor(
             _uiState.update {
                 it.copy(
                     isLoading = false,
-                    error = e.message ?: "Failed to load series details"
+                    error = e.message ?: "Failed to load series details",
+                    detailsUnavailable = true
                 )
             }
         }
@@ -483,6 +485,7 @@ data class SeriesDetailUiState(
     val resumeEpisode: Episode? = null,
     val unwatchedEpisodeCount: Int = 0,
     val error: String? = null,
+    val detailsUnavailable: Boolean = false,
     val isCasting: Boolean = false,
     val isLoadingExternalRatings: Boolean = false,
     val externalRatings: ExternalRatings = ExternalRatings.unavailable(),

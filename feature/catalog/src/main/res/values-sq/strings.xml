@@ -306,6 +306,8 @@
   <string name="series_detail_resume">Vazhdo · Sezoni %1$d Ep %2$d · %3$s</string>
   <string name="series_detail_versions">Versionet</string>
   <string name="series_episodes">Episodet (%1$d)</string>
+  <string name="series_episodes_empty">Nuk ka ende episode të disponueshme për këtë serial.</string>
+  <string name="series_episodes_load_failed">Ngarkimi i episodeve të këtij seriali dështoi. Kontrollo lidhjen dhe provo përsëri.</string>
   <string name="series_incorrect_pin">PIN i pasaktë</string>
   <string name="series_library_lens_subtitle">Shfaq të preferuarat, në vazhdim, më të vlerësuarat dhe serialet e rinj në gjithë bibliotekën.</string>
   <string name="series_loading">Po ngarkohen serialet...</string>

@@ -8,8 +8,11 @@ All notable product changes are recorded in this document.
 
 ### Changed
 - Localized player recording notices and EPG recording messages across all supported locales.
+- Series details now refresh every six hours instead of every 14 days, so newly aired episodes appear promptly and incomplete episode caches repair themselves.
 
 ### Fixed
+- Fixed missing and disappearing episodes for providers that return nested episode arrays, season-keyed episode maps, or unexpected metadata shapes inside episode entries.
+- Fixed series pages that stayed empty after a failed details request: a failure with no cached episodes now shows a localized error, and a series with no episodes shows a localized empty state.
 - Fixed selected subtitles reverting to off by saving track details before track-list refreshes and keeping the player's active preference in sync with manual selections.
 - Fixed a compile failure in the recording-by-time dialog that prevented the app from building after the recording scheduling update, which also blocked Settings backup export and import.
 - Fixed audio stopping after a while.

@@ -306,6 +306,8 @@
   <string name="series_detail_resume">Jatka · Kausi %1$d Jakso %2$d · %3$s</string>
   <string name="series_detail_versions">Versiot</string>
   <string name="series_episodes">Jaksot (%1$d)</string>
+  <string name="series_episodes_empty">Tälle sarjalle ei ole vielä jaksoja saatavilla.</string>
+  <string name="series_episodes_load_failed">Tämän sarjan jaksojen lataaminen epäonnistui. Tarkista yhteys ja yritä uudelleen.</string>
   <string name="series_incorrect_pin">Väärä PIN-koodi</string>
   <string name="series_library_lens_subtitle">Surfacen suosikkeja, keskeneräisiä, parhaimmiksi arvioituja ja tuoreita sarjoja koko kirjastossa.</string>
   <string name="series_loading">Ladataan sarjaa...</string>

@@ -306,6 +306,8 @@
   <string name="series_detail_resume">Ipagpatuloy · Season %1$d Ep %2$d · %3$s</string>
   <string name="series_detail_versions">Mga Bersyon</string>
   <string name="series_episodes">Mga Episode (%1$d)</string>
+  <string name="series_episodes_empty">Wala pang available na episode para sa seryeng ito.</string>
+  <string name="series_episodes_load_failed">Nabigo ang pag-load ng mga episode ng seryeng ito. Mangyaring suriin ang koneksyon at subukan muli.</string>
   <string name="series_incorrect_pin">Maling PIN</string>
   <string name="series_library_lens_subtitle">Ipakita ang mga paborito, in-progress, top-rated, at mga bagong serye sa buong library.</string>
   <string name="series_loading">Naglo-load ng mga serye...</string>

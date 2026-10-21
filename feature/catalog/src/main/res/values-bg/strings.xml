@@ -306,6 +306,8 @@
   <string name="series_detail_resume">Продължи · Сезон %1$d Еп %2$d · %3$s</string>
   <string name="series_detail_versions">Версии</string>
   <string name="series_episodes">Епизоди (%1$d)</string>
+  <string name="series_episodes_empty">Все още няма налични епизоди за този сериал.</string>
+  <string name="series_episodes_load_failed">Епизодите на този сериал не можаха да се заредят. Проверете връзката си и опитайте отново.</string>
   <string name="series_incorrect_pin">Неправилен PIN</string>
   <string name="series_library_lens_subtitle">Покажете любими, започнати, най-високо оценени и нови сериали от цялата библиотека.</string>
   <string name="series_loading">Зареждане на сериали...</string>

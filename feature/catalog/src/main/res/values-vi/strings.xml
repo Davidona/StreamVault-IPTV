@@ -306,6 +306,8 @@
   <string name="series_detail_resume">Tiếp tục · Mùa %1$d Tập %2$d · %3$s</string>
   <string name="series_detail_versions">Phiên bản</string>
   <string name="series_episodes">Các tập (%1$d)</string>
+  <string name="series_episodes_empty">Chưa có tập nào khả dụng cho phim bộ này.</string>
+  <string name="series_episodes_load_failed">Không tải được các tập của phim bộ này. Vui lòng kiểm tra kết nối và thử lại.</string>
   <string name="series_incorrect_pin">PIN không đúng</string>
   <string name="series_library_lens_subtitle">Hiển thị series yêu thích, đang xem dở, được đánh giá cao và mới trong toàn bộ thư viện.</string>
   <string name="series_loading">Đang tải series...</string>

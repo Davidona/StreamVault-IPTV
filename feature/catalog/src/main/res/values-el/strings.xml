@@ -306,6 +306,8 @@
   <string name="series_detail_resume">Συνέχεια · Σεζόν %1$d Επ. %2$d · %3$s</string>
   <string name="series_detail_versions">Εκδόσεις</string>
   <string name="series_episodes">Επεισόδια (%1$d)</string>
+  <string name="series_episodes_empty">Δεν υπάρχουν ακόμη διαθέσιμα επεισόδια για αυτή τη σειρά.</string>
+  <string name="series_episodes_load_failed">Αποτυχία φόρτωσης των επεισοδίων αυτής της σειράς. Ελέγξτε τη σύνδεσή σας και δοκιμάστε ξανά.</string>
   <string name="series_incorrect_pin">Λανθασμένο PIN</string>
   <string name="series_library_lens_subtitle">Προβολή αγαπημένων, σε εξέλιξη, κορυφαίων και νέων σειρών σε όλη τη βιβλιοθήκη.</string>
   <string name="series_loading">Φόρτωση σειρών...</string>

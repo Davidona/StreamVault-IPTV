@@ -221,12 +221,28 @@ class SeriesDetailViewModelCastingTest {
         }
     }
 
+    @Test
+    fun `failed details load marks episodes unavailable`() = runBlocking {
+        val viewModel = createViewModel(detailsResult = Result.error("boom"))
+
+        try {
+            val state = withTimeout(5_000L) { viewModel.uiState.first { it.detailsUnavailable } }
+
+            assertThat(state.series).isNull()
+            assertThat(state.error).isEqualTo("boom")
+            assertThat(state.detailsUnavailable).isTrue()
+        } finally {
+            viewModel.viewModelScope.cancel()
+        }
+    }
+
     private suspend fun createViewModel(
         series: Series = series(),
         streamInfo: StreamInfo = StreamInfo(url = "https://example.test/episode.m3u8"),
         castPort: FakeCatalogCastPort = FakeCatalogCastPort(),
         traktFavorites: TraktFavorites = com.streamvault.feature.catalog.presentation.NoopTraktFavorites(),
         traktRatings: TraktRatings = com.streamvault.feature.catalog.presentation.NoopTraktRatings(),
+        detailsResult: Result<Series> = Result.success(series),
     ): SeriesDetailViewModel {
         val provider = Provider(
             id = series.providerId,
@@ -243,7 +259,7 @@ class SeriesDetailViewModelCastingTest {
         whenever(providerRepository.getActiveProvider()).thenReturn(flowOf(provider))
         whenever(seriesRepository.getSeriesById(series.id)).thenReturn(series)
         whenever(seriesRepository.getSeriesDetails(eq(provider.id), eq(series.id), anyOrNull()))
-            .thenReturn(Result.success(series))
+            .thenReturn(detailsResult)
         whenever(seriesRepository.getEpisodeStreamInfo(any()))
             .thenReturn(Result.success(streamInfo))
         whenever(favoriteRepository.isFavorite(eq(provider.id), eq(series.id), any()))

@@ -306,6 +306,8 @@
   <string name="series_detail_resume">Продолжить · Сезон %1$d Эп %2$d · %3$s</string>
   <string name="series_detail_versions">Версии</string>
   <string name="series_episodes">Эпизоды (%1$d)</string>
+  <string name="series_episodes_empty">Для этого сериала пока нет доступных эпизодов.</string>
+  <string name="series_episodes_load_failed">Не удалось загрузить эпизоды этого сериала. Проверьте подключение и попробуйте снова.</string>
   <string name="series_incorrect_pin">Неверный PIN</string>
   <string name="series_library_lens_subtitle">Показывайте избранное, просмотренное, топовое и новые сериалы по всей библиотеке.</string>
   <string name="series_loading">Загрузка сериалов...</string>

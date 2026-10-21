@@ -306,6 +306,8 @@
   <string name="series_detail_resume">Fortsetzen · Staffel %1$d Ep %2$d · %3$s</string>
   <string name="series_detail_versions">Versionen</string>
   <string name="series_episodes">Episoden (%1$d)</string>
+  <string name="series_episodes_empty">Für diese Serie sind noch keine Episoden verfügbar.</string>
+  <string name="series_episodes_load_failed">Die Episoden dieser Serie konnten nicht geladen werden. Bitte Verbindung prüfen und erneut versuchen.</string>
   <string name="series_incorrect_pin">Falsche PIN</string>
   <string name="series_library_lens_subtitle">Entdecken Sie Favoriten, laufende, am besten bewertete und neue Serien in der gesamten Bibliothek.</string>
   <string name="series_loading">Lade Serie...</string>

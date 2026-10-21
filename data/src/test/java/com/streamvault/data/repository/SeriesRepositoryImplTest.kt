@@ -342,6 +342,48 @@ class SeriesRepositoryImplTest {
     }
 
     @Test
+    fun `getSeriesDetails refreshes xtream details cached longer than six hours`() = runTest {
+        val hydratedAt = System.currentTimeMillis() - 13L * 60L * 60L * 1000L
+        val seriesEntity = SeriesEntity(
+            id = 99L,
+            seriesId = 301L,
+            name = "Cached Series",
+            providerId = 7L,
+            cacheState = "DETAIL_HYDRATED",
+            detailHydratedAt = hydratedAt
+        )
+        whenever(seriesDao.getById(99L)).thenReturn(seriesEntity)
+        stubProvider(
+            Provider(
+                id = 7L,
+                name = "Xtream",
+                type = ProviderType.XTREAM_CODES,
+                serverUrl = "http://example.com",
+                username = "user",
+                password = "pass",
+                status = ProviderStatus.ACTIVE
+            )
+        )
+        whenever(episodeDao.getBySeriesSync(99L)).thenReturn(
+            listOf(
+                EpisodeBrowseEntity(
+                    id = 1L,
+                    episodeId = 301L,
+                    title = "Episode 1",
+                    episodeNumber = 1,
+                    seasonNumber = 1,
+                    seriesId = 99L,
+                    providerId = 7L
+                )
+            )
+        )
+
+        createRepository().getSeriesDetails(7L, 99L)
+
+        verify(seriesCatalogSource).hydrateSeries(any(), any())
+    }
+
+    @Test
     fun `getSeriesDetails with duplicate handling uses narrow tmdb candidates instead of full provider scan`() = runTest {
         val hydratedAt = System.currentTimeMillis()
         val rawSeries = SeriesEntity(
@@ -848,7 +890,7 @@ class SeriesRepositoryImplTest {
     }
 
     @Test
-    fun `getSeriesDetails returns local series when xtream details fail`() = runTest {
+    fun `getSeriesDetails returns summary only series when remote payload has no episodes`() = runTest {
         whenever(preferencesRepository.xtreamBase64TextCompatibility).thenReturn(flowOf(false))
         val seriesEntity = SeriesEntity(
             id = 15L,
@@ -885,7 +927,7 @@ class SeriesRepositoryImplTest {
     }
 
     @Test
-    fun `getSeriesDetails returns local series when xtream details hang`() = runTest {
+    fun `getSeriesDetails returns error when xtream details fail and no episodes are cached`() = runTest {
         whenever(preferencesRepository.xtreamBase64TextCompatibility).thenReturn(flowOf(false))
         val seriesEntity = SeriesEntity(
             id = 15L,
@@ -917,17 +959,63 @@ class SeriesRepositoryImplTest {
 
         val result = createRepository().getSeriesDetails(7L, 301L)
 
-        assertThat(result).isInstanceOf(com.streamvault.domain.model.Result.Success::class.java)
-        val series = (result as com.streamvault.domain.model.Result.Success).data
-        assertThat(series.id).isEqualTo(15L)
-        assertThat(series.name).isEqualTo("Stored Series")
-        assertThat(series.posterUrl).isEqualTo("https://img.example.test/poster.jpg")
+        assertThat(result).isInstanceOf(com.streamvault.domain.model.Result.Error::class.java)
+        assertThat((result as com.streamvault.domain.model.Result.Error).message)
+            .isEqualTo("Xtream series detail hydration timed out")
         verify(xtreamContentIndexDao).markDetailHydrationError(
             providerId = eq(7L),
             contentType = eq(ContentType.SERIES.name),
             remoteId = eq("301"),
             errorState = eq("DETAIL_FAILED_TIMEOUT")
         )
+    }
+
+    @Test
+    fun `getSeriesDetails returns cached series when xtream details fail and episodes are cached`() = runTest {
+        whenever(preferencesRepository.xtreamBase64TextCompatibility).thenReturn(flowOf(false))
+        val seriesEntity = SeriesEntity(
+            id = 15L,
+            seriesId = 301L,
+            name = "Stored Series",
+            providerId = 7L
+        )
+        whenever(seriesDao.getById(15L)).thenReturn(seriesEntity)
+        stubProvider(
+            Provider(
+                id = 7L,
+                name = "Xtream",
+                type = ProviderType.XTREAM_CODES,
+                serverUrl = "http://example.com",
+                username = "user",
+                password = "pass",
+                status = ProviderStatus.ACTIVE
+            )
+        )
+        whenever(episodeDao.getBySeriesSync(15L)).thenReturn(
+            listOf(
+                EpisodeBrowseEntity(
+                    id = 1L,
+                    episodeId = 7001L,
+                    title = "Pilot",
+                    episodeNumber = 1,
+                    seasonNumber = 1,
+                    streamUrl = "internal://episode/7001",
+                    seriesId = 15L,
+                    providerId = 7L
+                )
+            )
+        )
+        whenever(seriesCatalogSource.hydrateSeries(any(), any())).thenReturn(
+            Result.error("bad response", RuntimeException("bad response"))
+        )
+
+        val result = createRepository().getSeriesDetails(7L, 15L)
+
+        assertThat(result).isInstanceOf(com.streamvault.domain.model.Result.Success::class.java)
+        val series = (result as com.streamvault.domain.model.Result.Success).data
+        assertThat(series.id).isEqualTo(15L)
+        assertThat(series.name).isEqualTo("Stored Series")
+        assertThat(series.seasons.flatMap { it.episodes }.map { it.title }).containsExactly("Pilot")
     }
 
     @Test

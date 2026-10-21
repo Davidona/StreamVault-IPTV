@@ -306,6 +306,8 @@
   <string name="series_detail_resume">Hervatten · Seizoen %1$d Afl. %2$d · %3$s</string>
   <string name="series_detail_versions">Versies</string>
   <string name="series_episodes">Afleveringen (%1$d)</string>
+  <string name="series_episodes_empty">Er zijn nog geen afleveringen beschikbaar voor deze serie.</string>
+  <string name="series_episodes_load_failed">Kan de afleveringen van deze serie niet laden. Controleer uw verbinding en probeer het opnieuw.</string>
   <string name="series_incorrect_pin">Onjuiste pincode</string>
   <string name="series_library_lens_subtitle">Ontdek favorieten, lopende, best beoordeelde en nieuwe series in de hele bibliotheek.</string>
   <string name="series_loading">Serie laden...</string>

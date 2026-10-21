@@ -306,6 +306,8 @@
   <string name="series_detail_resume">המשך · עונה %1$d פרק %2$d · %3$s</string>
   <string name="series_detail_versions">גרסאות</string>
   <string name="series_episodes">פרקים (%1$d)</string>
+  <string name="series_episodes_empty">עדיין אין פרקים זמינים לסדרה הזו.</string>
+  <string name="series_episodes_load_failed">טעינת הפרקים של הסדרה הזו נכשלה. אנא בדוק את החיבור שלך ונסה שוב.</string>
   <string name="series_incorrect_pin">PIN שגוי</string>
   <string name="series_library_lens_subtitle">הצג סדרות מועדפות על פני השטח, מתקדמות, מדורגים מובילים ורעננים בכל הספרייה.</string>
   <string name="series_loading">טוען סדרה...</string>

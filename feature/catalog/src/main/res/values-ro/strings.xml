@@ -306,6 +306,8 @@
   <string name="series_detail_resume">Continuă · Sezon %1$d Ep %2$d · %3$s</string>
   <string name="series_detail_versions">Versiuni</string>
   <string name="series_episodes">Episoade (%1$d)</string>
+  <string name="series_episodes_empty">Nu există încă episoade disponibile pentru acest serial.</string>
+  <string name="series_episodes_load_failed">Nu s-au încărcat episoadele acestui serial. Vă rugăm să vă verificați conexiunea și să încercați din nou.</string>
   <string name="series_incorrect_pin">PIN incorect</string>
   <string name="series_library_lens_subtitle">Serii preferate de suprafață, în curs de desfășurare, cele mai apreciate și noi din întreaga bibliotecă.</string>
   <string name="series_loading">Se încarcă seria...</string>

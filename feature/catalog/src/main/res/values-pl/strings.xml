@@ -306,6 +306,8 @@
   <string name="series_detail_resume">Wznów · Sezon %1$d Odc %2$d · %3$s</string>
   <string name="series_detail_versions">Wersje</string>
   <string name="series_episodes">Odcinki (%1$d)</string>
+  <string name="series_episodes_empty">Ten serial nie ma jeszcze dostępnych odcinków.</string>
+  <string name="series_episodes_load_failed">Nie udało się wczytać odcinków tego serialu. Sprawdź połączenie i spróbuj ponownie.</string>
   <string name="series_incorrect_pin">Nieprawidłowy PIN</string>
   <string name="series_library_lens_subtitle">Wyświetlaj ulubione, w trakcie oglądania, najwyżej oceniane i nowe seriale w całej bibliotece.</string>
   <string name="series_loading">Ładowanie seriali...</string>

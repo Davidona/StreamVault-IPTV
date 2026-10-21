@@ -306,6 +306,8 @@
   <string name="series_detail_resume">繼續 · 第 %1$d 季 第 %2$d 集 · %3$s</string>
   <string name="series_detail_versions">版本</string>
   <string name="series_episodes">集數 (%1$d)</string>
+  <string name="series_episodes_empty">此劇尚無可播放的集數。</string>
+  <string name="series_episodes_load_failed">無法載入此劇的集數。請檢查您的網路連線並再試一次。</string>
   <string name="series_incorrect_pin">PIN 碼錯誤</string>
   <string name="series_library_lens_subtitle">在整個媒體庫中顯示收藏、觀看中、最高評分和最新影集。</string>
   <string name="series_loading">正在載入影集...</string>

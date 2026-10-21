@@ -306,6 +306,8 @@
   <string name="series_detail_resume">Nastavi · Sezona %1$d Ep %2$d · %3$s</string>
   <string name="series_detail_versions">Verzije</string>
   <string name="series_episodes">Epizode (%1$d)</string>
+  <string name="series_episodes_empty">Za ovu seriju još nema dostupnih epizoda.</string>
+  <string name="series_episodes_load_failed">Učitavanje epizoda ove serije nije uspjelo. Provjerite vezu i pokušajte ponovno.</string>
   <string name="series_incorrect_pin">Netočan PIN</string>
   <string name="series_library_lens_subtitle">Prikažite omiljene, započete, najbolje ocijenjene i nove serije iz cijele biblioteke.</string>
   <string name="series_loading">Učitavanje serija...</string>

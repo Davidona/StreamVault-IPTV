@@ -141,7 +141,10 @@ fun SeriesDetailScreen(
             contentAlignment = Alignment.Center
         ) {
             Text(
-                text = uiState.error ?: stringResource(R.string.series_not_found),
+                text = when {
+                    uiState.detailsUnavailable -> stringResource(R.string.series_episodes_load_failed)
+                    else -> uiState.error ?: stringResource(R.string.series_not_found)
+                },
                 color = AppColors.Live
             )
         }
@@ -533,42 +536,51 @@ private fun SeriesDetailContent(
                 }
             }
 
-            selectedSeason?.let { season ->
+            if (series.seasons.none { season -> season.episodes.isNotEmpty() }) {
                 item {
-                    DetailSectionHeading(
-                        stringResource(R.string.series_episodes, season.episodes.size),
-                        season.name
+                    Text(
+                        text = stringResource(R.string.series_episodes_empty),
+                        color = AppColors.TextSecondary
                     )
                 }
-                val fallbackCover = series?.let {
-                        it.posterUrl ?: it.backdropUrl
-                    }
-                items(visibleEpisodes, key = { it.id }) { episode ->
-                    EpisodeItem(
-                        episode = episode,
-                        fallbackImageUrl = fallbackCover,
-                        onClick = { onEpisodeClick(episode) },
-                        onCopyUrl = { copyEpisodeUrl(episode) },
-                        onDownload = { onDownloadEpisode(episode) },
-                        onCast = { onCastEpisode(episode) },
-                        isCasting = isCasting
-                    )
-                }
-                if (visibleEpisodes.size < season.episodes.size) {
+            } else {
+                selectedSeason?.let { season ->
                     item {
-                        TvButton(
-                            onClick = {
-                                visibleEpisodeLimit = (visibleEpisodeLimit + EPISODE_DETAIL_PAGE_SIZE)
-                                    .coerceAtMost(season.episodes.size)
-                            }
-                        ) {
-                            Text(
-                                text = stringResource(
-                                    R.string.library_load_more,
-                                    visibleEpisodes.size,
-                                    season.episodes.size
+                        DetailSectionHeading(
+                            stringResource(R.string.series_episodes, season.episodes.size),
+                            season.name
+                        )
+                    }
+                    val fallbackCover = series?.let {
+                            it.posterUrl ?: it.backdropUrl
+                        }
+                    items(visibleEpisodes, key = { it.id }) { episode ->
+                        EpisodeItem(
+                            episode = episode,
+                            fallbackImageUrl = fallbackCover,
+                            onClick = { onEpisodeClick(episode) },
+                            onCopyUrl = { copyEpisodeUrl(episode) },
+                            onDownload = { onDownloadEpisode(episode) },
+                            onCast = { onCastEpisode(episode) },
+                            isCasting = isCasting
+                        )
+                    }
+                    if (visibleEpisodes.size < season.episodes.size) {
+                        item {
+                            TvButton(
+                                onClick = {
+                                    visibleEpisodeLimit = (visibleEpisodeLimit + EPISODE_DETAIL_PAGE_SIZE)
+                                        .coerceAtMost(season.episodes.size)
+                                }
+                            ) {
+                                Text(
+                                    text = stringResource(
+                                        R.string.library_load_more,
+                                        visibleEpisodes.size,
+                                        season.episodes.size
+                                    )
                                 )
-                            )
+                            }
                         }
                     }
                 }
