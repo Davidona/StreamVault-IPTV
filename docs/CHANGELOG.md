@@ -10,6 +10,7 @@ All notable product changes are recorded in this document.
 - Localized player recording notices and EPG recording messages across all supported locales.
 
 ### Fixed
+- Fixed a compile failure in the recording-by-time dialog that prevented the app from building after the recording scheduling update, which also blocked Settings backup export and import.
 - Fixed audio stopping after a while.
 - Fixed the player crashing when scheduling a recording (Schedule, Record Daily, or Record Weekly): the recording coordinator called itself instead of the scheduling use case, causing a stack overflow.
 - Fixed the notification permission prompt running the recording action before the permission result was known.
