@@ -18,6 +18,7 @@ All notable product changes are recorded in this document.
 - Fixed missing episodes from providers that return nested episode arrays or season-keyed episode maps, which were previously skipped and left series with no episodes.
 - Fixed episodes disappearing when an episode's optional metadata block arrived in an unexpected shape: the episode is now kept and only the metadata is skipped.
 - Fixed series pages that stayed empty after a failed details request: a failure with no cached episodes now shows a localized error, and a series with no episodes shows a localized empty state.
+- Fixed grouped series with multiple versions: a failed version switch now keeps the current version on screen and reports the failure, the preferred version is saved only after it loads, and a series whose version fails to load now offers the other versions on the error screen.
 - Fixed selected subtitles reverting to off by saving track details before track-list refreshes and keeping the player's active preference in sync with manual selections.
 - Fixed a compile failure in the recording-by-time dialog that prevented the app from building after the recording scheduling update, which also blocked Settings backup export and import.
 - Fixed audio stopping after a while.

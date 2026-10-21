@@ -21,6 +21,7 @@ import com.streamvault.domain.model.Result
 import com.streamvault.domain.model.Season
 import com.streamvault.domain.model.Series
 import com.streamvault.domain.model.StreamInfo
+import com.streamvault.domain.model.VodSeriesVariant
 import com.streamvault.domain.repository.DownloadManager
 import com.streamvault.domain.repository.ExternalRatingsRepository
 import com.streamvault.domain.repository.FavoriteRepository
@@ -56,6 +57,8 @@ import org.mockito.kotlin.any
 import org.mockito.kotlin.anyOrNull
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.never
+import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 
 class SeriesDetailViewModelCastingTest {
@@ -254,6 +257,102 @@ class SeriesDetailViewModelCastingTest {
         }
     }
 
+    @Test
+    fun `failed version switch keeps the current series and reports the failure`() = runBlocking {
+        val preferences = mock<PreferencesRepository>()
+        val current = series(episodes = listOf(episode(id = 21L))).copy(logicalGroupId = "group-1")
+        val variantId = 31L
+        val viewModel = createViewModel(
+            series = current,
+            variantSeriesId = variantId,
+            variantDetailsResult = Result.error("variant boom", SeriesDetailsUnavailableException("variant boom")),
+            preferencesRepository = preferences
+        )
+
+        try {
+            viewModel.uiState.first { it.series != null }
+            val event = async(start = CoroutineStart.UNDISPATCHED) { viewModel.uiEvents.first() }
+            viewModel.selectSeriesVariant(variantId)
+
+            assertThat(withTimeout(5_000L) { event.await() })
+                .isEqualTo(CatalogUiEvent.ShowMessage(CatalogMessage.SeriesVariantLoadFailed))
+            assertThat(viewModel.uiState.value.series?.id).isEqualTo(current.id)
+            assertThat(viewModel.uiState.value.detailsUnavailable).isTrue()
+            verify(preferences, never()).setPreferredVodVariant(any(), any(), any())
+        } finally {
+            viewModel.viewModelScope.cancel()
+        }
+    }
+
+    @Test
+    fun `successful version switch saves the preferred version`() = runBlocking {
+        val preferences = mock<PreferencesRepository>()
+        val current = series(episodes = listOf(episode(id = 21L))).copy(logicalGroupId = "group-1")
+        val variantId = 31L
+        val variant = series(episodes = listOf(episode(id = 41L)))
+            .copy(id = variantId, logicalGroupId = "group-1")
+        val viewModel = createViewModel(
+            series = current,
+            variantSeriesId = variantId,
+            variantDetailsResult = Result.success(variant),
+            preferencesRepository = preferences
+        )
+
+        try {
+            viewModel.uiState.first { it.series != null }
+            viewModel.selectSeriesVariant(variantId)
+
+            val state = withTimeout(5_000L) { viewModel.uiState.first { it.series?.id == variantId } }
+            assertThat(state.detailsUnavailable).isFalse()
+            verify(preferences).setPreferredVodVariant(eq(current.providerId), eq("group-1"), eq(variantId))
+        } finally {
+            viewModel.viewModelScope.cancel()
+        }
+    }
+
+    @Test
+    fun `first load failure exposes other versions for recovery`() = runBlocking {
+        val viewModel = createViewModel(
+            detailsResult = Result.error("boom", SeriesDetailsUnavailableException("boom")),
+            variants = listOf(variant(rawSeriesId = 31L), variant(rawSeriesId = 32L))
+        )
+
+        try {
+            val state = withTimeout(5_000L) { viewModel.uiState.first { it.availableVariants.isNotEmpty() } }
+
+            assertThat(state.series).isNull()
+            assertThat(state.availableVariants.map { it.rawSeriesId }).containsExactly(31L, 32L).inOrder()
+        } finally {
+            viewModel.viewModelScope.cancel()
+        }
+    }
+
+    @Test
+    fun `recovery pick loads the chosen version and saves it`() = runBlocking {
+        val preferences = mock<PreferencesRepository>()
+        val variantId = 31L
+        val recovered = series(episodes = listOf(episode(id = 41L)))
+            .copy(id = variantId, logicalGroupId = "group-1")
+        val viewModel = createViewModel(
+            detailsResult = Result.error("boom", SeriesDetailsUnavailableException("boom")),
+            variants = listOf(variant(rawSeriesId = variantId)),
+            variantSeriesId = variantId,
+            variantDetailsResult = Result.success(recovered),
+            preferencesRepository = preferences
+        )
+
+        try {
+            viewModel.uiState.first { it.availableVariants.isNotEmpty() }
+            viewModel.selectSeriesVariant(variantId)
+
+            val state = withTimeout(5_000L) { viewModel.uiState.first { it.series?.id == variantId } }
+            assertThat(state.detailsUnavailable).isFalse()
+            verify(preferences).setPreferredVodVariant(eq(1L), eq("group-1"), eq(variantId))
+        } finally {
+            viewModel.viewModelScope.cancel()
+        }
+    }
+
     private suspend fun createViewModel(
         series: Series = series(),
         streamInfo: StreamInfo = StreamInfo(url = "https://example.test/episode.m3u8"),
@@ -261,6 +360,10 @@ class SeriesDetailViewModelCastingTest {
         traktFavorites: TraktFavorites = com.streamvault.feature.catalog.presentation.NoopTraktFavorites(),
         traktRatings: TraktRatings = com.streamvault.feature.catalog.presentation.NoopTraktRatings(),
         detailsResult: Result<Series> = Result.success(series),
+        variantSeriesId: Long = series.id + 1L,
+        variantDetailsResult: Result<Series>? = null,
+        variants: List<VodSeriesVariant> = emptyList(),
+        preferencesRepository: PreferencesRepository = mock(),
     ): SeriesDetailViewModel {
         val provider = Provider(
             id = series.providerId,
@@ -278,11 +381,17 @@ class SeriesDetailViewModelCastingTest {
         whenever(seriesRepository.getSeriesById(series.id)).thenReturn(series)
         whenever(seriesRepository.getSeriesDetails(eq(provider.id), eq(series.id), anyOrNull()))
             .thenReturn(detailsResult)
+        variantDetailsResult?.let { variantResult ->
+            whenever(seriesRepository.getSeriesDetails(eq(provider.id), eq(variantSeriesId), anyOrNull()))
+                .thenReturn(variantResult)
+        }
+        whenever(seriesRepository.getSeriesVariants(eq(series.id))).thenReturn(variants)
+        whenever(preferencesRepository.setPreferredVodVariant(any(), any(), any())).thenReturn(Unit)
         whenever(seriesRepository.getEpisodeStreamInfo(any()))
             .thenReturn(Result.success(streamInfo))
-        whenever(favoriteRepository.isFavorite(eq(provider.id), eq(series.id), any()))
+        whenever(favoriteRepository.isFavorite(any(), any(), any()))
             .thenReturn(false)
-        whenever(playbackHistoryRepository.getUnwatchedCount(eq(provider.id), eq(series.id)))
+        whenever(playbackHistoryRepository.getUnwatchedCount(any(), any()))
             .thenReturn(flowOf(0))
         whenever(externalRatingsRepository.getRatings(any()))
             .thenReturn(Result.success(ExternalRatings.unavailable()))
@@ -294,7 +403,7 @@ class SeriesDetailViewModelCastingTest {
             playbackHistoryRepository = playbackHistoryRepository,
             externalRatingsRepository = externalRatingsRepository,
             favoriteRepository = favoriteRepository,
-            preferencesRepository = mock<PreferencesRepository>(),
+            preferencesRepository = preferencesRepository,
             streamPreparer = object : CatalogStreamPreparer {
                 override suspend fun prepare(streamInfo: StreamInfo): Result<StreamInfo> =
                     Result.success(streamInfo)
@@ -374,6 +483,22 @@ class SeriesDetailViewModelCastingTest {
             providerId = 1L,
             seriesId = 30L,
             watchProgress = watchProgress
+        )
+
+        fun variant(rawSeriesId: Long) = VodSeriesVariant(
+            rawSeriesId = rawSeriesId,
+            name = "Series",
+            seriesId = rawSeriesId,
+            providerSeriesId = rawSeriesId.toString(),
+            releaseDate = null,
+            tmdbId = null,
+            episodeRunTime = null,
+            rating = 0f,
+            lastModified = 0L,
+            qualityScore = 0,
+            recencyScore = 0L,
+            reliabilityScore = 0,
+            label = "Version $rawSeriesId"
         )
     }
 }

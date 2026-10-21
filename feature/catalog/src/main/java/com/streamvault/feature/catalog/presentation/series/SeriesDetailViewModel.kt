@@ -23,6 +23,7 @@ import com.streamvault.domain.model.Result
 import com.streamvault.domain.model.Season
 import com.streamvault.domain.model.Series
 import com.streamvault.domain.model.SeriesDetailPresentationHint
+import com.streamvault.domain.model.VodSeriesVariant
 import com.streamvault.domain.repository.DownloadManager
 import com.streamvault.domain.repository.ExternalRatingsRepository
 import com.streamvault.domain.repository.FavoriteRepository
@@ -95,6 +96,7 @@ class SeriesDetailViewModel @Inject constructor(
 
     private var providerDetailJob: Job? = null
     private var unwatchedCountJob: Job? = null
+    private var activeProviderId: Long? = null
 
     init {
         observeCastPlaybackEvents()
@@ -110,7 +112,11 @@ class SeriesDetailViewModel @Inject constructor(
                 }
                 providerDetailJob = launch {
                     val effectiveProviderId = resolveEffectiveProviderId(provider.id)
-                    loadSeriesDetailsForProvider(effectiveProviderId, seriesId)
+                    activeProviderId = effectiveProviderId
+                    val result = loadSeriesDetailsForProvider(effectiveProviderId, seriesId)
+                    if (result !is Result.Success) {
+                        loadAvailableVariants(seriesId)
+                    }
                 }
             }
         }
@@ -178,10 +184,12 @@ class SeriesDetailViewModel @Inject constructor(
             ?: fallbackProviderId
     }
 
-    private suspend fun loadSeriesDetailsForProvider(providerId: Long, requestedSeriesId: Long) {
-        try {
-            _uiState.update { it.copy(isLoading = true, error = null) }
-
+    private suspend fun loadSeriesDetailsForProvider(
+        providerId: Long,
+        requestedSeriesId: Long
+    ): Result<Series> {
+        _uiState.update { it.copy(isLoading = true, error = null) }
+        return try {
             when (val result = seriesRepository.getSeriesDetails(providerId, requestedSeriesId, knownPresentationHint)) {
                 is Result.Success -> {
                     val isFavoriteDeferred = viewModelScope.async {
@@ -204,6 +212,7 @@ class SeriesDetailViewModel @Inject constructor(
                     }
                     refreshTraktWatchlist()
                     refreshTraktRatings()
+                    result
                 }
                 is Result.Error -> {
                     _uiState.update {
@@ -213,9 +222,11 @@ class SeriesDetailViewModel @Inject constructor(
                             detailsUnavailable = result.exception is SeriesDetailsUnavailableException
                         )
                     }
+                    result
                 }
                 is Result.Loading -> {
                     _uiState.update { it.copy(isLoading = true) }
+                    result
                 }
             }
         } catch (e: Exception) {
@@ -226,17 +237,37 @@ class SeriesDetailViewModel @Inject constructor(
                     detailsUnavailable = true
                 )
             }
+            Result.error(e.message ?: "Failed to load series details", e)
         }
     }
 
+    private suspend fun loadAvailableVariants(requestedSeriesId: Long) {
+        val variants = runCatching { seriesRepository.getSeriesVariants(requestedSeriesId) }
+            .getOrDefault(emptyList())
+            .filter { variant -> variant.rawSeriesId > 0L }
+        if (variants.isEmpty()) return
+        _uiState.update { it.copy(availableVariants = variants) }
+    }
+
     fun selectSeriesVariant(rawSeriesId: Long) {
-        val currentSeries = _uiState.value.series ?: return
-        if (rawSeriesId <= 0L || rawSeriesId == currentSeries.id) return
+        val state = _uiState.value
+        val currentSeries = state.series
+        if (rawSeriesId <= 0L || rawSeriesId == currentSeries?.id || state.isLoading) return
         viewModelScope.launch {
-            currentSeries.logicalGroupId.takeIf { it.isNotBlank() }?.let { logicalGroupId ->
-                preferencesRepository.setPreferredVodVariant(currentSeries.providerId, logicalGroupId, rawSeriesId)
+            val providerId = currentSeries?.providerId ?: activeProviderId ?: return@launch
+            when (val result = loadSeriesDetailsForProvider(providerId, rawSeriesId)) {
+                is Result.Success -> {
+                    val logicalGroupId = result.data.logicalGroupId.takeIf { it.isNotBlank() }
+                        ?: currentSeries?.logicalGroupId?.takeIf { it.isNotBlank() }
+                    logicalGroupId?.let { groupId ->
+                        preferencesRepository.setPreferredVodVariant(providerId, groupId, rawSeriesId)
+                    }
+                }
+                is Result.Error -> if (currentSeries != null) {
+                    _uiEvents.emit(CatalogUiEvent.ShowMessage(CatalogMessage.SeriesVariantLoadFailed))
+                }
+                is Result.Loading -> Unit
             }
-            loadSeriesDetailsForProvider(currentSeries.providerId, rawSeriesId)
         }
     }
 
@@ -491,6 +522,7 @@ data class SeriesDetailUiState(
     val unwatchedEpisodeCount: Int = 0,
     val error: String? = null,
     val detailsUnavailable: Boolean = false,
+    val availableVariants: List<VodSeriesVariant> = emptyList(),
     val isCasting: Boolean = false,
     val isLoadingExternalRatings: Boolean = false,
     val externalRatings: ExternalRatings = ExternalRatings.unavailable(),

@@ -134,20 +134,14 @@ fun SeriesDetailScreen(
     }
 
     if (series == null) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(AppColors.Canvas),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = when {
-                    uiState.detailsUnavailable -> stringResource(R.string.series_episodes_load_failed)
-                    else -> uiState.error ?: stringResource(R.string.series_not_found)
-                },
-                color = AppColors.Live
-            )
-        }
+        SeriesDetailsUnavailableContent(
+            message = when {
+                uiState.detailsUnavailable -> stringResource(R.string.series_episodes_load_failed)
+                else -> uiState.error ?: stringResource(R.string.series_not_found)
+            },
+            variants = uiState.availableVariants,
+            onSelectVariant = viewModel::selectSeriesVariant
+        )
         return
     }
 
@@ -196,6 +190,33 @@ fun SeriesDetailScreen(
                 viewModel.rateOnTrakt(rating)
             },
         )
+    }
+}
+
+@Composable
+private fun SeriesDetailsUnavailableContent(
+    message: String,
+    variants: List<VodSeriesVariant>,
+    onSelectVariant: (Long) -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(AppColors.Canvas),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            modifier = Modifier.padding(horizontal = 32.dp)
+        ) {
+            Text(message, color = AppColors.Live)
+            SeriesVersionSelector(
+                variants = variants,
+                selectedVariantId = -1L,
+                onSelectVariant = onSelectVariant
+            )
+        }
     }
 }
 
