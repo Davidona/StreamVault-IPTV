@@ -1,6 +1,7 @@
 package com.streamvault.data.local.dao
 
 import androidx.room.Dao
+import androidx.room.ColumnInfo
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
@@ -15,13 +16,26 @@ data class ChannelStageCategorySummary(
   val isAdult: Boolean
 )
 
+data class M3uChannelStageCursor(
+    // The stage table's implicit rowid keeps paged reconciliation in playlist order.
+    @ColumnInfo(name = "row_id") val rowId: Long,
+    @ColumnInfo(name = "stream_id") val streamId: Long,
+    @ColumnInfo(name = "category_id") val categoryId: Long?
+)
+
 @Dao
 interface CatalogSyncDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertChannelStages(rows: List<ChannelImportStageEntity>)
 
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertM3uChannelStagesIgnoringConflicts(rows: List<ChannelImportStageEntity>): List<Long>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertMovieStages(rows: List<MovieImportStageEntity>)
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertM3uMovieStagesIgnoringConflicts(rows: List<MovieImportStageEntity>): List<Long>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertSeriesStages(rows: List<SeriesImportStageEntity>)
@@ -63,6 +77,44 @@ interface CatalogSyncDao {
 
     @Query("SELECT * FROM channel_import_stage WHERE provider_id = :providerId AND session_id = :sessionId")
     suspend fun getChannelStages(providerId: Long, sessionId: Long): List<ChannelImportStageEntity>
+
+    @Query(
+        """
+        SELECT rowid AS row_id, stream_id, category_id
+        FROM channel_import_stage
+        WHERE provider_id = :providerId
+          AND session_id = :sessionId
+          AND (:afterRowId IS NULL OR rowid > :afterRowId)
+        ORDER BY rowid
+        LIMIT :limit
+        """
+    )
+    suspend fun getM3uChannelStagePage(
+        providerId: Long,
+        sessionId: Long,
+        afterRowId: Long?,
+        limit: Int
+    ): List<M3uChannelStageCursor>
+
+    @Query(
+        """
+        SELECT rowid AS row_id, stream_id, category_id
+        FROM channel_import_stage
+        WHERE provider_id = :providerId
+          AND session_id = :sessionId
+          AND category_id IN (:categoryIds)
+          AND (:afterRowId IS NULL OR rowid > :afterRowId)
+        ORDER BY rowid
+        LIMIT :limit
+        """
+    )
+    suspend fun getM3uChannelStagePageForCategories(
+        providerId: Long,
+        sessionId: Long,
+        afterRowId: Long?,
+        categoryIds: List<Long>,
+        limit: Int
+    ): List<M3uChannelStageCursor>
 
     @Query("SELECT * FROM movie_import_stage WHERE provider_id = :providerId AND session_id = :sessionId")
     suspend fun getMovieStages(providerId: Long, sessionId: Long): List<MovieImportStageEntity>

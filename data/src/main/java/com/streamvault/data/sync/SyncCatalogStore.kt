@@ -5,6 +5,7 @@ import com.streamvault.data.local.DatabaseTransactionRunner
 import com.streamvault.data.local.dao.CatalogSyncDao
 import com.streamvault.data.local.dao.CategoryDao
 import com.streamvault.data.local.dao.ChannelDao
+import com.streamvault.data.local.dao.M3uChannelStageCursor
 import com.streamvault.data.local.dao.MovieDao
 import com.streamvault.data.local.dao.SeriesDao
 import com.streamvault.data.local.dao.TmdbIdentityDao
@@ -402,6 +403,65 @@ internal class SyncCatalogStore(
 
     suspend fun stageChannelBatch(providerId: Long, sessionId: Long, channels: List<ChannelEntity>) {
         stageChannelBatchInternal(providerId, sessionId, channels, null)
+    }
+
+    /** M3U-only staging uses the stage-table key for bounded-memory duplicate detection. */
+    suspend fun stageM3uChannelBatch(providerId: Long, sessionId: Long, channels: List<ChannelEntity>): Int =
+        timed(providerId, "m3u-channel-staging-batch(${channels.size})") {
+            val stages = buildChannelStages(providerId, sessionId, channels)
+            providerTransaction(providerId) {
+                val currentCount = catalogSyncDao.countChannelStages(providerId, sessionId)
+                val insertedCount = insertStageRowsIgnoringConflicts(
+                    stages,
+                    catalogSyncDao::insertM3uChannelStagesIgnoringConflicts
+                )
+                requireStageCapacity(
+                    currentCount = currentCount,
+                    incomingCount = insertedCount,
+                    maximum = sizeLimits.maxChannelsPerProvider,
+                    label = "channel"
+                )
+                insertedCount
+            }
+        }
+
+    /** M3U-only staging counterpart for VOD rows. Other providers retain replace semantics. */
+    suspend fun stageM3uMovieBatch(providerId: Long, sessionId: Long, movies: List<MovieEntity>): Int =
+        timed(providerId, "m3u-movie-staging-batch(${movies.size})") {
+            val stages = buildMovieStages(providerId, sessionId, movies)
+            providerTransaction(providerId) {
+                val currentCount = catalogSyncDao.countMovieStages(providerId, sessionId)
+                val insertedCount = insertStageRowsIgnoringConflicts(
+                    stages,
+                    catalogSyncDao::insertM3uMovieStagesIgnoringConflicts
+                )
+                requireStageCapacity(
+                    currentCount = currentCount,
+                    incomingCount = insertedCount,
+                    maximum = sizeLimits.maxMoviesPerProvider,
+                    label = "movie"
+                )
+                insertedCount
+            }
+        }
+
+    suspend fun m3uChannelStagePage(
+        providerId: Long,
+        sessionId: Long,
+        afterRowId: Long?,
+        categoryIds: List<Long>?,
+        limit: Int
+    ): List<M3uChannelStageCursor> = if (categoryIds == null) {
+        catalogSyncDao.getM3uChannelStagePage(providerId, sessionId, afterRowId, limit)
+    } else {
+        require(categoryIds.isNotEmpty())
+        catalogSyncDao.getM3uChannelStagePageForCategories(
+            providerId,
+            sessionId,
+            afterRowId,
+            categoryIds,
+            limit
+        )
     }
 
     /** Only for fresh, isolated attempts whose writer admits each ID once. */
@@ -984,6 +1044,19 @@ internal class SyncCatalogStore(
                 insert(chunk)
             }
         }
+    }
+
+    private suspend fun <T> insertStageRowsIgnoringConflicts(
+        rows: List<T>,
+        insert: suspend (List<T>) -> List<Long>
+    ): Int {
+        var insertedCount = 0
+        rows.chunked(STAGE_BATCH_SIZE).forEach { chunk ->
+            if (chunk.isNotEmpty()) {
+                insertedCount += insert(chunk).count { rowId -> rowId != -1L }
+            }
+        }
+        return insertedCount
     }
 
     private fun movieStageEntity(
