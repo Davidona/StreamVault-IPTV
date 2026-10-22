@@ -105,6 +105,34 @@ internal object SportsLeagueRegistry {
         Definition("Premier League", SportType.FOOTBALL, listOf("Premier League", "English Premier League", "EPL")),
         Definition("La Liga", SportType.FOOTBALL, listOf("La Liga", "LaLiga")),
         Definition("Serie A", SportType.FOOTBALL, listOf("Serie A")),
+        // Série B precedes Série A: equal longest aliases keep list order, and Série A owns the bare "Brasileirão".
+        Definition(
+            "Brasileirão Série B",
+            SportType.FOOTBALL,
+            listOf(
+                "Brasileirão Série B", "Campeonato Brasileiro Série B", "Série B do Brasileirão",
+                "Série B do futebol masculino brasileiro",
+            ),
+        ),
+        Definition(
+            "Brasileirão Série A",
+            SportType.FOOTBALL,
+            listOf(
+                "Brasileirão Série A", "Brasileirão", "Campeonato Brasileiro Série A",
+                "Série A do Brasileirão", "Série A do futebol masculino brasileiro",
+            ),
+        ),
+        Definition("Copa do Brasil", SportType.FOOTBALL, listOf("Copa do Brasil")),
+        Definition(
+            "Copa Libertadores",
+            SportType.FOOTBALL,
+            listOf("Copa Libertadores", "CONMEBOL Libertadores", "Libertadores"),
+        ),
+        Definition(
+            "Copa Sul-Americana",
+            SportType.FOOTBALL,
+            listOf("Copa Sul-Americana", "Sul-Americana", "Sulamericana", "Copa Sudamericana", "CONMEBOL Sudamericana"),
+        ),
         Definition("Bundesliga", SportType.FOOTBALL, listOf("Bundesliga", "1 Bundesliga")),
         Definition("Ligue 1", SportType.FOOTBALL, listOf("Ligue 1")),
         Definition("FA Cup", SportType.FOOTBALL, listOf("FA Cup")),
