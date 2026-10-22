@@ -254,12 +254,14 @@ class ProviderExecutionArchitectureTest {
             DependencyBudget(
                 path = "data/src/main/java/com/streamvault/data/sync/StalkerIndexContinuationCoordinator.kt",
                 className = "StalkerIndexContinuationCoordinator",
-                maxConstructorDependencies = 11
+                // Startup reconciliation now includes the guide-row probe and recovery callback.
+                maxConstructorDependencies = 13
             ),
             DependencyBudget(
                 path = "data/src/main/java/com/streamvault/data/sync/StalkerIncrementalIndexExecutor.kt",
                 className = "StalkerIncrementalIndexExecutor",
-                maxConstructorDependencies = 1
+                // The executor also receives the configured wildcard page concurrency.
+                maxConstructorDependencies = 2
             ),
             DependencyBudget(
                 path = "data/src/main/java/com/streamvault/data/sync/XtreamIncrementalIndexExecutor.kt",
@@ -269,7 +271,8 @@ class ProviderExecutionArchitectureTest {
             DependencyBudget(
                 path = "data/src/main/java/com/streamvault/data/sync/SyncStatusPublicationCoordinator.kt",
                 className = "SyncStatusPublicationCoordinator",
-                maxConstructorDependencies = 3
+                // Metadata publication can share the database transaction runner.
+                maxConstructorDependencies = 4
             )
         )
 
@@ -306,8 +309,12 @@ class ProviderExecutionArchitectureTest {
             "data/src/main/java/com/streamvault/data/sync/StalkerIncrementalIndexExecutor.kt"
         ).readText()
         assertThat(incremental).contains("suspend fun processSummary(")
-        assertThat(incremental).contains("private suspend fun processWildcard(")
-        assertThat(incremental).contains("StalkerIndexPolicy.detectPageAnomaly")
+        assertThat(incremental).contains("StalkerPagedCatalogImporter")
+        val pagedImporter = repositoryRoot.resolve(
+            "data/src/main/java/com/streamvault/data/sync/StalkerPagedCatalogImporter.kt"
+        ).readText()
+        assertThat(pagedImporter).contains("private inner class Import(")
+        assertThat(pagedImporter).contains("StalkerIndexPolicy.detectPageAnomaly")
 
         val xtreamIncremental = repositoryRoot.resolve(
             "data/src/main/java/com/streamvault/data/sync/XtreamIncrementalIndexExecutor.kt"

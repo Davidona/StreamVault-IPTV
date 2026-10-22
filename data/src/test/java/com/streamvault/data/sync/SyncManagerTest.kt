@@ -385,6 +385,14 @@ class SyncManagerTest {
             org.mockito.kotlin.whenever(catalogSyncDao.getChannelStages(any(), any())).thenReturn(emptyList())
             org.mockito.kotlin.whenever(catalogSyncDao.getMovieStages(any(), any())).thenReturn(emptyList())
             org.mockito.kotlin.whenever(catalogSyncDao.getSeriesStages(any(), any())).thenReturn(emptyList())
+            org.mockito.kotlin.whenever(catalogSyncDao.insertM3uChannelStagesIgnoringConflicts(any())).thenAnswer { invocation ->
+                val rows = invocation.getArgument<List<com.streamvault.data.local.entity.ChannelImportStageEntity>>(0)
+                rows.indices.map { (it + 1).toLong() }
+            }
+            org.mockito.kotlin.whenever(catalogSyncDao.insertM3uMovieStagesIgnoringConflicts(any())).thenAnswer { invocation ->
+                val rows = invocation.getArgument<List<com.streamvault.data.local.entity.MovieImportStageEntity>>(0)
+                rows.indices.map { (it + 1).toLong() }
+            }
             val liveStages = java.util.concurrent.ConcurrentHashMap<Pair<Long, Long>, java.util.concurrent.ConcurrentHashMap<Long, com.streamvault.data.local.entity.ChannelImportStageEntity>>()
             org.mockito.kotlin.whenever(catalogSyncDao.insertChannelStages(any())).thenAnswer { invocation ->
                 invocation.getArgument<List<com.streamvault.data.local.entity.ChannelImportStageEntity>>(0).forEach { row ->
@@ -4977,8 +4985,8 @@ class SyncManagerTest {
             error("${result.message}: ${result.exception?.stackTraceToString()}")
         }
         assertThat(result.isSuccess).isTrue()
-        verify(catalogSyncDao, atLeast(3)).insertChannelStages(any())
-        verify(catalogSyncDao, atLeastOnce()).insertMovieStages(any())
+        verify(catalogSyncDao, atLeast(3)).insertM3uChannelStagesIgnoringConflicts(any())
+        verify(catalogSyncDao, atLeastOnce()).insertM3uMovieStagesIgnoringConflicts(any())
     }
 
     @Test
@@ -5000,7 +5008,7 @@ class SyncManagerTest {
             error(result.message)
         }
         assertThat(result.isSuccess).isTrue()
-        verify(catalogSyncDao, atLeastOnce()).insertChannelStages(any())
+        verify(catalogSyncDao, atLeastOnce()).insertM3uChannelStagesIgnoringConflicts(any())
     }
 
     @Test
@@ -5031,7 +5039,7 @@ class SyncManagerTest {
         val state = mgr.currentSyncState(1L)
         assertThat(state).isInstanceOf(SyncState.Success::class.java)
         val insertedChannels = argumentCaptor<List<com.streamvault.data.local.entity.ChannelImportStageEntity>>()
-        verify(catalogSyncDao, atLeastOnce()).insertChannelStages(insertedChannels.capture())
+        verify(catalogSyncDao, atLeastOnce()).insertM3uChannelStagesIgnoringConflicts(insertedChannels.capture())
         assertThat(insertedChannels.allValues.flatten()).hasSize(1)
     }
 

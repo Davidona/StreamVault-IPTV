@@ -59,5 +59,9 @@ class StalkerMovieRefreshRegressionTest {
         )
         val willFetch = predicate.invoke(repository, oldComplete, 100, 200, false) as Boolean
         assertThat(willFetch).isTrue()
+
+        val freshComplete = oldComplete.copy(lastHydratedAt = System.currentTimeMillis())
+        val willReuseFreshCache = predicate.invoke(repository, freshComplete, 100, 200, false) as Boolean
+        assertThat(willReuseFreshCache).isFalse()
     }
 }

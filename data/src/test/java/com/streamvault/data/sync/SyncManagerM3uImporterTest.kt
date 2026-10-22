@@ -157,8 +157,8 @@ class SyncManagerM3uImporterTest {
         doAnswer { invocation ->
             @Suppress("UNCHECKED_CAST")
             stagedChannels = (invocation.arguments[2] as List<com.streamvault.data.local.entity.ChannelEntity>).toList()
-            Unit
-        }.whenever(fixture.store).stageChannelBatch(any(), any(), any())
+            stagedChannels.size
+        }.whenever(fixture.store).stageM3uChannelBatch(any(), any(), any())
 
         fixture.importer.importPlaylist(provider(), onProgress = null)
 
@@ -181,8 +181,8 @@ class SyncManagerM3uImporterTest {
         doAnswer { invocation ->
             @Suppress("UNCHECKED_CAST")
             stagedChannels = (invocation.arguments[2] as List<com.streamvault.data.local.entity.ChannelEntity>).toList()
-            Unit
-        }.whenever(fixture.store).stageChannelBatch(any(), any(), any())
+            stagedChannels.size
+        }.whenever(fixture.store).stageM3uChannelBatch(any(), any(), any())
 
         fixture.importer.importPlaylist(provider(), onProgress = null)
 
@@ -202,8 +202,8 @@ class SyncManagerM3uImporterTest {
         doAnswer { invocation ->
             @Suppress("UNCHECKED_CAST")
             stagedChannels = (invocation.arguments[2] as List<com.streamvault.data.local.entity.ChannelEntity>).toList()
-            Unit
-        }.whenever(fixture.store).stageChannelBatch(any(), any(), any())
+            stagedChannels.size
+        }.whenever(fixture.store).stageM3uChannelBatch(any(), any(), any())
 
         val stats = fixture.importer.importPlaylist(
             provider(vodClassificationEnabled = false),
@@ -228,8 +228,8 @@ class SyncManagerM3uImporterTest {
         doAnswer { invocation ->
             @Suppress("UNCHECKED_CAST")
             stagedMovies = (invocation.arguments[2] as List<com.streamvault.data.local.entity.MovieEntity>).toList()
-            Unit
-        }.whenever(fixture.store).stageMovieBatch(any(), any(), any())
+            stagedMovies.size
+        }.whenever(fixture.store).stageM3uMovieBatch(any(), any(), any())
 
         val stats = fixture.importer.importPlaylist(
             provider(vodClassificationEnabled = true),
@@ -297,7 +297,7 @@ class SyncManagerM3uImporterTest {
             Triple(
                 liveEntries,
                 CatalogSizeLimits(maxChannelsPerProvider = 1, maxM3uDecompressedBytes = 8_192, maxM3uLineBytes = 1_024),
-                "live-channel limit"
+                "channel limit"
             ),
             Triple(
                 movieEntries,
@@ -360,7 +360,7 @@ class SyncManagerM3uImporterTest {
         )
         doAnswer { throw IOException("database full") }
             .whenever(fixture.store)
-            .stageChannelBatch(any(), any(), any())
+            .stageM3uChannelBatch(any(), any(), any())
 
         val failure = runCatching {
             fixture.importer.importPlaylist(provider(), onProgress = null, batchSize = 1)
@@ -379,7 +379,7 @@ class SyncManagerM3uImporterTest {
         )
         doAnswer { throw CancellationException("cancelled") }
             .whenever(fixture.store)
-            .stageChannelBatch(any(), any(), any())
+            .stageM3uChannelBatch(any(), any(), any())
 
         val failure = runCatching {
             fixture.importer.importPlaylist(provider(), onProgress = null, batchSize = 1)
@@ -399,6 +399,30 @@ class SyncManagerM3uImporterTest {
     ): Fixture {
         val store = mock<SyncCatalogStore>()
         whenever(store.newSessionId()).thenReturn(SESSION_ID)
+        val stagedChannelIds = mutableSetOf<Long>()
+        whenever(store.stageM3uChannelBatch(any(), any(), any())).thenAnswer { invocation ->
+            val incomingIds = invocation.getArgument<List<com.streamvault.data.local.entity.ChannelEntity>>(2)
+                .map { it.streamId }
+                .distinct()
+                .filterNot(stagedChannelIds::contains)
+            if (stagedChannelIds.size + incomingIds.size > limits.maxChannelsPerProvider) {
+                throw CatalogAdmissionExceeded("Staged channel limit exceeded")
+            }
+            stagedChannelIds.addAll(incomingIds)
+            incomingIds.size
+        }
+        val stagedMovieIds = mutableSetOf<Long>()
+        whenever(store.stageM3uMovieBatch(any(), any(), any())).thenAnswer { invocation ->
+            val incomingIds = invocation.getArgument<List<com.streamvault.data.local.entity.MovieEntity>>(2)
+                .map { it.streamId }
+                .distinct()
+                .filterNot(stagedMovieIds::contains)
+            if (stagedMovieIds.size + incomingIds.size > limits.maxMoviesPerProvider) {
+                throw CatalogAdmissionExceeded("Staged movie limit exceeded")
+            }
+            stagedMovieIds.addAll(incomingIds)
+            incomingIds.size
+        }
         val fixture = Fixture(store)
         doAnswer {
             fixture.finalized = true

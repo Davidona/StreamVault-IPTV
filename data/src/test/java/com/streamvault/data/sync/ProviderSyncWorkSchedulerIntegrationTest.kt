@@ -32,7 +32,7 @@ class ProviderSyncWorkSchedulerIntegrationTest {
             scheduler.scheduleStalkerIndex(987956L, automatic = true, initialDelaySeconds = 3600L)
         }
         scheduler.scheduleStalkerIndex(987956L, automatic = false, initialDelaySeconds = 3600L)
-        val manual = manager.getWorkInfosForUniqueWork(providerWorkUniqueName(987956L)).get().single { !it.state.isFinished }
+        val manual = manager.getWorkInfosForUniqueWork(stalkerIndexWorkUniqueName(987956L)).get().single { !it.state.isFinished }
         assertThat(manual.constraints.requiresCharging()).isFalse()
         assertThat(manager.getWorkInfosForUniqueWork(providerAutomaticIndexWorkUniqueName(987956L)).get().all { it.state.isFinished }).isTrue()
         withContext(AutomaticSyncExecution.policy.asContextElement(AutomaticSyncSettings(chargingOnly = true))) {
@@ -41,7 +41,7 @@ class ProviderSyncWorkSchedulerIntegrationTest {
         withContext(AutomaticSyncExecution.policy.asContextElement(AutomaticSyncSettings(chargingOnly = false))) {
             scheduler.scheduleStalkerIndex(987956L, automatic = true, initialDelaySeconds = 3600L)
         }
-        val retained = manager.getWorkInfosForUniqueWork(providerWorkUniqueName(987956L)).get().single { !it.state.isFinished }
+        val retained = manager.getWorkInfosForUniqueWork(stalkerIndexWorkUniqueName(987956L)).get().single { !it.state.isFinished }
         assertThat(retained.id).isEqualTo(manual.id)
     }
 

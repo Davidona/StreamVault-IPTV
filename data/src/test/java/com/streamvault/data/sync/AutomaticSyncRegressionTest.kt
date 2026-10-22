@@ -4,6 +4,7 @@ import android.content.Context
 import android.net.ConnectivityManager
 import android.net.Network
 import com.google.common.truth.Truth.assertThat
+import com.streamvault.data.local.DatabaseTransactionRunner
 import com.streamvault.data.local.dao.RecordingRunDao
 import com.streamvault.data.local.dao.XtreamIndexJobDao
 import com.streamvault.data.local.entity.XtreamIndexJobEntity
@@ -75,13 +76,17 @@ class AutomaticSyncRegressionTest {
         whenever(programs.countByProvider(7L)).thenReturn(0)
         whenever(preferences.getHiddenCategoryIds(7L, ContentType.LIVE)).thenReturn(flowOf(emptySet()))
         whenever(sources.refreshAllForProvider(7L)).thenReturn(Result.success(Unit))
+        whenever(sources.resolveForProvider(7L, emptySet()))
+            .thenReturn(com.streamvault.domain.model.EpgResolutionSummary())
         val executor = ProviderEpgSyncExecutor(
             preferencesRepository = preferences,
             epgRepository = mock(),
             epgSourceRepository = sources,
             channelDao = mock(),
             programDao = programs,
-            transactionRunner = mock(),
+            transactionRunner = object : DatabaseTransactionRunner {
+                override suspend fun <T> inTransaction(block: suspend () -> T): T = block()
+            },
             syncMetadataRepository = metadata,
             stalkerPortalStateStore = mock(),
             stalkerRequestCoordinator = mock(),
