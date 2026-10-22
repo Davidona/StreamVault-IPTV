@@ -215,6 +215,7 @@ private fun resolvedSettingsCatalog(
         setting("guide.logo_policy", SettingsCategory.GUIDE, null, R.string.settings_epg_logo_supplier_preferred, "channel logo source"),
         setting("guide.time_shift", SettingsCategory.GUIDE, null, R.string.settings_epg_time_shift_title, "timezone", "early", "late"),
         setting("guide.default_category", SettingsCategory.LIVE_TV, SettingsPage.LIVE_LAYOUT, R.string.settings_guide_default_category, "guide opening category"),
+        setting("playback.refresh_rate_matching", SettingsCategory.PLAYBACK, SettingsPage.GENERAL, R.string.settings_refresh_rate_matching, "AFR", "fps", "Hz", "display refresh rate", "frame rate matching"),
         setting("playback.media_session", SettingsCategory.PLAYBACK, SettingsPage.GENERAL, R.string.settings_media_session, "system controls", "notification"),
         setting("playback.external", SettingsCategory.PLAYBACK, SettingsPage.GENERAL, R.string.settings_external_playback, "external player"),
         setting("playback.speed", SettingsCategory.PLAYBACK, SettingsPage.GENERAL, R.string.settings_default_playback_speed, "speed"),

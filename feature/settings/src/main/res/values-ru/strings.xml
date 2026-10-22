@@ -954,4 +954,6 @@
     <string name="settings_sports_custom_definition_file_error">Не удалось загрузить этот файл JSON</string>
     <string name="settings_experimental_badge">Экспериментально</string>
     <string name="settings_sync_index_progress">%1$s · %2$s</string>
+    <string name="settings_refresh_rate_matching">Подстраивать частоту под видеоконтент</string>
+    <string name="settings_refresh_rate_matching_description">Подстраивает частоту обновления экрана под видео для более плавного движения. Требуется поддержка экрана; при переключении экран может ненадолго погаснуть.</string>
 </resources>

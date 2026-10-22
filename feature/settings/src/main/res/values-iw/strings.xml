@@ -951,4 +951,6 @@
     <string name="settings_sports_custom_definition_file_error">לא ניתן לטעון את קובץ ה-JSON הזה</string>
     <string name="settings_experimental_badge">ניסיוני</string>
     <string name="settings_sync_index_progress">%1$s · %2$s</string>
+    <string name="settings_refresh_rate_matching">התאמת קצב הרענון לתוכן</string>
+    <string name="settings_refresh_rate_matching_description">התאמת קצב הרענון של המסך לסרטון לתנועה חלקה יותר. נדרשת תמיכה במסך; בעת המעבר המסך עשוי להחשיך לזמן קצר.</string>
 </resources>

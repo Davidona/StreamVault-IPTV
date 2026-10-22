@@ -88,7 +88,6 @@ import com.streamvault.domain.model.StalkerCatalogMode
 import com.streamvault.domain.model.StalkerCompatibilityProfileIds
 import com.streamvault.domain.model.StalkerProfileVerification
 import com.streamvault.domain.model.StalkerProtocolPreference
-import com.streamvault.domain.model.StalkerTransportChallengeReason
 import com.streamvault.domain.manager.DriveBackupSnapshot
 import com.google.zxing.qrcode.QRCodeWriter
 import com.google.zxing.BarcodeFormat
@@ -625,48 +624,6 @@ fun ProviderSetupScreen(
             snapshots = uiState.driveBackupOptions,
             onSelect = viewModel::selectDriveBackup,
             onDismiss = viewModel::dismissDriveBackupOptions,
-        )
-    }
-
-uiState.stalkerTransportChallenge?.let { challenge ->
-        val (title, body) = when (challenge.reason) {
-            StalkerTransportChallengeReason.INVALID_TLS ->
-                stringResource(R.string.stalker_transport_invalid_tls_title) to
-                    stringResource(
-                        R.string.stalker_transport_invalid_tls_body,
-                        challenge.displayHost
-                    )
-            StalkerTransportChallengeReason.CLEARTEXT_HTTP ->
-                stringResource(R.string.stalker_transport_http_title) to
-                    stringResource(
-                        R.string.stalker_transport_http_body,
-                        challenge.displayHost
-                    )
-            StalkerTransportChallengeReason.ORIGIN_CHANGED ->
-                stringResource(R.string.stalker_transport_origin_changed_title) to
-                    stringResource(
-                        R.string.stalker_transport_origin_changed_body,
-                        challenge.displayHost
-                    )
-        }
-        PremiumDialog(
-            title = title,
-            subtitle = body,
-            onDismissRequest = viewModel::dismissStalkerTransportChallenge,
-            smallScreenWidthFraction = 0.84f,
-            heightFraction = null,
-            content = {},
-            footer = {
-                PremiumDialogFooterButton(
-                    label = stringResource(R.string.stalker_transport_go_back),
-                    onClick = viewModel::dismissStalkerTransportChallenge
-                )
-                PremiumDialogFooterButton(
-                    label = stringResource(R.string.stalker_transport_connect_anyway),
-                    onClick = viewModel::acceptStalkerTransportChallenge,
-                    emphasized = true
-                )
-            }
         )
     }
 

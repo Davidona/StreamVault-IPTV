@@ -946,4 +946,6 @@
     <string name="settings_sports_custom_definition_file_error">この JSON ファイルを読み込めませんでした</string>
     <string name="settings_experimental_badge">試験運用</string>
     <string name="settings_sync_index_progress">%1$s · %2$s</string>
+    <string name="settings_refresh_rate_matching">コンテンツのフレームレートに合わせる</string>
+    <string name="settings_refresh_rate_matching_description">映像の動きを滑らかにするため、画面のリフレッシュレートを動画に合わせます。対応するディスプレイが必要です。切り替え時に画面が一瞬暗くなることがあります。</string>
 </resources>

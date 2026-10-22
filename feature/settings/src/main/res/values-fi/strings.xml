@@ -948,4 +948,6 @@
     <string name="settings_sports_custom_definition_file_error">Tätä JSON-tiedostoa ei voitu ladata</string>
     <string name="settings_experimental_badge">Kokeellinen</string>
     <string name="settings_sync_index_progress">%1$s · %2$s</string>
+    <string name="settings_refresh_rate_matching">Mukauta sisällön kuvataajuuteen</string>
+    <string name="settings_refresh_rate_matching_description">Mukauttaa näytön virkistystaajuuden videoon liikkeen sulavoittamiseksi. Edellyttää näytön tukea; näyttö voi pimentyä hetkeksi vaihdon aikana.</string>
 </resources>

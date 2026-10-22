@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.tv.material3.Border
@@ -16,7 +15,6 @@ import androidx.tv.material3.Surface as TvSurface
 import androidx.tv.material3.SurfaceDefaults
 import androidx.tv.material3.Text
 import com.streamvault.feature.provider.R
-import com.streamvault.core.ui.components.shell.StatusPill
 import com.streamvault.core.ui.interaction.mouseClickable
 import com.streamvault.core.ui.design.browse.*
 
@@ -65,7 +63,6 @@ internal fun SourceTypeSelectorPanel(
             if (!isEditing || sourceType == SourceType.STALKER) {
                 SourceTypeCard(
                     title = androidx.compose.ui.res.stringResource(R.string.setup_stalker),
-                    badge = androidx.compose.ui.res.stringResource(R.string.badge_beta),
                     subtitle = androidx.compose.ui.res.stringResource(R.string.setup_info_stalker_body),
                     selected = sourceType == SourceType.STALKER,
                     enabled = !isEditing,
@@ -125,7 +122,6 @@ internal fun SourceTypeSelectorPanel(
 @Composable
 internal fun SourceTypeCard(
     title: String,
-    badge: String? = null,
     subtitle: String,
     selected: Boolean,
     enabled: Boolean,
@@ -157,16 +153,6 @@ internal fun SourceTypeCard(
                     style = MaterialTheme.typography.bodyMedium,
                     color = if (selected) Primary else TextPrimary
                 )
-                badge?.let {
-                    StatusPill(
-                        label = it,
-                        containerColor = AccentAmber,
-                        contentColor = Color.Black,
-                        horizontalPadding = 6.dp,
-                        verticalPadding = 2.dp,
-                        cornerRadius = 6.dp
-                    )
-                }
             }
             Text(text = subtitle, style = MaterialTheme.typography.bodySmall, color = OnSurfaceDim, maxLines = 2)
         }

@@ -944,4 +944,6 @@
     <string name="settings_sports_custom_definition_file_error">Diese JSON-Datei konnte nicht geladen werden</string>
     <string name="settings_experimental_badge">Experimentell</string>
     <string name="settings_sync_index_progress">%1$s · %2$s</string>
+    <string name="settings_refresh_rate_matching">Bildrate des Inhalts anpassen</string>
+    <string name="settings_refresh_rate_matching_description">Passt die Bildwiederholrate des Displays für flüssigere Bewegungen an das Video an. Erfordert ein unterstütztes Display; beim Wechsel kann der Bildschirm kurz schwarz werden.</string>
 </resources>

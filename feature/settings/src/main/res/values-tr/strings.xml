@@ -948,4 +948,6 @@
     <string name="settings_sports_custom_definition_file_error">Bu JSON dosyası yüklenemedi</string>
     <string name="settings_experimental_badge">Deneysel</string>
     <string name="settings_sync_index_progress">%1$s · %2$s</string>
+    <string name="settings_refresh_rate_matching">İçeriğin kare hızına uyum sağla</string>
+    <string name="settings_refresh_rate_matching_description">Daha akıcı hareket için ekran yenileme hızını videoya uyarlar. Ekran desteği gerektirir; geçiş sırasında ekran kısa süreliğine kararabilir.</string>
 </resources>

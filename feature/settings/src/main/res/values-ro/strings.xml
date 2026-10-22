@@ -951,4 +951,6 @@
     <string name="settings_sports_custom_definition_file_error">Acest fișier JSON nu a putut fi încărcat</string>
     <string name="settings_experimental_badge">Experimental</string>
     <string name="settings_sync_index_progress">%1$s · %2$s</string>
+    <string name="settings_refresh_rate_matching">Potrivește rata de cadre a conținutului</string>
+    <string name="settings_refresh_rate_matching_description">Adaptează rata de reîmprospătare a ecranului la videoclip pentru mișcări mai fluide. Necesită suport din partea ecranului; la schimbare, ecranul se poate înnegri pentru scurt timp.</string>
 </resources>

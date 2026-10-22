@@ -4,6 +4,7 @@ All notable product changes are recorded in this document.
 ## [1.2.2]
 
 ### Added
+- Added default-on content frame-rate matching for video playback, with a Playback setting to turn it off and device-supported display refresh-rate switching for smoother motion.
 - Added provider connection checks to Settings → Providers, separate from sync state and **In use**, with Online, Unavailable, Authentication required, and Unknown statuses, a last-checked time, and a manual recheck action. Checks run when the section opens and refresh when results are more than five minutes old.
 - Added time-based recording scheduling so live channels without EPG data can be recorded for a chosen start time and duration, with daily and weekly repeat options, from the player's recording menu.
 
@@ -14,6 +15,8 @@ All notable product changes are recorded in this document.
 - Reduced peak memory during large M3U syncs by using staged database keys for duplicate detection and paged series reconciliation; Xtream and Stalker sync paths are unchanged.
 
 ### Fixed
+- Fixed Stalker setup interruptions from redundant transport warning popups; transport retries now continue automatically, with any unresolved challenge shown inline.
+- Fixed the backup restore sync dialog using mismatched colors; its surface, text, and checkbox now follow the active app theme, and **Sync selected** stays disabled until a provider is selected.
 - Fixed Live TV remaining stuck loading after deleting a provider and adding another by clearing and validating the saved active source.
 - Fixed missing episodes from providers that return nested episode arrays or season-keyed episode maps, which were previously skipped and left series with no episodes.
 - Fixed episodes disappearing when an episode's optional metadata block arrived in an unexpected shape: the episode is now kept and only the metadata is skipped.

@@ -954,4 +954,6 @@
     <string name="settings_sports_custom_definition_file_error">Не вдалося завантажити цей файл JSON</string>
     <string name="settings_experimental_badge">Експериментально</string>
     <string name="settings_sync_index_progress">%1$s · %2$s</string>
+    <string name="settings_refresh_rate_matching">Узгоджувати частоту з відеовмістом</string>
+    <string name="settings_refresh_rate_matching_description">Узгоджує частоту оновлення екрана з відео для плавнішого руху. Потрібна підтримка екрана; під час перемикання екран може ненадовго згаснути.</string>
 </resources>

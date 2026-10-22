@@ -943,4 +943,6 @@
     <string name="settings_sports_custom_definition_file_error">Fail JSON ini tidak dapat dimuatkan</string>
     <string name="settings_experimental_badge">Eksperimen</string>
     <string name="settings_sync_index_progress">%1$s · %2$s</string>
+    <string name="settings_refresh_rate_matching">Padankan kadar bingkai kandungan</string>
+    <string name="settings_refresh_rate_matching_description">Memadankan kadar segar semula paparan dengan video untuk gerakan lebih lancar. Memerlukan sokongan paparan; skrin mungkin menjadi gelap seketika semasa pertukaran.</string>
 </resources>

@@ -106,6 +106,8 @@ interface PlayerEngine {
     fun setSurfaceMode(mode: PlayerSurfaceMode)
     fun setVodHttpProtocolMode(mode: VodHttpProtocolMode)
     fun setMediaSessionEnabled(enabled: Boolean)
+    /** Fullscreen display owner only. Null releases refresh matching for this engine. */
+    fun setDisplayFrameRate(frameRate: Float?) {}
     fun setAudioFocusBypassed(bypassed: Boolean) {}
     fun setResolutionConstrainedForMultiView(constrained: Boolean) {}
     fun setFastRetryOnTransientFailures(enabled: Boolean)

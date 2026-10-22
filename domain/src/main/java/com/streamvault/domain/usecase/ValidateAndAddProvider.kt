@@ -15,6 +15,7 @@ import com.streamvault.domain.model.StalkerCompatibilityProfileIds
 import com.streamvault.domain.model.StalkerProtocolPreference
 import com.streamvault.domain.model.StalkerReadinessInconclusiveException
 import com.streamvault.domain.model.StalkerTransportChallenge
+import com.streamvault.domain.model.StalkerTransportChallengeReason
 import com.streamvault.domain.model.StalkerTransportGrant
 import com.streamvault.domain.model.StalkerTransportConsentRequiredException
 import com.streamvault.domain.repository.ProviderRepository
@@ -119,6 +120,7 @@ class ValidateAndAddProvider @Inject constructor(
     companion object {
         private const val MAX_XTREAM_PLAYLIST_USERNAME_LENGTH = 128
         private const val MAX_XTREAM_PLAYLIST_PASSWORD_LENGTH = 256
+        private const val MAX_STALKER_TRANSPORT_AUTO_GRANTS = 6
         private val STALKER_MAC_ADDRESS = Regex("^[0-9a-f]{2}(?::[0-9a-f]{2}){5}$", RegexOption.IGNORE_CASE)
         private val STALKER_MAC_IN_PLAYBACK_ROUTE =
             Regex("live\\.php\\?mac=([0-9a-f]{2}(?::[0-9a-f]{2}){5})", RegexOption.IGNORE_CASE)
@@ -329,6 +331,16 @@ class ValidateAndAddProvider @Inject constructor(
     suspend fun loginStalker(
         command: StalkerProviderSetupCommand,
         onProgress: ((String) -> Unit)? = null
+    ): ValidateAndAddProviderResult = loginStalker(
+        command = command,
+        onProgress = onProgress,
+        transportGrantAttempts = 0
+    )
+
+    private suspend fun loginStalker(
+        command: StalkerProviderSetupCommand,
+        onProgress: ((String) -> Unit)?,
+        transportGrantAttempts: Int
     ): ValidateAndAddProviderResult {
         return when (
             val validated = providerSetupInputValidator.validateStalker(
@@ -351,41 +363,67 @@ class ValidateAndAddProvider @Inject constructor(
                 stalkerAdvancedOptionsJson = command.stalkerAdvancedOptionsJson
             )
         ) {
-            is Result.Success -> providerRepository.setupProvider(
-                ProviderSetupRequest.Configured(
-                    name = validated.data.name,
-                    configuration = StalkerConfig(
-                        portalUrl = validated.data.portalUrl,
-                        device = StalkerDeviceIdentity(
-                            macAddress = validated.data.macAddress,
-                            deviceProfile = validated.data.deviceProfile,
-                            timezone = validated.data.timezone,
-                            locale = validated.data.locale,
-                            serialNumber = validated.data.serialNumber,
-                            deviceId = validated.data.deviceId,
-                            deviceId2 = validated.data.deviceId2,
-                            signature = validated.data.signature
+            is Result.Success -> {
+                val setupResult = providerRepository.setupProvider(
+                    ProviderSetupRequest.Configured(
+                        name = validated.data.name,
+                        configuration = StalkerConfig(
+                            portalUrl = validated.data.portalUrl,
+                            device = StalkerDeviceIdentity(
+                                macAddress = validated.data.macAddress,
+                                deviceProfile = validated.data.deviceProfile,
+                                timezone = validated.data.timezone,
+                                locale = validated.data.locale,
+                                serialNumber = validated.data.serialNumber,
+                                deviceId = validated.data.deviceId,
+                                deviceId2 = validated.data.deviceId2,
+                                signature = validated.data.signature
+                            ),
+                            authMode = validated.data.authMode,
+                            username = validated.data.username,
+                            password = validated.data.password,
+                            httpUserAgent = validated.data.httpUserAgent,
+                            httpHeaders = validated.data.httpHeaders,
+                            advancedOptionsJson = validated.data.stalkerAdvancedOptionsJson,
+                            protocolPreference = command.protocolPreference,
+                            transportGrant = command.transportGrant,
+                            requestedProfileId = command.requestedProfileId,
+                            epgSyncMode = command.epgSyncMode,
+                            catalogMode = command.catalogMode,
+                            guideSourcePolicy = command.guideSourcePolicy,
+                            channelLogoSourcePolicy = command.channelLogoSourcePolicy
                         ),
-                        authMode = validated.data.authMode,
-                        username = validated.data.username,
-                        password = validated.data.password,
-                        httpUserAgent = validated.data.httpUserAgent,
-                        httpHeaders = validated.data.httpHeaders,
-                        advancedOptionsJson = validated.data.stalkerAdvancedOptionsJson,
-                        protocolPreference = command.protocolPreference,
-                        transportGrant = command.transportGrant,
-                        requestedProfileId = command.requestedProfileId,
-                        epgSyncMode = command.epgSyncMode,
-                        catalogMode = command.catalogMode,
-                        guideSourcePolicy = command.guideSourcePolicy,
-                        channelLogoSourcePolicy = command.channelLogoSourcePolicy
+                        existingProviderId = command.existingProviderId,
+                        saveWithoutVerification = command.saveWithoutVerification,
+                        repairConnection = command.repairConnection
                     ),
-                    existingProviderId = command.existingProviderId,
-                    saveWithoutVerification = command.saveWithoutVerification,
-                    repairConnection = command.repairConnection
-                ),
-                onProgress = onProgress
-            ).toUseCaseResult()
+                    onProgress = onProgress
+                ).toUseCaseResult()
+
+                val challenge = (setupResult as? ValidateAndAddProviderResult.TransportConsentRequired)
+                    ?.challenge
+                    ?: return setupResult
+                val nextGrant = challenge.acceptedGrant()
+                val existingGrant = command.transportGrant
+                val grantAlreadyMatches = existingGrant != null &&
+                    existingGrant.mode == nextGrant.mode &&
+                    existingGrant.origin.authority == nextGrant.origin.authority &&
+                    existingGrant.spkiSha256 == nextGrant.spkiSha256
+                if (
+                    transportGrantAttempts >= MAX_STALKER_TRANSPORT_AUTO_GRANTS ||
+                    (challenge.reason == StalkerTransportChallengeReason.INVALID_TLS &&
+                        nextGrant.spkiSha256.isNullOrBlank()) ||
+                    grantAlreadyMatches
+                ) {
+                    setupResult
+                } else {
+                    loginStalker(
+                        command = command.copy(transportGrant = nextGrant),
+                        onProgress = onProgress,
+                        transportGrantAttempts = transportGrantAttempts + 1
+                    )
+                }
+            }
 
             is Result.Error -> ValidateAndAddProviderResult.ValidationError(validated.message)
             is Result.Loading -> ValidateAndAddProviderResult.Error("Unexpected loading state")

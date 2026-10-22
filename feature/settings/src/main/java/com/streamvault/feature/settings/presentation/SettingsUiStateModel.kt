@@ -199,6 +199,7 @@ data class SettingsUiState(
     val vodVariantPreferenceMode: VodVariantPreferenceMode = VodVariantPreferenceMode.BALANCED,
     val guideDefaultCategoryId: Long = com.streamvault.domain.model.VirtualCategoryIds.FAVORITES,
     val guideDefaultCategoryOptions: List<Category> = emptyList(),
+    val playerRefreshRateMatchingEnabled: Boolean = true,
     val preventStandbyDuringPlayback: Boolean = true,
     val zapAutoRevert: Boolean = true,
     val autoPlayNextEpisode: Boolean = true,

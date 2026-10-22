@@ -948,4 +948,6 @@
     <string name="settings_sports_custom_definition_file_error">Det gick inte att läsa in den här JSON-filen</string>
     <string name="settings_experimental_badge">Experimentell</string>
     <string name="settings_sync_index_progress">%1$s · %2$s</string>
+    <string name="settings_refresh_rate_matching">Anpassa till innehållets bildfrekvens</string>
+    <string name="settings_refresh_rate_matching_description">Anpassar skärmens uppdateringsfrekvens till videon för jämnare rörelser. Kräver stöd från skärmen; skärmen kan bli svart en kort stund vid byte.</string>
 </resources>

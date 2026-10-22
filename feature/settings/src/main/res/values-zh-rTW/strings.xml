@@ -943,4 +943,6 @@
     <string name="settings_sports_custom_definition_file_error">無法載入此 JSON 檔案</string>
     <string name="settings_experimental_badge">實驗性</string>
     <string name="settings_sync_index_progress">%1$s · %2$s</string>
+    <string name="settings_refresh_rate_matching">配合內容影格率</string>
+    <string name="settings_refresh_rate_matching_description">依照影片調整顯示器更新率，讓動態畫面更流暢。需要顯示器支援；切換時螢幕可能會短暫變黑。</string>
 </resources>

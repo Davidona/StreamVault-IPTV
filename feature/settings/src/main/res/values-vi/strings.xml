@@ -945,4 +945,6 @@
     <string name="settings_sports_custom_definition_file_error">Không thể tải tệp JSON này</string>
     <string name="settings_experimental_badge">Thử nghiệm</string>
     <string name="settings_sync_index_progress">%1$s · %2$s</string>
+    <string name="settings_refresh_rate_matching">Khớp với tốc độ khung hình nội dung</string>
+    <string name="settings_refresh_rate_matching_description">Điều chỉnh tần số quét màn hình theo video để chuyển động mượt hơn. Cần màn hình hỗ trợ; màn hình có thể tối trong chốc lát khi chuyển đổi.</string>
 </resources>

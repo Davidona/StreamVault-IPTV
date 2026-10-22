@@ -946,4 +946,6 @@
     <string name="settings_sports_custom_definition_file_error">यह JSON फ़ाइल लोड नहीं की जा सकी</string>
     <string name="settings_experimental_badge">प्रायोगिक</string>
     <string name="settings_sync_index_progress">%1$s · %2$s</string>
+    <string name="settings_refresh_rate_matching">सामग्री की फ़्रेम दर से मिलाएँ</string>
+    <string name="settings_refresh_rate_matching_description">ज़्यादा सहज गति के लिए डिस्प्ले की रीफ़्रेश दर को वीडियो से मिलाएँ। डिस्प्ले का समर्थन ज़रूरी है; बदलते समय स्क्रीन कुछ पल के लिए काली हो सकती है।</string>
 </resources>

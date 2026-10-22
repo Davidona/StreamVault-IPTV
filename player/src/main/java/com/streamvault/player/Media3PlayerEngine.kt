@@ -340,6 +340,7 @@ class Media3PlayerEngine @Inject constructor(
 
     private val subtitleStyleController = SubtitleStyleController()
     private val viewBinder = PlayerViewBinder(subtitleStyleController)
+    override fun setDisplayFrameRate(frameRate: Float?) = viewBinder.setDisplayFrameRate(frameRate)
     private val trackController = PlayerTrackController(context)
     private val ffmpegExtensionSupport = FfmpegExtensionSupport()
     private var ffmpegAvailability = ffmpegExtensionSupport.availability()
@@ -674,6 +675,7 @@ class Media3PlayerEngine @Inject constructor(
     }
 
     override fun stop() {
+        viewBinder.setDisplayFrameRate(null)
         com.streamvault.domain.sync.AutomaticSyncActivity.stopped(this)
         clearAdaptiveDecodePressure()
         retryJob?.cancel()
@@ -1718,6 +1720,9 @@ class Media3PlayerEngine @Inject constructor(
         )
             .apply {
                 videoScalingMode = C.VIDEO_SCALING_MODE_SCALE_TO_FIT
+                // The fullscreen display owner supplies measured or declared FPS. Letting the
+                // renderer vote too would override the saved Off setting and compete in multiview.
+                setVideoChangeFrameRateStrategy(C.VIDEO_CHANGE_FRAME_RATE_STRATEGY_OFF)
                 playbackParameters = PlaybackParameters(_playbackSpeed.value)
                  setVideoFrameMetadataListener { presentationTimeUs, _, _, _ ->
                      videoStallDetector.onVideoFrameRendered((presentationTimeUs / 1_000L).coerceAtLeast(0L))

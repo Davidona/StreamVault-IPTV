@@ -824,6 +824,12 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
+    fun setPlayerRefreshRateMatchingEnabled(enabled: Boolean) {
+        viewModelScope.launch {
+            preferencesRepository.setPlayerRefreshRateMatchingEnabled(enabled)
+        }
+    }
+
     fun setPreventStandbyDuringPlayback(prevent: Boolean) {
         viewModelScope.launch {
             preferencesRepository.setPreventStandbyDuringPlayback(prevent)

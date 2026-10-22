@@ -1118,6 +1118,11 @@ class PlayerViewModel @Inject constructor(
     internal val subtitleBackgroundColor = playerPreferencesCoordinator.playerSubtitleBackgroundColor
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), 0x80000000.toInt())
 
+    val refreshRateMatchingEnabled: StateFlow<Boolean> by lazy(LazyThreadSafetyMode.NONE) {
+        playerPreferencesCoordinator.playerRefreshRateMatchingEnabled
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
+    }
+
     val preventStandbyDuringPlayback: StateFlow<Boolean> by lazy(LazyThreadSafetyMode.NONE) {
         playerPreferencesCoordinator.preventStandbyDuringPlayback
             .stateIn(viewModelScope, kotlinx.coroutines.flow.SharingStarted.WhileSubscribed(5000), true)

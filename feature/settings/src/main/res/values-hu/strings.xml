@@ -948,4 +948,6 @@
     <string name="settings_sports_custom_definition_file_error">Ez a JSON-fájl nem tölthető be</string>
     <string name="settings_experimental_badge">Kísérleti</string>
     <string name="settings_sync_index_progress">%1$s · %2$s</string>
+    <string name="settings_refresh_rate_matching">Igazítás a tartalom képkockasebességéhez</string>
+    <string name="settings_refresh_rate_matching_description">A kijelző frissítési gyakoriságát a videóhoz igazítja az egyenletesebb mozgásért. Kijelzőtámogatást igényel; váltáskor a képernyő rövid időre elsötétülhet.</string>
 </resources>

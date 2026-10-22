@@ -12,7 +12,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusEvent
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.tv.material3.Border
 import androidx.tv.material3.ClickableSurfaceDefaults
@@ -20,9 +19,7 @@ import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
 import com.streamvault.feature.provider.R
-import com.streamvault.core.ui.components.shell.StatusPill
 import com.streamvault.core.ui.interaction.mouseClickable
-import com.streamvault.core.ui.design.browse.AccentAmber
 import com.streamvault.core.ui.design.browse.FocusBorder
 import com.streamvault.core.ui.design.browse.OnSurface
 import com.streamvault.core.ui.design.browse.Primary
@@ -50,7 +47,6 @@ internal fun SourceTypeTabRow(
         if (!isEditing || sourceType == SourceType.STALKER) {
             TabButton(
                 text = androidx.compose.ui.res.stringResource(R.string.setup_stalker),
-                badge = androidx.compose.ui.res.stringResource(R.string.badge_beta),
                 isSelected = sourceType == SourceType.STALKER,
                 onClick = { if (!isEditing) onSelect(SourceType.STALKER) }
             )
@@ -80,7 +76,7 @@ internal fun SourceTypeTabRow(
 }
 
 @Composable
-private fun TabButton(text: String, isSelected: Boolean, onClick: () -> Unit, badge: String? = null) {
+private fun TabButton(text: String, isSelected: Boolean, onClick: () -> Unit) {
     var isFocused by remember { mutableStateOf(false) }
     Surface(
         onClick = onClick,
@@ -105,16 +101,6 @@ private fun TabButton(text: String, isSelected: Boolean, onClick: () -> Unit, ba
                 style = MaterialTheme.typography.bodySmall,
                 color = if (isSelected) Primary else if (isFocused) TextPrimary else OnSurface
             )
-            badge?.let {
-                StatusPill(
-                    label = it,
-                    containerColor = AccentAmber,
-                    contentColor = Color.Black,
-                    horizontalPadding = 6.dp,
-                    verticalPadding = 2.dp,
-                    cornerRadius = 6.dp
-                )
-            }
         }
     }
 }

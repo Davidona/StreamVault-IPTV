@@ -1,5 +1,7 @@
 package com.streamvault.player.stats
 
+import java.util.concurrent.atomic.AtomicInteger
+
 /**
  * Detects the nominal frame rate of a stream from the presentation timestamps of rendered frames
  * and then **locks**: after [framesToLock] usable frames it computes the rate once, snaps it to the
@@ -9,20 +11,20 @@ package com.streamvault.player.stats
  * dropping frames, because it uses the smallest timestamp gap rather than the render throughput.
  *
  * Cost while detecting: one subtraction and one comparison per rendered frame. Cost after locking:
- * a single volatile read per frame.
+ * two volatile reads per frame.
  *
  * Threading: [onFrame] is called on ExoPlayer's playback thread, [lockedFrameRate] is read from the
  * Main thread, and [reset] may be called from Main. The working state is only touched on the
- * playback thread; the published result is `@Volatile`.
+ * playback thread; the published result is `@Volatile` and tagged with its source generation.
  */
 class FrameRateDetector(
     private val framesToLock: Int = DEFAULT_FRAMES_TO_LOCK
 ) {
     @Volatile
-    private var locked = 0f
+    private var result: Detection? = null
 
-    @Volatile
-    private var generation = 0
+    private val generation = AtomicInteger()
+    private data class Detection(val generation: Int, val rate: Float)
 
     private var activeGeneration = -1
     private var lastPresentationTimeUs = Long.MIN_VALUE
@@ -30,19 +32,23 @@ class FrameRateDetector(
     private var usableFrames = 0
 
     /** Detected frame rate, or 0 until enough frames have been seen. */
-    val lockedFrameRate: Float get() = locked
+    val lockedFrameRate: Float get() {
+        val detected = result
+        return if (detected?.generation == generation.get()) detected.rate else 0f
+    }
 
     /** Forget everything; the next stream is detected from scratch. Safe to call from any thread. */
     fun reset() {
-        locked = 0f
-        generation++
+        // Invalidate publication too: an old rendering callback may still finish after reset.
+        generation.incrementAndGet()
     }
 
     /** Playback-thread only. */
     fun onFrame(presentationTimeUs: Long) {
-        if (locked > 0f) return
-        if (activeGeneration != generation) {
-            activeGeneration = generation
+        if (lockedFrameRate > 0f) return
+        val currentGeneration = generation.get()
+        if (activeGeneration != currentGeneration) {
+            activeGeneration = currentGeneration
             lastPresentationTimeUs = Long.MIN_VALUE
             minDeltaUs = Long.MAX_VALUE
             usableFrames = 0
@@ -57,7 +63,7 @@ class FrameRateDetector(
         if (delta < minDeltaUs) minDeltaUs = delta
         usableFrames++
         if (usableFrames >= framesToLock) {
-            locked = snapToStandardRate(1_000_000f / minDeltaUs)
+            result = Detection(activeGeneration, snapToStandardRate(1_000_000f / minDeltaUs))
         }
     }
 

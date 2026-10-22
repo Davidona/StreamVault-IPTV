@@ -948,4 +948,6 @@
     <string name="settings_sports_custom_definition_file_error">File JSON ini tidak dapat dimuat</string>
     <string name="settings_experimental_badge">Eksperimental</string>
     <string name="settings_sync_index_progress">%1$s · %2$s</string>
+    <string name="settings_refresh_rate_matching">Sesuaikan dengan laju bingkai konten</string>
+    <string name="settings_refresh_rate_matching_description">Menyesuaikan laju penyegaran layar dengan video agar gerakan lebih mulus. Memerlukan dukungan layar; layar mungkin menjadi hitam sesaat saat berganti.</string>
 </resources>

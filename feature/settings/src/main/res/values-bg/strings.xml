@@ -946,4 +946,6 @@
     <string name="settings_sports_custom_definition_file_error">Този JSON файл не може да бъде зареден</string>
     <string name="settings_experimental_badge">Експериментално</string>
     <string name="settings_sync_index_progress">%1$s · %2$s</string>
+    <string name="settings_refresh_rate_matching">Съгласуване с кадровата честота</string>
+    <string name="settings_refresh_rate_matching_description">Съгласува честотата на опресняване на дисплея с видеото за по-плавно движение. Изисква поддръжка от дисплея; при превключване екранът може за кратко да изгасне.</string>
 </resources>

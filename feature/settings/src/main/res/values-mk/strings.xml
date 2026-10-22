@@ -946,4 +946,6 @@
     <string name="settings_sports_custom_definition_file_error">Оваа JSON-датотека не може да се вчита</string>
     <string name="settings_experimental_badge">Експериментално</string>
     <string name="settings_sync_index_progress">%1$s · %2$s</string>
+    <string name="settings_refresh_rate_matching">Усогласи со брзината на кадрите</string>
+    <string name="settings_refresh_rate_matching_description">Ја усогласува стапката на освежување на екранот со видеото за помазни движења. Потребна е поддршка од екранот; при префрлање екранот може накратко да се затемни.</string>
 </resources>

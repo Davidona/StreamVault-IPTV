@@ -946,4 +946,6 @@
     <string name="settings_sports_custom_definition_file_error">Hindi ma-load ang JSON file na ito</string>
     <string name="settings_experimental_badge">Eksperimental</string>
     <string name="settings_sync_index_progress">%1$s · %2$s</string>
+    <string name="settings_refresh_rate_matching">Itugma sa frame rate ng nilalaman</string>
+    <string name="settings_refresh_rate_matching_description">Itinutugma ang refresh rate ng display sa video para sa mas maayos na galaw. Kailangan ng suporta ng display; maaaring umitim sandali ang screen kapag nagpapalit.</string>
 </resources>

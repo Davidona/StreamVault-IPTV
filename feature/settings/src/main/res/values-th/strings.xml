@@ -943,4 +943,6 @@
     <string name="settings_sports_custom_definition_file_error">ไม่สามารถโหลดไฟล์ JSON นี้ได้</string>
     <string name="settings_experimental_badge">ฟีเจอร์ทดลอง</string>
     <string name="settings_sync_index_progress">%1$s · %2$s</string>
+    <string name="settings_refresh_rate_matching">ปรับให้ตรงกับอัตราเฟรมของเนื้อหา</string>
+    <string name="settings_refresh_rate_matching_description">ปรับอัตรารีเฟรชของจอแสดงผลให้ตรงกับวิดีโอเพื่อให้ภาพเคลื่อนไหวลื่นไหลขึ้น ต้องใช้จอที่รองรับ หน้าจออาจมืดชั่วครู่ขณะเปลี่ยน</string>
 </resources>

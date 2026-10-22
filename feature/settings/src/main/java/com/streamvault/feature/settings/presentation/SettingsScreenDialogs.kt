@@ -16,6 +16,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -36,6 +37,7 @@ import com.streamvault.core.ui.components.dialogs.PremiumDialog
 import com.streamvault.core.ui.components.dialogs.PremiumDialogFooterButton
 import com.streamvault.core.ui.interaction.TvClickableSurface
 import com.streamvault.core.ui.theme.OnBackground
+import com.streamvault.core.ui.theme.OnPrimary
 import com.streamvault.core.ui.theme.OnSurface
 import com.streamvault.core.ui.theme.OnSurfaceDim
 import com.streamvault.core.ui.theme.Primary
@@ -298,37 +300,68 @@ public fun SettingsScreenDialogs(
     }
 
     if (uiState.pendingRestoreProviders.isNotEmpty()) {
+        val hasSelectedRestoreProvider = uiState.selectedRestoreProviderIndices.isNotEmpty()
         AlertDialog(
             onDismissRequest = viewModel::restoreSyncLater,
-            title = { Text(stringResource(R.string.settings_restore_sync_title)) },
+            title = {
+                Text(
+                    text = stringResource(R.string.settings_restore_sync_title),
+                    color = OnSurface
+                )
+            },
             text = {
                 Column {
-                    Text(stringResource(R.string.settings_restore_sync_description))
+                    Text(
+                        text = stringResource(R.string.settings_restore_sync_description),
+                        color = TextSecondary
+                    )
                     uiState.pendingRestoreProviders.forEachIndexed { index, provider ->
                         Row {
                             Checkbox(
                                 checked = index in uiState.selectedRestoreProviderIndices,
-                                onCheckedChange = { viewModel.toggleRestoreSyncProvider(index) }
+                                onCheckedChange = { viewModel.toggleRestoreSyncProvider(index) },
+                                colors = CheckboxDefaults.colors(
+                                    checkedColor = Primary,
+                                    uncheckedColor = OnSurfaceDim,
+                                    checkmarkColor = OnPrimary
+                                )
                             )
-                            Text(provider.serverUrl + provider.username.takeIf { it.isNotBlank() }?.let { " ($it)" }.orEmpty())
+                            Text(
+                                text = provider.serverUrl + provider.username.takeIf { it.isNotBlank() }?.let { " ($it)" }.orEmpty(),
+                                color = OnSurface
+                            )
                         }
                     }
                     TextButton(onClick = viewModel::selectAllRestoreSyncProviders) {
-                        Text(stringResource(R.string.settings_select_all))
+                        Text(
+                            text = stringResource(R.string.settings_select_all),
+                            color = Primary
+                        )
                     }
                 }
             },
             confirmButton = {
                 TextButton(
-                    enabled = uiState.selectedRestoreProviderIndices.isNotEmpty(),
+                    enabled = hasSelectedRestoreProvider,
                     onClick = viewModel::syncSelectedRestoreProviders
-                ) { Text(stringResource(R.string.settings_restore_sync_selected)) }
+                ) {
+                    Text(
+                        text = stringResource(R.string.settings_restore_sync_selected),
+                        color = if (hasSelectedRestoreProvider) Primary else OnSurfaceDim
+                    )
+                }
             },
             dismissButton = {
                 TextButton(onClick = viewModel::restoreSyncLater) {
-                    Text(stringResource(R.string.settings_restore_later))
+                    Text(
+                        text = stringResource(R.string.settings_restore_later),
+                        color = Primary
+                    )
                 }
-            }
+            },
+            containerColor = SurfaceElevated,
+            titleContentColor = OnSurface,
+            textContentColor = TextSecondary
         )
     }
 

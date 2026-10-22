@@ -946,4 +946,6 @@
     <string name="settings_sports_custom_definition_file_error">Ky skedar JSON nuk mund të ngarkohej</string>
     <string name="settings_experimental_badge">Eksperimentale</string>
     <string name="settings_sync_index_progress">%1$s · %2$s</string>
+    <string name="settings_refresh_rate_matching">Përshtat shpejtësinë e kuadrove të përmbajtjes</string>
+    <string name="settings_refresh_rate_matching_description">Përshtat ritmin e rifreskimit të ekranit me videon për lëvizje më të rrjedhshme. Kërkon mbështetje nga ekrani; gjatë ndërrimit ekrani mund të nxihet për pak çaste.</string>
 </resources>

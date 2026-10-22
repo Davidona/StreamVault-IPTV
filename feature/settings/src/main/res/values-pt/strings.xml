@@ -944,4 +944,6 @@
     <string name="settings_sports_custom_definition_file_error">Não foi possível carregar este arquivo JSON</string>
     <string name="settings_experimental_badge">Experimental</string>
     <string name="settings_sync_index_progress">%1$s · %2$s</string>
+    <string name="settings_refresh_rate_matching">Ajustar à taxa de fotogramas do conteúdo</string>
+    <string name="settings_refresh_rate_matching_description">Adapta a taxa de atualização do ecrã ao vídeo para movimentos mais fluidos. Requer um ecrã compatível; ao mudar, o ecrã pode ficar preto por instantes.</string>
 </resources>

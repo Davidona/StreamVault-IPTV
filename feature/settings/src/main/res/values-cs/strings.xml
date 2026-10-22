@@ -954,4 +954,6 @@
     <string name="settings_sports_custom_definition_file_error">Tento soubor JSON nelze načíst</string>
     <string name="settings_experimental_badge">Experimentální</string>
     <string name="settings_sync_index_progress">%1$s · %2$s</string>
+    <string name="settings_refresh_rate_matching">Přizpůsobit snímkové frekvenci obsahu</string>
+    <string name="settings_refresh_rate_matching_description">Přizpůsobí obnovovací frekvenci displeje videu pro plynulejší pohyb. Vyžaduje podporu displeje; při přepnutí může obrazovka krátce zčernat.</string>
 </resources>

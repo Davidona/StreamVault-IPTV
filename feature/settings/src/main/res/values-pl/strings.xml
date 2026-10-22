@@ -954,4 +954,6 @@
     <string name="settings_sports_custom_definition_file_error">Nie można wczytać tego pliku JSON</string>
     <string name="settings_experimental_badge">Eksperymentalne</string>
     <string name="settings_sync_index_progress">%1$s · %2$s</string>
+    <string name="settings_refresh_rate_matching">Dopasuj do liczby klatek treści</string>
+    <string name="settings_refresh_rate_matching_description">Dopasowuje częstotliwość odświeżania ekranu do filmu, aby ruch był płynniejszy. Wymaga obsługi przez ekran; podczas zmiany ekran może na chwilę zgasnąć.</string>
 </resources>

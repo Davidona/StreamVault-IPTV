@@ -948,4 +948,6 @@
     <string name="settings_sports_custom_definition_file_error">Δεν ήταν δυνατή η φόρτωση αυτού του αρχείου JSON</string>
     <string name="settings_experimental_badge">Πειραματικό</string>
     <string name="settings_sync_index_progress">%1$s · %2$s</string>
+    <string name="settings_refresh_rate_matching">Αντιστοίχιση ρυθμού καρέ περιεχομένου</string>
+    <string name="settings_refresh_rate_matching_description">Προσαρμόζει τον ρυθμό ανανέωσης της οθόνης στο βίντεο για πιο ομαλή κίνηση. Απαιτεί υποστήριξη από την οθόνη· κατά την αλλαγή η οθόνη μπορεί να μαυρίσει στιγμιαία.</string>
 </resources>

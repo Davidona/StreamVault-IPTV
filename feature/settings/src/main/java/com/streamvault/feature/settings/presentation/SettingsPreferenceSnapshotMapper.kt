@@ -96,6 +96,7 @@ fun SettingsUiState.applyPreferenceSnapshot(
         vodVariantPreferenceMode = snapshot.vodVariantPreferenceMode,
         guideDefaultCategoryId = snapshot.guideDefaultCategoryId,
         guideDefaultCategoryOptions = guideDefaultCategoryOptions,
+        playerRefreshRateMatchingEnabled = snapshot.playerRefreshRateMatchingEnabled,
         preventStandbyDuringPlayback = snapshot.preventStandbyDuringPlayback,
         zapAutoRevert = snapshot.zapAutoRevert,
         autoPlayNextEpisode = snapshot.autoPlayNextEpisode,

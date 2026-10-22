@@ -121,7 +121,11 @@ internal fun StalkerProviderForm(
         onProfileSelected = onSelectProfile
     )
     AdvancedProviderOptionsSection(options)
-    FormErrors(uiState.validationError, uiState.error)
+    FormErrors(
+        validationError = uiState.validationError,
+        error = uiState.error,
+        transportChallenge = uiState.stalkerTransportChallenge
+    )
     ActionButton(
         text = when {
             uiState.isLoading -> stringResource(R.string.setup_connecting)

@@ -304,6 +304,8 @@ fun observeSettingsPreferenceSnapshot(
         snapshot.copy(vodVariantPreferenceMode = vodVariantPreferenceMode)
     }.combine(preferencesRepository.guideDefaultCategoryId) { snapshot, guideDefaultCategoryId ->
         snapshot.copy(guideDefaultCategoryId = guideDefaultCategoryId ?: VirtualCategoryIds.FAVORITES)
+    }.combine(preferencesRepository.playerRefreshRateMatchingEnabled) { snapshot, enabled ->
+        snapshot.copy(playerRefreshRateMatchingEnabled = enabled)
     }.combine(preferencesRepository.preventStandbyDuringPlayback) { snapshot, preventStandby ->
         snapshot.copy(preventStandbyDuringPlayback = preventStandby)
     }.combine(preferencesRepository.zapAutoRevert) { snapshot, zapAutoRevert ->

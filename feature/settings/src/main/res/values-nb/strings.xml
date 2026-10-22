@@ -948,4 +948,6 @@
     <string name="settings_sports_custom_definition_file_error">Denne JSON-filen kunne ikke lastes inn</string>
     <string name="settings_experimental_badge">Eksperimentell</string>
     <string name="settings_sync_index_progress">%1$s · %2$s</string>
+    <string name="settings_refresh_rate_matching">Tilpass til innholdets bildefrekvens</string>
+    <string name="settings_refresh_rate_matching_description">Tilpasser skjermens oppdateringsfrekvens til videoen for jevnere bevegelser. Krever støtte fra skjermen; skjermen kan bli svart et øyeblikk ved bytte.</string>
 </resources>

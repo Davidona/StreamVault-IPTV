@@ -1023,4 +1023,6 @@
     <string name="settings_sports_custom_definition_file_error">Could not load this JSON file</string>
     <string name="settings_experimental_badge">Experimental</string>
     <string name="settings_sync_index_progress">%1$s · %2$s</string>
+    <string name="settings_refresh_rate_matching">Match content frame rate</string>
+    <string name="settings_refresh_rate_matching_description">Match the display refresh rate to the video for smoother motion. Requires display support; switching may briefly blank the screen.</string>
 </resources>

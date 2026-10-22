@@ -271,6 +271,19 @@ fun PlayerScreen(
         }
     }
 
+    val refreshRateMatchingEnabled by viewModel.refreshRateMatchingEnabled.collectAsStateWithLifecycle()
+    val refreshRatePlaybackSpeed by playerEngine.playbackSpeed.collectAsStateWithLifecycle()
+    val refreshRateCastState by viewModel.castConnectionState.collectAsStateWithLifecycle()
+    PlayerRefreshRateHost(
+        engine = playerEngine,
+        enabled = refreshRateMatchingEnabled,
+        frameRate = videoFormat.frameRate,
+        playbackSpeed = refreshRatePlaybackSpeed,
+        playbackState = playbackState,
+        pictureInPicture = isInPictureInPictureMode,
+        casting = refreshRateCastState == CastConnectionState.CONNECTED || refreshRateCastState == CastConnectionState.CONNECTING
+    )
+
     PlayerLifecycleHost(
         playbackPlatformHost = playbackPlatformHost,
         playbackState = playbackState,
