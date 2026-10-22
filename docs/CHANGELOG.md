@@ -9,6 +9,7 @@ All notable product changes are recorded in this document.
 - Added time-based recording scheduling so live channels without EPG data can be recorded for a chosen start time and duration, with daily and weekly repeat options, from the player's recording menu.
 
 ### Changed
+- Stalker setup now proceeds with HTTP portals without transport consent warnings.
 - Improved Stalker catalog sync for large libraries with bounded, resumable movie and series indexing that runs in parallel by default, optional Movies first or Series first ordering, and EPG work that can proceed independently.
 - Localized player recording notices and EPG recording messages across all supported locales.
 - Xtream series details now refresh every six hours and Stalker series details every 24 hours instead of every 14 days, so newly aired episodes appear promptly and incomplete episode caches repair themselves.

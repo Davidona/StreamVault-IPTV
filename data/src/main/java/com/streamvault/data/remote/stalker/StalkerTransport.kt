@@ -30,9 +30,8 @@ import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 /**
  * Produces Stalker clients without weakening the application-wide OkHttp client.
  *
- * The only relaxed client this class can create is bound to one normalized origin and one
- * user-approved public key. The public-key check is repeated by both the trust manager and
- * hostname verifier before any HTTP bytes are sent.
+ * HTTPS clients keep normal certificate validation unless the user approved a pinned key.
+ * HTTP portals are allowed directly and remain scoped against unapproved cross-origin redirects.
  */
 class StalkerTransportFactory(
     private val strictClient: OkHttpClient
@@ -67,20 +66,14 @@ class StalkerTransportFactory(
             }
         }
 
-        if (grant?.mode != StalkerTransportMode.USER_ACCEPTED_HTTP) {
-            throw StalkerApiError.TransportConsentRequired(
-                StalkerTransportChallenge(
-                    reason = StalkerTransportChallengeReason.CLEARTEXT_HTTP,
-                    origin = origin,
-                    displayHost = origin.displayHost(),
-                    detailCode = "CLEARTEXT_REQUIRES_CONSENT"
-                )
-            )
+        val redirectGrant = grant?.takeIf {
+            it.mode == StalkerTransportMode.USER_ACCEPTED_HTTP &&
+                it.origin.normalized() == origin.normalized()
         }
-        requireMatchingGrant(origin, grant)
-        val key = "http|${origin.authority}"
+        val redirectGrantKey = redirectGrant?.origin?.authority ?: "same-origin"
+        val key = "http|${origin.authority}|$redirectGrantKey"
         return approvedClients.computeIfAbsent(key) {
-            buildRedirectScopedClient(strictClient, grant)
+            buildRedirectScopedClient(strictClient, redirectGrant)
         }
     }
 

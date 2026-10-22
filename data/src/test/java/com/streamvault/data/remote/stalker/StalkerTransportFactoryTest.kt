@@ -18,27 +18,12 @@ import org.junit.Test
 class StalkerTransportFactoryTest {
 
     @Test
-    fun `HTTP sends nothing until exact origin is accepted`() {
+    fun `HTTP requests proceed without explicit transport consent`() {
         MockWebServer().use { server ->
             server.enqueue(MockResponse().setBody("ok"))
             val factory = StalkerTransportFactory(OkHttpClient())
 
-            val challenge = runCatching { factory.clientFor(server.url("/").toString(), null) }
-                .exceptionOrNull() as StalkerApiError.TransportConsentRequired
-
-            assertThat(challenge.challenge.reason)
-                .isEqualTo(StalkerTransportChallengeReason.CLEARTEXT_HTTP)
-            assertThat(server.requestCount).isEqualTo(0)
-
-            val origin = server.url("/").toTransportOrigin()
-            val client = factory.clientFor(
-                server.url("/").toString(),
-                StalkerTransportGrant(
-                    mode = StalkerTransportMode.USER_ACCEPTED_HTTP,
-                    origin = origin,
-                    consentedAt = 1L
-                )
-            )
+            val client = factory.clientFor(server.url("/").toString(), null)
             client.newCall(Request.Builder().url(server.url("/")).build()).execute().use {
                 assertThat(it.isSuccessful).isTrue()
             }

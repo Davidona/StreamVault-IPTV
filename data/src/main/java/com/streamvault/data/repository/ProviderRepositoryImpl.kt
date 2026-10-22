@@ -1329,7 +1329,11 @@ class ProviderRepositoryImpl @Inject constructor(
                         cause = inconclusive
                     )
                     Result.error(required.message.orEmpty(), required)
-                } else if (!inputHasScheme && finalAuthResult.exception.isNonTlsTransportFailure()) {
+                } else if (
+                    !inputHasScheme &&
+                    transportGrant?.mode != StalkerTransportMode.USER_ACCEPTED_HTTP &&
+                    finalAuthResult.exception.isNonTlsTransportFailure()
+                ) {
                     val httpOrigin = "http://$normalizedPortalUrl".toStalkerOrigin()
                     if (httpOrigin != null) {
                         val challenge = StalkerTransportChallenge(
