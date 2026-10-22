@@ -1736,12 +1736,15 @@ class MovieRepositoryImpl @Inject constructor(
         requiredCount: Int,
         loadCompletely: Boolean = false
     ): Boolean {
-        if (localCount > 0) return false
         val now = System.currentTimeMillis()
+        if (hydration?.isComplete == true &&
+            ContentCachePolicy.shouldRefresh(hydration.lastHydratedAt, ContentCachePolicy.CATALOG_TTL_MILLIS, now)
+        ) return true
+        if (localCount > 0) return false
         val hasEmptySuccessfulCheckpoint = localCount == 0 &&
             (hydration?.lastSuccessfulPage ?: hydration?.lastLoadedPage ?: 0) > 0
         if (hasEmptySuccessfulCheckpoint) return true
-        if (hydration == null || (hydration.isComplete && ContentCachePolicy.shouldRefresh(hydration.lastHydratedAt, ContentCachePolicy.CATALOG_TTL_MILLIS, now))) return true
+        if (hydration == null) return true
         if (hydration?.isComplete == true) return false
         if (loadCompletely) return true
         if (localCount >= requiredCount) return false
