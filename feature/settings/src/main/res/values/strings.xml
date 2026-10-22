@@ -371,6 +371,13 @@
     <string name="settings_status_expired">Expired</string>
     <string name="settings_status_disabled">Disabled</string>
     <string name="settings_status_unknown">Unknown</string>
+    <string name="settings_provider_connection_online">Online</string>
+    <string name="settings_provider_connection_unavailable">Unavailable</string>
+    <string name="settings_provider_connection_checking">Checking…</string>
+    <string name="settings_provider_connection_check_now">Check now</string>
+    <string name="settings_provider_connection_last_checked">Last checked</string>
+    <string name="settings_provider_connection_authentication_required">Sign-in required</string>
+    <string name="settings_provider_connection_unknown">Unknown</string>
     <string name="settings_select_level">Select Protection Level</string>
     <string name="settings_level_off_desc">OFF - No restrictions</string>
     <string name="settings_level_off_subtitle">Adult content appears everywhere.</string>
@@ -1016,4 +1023,6 @@
     <string name="settings_sports_custom_definition_file_error">Could not load this JSON file</string>
     <string name="settings_experimental_badge">Experimental</string>
     <string name="settings_sync_index_progress">%1$s · %2$s</string>
+    <string name="settings_refresh_rate_matching">Match content frame rate</string>
+    <string name="settings_refresh_rate_matching_description">Match the display refresh rate to the video for smoother motion. Requires display support; switching may briefly blank the screen.</string>
 </resources>

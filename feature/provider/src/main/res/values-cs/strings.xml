@@ -125,4 +125,11 @@
     <string name="setup_stalker_catalog_on_demand_description">Police a kategorie načítá při otevření. Uložené tituly ponechá v mezipaměti.</string>
     <string name="setup_stalker_catalog_background_title">Úplné indexování na pozadí (doporučeno)</string>
     <string name="setup_stalker_catalog_background_description">Nejprve dokončí nastavení poskytovatele a pak na pozadí zaindexuje všechny filmy a seriály pro vyhledávání.</string>
+    <string name="setup_stalker_load_order_title">Pořadí načítání na pozadí</string>
+    <string name="setup_stalker_load_parallel_title">Obojí současně (výchozí)</string>
+    <string name="setup_stalker_load_parallel_description">Načítat filmy a seriály současně.</string>
+    <string name="setup_stalker_load_movies_first_title">Nejprve filmy</string>
+    <string name="setup_stalker_load_movies_first_description">Seriály čekají ve frontě, dokud se nenačtou filmy.</string>
+    <string name="setup_stalker_load_series_first_title">Nejprve seriály</string>
+    <string name="setup_stalker_load_series_first_description">Filmy čekají ve frontě, dokud se nenačtou seriály.</string>
 </resources>

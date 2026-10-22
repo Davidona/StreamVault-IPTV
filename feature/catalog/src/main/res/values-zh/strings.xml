@@ -306,6 +306,8 @@
   <string name="series_detail_resume">继续 · 第 %1$d 季第 %2$d 集 · %3$s</string>
   <string name="series_detail_versions">版本</string>
   <string name="series_episodes">集数 (%1$d)</string>
+  <string name="series_episodes_empty">该剧暂无可用集数。</string>
+  <string name="series_episodes_load_failed">无法加载该剧的集数。请检查网络连接后重试。</string>
   <string name="series_incorrect_pin">PIN 错误</string>
   <string name="series_library_lens_subtitle">在整个库中展示收藏、观看中、高评分和最新剧集。</string>
   <string name="series_loading">正在加载剧集...</string>

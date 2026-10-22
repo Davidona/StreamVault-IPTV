@@ -21,6 +21,7 @@ import com.streamvault.domain.model.ProviderXtreamLiveSyncMode
 import com.streamvault.domain.model.ProviderType
 import com.streamvault.domain.model.StalkerAuthMode
 import com.streamvault.domain.model.StalkerCatalogMode
+import com.streamvault.domain.model.StalkerCatalogLoadOrder
 import com.streamvault.domain.model.StalkerCompatibilityProfileIds
 import com.streamvault.domain.model.StalkerProtocolPreference
 import com.streamvault.domain.model.StalkerTransportChallenge
@@ -364,6 +365,7 @@ class ProviderSetupViewModel @Inject constructor(
                         stalkerRequestedProfileId = provider.stalkerRequestedProfileId,
                         epgSyncMode = provider.epgSyncMode,
                         stalkerCatalogMode = provider.stalkerCatalogMode,
+                        stalkerCatalogLoadOrder = ProviderStalkerAdvancedOptionsCodec.decode(provider.stalkerAdvancedOptionsJson).catalogLoadOrder,
                         xtreamLiveSyncMode = provider.xtreamLiveSyncMode,
                         guideSourcePolicy = provider.guideSourcePolicy,
                         channelLogoSourcePolicy = provider.channelLogoSourcePolicy,
@@ -396,6 +398,10 @@ class ProviderSetupViewModel @Inject constructor(
 
     fun updateStalkerCatalogMode(mode: StalkerCatalogMode) {
         _uiState.update { it.copy(stalkerCatalogMode = mode) }
+    }
+
+    fun updateStalkerCatalogLoadOrder(order: StalkerCatalogLoadOrder) {
+        _uiState.update { it.copy(stalkerCatalogLoadOrder = order) }
     }
 
     fun updateStalkerProtocolPreference(preference: StalkerProtocolPreference) {
@@ -1266,6 +1272,7 @@ data class ProviderSetupState(
     val driveBackupOptions: List<DriveBackupSnapshot> = emptyList(),
     val epgSyncMode: ProviderEpgSyncMode = ProviderEpgSyncMode.BACKGROUND,
     val stalkerCatalogMode: StalkerCatalogMode = StalkerCatalogMode.BACKGROUND_INDEX,
+    val stalkerCatalogLoadOrder: StalkerCatalogLoadOrder = StalkerCatalogLoadOrder.PARALLEL,
     val xtreamLiveSyncMode: ProviderXtreamLiveSyncMode = ProviderXtreamLiveSyncMode.AUTO,
     val guideSourcePolicy: GuideSourcePolicy = GuideSourcePolicy.AUTO,
     val channelLogoSourcePolicy: ChannelLogoSourcePolicy = ChannelLogoSourcePolicy.SUPPLIER_PREFERRED,

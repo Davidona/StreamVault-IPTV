@@ -349,6 +349,13 @@
     <string name="settings_status_expired">已过期</string>
     <string name="settings_status_disabled">已禁用</string>
     <string name="settings_status_unknown">未知</string>
+    <string name="settings_provider_connection_online">在线</string>
+    <string name="settings_provider_connection_unavailable">不可用</string>
+    <string name="settings_provider_connection_checking">正在检查…</string>
+    <string name="settings_provider_connection_check_now">立即检查</string>
+    <string name="settings_provider_connection_last_checked">上次检查</string>
+    <string name="settings_provider_connection_authentication_required">需要登录</string>
+    <string name="settings_provider_connection_unknown">未知</string>
     <string name="settings_select_level">选择保护级别</string>
     <string name="settings_level_off_desc">关闭 - 无限制</string>
     <string name="settings_level_off_subtitle">成人内容在所有位置显示。</string>
@@ -937,4 +944,6 @@
     <string name="settings_sports_custom_definition_file_error">无法加载此 JSON 文件</string>
     <string name="settings_experimental_badge">实验性</string>
     <string name="settings_sync_index_progress">%1$s · %2$s</string>
+    <string name="settings_refresh_rate_matching">匹配内容帧率</string>
+    <string name="settings_refresh_rate_matching_description">根据视频调整显示器刷新率，让运动画面更流畅。需要显示器支持；切换时屏幕可能会短暂变黑。</string>
 </resources>

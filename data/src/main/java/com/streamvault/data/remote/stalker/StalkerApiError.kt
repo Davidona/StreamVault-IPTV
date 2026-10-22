@@ -73,7 +73,8 @@ sealed class StalkerApiError(
     class Server(
         message: String,
         override val httpStatus: Int? = null,
-        override val portalReason: String? = null
+        override val portalReason: String? = null,
+        override val retryAfterMillis: Long? = null
     ) : StalkerApiError(message, httpStatus = httpStatus, portalReason = portalReason)
 
     class Transport(message: String, cause: Throwable? = null) : StalkerApiError(message, cause)

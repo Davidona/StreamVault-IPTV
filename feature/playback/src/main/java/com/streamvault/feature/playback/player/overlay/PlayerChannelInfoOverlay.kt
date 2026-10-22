@@ -86,6 +86,7 @@ fun ChannelInfoOverlay(
     onScheduleRecording: () -> Unit,
     onScheduleDailyRecording: () -> Unit,
     onScheduleWeeklyRecording: () -> Unit,
+    onScheduleByTime: () -> Unit = {},
     onRestartProgram: () -> Unit,
     onOpenArchive: () -> Unit,
     onToggleAspectRatio: () -> Unit,
@@ -660,6 +661,10 @@ fun ChannelInfoOverlay(
                             add(ChannelInfoMenuEntry(stringResource(R.string.player_schedule_weekly_recording)) {
                                 expandedPanel = null
                                 onScheduleWeeklyRecording()
+                            })
+                            add(ChannelInfoMenuEntry(stringResource(R.string.player_schedule_by_time)) {
+                                expandedPanel = null
+                                onScheduleByTime()
                             })
                         },
                         onInteraction = onOverlayInteracted,

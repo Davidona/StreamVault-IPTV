@@ -353,6 +353,13 @@
     <string name="settings_status_expired">منقضی‌شده</string>
     <string name="settings_status_disabled">غیرفعال</string>
     <string name="settings_status_unknown">نامشخص</string>
+    <string name="settings_provider_connection_online">آنلاین</string>
+    <string name="settings_provider_connection_unavailable">در دسترس نیست</string>
+    <string name="settings_provider_connection_checking">در حال بررسی…</string>
+    <string name="settings_provider_connection_check_now">اکنون بررسی شود</string>
+    <string name="settings_provider_connection_last_checked">آخرین بررسی</string>
+    <string name="settings_provider_connection_authentication_required">ورود لازم است</string>
+    <string name="settings_provider_connection_unknown">نامشخص</string>
     <string name="settings_select_level">انتخاب سطح محافظت</string>
     <string name="settings_level_off_desc">خاموش - بدون محدودیت</string>
     <string name="settings_level_off_subtitle">محتوای بزرگسال همه‌جا نمایش داده می‌شود.</string>
@@ -939,4 +946,6 @@
     <string name="settings_sports_custom_definition_file_error">بارگذاری این فایل JSON ممکن نبود</string>
     <string name="settings_experimental_badge">آزمایشی</string>
     <string name="settings_sync_index_progress">%1$s · %2$s</string>
+    <string name="settings_refresh_rate_matching">تطبیق با نرخ فریم محتوا</string>
+    <string name="settings_refresh_rate_matching_description">نرخ نوسازی نمایشگر را برای حرکت روان‌تر با ویدیو هماهنگ می‌کند. به پشتیبانی نمایشگر نیاز دارد؛ هنگام تغییر ممکن است صفحه برای لحظه‌ای سیاه شود.</string>
 </resources>

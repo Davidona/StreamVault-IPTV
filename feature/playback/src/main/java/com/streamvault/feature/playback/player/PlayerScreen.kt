@@ -84,6 +84,8 @@ import com.streamvault.feature.playback.player.overlay.PlayerErrorOverlay
 import com.streamvault.feature.playback.player.overlay.PlayerNoticeBanner
 import com.streamvault.feature.playback.player.overlay.PlayerResumePrompt
 import com.streamvault.feature.playback.player.overlay.PlayerClosePlaybackConfirmation
+import com.streamvault.feature.playback.player.overlay.PlayerScheduleByTimeDialog
+import com.streamvault.feature.playback.player.overlay.PlayerScheduleByTimeLabels
 import com.streamvault.feature.playback.player.overlay.PlayerAspectRatioToast
 import com.streamvault.feature.playback.player.overlay.PlayerBackButton
 import com.streamvault.feature.playback.player.overlay.PlayerBackButtonPlacement
@@ -207,6 +209,7 @@ fun PlayerScreen(
     var modalState by remember { mutableStateOf(PlayerModalState()) }
     var channelInfoSubPanelOpen by remember { mutableStateOf(false) }
     var showClosePlaybackConfirmation by rememberSaveable { mutableStateOf(false) }
+    var showScheduleByTimeDialog by remember { mutableStateOf(false) }
     var closePlaybackConfirmationOpenedAtMs by remember { mutableStateOf(0L) }
     var showTransientTraktStatus by remember { mutableStateOf(false) }
 
@@ -267,6 +270,19 @@ fun PlayerScreen(
             onBack()
         }
     }
+
+    val refreshRateMatchingEnabled by viewModel.refreshRateMatchingEnabled.collectAsStateWithLifecycle()
+    val refreshRatePlaybackSpeed by playerEngine.playbackSpeed.collectAsStateWithLifecycle()
+    val refreshRateCastState by viewModel.castConnectionState.collectAsStateWithLifecycle()
+    PlayerRefreshRateHost(
+        engine = playerEngine,
+        enabled = refreshRateMatchingEnabled,
+        frameRate = videoFormat.frameRate,
+        playbackSpeed = refreshRatePlaybackSpeed,
+        playbackState = playbackState,
+        pictureInPicture = isInPictureInPictureMode,
+        casting = refreshRateCastState == CastConnectionState.CONNECTED || refreshRateCastState == CastConnectionState.CONNECTING
+    )
 
     PlayerLifecycleHost(
         playbackPlatformHost = playbackPlatformHost,
@@ -921,6 +937,7 @@ fun PlayerScreen(
             onEnterPictureInPicture = enterPictureInPicture,
             onRunRecordingAction = notificationPermissionGate::runRecordingAction,
             onOpenCastRouteChooser = { playbackPlatformHost?.openCastRouteChooser() },
+            onScheduleByTime = { showScheduleByTimeDialog = true },
             showBackButton = backButtonPlacement == PlayerBackButtonPlacement.CONTROLS_TOP_BAR,
             onBackToMenu = onBack
         )
@@ -1009,6 +1026,36 @@ fun PlayerScreen(
                 onCancel = { showClosePlaybackConfirmation = false }
             )
         }
+
+        if (showScheduleByTimeDialog) {
+            val scheduleDialogNow = remember { System.currentTimeMillis() }
+            PlayerScheduleByTimeDialog(
+                channelName = currentChannel?.name.orEmpty(),
+                now = scheduleDialogNow,
+                labels = PlayerScheduleByTimeLabels(
+                    title = stringResource(R.string.player_schedule_by_time_title),
+                    start = stringResource(R.string.player_schedule_by_time_start),
+                    duration = stringResource(R.string.player_schedule_by_time_duration),
+                    repeat = stringResource(R.string.player_schedule_by_time_repeat),
+                    once = stringResource(R.string.player_schedule_by_time_once),
+                    daily = stringResource(R.string.player_schedule_by_time_daily),
+                    weekly = stringResource(R.string.player_schedule_by_time_weekly),
+                    confirm = stringResource(R.string.player_schedule_by_time_confirm),
+                    cancel = stringResource(R.string.player_schedule_by_time_cancel),
+                    windowFormat = stringResource(R.string.time_range_format),
+                    durationHoursMinutes = stringResource(R.string.player_schedule_by_time_duration_hm),
+                    durationHours = stringResource(R.string.player_schedule_by_time_duration_h),
+                    durationMinutes = stringResource(R.string.player_schedule_by_time_duration_m)
+                ),
+                onDismiss = { showScheduleByTimeDialog = false },
+                onConfirm = { startMs, endMs, recurrence ->
+                    showScheduleByTimeDialog = false
+                    notificationPermissionGate.runRecordingAction {
+                        viewModel.scheduleRecordingByTime(startMs, endMs, recurrence)
+                    }
+                }
+            )
+        }
         
         PlayerControlsModalHost(
             viewModel = viewModel,
@@ -1070,6 +1117,7 @@ fun PlayerScreen(
                 onEnterPictureInPicture = enterPictureInPicture,
                 onRunRecordingAction = notificationPermissionGate::runRecordingAction,
                 onOpenCastRouteChooser = { playbackPlatformHost?.openCastRouteChooser() },
+                onScheduleByTime = { showScheduleByTimeDialog = true },
                 onTransientPanelVisibilityChanged = { channelInfoSubPanelOpen = it }
             )
         }

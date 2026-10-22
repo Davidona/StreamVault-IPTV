@@ -53,6 +53,8 @@ import com.streamvault.domain.model.VodDuplicateHandlingMode
 import com.streamvault.domain.model.VodHttpProtocolMode
 import com.streamvault.domain.model.LegacyProvider as Provider
 import com.streamvault.domain.model.ProviderStatus
+import com.streamvault.domain.model.ProviderAvailabilityResult
+import com.streamvault.domain.model.ProviderAvailabilityStatus
 import com.streamvault.domain.model.RecordingItem
 import com.streamvault.domain.model.RecordingStorageConfig
 import com.streamvault.domain.model.RecordingStorageState
@@ -74,6 +76,7 @@ import com.streamvault.domain.usecase.ImportBackupResult
 import com.streamvault.domain.usecase.InspectBackupCommand
 import com.streamvault.domain.usecase.InspectBackupResult
 import com.streamvault.domain.repository.ProviderRepository
+import com.streamvault.domain.repository.ProviderAvailabilityRepository
 import com.streamvault.domain.repository.CombinedM3uRepository
 import com.streamvault.domain.repository.CategoryRepository
 import com.streamvault.domain.repository.ChannelRepository
@@ -93,12 +96,14 @@ import kotlinx.coroutines.launch
 import kotlin.math.max
 import javax.inject.Inject
 
+private const val PROVIDER_AVAILABILITY_STALE_AFTER_MILLIS = 5 * 60 * 1000L
 
 @HiltViewModel
 @OptIn(ExperimentalCoroutinesApi::class)
 class SettingsViewModel @Inject constructor(
     @ApplicationContext application: Context,
     private val providerRepository: ProviderRepository,
+    private val providerAvailabilityRepository: ProviderAvailabilityRepository,
     private val combinedM3uRepository: CombinedM3uRepository,
     private val categoryRepository: CategoryRepository,
     private val channelRepository: ChannelRepository,
@@ -142,6 +147,7 @@ class SettingsViewModel @Inject constructor(
 
     private val _uiState = MutableStateFlow(SettingsUiState())
     val uiState: StateFlow<SettingsUiState> = _uiState.asStateFlow()
+    private val availabilityChecksInFlight = mutableSetOf<Long>()
     val playerLiveStreamFormatMode: StateFlow<LiveStreamFormatMode> =
         preferencesRepository.playerLiveStreamFormatMode.stateIn(
             scope = viewModelScope,
@@ -311,13 +317,16 @@ class SettingsViewModel @Inject constructor(
                 preferencesRepository = preferencesRepository
             ).collect { snapshot ->
                 val previousProviderIds = _uiState.value.providers.map { it.id }.toSet()
-                _uiState.update {
-                    it.applyPreferenceSnapshot(
+                val currentProviderIds = snapshot.providers.map { it.id }.toSet()
+                _uiState.update { state ->
+                    state.applyPreferenceSnapshot(
                         snapshot = snapshot,
                         isRemoteVersionNewer = appUpdatePort::isRemoteVersionNewer,
+                    ).copy(
+                        providerAvailabilityById = state.providerAvailabilityById
+                            .filterKeys { providerId -> providerId in currentProviderIds }
                     )
                 }
-                val currentProviderIds = snapshot.providers.map { it.id }.toSet()
                 val removedIds = previousProviderIds - currentProviderIds
                 if (removedIds.isNotEmpty()) {
                     epgActions.cleanupEpgAssignmentsFor(removedIds)
@@ -436,6 +445,80 @@ class SettingsViewModel @Inject constructor(
 
     fun setActiveProvider(providerId: Long) {
         providerActions.setActiveProvider(viewModelScope, providerId)
+    }
+
+    fun checkProviderAvailability(providerId: Long) {
+        startProviderAvailabilityCheck(providerId, force = true)
+    }
+
+    fun checkProviderAvailabilityIfStale(providerIds: List<Long>) {
+        providerIds.distinct().forEach { providerId ->
+            startProviderAvailabilityCheck(providerId, force = false)
+        }
+    }
+
+    private fun startProviderAvailabilityCheck(providerId: Long, force: Boolean) {
+        val now = System.currentTimeMillis()
+        val previous = _uiState.value.providerAvailabilityById[providerId]
+            ?: ProviderAvailabilityUiState()
+        if (previous.isChecking || providerId in availabilityChecksInFlight) return
+        if (
+            !force && previous.checkedAt > 0L &&
+            now - previous.checkedAt < PROVIDER_AVAILABILITY_STALE_AFTER_MILLIS
+        ) return
+
+        availabilityChecksInFlight += providerId
+        _uiState.update { state ->
+            state.copy(
+                providerAvailabilityById = state.providerAvailabilityById +
+                    (providerId to previous.copy(isChecking = true))
+            )
+        }
+        viewModelScope.launch {
+            try {
+                val result = providerAvailabilityRepository.check(providerId)
+                publishProviderAvailability(providerId, result, isChecking = false)
+            } catch (cancelled: kotlinx.coroutines.CancellationException) {
+                publishProviderAvailability(
+                    providerId,
+                    ProviderAvailabilityResult(previous.status, previous.checkedAt),
+                    isChecking = false
+                )
+                throw cancelled
+            } catch (_: Exception) {
+                publishProviderAvailability(
+                    providerId,
+                    ProviderAvailabilityResult(
+                        status = ProviderAvailabilityStatus.UNKNOWN,
+                        checkedAt = System.currentTimeMillis()
+                    ),
+                    isChecking = false
+                )
+            } finally {
+                availabilityChecksInFlight -= providerId
+            }
+        }
+    }
+
+    private fun publishProviderAvailability(
+        providerId: Long,
+        result: ProviderAvailabilityResult,
+        isChecking: Boolean
+    ) {
+        _uiState.update { state ->
+            if (state.providers.none { it.id == providerId }) {
+                state
+            } else {
+                state.copy(
+                    providerAvailabilityById = state.providerAvailabilityById +
+                        (providerId to ProviderAvailabilityUiState(
+                            status = result.status,
+                            checkedAt = result.checkedAt,
+                            isChecking = isChecking
+                        ))
+                )
+            }
+        }
     }
 
     fun setActiveCombinedProfile(profileId: Long) {
@@ -738,6 +821,12 @@ class SettingsViewModel @Inject constructor(
     fun setAppTheme(theme: com.streamvault.domain.model.AppTheme) {
         viewModelScope.launch {
             preferencesRepository.setAppTheme(theme)
+        }
+    }
+
+    fun setPlayerRefreshRateMatchingEnabled(enabled: Boolean) {
+        viewModelScope.launch {
+            preferencesRepository.setPlayerRefreshRateMatchingEnabled(enabled)
         }
     }
 

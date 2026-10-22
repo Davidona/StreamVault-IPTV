@@ -1960,6 +1960,95 @@ class OkHttpStalkerApiServiceTest {
     }
 
     @Test
+    fun getVodStreamsPageAtPortalPage_forwards_sortby_ordering_hint() = runTest {
+        var requestedSortBy: String? = null
+        val service = OkHttpStalkerApiService(
+            okHttpClient = OkHttpClient.Builder()
+                .addInterceptor { chain ->
+                    requestedSortBy = chain.request().url.queryParameter("sortby")
+                    Response.Builder()
+                        .request(chain.request())
+                        .protocol(Protocol.HTTP_1_1)
+                        .code(200)
+                        .message("OK")
+                        .body(
+                            """{"js":{"total_items":1,"max_page_items":14,"data":[{"id":"1","name":"Newest","category_id":"42","cmd":"ffmpeg http://example.com/movie.mp4"}]}}"""
+                                .toResponseBody("application/json".toMediaType())
+                        )
+                        .build()
+                }
+                .build(),
+            json = Json { ignoreUnknownKeys = true }
+        )
+
+        val result = service.getVodStreamsPageAtPortalPage(
+            stalkerSession(),
+            stalkerProfile(),
+            categoryId = "*",
+            portalPage = 1,
+            searchQuery = null,
+            sortBy = "added"
+        )
+
+        assertThat(result).isInstanceOf(Result.Success::class.java)
+        assertThat(requestedSortBy).isEqualTo("added")
+    }
+
+    @Test
+    fun getSeriesPage_ordersIndexByAddedAndKeepsInteractiveDefault() = runTest {
+        val requestedSorts = mutableListOf<String?>()
+        val service = OkHttpStalkerApiService(
+            okHttpClient = OkHttpClient.Builder().addInterceptor { chain ->
+                requestedSorts += chain.request().url.queryParameter("sortby")
+                Response.Builder().request(chain.request()).protocol(Protocol.HTTP_1_1)
+                    .code(200).message("OK")
+                    .body("""{"js":{"total_items":1,"max_page_items":14,"data":[{"id":"1","name":"Series"}]}}"""
+                        .toResponseBody("application/json".toMediaType())).build()
+            }.build(),
+            json = Json { ignoreUnknownKeys = true }
+        )
+        assertThat(service.getSeriesPage(stalkerSession(), stalkerProfile(), "42", 1, "added"))
+            .isInstanceOf(Result.Success::class.java)
+        assertThat(service.getSeriesPage(stalkerSession(), stalkerProfile(), "42", 1))
+            .isInstanceOf(Result.Success::class.java)
+        assertThat(requestedSorts).containsExactly("added", null).inOrder()
+    }
+
+    @Test
+    fun getVodStreamsPage_omits_sortby_when_not_requested() = runTest {
+        var requestedSortBy: String? = "unset"
+        val service = OkHttpStalkerApiService(
+            okHttpClient = OkHttpClient.Builder()
+                .addInterceptor { chain ->
+                    requestedSortBy = chain.request().url.queryParameter("sortby")
+                    Response.Builder()
+                        .request(chain.request())
+                        .protocol(Protocol.HTTP_1_1)
+                        .code(200)
+                        .message("OK")
+                        .body(
+                            """{"js":{"total_items":1,"max_page_items":14,"data":[{"id":"1","name":"Movie","category_id":"42","cmd":"ffmpeg http://example.com/movie.mp4"}]}}"""
+                                .toResponseBody("application/json".toMediaType())
+                        )
+                        .build()
+                }
+                .build(),
+            json = Json { ignoreUnknownKeys = true }
+        )
+
+        val result = service.getVodStreamsPage(
+            stalkerSession(),
+            stalkerProfile(),
+            "42",
+            page = 1,
+            searchQuery = null
+        )
+
+        assertThat(result).isInstanceOf(Result.Success::class.java)
+        assertThat(requestedSortBy).isNull()
+    }
+
+    @Test
     fun getVodFiles_requests_movie_files_by_movie_id() = runTest {
         var requestedMovieId: String? = null
         var requestedAction: String? = null
@@ -2652,17 +2741,18 @@ class OkHttpStalkerApiServiceTest {
     }
 
     @Test
-    fun getSeriesDetails_fetches_shell_season_page_for_explicit_episode_cmds() = runTest {
+    fun getSeriesDetails_usesInlineEpisodeNumbersWithoutExtraSeasonRequests() = runTest {
         val requestedSeasonIds = mutableListOf<String>()
         val service = OkHttpStalkerApiService(
             okHttpClient = OkHttpClient.Builder()
                 .addInterceptor { chain ->
                     val request = chain.request()
                     val action = request.url.queryParameter("action").orEmpty()
+                    assertThat(request.url.queryParameter("category")).isEqualTo("42")
                     val seasonId = request.url.queryParameter("season_id").orEmpty()
                     val body = when {
                         action != "get_ordered_list" -> error("Unexpected action '$action'")
-                        seasonId == "0" -> """
+                        seasonId.isEmpty() -> """
                             {"js":{"total_items":1,"max_page_items":14,"data":[{"id":"55000:1","name":"Season 1","description":"Doc","series":[1,2,3,4],"cmd":"eyJzZXJpZXNfaWQiOjU1MDAwLCJzZWFzb25fbnVtIjoxLCJ0eXBlIjoic2VyaWVzIn0=","screenshot_uri":"https://img.example.com/season1.jpg"}]}}
                         """.trimIndent()
                         seasonId == "1" -> {
@@ -2685,7 +2775,7 @@ class OkHttpStalkerApiServiceTest {
             json = Json { ignoreUnknownKeys = true }
         )
 
-        val result = service.getSeriesDetails(
+        val result = service.getSeriesDetailsInCategory(
             session = StalkerSession(
                 loadUrl = "https://portal.example.com/server/load.php",
                 portalReferer = "https://portal.example.com/c/",
@@ -2698,20 +2788,21 @@ class OkHttpStalkerApiServiceTest {
                 timezone = "UTC",
                 locale = "en"
             ),
-            seriesId = "55000:55000"
+            seriesId = "55000:55000",
+            categoryId = "42"
         )
 
         assertThat(result).isInstanceOf(Result.Success::class.java)
         val success = result as Result.Success
-        assertThat(requestedSeasonIds).containsExactly("1")
+        assertThat(requestedSeasonIds).isEmpty()
         assertThat(success.data.seasons).hasSize(1)
         val season = success.data.seasons.single()
-        assertThat(season.episodes).hasSize(1)
-        assertThat(season.episodes.single().cmd).isEqualTo("ffmpeg http://example.com/episode1.mp4")
+        assertThat(season.episodes).hasSize(4)
+        assertThat(season.episodes.map { it.playbackSelector }).containsExactly(1, 2, 3, 4).inOrder()
     }
 
     @Test
-    fun getSeriesDetails_preserves_shell_season_numbers_when_followup_rows_omit_them() = runTest {
+    fun getSeriesDetails_preservesInlineSeasonNumbersWithoutFollowupRequests() = runTest {
         val requestedSeasonIds = mutableListOf<String>()
         val service = OkHttpStalkerApiService(
             okHttpClient = OkHttpClient.Builder()
@@ -2721,7 +2812,7 @@ class OkHttpStalkerApiServiceTest {
                     val seasonId = request.url.queryParameter("season_id").orEmpty()
                     val body = when {
                         action != "get_ordered_list" -> error("Unexpected action '$action'")
-                        seasonId == "0" ->
+                        seasonId.isEmpty() ->
                             """
                                 {"js":{"total_items":2,"max_page_items":14,"data":[
                                     {"id":"55000:alpha","name":"Season 1","description":"Alpha","series":[1,2],"cmd":"shell-cmd-1"},
@@ -2778,7 +2869,7 @@ class OkHttpStalkerApiServiceTest {
 
         assertThat(result).isInstanceOf(Result.Success::class.java)
         val success = result as Result.Success
-        assertThat(requestedSeasonIds).containsExactly("1", "2")
+        assertThat(requestedSeasonIds).isEmpty()
         assertThat(success.data.seasons.map { it.seasonNumber }).containsExactly(1, 2).inOrder()
         assertThat(success.data.seasons.map { it.name }).containsExactly("Season 1", "Season 2").inOrder()
         assertThat(success.data.seasons[0].episodes.map { it.episodeNumber }).containsExactly(1, 2).inOrder()

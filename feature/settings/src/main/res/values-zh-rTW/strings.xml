@@ -352,6 +352,13 @@
     <string name="settings_status_expired">已過期</string>
     <string name="settings_status_disabled">已停用</string>
     <string name="settings_status_unknown">未知</string>
+    <string name="settings_provider_connection_online">線上</string>
+    <string name="settings_provider_connection_unavailable">無法使用</string>
+    <string name="settings_provider_connection_checking">正在檢查…</string>
+    <string name="settings_provider_connection_check_now">立即檢查</string>
+    <string name="settings_provider_connection_last_checked">上次檢查</string>
+    <string name="settings_provider_connection_authentication_required">需要登入</string>
+    <string name="settings_provider_connection_unknown">未知</string>
     <string name="settings_select_level">選擇保護等級</string>
     <string name="settings_level_off_desc">關閉 - 無限制</string>
     <string name="settings_level_off_subtitle">成人內容會顯示在所有位置。</string>
@@ -936,4 +943,6 @@
     <string name="settings_sports_custom_definition_file_error">無法載入此 JSON 檔案</string>
     <string name="settings_experimental_badge">實驗性</string>
     <string name="settings_sync_index_progress">%1$s · %2$s</string>
+    <string name="settings_refresh_rate_matching">配合內容影格率</string>
+    <string name="settings_refresh_rate_matching_description">依照影片調整顯示器更新率，讓動態畫面更流暢。需要顯示器支援；切換時螢幕可能會短暫變黑。</string>
 </resources>

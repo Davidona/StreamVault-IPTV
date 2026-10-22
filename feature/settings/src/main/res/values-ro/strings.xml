@@ -318,6 +318,13 @@
     <string name="settings_status_expired">A expirat</string>
     <string name="settings_status_disabled">Dezactivat</string>
     <string name="settings_status_unknown">Necunoscut</string>
+    <string name="settings_provider_connection_online">Online</string>
+    <string name="settings_provider_connection_unavailable">Indisponibil</string>
+    <string name="settings_provider_connection_checking">Se verifică…</string>
+    <string name="settings_provider_connection_check_now">Verifică acum</string>
+    <string name="settings_provider_connection_last_checked">Ultima verificare</string>
+    <string name="settings_provider_connection_authentication_required">Autentificare necesară</string>
+    <string name="settings_provider_connection_unknown">Necunoscut</string>
     <string name="settings_select_level">Selectați Nivel de protecție</string>
     <string name="settings_level_off_desc">OFF - Fără restricții</string>
     <string name="settings_level_off_subtitle">Conținutul pentru adulți apare peste tot.</string>
@@ -944,4 +951,6 @@
     <string name="settings_sports_custom_definition_file_error">Acest fișier JSON nu a putut fi încărcat</string>
     <string name="settings_experimental_badge">Experimental</string>
     <string name="settings_sync_index_progress">%1$s · %2$s</string>
+    <string name="settings_refresh_rate_matching">Potrivește rata de cadre a conținutului</string>
+    <string name="settings_refresh_rate_matching_description">Adaptează rata de reîmprospătare a ecranului la videoclip pentru mișcări mai fluide. Necesită suport din partea ecranului; la schimbare, ecranul se poate înnegri pentru scurt timp.</string>
 </resources>

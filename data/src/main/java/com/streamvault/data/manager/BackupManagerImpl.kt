@@ -353,6 +353,7 @@ class BackupManagerImpl @Inject constructor(
                 put("playerTimeshiftBackend", preferencesRepository.playerTimeshiftBackend.first().name)
                 put("defaultStopPlaybackTimerMinutes", preferencesRepository.defaultStopPlaybackTimerMinutes.first().toString())
                 put("defaultIdleStandbyTimerMinutes", preferencesRepository.defaultIdleStandbyTimerMinutes.first().toString())
+                put("playerRefreshRateMatchingEnabled", preferencesRepository.playerRefreshRateMatchingEnabled.first().toString())
                 put("preventStandbyDuringPlayback", preferencesRepository.preventStandbyDuringPlayback.first().toString())
                 put("zapAutoRevert", preferencesRepository.zapAutoRevert.first().toString())
                 put("autoPlayNextEpisode", preferencesRepository.autoPlayNextEpisode.first().toString())
@@ -3605,6 +3606,7 @@ class BackupManagerImpl @Inject constructor(
             put("playerTimeshiftBackend", preferencesRepository.playerTimeshiftBackend.first().name)
             put("defaultStopPlaybackTimerMinutes", preferencesRepository.defaultStopPlaybackTimerMinutes.first().toString())
             put("defaultIdleStandbyTimerMinutes", preferencesRepository.defaultIdleStandbyTimerMinutes.first().toString())
+            put("playerRefreshRateMatchingEnabled", preferencesRepository.playerRefreshRateMatchingEnabled.first().toString())
             put("preventStandbyDuringPlayback", preferencesRepository.preventStandbyDuringPlayback.first().toString())
             put("zapAutoRevert", preferencesRepository.zapAutoRevert.first().toString())
             put("autoPlayNextEpisode", preferencesRepository.autoPlayNextEpisode.first().toString())
@@ -4404,6 +4406,8 @@ class BackupManagerImpl @Inject constructor(
             ?.let { preferencesRepository.setDefaultStopPlaybackTimerMinutes(it) }
         prefs["defaultIdleStandbyTimerMinutes"]?.toIntOrNull()
             ?.let { preferencesRepository.setDefaultIdleStandbyTimerMinutes(it) }
+        prefs["playerRefreshRateMatchingEnabled"]?.toBooleanStrictOrNull()
+            ?.let { preferencesRepository.setPlayerRefreshRateMatchingEnabled(it) }
         prefs["preventStandbyDuringPlayback"]?.toBooleanStrictOrNull()
             ?.let { preferencesRepository.setPreventStandbyDuringPlayback(it) }
         prefs["zapAutoRevert"]?.toBooleanStrictOrNull()

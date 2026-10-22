@@ -306,6 +306,8 @@
   <string name="series_detail_resume">Pokračovat · Série %1$d Ep %2$d · %3$s</string>
   <string name="series_detail_versions">Verze</string>
   <string name="series_episodes">Epizody (%1$d)</string>
+  <string name="series_episodes_empty">Pro tento seriál zatím nejsou k dispozici žádné epizody.</string>
+  <string name="series_episodes_load_failed">Nepodařilo se načíst epizody tohoto seriálu. Zkontrolujte připojení a zkuste to znovu.</string>
   <string name="series_incorrect_pin">Nesprávný PIN</string>
   <string name="series_library_lens_subtitle">Zobrazte oblíbené, rozkoukané, nejlépe hodnocené a nové seriály v celé knihovně.</string>
   <string name="series_loading">Načítání seriálů...</string>

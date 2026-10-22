@@ -281,7 +281,7 @@ private fun JsonElement?.decodeEpisodeMap(json: kotlinx.serialization.json.Json)
             } else {
                 buildMap {
                     element.forEach { (key, value) ->
-                        val episodes = value.decodeEpisodeList(json)
+                        val episodes = value.decodeEpisodeList(json, seasonFallback = key.toIntOrNull())
                         if (episodes.isNotEmpty()) {
                             put(key, episodes)
                         }
@@ -294,22 +294,61 @@ private fun JsonElement?.decodeEpisodeMap(json: kotlinx.serialization.json.Json)
     }
 }
 
-private fun JsonElement?.decodeEpisodeList(json: kotlinx.serialization.json.Json): List<XtreamEpisode> {
+private fun JsonElement?.decodeEpisodeList(
+    json: kotlinx.serialization.json.Json,
+    seasonFallback: Int? = null
+): List<XtreamEpisode> {
     val element = this ?: return emptyList()
     return when (element) {
         JsonNull -> emptyList()
-        is JsonArray -> element.mapNotNull { value -> value.decodeEpisodeOrNull(json) }
-        is JsonObject -> when {
-            element.looksLikeEpisodeObject() -> listOfNotNull(element.decodeEpisodeOrNull(json))
-            "episodes" in element -> element["episodes"].decodeEpisodeList(json)
-            else -> element.values.flatMap { value -> value.decodeEpisodeList(json) }
+        is JsonArray -> element.flatMapIndexed { index, value ->
+            when (value) {
+                is JsonArray -> value.decodeEpisodeList(json, seasonFallback = seasonFallback ?: index)
+                is JsonObject -> value.decodeEpisodeContainer(
+                    json = json,
+                    seasonFallback = seasonFallback,
+                    indexFallback = index
+                )
+                else -> emptyList()
+            }
         }
+        is JsonObject -> element.decodeEpisodeContainer(json, seasonFallback, indexFallback = null)
         else -> emptyList()
     }
 }
 
-private fun JsonElement.decodeEpisodeOrNull(json: kotlinx.serialization.json.Json): XtreamEpisode? =
-    runCatching { json.decodeFromJsonElement<XtreamEpisode>(this) }.getOrNull()
+private fun JsonObject.decodeEpisodeContainer(
+    json: kotlinx.serialization.json.Json,
+    seasonFallback: Int?,
+    indexFallback: Int?
+): List<XtreamEpisode> = when {
+    "episodes" in this -> this["episodes"].decodeEpisodeList(json, seasonFallback ?: indexFallback)
+    looksLikeEpisodeObject() -> listOfNotNull(decodeEpisodeOrNull(json, seasonFallback))
+    else -> values.flatMap { value ->
+        value.decodeEpisodeList(json, seasonFallback = seasonFallback ?: indexFallback)
+    }
+}
+
+private fun JsonObject.decodeEpisodeOrNull(
+    json: kotlinx.serialization.json.Json,
+    seasonFallback: Int?
+): XtreamEpisode? {
+    val infoElement = this["info"]
+    val info = infoElement
+        ?.takeIf { it !is JsonNull }
+        ?.let { element -> runCatching { json.decodeFromJsonElement<XtreamEpisodeInfo>(element) }.getOrNull() }
+    val episodeElement = if (infoElement == null) this else JsonObject(this - "info")
+    val episode = runCatching { json.decodeFromJsonElement<XtreamEpisode>(episodeElement) }.getOrNull()
+        ?: return null
+    return episode.copy(
+        info = info,
+        season = if (episode.season <= 0 && seasonFallback != null && seasonFallback > 0) {
+            seasonFallback
+        } else {
+            episode.season
+        }
+    )
+}
 
 private fun JsonElement?.decodeSeasonList(json: kotlinx.serialization.json.Json): List<XtreamSeason> {
     val element = this ?: return emptyList()
@@ -351,7 +390,8 @@ private fun JsonObject.looksLikeSeriesInfoObject(): Boolean =
         containsKey("tmdb_id")
 
 private fun JsonObject.looksLikeEpisodeObject(): Boolean =
-    containsKey("episode_num") ||
+    containsKey("id") ||
+        containsKey("episode_num") ||
         containsKey("season") ||
         containsKey("container_extension") ||
         containsKey("title") ||

@@ -506,6 +506,11 @@ class MoviesViewModel @Inject constructor(
                         SelectedMovieCategoryRequest(
                             providerId = provider.id,
                             selectedCategory = selection.selectedCategory,
+                            selectedProviderCategoryItemCount = if (provider.type == ProviderType.STALKER_PORTAL) {
+                                dependencies.providerCategories.firstOrNull { it.name == selection.selectedCategory }?.id
+                                    ?.let { dependencies.providerCategoryCounts[it] ?: dependencies.providerCategoryCounts.values.sum() }
+                                    ?: dependencies.providerCategoryCounts.values.sum()
+                            } else 0,
                             loadLimit = selection.loadLimit,
                             query = selection.query,
                             filterType = selection.filterType,
@@ -1641,6 +1646,7 @@ private data class MovieCategorySelectionDependencies(
 private data class SelectedMovieCategoryRequest(
     val providerId: Long,
     val selectedCategory: String?,
+    val selectedProviderCategoryItemCount: Int,
     val loadLimit: Int,
     val query: String,
     val filterType: LibraryFilterType,

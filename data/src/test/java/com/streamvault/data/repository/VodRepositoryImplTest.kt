@@ -42,6 +42,7 @@ import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.whenever
 import org.mockito.kotlin.timeout
+import org.mockito.kotlin.never
 
 class VodRepositoryImplTest {
     private val movieDao = mock<MovieDao>()
@@ -204,7 +205,7 @@ class VodRepositoryImplTest {
     }
 
     @Test
-    fun openInPagedMode_fetchesOnePageThenPrefetchesExactlyOnePage() = runTest {
+    fun openPrioritizesCategoryAndLeavesBackfillToSharedImporter() = runTest {
         whenever(preferences.vodCategoryLoadMode).thenReturn(flowOf(VodCategoryLoadMode.PAGED))
         whenever(syncManager.hydrateUnifiedVodCategory(8, 201, VodCategoryHydrationRequest.OPEN))
             .thenReturn(Result.success(Unit))
@@ -214,7 +215,8 @@ class VodRepositoryImplTest {
         repository().requestCategoryHydration(8, 201, VodCategoryHydrationRequest.OPEN)
 
         verify(syncManager).hydrateUnifiedVodCategory(8, 201, VodCategoryHydrationRequest.OPEN)
-        verify(syncManager, timeout(1_000)).hydrateUnifiedVodCategory(
+        verify(syncManager).prioritizeStalkerIndexCategory(8, ContentType.MOVIE, 201)
+        verify(syncManager, never()).hydrateUnifiedVodCategory(
             8,
             201,
             VodCategoryHydrationRequest.NEXT_PAGE
@@ -240,14 +242,14 @@ class VodRepositoryImplTest {
     }
 
     @Test
-    fun completeOnOpenMode_usesCompleteRequestWithoutPagedOpen() = runTest {
+    fun completeOnOpenPreferenceDoesNotBlockStalkerBrowsing() = runTest {
         whenever(preferences.vodCategoryLoadMode).thenReturn(flowOf(VodCategoryLoadMode.COMPLETE_ON_OPEN))
-        whenever(syncManager.hydrateUnifiedVodCategory(8, 202, VodCategoryHydrationRequest.COMPLETE))
+        whenever(syncManager.hydrateUnifiedVodCategory(8, 202, VodCategoryHydrationRequest.OPEN))
             .thenReturn(Result.success(Unit))
 
         repository().requestCategoryHydration(8, 202, VodCategoryHydrationRequest.OPEN)
 
-        verify(syncManager).hydrateUnifiedVodCategory(8, 202, VodCategoryHydrationRequest.COMPLETE)
+        verify(syncManager).hydrateUnifiedVodCategory(8, 202, VodCategoryHydrationRequest.OPEN)
     }
 
     @Test

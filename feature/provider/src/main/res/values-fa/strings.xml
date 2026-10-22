@@ -129,4 +129,11 @@
     <string name="setup_stalker_catalog_on_demand_description">قفسه‌ها و دسته‌ها را هنگام باز شدن بارگیری می‌کند. عنوان‌های ذخیره‌شده در حافظه موقت حفظ می‌شوند.</string>
     <string name="setup_stalker_catalog_background_title">فهرست‌سازی کامل در پس‌زمینه (پیشنهادی)</string>
     <string name="setup_stalker_catalog_background_description">ابتدا راه‌اندازی ارائه‌دهنده را کامل کنید، سپس همه فیلم‌ها و سریال‌ها را برای جست‌وجو در پس‌زمینه فهرست کنید.</string>
+    <string name="setup_stalker_load_order_title">ترتیب بارگیری در پس‌زمینه</string>
+    <string name="setup_stalker_load_parallel_title">هر دو با هم (پیش‌فرض)</string>
+    <string name="setup_stalker_load_parallel_description">فیلم‌ها و سریال‌ها هم‌زمان بارگیری شوند.</string>
+    <string name="setup_stalker_load_movies_first_title">ابتدا فیلم‌ها</string>
+    <string name="setup_stalker_load_movies_first_description">سریال‌ها تا پایان بارگیری فیلم‌ها در صف بمانند.</string>
+    <string name="setup_stalker_load_series_first_title">ابتدا سریال‌ها</string>
+    <string name="setup_stalker_load_series_first_description">فیلم‌ها تا پایان بارگیری سریال‌ها در صف بمانند.</string>
 </resources>

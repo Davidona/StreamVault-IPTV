@@ -317,6 +317,13 @@
     <string name="settings_status_expired">Utløpt</string>
     <string name="settings_status_disabled">Deaktivert</string>
     <string name="settings_status_unknown">Ukjent</string>
+    <string name="settings_provider_connection_online">På nett</string>
+    <string name="settings_provider_connection_unavailable">Utilgjengelig</string>
+    <string name="settings_provider_connection_checking">Kontrollerer…</string>
+    <string name="settings_provider_connection_check_now">Sjekk nå</string>
+    <string name="settings_provider_connection_last_checked">Sist kontrollert</string>
+    <string name="settings_provider_connection_authentication_required">Pålogging kreves</string>
+    <string name="settings_provider_connection_unknown">Ukjent</string>
     <string name="settings_select_level">Velg beskyttelsesnivå</string>
     <string name="settings_level_off_desc">AV - Ingen begrensninger</string>
     <string name="settings_level_off_subtitle">Vokseninnhold vises overalt.</string>
@@ -941,4 +948,6 @@
     <string name="settings_sports_custom_definition_file_error">Denne JSON-filen kunne ikke lastes inn</string>
     <string name="settings_experimental_badge">Eksperimentell</string>
     <string name="settings_sync_index_progress">%1$s · %2$s</string>
+    <string name="settings_refresh_rate_matching">Tilpass til innholdets bildefrekvens</string>
+    <string name="settings_refresh_rate_matching_description">Tilpasser skjermens oppdateringsfrekvens til videoen for jevnere bevegelser. Krever støtte fra skjermen; skjermen kan bli svart et øyeblikk ved bytte.</string>
 </resources>

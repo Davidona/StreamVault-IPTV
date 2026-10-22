@@ -128,4 +128,11 @@
     <string name="setup_stalker_catalog_on_demand_description">開啟時載入各區和類別。保留已快取的片名。</string>
     <string name="setup_stalker_catalog_background_title">完整背景索引（建議）</string>
     <string name="setup_stalker_catalog_background_description">先完成供應商設定，再於背景為所有電影與影集建立索引，方便搜尋。</string>
+    <string name="setup_stalker_load_order_title">背景載入順序</string>
+    <string name="setup_stalker_load_parallel_title">同時載入（預設）</string>
+    <string name="setup_stalker_load_parallel_description">同時載入電影和影集。</string>
+    <string name="setup_stalker_load_movies_first_title">電影優先</string>
+    <string name="setup_stalker_load_movies_first_description">電影載入完成前，影集保持排隊。</string>
+    <string name="setup_stalker_load_series_first_title">影集優先</string>
+    <string name="setup_stalker_load_series_first_description">影集載入完成前，電影保持排隊。</string>
 </resources>

@@ -30,9 +30,6 @@ import androidx.media3.exoplayer.ScrubbingModeParameters
 import androidx.media3.exoplayer.analytics.AnalyticsListener
 import androidx.media3.exoplayer.audio.AudioSink
 import androidx.media3.exoplayer.audio.AudioRendererEventListener
-import androidx.media3.exoplayer.audio.AudioTrackAudioOutputProvider
-import androidx.media3.exoplayer.audio.DefaultAudioSink
-import androidx.media3.exoplayer.audio.DefaultAudioTrackBufferSizeProvider
 import androidx.media3.exoplayer.mediacodec.MediaCodecInfo
 import androidx.media3.exoplayer.mediacodec.MediaCodecSelector
 import androidx.media3.exoplayer.video.MediaCodecVideoRenderer
@@ -54,6 +51,7 @@ import com.streamvault.domain.model.VideoFormat
 import com.streamvault.domain.repository.PlaybackCompatibilityRepository
 import com.streamvault.player.audio.PlayerAudioFocusController
 import com.streamvault.player.playback.ActiveDecoderPolicy
+import com.streamvault.player.playback.AudioRendererRecoveryPolicy
 import com.streamvault.player.playback.AdaptiveDecodePressurePolicy
 import com.streamvault.player.playback.DecodePressureSample
 import com.streamvault.player.playback.DefaultDecoderPreferencePolicy
@@ -275,6 +273,7 @@ class Media3PlayerEngine @Inject constructor(
     private var currentBufferPolicy: PlaybackBufferPolicy? = null
     private var playbackLoadControl: PlaybackLoadControl? = null
     private var audioCodecUnsupportedReported = false
+    private val audioRendererRecoveryPolicy = AudioRendererRecoveryPolicy()
     private var lastSupportErrorMessage: String? = null
     private val isLowMemoryPlaybackDevice: Boolean = run {
         val activityManager = context.getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager
@@ -341,6 +340,7 @@ class Media3PlayerEngine @Inject constructor(
 
     private val subtitleStyleController = SubtitleStyleController()
     private val viewBinder = PlayerViewBinder(subtitleStyleController)
+    override fun setDisplayFrameRate(frameRate: Float?) = viewBinder.setDisplayFrameRate(frameRate)
     private val trackController = PlayerTrackController(context)
     private val ffmpegExtensionSupport = FfmpegExtensionSupport()
     private var ffmpegAvailability = ffmpegExtensionSupport.availability()
@@ -675,6 +675,7 @@ class Media3PlayerEngine @Inject constructor(
     }
 
     override fun stop() {
+        viewBinder.setDisplayFrameRate(null)
         com.streamvault.domain.sync.AutomaticSyncActivity.stopped(this)
         clearAdaptiveDecodePressure()
         retryJob?.cancel()
@@ -1257,6 +1258,7 @@ class Media3PlayerEngine @Inject constructor(
     }
 
     private fun resetEngineState(restartCollectors: Boolean) {
+        audioRendererRecoveryPolicy.reset()
         clearAdaptiveDecodePressure()
         retryJob?.cancel()
         retryJob = null
@@ -1718,6 +1720,9 @@ class Media3PlayerEngine @Inject constructor(
         )
             .apply {
                 videoScalingMode = C.VIDEO_SCALING_MODE_SCALE_TO_FIT
+                // The fullscreen display owner supplies measured or declared FPS. Letting the
+                // renderer vote too would override the saved Off setting and compete in multiview.
+                setVideoChangeFrameRateStrategy(C.VIDEO_CHANGE_FRAME_RATE_STRATEGY_OFF)
                 playbackParameters = PlaybackParameters(_playbackSpeed.value)
                  setVideoFrameMetadataListener { presentationTimeUs, _, _, _ ->
                      videoStallDetector.onVideoFrameRendered((presentationTimeUs / 1_000L).coerceAtLeast(0L))
@@ -1802,18 +1807,9 @@ class Media3PlayerEngine @Inject constructor(
                 enableFloatOutput: Boolean,
                 enableAudioTrackPlaybackParams: Boolean
             ): AudioSink {
-                // Reduced the first-cue offset in the V13 emulator capture without an observed underrun.
-                val bufferSizeProvider = DefaultAudioTrackBufferSizeProvider.Builder()
-                    .setTargetPcmBufferDurationUs(100_000)
-                    .build()
-                val audioOutputProvider = AudioTrackAudioOutputProvider.Builder(context)
-                    .setAudioTrackBufferSizeProvider(bufferSizeProvider)
-                    .build()
-                val audioSink = DefaultAudioSink.Builder(context)
-                    .setEnableFloatOutput(enableFloatOutput)
-                    .setEnableAudioOutputPlaybackParameters(enableAudioTrackPlaybackParams)
-                    .setAudioOutputProvider(audioOutputProvider)
-                    .build()
+                val audioSink = requireNotNull(
+                    super.buildAudioSink(context, enableFloatOutput, enableAudioTrackPlaybackParams)
+                ) { "DefaultRenderersFactory did not provide an AudioSink." }
                 val syncAwareSink = if (rendererPlan.useAudioVideoSyncSink) {
                     audioVideoSyncSinkActive = true
                     AudioVideoOffsetAudioSink(
@@ -1960,6 +1956,20 @@ class Media3PlayerEngine @Inject constructor(
                     TAG,
                     "audio-underrun bufferSize=$bufferSize bufferSizeMs=$bufferSizeMs elapsedSinceLastFeedMs=$elapsedSinceLastFeedMs"
                 )
+            }
+
+            override fun onAudioSinkError(
+                eventTime: AnalyticsListener.EventTime,
+                audioSinkError: Exception
+            ) {
+                handleAudioRendererIssue(audioSinkError, "audio-sink")
+            }
+
+            override fun onAudioCodecError(
+                eventTime: AnalyticsListener.EventTime,
+                audioCodecError: Exception
+            ) {
+                handleAudioRendererIssue(audioCodecError, "audio-codec")
             }
 
             override fun onDroppedVideoFrames(
@@ -2601,6 +2611,50 @@ class Media3PlayerEngine @Inject constructor(
         lastStreamInfo?.playbackContentKind ?: PlaybackContentKind.UNKNOWN,
         currentResolvedStreamType
     )
+
+    private fun handleAudioRendererIssue(error: Exception, source: String) {
+        val streamInfo = lastStreamInfo ?: return
+        val mediaId = lastMediaId ?: return
+        if (isDisposed || exoPlayer?.playWhenReady != true) return
+        if (!audioRendererRecoveryPolicy.shouldRecover(mediaId, SystemClock.elapsedRealtime())) {
+            Log.w(
+                TAG,
+                "audio-renderer-recovery-suppressed source=$source target=${PlaybackLogSanitizer.sanitizeUrl(streamInfo.url)} " +
+                    "message=${PlaybackLogSanitizer.sanitizeMessage(error.message)}"
+            )
+            return
+        }
+
+        Log.w(
+            TAG,
+            "audio-renderer-recover source=$source target=${PlaybackLogSanitizer.sanitizeUrl(streamInfo.url)} " +
+                "message=${PlaybackLogSanitizer.sanitizeMessage(error.message)}"
+        )
+        val playerAtError = exoPlayer
+        val generationAtError = retryGeneration
+        preloadPriorityHandler.post {
+            if (isDisposed || exoPlayer !== playerAtError ||
+                retryGeneration != generationAtError || lastMediaId != mediaId
+            ) return@post
+            if (source == "audio-codec" && tryFfmpegAudioFallback(
+                    trigger = "audio-renderer-$source",
+                    mimeTypes = audioMimeTypes(),
+                    detail = error.message
+                )
+            ) return@post
+
+            val seekPosition = exoPlayer?.currentPosition?.takeIf {
+                currentResolvedStreamType == ResolvedStreamType.PROGRESSIVE && it > 0L
+            }
+            recreatePlayer() // A new sink is required after an AudioTrack failure.
+            prepareInternal(
+                streamInfo = streamInfo,
+                preserveRetryState = true,
+                seekPositionMs = seekPosition,
+                autoPlay = true
+            )
+        }
+    }
 
     private fun tryFfmpegAudioFallback(
         trigger: String,

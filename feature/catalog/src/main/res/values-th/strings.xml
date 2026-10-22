@@ -306,6 +306,8 @@
   <string name="series_detail_resume">เล่นต่อ · ซีซัน %1$d ตอน %2$d · %3$s</string>
   <string name="series_detail_versions">เวอร์ชัน</string>
   <string name="series_episodes">ตอน (%1$d)</string>
+  <string name="series_episodes_empty">ยังไม่มีตอนที่พร้อมรับชมสำหรับซีรีส์นี้</string>
+  <string name="series_episodes_load_failed">โหลดตอนของซีรีส์นี้ไม่สำเร็จ โปรดตรวจสอบการเชื่อมต่อแล้วลองอีกครั้ง</string>
   <string name="series_incorrect_pin">PIN ไม่ถูกต้อง</string>
   <string name="series_library_lens_subtitle">แสดงซีรีส์โปรด ที่ดูค้างไว้ คะแนนสูงสุด และมาใหม่จากทั้งคลัง</string>
   <string name="series_loading">กำลังโหลดซีรีส์...</string>

@@ -313,4 +313,5 @@
     <string name="live_sports_snooker">สนุกเกอร์</string>
     <string name="live_sports_darts">ปาเป้า</string>
     <string name="live_sports_cycling">จักรยาน</string>
+    <string name="epg_recording_scheduled_notice">à¸à¸³à¸«à¸™à¸”à¹€à¸§à¸¥à¸²à¸šà¸±à¸™à¸—à¸¶à¸à¹à¸¥à¹‰à¸§: %1$s</string>     <string name="epg_recording_failed_notice">à¹„à¸¡à¹ˆà¸ªà¸²à¸¡à¸²à¸£à¸–à¸à¸³à¸«à¸™à¸”à¹€à¸§à¸¥à¸²à¸šà¸±à¸™à¸—à¸¶à¸à¹„à¸”à¹‰</string>
 </resources>

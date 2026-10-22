@@ -143,31 +143,13 @@ class VodRepositoryImpl @Inject constructor(
         categoryId: Long,
         request: VodCategoryHydrationRequest
     ): Result<Unit> {
-        val loadMode = preferencesRepository.vodCategoryLoadMode.first()
-        val effectiveRequest = if (
-            request == VodCategoryHydrationRequest.OPEN && loadMode == VodCategoryLoadMode.COMPLETE_ON_OPEN
-        ) VodCategoryHydrationRequest.COMPLETE else request
-        val result = syncManager.hydrateUnifiedVodCategory(providerId, categoryId, effectiveRequest)
-        if (result is Result.Success && request == VodCategoryHydrationRequest.OPEN &&
-            loadMode == VodCategoryLoadMode.PAGED
-        ) {
-            repositoryScope.launch {
-                syncManager.hydrateUnifiedVodCategory(
-                    providerId,
-                    categoryId,
-                    VodCategoryHydrationRequest.NEXT_PAGE
-                )
-            }
-        }
-        return result
+        syncManager.prioritizeStalkerIndexCategory(providerId, ContentType.MOVIE, categoryId)
+        val effectiveRequest = if (request == VodCategoryHydrationRequest.COMPLETE) VodCategoryHydrationRequest.OPEN else request
+        return syncManager.hydrateUnifiedVodCategory(providerId, categoryId, effectiveRequest)
     }
 
     override suspend fun hydrateCompletely(providerId: Long, categoryId: Long): Result<Unit> =
-        syncManager.hydrateUnifiedVodCategory(
-            providerId = providerId,
-            categoryId = categoryId,
-            request = VodCategoryHydrationRequest.COMPLETE
-        )
+        requestCategoryHydration(providerId, categoryId, VodCategoryHydrationRequest.OPEN)
 
     override suspend fun searchVod(
         providerId: Long,

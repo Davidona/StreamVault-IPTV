@@ -129,4 +129,11 @@
     <string name="setup_stalker_catalog_on_demand_description">Muatkan rak dan kategori apabila dibuka. Kekalkan tajuk yang dicache.</string>
     <string name="setup_stalker_catalog_background_title">Indeks latar belakang lengkap (disyorkan)</string>
     <string name="setup_stalker_catalog_background_description">Selesaikan persediaan penyedia dahulu, kemudian indeks semua filem dan siri di latar belakang untuk carian.</string>
+    <string name="setup_stalker_load_order_title">Turutan pemuatan latar belakang</string>
+    <string name="setup_stalker_load_parallel_title">Kedua-duanya serentak (lalai)</string>
+    <string name="setup_stalker_load_parallel_description">Muatkan filem dan siri serentak.</string>
+    <string name="setup_stalker_load_movies_first_title">Filem dahulu</string>
+    <string name="setup_stalker_load_movies_first_description">Biarkan siri dalam baris gilir sehingga filem selesai dimuatkan.</string>
+    <string name="setup_stalker_load_series_first_title">Siri dahulu</string>
+    <string name="setup_stalker_load_series_first_description">Biarkan filem dalam baris gilir sehingga siri selesai dimuatkan.</string>
 </resources>

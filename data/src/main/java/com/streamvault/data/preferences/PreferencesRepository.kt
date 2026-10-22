@@ -558,6 +558,7 @@ class PreferencesRepository @Inject constructor(
         val XTREAM_BASE64_TEXT_COMPATIBILITY = booleanPreferencesKey("xtream_base64_text_compatibility")
         val XTREAM_TEXT_IMPORT_GENERATION = longPreferencesKey("xtream_text_import_generation")
         val ZAP_AUTO_REVERT = booleanPreferencesKey("zap_auto_revert")
+        val PLAYER_REFRESH_RATE_MATCHING_ENABLED = booleanPreferencesKey("player_refresh_rate_matching_enabled")
         val PREVENT_STANDBY_DURING_PLAYBACK = booleanPreferencesKey("prevent_standby_during_playback")
         val AUTO_PLAY_NEXT_EPISODE = booleanPreferencesKey("auto_play_next_episode")
         val AUTO_CHECK_APP_UPDATES = booleanPreferencesKey("auto_check_app_updates")
@@ -1123,6 +1124,10 @@ class PreferencesRepository @Inject constructor(
         }
     }
 
+    override val playerRefreshRateMatchingEnabled: Flow<Boolean> = context.dataStore.data.map { preferences ->
+        preferences[PreferencesKeys.PLAYER_REFRESH_RATE_MATCHING_ENABLED] ?: true
+    }
+
     override val preventStandbyDuringPlayback: Flow<Boolean> = context.dataStore.data.map { preferences ->
         preferences[PreferencesKeys.PREVENT_STANDBY_DURING_PLAYBACK] ?: true
     }
@@ -1282,6 +1287,12 @@ class PreferencesRepository @Inject constructor(
     suspend fun setMaxConcurrentStreams(count: Int) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.MAX_CONCURRENT_STREAMS] = count.coerceIn(1, 4)
+        }
+    }
+
+    override suspend fun setPlayerRefreshRateMatchingEnabled(enabled: Boolean) {
+        context.dataStore.edit { preferences ->
+            preferences[PreferencesKeys.PLAYER_REFRESH_RATE_MATCHING_ENABLED] = enabled
         }
     }
 

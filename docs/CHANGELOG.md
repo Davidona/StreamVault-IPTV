@@ -1,6 +1,33 @@
 ﻿# Changelog
 
 All notable product changes are recorded in this document.
+## [1.2.2]
+
+### Added
+- Added default-on content frame-rate matching for video playback, with a Playback setting to turn it off and device-supported display refresh-rate switching for smoother motion.
+- Added provider connection checks to Settings → Providers, separate from sync state and **In use**, with Online, Unavailable, Authentication required, and Unknown statuses, a last-checked time, and a manual recheck action. Checks run when the section opens and refresh when results are more than five minutes old.
+- Added time-based recording scheduling so live channels without EPG data can be recorded for a chosen start time and duration, with daily and weekly repeat options, from the player's recording menu.
+
+### Changed
+- Stalker setup now proceeds with HTTP portals without transport consent warnings.
+- Improved Stalker catalog sync for large libraries with bounded, resumable movie and series indexing that runs in parallel by default, optional Movies first or Series first ordering, and EPG work that can proceed independently.
+- Localized player recording notices and EPG recording messages across all supported locales.
+- Xtream series details now refresh every six hours and Stalker series details every 24 hours instead of every 14 days, so newly aired episodes appear promptly and incomplete episode caches repair themselves.
+- Reduced peak memory during large M3U syncs by using staged database keys for duplicate detection and paged series reconciliation; Xtream and Stalker sync paths are unchanged.
+
+### Fixed
+- Fixed Stalker setup interruptions from redundant transport warning popups; transport retries now continue automatically, with any unresolved challenge shown inline.
+- Fixed the backup restore sync dialog using mismatched colors; its surface, text, and checkbox now follow the active app theme, and **Sync selected** stays disabled until a provider is selected.
+- Fixed Live TV remaining stuck loading after deleting a provider and adding another by clearing and validating the saved active source.
+- Fixed missing episodes from providers that return nested episode arrays or season-keyed episode maps, which were previously skipped and left series with no episodes.
+- Fixed episodes disappearing when an episode's optional metadata block arrived in an unexpected shape: the episode is now kept and only the metadata is skipped.
+- Fixed series pages that stayed empty after a failed details request: a failure with no cached episodes now shows a localized error, and a series with no episodes shows a localized empty state.
+- Fixed grouped series with multiple versions: a failed version switch now keeps the current version on screen and reports the failure, the preferred version is saved only after it loads, and a series whose version fails to load now offers the other versions on the error screen.
+- Fixed selected subtitles reverting to off by saving track details before track-list refreshes and keeping the player's active preference in sync with manual selections.
+- Fixed a compile failure in the recording-by-time dialog that prevented the app from building after the recording scheduling update, which also blocked Settings backup export and import.
+- Fixed audio stopping after a while.
+- Fixed the player crashing when scheduling a recording (Schedule, Record Daily, or Record Weekly): the recording coordinator called itself instead of the scheduling use case, causing a stack overflow.
+- Fixed the notification permission prompt running the recording action before the permission result was known.
 
 ## [1.2.1]
 
@@ -53,7 +80,6 @@ All notable product changes are recorded in this document.
 
 ### Fixed
 
-- Fixed selected subtitles reverting to off by saving track details before the player refreshes its available subtitle list.
 - Fixed Guide schedules briefly appearing and disappearing during background updates, and missing provider EPG requests for channels loaded after the first page.
 - Fixed Jellyfin Quick Connect QR links to use the Web Quick Connect route and safely encode the pairing code.
 - Fixed QR provider pairing session cleanup and request validation, including expired sessions, malformed or oversized submissions, slow clients, and duplicate submissions.

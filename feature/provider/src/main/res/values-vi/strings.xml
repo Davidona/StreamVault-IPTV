@@ -125,4 +125,11 @@
     <string name="setup_stalker_catalog_on_demand_description">Tải kệ và danh mục khi mở. Giữ lại các tựa đã lưu trong bộ nhớ đệm.</string>
     <string name="setup_stalker_catalog_background_title">Lập chỉ mục nền đầy đủ (đề xuất)</string>
     <string name="setup_stalker_catalog_background_description">Hoàn tất thiết lập nhà cung cấp trước, sau đó lập chỉ mục tất cả phim và bộ phim trong nền để có thể tìm kiếm.</string>
+    <string name="setup_stalker_load_order_title">Thứ tự tải trong nền</string>
+    <string name="setup_stalker_load_parallel_title">Cả hai cùng lúc (mặc định)</string>
+    <string name="setup_stalker_load_parallel_description">Tải phim và phim bộ cùng lúc.</string>
+    <string name="setup_stalker_load_movies_first_title">Phim trước</string>
+    <string name="setup_stalker_load_movies_first_description">Giữ phim bộ trong hàng đợi cho đến khi tải xong phim.</string>
+    <string name="setup_stalker_load_series_first_title">Phim bộ trước</string>
+    <string name="setup_stalker_load_series_first_description">Giữ phim trong hàng đợi cho đến khi tải xong phim bộ.</string>
 </resources>

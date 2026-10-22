@@ -306,6 +306,8 @@
   <string name="series_detail_resume">फिर शुरू करें · सीज़न %1$d एप %2$d · %3$s</string>
   <string name="series_detail_versions">संस्करण</string>
   <string name="series_episodes">एपिसोड (%1$d)</string>
+  <string name="series_episodes_empty">इस सीरीज़ के लिए अभी कोई एपिसोड उपलब्ध नहीं है।</string>
+  <string name="series_episodes_load_failed">इस सीरीज़ के एपिसोड लोड नहीं हो सके। कृपया अपना कनेक्शन जाँचें और दोबारा प्रयास करें।</string>
   <string name="series_incorrect_pin">गलत PIN</string>
   <string name="series_library_lens_subtitle">पूरी लाइब्रेरी में पसंदीदा, अधूरी, टॉप रेटेड और नई सीरीज़ सामने लाएँ।</string>
   <string name="series_loading">सीरीज़ लोड हो रही हैं...</string>

@@ -41,6 +41,7 @@ import com.streamvault.domain.model.ExternalPlaybackMode
 import com.streamvault.domain.model.PlayerSurfaceMode
 import com.streamvault.domain.model.PlayerBackButtonVisibility
 import com.streamvault.domain.model.LegacyProvider as Provider
+import com.streamvault.domain.model.ProviderAvailabilityStatus
 import com.streamvault.domain.model.RecordingItem
 import com.streamvault.domain.model.RecordingStorageState
 import com.streamvault.domain.model.RemoteShortcutPreferences
@@ -58,8 +59,15 @@ data class CrashReportUiModel(
         get() = content.isNotBlank()
 }
 
+data class ProviderAvailabilityUiState(
+    val status: ProviderAvailabilityStatus = ProviderAvailabilityStatus.UNKNOWN,
+    val checkedAt: Long = 0L,
+    val isChecking: Boolean = false
+)
+
 data class SettingsUiState(
     val providers: List<Provider> = emptyList(),
+    val providerAvailabilityById: Map<Long, ProviderAvailabilityUiState> = emptyMap(),
     val combinedProfiles: List<CombinedM3uProfile> = emptyList(),
     val availableM3uProviders: List<Provider> = emptyList(),
     val activeProviderId: Long? = null,
@@ -191,6 +199,7 @@ data class SettingsUiState(
     val vodVariantPreferenceMode: VodVariantPreferenceMode = VodVariantPreferenceMode.BALANCED,
     val guideDefaultCategoryId: Long = com.streamvault.domain.model.VirtualCategoryIds.FAVORITES,
     val guideDefaultCategoryOptions: List<Category> = emptyList(),
+    val playerRefreshRateMatchingEnabled: Boolean = true,
     val preventStandbyDuringPlayback: Boolean = true,
     val zapAutoRevert: Boolean = true,
     val autoPlayNextEpisode: Boolean = true,

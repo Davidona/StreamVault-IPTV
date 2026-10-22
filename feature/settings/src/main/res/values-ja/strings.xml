@@ -313,6 +313,13 @@
     <string name="settings_status_expired">期限切れ</string>
     <string name="settings_status_disabled">無効</string>
     <string name="settings_status_unknown">不明</string>
+    <string name="settings_provider_connection_online">オンライン</string>
+    <string name="settings_provider_connection_unavailable">利用不可</string>
+    <string name="settings_provider_connection_checking">確認中…</string>
+    <string name="settings_provider_connection_check_now">今すぐ確認</string>
+    <string name="settings_provider_connection_last_checked">最終確認</string>
+    <string name="settings_provider_connection_authentication_required">サインインが必要</string>
+    <string name="settings_provider_connection_unknown">不明</string>
     <string name="settings_select_level">保護レベルを選択</string>
     <string name="settings_level_off_desc">OFF - 制限なし</string>
     <string name="settings_level_off_subtitle">アダルトコンテンツはすべての場所に表示されます。</string>
@@ -939,4 +946,6 @@
     <string name="settings_sports_custom_definition_file_error">この JSON ファイルを読み込めませんでした</string>
     <string name="settings_experimental_badge">試験運用</string>
     <string name="settings_sync_index_progress">%1$s · %2$s</string>
+    <string name="settings_refresh_rate_matching">コンテンツのフレームレートに合わせる</string>
+    <string name="settings_refresh_rate_matching_description">映像の動きを滑らかにするため、画面のリフレッシュレートを動画に合わせます。対応するディスプレイが必要です。切り替え時に画面が一瞬暗くなることがあります。</string>
 </resources>

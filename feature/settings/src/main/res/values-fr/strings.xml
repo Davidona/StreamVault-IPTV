@@ -313,6 +313,13 @@
     <string name="settings_status_expired">Expiré</string>
     <string name="settings_status_disabled">Désactivé</string>
     <string name="settings_status_unknown">Inconnu</string>
+    <string name="settings_provider_connection_online">En ligne</string>
+    <string name="settings_provider_connection_unavailable">Indisponible</string>
+    <string name="settings_provider_connection_checking">Vérification…</string>
+    <string name="settings_provider_connection_check_now">Vérifier maintenant</string>
+    <string name="settings_provider_connection_last_checked">Dernière vérification</string>
+    <string name="settings_provider_connection_authentication_required">Connexion requise</string>
+    <string name="settings_provider_connection_unknown">Inconnu</string>
     <string name="settings_select_level">Sélectionnez le niveau de protection</string>
     <string name="settings_level_off_desc">DÉSACTIVÉ - Aucune restriction</string>
     <string name="settings_level_off_subtitle">Le contenu adulte apparaît partout.</string>
@@ -941,4 +948,6 @@
     <string name="settings_sports_custom_definition_file_error">Impossible de charger ce fichier JSON</string>
     <string name="settings_experimental_badge">Expérimental</string>
     <string name="settings_sync_index_progress">%1$s · %2$s</string>
+    <string name="settings_refresh_rate_matching">Adapter à la fréquence du contenu</string>
+    <string name="settings_refresh_rate_matching_description">Adapte la fréquence de rafraîchissement de l’écran à la vidéo pour des mouvements plus fluides. Nécessite un écran compatible ; le changement peut brièvement noircir l’écran.</string>
 </resources>

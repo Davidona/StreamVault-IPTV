@@ -313,4 +313,5 @@
     <string name="live_sports_snooker">Snooker</string>
     <string name="live_sports_darts">Phi tiêu</string>
     <string name="live_sports_cycling">Đua xe đạp</string>
+    <string name="epg_recording_scheduled_notice">ÄÃ£ lÃªn lá»‹ch ghi: %1$s</string>     <string name="epg_recording_failed_notice">KhÃ´ng thá»ƒ lÃªn lá»‹ch ghi</string>
 </resources>

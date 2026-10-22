@@ -313,6 +313,13 @@
     <string name="settings_status_expired">Abgelaufen</string>
     <string name="settings_status_disabled">Deaktiviert</string>
     <string name="settings_status_unknown">Unbekannt</string>
+    <string name="settings_provider_connection_online">Online</string>
+    <string name="settings_provider_connection_unavailable">Nicht verfügbar</string>
+    <string name="settings_provider_connection_checking">Wird geprüft…</string>
+    <string name="settings_provider_connection_check_now">Jetzt prüfen</string>
+    <string name="settings_provider_connection_last_checked">Zuletzt geprüft</string>
+    <string name="settings_provider_connection_authentication_required">Anmeldung erforderlich</string>
+    <string name="settings_provider_connection_unknown">Unbekannt</string>
     <string name="settings_select_level">Wählen Sie die Schutzstufe aus</string>
     <string name="settings_level_off_desc">AUS – Keine Einschränkungen</string>
     <string name="settings_level_off_subtitle">Erwachseneninhalte erscheinen überall.</string>
@@ -937,4 +944,6 @@
     <string name="settings_sports_custom_definition_file_error">Diese JSON-Datei konnte nicht geladen werden</string>
     <string name="settings_experimental_badge">Experimentell</string>
     <string name="settings_sync_index_progress">%1$s · %2$s</string>
+    <string name="settings_refresh_rate_matching">Bildrate des Inhalts anpassen</string>
+    <string name="settings_refresh_rate_matching_description">Passt die Bildwiederholrate des Displays für flüssigere Bewegungen an das Video an. Erfordert ein unterstütztes Display; beim Wechsel kann der Bildschirm kurz schwarz werden.</string>
 </resources>

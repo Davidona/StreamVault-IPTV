@@ -313,6 +313,13 @@
     <string name="settings_status_expired">Scaduto</string>
     <string name="settings_status_disabled">Disabilitato</string>
     <string name="settings_status_unknown">Sconosciuto</string>
+    <string name="settings_provider_connection_online">Online</string>
+    <string name="settings_provider_connection_unavailable">Non disponibile</string>
+    <string name="settings_provider_connection_checking">Verifica in corso…</string>
+    <string name="settings_provider_connection_check_now">Controlla ora</string>
+    <string name="settings_provider_connection_last_checked">Ultimo controllo</string>
+    <string name="settings_provider_connection_authentication_required">Accesso richiesto</string>
+    <string name="settings_provider_connection_unknown">Sconosciuto</string>
     <string name="settings_select_level">Seleziona Livello di protezione</string>
     <string name="settings_level_off_desc">DISATTIVATO: nessuna restrizione</string>
     <string name="settings_level_off_subtitle">I contenuti per adulti appaiono ovunque.</string>
@@ -937,4 +944,6 @@
     <string name="settings_sports_custom_definition_file_error">Impossibile caricare questo file JSON</string>
     <string name="settings_experimental_badge">Sperimentale</string>
     <string name="settings_sync_index_progress">%1$s · %2$s</string>
+    <string name="settings_refresh_rate_matching">Adatta alla frequenza dei fotogrammi</string>
+    <string name="settings_refresh_rate_matching_description">Adatta la frequenza di aggiornamento dello schermo al video per movimenti più fluidi. Richiede uno schermo compatibile; durante il cambio lo schermo può diventare nero per un istante.</string>
 </resources>

@@ -3,6 +3,7 @@ package com.streamvault.data.remote.xtream
 import com.google.common.truth.Truth.assertThat
 import com.streamvault.data.remote.dto.XtreamCategory
 import com.streamvault.data.remote.dto.XtreamLiveStreamRow
+import com.streamvault.data.remote.dto.XtreamSeriesInfoResponse
 import com.streamvault.data.remote.dto.XtreamSeriesItem
 import com.streamvault.data.remote.dto.XtreamStream
 import com.streamvault.data.remote.dto.XtreamVodMovieData
@@ -119,5 +120,127 @@ class XtreamDtoParsingTest {
 
         assertThat(explicitFalse.isAdult).isFalse()
         assertThat(missing.isAdult).isNull()
+    }
+
+    @Test
+    fun `series info reads nested episode arrays as seasons`() {
+        val response = json.decodeFromString<XtreamSeriesInfoResponse>(
+            """
+            {
+              "info": { "series_id": 42, "name": "Specials Show" },
+              "episodes": [
+                [
+                  { "id": "100", "episode_num": 1, "title": "Special One" },
+                  { "id": "101", "episode_num": 2, "title": "Special Two" }
+                ],
+                [
+                  { "id": "200", "episode_num": 1, "title": "Season One Pilot" }
+                ]
+              ]
+            }
+            """.trimIndent()
+        )
+
+        assertThat(response.episodes.keys).containsExactly("0", "1").inOrder()
+        assertThat(response.episodes["0"]?.map { it.title })
+            .containsExactly("Special One", "Special Two").inOrder()
+        assertThat(response.episodes["1"]?.single()?.season).isEqualTo(1)
+    }
+
+    @Test
+    fun `series info keeps episodes whose info block has an unexpected shape`() {
+        val response = json.decodeFromString<XtreamSeriesInfoResponse>(
+            """
+            {
+              "episodes": {
+                "1": [
+                  { "id": "1", "episode_num": 1, "title": "First", "season": 1, "info": "not-an-object" },
+                  { "id": "2", "episode_num": 2, "title": "Second", "season": 1, "info": [1, 2] },
+                  { "id": "3", "episode_num": 3, "title": "Third", "season": 1, "info": { "plot": "kept" } }
+                ]
+              }
+            }
+            """.trimIndent()
+        )
+
+        assertThat(response.episodes["1"]?.map { it.title })
+            .containsExactly("First", "Second", "Third").inOrder()
+        assertThat(response.episodes["1"]?.map { it.info?.plot })
+            .containsExactly(null, null, "kept").inOrder()
+    }
+
+    @Test
+    fun `series info applies season map key when episode rows omit season`() {
+        val response = json.decodeFromString<XtreamSeriesInfoResponse>(
+            """
+            {
+              "episodes": {
+                "2": [
+                  { "id": "21", "episode_num": 1, "title": "S2E1" }
+                ]
+              }
+            }
+            """.trimIndent()
+        )
+
+        assertThat(response.episodes["2"]?.single()?.season).isEqualTo(2)
+    }
+
+    @Test
+    fun `series info reads a season whose episodes are keyed by index`() {
+        val response = json.decodeFromString<XtreamSeriesInfoResponse>(
+            """
+            {
+              "episodes": {
+                "3": {
+                  "0": { "id": "301", "episode_num": 1, "title": "Keyed Pilot" },
+                  "2": { "id": "303", "episode_num": 3, "title": "Keyed Third" }
+                }
+              }
+            }
+            """.trimIndent()
+        )
+
+        assertThat(response.episodes["3"]?.map { it.title })
+            .containsExactly("Keyed Pilot", "Keyed Third").inOrder()
+        assertThat(response.episodes["3"]?.map { it.season }).containsExactly(3, 3).inOrder()
+    }
+
+    @Test
+    fun `series info keeps sparse episode rows that only have an id`() {
+        val response = json.decodeFromString<XtreamSeriesInfoResponse>(
+            """
+            {
+              "episodes": {
+                "1": [
+                  { "id": "900", "custom_sid": "abc", "added": "1712345678" },
+                  { "id": "901", "episode_num": 2, "title": "Second", "season": 1 }
+                ]
+              }
+            }
+            """.trimIndent()
+        )
+
+        assertThat(response.episodes["1"]?.map { it.id }).containsExactly("900", "901").inOrder()
+        assertThat(response.episodes["1"]?.first()?.season).isEqualTo(1)
+    }
+
+    @Test
+    fun `series info inherits season key for nested episode arrays`() {
+        val response = json.decodeFromString<XtreamSeriesInfoResponse>(
+            """
+            {
+              "episodes": {
+                "1": [
+                  [
+                    { "id": "1000", "episode_num": 1, "title": "Nested" }
+                  ]
+                ]
+              }
+            }
+            """.trimIndent()
+        )
+
+        assertThat(response.episodes["1"]?.single()?.season).isEqualTo(1)
     }
 }

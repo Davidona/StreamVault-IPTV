@@ -313,4 +313,5 @@
     <string name="live_sports_snooker">スヌーカー</string>
     <string name="live_sports_darts">ダーツ</string>
     <string name="live_sports_cycling">自転車競技</string>
+    <string name="epg_recording_scheduled_notice">éŒ²ç”»ã‚’äºˆç´„ã—ã¾ã—ãŸ: %1$s</string>     <string name="epg_recording_failed_notice">éŒ²ç”»ã‚’äºˆç´„ã§ãã¾ã›ã‚“ã§ã—ãŸ</string>
 </resources>

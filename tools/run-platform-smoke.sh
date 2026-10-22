@@ -9,6 +9,14 @@ PLATFORM_SMOKE_ACTIVE_SUITE="startup"
 PLATFORM_SMOKE_ARTIFACT_DIR="$artifact_dir"
 export PLATFORM_SMOKE_ACTIVE_SUITE PLATFORM_SMOKE_ARTIFACT_DIR
 
+run_gradle() {
+  if [ "${PLATFORM_SMOKE_REFRESH_DEPENDENCIES:-0}" = "1" ]; then
+    ./gradlew --refresh-dependencies "$@"
+  else
+    ./gradlew "$@"
+  fi
+}
+
 cleanup_platform_smoke() {
   status=$?
   trap - EXIT
@@ -30,7 +38,7 @@ PLATFORM_SMOKE_ACTIVE_SUITE="com.streamvault.app.compat.PlatformCompatibilityMat
 export PLATFORM_SMOKE_ACTIVE_SUITE
 run_compatibility_suite() {
   if [ "$api_level" != "25" ]; then
-    ./gradlew --console=plain \
+    run_gradle --console=plain \
       :app:connectedDebugAndroidTest \
       "-PcompatApi=${api_level}" \
       "-PcompatAbi=${compat_abi}" \
@@ -44,7 +52,7 @@ run_compatibility_suite() {
   attempt=1
   retry_log="${TMPDIR:-/tmp}/streamvault-platform-smoke-api-${api_level}.log"
   while [ "$attempt" -le 2 ]; do
-    if ./gradlew --console=plain \
+    if run_gradle --console=plain \
       :app:connectedDebugAndroidTest \
       "-PcompatApi=${api_level}" \
       "-PcompatAbi=${compat_abi}" \
@@ -72,7 +80,7 @@ run_compatibility_suite
 if [ "$api_level" = "35" ] || [ "$api_level" = "36" ]; then
   PLATFORM_SMOKE_ACTIVE_SUITE="com.streamvault.app.service.DownloadForegroundServiceInstrumentationTest"
   export PLATFORM_SMOKE_ACTIVE_SUITE
-  ./gradlew --console=plain \
+  run_gradle --console=plain \
     :app:connectedDebugAndroidTest \
     "-PcompatAbi=${compat_abi}" \
     -Pandroid.testInstrumentationRunnerArguments.class=com.streamvault.app.service.DownloadForegroundServiceInstrumentationTest \
@@ -80,7 +88,7 @@ if [ "$api_level" = "35" ] || [ "$api_level" = "36" ]; then
 
   PLATFORM_SMOKE_ACTIVE_SUITE="com.streamvault.app.service.DownloadForegroundServiceQuotaInstrumentationTest"
   export PLATFORM_SMOKE_ACTIVE_SUITE
-  ./gradlew --console=plain \
+  run_gradle --console=plain \
     :app:connectedDebugAndroidTest \
     "-PcompatAbi=${compat_abi}" \
     -Pandroid.testInstrumentationRunnerArguments.class=com.streamvault.app.service.DownloadForegroundServiceQuotaInstrumentationTest \
@@ -88,7 +96,7 @@ if [ "$api_level" = "35" ] || [ "$api_level" = "36" ]; then
 
   PLATFORM_SMOKE_ACTIVE_SUITE="com.streamvault.app.service.DownloadForegroundServiceRecoveryInstrumentationTest"
   export PLATFORM_SMOKE_ACTIVE_SUITE
-  ./gradlew --console=plain \
+  run_gradle --console=plain \
     :app:connectedDebugAndroidTest \
     "-PcompatAbi=${compat_abi}" \
     -Pandroid.testInstrumentationRunnerArguments.class=com.streamvault.app.service.DownloadForegroundServiceRecoveryInstrumentationTest \
@@ -96,7 +104,7 @@ if [ "$api_level" = "35" ] || [ "$api_level" = "36" ]; then
 
   PLATFORM_SMOKE_ACTIVE_SUITE="com.streamvault.data.manager.recording.PlatformReleaseSafetyInstrumentationTest"
   export PLATFORM_SMOKE_ACTIVE_SUITE
-  ./gradlew --console=plain \
+  run_gradle --console=plain \
     :data:connectedDebugAndroidTest \
     "-PcompatAbi=${compat_abi}" \
     -Pandroid.testInstrumentationRunnerArguments.class=com.streamvault.data.manager.recording.PlatformReleaseSafetyInstrumentationTest \
@@ -106,7 +114,7 @@ fi
 if [ "$api_level" = "25" ] || [ "$api_level" = "36" ]; then
   PLATFORM_SMOKE_ACTIVE_SUITE="com.streamvault.data.local.StreamVaultDatabaseMigrationTest"
   export PLATFORM_SMOKE_ACTIVE_SUITE
-  ./gradlew --console=plain \
+  run_gradle --console=plain \
     :data:connectedDebugAndroidTest \
     "-PcompatAbi=${compat_abi}" \
     -Pandroid.testInstrumentationRunnerArguments.class=com.streamvault.data.local.StreamVaultDatabaseMigrationTest \

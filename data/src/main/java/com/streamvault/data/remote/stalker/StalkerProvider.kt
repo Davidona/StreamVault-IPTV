@@ -86,16 +86,6 @@ data class StalkerVodCatalogItem(
 
 private object LiveStreamLimitReached : Exception("live stream cap reached")
 
-private sealed interface VodPageBaseResolution {
-    data class Known(val pageBase: Int) : VodPageBaseResolution
-    data class Probed(
-        val pageBase: Int,
-        val pageZero: Result<StalkerPagedItems>,
-        val pageOne: Result<StalkerPagedItems>
-    ) : VodPageBaseResolution
-    data class Failed(val result: Result<StalkerPagedItems>) : VodPageBaseResolution
-}
-
 class StalkerProvider(
     val providerId: Long,
     private val api: StalkerApiService,
@@ -153,6 +143,8 @@ internal companion object {
         private const val AUTH_FAILURE_COOLDOWN_MILLIS = 2_000L
         private const val FALLBACK_SURROGATE_FLOOR = 4_000_000_000L
         const val CATALOG_LAYOUT_DETECTION_VERSION = 1
+        /** Ordering for the background wildcard index walk: newest titles first. */
+        internal const val WILDCARD_INDEX_SORT = "added"
         private const val VOD_FILE_SOURCE_KEY = "vod_file"
         private val BARE_VOD_MOVIE_CMD_REGEX = Regex("^/media/(\\d+)\\.mpg$", RegexOption.IGNORE_CASE)
         private val BARE_VOD_FILE_CMD_REGEX = Regex("^/media/file_(\\d+)\\.mpg$", RegexOption.IGNORE_CASE)
@@ -161,8 +153,6 @@ internal companion object {
         private val sharedPortalAuthCache = ConcurrentHashMap<String, CachedAuth>()
         private val sharedAuthFailureCache = ConcurrentHashMap<String, CachedAuthFailure>()
         private val sharedAuthMutexes = KeyedMutexRegistry<String>()
-        private val sharedVodPageBaseCache = ConcurrentHashMap<String, Int>()
-        private val sharedVodPageBaseMutexes = KeyedMutexRegistry<String>()
         private val resolvedStreamUrlCache = ConcurrentHashMap<String, CachedResolvedUrl>()
         private val missingVodClassificationLogged = ConcurrentHashMap.newKeySet<Long>()
 
@@ -171,7 +161,6 @@ internal companion object {
             sharedAuthCache.clear()
             sharedPortalAuthCache.clear()
             sharedAuthFailureCache.clear()
-            sharedVodPageBaseCache.clear()
         }
 
         fun clearResolvedStreamUrlCacheForTests() {
@@ -187,8 +176,6 @@ internal companion object {
             val portalPrefix = "portal:$providerId|"
             sharedPortalAuthCache.keys.filter { it.startsWith(portalPrefix) }.forEach(sharedPortalAuthCache::remove)
             sharedAuthFailureCache.keys.filter { it.startsWith(authPrefix) }.forEach(sharedAuthFailureCache::remove)
-            sharedVodPageBaseCache.keys.filter { it.startsWith("portal:$providerId|") }
-                .forEach(sharedVodPageBaseCache::remove)
             resolvedStreamUrlCache.keys
                 .filter { it.startsWith("$providerId|") }
                 .forEach(resolvedStreamUrlCache::remove)
@@ -268,10 +255,14 @@ internal companion object {
     private var sessionCache: StalkerSession? = null
     private var accountProfileCache: StalkerProviderProfile? = null
     private var authFailureCache: CachedAuthFailure? = null
-    private val categoryCache = mutableMapOf<ContentType, List<CategorySeed>>()
-    private val categoryLookups = mutableMapOf<ContentType, CategoryLookup>()
+    private val categoryCache = ConcurrentHashMap<ContentType, List<CategorySeed>>()
+    private val categoryLoadMutexes = KeyedMutexRegistry<ContentType>()
+    private val loadedCategoryTypes = ConcurrentHashMap.newKeySet<ContentType>()
+    private val categoryLookups = ConcurrentHashMap<ContentType, CategoryLookup>()
     private var resolvedCategorySnapshot: StalkerResolvedCategoryHandoff.Snapshot? = null
     private val remoteIdentityCache = ConcurrentHashMap<Pair<ContentType, String>, Long>()
+    // Category IDs must survive eviction of the much larger content identity cache.
+    private val categoryIdentityCache = ConcurrentHashMap<Pair<ContentType, String>, Long>()
 
     suspend fun invalidateAuthentication() {
         resolvedCategorySnapshot = null
@@ -281,6 +272,7 @@ internal companion object {
             accountProfileCache = null
             authFailureCache = null
             categoryCache.clear()
+            loadedCategoryTypes.clear()
             categoryLookups.clear()
             sharedAuthCache.remove(authCacheKey())
             if (providerId > 0L) {
@@ -601,14 +593,22 @@ internal companion object {
     }
 
     suspend fun getVodStreamsPage(categoryId: Long?, page: Int): Result<StalkerPagedResult<Movie>> =
-        loadVodPageWithPortalPageBase(ContentType.MOVIE, categoryId, page).let { result ->
+        getVodStreamsPage(categoryId, page, sortBy = null)
+
+    suspend fun getVodStreamsPage(categoryId: Long?, page: Int, sortBy: String?): Result<StalkerPagedResult<Movie>> =
+        loadVodCatalogPage(ContentType.MOVIE, categoryId, page, sortBy = sortBy).let { result ->
             mapResolvedPage(ContentType.MOVIE, result) { item ->
             toMovie(item, requestedCategoryId = categoryId)
             }
         }
 
     suspend fun getVodStreamsPageUsingItemCategories(categoryId: Long?, page: Int): Result<StalkerPagedResult<Movie>> =
-        loadVodPageWithPortalPageBase(ContentType.MOVIE, categoryId, page).let { result ->
+        loadVodCatalogPage(
+            ContentType.MOVIE,
+            categoryId,
+            page,
+            sortBy = WILDCARD_INDEX_SORT
+        ).let { result ->
             mapResolvedPage(ContentType.MOVIE, result) { item ->
                 toMovie(item, requestedCategoryId = null)
             }
@@ -616,6 +616,16 @@ internal companion object {
 
     suspend fun getUnifiedVodPage(categoryId: Long, page: Int): Result<StalkerPagedResult<StalkerVodCatalogItem>> =
         getClassifiedVodPage(ContentType.VOD, categoryId, page)
+
+    suspend fun getUnifiedVodPageUsingItemCategories(categoryId: Long, page: Int): Result<StalkerPagedResult<StalkerVodCatalogItem>> =
+        getClassifiedVodPage(ContentType.VOD, categoryId, page, sortBy = WILDCARD_INDEX_SORT, preserveItemCategories = true)
+
+    suspend fun getUnifiedVodPage(
+        categoryId: Long,
+        page: Int,
+        sortBy: String?
+    ): Result<StalkerPagedResult<StalkerVodCatalogItem>> =
+        getClassifiedVodPage(ContentType.VOD, categoryId, page, sortBy = sortBy)
 
     suspend fun searchVodPage(
         query: String,
@@ -645,10 +655,25 @@ internal companion object {
 
     suspend fun getSplitVodPage(
         categoryId: Long,
+        page: Int,
+        sortBy: String?
+    ): Result<StalkerPagedResult<StalkerVodCatalogItem>> =
+        getClassifiedVodPage(ContentType.MOVIE, categoryId, page, seriesCategoryId = null, sortBy = sortBy)
+
+    suspend fun getSplitVodPage(
+        categoryId: Long,
         seriesCategoryId: Long,
         page: Int
     ): Result<StalkerPagedResult<StalkerVodCatalogItem>> =
         getClassifiedVodPage(ContentType.MOVIE, categoryId, page, seriesCategoryId)
+
+    suspend fun getSplitVodPage(
+        categoryId: Long,
+        seriesCategoryId: Long,
+        page: Int,
+        sortBy: String?
+    ): Result<StalkerPagedResult<StalkerVodCatalogItem>> =
+        getClassifiedVodPage(ContentType.MOVIE, categoryId, page, seriesCategoryId, sortBy = sortBy)
 
     suspend fun projectVodCategoryToSeries(categoryId: Long): Long? {
         val rawId = resolveRawCategoryId(ContentType.MOVIE, categoryId) ?: return null
@@ -661,9 +686,9 @@ internal companion object {
             ContentType.SERIES,
             listOf(rawId to name)
         )?.get(rawId) ?: fallbackStableId(ContentType.SERIES, rawId)
-        categoryCache[ContentType.SERIES] = categoryCache[ContentType.SERIES]
-            .orEmpty()
-            .filterNot { it.rawId == rawId } + CategorySeed(projectedId, rawId, name)
+        categoryCache.compute(ContentType.SERIES) { _, current ->
+            current.orEmpty().filterNot { it.rawId == rawId } + CategorySeed(projectedId, rawId, name)
+        }
         putRemoteIdentity(ContentType.SERIES to rawId, projectedId)
         return projectedId
     }
@@ -679,9 +704,9 @@ internal companion object {
             ContentType.MOVIE,
             listOf(rawId to name)
         )?.get(rawId) ?: fallbackStableId(ContentType.MOVIE, rawId)
-        categoryCache[ContentType.MOVIE] = categoryCache[ContentType.MOVIE]
-            .orEmpty()
-            .filterNot { it.rawId == rawId } + CategorySeed(projectedId, rawId, name)
+        categoryCache.compute(ContentType.MOVIE) { _, current ->
+            current.orEmpty().filterNot { it.rawId == rawId } + CategorySeed(projectedId, rawId, name)
+        }
         putRemoteIdentity(ContentType.MOVIE to rawId, projectedId)
         return projectedId
     }
@@ -691,28 +716,32 @@ internal companion object {
         categoryId: Long?,
         page: Int,
         seriesCategoryId: Long? = categoryId,
-        searchQuery: String? = null
+        searchQuery: String? = null,
+        sortBy: String? = null,
+        preserveItemCategories: Boolean = false
     ): Result<StalkerPagedResult<StalkerVodCatalogItem>> {
-        val rawResult = loadVodPageWithPortalPageBase(categoryType, categoryId, page, searchQuery)
+        val rawResult = loadVodCatalogPage(categoryType, categoryId, page, searchQuery, sortBy)
         return when (rawResult) {
             is Result.Success -> {
                 val raw = rawResult.data
                 val movieRecords = raw.items.filterNot(StalkerItemRecord::isSeries)
                 val seriesRecords = raw.items.filter(StalkerItemRecord::isSeries)
+                val projectedSeriesCategory = if (preserveItemCategories) null else seriesCategoryId ?: categoryId?.takeIf { seriesRecords.isNotEmpty() }
+                    ?.let { projectVodCategoryToSeries(it) }
                 bindRemoteIds(ContentType.MOVIE, movieRecords.map(StalkerItemRecord::id))
                 bindRemoteIds(ContentType.SERIES, seriesRecords.map(StalkerItemRecord::id))
                 val items = raw.items.mapNotNull { record ->
                     if (record.isSeries) {
                         toSeries(
                             item = record,
-                            requestedCategoryId = seriesCategoryId,
+                            requestedCategoryId = projectedSeriesCategory,
                             categoryType = if (categoryType == ContentType.VOD) ContentType.VOD else ContentType.SERIES,
                             origin = SeriesCatalogOrigin.VOD_DERIVED
                         )?.let { StalkerVodCatalogItem(record.id, VodCatalogItem.SeriesItem(it)) }
                     } else {
                         toMovie(
                             item = record,
-                            requestedCategoryId = categoryId,
+                            requestedCategoryId = categoryId.takeUnless { preserveItemCategories },
                             categoryType = categoryType
                         )?.let { StalkerVodCatalogItem(record.id, VodCatalogItem.MovieItem(it)) }
                     }
@@ -791,13 +820,16 @@ internal companion object {
         return mapped
     }
 
-    suspend fun getSeriesListPage(categoryId: Long?, page: Int): Result<StalkerPagedResult<Series>> {
-        val primary = getNativeSeriesListPage(categoryId, page)
+    suspend fun getSeriesListPage(categoryId: Long?, page: Int): Result<StalkerPagedResult<Series>> =
+        getSeriesListPage(categoryId, page, sortBy = "added")
+
+    suspend fun getSeriesListPage(categoryId: Long?, page: Int, sortBy: String?): Result<StalkerPagedResult<Series>> {
+        val primary = getNativeSeriesListPage(categoryId, page, sortBy)
         // Fall back to VOD items with is_series=1 when the type=series endpoint returns
         // empty (providers that serve series inside VOD). Only triggers when the primary
         // path produces zero items, so portals using type=series are unaffected.
         if (primary is Result.Success && primary.data.items.isEmpty()) {
-            val vodPage = loadVodPageWithPortalPageBase(ContentType.SERIES, categoryId, page)
+            val vodPage = loadVodCatalogPage(ContentType.SERIES, categoryId, page, sortBy = sortBy)
                 .let { result -> mapResolvedPage(ContentType.SERIES, result) { item ->
                     if (item.isSeries) {
                         toSeries(
@@ -815,8 +847,17 @@ internal companion object {
     }
 
     suspend fun getNativeSeriesListPage(categoryId: Long?, page: Int): Result<StalkerPagedResult<Series>> =
+        getNativeSeriesListPage(categoryId, page, sortBy = "added")
+
+    suspend fun getNativeSeriesListPageUsingItemCategories(categoryId: Long, page: Int): Result<StalkerPagedResult<Series>> =
         mapPagedItems(ContentType.SERIES, categoryId) { session, profile, rawCategoryId ->
-            api.getSeriesPage(session, profile, rawCategoryId, page)
+            api.getSeriesPage(session, profile, rawCategoryId, page, WILDCARD_INDEX_SORT)
+        }.let { result -> mapResolvedPage(ContentType.SERIES, result) { toSeries(it) } }
+
+    suspend fun getNativeSeriesListPage(categoryId: Long?, page: Int, sortBy: String?): Result<StalkerPagedResult<Series>> =
+        mapPagedItems(ContentType.SERIES, categoryId) { session, profile, rawCategoryId ->
+            if (sortBy == null) api.getSeriesPage(session, profile, rawCategoryId, page)
+            else api.getSeriesPage(session, profile, rawCategoryId, page, sortBy)
         }.let { result -> mapResolvedPage(ContentType.SERIES, result) { item ->
             toSeries(item, requestedCategoryId = categoryId)
         } }
@@ -842,14 +883,16 @@ internal companion object {
             ?: (reference.streamId ?: current.seriesId).toString(),
         catalogOrigin = reference.seriesCatalogOrigin ?: current.catalogOrigin,
         episodePlaybackTemplateUrl = reference.episodePlaybackTemplateUrl
-            ?: current.episodePlaybackTemplateUrl
+            ?: current.episodePlaybackTemplateUrl,
+        categoryId = current.categoryId
     )
 
     suspend fun getSeriesInfo(
         providerSeriesId: String,
         catalogOrigin: SeriesCatalogOrigin = SeriesCatalogOrigin.NATIVE,
         episodePlaybackTemplateUrl: String? = null,
-        learnedDialect: StalkerSeriesDetailDialect = StalkerSeriesDetailDialect.UNKNOWN
+        learnedDialect: StalkerSeriesDetailDialect = StalkerSeriesDetailDialect.UNKNOWN,
+        categoryId: Long? = null
     ): Result<Series> {
         return runWithAuthorizedSession { session, _ ->
             val profile = currentDeviceProfile()
@@ -860,7 +903,9 @@ internal companion object {
             val primary = if (usedVodDialect) {
                 api.getVodSeriesDetails(session, profile, providerSeriesId)
             } else {
-                api.getSeriesDetails(session, profile, providerSeriesId)
+                val rawCategory = categoryId?.let { resolveRawCategoryId(ContentType.SERIES, it) }
+                if (rawCategory == null) api.getSeriesDetails(session, profile, providerSeriesId)
+                else api.getSeriesDetailsInCategory(session, profile, providerSeriesId, rawCategory)
             }
             val detailsResult = if (
                 primary is Result.Success &&
@@ -1575,6 +1620,7 @@ is Result.Success -> {
                         )
                     }
                     categoryCache[type] = categories
+                    loadedCategoryTypes.add(type)
                     Result.success(
                         categories.map { seed ->
                             Category(
@@ -1603,154 +1649,20 @@ is Result.Success -> {
         }
     }
 
-    /**
-     * The UI and durable index checkpoints use 1-based pages, but Stalker portals differ on
-     * whether `p` starts at zero or one. Probe both values once per provider configuration,
-     * then keep translating logical pages to the portal's raw cursor.
-     */
-    private suspend fun loadVodPageWithPortalPageBase(
+    /** Catalog requests and durable checkpoints both use one-based portal pages. */
+    private suspend fun loadVodCatalogPage(
         categoryType: ContentType,
         categoryId: Long?,
         logicalPage: Int,
-        searchQuery: String? = null
+        searchQuery: String? = null,
+        sortBy: String? = null
     ): Result<StalkerPagedItems> = runWithAuthorizedSession { session, _ ->
-        val profile = currentDeviceProfile()
-        val rawCategoryId = resolveRawCategoryId(categoryType, categoryId)
-        val pageNumber = logicalPage.coerceAtLeast(1)
-        val cacheKey = vodPageBaseCacheKey()
-        if (api !is StalkerRawVodPageApi) {
-            // Legacy transports do not expose a raw p=0 cursor. Keep their established
-            // 1-based call shape and avoid extra requests that cannot teach an offset.
-            val pageResult = if (searchQuery == null) {
-                api.getVodStreamsPage(session, profile, rawCategoryId, pageNumber)
-            } else {
-                api.getVodStreamsPage(session, profile, rawCategoryId, pageNumber, searchQuery)
-            }
-            return@runWithAuthorizedSession normalizeVodPage(pageResult, pageNumber)
-        }
-
-        val resolution = sharedVodPageBaseCache[cacheKey]?.let { VodPageBaseResolution.Known(it) }
-            ?: sharedVodPageBaseMutexes.withLock(cacheKey) {
-                val learnedBase = sharedVodPageBaseCache[cacheKey]
-                    ?: portalStateStore?.getVodPageBase(providerId, configurationGeneration)
-                        ?.also { sharedVodPageBaseCache[cacheKey] = it }
-                if (learnedBase != null) {
-                    return@withLock VodPageBaseResolution.Known(learnedBase)
-                }
-
-                val pageZero = requestVodPageAtPortalPage(
-                    session,
-                    profile,
-                    rawCategoryId,
-                    portalPage = 0,
-                    searchQuery = searchQuery
-                )
-                if (pageZero is Result.Error && isAuthorizationFailure(pageZero.message, pageZero.exception)) {
-                    return@withLock VodPageBaseResolution.Failed(pageZero)
-                }
-                if (pageZero is Result.Loading) {
-                    return@withLock VodPageBaseResolution.Failed(Result.error("Unexpected loading state"))
-                }
-
-                val pageOne = requestVodPageAtPortalPage(
-                    session,
-                    profile,
-                    rawCategoryId,
-                    portalPage = 1,
-                    searchQuery = searchQuery
-                )
-                if (pageOne is Result.Error && isAuthorizationFailure(pageOne.message, pageOne.exception)) {
-                    return@withLock VodPageBaseResolution.Failed(pageOne)
-                }
-                if (pageOne is Result.Loading) {
-                    return@withLock VodPageBaseResolution.Failed(Result.error("Unexpected loading state"))
-                }
-
-                val detectedBase = inferVodPageBase(pageZero, pageOne)
-                if (detectedBase != null) {
-                    sharedVodPageBaseCache[cacheKey] = detectedBase
-                    portalStateStore?.recordVodPageBase(
-                        providerId = providerId,
-                        pageBase = detectedBase,
-                        configurationGeneration = configurationGeneration
-                    )
-                } else if (pageZero is Result.Error) {
-                    // A transient failure on p=0 must not silently map page two to page one.
-                    return@withLock VodPageBaseResolution.Failed(pageZero)
-                }
-                VodPageBaseResolution.Probed(detectedBase ?: 1, pageZero, pageOne)
-            }
-
-        when (resolution) {
-            is VodPageBaseResolution.Failed -> resolution.result
-            is VodPageBaseResolution.Known -> {
-                val portalPage = (pageNumber - 1 + resolution.pageBase).coerceAtLeast(0)
-                normalizeVodPage(
-                    requestVodPageAtPortalPage(
-                        session,
-                        profile,
-                        rawCategoryId,
-                        portalPage,
-                        searchQuery
-                    ),
-                    pageNumber
-                )
-            }
-            is VodPageBaseResolution.Probed -> {
-                val portalPage = (pageNumber - 1 + resolution.pageBase).coerceAtLeast(0)
-                val target = when (portalPage) {
-                    0 -> resolution.pageZero
-                    1 -> resolution.pageOne
-                    else -> requestVodPageAtPortalPage(
-                        session,
-                        profile,
-                        rawCategoryId,
-                        portalPage,
-                        searchQuery
-                    )
-                }
-                normalizeVodPage(target, pageNumber)
-            }
-        }
-    }
-
-    private fun inferVodPageBase(
-        pageZero: Result<StalkerPagedItems>,
-        pageOne: Result<StalkerPagedItems>
-    ): Int? = when (pageZero) {
-        is Result.Success -> when (pageOne) {
-            is Result.Success -> {
-                val first = pageZero.data.items
-                val second = pageOne.data.items
-                when {
-                    first.isEmpty() && second.isEmpty() -> null
-                    first.isNotEmpty() && second.isNotEmpty() && sameVodPage(first, second) -> 1
-                    first.isNotEmpty() -> 0
-                    else -> 1
-                }
-            }
-            is Result.Error -> if (pageZero.data.items.isNotEmpty()) 0 else null
-            is Result.Loading -> null
-        }
-        is Result.Error -> if (isPortalZeroPageRejection(pageZero) && pageOne is Result.Success) 1 else null
-        is Result.Loading -> null
-    }
-
-    private fun sameVodPage(
-        first: List<StalkerItemRecord>,
-        second: List<StalkerItemRecord>
-    ): Boolean = first.map { it.id.trim() to it.name.trim() } ==
-        second.map { it.id.trim() to it.name.trim() }
-
-    private fun isPortalZeroPageRejection(result: Result.Error): Boolean {
-        val error = result.exception ?: return false
-        if (error.isStalkerAuthorizationFailure()) return false
-        return when (error) {
-            is StalkerApiError.EmptyBody,
-            is StalkerApiError.Malformed -> true
-            is StalkerApiError -> error.httpStatus?.let { it in 400..499 && it !in setOf(401, 403, 429) } == true
-            else -> false
-        }
+        val page = logicalPage.coerceAtLeast(1)
+        normalizeVodPage(
+            api.getVodStreamsPage(session, currentDeviceProfile(),
+                resolveRawCategoryId(categoryType, categoryId), page, searchQuery, sortBy ?: "added"),
+            page
+        )
     }
 
     private fun normalizeVodPage(
@@ -1761,25 +1673,6 @@ is Result.Success -> {
         is Result.Error -> Result.error(result.message, result.exception)
         is Result.Loading -> Result.error("Unexpected loading state")
         null -> Result.error("Portal returned no page response")
-    }
-
-    private fun vodPageBaseCacheKey(): String =
-        "${portalIdentityKey()}|generation:$configurationGeneration|vod-page-base"
-
-    private suspend fun requestVodPageAtPortalPage(
-        session: StalkerSession,
-        profile: StalkerDeviceProfile,
-        categoryId: String?,
-        portalPage: Int,
-        searchQuery: String?
-    ): Result<StalkerPagedItems> {
-        return (api as StalkerRawVodPageApi).getVodStreamsPageAtPortalPage(
-            session,
-            profile,
-            categoryId,
-            portalPage,
-            searchQuery
-        )
     }
 
     private suspend fun mapPagedItems(
@@ -1855,10 +1748,10 @@ is Result.Success -> {
         if (resolved == null) {
             records.forEach { record ->
                 val rawId = record.id.ifBlank { record.name }.trim()
-                putRemoteIdentity(type to rawId, fallbackStableId(type, rawId))
+                categoryIdentityCache[type to rawId] = fallbackStableId(type, rawId)
             }
         } else {
-            resolved.forEach { (rawId, surrogateId) -> putRemoteIdentity(type to rawId, surrogateId) }
+            resolved.forEach { (rawId, surrogateId) -> categoryIdentityCache[type to rawId] = surrogateId }
         }
     }
 
@@ -2121,6 +2014,15 @@ is Result.Success -> {
             contentType,
             supported,
             configurationGeneration = configurationGeneration
+        )
+    }
+
+    suspend fun recordVodPageSize(contentType: ContentType, pageSize: Int) {
+        portalStateStore?.recordVodPageSize(
+            providerId,
+            contentType,
+            pageSize,
+            configurationGeneration
         )
     }
 
@@ -2643,20 +2545,23 @@ private fun playbackTransportChallengeFor(url: String): StalkerTransportChalleng
             else -> type
         }
         val targetId = categoryId ?: return null
-        val cached = categoryCache[normalizedType]
-        if (cached != null) {
-            return cached.firstOrNull { it.id == targetId }?.rawId
-        }
-        identityResolver?.reverse(providerId, normalizedType, targetId)?.let { return it }
-        when (val categoriesResult = when (normalizedType) {
-            ContentType.LIVE -> getLiveCategories()
-            ContentType.VOD -> getVodCategories()
-            ContentType.MOVIE -> getVodCategories()
-            ContentType.SERIES -> getSeriesCategories()
-            ContentType.SERIES_EPISODE -> Result.success(emptyList())
-        }) {
-            is Result.Success -> return categoryCache[normalizedType]?.firstOrNull { it.id == targetId }?.rawId
-            else -> return null
+        return categoryLoadMutexes.withLock(normalizedType) {
+            val cached = categoryCache[normalizedType]
+            cached?.firstOrNull { it.id == targetId }?.rawId?.let { return@withLock it }
+            identityResolver?.reverse(providerId, normalizedType, targetId)?.let { return@withLock it }
+            // A cross-catalog projection can seed only part of this cache. That does not
+            // mean the portal's complete category list has already been loaded.
+            if (normalizedType in loadedCategoryTypes) return@withLock null
+            when (val categoriesResult = when (normalizedType) {
+                ContentType.LIVE -> getLiveCategories()
+                ContentType.VOD -> getUnifiedVodCategories()
+                ContentType.MOVIE -> getVodCategories()
+                ContentType.SERIES -> getSeriesCategories()
+                ContentType.SERIES_EPISODE -> Result.success(emptyList())
+            }) {
+                is Result.Success -> categoryCache[normalizedType]?.firstOrNull { it.id == targetId }?.rawId
+                else -> null
+            }
         }
     }
 
@@ -3015,6 +2920,7 @@ private fun playbackTransportChallengeFor(url: String): StalkerTransportChalleng
             ?: fallbackStableId(type, rawId)
 
     private fun syntheticCategoryId(type: ContentType, seed: String): Long {
+        categoryIdentityCache[type to seed.trim()]?.let { return it }
         remoteIdentityCache[type to seed.trim()]?.let { return it }
         return fallbackStableId(type, seed)
     }

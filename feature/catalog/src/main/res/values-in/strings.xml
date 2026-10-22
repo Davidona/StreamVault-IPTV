@@ -306,6 +306,8 @@
   <string name="series_detail_resume">Lanjutkan · Musim %1$d Ep %2$d · %3$s</string>
   <string name="series_detail_versions">Versi</string>
   <string name="series_episodes">Episode (%1$d)</string>
+  <string name="series_episodes_empty">Belum ada episode yang tersedia untuk serial ini.</string>
+  <string name="series_episodes_load_failed">Gagal memuat episode serial ini. Silakan periksa koneksi Anda dan coba lagi.</string>
   <string name="series_incorrect_pin">PIN salah</string>
   <string name="series_library_lens_subtitle">Tampilkan serial favorit, sedang berlangsung, berperingkat teratas, dan baru di seluruh perpustakaan.</string>
   <string name="series_loading">Memuat seri...</string>

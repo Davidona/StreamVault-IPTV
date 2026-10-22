@@ -313,4 +313,5 @@
     <string name="live_sports_snooker">Snooker</string>
     <string name="live_sports_darts">Fléchettes</string>
     <string name="live_sports_cycling">Cyclisme</string>
+    <string name="epg_recording_scheduled_notice">Enregistrement programmÃ© : %1$s</string>     <string name="epg_recording_failed_notice">Impossible de programmer l\'enregistrement</string>
 </resources>

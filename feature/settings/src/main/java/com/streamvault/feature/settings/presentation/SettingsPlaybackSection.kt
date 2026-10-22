@@ -445,6 +445,13 @@ public fun LazyListScope.settingsPlaybackSection(
             }
             if (page == null || page == SettingsPage.GENERAL) {
                 SwitchSettingsRow(
+                    label = stringResource(R.string.settings_refresh_rate_matching),
+                    value = stringResource(R.string.settings_refresh_rate_matching_description),
+                    checked = uiState.playerRefreshRateMatchingEnabled,
+                    onCheckedChange = viewModel::setPlayerRefreshRateMatchingEnabled,
+                    modifier = if (targetItemId == "playback.refresh_rate_matching") targetFocusModifier else Modifier,
+                )
+                SwitchSettingsRow(
                     label = stringResource(R.string.settings_media_session),
                     value = stringResource(R.string.settings_media_session_subtitle),
                     checked = uiState.playerMediaSessionEnabled,

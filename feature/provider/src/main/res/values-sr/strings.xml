@@ -129,4 +129,11 @@
     <string name="setup_stalker_catalog_on_demand_description">Полице и категорије се учитавају када их отворите. Кеширани наслови се чувају.</string>
     <string name="setup_stalker_catalog_background_title">Потпуно индексирање у позадини (препоручено)</string>
     <string name="setup_stalker_catalog_background_description">Прво довршите подешавање провајдера, а затим у позадини индексирајте све филмове и серије да бисте могли да их претражујете.</string>
+    <string name="setup_stalker_load_order_title">Редослед учитавања у позадини</string>
+    <string name="setup_stalker_load_parallel_title">Оба истовремено (подразумевано)</string>
+    <string name="setup_stalker_load_parallel_description">Учитавај филмове и серије истовремено.</string>
+    <string name="setup_stalker_load_movies_first_title">Прво филмови</string>
+    <string name="setup_stalker_load_movies_first_description">Серије чекају у реду док се филмови не учитају.</string>
+    <string name="setup_stalker_load_series_first_title">Прво серије</string>
+    <string name="setup_stalker_load_series_first_description">Филмови чекају у реду док се серије не учитају.</string>
 </resources>

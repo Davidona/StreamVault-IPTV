@@ -313,6 +313,13 @@
     <string name="settings_status_expired">Wygasło</string>
     <string name="settings_status_disabled">Niepełnosprawny</string>
     <string name="settings_status_unknown">Nieznany</string>
+    <string name="settings_provider_connection_online">Online</string>
+    <string name="settings_provider_connection_unavailable">Niedostępny</string>
+    <string name="settings_provider_connection_checking">Sprawdzanie…</string>
+    <string name="settings_provider_connection_check_now">Sprawdź teraz</string>
+    <string name="settings_provider_connection_last_checked">Ostatnio sprawdzono</string>
+    <string name="settings_provider_connection_authentication_required">Wymagane logowanie</string>
+    <string name="settings_provider_connection_unknown">Nieznany</string>
     <string name="settings_select_level">Wybierz Poziom ochrony</string>
     <string name="settings_level_off_desc">WYŁ. — Brak ograniczeń</string>
     <string name="settings_level_off_subtitle">Treści dla dorosłych są widoczne wszędzie.</string>
@@ -947,4 +954,6 @@
     <string name="settings_sports_custom_definition_file_error">Nie można wczytać tego pliku JSON</string>
     <string name="settings_experimental_badge">Eksperymentalne</string>
     <string name="settings_sync_index_progress">%1$s · %2$s</string>
+    <string name="settings_refresh_rate_matching">Dopasuj do liczby klatek treści</string>
+    <string name="settings_refresh_rate_matching_description">Dopasowuje częstotliwość odświeżania ekranu do filmu, aby ruch był płynniejszy. Wymaga obsługi przez ekran; podczas zmiany ekran może na chwilę zgasnąć.</string>
 </resources>

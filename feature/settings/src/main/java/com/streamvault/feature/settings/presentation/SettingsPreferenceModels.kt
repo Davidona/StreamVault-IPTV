@@ -135,6 +135,7 @@ data class SettingsPreferenceSnapshot(
     val vodVariantPreferenceMode: VodVariantPreferenceMode,
     val guideDefaultCategoryId: Long,
     val guideDefaultCategoryOptions: List<Category>,
+    val playerRefreshRateMatchingEnabled: Boolean = true,
     val preventStandbyDuringPlayback: Boolean,
     val zapAutoRevert: Boolean,
     val autoPlayNextEpisode: Boolean,

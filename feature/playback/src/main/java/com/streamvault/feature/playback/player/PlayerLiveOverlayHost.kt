@@ -78,7 +78,8 @@ internal fun BoxScope.PlayerLiveOverlayHost(
     onEnterPictureInPicture: () -> Unit,
     onRunRecordingAction: (() -> Unit) -> Unit,
     onOpenCastRouteChooser: () -> Unit,
-    onTransientPanelVisibilityChanged: (Boolean) -> Unit
+    onTransientPanelVisibilityChanged: (Boolean) -> Unit,
+    onScheduleByTime: () -> Unit = {}
 ) {
     val availableCategories by viewModel.availableCategories.collectAsStateWithLifecycle()
     val parentalControlLevel by viewModel.parentalControlLevel.collectAsStateWithLifecycle()
@@ -205,6 +206,7 @@ internal fun BoxScope.PlayerLiveOverlayHost(
                 onScheduleRecording = { onRunRecordingAction(viewModel::scheduleRecording) },
                 onScheduleDailyRecording = { onRunRecordingAction(viewModel::scheduleDailyRecording) },
                 onScheduleWeeklyRecording = { onRunRecordingAction(viewModel::scheduleWeeklyRecording) },
+                onScheduleByTime = onScheduleByTime,
                 onRestartProgram = viewModel::restartCurrentProgram,
                 onOpenArchive = { onOpenModal(PlayerModal.ProgramHistory) },
                 onToggleAspectRatio = viewModel::toggleAspectRatio,

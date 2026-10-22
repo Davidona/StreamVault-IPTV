@@ -18,4 +18,5 @@ internal fun Context.catalogMessageText(message: CatalogMessage): String = when 
     CatalogMessage.TraktFavoriteSyncFailed -> getString(R.string.trakt_favorite_sync_failed)
     CatalogMessage.TraktRatingSaved -> getString(R.string.trakt_rating_saved)
     CatalogMessage.TraktRatingFailed -> getString(R.string.trakt_rating_failed)
+    CatalogMessage.SeriesVariantLoadFailed -> getString(R.string.series_episodes_load_failed)
 }

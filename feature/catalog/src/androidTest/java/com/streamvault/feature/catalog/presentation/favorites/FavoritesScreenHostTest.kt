@@ -14,6 +14,7 @@ import androidx.tv.material3.MaterialTheme
 import com.google.common.truth.Truth.assertThat
 import com.streamvault.core.navigation.AppDestination
 import com.streamvault.data.local.dao.ChannelPreferenceDao
+import com.streamvault.data.local.dao.PlaybackQualityPreferenceDao
 import com.streamvault.data.local.dao.SearchHistoryDao
 import com.streamvault.data.preferences.PreferencesCorruptionRecovery
 import com.streamvault.data.preferences.PreferencesRepository
@@ -28,6 +29,7 @@ import com.streamvault.domain.repository.MovieRepository
 import com.streamvault.domain.repository.PlaybackHistoryRepository
 import com.streamvault.domain.repository.ProviderRepository
 import com.streamvault.domain.repository.SeriesRepository
+import com.streamvault.domain.trakt.TraktFavorites
 import com.streamvault.domain.usecase.GetContinueWatching
 import com.streamvault.feature.catalog.api.CatalogScaffoldContent
 import kotlinx.coroutines.flow.flowOf
@@ -73,11 +75,13 @@ class FavoritesScreenHostTest {
         val playbackHistoryRepository: PlaybackHistoryRepository = mock()
         val providerRepository: ProviderRepository = mock()
         val channelPreferenceDao: ChannelPreferenceDao = mock()
+        val playbackQualityPreferenceDao: PlaybackQualityPreferenceDao = mock()
         val searchHistoryDao: SearchHistoryDao = mock()
         val appContext = ApplicationProvider.getApplicationContext<Context>()
         val preferencesRepository = PreferencesRepository(
             context = appContext,
             channelPreferenceDao = channelPreferenceDao,
+            playbackQualityPreferenceDao = playbackQualityPreferenceDao,
             searchHistoryDao = searchHistoryDao,
             corruptionRecovery = PreferencesCorruptionRecovery(appContext)
         )
@@ -110,7 +114,8 @@ class FavoritesScreenHostTest {
             playbackHistoryRepository = playbackHistoryRepository,
             providerRepository = providerRepository,
             preferencesRepository = preferencesRepository,
-            getContinueWatching = GetContinueWatching(playbackHistoryRepository)
+            getContinueWatching = GetContinueWatching(playbackHistoryRepository),
+            traktFavorites = mock()
         )
 
         composeRule.setContent {

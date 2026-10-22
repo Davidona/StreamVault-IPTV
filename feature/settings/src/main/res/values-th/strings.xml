@@ -352,6 +352,13 @@
     <string name="settings_status_expired">หมดอายุ</string>
     <string name="settings_status_disabled">ปิดใช้งาน</string>
     <string name="settings_status_unknown">ไม่ทราบ</string>
+    <string name="settings_provider_connection_online">ออนไลน์</string>
+    <string name="settings_provider_connection_unavailable">ไม่พร้อมใช้งาน</string>
+    <string name="settings_provider_connection_checking">กำลังตรวจสอบ…</string>
+    <string name="settings_provider_connection_check_now">ตรวจสอบตอนนี้</string>
+    <string name="settings_provider_connection_last_checked">ตรวจสอบล่าสุด</string>
+    <string name="settings_provider_connection_authentication_required">ต้องลงชื่อเข้าใช้</string>
+    <string name="settings_provider_connection_unknown">ไม่ทราบ</string>
     <string name="settings_select_level">เลือกระดับการป้องกัน</string>
     <string name="settings_level_off_desc">ปิด - ไม่มีข้อจำกัด</string>
     <string name="settings_level_off_subtitle">เนื้อหาผู้ใหญ่แสดงทุกที่</string>
@@ -936,4 +943,6 @@
     <string name="settings_sports_custom_definition_file_error">ไม่สามารถโหลดไฟล์ JSON นี้ได้</string>
     <string name="settings_experimental_badge">ฟีเจอร์ทดลอง</string>
     <string name="settings_sync_index_progress">%1$s · %2$s</string>
+    <string name="settings_refresh_rate_matching">ปรับให้ตรงกับอัตราเฟรมของเนื้อหา</string>
+    <string name="settings_refresh_rate_matching_description">ปรับอัตรารีเฟรชของจอแสดงผลให้ตรงกับวิดีโอเพื่อให้ภาพเคลื่อนไหวลื่นไหลขึ้น ต้องใช้จอที่รองรับ หน้าจออาจมืดชั่วครู่ขณะเปลี่ยน</string>
 </resources>

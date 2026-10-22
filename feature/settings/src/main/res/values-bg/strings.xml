@@ -353,6 +353,13 @@
     <string name="settings_status_expired">Изтекъл</string>
     <string name="settings_status_disabled">Изключен</string>
     <string name="settings_status_unknown">Неизвестно</string>
+    <string name="settings_provider_connection_online">Онлайн</string>
+    <string name="settings_provider_connection_unavailable">Недостъпен</string>
+    <string name="settings_provider_connection_checking">Проверява се…</string>
+    <string name="settings_provider_connection_check_now">Провери сега</string>
+    <string name="settings_provider_connection_last_checked">Последна проверка</string>
+    <string name="settings_provider_connection_authentication_required">Изисква се влизане</string>
+    <string name="settings_provider_connection_unknown">Неизвестно</string>
     <string name="settings_select_level">Изберете ниво на защита</string>
     <string name="settings_level_off_desc">ИЗКЛ. - Без ограничения</string>
     <string name="settings_level_off_subtitle">Съдържание за възрастни се показва навсякъде.</string>
@@ -939,4 +946,6 @@
     <string name="settings_sports_custom_definition_file_error">Този JSON файл не може да бъде зареден</string>
     <string name="settings_experimental_badge">Експериментално</string>
     <string name="settings_sync_index_progress">%1$s · %2$s</string>
+    <string name="settings_refresh_rate_matching">Съгласуване с кадровата честота</string>
+    <string name="settings_refresh_rate_matching_description">Съгласува честотата на опресняване на дисплея с видеото за по-плавно движение. Изисква поддръжка от дисплея; при превключване екранът може за кратко да изгасне.</string>
 </resources>

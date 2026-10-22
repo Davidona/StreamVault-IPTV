@@ -134,17 +134,14 @@ fun SeriesDetailScreen(
     }
 
     if (series == null) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(AppColors.Canvas),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = uiState.error ?: stringResource(R.string.series_not_found),
-                color = AppColors.Live
-            )
-        }
+        SeriesDetailsUnavailableContent(
+            message = when {
+                uiState.detailsUnavailable -> stringResource(R.string.series_episodes_load_failed)
+                else -> uiState.error ?: stringResource(R.string.series_not_found)
+            },
+            variants = uiState.availableVariants,
+            onSelectVariant = viewModel::selectSeriesVariant
+        )
         return
     }
 
@@ -193,6 +190,33 @@ fun SeriesDetailScreen(
                 viewModel.rateOnTrakt(rating)
             },
         )
+    }
+}
+
+@Composable
+private fun SeriesDetailsUnavailableContent(
+    message: String,
+    variants: List<VodSeriesVariant>,
+    onSelectVariant: (Long) -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(AppColors.Canvas),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            modifier = Modifier.padding(horizontal = 32.dp)
+        ) {
+            Text(message, color = AppColors.Live)
+            SeriesVersionSelector(
+                variants = variants,
+                selectedVariantId = -1L,
+                onSelectVariant = onSelectVariant
+            )
+        }
     }
 }
 
@@ -533,42 +557,49 @@ private fun SeriesDetailContent(
                 }
             }
 
-            selectedSeason?.let { season ->
+            if (series.seasons.none { season -> season.episodes.isNotEmpty() }) {
                 item {
-                    DetailSectionHeading(
-                        stringResource(R.string.series_episodes, season.episodes.size),
-                        season.name
+                    Text(
+                        text = stringResource(R.string.series_episodes_empty),
+                        color = AppColors.TextSecondary
                     )
                 }
-                val fallbackCover = series?.let {
-                        it.posterUrl ?: it.backdropUrl
-                    }
-                items(visibleEpisodes, key = { it.id }) { episode ->
-                    EpisodeItem(
-                        episode = episode,
-                        fallbackImageUrl = fallbackCover,
-                        onClick = { onEpisodeClick(episode) },
-                        onCopyUrl = { copyEpisodeUrl(episode) },
-                        onDownload = { onDownloadEpisode(episode) },
-                        onCast = { onCastEpisode(episode) },
-                        isCasting = isCasting
-                    )
-                }
-                if (visibleEpisodes.size < season.episodes.size) {
+            } else {
+                selectedSeason?.let { season ->
                     item {
-                        TvButton(
-                            onClick = {
-                                visibleEpisodeLimit = (visibleEpisodeLimit + EPISODE_DETAIL_PAGE_SIZE)
-                                    .coerceAtMost(season.episodes.size)
-                            }
-                        ) {
-                            Text(
-                                text = stringResource(
-                                    R.string.library_load_more,
-                                    visibleEpisodes.size,
-                                    season.episodes.size
+                        DetailSectionHeading(
+                            stringResource(R.string.series_episodes, season.episodes.size),
+                            season.name
+                        )
+                    }
+                    val fallbackCover = series.posterUrl ?: series.backdropUrl
+                    items(visibleEpisodes, key = { it.id }) { episode ->
+                        EpisodeItem(
+                            episode = episode,
+                            fallbackImageUrl = fallbackCover,
+                            onClick = { onEpisodeClick(episode) },
+                            onCopyUrl = { copyEpisodeUrl(episode) },
+                            onDownload = { onDownloadEpisode(episode) },
+                            onCast = { onCastEpisode(episode) },
+                            isCasting = isCasting
+                        )
+                    }
+                    if (visibleEpisodes.size < season.episodes.size) {
+                        item {
+                            TvButton(
+                                onClick = {
+                                    visibleEpisodeLimit = (visibleEpisodeLimit + EPISODE_DETAIL_PAGE_SIZE)
+                                        .coerceAtMost(season.episodes.size)
+                                }
+                            ) {
+                                Text(
+                                    text = stringResource(
+                                        R.string.library_load_more,
+                                        visibleEpisodes.size,
+                                        season.episodes.size
+                                    )
                                 )
-                            )
+                            }
                         }
                     }
                 }

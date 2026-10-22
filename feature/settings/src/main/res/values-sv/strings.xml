@@ -313,6 +313,13 @@
     <string name="settings_status_expired">Utgått</string>
     <string name="settings_status_disabled">Inaktiverad</string>
     <string name="settings_status_unknown">Okänd</string>
+    <string name="settings_provider_connection_online">Online</string>
+    <string name="settings_provider_connection_unavailable">Otillgänglig</string>
+    <string name="settings_provider_connection_checking">Kontrollerar…</string>
+    <string name="settings_provider_connection_check_now">Kontrollera nu</string>
+    <string name="settings_provider_connection_last_checked">Senast kontrollerad</string>
+    <string name="settings_provider_connection_authentication_required">Inloggning krävs</string>
+    <string name="settings_provider_connection_unknown">Okänd</string>
     <string name="settings_select_level">Välj skyddsnivå</string>
     <string name="settings_level_off_desc">AV - Inga begränsningar</string>
     <string name="settings_level_off_subtitle">Vuxeninnehåll visas överallt.</string>
@@ -941,4 +948,6 @@
     <string name="settings_sports_custom_definition_file_error">Det gick inte att läsa in den här JSON-filen</string>
     <string name="settings_experimental_badge">Experimentell</string>
     <string name="settings_sync_index_progress">%1$s · %2$s</string>
+    <string name="settings_refresh_rate_matching">Anpassa till innehållets bildfrekvens</string>
+    <string name="settings_refresh_rate_matching_description">Anpassar skärmens uppdateringsfrekvens till videon för jämnare rörelser. Kräver stöd från skärmen; skärmen kan bli svart en kort stund vid byte.</string>
 </resources>

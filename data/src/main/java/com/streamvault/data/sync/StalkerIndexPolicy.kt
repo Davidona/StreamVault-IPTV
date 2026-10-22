@@ -1,9 +1,11 @@
 package com.streamvault.data.sync
 
+import com.streamvault.data.local.entity.CategoryEntity
 import com.streamvault.data.remote.stalker.StalkerVodCatalogItem
 import com.streamvault.data.remote.stalker.StalkerPagedResult
 import com.streamvault.domain.model.CatalogLayout
 import com.streamvault.domain.model.ContentType
+import com.streamvault.domain.model.StalkerCatalogLoadOrder
 import com.streamvault.domain.model.Movie
 import com.streamvault.domain.model.Series
 import com.streamvault.domain.model.VodCatalogItem
@@ -62,8 +64,17 @@ internal object StalkerIndexPolicy {
         layout: CatalogLayout,
         requestedSection: ContentType?,
         movie: StalkerCatalogSectionState,
-        series: StalkerCatalogSectionState
+        series: StalkerCatalogSectionState,
+        order: StalkerCatalogLoadOrder = StalkerCatalogLoadOrder.PARALLEL
     ): StalkerCatalogDecision {
+        if (requestedSection == null && layout != CatalogLayout.UNIFIED_VOD && order != StalkerCatalogLoadOrder.PARALLEL) {
+            val first = if (order == StalkerCatalogLoadOrder.MOVIES_FIRST) movie else series
+            if (first.pending) return StalkerCatalogDecision(
+                first.contentType.takeIf { first.runnable },
+                retryDelaySeconds = if (first.runnable) 0 else first.retryDelaySeconds.coerceAtLeast(10),
+                reason = "configured first section still has pending pages"
+            )
+        }
         if (requestedSection == ContentType.MOVIE && movie.runnable) {
             return StalkerCatalogDecision(
                 ContentType.MOVIE,
@@ -200,6 +211,21 @@ internal object StalkerIndexPolicy {
         }
         if (seeds.isEmpty()) return null
         return sha1Hex(seeds.joinToString("|"))
+    }
+
+    /**
+     * Categories the wildcard walk did not cover locally: they have no indexed rows after the
+     * sweep (adult-excluded categories, or genuinely empty ones) and need a targeted
+     * per-category backfill.
+     */
+    fun wildcardBackfillCategories(
+        normalCategories: List<CategoryEntity>,
+        localRowCounts: Map<Long, Int>,
+        advertisedTotals: Map<Long, Int> = emptyMap()
+    ): List<CategoryEntity> = normalCategories.filter { category ->
+        val localRows = localRowCounts[category.categoryId] ?: 0
+        val advertisedTotal = advertisedTotals[category.categoryId]
+        if (advertisedTotal != null) localRows < advertisedTotal else localRows == 0
     }
 
     fun dedupePageItems(items: List<out Any>, contentType: ContentType): List<out Any> {

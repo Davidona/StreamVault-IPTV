@@ -319,6 +319,13 @@
     <string name="settings_status_expired">Срок истёк</string>
     <string name="settings_status_disabled">Отключено</string>
     <string name="settings_status_unknown">Неизвестно</string>
+    <string name="settings_provider_connection_online">В сети</string>
+    <string name="settings_provider_connection_unavailable">Недоступен</string>
+    <string name="settings_provider_connection_checking">Проверка…</string>
+    <string name="settings_provider_connection_check_now">Проверить сейчас</string>
+    <string name="settings_provider_connection_last_checked">Последняя проверка</string>
+    <string name="settings_provider_connection_authentication_required">Требуется вход</string>
+    <string name="settings_provider_connection_unknown">Неизвестно</string>
     <string name="settings_select_level">Выберите уровень защиты</string>
     <string name="settings_level_off_desc">ВЫКЛ. — без ограничений</string>
     <string name="settings_level_off_subtitle">Контент для взрослых отображается везде.</string>
@@ -947,4 +954,6 @@
     <string name="settings_sports_custom_definition_file_error">Не удалось загрузить этот файл JSON</string>
     <string name="settings_experimental_badge">Экспериментально</string>
     <string name="settings_sync_index_progress">%1$s · %2$s</string>
+    <string name="settings_refresh_rate_matching">Подстраивать частоту под видеоконтент</string>
+    <string name="settings_refresh_rate_matching_description">Подстраивает частоту обновления экрана под видео для более плавного движения. Требуется поддержка экрана; при переключении экран может ненадолго погаснуть.</string>
 </resources>

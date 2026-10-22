@@ -353,6 +353,13 @@
     <string name="settings_status_expired">Nag-expire</string>
     <string name="settings_status_disabled">Naka-disable</string>
     <string name="settings_status_unknown">Hindi alam</string>
+    <string name="settings_provider_connection_online">Online</string>
+    <string name="settings_provider_connection_unavailable">Hindi magagamit</string>
+    <string name="settings_provider_connection_checking">Sinusuri…</string>
+    <string name="settings_provider_connection_check_now">Suriin ngayon</string>
+    <string name="settings_provider_connection_last_checked">Huling sinuri</string>
+    <string name="settings_provider_connection_authentication_required">Kailangan ng pag-sign in</string>
+    <string name="settings_provider_connection_unknown">Hindi alam</string>
     <string name="settings_select_level">Piliin ang Antas ng Proteksyon</string>
     <string name="settings_level_off_desc">OFF - Walang paghihigpit</string>
     <string name="settings_level_off_subtitle">Lumalabas ang adult content kahit saan.</string>
@@ -939,4 +946,6 @@
     <string name="settings_sports_custom_definition_file_error">Hindi ma-load ang JSON file na ito</string>
     <string name="settings_experimental_badge">Eksperimental</string>
     <string name="settings_sync_index_progress">%1$s · %2$s</string>
+    <string name="settings_refresh_rate_matching">Itugma sa frame rate ng nilalaman</string>
+    <string name="settings_refresh_rate_matching_description">Itinutugma ang refresh rate ng display sa video para sa mas maayos na galaw. Kailangan ng suporta ng display; maaaring umitim sandali ang screen kapag nagpapalit.</string>
 </resources>

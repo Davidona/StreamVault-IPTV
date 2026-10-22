@@ -8,6 +8,7 @@ import com.streamvault.domain.model.ProviderEpgSyncMode
 import com.streamvault.domain.model.ProviderType
 import com.streamvault.domain.model.StalkerCatalogMode
 import com.streamvault.domain.model.StalkerIndexState
+import com.streamvault.data.remote.stalker.StalkerAdvancedOptionsCodec
 
 /**
  * Owns durable Stalker index continuation decisions around the section executor.
@@ -32,7 +33,9 @@ internal class StalkerIndexContinuationCoordinator(
     private val cancelIndex: (Long) -> Unit,
     private val scheduleIndex: (Long, Long, Boolean) -> Unit,
     private val scheduleBackgroundEpg: (Long) -> Unit,
-    private val log: (String) -> Unit = {}
+    private val log: (String) -> Unit = {},
+    private val guideRowCount: suspend (Long) -> Int = { 1 },
+    private val recoverBackgroundEpg: (Long) -> Unit = scheduleBackgroundEpg
 ) {
     suspend fun chooseNextSection(
         provider: Provider,
@@ -55,13 +58,18 @@ internal class StalkerIndexContinuationCoordinator(
         } else {
             sectionState(provider, api, ContentType.SERIES, force, now)
         }
+        val order = StalkerAdvancedOptionsCodec.decode(provider.stalkerAdvancedOptionsJson).catalogLoadOrder
         return StalkerIndexPolicy.chooseNextSection(
             layout = provider.catalogLayout,
             requestedSection = requestedSection,
             movie = movie,
-            series = series
+            series = series,
+            order = order
         )
     }
+
+    suspend fun isSectionPending(provider: Provider, api: StalkerProvider, type: ContentType): Boolean =
+        sectionState(provider, api, type, false, System.currentTimeMillis()).pending
 
     suspend fun scheduleNextSection(provider: Provider, api: StalkerProvider) {
         val decision = chooseNextSection(
@@ -117,6 +125,10 @@ internal class StalkerIndexContinuationCoordinator(
             } else if (provider.stalkerCatalogMode == StalkerCatalogMode.BACKGROUND_INDEX || hasPendingOneTime) {
                 scheduleIndex(provider.id, 0L, false)
             }
+            if (hasPendingOneTime && provider.epgSyncMode != ProviderEpgSyncMode.SKIP && guideRowCount(provider.id) == 0) {
+                // Replace retries backed off by the old shared catalog lease on upgrade/startup.
+                recoverBackgroundEpg(provider.id)
+            }
         }
     }
 
@@ -167,7 +179,7 @@ internal class StalkerIndexContinuationCoordinator(
         val retryDelaySeconds = StalkerIndexPolicy.nextRetryDelaySeconds(hydrations, now)
         val hasUnresolvedWork = hydrations.any { hydration ->
             hydration == null ||
-                (!hydration.isComplete && !hydration.isTerminalFailure && hydration.retryBudgetRemaining > 0)
+                (!hydration.isComplete && !hydration.isTruncated && !hydration.isTerminalFailure && hydration.retryBudgetRemaining > 0)
         }
         val needsStateReconciliation = job?.state in setOf(
             StalkerIndexState.QUEUED,

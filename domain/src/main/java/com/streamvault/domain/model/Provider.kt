@@ -109,6 +109,12 @@ enum class StalkerCatalogMode {
     BACKGROUND_INDEX
 }
 
+enum class StalkerCatalogLoadOrder {
+    PARALLEL,
+    MOVIES_FIRST,
+    SERIES_FIRST
+}
+
 enum class StalkerReadiness {
     AUTHENTICATING,
     LIVE_READY,

@@ -313,6 +313,13 @@
     <string name="settings_status_expired">Verlopen</string>
     <string name="settings_status_disabled">Uitgeschakeld</string>
     <string name="settings_status_unknown">Onbekend</string>
+    <string name="settings_provider_connection_online">Online</string>
+    <string name="settings_provider_connection_unavailable">Niet beschikbaar</string>
+    <string name="settings_provider_connection_checking">Controleren…</string>
+    <string name="settings_provider_connection_check_now">Nu controleren</string>
+    <string name="settings_provider_connection_last_checked">Laatst gecontroleerd</string>
+    <string name="settings_provider_connection_authentication_required">Aanmelden vereist</string>
+    <string name="settings_provider_connection_unknown">Onbekend</string>
     <string name="settings_select_level">Selecteer Beveiligingsniveau</string>
     <string name="settings_level_off_desc">UIT - Geen beperkingen</string>
     <string name="settings_level_off_subtitle">Inhoud voor volwassenen is overal zichtbaar.</string>
@@ -941,4 +948,6 @@
     <string name="settings_sports_custom_definition_file_error">Dit JSON-bestand kon niet worden geladen</string>
     <string name="settings_experimental_badge">Experimenteel</string>
     <string name="settings_sync_index_progress">%1$s · %2$s</string>
+    <string name="settings_refresh_rate_matching">Afstemmen op de beeldsnelheid van inhoud</string>
+    <string name="settings_refresh_rate_matching_description">Stemt de vernieuwingsfrequentie van het scherm af op de video voor vloeiendere bewegingen. Vereist schermondersteuning; bij het omschakelen kan het scherm kort zwart worden.</string>
 </resources>

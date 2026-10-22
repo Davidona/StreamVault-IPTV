@@ -353,6 +353,13 @@
     <string name="settings_status_expired">समाप्त</string>
     <string name="settings_status_disabled">अक्षम</string>
     <string name="settings_status_unknown">अज्ञात</string>
+    <string name="settings_provider_connection_online">ऑनलाइन</string>
+    <string name="settings_provider_connection_unavailable">अनुपलब्ध</string>
+    <string name="settings_provider_connection_checking">जाँच जारी है…</string>
+    <string name="settings_provider_connection_check_now">अभी जाँचें</string>
+    <string name="settings_provider_connection_last_checked">पिछली जाँच</string>
+    <string name="settings_provider_connection_authentication_required">साइन इन आवश्यक</string>
+    <string name="settings_provider_connection_unknown">अज्ञात</string>
     <string name="settings_select_level">सुरक्षा स्तर चुनें</string>
     <string name="settings_level_off_desc">OFF - कोई प्रतिबंध नहीं</string>
     <string name="settings_level_off_subtitle">वयस्क सामग्री हर जगह दिखाई देती है।</string>
@@ -939,4 +946,6 @@
     <string name="settings_sports_custom_definition_file_error">यह JSON फ़ाइल लोड नहीं की जा सकी</string>
     <string name="settings_experimental_badge">प्रायोगिक</string>
     <string name="settings_sync_index_progress">%1$s · %2$s</string>
+    <string name="settings_refresh_rate_matching">सामग्री की फ़्रेम दर से मिलाएँ</string>
+    <string name="settings_refresh_rate_matching_description">ज़्यादा सहज गति के लिए डिस्प्ले की रीफ़्रेश दर को वीडियो से मिलाएँ। डिस्प्ले का समर्थन ज़रूरी है; बदलते समय स्क्रीन कुछ पल के लिए काली हो सकती है।</string>
 </resources>

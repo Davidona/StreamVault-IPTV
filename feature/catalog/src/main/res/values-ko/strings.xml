@@ -306,6 +306,8 @@
   <string name="series_detail_resume">이어보기 · 시즌 %1$d 에피소드 %2$d · %3$s</string>
   <string name="series_detail_versions">버전</string>
   <string name="series_episodes">에피소드(%1$d)</string>
+  <string name="series_episodes_empty">이 시리즈에는 아직 시청 가능한 에피소드가 없습니다.</string>
+  <string name="series_episodes_load_failed">이 시리즈의 에피소드를 불러오지 못했습니다. 연결을 확인한 후 다시 시도하세요.</string>
   <string name="series_incorrect_pin">PIN이 올바르지 않습니다</string>
   <string name="series_library_lens_subtitle">전체 라이브러리에서 즐겨찾기, 시청 중, 최고 평점, 최신 시리즈를 표시합니다.</string>
   <string name="series_loading">시리즈 로딩 중...</string>

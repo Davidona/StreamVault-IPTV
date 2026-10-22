@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
+import kotlinx.coroutines.delay
 import com.streamvault.feature.settings.R
 import com.streamvault.core.ui.components.TvEmptyState
 import com.streamvault.core.ui.theme.OnSurface
@@ -89,6 +90,13 @@ public fun LazyListScope.providerSection(
         }
     } else {
         item {
+            val providerIds = uiState.providers.map { it.id }
+            LaunchedEffect(uiState.providers) {
+                while (true) {
+                    viewModel.checkProviderAvailabilityIfStale(providerIds)
+                    delay(60_000L)
+                }
+            }
             var selectedProviderId by rememberSaveable(uiState.providers, uiState.activeProviderId) {
                 mutableStateOf(uiState.activeProviderId ?: uiState.providers.first().id)
             }
@@ -136,6 +144,8 @@ public fun LazyListScope.providerSection(
             ProviderSettingsCard(
                 provider = selectedProvider,
                 isActive = selectedProvider.id == uiState.activeProviderId,
+                availability = uiState.providerAvailabilityById[selectedProvider.id]
+                    ?: ProviderAvailabilityUiState(),
                 isSyncing = uiState.isSyncing,
                 appTimeFormat = uiState.appTimeFormat,
                 xtreamLiveOnboardingPhase = uiState.xtreamLiveOnboardingPhaseByProvider[selectedProvider.id],
@@ -146,6 +156,7 @@ public fun LazyListScope.providerSection(
                 syncWarnings = uiState.syncWarningsByProvider[selectedProvider.id].orEmpty(),
                 onRetryWarningAction = { action -> viewModel.retryWarningAction(selectedProvider.id, action) },
                 onConnect = { viewModel.setActiveProvider(selectedProvider.id) },
+                onCheckAvailability = { viewModel.checkProviderAvailability(selectedProvider.id) },
                 onRefresh = {
                     providerState.pendingSyncProviderId = selectedProvider.id
                     providerState.customSyncSelections = availableSyncSelections(selectedProvider).toSet()

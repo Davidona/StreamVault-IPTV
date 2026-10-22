@@ -5,6 +5,15 @@ import org.junit.Test
 
 class FrameRateDetectorTest {
 
+    @Test
+    fun `fractional timestamp cadences remain distinct from integer rates`() {
+        for ((interval, expected) in listOf(41_708L to 23.976f, 33_367L to 29.97f, 16_683L to 59.94f)) {
+            val detector = FrameRateDetector(framesToLock = 10)
+            feed(detector, intervalUs = interval, frames = 11)
+            assertThat(detector.lockedFrameRate).isEqualTo(expected)
+        }
+    }
+
     private fun feed(detector: FrameRateDetector, intervalUs: Long, frames: Int, startUs: Long = 0L) {
         var pts = startUs
         repeat(frames) {

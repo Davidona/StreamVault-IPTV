@@ -318,6 +318,13 @@
     <string name="settings_status_expired">פג תוקף</string>
     <string name="settings_status_disabled">מושבת</string>
     <string name="settings_status_unknown">לא ידוע</string>
+    <string name="settings_provider_connection_online">מחובר</string>
+    <string name="settings_provider_connection_unavailable">לא זמין</string>
+    <string name="settings_provider_connection_checking">בבדיקה…</string>
+    <string name="settings_provider_connection_check_now">בדוק עכשיו</string>
+    <string name="settings_provider_connection_last_checked">נבדק לאחרונה</string>
+    <string name="settings_provider_connection_authentication_required">נדרשת התחברות</string>
+    <string name="settings_provider_connection_unknown">לא ידוע</string>
     <string name="settings_select_level">בחר רמת הגנה</string>
     <string name="settings_level_off_desc">כבוי - אין הגבלות</string>
     <string name="settings_level_off_subtitle">תוכן למבוגרים מופיע בכל מקום.</string>
@@ -944,4 +951,6 @@
     <string name="settings_sports_custom_definition_file_error">לא ניתן לטעון את קובץ ה-JSON הזה</string>
     <string name="settings_experimental_badge">ניסיוני</string>
     <string name="settings_sync_index_progress">%1$s · %2$s</string>
+    <string name="settings_refresh_rate_matching">התאמת קצב הרענון לתוכן</string>
+    <string name="settings_refresh_rate_matching_description">התאמת קצב הרענון של המסך לסרטון לתנועה חלקה יותר. נדרשת תמיכה במסך; בעת המעבר המסך עשוי להחשיך לזמן קצר.</string>
 </resources>

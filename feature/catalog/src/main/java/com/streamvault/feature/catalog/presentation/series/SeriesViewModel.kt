@@ -454,7 +454,9 @@ class SeriesViewModel @Inject constructor(
                         seriesRepository.getCategories(provider.id),
                         playbackHistoryRepository.getRecentlyWatchedByProvider(provider.id, limit = 100),
                         preferencesRepository.getHiddenCategoryIds(provider.id, ContentType.SERIES),
-                        preferencesRepository.getCategorySortMode(provider.id, ContentType.SERIES)
+                        preferencesRepository.getCategorySortMode(provider.id, ContentType.SERIES),
+                        if (provider.type == ProviderType.STALKER_PORTAL) seriesRepository.getCategoryItemCounts(provider.id)
+                            else flowOf(emptyMap<Long, Int>())
                     ) { values ->
                         val allFavorites = values[0] as List<com.streamvault.domain.model.Favorite>
                         val customCategories = values[1] as List<Category>
@@ -463,6 +465,7 @@ class SeriesViewModel @Inject constructor(
                         val hiddenCategoryIds = values[4] as Set<Long>
                         val sortMode = values[5] as CategorySortMode
                         SeriesCategorySelectionDependencies(
+                            providerCategoryCounts = values[6] as Map<Long, Int>,
                             allFavorites = allFavorites,
                             customCategories = customCategories,
                             providerCategories = applyProviderCategoryDisplayPreferences(
@@ -502,6 +505,11 @@ class SeriesViewModel @Inject constructor(
                         SelectedSeriesCategoryRequest(
                             providerId = provider.id,
                             selectedCategory = selection.selectedCategory,
+                            selectedProviderCategoryItemCount = if (provider.type == ProviderType.STALKER_PORTAL) {
+                                dependencies.providerCategories.firstOrNull { it.name == selection.selectedCategory }?.id
+                                    ?.let { dependencies.providerCategoryCounts[it] ?: dependencies.providerCategoryCounts.values.sum() }
+                                    ?: dependencies.providerCategoryCounts.values.sum()
+                            } else 0,
                             loadLimit = selection.loadLimit,
                             query = selection.query,
                             filterType = selection.filterType,
@@ -1636,6 +1644,7 @@ private data class SeriesCategorySelectionDependencies(
     val history: List<PlaybackHistory>,
     val customCategories: List<Category>,
     val providerCategories: List<Category>,
+    val providerCategoryCounts: Map<Long, Int>,
     val hiddenCategoryIds: Set<Long>,
     val traktAccountState: TraktAccountState = TraktAccountState(),
     val traktWatchlistState: TraktWatchlistState = TraktWatchlistState(),
@@ -1645,6 +1654,7 @@ private data class SeriesCategorySelectionDependencies(
 private data class SelectedSeriesCategoryRequest(
     val providerId: Long,
     val selectedCategory: String?,
+    val selectedProviderCategoryItemCount: Int,
     val loadLimit: Int,
     val query: String,
     val filterType: LibraryFilterType,

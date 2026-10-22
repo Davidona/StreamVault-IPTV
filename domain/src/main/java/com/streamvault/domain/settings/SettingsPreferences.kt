@@ -175,6 +175,8 @@ interface SettingsPreferences {
 
     suspend fun markXtreamTextImportApplied(providerId: Long, generation: Long)
 
+    val playerRefreshRateMatchingEnabled: Flow<Boolean> get() = kotlinx.coroutines.flow.flowOf(true)
+
     val preventStandbyDuringPlayback: Flow<Boolean>
 
     val autoPlayNextEpisode: Flow<Boolean>
@@ -218,6 +220,8 @@ interface SettingsPreferences {
     suspend fun setRecordingPaddingBeforeMinutes(minutes: Int)
 
     suspend fun setRecordingPaddingAfterMinutes(minutes: Int)
+
+    suspend fun setPlayerRefreshRateMatchingEnabled(enabled: Boolean) {}
 
     suspend fun setPreventStandbyDuringPlayback(prevent: Boolean)
 

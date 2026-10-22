@@ -1,5 +1,6 @@
 package com.streamvault.data.remote.stalker
 
+import com.streamvault.data.BuildConfig
 import java.util.concurrent.ConcurrentHashMap
 
 internal object StalkerTrafficCoordinator {
@@ -32,12 +33,21 @@ internal object StalkerTrafficCoordinator {
     }
 
     /** Playback never blocks interactive requests; only maintenance slows between pages. */
-    fun backgroundInterPageDelayMillis(providerId: Long): Long =
+    fun backgroundInterPageDelayMillis(
+        providerId: Long,
+        adaptiveIndexingEnabled: Boolean = BuildConfig.STALKER_ADAPTIVE_INDEXING
+    ): Long =
+        if (adaptiveIndexingEnabled) {
+            // Every wire request, including page-base probes, is paced by network admission.
+            0L
+        } else
         if (isPlaybackActive(providerId)) {
             PLAYBACK_BACKGROUND_PAGE_DELAY_MILLIS
         } else {
             NORMAL_BACKGROUND_PAGE_DELAY_MILLIS
         }
+
+    fun shouldDeferIndexForPlayback(providerId: Long): Boolean = isPlaybackActive(providerId)
 
     internal fun resetForTests() {
         activePlaybackCountsByProvider.clear()

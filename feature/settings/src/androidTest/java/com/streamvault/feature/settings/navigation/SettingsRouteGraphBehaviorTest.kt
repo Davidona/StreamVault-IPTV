@@ -58,7 +58,7 @@ class SettingsRouteGraphBehaviorTest {
                     actions = NoOpNavigationActions,
                     platformHost = EmptySettingsPlatformHost,
                     navigationDestinations = emptyList(),
-                    settingsContent = { uri, _, _, _ ->
+                    settingsContent = { uri, _, _, _, _ ->
                         receivedBackupUri = uri
                         androidx.tv.material3.Text("Settings route")
                     },
@@ -91,7 +91,7 @@ class SettingsRouteGraphBehaviorTest {
                     actions = NoOpNavigationActions,
                     platformHost = EmptySettingsPlatformHost,
                     navigationDestinations = emptyList(),
-                    settingsContent = { _, _, _, _ -> androidx.tv.material3.Text("Settings route") },
+                    settingsContent = { _, _, _, _, _ -> androidx.tv.material3.Text("Settings route") },
                     parentalControlContent = { _, _ -> androidx.tv.material3.Text("Parental route") }
                 )
             }
@@ -130,7 +130,7 @@ class SettingsRouteGraphBehaviorTest {
                     actions = NoOpNavigationActions,
                     platformHost = EmptySettingsPlatformHost,
                     navigationDestinations = destinations,
-                    settingsContent = { _, _, _, _ -> androidx.tv.material3.Text("Settings route") },
+                    settingsContent = { _, _, _, _, _ -> androidx.tv.material3.Text("Settings route") },
                     parentalControlContent = { _, receivedDestinations ->
                         receivedDestinationIds = receivedDestinations.map(UiDestination::id)
                         androidx.tv.material3.Text("Parental route")
@@ -162,7 +162,7 @@ class SettingsRouteGraphBehaviorTest {
                     actions = actions,
                     platformHost = EmptySettingsPlatformHost,
                     navigationDestinations = emptyList(),
-                    settingsContent = { _, _, _, _ -> androidx.tv.material3.Text("Settings route") },
+                    settingsContent = { _, _, _, _, _ -> androidx.tv.material3.Text("Settings route") },
                     parentalControlContent = { onBack, _ ->
                         parentalBack = onBack
                         androidx.tv.material3.Text("Parental route")

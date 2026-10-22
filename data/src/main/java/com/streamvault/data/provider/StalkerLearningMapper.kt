@@ -14,6 +14,20 @@ internal fun StalkerPortalStateEntity.toGenerationValidLearning(
         return runCatching { gson.fromJson(learningJson, StalkerPortalLearning::class.java) }
             .getOrNull()
             ?.takeIf { it.configurationGeneration == expectedGeneration }
+            ?.let { learning ->
+                // Older wildcard probes accidentally disabled the entire catalog capability.
+                val capabilities = learning.capabilities.orEmpty().toMutableMap()
+                fun repair(key: String, wildcardSupported: Boolean?) {
+                    val observation = capabilities[key]
+                    if (wildcardSupported == false && observation?.value == CapabilityState.UNSUPPORTED &&
+                        observation.source == StalkerObservationSource.CATALOG) capabilities.remove(key)
+                }
+                repair("vod", movieWildcardSupported)
+                repair("series", seriesWildcardSupported)
+                runCatching {
+                    learning.copy(capabilities = capabilities, discoveryEvidence = learning.discoveryEvidence.orEmpty())
+                }.getOrNull()
+            }
     }
     val source = runCatching { StalkerObservationSource.valueOf(observationSource) }
         .getOrDefault(StalkerObservationSource.DISCOVERY)
@@ -21,8 +35,8 @@ internal fun StalkerPortalStateEntity.toGenerationValidLearning(
     fun <T> observed(value: T) = StalkerObservation(value, expectedGeneration, source, time)
     val capabilities = buildMap {
         bulkLiveSupported?.let { put("live", observed(if (it) CapabilityState.SUPPORTED else CapabilityState.UNSUPPORTED)) }
-        movieWildcardSupported?.let { put("vod", observed(if (it) CapabilityState.SUPPORTED else CapabilityState.UNSUPPORTED)) }
-        seriesWildcardSupported?.let { put("series", observed(if (it) CapabilityState.SUPPORTED else CapabilityState.UNSUPPORTED)) }
+        movieWildcardSupported?.let { put("vod_wildcard", observed(if (it) CapabilityState.SUPPORTED else CapabilityState.UNSUPPORTED)) }
+        seriesWildcardSupported?.let { put("series_wildcard", observed(if (it) CapabilityState.SUPPORTED else CapabilityState.UNSUPPORTED)) }
         epgSupported?.let { put("epg", observed(if (it) CapabilityState.SUPPORTED else CapabilityState.UNSUPPORTED)) }
     }
     return StalkerPortalLearning(

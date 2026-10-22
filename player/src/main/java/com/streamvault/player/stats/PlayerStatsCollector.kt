@@ -78,8 +78,11 @@ class PlayerStatsCollector(
 
     /** Called by [androidx.media3.exoplayer.analytics.AnalyticsListener] — always on Main. */
     fun onVideoFormatChanged(format: Format) {
+        if (format != lastVideoFormat) frameRateDetector.reset()
         lastVideoFormat = format
-        lastFrameRate = format.frameRate.takeIf { it > 0f } ?: lastFrameRate
+        // A new rendition may omit FPS or use a different cadence. Never reuse its predecessor's
+        // declared/measured rate when choosing a display refresh rate.
+        lastFrameRate = format.frameRate.takeIf { it.isFinite() && it > 0f } ?: 0f
     }
 
     /** Called by [androidx.media3.exoplayer.analytics.AnalyticsListener] — always on Main. */

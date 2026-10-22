@@ -125,4 +125,11 @@
     <string name="setup_stalker_catalog_on_demand_description">打开时加载各栏和类别。保留已缓存的标题。</string>
     <string name="setup_stalker_catalog_background_title">完整后台索引（推荐）</string>
     <string name="setup_stalker_catalog_background_description">先完成服务商设置，然后在后台为所有电影和剧集建立索引，以便搜索。</string>
+    <string name="setup_stalker_load_order_title">后台加载顺序</string>
+    <string name="setup_stalker_load_parallel_title">同时加载（默认）</string>
+    <string name="setup_stalker_load_parallel_description">同时加载电影和剧集。</string>
+    <string name="setup_stalker_load_movies_first_title">电影优先</string>
+    <string name="setup_stalker_load_movies_first_description">电影加载完成前，剧集保持排队。</string>
+    <string name="setup_stalker_load_series_first_title">剧集优先</string>
+    <string name="setup_stalker_load_series_first_description">剧集加载完成前，电影保持排队。</string>
 </resources>

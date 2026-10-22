@@ -125,4 +125,11 @@
     <string name="setup_stalker_catalog_on_demand_description">טעינת המדפים והקטגוריות בעת פתיחתם. שמירת הכותרים שבמטמון.</string>
     <string name="setup_stalker_catalog_background_title">יצירת אינדקס מלאה ברקע (מומלץ)</string>
     <string name="setup_stalker_catalog_background_description">יש להשלים תחילה את הגדרת הספק, ולאחר מכן ליצור ברקע אינדקס לכל הסרטים והסדרות כדי שאפשר יהיה לחפש בהם.</string>
+    <string name="setup_stalker_load_order_title">סדר טעינה ברקע</string>
+    <string name="setup_stalker_load_parallel_title">שניהם יחד (ברירת מחדל)</string>
+    <string name="setup_stalker_load_parallel_description">טעינת סרטים וסדרות במקביל.</string>
+    <string name="setup_stalker_load_movies_first_title">סרטים קודם</string>
+    <string name="setup_stalker_load_movies_first_description">הסדרות ימתינו בתור עד לסיום טעינת הסרטים.</string>
+    <string name="setup_stalker_load_series_first_title">סדרות קודם</string>
+    <string name="setup_stalker_load_series_first_description">הסרטים ימתינו בתור עד לסיום טעינת הסדרות.</string>
 </resources>

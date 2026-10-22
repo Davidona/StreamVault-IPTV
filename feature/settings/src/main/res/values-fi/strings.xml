@@ -317,6 +317,13 @@
     <string name="settings_status_expired">Vanhentunut</string>
     <string name="settings_status_disabled">Pois käytöstä</string>
     <string name="settings_status_unknown">Tuntematon</string>
+    <string name="settings_provider_connection_online">Verkossa</string>
+    <string name="settings_provider_connection_unavailable">Ei saatavilla</string>
+    <string name="settings_provider_connection_checking">Tarkistetaan…</string>
+    <string name="settings_provider_connection_check_now">Tarkista nyt</string>
+    <string name="settings_provider_connection_last_checked">Viimeksi tarkistettu</string>
+    <string name="settings_provider_connection_authentication_required">Kirjautuminen vaaditaan</string>
+    <string name="settings_provider_connection_unknown">Tuntematon</string>
     <string name="settings_select_level">Valitse Suojaustaso</string>
     <string name="settings_level_off_desc">OFF - Ei rajoituksia</string>
     <string name="settings_level_off_subtitle">Aikuissisältö näkyy kaikkialla.</string>
@@ -941,4 +948,6 @@
     <string name="settings_sports_custom_definition_file_error">Tätä JSON-tiedostoa ei voitu ladata</string>
     <string name="settings_experimental_badge">Kokeellinen</string>
     <string name="settings_sync_index_progress">%1$s · %2$s</string>
+    <string name="settings_refresh_rate_matching">Mukauta sisällön kuvataajuuteen</string>
+    <string name="settings_refresh_rate_matching_description">Mukauttaa näytön virkistystaajuuden videoon liikkeen sulavoittamiseksi. Edellyttää näytön tukea; näyttö voi pimentyä hetkeksi vaihdon aikana.</string>
 </resources>

@@ -125,4 +125,11 @@
     <string name="setup_stalker_catalog_on_demand_description">Muat rak dan kategori saat dibuka. Pertahankan judul yang tersimpan di cache.</string>
     <string name="setup_stalker_catalog_background_title">Indeks latar belakang lengkap (disarankan)</string>
     <string name="setup_stalker_catalog_background_description">Selesaikan penyiapan penyedia terlebih dahulu, lalu indeks semua film dan serial di latar belakang agar dapat dicari.</string>
+    <string name="setup_stalker_load_order_title">Urutan pemuatan di latar belakang</string>
+    <string name="setup_stalker_load_parallel_title">Keduanya bersamaan (default)</string>
+    <string name="setup_stalker_load_parallel_description">Muat film dan serial secara bersamaan.</string>
+    <string name="setup_stalker_load_movies_first_title">Film dahulu</string>
+    <string name="setup_stalker_load_movies_first_description">Biarkan serial dalam antrean hingga film selesai dimuat.</string>
+    <string name="setup_stalker_load_series_first_title">Serial dahulu</string>
+    <string name="setup_stalker_load_series_first_description">Biarkan film dalam antrean hingga serial selesai dimuat.</string>
 </resources>

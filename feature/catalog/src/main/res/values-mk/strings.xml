@@ -306,6 +306,8 @@
   <string name="series_detail_resume">Продолжи · Сезона %1$d Еп %2$d · %3$s</string>
   <string name="series_detail_versions">Верзии</string>
   <string name="series_episodes">Епизоди (%1$d)</string>
+  <string name="series_episodes_empty">Сè уште нема достапни епизоди за оваа серија.</string>
+  <string name="series_episodes_load_failed">Не успеа вчитувањето на епизодите од оваа серија. Проверете ја врската и обидете се повторно.</string>
   <string name="series_incorrect_pin">Неточен PIN</string>
   <string name="series_library_lens_subtitle">Прикажете омилени, незавршени, најдобро оценети и нови серии од целата библиотека.</string>
   <string name="series_loading">Се вчитуваат сериите...</string>

@@ -14,8 +14,17 @@ android {
 
     defaultConfig {
         minSdk = 25
+        buildConfigField("boolean", "STALKER_ADAPTIVE_INDEXING", "true")
+        val requestedStalkerPageConcurrency = providers.gradleProperty("stalkerIndexPageConcurrency")
+            .orNull
+            ?.toIntOrNull()
+            ?.coerceIn(1, 8)
+            ?: 8
+        buildConfigField("int", "STALKER_INDEX_PAGE_CONCURRENCY", requestedStalkerPageConcurrency.toString())
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
+
+    buildFeatures { buildConfig = true }
 
     compileOptions {
         isCoreLibraryDesugaringEnabled = true

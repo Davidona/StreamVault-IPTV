@@ -306,6 +306,8 @@
   <string name="series_detail_resume">Devam Et · Sezon %1$d Bl %2$d · %3$s</string>
   <string name="series_detail_versions">Sürümler</string>
   <string name="series_episodes">Bölümler (%1$d)</string>
+  <string name="series_episodes_empty">Bu dizi için henüz bölüm yok.</string>
+  <string name="series_episodes_load_failed">Bu dizinin bölümleri yüklenemedi. Lütfen bağlantınızı kontrol edip tekrar deneyin.</string>
   <string name="series_incorrect_pin">PIN yanlış</string>
   <string name="series_library_lens_subtitle">Tüm kütüphane genelinde favorileri, izlenmekte olanları, en yüksek puanlı ve yeni serileri öne çıkarın.</string>
   <string name="series_loading">Seriler yükleniyor...</string>

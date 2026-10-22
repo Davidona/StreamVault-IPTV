@@ -210,7 +210,7 @@ class StalkerIndexWorker(
                 .build()
 
             WorkManager.getInstance(context).enqueueUniqueWork(
-                if (automatic) providerAutomaticIndexWorkUniqueName(providerId) else providerWorkUniqueName(providerId),
+                if (automatic) providerAutomaticIndexWorkUniqueName(providerId) else stalkerIndexWorkUniqueName(providerId),
                 stalkerIndexExistingWorkPolicy(force || replaceAutomatic, appendSuccessor),
                 request
             )
@@ -218,7 +218,7 @@ class StalkerIndexWorker(
 
         fun cancel(context: Context, providerId: Long) {
             if (providerId > 0L) {
-                WorkManager.getInstance(context).cancelUniqueWork(providerWorkUniqueName(providerId))
+                WorkManager.getInstance(context).cancelUniqueWork(stalkerIndexWorkUniqueName(providerId))
                 WorkManager.getInstance(context).cancelUniqueWork(providerAutomaticIndexWorkUniqueName(providerId))
             }
         }

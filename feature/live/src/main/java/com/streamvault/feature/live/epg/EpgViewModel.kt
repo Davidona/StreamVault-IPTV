@@ -802,7 +802,14 @@ class EpgViewModel @Inject constructor(
             val result = scheduleRecording(command)
             when (result) {
                 is Result.Success -> {
-                    _uiState.update { it.copy(recordingMessage = "Recording scheduled: ${program.title}") }
+                    _uiState.update {
+                        it.copy(
+                            recordingMessage = appContext.getString(
+                                R.string.epg_recording_scheduled_notice,
+                                program.title
+                            )
+                        )
+                    }
                 }
                 is Result.Error -> {
                     val msg = result.message.orEmpty()
@@ -833,7 +840,13 @@ class EpgViewModel @Inject constructor(
                             return@launch
                         }
                     }
-                    _uiState.update { it.copy(recordingMessage = msg.ifBlank { "Failed to schedule recording" }) }
+                    _uiState.update {
+                        it.copy(
+                            recordingMessage = msg.ifBlank {
+                                appContext.getString(R.string.epg_recording_failed_notice)
+                            }
+                        )
+                    }
                 }
                 else -> {}
             }
@@ -845,8 +858,12 @@ class EpgViewModel @Inject constructor(
         viewModelScope.launch {
             val result = recordingManager.forceScheduleRecording(conflict.pendingRequest)
             val message = when (result) {
-                is Result.Success -> "Recording scheduled: ${conflict.programTitle}"
-                is Result.Error -> result.message ?: "Failed to schedule recording"
+                is Result.Success -> appContext.getString(
+                    R.string.epg_recording_scheduled_notice,
+                    conflict.programTitle
+                )
+                is Result.Error -> result.message
+                    ?: appContext.getString(R.string.epg_recording_failed_notice)
                 else -> return@launch
             }
             _uiState.update { it.copy(recordingMessage = message, pendingRecordingConflict = null) }

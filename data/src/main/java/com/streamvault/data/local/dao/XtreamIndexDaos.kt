@@ -127,6 +127,17 @@ abstract class XtreamContentIndexDao {
     )
     abstract suspend fun markRowsStaleForProviderAndType(providerId: Long, contentType: String): Int
 
+    @Query("""
+        UPDATE xtream_content_index SET stale_state = 'ACTIVE', error_state = NULL
+        WHERE provider_id = :providerId AND content_type = :contentType AND (
+            (:contentType = 'MOVIE' AND local_content_id IN
+                (SELECT id FROM movies WHERE provider_id = :providerId AND category_id = :categoryId)) OR
+            (:contentType = 'SERIES' AND local_content_id IN
+                (SELECT id FROM series WHERE provider_id = :providerId AND category_id = :categoryId))
+        )
+    """)
+    abstract suspend fun markCategoryRowsFresh(providerId: Long, contentType: String, categoryId: Long): Int
+
     @Query("DELETE FROM xtream_content_index WHERE provider_id = :providerId")
     abstract suspend fun deleteByProvider(providerId: Long): Int
 

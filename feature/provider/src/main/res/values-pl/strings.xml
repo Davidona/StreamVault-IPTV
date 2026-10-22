@@ -125,4 +125,11 @@
     <string name="setup_stalker_catalog_on_demand_description">Półki i kategorie są wczytywane po otwarciu. Tytuły w pamięci podręcznej są zachowywane.</string>
     <string name="setup_stalker_catalog_background_title">Pełne indeksowanie w tle (zalecane)</string>
     <string name="setup_stalker_catalog_background_description">Najpierw zakończ konfigurację dostawcy, a następnie indeksuj w tle wszystkie filmy i seriale, aby można je było wyszukiwać.</string>
+    <string name="setup_stalker_load_order_title">Kolejność wczytywania w tle</string>
+    <string name="setup_stalker_load_parallel_title">Oba jednocześnie (domyślnie)</string>
+    <string name="setup_stalker_load_parallel_description">Wczytuj filmy i seriale jednocześnie.</string>
+    <string name="setup_stalker_load_movies_first_title">Najpierw filmy</string>
+    <string name="setup_stalker_load_movies_first_description">Seriale czekają w kolejce do zakończenia wczytywania filmów.</string>
+    <string name="setup_stalker_load_series_first_title">Najpierw seriale</string>
+    <string name="setup_stalker_load_series_first_description">Filmy czekają w kolejce do zakończenia wczytywania seriali.</string>
 </resources>

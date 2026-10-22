@@ -313,6 +313,13 @@
     <string name="settings_status_expired">Έληξε</string>
     <string name="settings_status_disabled">Απενεργοποιημένο</string>
     <string name="settings_status_unknown">Άγνωστο</string>
+    <string name="settings_provider_connection_online">Σε σύνδεση</string>
+    <string name="settings_provider_connection_unavailable">Μη διαθέσιμο</string>
+    <string name="settings_provider_connection_checking">Γίνεται έλεγχος…</string>
+    <string name="settings_provider_connection_check_now">Έλεγχος τώρα</string>
+    <string name="settings_provider_connection_last_checked">Τελευταίος έλεγχος</string>
+    <string name="settings_provider_connection_authentication_required">Απαιτείται σύνδεση</string>
+    <string name="settings_provider_connection_unknown">Άγνωστο</string>
     <string name="settings_select_level">Επιλέξτε επίπεδο προστασίας</string>
     <string name="settings_level_off_desc">ΑΠΕΝΕΡΓΟΠΟΙΗΜΕΝΟ - Χωρίς περιορισμούς</string>
     <string name="settings_level_off_subtitle">Περιεχόμενο ενηλίκων εμφανίζεται παντού.</string>
@@ -941,4 +948,6 @@
     <string name="settings_sports_custom_definition_file_error">Δεν ήταν δυνατή η φόρτωση αυτού του αρχείου JSON</string>
     <string name="settings_experimental_badge">Πειραματικό</string>
     <string name="settings_sync_index_progress">%1$s · %2$s</string>
+    <string name="settings_refresh_rate_matching">Αντιστοίχιση ρυθμού καρέ περιεχομένου</string>
+    <string name="settings_refresh_rate_matching_description">Προσαρμόζει τον ρυθμό ανανέωσης της οθόνης στο βίντεο για πιο ομαλή κίνηση. Απαιτεί υποστήριξη από την οθόνη· κατά την αλλαγή η οθόνη μπορεί να μαυρίσει στιγμιαία.</string>
 </resources>

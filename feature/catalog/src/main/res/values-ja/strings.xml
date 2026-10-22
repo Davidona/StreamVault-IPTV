@@ -306,6 +306,8 @@
   <string name="series_detail_resume">再開 · シーズン %1$d エピソード %2$d · %3$s</string>
   <string name="series_detail_versions">バージョン</string>
   <string name="series_episodes">エピソード (%1$d)</string>
+  <string name="series_episodes_empty">このシリーズで視聴できるエピソードはまだありません。</string>
+  <string name="series_episodes_load_failed">このシリーズのエピソードの読み込みに失敗しました。接続を確認して、もう一度お試しください。</string>
   <string name="series_incorrect_pin">PINが違います</string>
   <string name="series_library_lens_subtitle">ライブラリ全体から、お気に入り、視聴中、高評価、新着のシリーズを表示します。</string>
   <string name="series_loading">シリーズを読み込み中...</string>

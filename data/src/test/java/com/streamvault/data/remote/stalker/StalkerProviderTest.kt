@@ -22,6 +22,8 @@ import com.streamvault.domain.model.StalkerTransportMode
 import com.streamvault.domain.model.StalkerTransportOrigin
 import java.time.Instant
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import org.junit.Before
 import org.junit.Test
 import java.util.Base64
@@ -39,6 +41,37 @@ class StalkerProviderTest {
         macAddress = "00:1A:79:12:34:56", deviceProfile = "MAG250", timezone = "UTC", locale = "en",
         resolvedCategoryHandoffKey = key
     )
+
+    @Test
+    fun coldUnifiedCategoryLookupsLoadTheCorrectCacheOnlyOnce() = runTest {
+        val api = FakeStalkerApiService(
+            profile = StalkerProviderProfile(accountName = "Room"),
+            vodCategories = listOf(StalkerCategoryRecord("10", "Mixed"))
+        )
+        val source = categoryReuseProvider(api)
+        val category = (source.getUnifiedVodCategories() as Result.Success).data.single()
+        val before = api.vodCategoryCalls
+        val cold = categoryReuseProvider(api)
+        (1..24).map { async { cold.isWildcardCategory(ContentType.VOD, category.id) } }.awaitAll()
+        assertThat(api.vodCategoryCalls - before).isEqualTo(1)
+        cold.isWildcardCategory(ContentType.VOD, category.id)
+        assertThat(api.vodCategoryCalls - before).isEqualTo(1)
+    }
+
+    @Test
+    fun projectedCategoryDoesNotHideTheRestOfTheMovieCategoryList() = runTest {
+        val api = FakeStalkerApiService(
+            profile = StalkerProviderProfile(accountName = "Room"),
+            seriesCategories = listOf(StalkerCategoryRecord("10", "Series")),
+            vodCategories = listOf(StalkerCategoryRecord("10", "Mixed"), StalkerCategoryRecord("11", "Movies"))
+        )
+        val source = categoryReuseProvider(api)
+        val remaining = (source.getVodCategories() as Result.Success).data.single { it.name == "Movies" }
+        val target = categoryReuseProvider(api)
+        val series = (target.getSeriesCategories() as Result.Success).data.single()
+        target.projectSeriesCategoryToVod(series.id)
+        assertThat(target.projectVodCategoryToSeries(remaining.id)).isNotNull()
+    }
 
     @Test
     fun layoutDetectionCategoriesAreConsumedOnceWithoutRepeatingDiscovery() = runTest {
@@ -1085,60 +1118,21 @@ class StalkerProviderTest {
     }
 
     @Test
-    fun vodPaging_detectsZeroBasedPortalAndPersistsOffsetAcrossProviderInstances() = runTest {
-        val dao = FakePortalStateDao()
-        val store = StalkerPortalStateStore(dao, TestCredentialCrypto())
+    fun vodPagingRequestsOneBasedPagesWithoutSamplingPageZero() = runTest {
         val api = FakeStalkerApiService(
             profile = StalkerProviderProfile(accountName = "Room"),
             vodPageResultsByPage = mapOf(
-                0 to stalkerVodPage(0, "zero-first", "First page"),
-                1 to stalkerVodPage(1, "zero-second", "Second page"),
-                2 to stalkerVodPage(2, "zero-third", "Third page")
-            )
-        )
-        fun provider() = StalkerProvider(
-            providerId = 47L,
-            api = api,
-            portalUrl = "https://portal.example.com/c/",
-            macAddress = "00:1A:79:12:34:56",
-            deviceProfile = "MAG250",
-            timezone = "UTC",
-            locale = "en",
-            configurationGeneration = 9L,
-            portalStateStore = store
-        )
-
-        val first = provider().getVodStreamsPage(categoryId = null, page = 1) as Result.Success
-        assertThat(first.data.items.single().name).isEqualTo("First page")
-        assertThat(first.data.page).isEqualTo(1)
-        assertThat(api.vodPageRequests).containsExactly(0, 1).inOrder()
-        assertThat(store.getVodPageBase(47L, 9L)).isEqualTo(0)
-
-        val resumed = provider().getVodStreamsPage(categoryId = null, page = 2) as Result.Success
-        assertThat(resumed.data.items.single().name).isEqualTo("Second page")
-        assertThat(resumed.data.page).isEqualTo(2)
-        assertThat(api.vodPageRequests).containsExactly(0, 1, 1).inOrder()
-        assertThat(api.authenticateCalls).isEqualTo(1)
-    }
-
-    @Test
-    fun vodPaging_detectsOneBasedPortalWhenPageZeroAliasesPageOne() = runTest {
-        val api = FakeStalkerApiService(
-            profile = StalkerProviderProfile(accountName = "Room"),
-            vodPageResultsByPage = mapOf(
-                0 to stalkerVodPage(0, "one-first", "First page"),
-                1 to stalkerVodPage(1, "one-first", "First page"),
-                2 to stalkerVodPage(2, "one-second", "Second page")
+                0 to stalkerVodPage(0, "last", "Last page"),
+                1 to stalkerVodPage(1, "first", "First page"),
+                2 to stalkerVodPage(2, "second", "Second page")
             )
         )
         val provider = categoryReuseProvider(api)
-
         val first = provider.getVodStreamsPage(categoryId = null, page = 1) as Result.Success
         val second = provider.getVodStreamsPage(categoryId = null, page = 2) as Result.Success
-
         assertThat(first.data.items.single().name).isEqualTo("First page")
         assertThat(second.data.items.single().name).isEqualTo("Second page")
-        assertThat(api.vodPageRequests).containsExactly(0, 1, 2).inOrder()
+        assertThat(api.vodPageRequests).containsExactly(1, 2).inOrder()
     }
 
     private fun stalkerVodPage(page: Int, id: String, title: String) = StalkerPagedItems(
@@ -1186,6 +1180,58 @@ class StalkerProviderTest {
         val series = (result as Result.Success).data.items.single()
         assertThat(series.categoryId).isEqualTo(30L)
         assertThat(series.categoryName).isEqualTo("Drama")
+    }
+
+    @Test
+    fun unifiedBulkPagePreservesMovieAndSeriesCategories() = runTest {
+        val source = categoryReuseProvider(FakeStalkerApiService(
+            profile = StalkerProviderProfile(accountName = "Room"),
+            vodCategories = listOf(StalkerCategoryRecord("*", "All"), StalkerCategoryRecord("10", "Mixed")),
+            vodPageItems = listOf(
+                StalkerItemRecord(id = "1", name = "Movie", categoryId = "10", cmd = "http://cdn.example.com/1.mp4"),
+                StalkerItemRecord(id = "2", name = "Series", categoryId = "10", isSeries = true)
+            )
+        ))
+        val categories = (source.getUnifiedVodCategories() as Result.Success).data
+        val result = source.getUnifiedVodPageUsingItemCategories(categories.first().id, 1) as Result.Success
+        assertThat(result.data.items.map { entry -> when (val item = entry.item) {
+            is VodCatalogItem.MovieItem -> item.movie.categoryId
+            is VodCatalogItem.SeriesItem -> item.series.categoryId
+        } }).containsExactly(categories.last().id, categories.last().id)
+    }
+
+    @Test
+    fun nativeSeriesBulkPagePreservesEachItemsCategory() = runTest {
+        val source = categoryReuseProvider(FakeStalkerApiService(
+            profile = StalkerProviderProfile(accountName = "Room"),
+            seriesCategories = listOf(StalkerCategoryRecord("*", "All"), StalkerCategoryRecord("10", "Series")),
+            seriesPageItems = listOf(StalkerItemRecord(id = "2", name = "Series", categoryId = "10", isSeries = true))
+        ))
+        val categories = (source.getSeriesCategories() as Result.Success).data
+        val result = source.getNativeSeriesListPageUsingItemCategories(categories.first().id, 1) as Result.Success
+        assertThat(result.data.items.single().categoryId).isEqualTo(categories.last().id)
+    }
+
+    @Test
+    fun categoryMappingsSurviveLargeLiveIdentityCacheEviction() = runTest {
+        val resolver = StalkerRemoteIdentityResolver(FakeIdentityDao(), DirectTransactionRunner)
+        val api = FakeStalkerApiService(
+            profile = StalkerProviderProfile(accountName = "Room"),
+            liveStreams = (1..5_000).map {
+                StalkerItemRecord(id = "$it", name = "Channel $it", categoryId = "10", cmd = "http://cdn.example.com/$it.ts")
+            },
+            vodCategories = (1..600).map { StalkerCategoryRecord("$it", "Movies $it") },
+            seriesCategories = listOf(StalkerCategoryRecord("20", "Series"))
+        )
+        val provider = StalkerProvider(
+            providerId = 7, api = api, portalUrl = "https://portal.example.com/c/",
+            macAddress = "00:1A:79:12:34:56", deviceProfile = "MAG250", timezone = "UTC", locale = "en",
+            identityResolver = resolver
+        )
+        provider.streamLiveStreams { }
+        val categories = (provider.getVodCategories() as Result.Success).data
+        assertThat(categories.map { it.id }).containsExactlyElementsIn((1L..600L).toList()).inOrder()
+        categories.forEach { assertThat(provider.projectVodCategoryToSeries(it.id)).isNotNull() }
     }
 
     @Test

@@ -39,17 +39,17 @@ fun rememberNotificationPermissionGate(
     recordingBlockedMessage: String,
 ): NotificationPermissionGate {
     val context = LocalContext.current
-    var pendingReminderAction by remember { mutableStateOf<(() -> Unit)?>(null) }
+    var pendingNotificationAction by remember { mutableStateOf<(() -> Unit)?>(null) }
     var pendingRequestType by remember { mutableStateOf<NotificationPermissionRequestType?>(null) }
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { granted ->
         val requestType = pendingRequestType
-        val reminderAction = pendingReminderAction
+        val pendingAction = pendingNotificationAction
         pendingRequestType = null
-        pendingReminderAction = null
+        pendingNotificationAction = null
         if (granted && notificationsEnabled(context)) {
-            reminderAction?.invoke()
+            pendingAction?.invoke()
             return@rememberLauncherForActivityResult
         }
         when (requestType) {
@@ -64,12 +64,12 @@ fun rememberNotificationPermissionGate(
             when {
                 notificationsEnabled(context) -> action()
                 needsNotificationRuntimePermission(context) -> {
-                    pendingReminderAction = action
+                    pendingNotificationAction = action
                     pendingRequestType = NotificationPermissionRequestType.REMINDER
                     permissionLauncher.launch(POST_NOTIFICATIONS_PERMISSION)
                 }
                 else -> {
-                    pendingReminderAction = null
+                    pendingNotificationAction = null
                     pendingRequestType = null
                     onNotificationsBlocked(reminderBlockedMessage)
                 }
@@ -77,14 +77,18 @@ fun rememberNotificationPermissionGate(
         },
         runRecordingActionImpl = { action ->
             when {
+                notificationsEnabled(context) -> action()
                 needsNotificationRuntimePermission(context) -> {
-                    pendingReminderAction = null
+                    pendingNotificationAction = action
                     pendingRequestType = NotificationPermissionRequestType.RECORDING_ALERTS
                     permissionLauncher.launch(POST_NOTIFICATIONS_PERMISSION)
                 }
-                !notificationsEnabled(context) -> onNotificationsBlocked(recordingBlockedMessage)
+                else -> {
+                    pendingNotificationAction = null
+                    pendingRequestType = null
+                    onNotificationsBlocked(recordingBlockedMessage)
+                }
             }
-            action()
         }
     )
 }

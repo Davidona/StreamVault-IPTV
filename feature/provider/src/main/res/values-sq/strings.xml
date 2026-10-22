@@ -129,4 +129,11 @@
     <string name="setup_stalker_catalog_on_demand_description">Raftet dhe kategoritë ngarkohen kur hapen. Titujt e ruajtur në memorien e përkohshme mbahen.</string>
     <string name="setup_stalker_catalog_background_title">Indeksim i plotë në sfond (i rekomanduar)</string>
     <string name="setup_stalker_catalog_background_description">Përfundoni fillimisht konfigurimin e ofruesit, pastaj indeksoni në sfond të gjithë filmat dhe serialet për t’i kërkuar.</string>
+    <string name="setup_stalker_load_order_title">Rendi i ngarkimit në sfond</string>
+    <string name="setup_stalker_load_parallel_title">Të dyja bashkë (parazgjedhje)</string>
+    <string name="setup_stalker_load_parallel_description">Ngarko filmat dhe serialet njëkohësisht.</string>
+    <string name="setup_stalker_load_movies_first_title">Filmat së pari</string>
+    <string name="setup_stalker_load_movies_first_description">Mbaji serialet në radhë derisa të përfundojë ngarkimi i filmave.</string>
+    <string name="setup_stalker_load_series_first_title">Serialet së pari</string>
+    <string name="setup_stalker_load_series_first_description">Mbaji filmat në radhë derisa të përfundojë ngarkimi i serialeve.</string>
 </resources>

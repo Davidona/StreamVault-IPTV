@@ -306,6 +306,8 @@
   <string name="series_detail_resume">Fortsätt · Säsong %1$d Avs %2$d · %3$s</string>
   <string name="series_detail_versions">Versioner</string>
   <string name="series_episodes">Avsnitt (%1$d)</string>
+  <string name="series_episodes_empty">Det finns inga avsnitt tillgängliga för den här serien ännu.</string>
+  <string name="series_episodes_load_failed">Det gick inte att ladda avsnitten för den här serien. Kontrollera din anslutning och försök igen.</string>
   <string name="series_incorrect_pin">Felaktig PIN-kod</string>
   <string name="series_library_lens_subtitle">Visa favoriter, pågående, topprankade och nya serier i hela biblioteket.</string>
   <string name="series_loading">Laddar serien...</string>

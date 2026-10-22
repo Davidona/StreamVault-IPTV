@@ -306,6 +306,8 @@
   <string name="series_detail_resume">استئناف · الموسم %1$d الحلقة %2$d · %3$s</string>
   <string name="series_detail_versions">النسخ</string>
   <string name="series_episodes">الحلقات (%1$d)</string>
+  <string name="series_episodes_empty">لا توجد حلقات متاحة لهذا المسلسل بعد.</string>
+  <string name="series_episodes_load_failed">فشل تحميل حلقات هذا المسلسل. يُرجى التحقق من الاتصال والمحاولة مرة أخرى.</string>
   <string name="series_incorrect_pin">رمز PIN غير صحيح</string>
   <string name="series_library_lens_subtitle">اعرض المفضلة، قيد المشاهدة، الأعلى تقييمًا، والجديدة عبر المكتبة بالكامل.</string>
   <string name="series_loading">جارٍ تحميل المسلسلات...</string>
