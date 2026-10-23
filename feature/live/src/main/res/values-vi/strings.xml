@@ -267,6 +267,11 @@
     <string name="live_sports_forget_choice">Quên lựa chọn này</string>
     <string name="live_sports_no_matching_channels">Không có kênh phù hợp</string>
     <string name="live_sports_league_efl_championship">Giải vô địch Liên đoàn bóng đá Anh</string>
+    <string name="live_sports_league_brasileirao_serie_a">Giải vô địch Brazil Série A</string>
+    <string name="live_sports_league_brasileirao_serie_b">Giải vô địch Brazil Série B</string>
+    <string name="live_sports_league_copa_do_brasil">Cúp Brazil</string>
+    <string name="live_sports_league_copa_libertadores">Copa Libertadores</string>
+    <string name="live_sports_league_copa_sul_americana">Copa Sudamericana</string>
     <string name="live_sports_standings">Bảng xếp hạng</string>
     <string name="live_sports_standings_rank">Hạng</string>
     <string name="live_sports_standings_team">Đội</string>

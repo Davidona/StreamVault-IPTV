@@ -326,6 +326,14 @@ class SportsProgrammeClassifierTest {
         assertThat(replay.isCompetitiveEvent).isFalse()
         assertThat(replay.competitors).containsExactly("Grêmio", "Internacional").inOrder()
 
+        val replaySuffix = classify(
+            title = "Grêmio x Internacional - VT",
+            channel = channel("PREMIERE CLUBES [FHD]"),
+        )
+        assertThat(replaySuffix.eventType).isEqualTo(SportsEventType.REPLAY)
+        assertThat(replaySuffix.isCompetitiveEvent).isFalse()
+        assertThat(replaySuffix.competitors).containsExactly("Grêmio", "Internacional").inOrder()
+
         val announcement = classify(
             title = "Hoje a partir das 18:30 - Vasco x Corinthians",
             description = "Vasco e Corinthians jogam pela 32ª rodada do Brasileirão.",

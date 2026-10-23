@@ -267,6 +267,11 @@
     <string name="live_sports_forget_choice">Uită această alegere</string>
     <string name="live_sports_no_matching_channels">Nu există canale potrivite</string>
     <string name="live_sports_league_efl_championship">Campionatul Ligii Engleze de Fotbal</string>
+    <string name="live_sports_league_brasileirao_serie_a">Campionatul Braziliei Série A</string>
+    <string name="live_sports_league_brasileirao_serie_b">Campionatul Braziliei Série B</string>
+    <string name="live_sports_league_copa_do_brasil">Cupa Braziliei</string>
+    <string name="live_sports_league_copa_libertadores">Copa Libertadores</string>
+    <string name="live_sports_league_copa_sul_americana">Copa Sudamericana</string>
     <string name="live_sports_standings">Clasament</string>
     <string name="live_sports_standings_rank">Poziție</string>
     <string name="live_sports_standings_team">Echipă</string>

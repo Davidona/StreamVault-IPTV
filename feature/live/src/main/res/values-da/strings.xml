@@ -267,6 +267,11 @@
     <string name="live_sports_forget_choice">Glem dette valg</string>
     <string name="live_sports_no_matching_channels">Ingen matchende kanaler</string>
     <string name="live_sports_league_efl_championship">Mesterskabet i den engelske fodboldliga</string>
+    <string name="live_sports_league_brasileirao_serie_a">Brasiliansk mesterskab Série A</string>
+    <string name="live_sports_league_brasileirao_serie_b">Brasiliansk mesterskab Série B</string>
+    <string name="live_sports_league_copa_do_brasil">Brasiliansk pokal</string>
+    <string name="live_sports_league_copa_libertadores">Copa Libertadores</string>
+    <string name="live_sports_league_copa_sul_americana">Copa Sudamericana</string>
     <string name="live_sports_standings">Stilling</string>
     <string name="live_sports_standings_rank">Placering</string>
     <string name="live_sports_standings_team">Hold</string>

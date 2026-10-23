@@ -267,6 +267,11 @@
     <string name="live_sports_forget_choice">Diese Auswahl vergessen</string>
     <string name="live_sports_no_matching_channels">Keine passenden Sender</string>
     <string name="live_sports_league_efl_championship">Meisterschaft der englischen Fußballliga</string>
+    <string name="live_sports_league_brasileirao_serie_a">Brasilianische Meisterschaft Série A</string>
+    <string name="live_sports_league_brasileirao_serie_b">Brasilianische Meisterschaft Série B</string>
+    <string name="live_sports_league_copa_do_brasil">Brasilianischer Pokal</string>
+    <string name="live_sports_league_copa_libertadores">Copa Libertadores</string>
+    <string name="live_sports_league_copa_sul_americana">Copa Sudamericana</string>
     <string name="live_sports_standings">Tabelle</string>
     <string name="live_sports_standings_rank">Rang</string>
     <string name="live_sports_standings_team">Mannschaft</string>

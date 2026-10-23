@@ -267,6 +267,11 @@
     <string name="live_sports_forget_choice">שכח את הבחירה הזו</string>
     <string name="live_sports_no_matching_channels">לא נמצאו ערוצים תואמים</string>
     <string name="live_sports_league_efl_championship">אליפות ליגת הכדורגל האנגלית</string>
+    <string name="live_sports_league_brasileirao_serie_a">אליפות ברזיל סרייה א</string>
+    <string name="live_sports_league_brasileirao_serie_b">אליפות ברזיל סרייה ב</string>
+    <string name="live_sports_league_copa_do_brasil">גביע ברזיל</string>
+    <string name="live_sports_league_copa_libertadores">קופה ליברטדורס</string>
+    <string name="live_sports_league_copa_sul_americana">קופה סודאמריקנה</string>
     <string name="live_sports_standings">טבלה</string>
     <string name="live_sports_standings_rank">דירוג</string>
     <string name="live_sports_standings_team">קבוצה</string>

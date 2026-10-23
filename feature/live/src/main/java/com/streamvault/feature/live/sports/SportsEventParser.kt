@@ -64,7 +64,7 @@ internal object SportsEventParser {
 
     private val replayPattern = Regex(
         """\b(?:replay|re-run|rerun|repeat|encore|classic\s+match|reprise|reapresenta[çc][ãa]o)\b|""" +
-            """^\s*vt\s*[-–—:]""",
+            """^\s*vt\s*[-–—:]|\s+[-–—]\s*vt\s*$""",
         RegexOption.IGNORE_CASE,
     )
     private val highlightsPattern = Regex(

@@ -267,6 +267,11 @@
     <string name="live_sports_forget_choice">Bu seçimi unut</string>
     <string name="live_sports_no_matching_channels">Eşleşen kanal yok</string>
     <string name="live_sports_league_efl_championship">İngiliz Futbol Ligi Şampiyonası</string>
+    <string name="live_sports_league_brasileirao_serie_a">Brezilya Şampiyonası Série A</string>
+    <string name="live_sports_league_brasileirao_serie_b">Brezilya Şampiyonası Série B</string>
+    <string name="live_sports_league_copa_do_brasil">Brezilya Kupası</string>
+    <string name="live_sports_league_copa_libertadores">Copa Libertadores</string>
+    <string name="live_sports_league_copa_sul_americana">Copa Sudamericana</string>
     <string name="live_sports_standings">Puan durumu</string>
     <string name="live_sports_standings_rank">Sıra</string>
     <string name="live_sports_standings_team">Takım</string>

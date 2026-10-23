@@ -6,6 +6,7 @@ All notable product changes are recorded in this document.
 
 ### Added
 - Added QR-based phone setup for EPG sources and Stremio add-ons, so their URLs can be submitted from a phone on the same local network.
+- Added recognition of Brazilian Portuguese sports listings, including matchups, broadcast notes, and Brazilian and South American competitions.
 
 ### Changed
 - Channel, movie, series, and VOD category searches now ignore Latin accents (for example, “café” matches “cafe”). Existing catalogs upgrade automatically, with their content preserved.
@@ -13,6 +14,7 @@ All notable product changes are recorded in this document.
 ### Fixed
 - Fixed HLS playback failing on master playlists with `EXT-X-MEDIA` rendition tags missing the required `NAME` attribute.
 - Fixed some more backup and restore bugs.
+- Fixed sports listings ending in `- VT` appearing as scheduled matches instead of replays, and localized the new league names in Sports.
 
 ## [1.2.2]
 
