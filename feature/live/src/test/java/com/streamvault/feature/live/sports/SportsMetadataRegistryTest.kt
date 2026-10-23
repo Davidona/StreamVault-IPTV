@@ -68,4 +68,22 @@ class SportsMetadataRegistryTest {
         assertThat(SportsLeagueRegistry.detect("EPL")?.id)
             .isEqualTo(SportsLeagueRegistry.detect("Premier League")?.id)
     }
+
+    @Test
+    fun detectsBrazilianCompetitionsBeforeShorterEuropeanAliases() {
+        assertThat(SportsLeagueRegistry.detect("Brasileirão Série A")?.displayName)
+            .isEqualTo("Brasileirão Série A")
+        assertThat(SportsLeagueRegistry.detect("a Série A do futebol masculino brasileiro")?.displayName)
+            .isEqualTo("Brasileirão Série A")
+        assertThat(SportsLeagueRegistry.detect("Campeonato Brasileiro, Série B")?.displayName)
+            .isEqualTo("Brasileirão Série B")
+        assertThat(SportsLeagueRegistry.detect("Brasileirão Série B")?.displayName)
+            .isEqualTo("Brasileirão Série B")
+        assertThat(SportsLeagueRegistry.detect("Semifinal da Libertadores")?.displayName)
+            .isEqualTo("Copa Libertadores")
+        assertThat(SportsLeagueRegistry.detect("Copa Sul-Americana")?.displayName)
+            .isEqualTo("Copa Sul-Americana")
+        assertThat(SportsLeagueRegistry.detect("Serie A, primeira divisão da Itália")?.displayName)
+            .isEqualTo("Serie A")
+    }
 }

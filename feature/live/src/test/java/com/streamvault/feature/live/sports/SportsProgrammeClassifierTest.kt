@@ -269,6 +269,98 @@ class SportsProgrammeClassifierTest {
         )
     }
 
+    @Test
+    fun `brazilian guides use x matchups and portuguese sport descriptions`() {
+        val brasileirao = classify(
+            title = "Vasco x Corinthians - Ao Vivo",
+            description = "Vasco e Corinthians jogam pela 32ª rodada do Segundo Turno do Brasileirão.",
+            channel = channel("PREMIERE 2 [FHD]"),
+        )
+        assertThat(brasileirao.isSports).isTrue()
+        assertThat(brasileirao.isCompetitiveEvent).isTrue()
+        assertThat(brasileirao.eventType).isEqualTo(SportsEventType.LIVE_EVENT)
+        assertThat(brasileirao.sport).isEqualTo(SportType.FOOTBALL)
+        assertThat(brasileirao.league).isEqualTo("Brasileirão Série A")
+        assertThat(brasileirao.competitors).containsExactly("Vasco", "Corinthians").inOrder()
+
+        val volei = classify(
+            title = "Sesi Bauru x Mackenzie",
+            description = "Todas as emoções da principal competição de vôlei feminino entre equipes brasileiras.",
+            channel = channel("SPORTV 2 [FHD]"),
+        )
+        assertThat(volei.isCompetitiveEvent).isTrue()
+        assertThat(volei.sport).isEqualTo(SportType.VOLLEYBALL)
+
+        val nba = classify(
+            title = "Los Angeles Lakers x Golden State Warriors",
+            description = "Trinta equipes se enfrentam na principal liga de basquete do mundo.",
+            channel = channel("ESPN 2 [FHD]"),
+        )
+        assertThat(nba.sport).isEqualTo(SportType.BASKETBALL)
+
+        val nfl = classify(
+            title = "San Francisco 49ers x Washington Commanders",
+            description = "Todas as emoções da National Football League, a liga profissional de futebol americano.",
+            channel = channel("ESPN 2 [FHD]"),
+        )
+        assertThat(nfl.sport).isEqualTo(SportType.AMERICAN_FOOTBALL)
+    }
+
+    @Test
+    fun `brazilian sports channel names are recognized without guide text`() {
+        val event = classify(title = "Botafogo x Palmeiras", channel = channel("SPORTV [FHD]"))
+
+        assertThat(event.isSports).isTrue()
+        assertThat(event.isCompetitiveEvent).isTrue()
+        assertThat(event.competitors).containsExactly("Botafogo", "Palmeiras").inOrder()
+    }
+
+    @Test
+    fun `brazilian airing notes are stripped from competitors and classified`() {
+        val replay = classify(
+            title = "VT - Grêmio x Internacional",
+            description = "Aqui no Brasileirão tem os melhores jogos!",
+            channel = channel("PREMIERE CLUBES [FHD]"),
+        )
+        assertThat(replay.eventType).isEqualTo(SportsEventType.REPLAY)
+        assertThat(replay.isCompetitiveEvent).isFalse()
+        assertThat(replay.competitors).containsExactly("Grêmio", "Internacional").inOrder()
+
+        val announcement = classify(
+            title = "Hoje a partir das 18:30 - Vasco x Corinthians",
+            description = "Vasco e Corinthians jogam pela 32ª rodada do Brasileirão.",
+            channel = channel("PREMIERE 2 [FHD]"),
+        )
+        assertThat(announcement.eventType).isEqualTo(SportsEventType.PREVIEW)
+        assertThat(announcement.isCompetitiveEvent).isFalse()
+        assertThat(announcement.competitors).containsExactly("Vasco", "Corinthians").inOrder()
+
+        val datedAnnouncement = classify(
+            title = "Dia 24/10 - São Bernardo FC x Vila Nova",
+            description = "Jogo pela 34ª rodada do Campeonato Brasileiro, Série B.",
+            channel = channel("PREMIERE 7 [FHD]"),
+        )
+        assertThat(datedAnnouncement.eventType).isEqualTo(SportsEventType.PREVIEW)
+        assertThat(datedAnnouncement.league).isEqualTo("Brasileirão Série B")
+        assertThat(datedAnnouncement.competitors).containsExactly("São Bernardo FC", "Vila Nova").inOrder()
+
+        val narrated = classify(
+            title = "Libertadores Feminina - Olimpia x Cruzeiro - Narração - Ao Vivo",
+            channel = channel("CANAL UOL [FHD]"),
+        )
+        assertThat(narrated.eventType).isEqualTo(SportsEventType.LIVE_EVENT)
+        assertThat(narrated.league).isEqualTo("Copa Libertadores")
+        assertThat(narrated.competitors).containsExactly("Olimpia", "Cruzeiro").inOrder()
+    }
+
+    @Test
+    fun `portuguese live talk shows are not hyphen matchups`() {
+        val show = classify(title = "Posse de Bola - Ao Vivo", channel = channel("CANAL UOL [FHD]"))
+
+        assertThat(show.competitors).isEmpty()
+        assertThat(show.isCompetitiveEvent).isFalse()
+    }
+
     private fun classify(
         title: String,
         description: String = "",

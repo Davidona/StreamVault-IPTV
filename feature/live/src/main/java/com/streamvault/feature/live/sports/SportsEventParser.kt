@@ -23,7 +23,9 @@ internal object SportsEventParser {
             """serie\s+a|bundesliga|ligue\s+1|fa\s+cup|europa\s+league|eredivisie|""" +
             """primeira\s+liga|copa\s+del\s+rey|copa\s+libertadores|copa\s+america|""" +
             """nations\s+league|carabao\s+cup|efl\s+cup|saudi\s+pro\s+league|""" +
-            """liga\s+mx|scottish\s+premiership|spfl\s+premiership)\b""",
+            """liga\s+mx|scottish\s+premiership|spfl\s+premiership|""" +
+            """brasileirao|copa\s+do\s+brasil|libertadores|sul\s+americana|sulamericana|sudamericana|""" +
+            """rodada|quartas\s+de\s+final|oitavas\s+de\s+final)\b""",
         RegexOption.IGNORE_CASE,
     )
     private val qualitySuffixPattern = Regex(
@@ -41,6 +43,19 @@ internal object SportsEventParser {
         "\\b(?:live|hd|fhd|uhd|4k|8k|football|soccer|basketball|match|game)\\b",
     )
     private val whitespacePattern = Regex("\\s+")
+
+    // Brazilian guides decorate fixtures with airing notes rather than competitor names:
+    // "VT - A x B", "Dia 24/10 - A x B", "Hoje a partir das 18:30 - A x B", "A x B - Ao Vivo".
+    private val replayTitlePrefixPattern = Regex("""^\s*vt\s*[-–—:]\s*""", RegexOption.IGNORE_CASE)
+    private val announcementTitlePrefixPattern = Regex(
+        """^\s*(?:dia\s+\d{1,2}/\d{1,2}(?:/\d{2,4})?|""" +
+            """hoje\s+(?:a\s+partir\s+d[ao]s|[àa]s?)\s+\d{1,2}(?:[:h]\d{2})?h?)\s*[-–—:]\s*""",
+        RegexOption.IGNORE_CASE,
+    )
+    private val airingNoteSuffixPattern = Regex(
+        """(?:\s+[-–—]\s+(?:ao\s+vivo|narra[çc][ãa]o|reprise|compacto|vt))+\s*$""",
+        RegexOption.IGNORE_CASE,
+    )
     private val hyphenatedYearPattern = Regex("\\b(?:19|20)\\d{2}(?:\\s*[-/]\\s*(?:\\d{2}|20\\d{2}))?\\b")
     private val numericOnlyPattern = Regex("^\\d+$")
     private val explicitHeaderPrefixes = setOf(
@@ -48,11 +63,12 @@ internal object SportsEventParser {
     )
 
     private val replayPattern = Regex(
-        """\b(?:replay|re-run|rerun|repeat|encore|classic\s+match)\b""",
+        """\b(?:replay|re-run|rerun|repeat|encore|classic\s+match|reprise|reapresenta[çc][ãa]o)\b|""" +
+            """^\s*vt\s*[-–—:]""",
         RegexOption.IGNORE_CASE,
     )
     private val highlightsPattern = Regex(
-        """\b(?:highlights?|best\s+of)\b""",
+        """\b(?:highlights?|best\s+of|melhores\s+momentos|compacto)\b""",
         RegexOption.IGNORE_CASE,
     )
     private val previewPattern = Regex("\\bpreview\\b", RegexOption.IGNORE_CASE)
@@ -65,7 +81,7 @@ internal object SportsEventParser {
             """evening\s+edition|sur\s+canal|talk\s*show|documentary)\b""",
         RegexOption.IGNORE_CASE,
     )
-    private val explicitLivePattern = Regex("\\blive\\b", RegexOption.IGNORE_CASE)
+    private val explicitLivePattern = Regex("\\blive\\b|\\bao\\s+vivo\\b", RegexOption.IGNORE_CASE)
 
     private val sprintQualifyingPattern = Regex("\\bsprint\\s+qualifying\\b", RegexOption.IGNORE_CASE)
     private val practiceNumberPattern = Regex("\\b(?:fp|practice\\s*)([1-3])\\b", RegexOption.IGNORE_CASE)
@@ -80,7 +96,8 @@ internal object SportsEventParser {
     private val numberedDayPattern = Regex("\\bday\\s*(\\d+)\\b", RegexOption.IGNORE_CASE)
     private val etapaSessionPattern = Regex("\\betapa\\s*(\\d+)\\b", RegexOption.IGNORE_CASE)
 
-    fun extractMatchup(title: String): Pair<String, String>? {
+    fun extractMatchup(rawTitle: String): Pair<String, String>? {
+        val title = stripAiringDecorations(rawTitle)
         val explicitMatch = matchupPattern.find(title)
         if (explicitMatch != null) {
             val first = cleanCompetitorName(explicitMatch.groupValues[1].substringAfterLast(':').trim())
@@ -137,7 +154,8 @@ internal object SportsEventParser {
             signals.any(highlightsPattern::containsMatchIn) -> SportsEventType.HIGHLIGHTS
             signals.any(preGamePattern::containsMatchIn) -> SportsEventType.PRE_GAME
             signals.any(postGamePattern::containsMatchIn) -> SportsEventType.POST_GAME
-            signals.any(previewPattern::containsMatchIn) -> SportsEventType.PREVIEW
+            signals.any(previewPattern::containsMatchIn) ||
+                announcementTitlePrefixPattern.containsMatchIn(title) -> SportsEventType.PREVIEW
             signals.any(sportsNewsPattern::containsMatchIn) -> SportsEventType.SPORTS_NEWS
             signals.any(sportsShowPattern::containsMatchIn) -> SportsEventType.SPORTS_SHOW
             hasCompetitiveSignal && explicitLivePattern.containsMatchIn(title) -> SportsEventType.LIVE_EVENT
@@ -247,6 +265,15 @@ internal object SportsEventParser {
     private fun containsWord(value: String, word: String): Boolean = " $value ".contains(" $word ")
 
     private fun containsPhrase(value: String, phrase: String): Boolean = " $value ".contains(" $phrase ")
+
+    private fun stripAiringDecorations(title: String): String {
+        val stripped = title
+            .replace(announcementTitlePrefixPattern, "")
+            .replace(replayTitlePrefixPattern, "")
+            .replace(airingNoteSuffixPattern, "")
+            .trim()
+        return stripped.ifBlank { title }
+    }
 
     private fun cleanCompetitorName(value: String): String = value
         .let(::stripCompetitionHeader)
