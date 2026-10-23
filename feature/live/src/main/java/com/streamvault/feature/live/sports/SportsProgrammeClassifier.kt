@@ -8,14 +8,18 @@ internal object SportsProgrammeClassifier {
         """\b(?:qualifying|practice|race|championship|tournament|round|fight\s+night|main\s+card|""" +
             """stage|playoffs?|grand\s+prix|world\s+series|finals?|semi[ -]?finals?|quarter[ -]?finals?|""" +
             """matchday|md\s*\d+|week\s+\d+|day\s+\d+|qf\s*\d+|open|asian\s+games|""" +
-            """friday\s+fights|pro\s+portugal)\b|\bpremier\s+padel\b.*\bp[1-4]\b""",
+            """friday\s+fights|pro\s+portugal|""" +
+            """etapa|treino|corrida|quartas\s+de\s+final|oitavas\s+de\s+final)\b|""" +
+            """\bpremier\s+padel\b.*\bp[1-4]\b""",
         RegexOption.IGNORE_CASE,
     )
     private val tennisTourIdPattern = Regex("\\batp\\s*\\d{3,4}\\b", RegexOption.IGNORE_CASE)
     private val genericCategoryNames = setOf("sport", "sports", "live tv", "tv")
 
     private val sportsTerms = mapOf(
-        SportType.AMERICAN_FOOTBALL to listOf("american football", "gridiron", "nfl"),
+        SportType.AMERICAN_FOOTBALL to listOf(
+            "american football", "gridiron", "nfl", "national football league", "futebol americano",
+        ),
         SportType.FOOTBALL to listOf(
             "football", "soccer", "futbol", "fútbol", "futebol", "fußball", "fussball", "fudbal",
             "رياضة كرة القدم", "كرة القدم", "premier league", "champions league", "la liga",
@@ -23,19 +27,25 @@ internal object SportsProgrammeClassifier {
             "eredivisie", "primeira liga", "copa del rey", "copa libertadores", "copa america",
             "uefa nations league", "carabao cup", "efl cup", "saudi pro league",
             "roshn saudi league", "liga mx", "scottish premiership", "spfl premiership",
+            "brasileirao", "copa do brasil", "libertadores", "sul americana", "sulamericana", "sudamericana",
         ),
-        SportType.BASKETBALL to listOf("basketball", "basket-ball", "nba", "wnba", "euroleague"),
+        SportType.BASKETBALL to listOf(
+            "basketball", "basket-ball", "nba", "wnba", "euroleague", "basquete", "basquetebol",
+        ),
         SportType.BASEBALL to listOf("baseball", "mlb"),
-        SportType.HOCKEY to listOf("ice hockey", "hockey", "nhl"),
+        SportType.HOCKEY to listOf("ice hockey", "hockey", "nhl", "hoquei"),
         SportType.TENNIS to listOf("tennis", "tenis", "atp", "wta", "grand slam"),
-        SportType.MOTORSPORT to listOf("motorsport", "formula 1", "formula one", "f1", "grand prix", "nascar", "motogp", "rally"),
+        SportType.MOTORSPORT to listOf(
+            "motorsport", "formula 1", "formula one", "f1", "grand prix", "nascar", "motogp", "rally",
+            "automobilismo", "stock car",
+        ),
         SportType.MMA to listOf("mma", "ufc", "mixed martial arts", "one friday fights"),
         SportType.BOXING to listOf("boxing", "boxeo", "boxe"),
         SportType.CRICKET to listOf("cricket", "ipl"),
         SportType.RUGBY to listOf("rugby"),
         SportType.GOLF to listOf("golf", "pga tour", "lpga"),
-        SportType.VOLLEYBALL to listOf("volleyball", "volleball"),
-        SportType.HANDBALL to listOf("handball"),
+        SportType.VOLLEYBALL to listOf("volleyball", "volleball", "volei", "voleibol"),
+        SportType.HANDBALL to listOf("handball", "handebol"),
         SportType.SNOOKER to listOf("snooker"),
         SportType.DARTS to listOf("darts"),
         SportType.CYCLING to listOf("cycling", "cyclisme", "ciclismo", "tour de france"),
@@ -46,6 +56,7 @@ internal object SportsProgrammeClassifier {
         "espn", "bein sports", "sky sports", "supersport", "sportsnet", "fox sports",
         "tnt sports", "dazn", "arena sport", "canal+ sport", "eurosport", "tennis channel",
         "golf channel", "nfl network", "nba tv", "mlb network", "nhl network",
+        "sportv", "bandsports", "premiere clubes",
     )
     private val normalizedSportsTerms = sportsTerms.mapValues { (_, terms) ->
         terms.map { " " + normalizeText(it) + " " }
