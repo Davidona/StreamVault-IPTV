@@ -955,4 +955,5 @@
     <string name="settings_epg_phone_qr_warning">Säkerhet: Parkopplingen skickar inloggningsuppgifter okrypterade via ditt lokala nätverk. Använd endast ett privat Wi-Fi-nätverk som du litar på.</string>
     <string name="settings_epg_phone_qr_complete">Tillagd</string>
     <string name="settings_epg_phone_qr_error">Fel</string>
+    <string name="settings_backup_export_sections">Välj avsnitt att exportera</string>
 </resources>

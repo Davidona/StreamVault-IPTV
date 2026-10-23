@@ -953,4 +953,5 @@
     <string name="settings_epg_phone_qr_warning">セキュリティ: ペアリングではログイン情報が暗号化されずにローカルネットワーク経由で送信されます。信頼できるプライベート Wi-Fi のみ使用してください。</string>
     <string name="settings_epg_phone_qr_complete">追加済み</string>
     <string name="settings_epg_phone_qr_error">エラー</string>
+    <string name="settings_backup_export_sections">エクスポートする項目を選択</string>
 </resources>

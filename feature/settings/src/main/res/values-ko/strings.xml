@@ -951,4 +951,5 @@
     <string name="settings_epg_phone_qr_warning">보안: 페어링 중 로그인 정보가 로컬 네트워크를 통해 암호화되지 않은 상태로 전송됩니다. 신뢰할 수 있는 개인 Wi-Fi만 사용하세요.</string>
     <string name="settings_epg_phone_qr_complete">추가됨</string>
     <string name="settings_epg_phone_qr_error">오류</string>
+    <string name="settings_backup_export_sections">내보낼 항목 선택</string>
 </resources>

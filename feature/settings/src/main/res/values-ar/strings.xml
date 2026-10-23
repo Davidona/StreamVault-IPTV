@@ -967,4 +967,5 @@
     <string name="settings_epg_phone_qr_warning">تنبيه أمني: يرسل الاقتران بيانات تسجيل الدخول عبر شبكتك المحلية دون تشفير. استخدم شبكة Wi-Fi خاصة وموثوقة فقط.</string>
     <string name="settings_epg_phone_qr_complete">تمت الإضافة</string>
     <string name="settings_epg_phone_qr_error">خطأ</string>
+    <string name="settings_backup_export_sections">اختر الأقسام المراد تصديرها</string>
 </resources>

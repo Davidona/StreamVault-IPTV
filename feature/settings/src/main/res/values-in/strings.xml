@@ -955,4 +955,5 @@
     <string name="settings_epg_phone_qr_warning">Keamanan: Proses pemasangan mengirim kredensial tanpa enkripsi melalui jaringan lokal Anda. Gunakan hanya Wi-Fi pribadi yang tepercaya.</string>
     <string name="settings_epg_phone_qr_complete">Ditambahkan</string>
     <string name="settings_epg_phone_qr_error">Kesalahan</string>
+    <string name="settings_backup_export_sections">Pilih bagian yang akan diekspor</string>
 </resources>

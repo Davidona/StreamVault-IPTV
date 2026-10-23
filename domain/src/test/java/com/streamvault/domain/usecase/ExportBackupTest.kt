@@ -10,6 +10,13 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Test
 
 class ExportBackupTest {
+    @Test
+    fun forwards_selected_sections_unchanged() = runTest {
+        val manager = FakeExportBackupManager()
+        val selection = com.streamvault.domain.manager.BackupExportPlan(exportProviders = false, exportPlaybackHistory = false)
+        assertThat(ExportBackup(manager)(ExportBackupCommand("content://backup", selection))).isEqualTo(ExportBackupResult.Success)
+        assertThat(manager.lastExportPlan).isEqualTo(selection)
+    }
 
     @Test
     fun rejects_blank_destination() = runTest {
@@ -57,11 +64,13 @@ private class FakeExportBackupManager(
     private val importResult: Result<BackupImportResult> = Result.success(BackupImportResult())
 ) : BackupManager {
     var lastExportUri: String? = null
+    var lastExportPlan: com.streamvault.domain.manager.BackupExportPlan? = null
     var lastInspectUri: String? = null
     var lastImportCall: Pair<String, BackupImportPlan>? = null
 
-    override suspend fun exportConfig(uriString: String): Result<Unit> {
+    override suspend fun exportConfig(uriString: String, plan: com.streamvault.domain.manager.BackupExportPlan): Result<Unit> {
         lastExportUri = uriString
+        lastExportPlan = plan
         return exportResult
     }
 

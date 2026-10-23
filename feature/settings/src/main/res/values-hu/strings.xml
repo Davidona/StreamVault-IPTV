@@ -955,4 +955,5 @@
     <string name="settings_epg_phone_qr_warning">Biztonság: A párosítás titkosítás nélkül küldi a bejelentkezési adatokat a helyi hálózaton. Csak megbízható, privát Wi-Fi-hálózatot használj.</string>
     <string name="settings_epg_phone_qr_complete">Hozzáadva</string>
     <string name="settings_epg_phone_qr_error">Hiba</string>
+    <string name="settings_backup_export_sections">Válassza ki az exportálandó részeket</string>
 </resources>

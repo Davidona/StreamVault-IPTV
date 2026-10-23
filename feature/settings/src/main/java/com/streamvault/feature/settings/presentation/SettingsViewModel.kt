@@ -173,7 +173,8 @@ class SettingsViewModel @Inject constructor(
         exportBackup = exportBackup,
         importBackup = importBackup,
         uiState = _uiState,
-        stremioAddonSectionLabel = { appContext.getString(R.string.settings_backup_section_stremio_addons) }
+        stremioAddonSectionLabel = { appContext.getString(R.string.settings_backup_section_stremio_addons) },
+        loadRestoreProviders = { providerRepository.getProviders().first() }
     )
     private val driveBackupActions = SettingsDriveBackupActions(
         driveManager = driveBackupSyncManager,
@@ -1462,6 +1463,7 @@ class SettingsViewModel @Inject constructor(
         onSuccess: (() -> Unit)? = null,
         successMessage: String? = null,
         onFinished: ((Boolean) -> Unit)? = null,
+        plan: com.streamvault.domain.manager.BackupExportPlan = com.streamvault.domain.manager.BackupExportPlan(),
     ) {
         backupActions.exportConfig(
             scope = viewModelScope,
@@ -1469,6 +1471,7 @@ class SettingsViewModel @Inject constructor(
             onSuccess = onSuccess,
             successMessage = successMessage,
             onFinished = onFinished,
+            plan = plan,
         )
     }
 
@@ -1545,18 +1548,16 @@ class SettingsViewModel @Inject constructor(
         val references = state.selectedRestoreProviderIndices.mapNotNull(state.pendingRestoreProviders::getOrNull)
         if (references.isEmpty()) return
         viewModelScope.launch {
+            val configuredProviders = providerRepository.getProviders().first()
+            val providers = references.mapNotNull { configuredProviders.findRestoreSyncProvider(it) }.distinctBy { it.id }
+            if (providers.isEmpty()) {
+                backupActions.dismissRestoreSyncChooser()
+                return@launch
+            }
             _uiState.update { it.copy(isSyncing = true, syncProgress = "Syncing restored providers…", syncCanCancel = false) }
             val failures = mutableListOf<String>()
-            references.forEach { reference ->
-                val provider = _uiState.value.providers.singleOrNull { candidate ->
-                    candidate.serverUrl.trim().trimEnd('/').equals(reference.serverUrl.trim().trimEnd('/'), true) &&
-                        candidate.username.trim() == reference.username.trim() &&
-                        (reference.providerType == null || candidate.type == reference.providerType) &&
-                        candidate.stalkerMacAddress.trim().equals(reference.stalkerMacAddress.orEmpty().trim(), true)
-                }
-                if (provider == null) {
-                    failures += reference.serverUrl
-                } else if (settingsOperations.syncProvider(provider.id, force = true) is Result.Error) {
+            providers.forEach { provider ->
+                if (settingsOperations.syncProvider(provider.id, force = true) is Result.Error) {
                     failures += provider.name
                 }
             }
@@ -1587,8 +1588,8 @@ class SettingsViewModel @Inject constructor(
         driveBackupActions.signOut(viewModelScope)
     }
 
-    fun pushToDrive() {
-        driveBackupActions.pushBackup(viewModelScope)
+    fun pushToDrive(plan: com.streamvault.domain.manager.BackupExportPlan = com.streamvault.domain.manager.BackupExportPlan()) {
+        driveBackupActions.pushBackup(viewModelScope, plan)
     }
 
     fun pullFromDrive() {

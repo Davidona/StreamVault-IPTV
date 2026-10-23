@@ -955,4 +955,5 @@
     <string name="settings_epg_phone_qr_warning">Tietoturva: Pariliitos lähettää kirjautumistiedot salaamattomina lähiverkkosi kautta. Käytä vain luotettua yksityistä Wi-Fi-verkkoa.</string>
     <string name="settings_epg_phone_qr_complete">Lisätty</string>
     <string name="settings_epg_phone_qr_error">Virhe</string>
+    <string name="settings_backup_export_sections">Valitse vietävät osiot</string>
 </resources>

@@ -961,4 +961,5 @@
     <string name="settings_epg_phone_qr_warning">Безпека: Під час сполучення дані для входу передаються локальною мережею без шифрування. Використовуйте лише довірену приватну мережу Wi-Fi.</string>
     <string name="settings_epg_phone_qr_complete">Додано</string>
     <string name="settings_epg_phone_qr_error">Помилка</string>
+    <string name="settings_backup_export_sections">Виберіть розділи для експорту</string>
 </resources>

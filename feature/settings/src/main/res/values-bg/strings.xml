@@ -953,4 +953,5 @@
     <string name="settings_epg_phone_qr_warning">Сигурност: При сдвояването данните за вход се изпращат през локалната ви мрежа без криптиране. Използвайте само доверена частна Wi-Fi мрежа.</string>
     <string name="settings_epg_phone_qr_complete">Добавен</string>
     <string name="settings_epg_phone_qr_error">Грешка</string>
+    <string name="settings_backup_export_sections">Изберете раздели за експортиране</string>
 </resources>

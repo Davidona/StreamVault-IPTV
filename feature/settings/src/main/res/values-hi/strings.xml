@@ -953,4 +953,5 @@
     <string name="settings_epg_phone_qr_warning">सुरक्षा: पेयरिंग के दौरान लॉगिन जानकारी आपके स्थानीय नेटवर्क पर बिना एन्क्रिप्शन भेजी जाती है। केवल भरोसेमंद निजी Wi-Fi नेटवर्क का उपयोग करें।</string>
     <string name="settings_epg_phone_qr_complete">जोड़ा गया</string>
     <string name="settings_epg_phone_qr_error">त्रुटि</string>
+    <string name="settings_backup_export_sections">निर्यात करने के लिए अनुभाग चुनें</string>
 </resources>

@@ -28,6 +28,22 @@ import org.mockito.kotlin.whenever
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class SettingsDriveBackupActionsTest {
+    @Test
+    fun preferencesOnlyPush_skipsCredentialLookupAndPassesSelection() = runTest(StandardTestDispatcher()) {
+        val plan = com.streamvault.domain.manager.BackupExportPlan(
+            exportProviders = false, exportSavedLibrary = false, exportPlaybackHistory = false,
+            exportMultiViewPresets = false, exportRecordingSchedules = false, exportStremioAddons = false
+        )
+        val ui = MutableStateFlow(SettingsUiState(driveAuthState = DriveAuthState.SignedIn(DriveAccount("id", "user@example.com"))))
+        whenever(driveManager.pushBackup(any(), any())).thenReturn(Result.Success(com.streamvault.domain.manager.DriveSyncStatus()))
+        SettingsDriveBackupActions(driveManager = driveManager, providerRepository = providerRepository,
+            importBackup = importBackup, uiState = ui).pushBackup(this, plan)
+        advanceUntilIdle()
+        verify(providerRepository, never()).getAllProviderCredentials()
+        verify(driveManager).pushBackup(eq(emptyList()), eq(plan))
+        assertThat(ui.value.driveIsBusy).isFalse()
+    }
+
 
     private val driveManager: DriveBackupSyncManager = mock()
     private val importBackup: ImportBackup = mock()
@@ -40,7 +56,7 @@ class SettingsDriveBackupActionsTest {
                 ProviderCredentials("https://example.com", "alice", "secret")
             )
             whenever(providerRepository.getAllProviderCredentials()).thenReturn(credentials)
-            whenever(driveManager.pushBackup(eq(credentials))).thenReturn(
+            whenever(driveManager.pushBackup(eq(credentials), any())).thenReturn(
                 Result.Success(DriveSyncStatus(lastPushAtMs = 123L))
             )
             val uiState = MutableStateFlow(
@@ -56,7 +72,7 @@ class SettingsDriveBackupActionsTest {
             actions.pushBackup(this)
             advanceUntilIdle()
 
-            verify(driveManager).pushBackup(eq(credentials))
+            verify(driveManager).pushBackup(eq(credentials), any())
             verify(driveManager, never()).pushCredentials(any())
             assertThat(uiState.value.userMessage).isEqualTo("Backup uploaded to Google Drive")
             assertThat(uiState.value.driveIsBusy).isFalse()
@@ -125,7 +141,7 @@ class SettingsDriveBackupActionsTest {
         actions.pullBackup(this)
         advanceUntilIdle()
 
-        verify(driveManager, never()).pushBackup(any())
+        verify(driveManager, never()).pushBackup(any(), any())
         verify(driveManager, never()).listBackups()
         verify(driveManager, never()).pullBackup(any())
         assertThat(uiState.value.driveIsBusy).isTrue()

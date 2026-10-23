@@ -952,4 +952,5 @@
     <string name="settings_epg_phone_qr_warning">Bảo mật: Quá trình ghép nối gửi thông tin đăng nhập qua mạng cục bộ mà không mã hóa. Chỉ sử dụng mạng Wi-Fi riêng tư đáng tin cậy.</string>
     <string name="settings_epg_phone_qr_complete">Đã thêm</string>
     <string name="settings_epg_phone_qr_error">Lỗi</string>
+    <string name="settings_backup_export_sections">Chọn các phần để xuất</string>
 </resources>

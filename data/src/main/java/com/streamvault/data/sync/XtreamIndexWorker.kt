@@ -212,7 +212,7 @@ class XtreamIndexWorker(
                 .build()
 
             WorkManager.getInstance(context).enqueueUniqueWork(
-                if (automatic) providerAutomaticIndexWorkUniqueName(providerId) else providerWorkUniqueName(providerId),
+                if (automatic) providerAutomaticIndexWorkUniqueName(providerId) else xtreamIndexWorkUniqueName(providerId),
                 providerWorkExistingPolicy(supersede = force || replaceAutomatic),
                 request
             )

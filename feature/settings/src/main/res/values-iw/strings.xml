@@ -958,4 +958,5 @@
     <string name="settings_epg_phone_qr_warning">אבטחה: הצימוד שולח פרטי התחברות ללא הצפנה דרך הרשת המקומית. יש להשתמש רק ברשת Wi-Fi פרטית ומהימנה.</string>
     <string name="settings_epg_phone_qr_complete">נוסף</string>
     <string name="settings_epg_phone_qr_error">שגיאה</string>
+    <string name="settings_backup_export_sections">בחרו אילו חלקים לייצא</string>
 </resources>

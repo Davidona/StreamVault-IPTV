@@ -950,4 +950,5 @@
     <string name="settings_epg_phone_qr_warning">安全性：配對會透過本機網路以未加密方式傳送登入憑證。請只使用可信任的私人 Wi-Fi 網路。</string>
     <string name="settings_epg_phone_qr_complete">已新增</string>
     <string name="settings_epg_phone_qr_error">錯誤</string>
+    <string name="settings_backup_export_sections">選擇要匯出的部分</string>
 </resources>

@@ -953,4 +953,5 @@
     <string name="settings_epg_phone_qr_warning">Siguria: Çiftimi dërgon të dhënat e hyrjes pa enkriptim përmes rrjetit lokal. Përdor vetëm një rrjet privat Wi-Fi të besuar.</string>
     <string name="settings_epg_phone_qr_complete">U shtua</string>
     <string name="settings_epg_phone_qr_error">Gabim</string>
+    <string name="settings_backup_export_sections">Zgjidhni seksionet për eksport</string>
 </resources>

@@ -142,6 +142,10 @@ data class PortableProviderPreferencesBackup(
     val activeProvider: BackupProviderReference? = null,
     val guideDefaultCategory: PortableCategoryReference? = null,
     val guideDefaultVirtualCategoryId: Long? = null,
+    /** Provider-owned custom favorite group used as the Guide's startup category. */
+    val guideDefaultVirtualGroup: PortableVirtualGroupReference? = null,
+    /** Combined M3U category label; its stable synthetic ID is recomputed on restore. */
+    val guideDefaultCombinedCategoryName: String? = null,
     val guideDefaultCategorySpecified: Boolean = false,
     val promotedLiveGroups: List<PortableVirtualGroupReference> = emptyList(),
     val hiddenChannels: List<PortableChannelReference> = emptyList(),
@@ -464,7 +468,8 @@ data class BackupPreview(
     val protectedCategoryConflicts: Int,
     val recordingConflicts: Int,
     val stremioAddonCount: Int = 0,
-    val stremioAddonConflicts: Int = 0
+    val stremioAddonConflicts: Int = 0,
+    val availableSections: BackupExportPlan = BackupExportPlan()
 )
 
 data class BackupImportPlan(
@@ -477,6 +482,19 @@ data class BackupImportPlan(
     val importStremioAddons: Boolean = importPreferences,
     val conflictStrategy: BackupConflictStrategy = BackupConflictStrategy.KEEP_EXISTING
 )
+
+data class BackupExportPlan(
+    val exportPreferences: Boolean = true,
+    val exportProviders: Boolean = true,
+    val exportSavedLibrary: Boolean = true,
+    val exportPlaybackHistory: Boolean = true,
+    val exportMultiViewPresets: Boolean = true,
+    val exportRecordingSchedules: Boolean = true,
+    val exportStremioAddons: Boolean = true
+) {
+    val hasSections: Boolean get() = exportPreferences || exportProviders || exportSavedLibrary ||
+        exportPlaybackHistory || exportMultiViewPresets || exportRecordingSchedules || exportStremioAddons
+}
 
 enum class RecordingScheduleImportDisposition {
     IMPORTED,
@@ -545,7 +563,7 @@ interface BackupManager {
     /**
      * Exports the configuration to the provided URI string (SAF document URI)
      */
-    suspend fun exportConfig(uriString: String): com.streamvault.domain.model.Result<Unit>
+    suspend fun exportConfig(uriString: String, plan: BackupExportPlan = BackupExportPlan()): com.streamvault.domain.model.Result<Unit>
 
     /**
      * Reads a backup and returns a preview with conflict counts before importing.

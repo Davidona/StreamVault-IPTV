@@ -37,6 +37,8 @@ import com.streamvault.domain.model.Result
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
+private enum class BackupExportTarget { FILE, SHARE, USB, DRIVE }
+
 private val backupFileNameFormatter = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss_SSS")
 
 private fun buildBackupFileName(): String =
@@ -161,6 +163,11 @@ public fun SettingsScreen(
     }
     var handledInitialBackupImportUri by remember { mutableStateOf<String?>(null) }
 
+    var selectedExportPlan by rememberSaveable(stateSaver = BackupExportPlanSaver) {
+        mutableStateOf(com.streamvault.domain.manager.BackupExportPlan())
+    }
+    var pendingExportTarget by rememberSaveable { mutableStateOf<BackupExportTarget?>(null) }
+
     val createDocumentLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.CreateDocument("application/json")
     ) { uri ->
@@ -173,6 +180,7 @@ public fun SettingsScreen(
                 )
             }
             viewModel.exportConfig(
+                plan = selectedExportPlan,
                 uriString = it.toString(),
                 onSuccess = { platformHost.backupFiles.rememberManagedExport(it) },
                 onFinished = { success ->
@@ -234,6 +242,7 @@ public fun SettingsScreen(
             return@rememberLauncherForActivityResult
         }
         viewModel.exportConfig(
+            plan = selectedExportPlan,
             uriString = newFile.uri.toString(),
             onSuccess = { platformHost.backupFiles.rememberManagedExport(newFile.uri) },
             onFinished = { success ->
@@ -286,6 +295,7 @@ public fun SettingsScreen(
         }
         val uri = platformHost.backupFiles.providerUri(file)
         viewModel.exportConfig(
+            plan = selectedExportPlan,
             uriString = uri.toString(),
             onFinished = { exported ->
                 if (!exported) {
@@ -305,6 +315,7 @@ public fun SettingsScreen(
             return
         }
         viewModel.exportConfig(
+            plan = selectedExportPlan,
             uriString = uri.toString(),
             successMessage = pickerFreeSavedMessage,
             onFinished = { success ->
@@ -315,6 +326,34 @@ public fun SettingsScreen(
             },
         )
     }
+
+    fun launchBackupExport() {
+        if (context.isTelevisionDevice()) {
+            exportBackupWithoutPicker()
+        } else {
+            val onFireTv = context.isFireTv()
+            val primary: () -> Unit = if (onFireTv) {
+                { exportTreeLauncher.launch(null) }
+            } else {
+                { createDocumentLauncher.launch("streamvault_backup.json") }
+            }
+            val fallback: () -> Unit = if (onFireTv) {
+                { createDocumentLauncher.launch("streamvault_backup.json") }
+            } else {
+                { exportTreeLauncher.launch(null) }
+            }
+            try {
+                primary()
+            } catch (e: ActivityNotFoundException) {
+                try {
+                    fallback()
+                } catch (e2: ActivityNotFoundException) {
+                    exportBackupWithoutPicker()
+                }
+            }
+        }
+    }
+
 
     // Fire-Stick-only: app-private folder on a plugged-in USB OTG drive. Null on every other device
     // and when no removable drive is attached, which keeps all USB controls hidden elsewhere.
@@ -364,6 +403,7 @@ public fun SettingsScreen(
             sizeBytes = file.length(),
         )
         viewModel.exportConfig(
+            plan = selectedExportPlan,
             uriString = candidate.uri.toString(),
             onFinished = { success ->
                 if (!success) {
@@ -425,6 +465,23 @@ public fun SettingsScreen(
             val displayName = DocumentFile.fromTreeUri(context, it)?.name
             viewModel.updateRecordingFolder(it.toString(), displayName)
         }
+    }
+
+    pendingExportTarget?.let { target ->
+        BackupExportDialog(
+            initialPlan = selectedExportPlan,
+            onDismiss = { pendingExportTarget = null },
+            onConfirm = { plan ->
+                selectedExportPlan = plan
+                pendingExportTarget = null
+                when (target) {
+                    BackupExportTarget.FILE -> launchBackupExport()
+                    BackupExportTarget.SHARE -> shareBackup()
+                    BackupExportTarget.USB -> createBackupToUsb()
+                    BackupExportTarget.DRIVE -> viewModel.pushToDrive(plan)
+                }
+            }
+        )
     }
 
     val uriHandler = LocalUriHandler.current
@@ -602,36 +659,11 @@ public fun SettingsScreen(
                     onUseUsbRecordingStorage = usbStorageDir?.let { dir ->
                         { viewModel.useUsbRecordingStorage(File(dir, "recordings").absolutePath) }
                     },
-                    onCreateBackupUsb = usbStorageDir?.let { { createBackupToUsb() } },
+                    onCreateBackupUsb = usbStorageDir?.let { { pendingExportTarget = BackupExportTarget.USB } },
                     onRestoreBackupUsb = usbStorageDir?.let { { restoreBackupFromUsb() } },
-                    onCreateBackup = {
-                        if (context.isTelevisionDevice()) {
-                            exportBackupWithoutPicker()
-                        } else {
-                            val onFireTv = context.isFireTv()
-                            val primary: () -> Unit = if (onFireTv) {
-                                { exportTreeLauncher.launch(null) }
-                            } else {
-                                { createDocumentLauncher.launch("streamvault_backup.json") }
-                            }
-                            val fallback: () -> Unit = if (onFireTv) {
-                                { createDocumentLauncher.launch("streamvault_backup.json") }
-                            } else {
-                                { exportTreeLauncher.launch(null) }
-                            }
-                            try {
-                                primary()
-                            } catch (e: ActivityNotFoundException) {
-                                try {
-                                    fallback()
-                                } catch (e2: ActivityNotFoundException) {
-                                    exportBackupWithoutPicker()
-                                }
-                            }
-                        }
-                    },
+                    onCreateBackup = { pendingExportTarget = BackupExportTarget.FILE },
                     onManageLocalBackups = ::manageLocalBackups,
-                    onShareBackup = ::shareBackup,
+                    onShareBackup = { pendingExportTarget = BackupExportTarget.SHARE },
                     onViewCrashReport = viewModel::viewCrashReport,
                     onShareCrashReport = ::shareCrashReport,
                     onDeleteCrashReport = viewModel::deleteCrashReport,
@@ -671,7 +703,7 @@ public fun SettingsScreen(
                     },
                     onDriveSignIn = { viewModel.beginDriveSignIn(driveSignInLauncher) },
                     onDriveSignOut = viewModel::signOutDrive,
-                    onDrivePush = viewModel::pushToDrive,
+                    onDrivePush = { pendingExportTarget = BackupExportTarget.DRIVE },
                     onDrivePull = viewModel::pullFromDrive,
                     onOpenUri = uriHandler::openUri,
                     modifier = Modifier.fillMaxSize(),

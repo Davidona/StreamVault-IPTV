@@ -47,15 +47,10 @@ internal object SportsEventParser {
     // Brazilian guides decorate fixtures with airing notes rather than competitor names:
     // "VT - A x B", "Dia 24/10 - A x B", "Hoje a partir das 18:30 - A x B", "A x B - Ao Vivo".
     private val replayTitlePrefixPattern = Regex("""^\s*vt\s*[-–—:]\s*""", RegexOption.IGNORE_CASE)
-    private val announcementTitlePrefixPattern = Regex(
-        """^\s*(?:dia\s+\d{1,2}/\d{1,2}(?:/\d{2,4})?|""" +
-            """hoje\s+(?:a\s+partir\s+d[ao]s|[àa]s?)\s+\d{1,2}(?:[:h]\d{2})?h?)\s*[-–—:]\s*""",
-        RegexOption.IGNORE_CASE,
-    )
-    private val airingNoteSuffixPattern = Regex(
-        """(?:\s+[-–—]\s+(?:ao\s+vivo|narra[çc][ãa]o|reprise|compacto|vt))+\s*$""",
-        RegexOption.IGNORE_CASE,
-    )
+    private val announcementDatePattern = Regex("""\d{1,2}/\d{1,2}(?:/\d{2,4})?""")
+    private val announcementTimePattern = Regex("""\d{1,2}(?:[:h]\d{2})?h?""")
+    private val todayAnnouncementPhrases = listOf("a partir das", "a partir dos", "às", "as", "à", "a")
+    private val airingNoteSuffixes = setOf("ao vivo", "narracao", "reprise", "compacto", "vt")
     private val hyphenatedYearPattern = Regex("\\b(?:19|20)\\d{2}(?:\\s*[-/]\\s*(?:\\d{2}|20\\d{2}))?\\b")
     private val numericOnlyPattern = Regex("^\\d+$")
     private val explicitHeaderPrefixes = setOf(
@@ -63,12 +58,11 @@ internal object SportsEventParser {
     )
 
     private val replayPattern = Regex(
-        """\b(?:replay|re-run|rerun|repeat|encore|classic\s+match|reprise|reapresenta[çc][ãa]o)\b|""" +
-            """^\s*vt\s*[-–—:]|\s+[-–—]\s*vt\s*$""",
+        """\b(?:replay|re-run|rerun|repeat|encore|classic\s+match)\b""",
         RegexOption.IGNORE_CASE,
     )
     private val highlightsPattern = Regex(
-        """\b(?:highlights?|best\s+of|melhores\s+momentos|compacto)\b""",
+        """\b(?:highlights?|best\s+of)\b""",
         RegexOption.IGNORE_CASE,
     )
     private val previewPattern = Regex("\\bpreview\\b", RegexOption.IGNORE_CASE)
@@ -81,7 +75,7 @@ internal object SportsEventParser {
             """evening\s+edition|sur\s+canal|talk\s*show|documentary)\b""",
         RegexOption.IGNORE_CASE,
     )
-    private val explicitLivePattern = Regex("\\blive\\b|\\bao\\s+vivo\\b", RegexOption.IGNORE_CASE)
+    private val explicitLivePattern = Regex("\\blive\\b", RegexOption.IGNORE_CASE)
 
     private val sprintQualifyingPattern = Regex("\\bsprint\\s+qualifying\\b", RegexOption.IGNORE_CASE)
     private val practiceNumberPattern = Regex("\\b(?:fp|practice\\s*)([1-3])\\b", RegexOption.IGNORE_CASE)
@@ -150,15 +144,19 @@ internal object SportsEventParser {
         val title = program.title.trim()
         val signals = listOf(title, program.category.orEmpty(), program.genre.orEmpty())
         return when {
-            signals.any(replayPattern::containsMatchIn) -> SportsEventType.REPLAY
-            signals.any(highlightsPattern::containsMatchIn) -> SportsEventType.HIGHLIGHTS
+            signals.any(replayPattern::containsMatchIn) ||
+                signals.any { hasNormalizedPhrase(it, "reprise", "reapresentacao") } ||
+                replayTitlePrefixPattern.containsMatchIn(title) || hasAiringNote(title, "vt") -> SportsEventType.REPLAY
+            signals.any(highlightsPattern::containsMatchIn) ||
+                signals.any { hasNormalizedPhrase(it, "melhores momentos", "compacto") } -> SportsEventType.HIGHLIGHTS
             signals.any(preGamePattern::containsMatchIn) -> SportsEventType.PRE_GAME
             signals.any(postGamePattern::containsMatchIn) -> SportsEventType.POST_GAME
             signals.any(previewPattern::containsMatchIn) ||
-                announcementTitlePrefixPattern.containsMatchIn(title) -> SportsEventType.PREVIEW
+                announcementTitlePrefixLength(title) != null -> SportsEventType.PREVIEW
             signals.any(sportsNewsPattern::containsMatchIn) -> SportsEventType.SPORTS_NEWS
             signals.any(sportsShowPattern::containsMatchIn) -> SportsEventType.SPORTS_SHOW
-            hasCompetitiveSignal && explicitLivePattern.containsMatchIn(title) -> SportsEventType.LIVE_EVENT
+            hasCompetitiveSignal && (explicitLivePattern.containsMatchIn(title) ||
+                hasNormalizedPhrase(title, "ao vivo")) -> SportsEventType.LIVE_EVENT
             hasCompetitiveSignal -> SportsEventType.SCHEDULED_EVENT
             else -> SportsEventType.UNKNOWN
         }
@@ -267,12 +265,72 @@ internal object SportsEventParser {
     private fun containsPhrase(value: String, phrase: String): Boolean = " $value ".contains(" $phrase ")
 
     private fun stripAiringDecorations(title: String): String {
-        val stripped = title
-            .replace(announcementTitlePrefixPattern, "")
+        val stripped = (announcementTitlePrefixLength(title)?.let(title::substring) ?: title)
             .replace(replayTitlePrefixPattern, "")
-            .replace(airingNoteSuffixPattern, "")
+            .let(::stripAiringNoteSuffixes)
             .trim()
         return stripped.ifBlank { title }
+    }
+
+    private fun hasNormalizedPhrase(value: String, vararg phrases: String): Boolean {
+        val normalized = normalizeText(value)
+        return phrases.any { containsPhrase(normalized, it) }
+    }
+
+    private fun trailingAiringNote(title: String): Pair<Int, String>? {
+        val separator = title.indexOfLast { it == '-' || it == '–' || it == '—' }
+        if (separator <= 0 || !title[separator - 1].isWhitespace() ||
+            title.getOrNull(separator + 1)?.isWhitespace() != true
+        ) return null
+        val note = normalizeText(title.substring(separator + 1))
+        return if (note in airingNoteSuffixes) separator to note else null
+    }
+
+    private fun hasAiringNote(title: String, note: String): Boolean {
+        var remaining = title.trimEnd()
+        while (true) {
+            val (separator, found) = trailingAiringNote(remaining) ?: return false
+            if (found == note) return true
+            remaining = remaining.substring(0, separator).trimEnd()
+        }
+    }
+
+    private fun stripAiringNoteSuffixes(title: String): String {
+        var remaining = title.trimEnd()
+        while (true) {
+            val (separator) = trailingAiringNote(remaining) ?: return remaining
+            remaining = remaining.substring(0, separator).trimEnd()
+        }
+    }
+
+    private fun announcementTitlePrefixLength(title: String): Int? {
+        val start = skipWhitespace(title, 0)
+        val isDated = title.regionMatches(start, "dia", 0, 3, ignoreCase = true) &&
+            title.getOrNull(start + 3)?.isWhitespace() == true
+        val tokenStart = if (isDated) {
+            skipWhitespace(title, start + 3)
+        } else {
+            if (!title.regionMatches(start, "hoje", 0, 4, ignoreCase = true) ||
+                title.getOrNull(start + 4)?.isWhitespace() != true
+            ) return null
+            val phraseStart = skipWhitespace(title, start + 4)
+            val phrase = todayAnnouncementPhrases.firstOrNull { candidate ->
+                title.regionMatches(phraseStart, candidate, 0, candidate.length, ignoreCase = true) &&
+                    title.getOrNull(phraseStart + candidate.length)?.isWhitespace() == true
+            } ?: return null
+            skipWhitespace(title, phraseStart + phrase.length)
+        }
+        val tokenPattern = if (isDated) announcementDatePattern else announcementTimePattern
+        val token = tokenPattern.find(title, tokenStart)?.takeIf { it.range.first == tokenStart } ?: return null
+        val separator = skipWhitespace(title, token.range.last + 1)
+        if (title.getOrNull(separator) !in listOf('-', '–', '—', ':')) return null
+        return skipWhitespace(title, separator + 1)
+    }
+
+    private fun skipWhitespace(value: String, fromIndex: Int): Int {
+        var index = fromIndex
+        while (index < value.length && value[index].isWhitespace()) index++
+        return index
     }
 
     private fun cleanCompetitorName(value: String): String = value

@@ -951,4 +951,5 @@
     <string name="settings_epg_phone_qr_warning">Sicurezza: L’associazione invia le credenziali senza crittografia sulla rete locale. Usa solo una rete Wi-Fi privata e affidabile.</string>
     <string name="settings_epg_phone_qr_complete">Aggiunto</string>
     <string name="settings_epg_phone_qr_error">Errore</string>
+    <string name="settings_backup_export_sections">Scegli le sezioni da esportare</string>
 </resources>

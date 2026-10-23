@@ -955,4 +955,5 @@
     <string name="settings_epg_phone_qr_warning">Beveiliging: Koppelen verstuurt inloggegevens onversleuteld via je lokale netwerk. Gebruik alleen een vertrouwd privé-Wi-Fi-netwerk.</string>
     <string name="settings_epg_phone_qr_complete">Toegevoegd</string>
     <string name="settings_epg_phone_qr_error">Fout</string>
+    <string name="settings_backup_export_sections">Kies onderdelen om te exporteren</string>
 </resources>

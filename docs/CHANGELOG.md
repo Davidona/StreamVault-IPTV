@@ -5,6 +5,7 @@ All notable product changes are recorded in this document.
 ## [1.2.3]
 
 ### Added
+- Added backup export selection so you can choose which sections to include when saving, sharing, or uploading a backup to Google Drive.
 - Added QR-based phone setup for EPG sources and Stremio add-ons, so their URLs can be submitted from a phone on the same local network.
 - Added recognition of Brazilian Portuguese sports listings, including matchups, broadcast notes, and Brazilian and South American competitions.
 
@@ -12,6 +13,7 @@ All notable product changes are recorded in this document.
 - Channel, movie, series, and VOD category searches now ignore Latin accents (for example, “café” matches “cafe”). Existing catalogs upgrade automatically, with their content preserved.
 
 ### Fixed
+- Fixed a Sports tab crash on Android 11 when initializing Brazilian Portuguese EPG title parsing.
 - Fixed HLS playback failing on master playlists with `EXT-X-MEDIA` rendition tags missing the required `NAME` attribute.
 - Fixed some more backup and restore bugs.
 - Fixed sports listings ending in `- VT` appearing as scheduled matches instead of replays, and localized the new league names in Sports.

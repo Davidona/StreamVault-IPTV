@@ -2339,6 +2339,201 @@ class BackupManagerImplTest {
     }
 
     @Test
+    fun `portable guide default category preserves all channels selection`() = runBlocking {
+        val context: Context = mock()
+        val contentResolver: ContentResolver = mock()
+        val providerDao: ProviderDao = mock()
+        val preferencesRepository: PreferencesRepository = mock()
+        whenever(preferencesRepository.lastActiveProviderId).thenReturn(flowOf(null))
+        whenever(preferencesRepository.guideDefaultCategoryId)
+            .thenReturn(flowOf(com.streamvault.domain.repository.ChannelRepository.ALL_CHANNELS_ID))
+        whenever(preferencesRepository.promotedLiveGroupIds).thenReturn(flowOf(emptySet()))
+        whenever(preferencesRepository.epgTimeShiftsByProvider).thenReturn(flowOf(emptyMap()))
+        whenever(preferencesRepository.liveVariantSelections).thenReturn(flowOf(emptyMap()))
+        whenever(preferencesRepository.vodVariantSelections).thenReturn(flowOf(emptyMap()))
+        whenever(preferencesRepository.vodTrackPreferencesByScope).thenReturn(flowOf(emptyMap()))
+
+        val portable = backupManagerForValidation(
+            context = context,
+            preferencesRepository = preferencesRepository
+        ).buildPortableProviderPreferences(emptyList())
+
+        assertThat(portable.guideDefaultVirtualCategoryId)
+            .isEqualTo(com.streamvault.domain.repository.ChannelRepository.ALL_CHANNELS_ID)
+        assertThat(portable.guideDefaultCategory).isNull()
+        assertThat(portable.unresolvedReferences).isEmpty()
+
+        whenever(context.contentResolver).thenReturn(contentResolver)
+        whenever(providerDao.getAllSync()).thenReturn(emptyList())
+        whenever(contentResolver.openInputStream(anyOrNull())).thenReturn(
+            ByteArrayInputStream(
+                Gson().toJson(BackupData(portableProviderPreferences = portable)).toByteArray()
+            )
+        )
+        val result = backupManagerForValidation(
+            context = context,
+            preferencesRepository = preferencesRepository,
+            providerDao = providerDao
+        ).importConfig("content://guide-default-all-channels", preferencesOnlyPlan())
+
+        assertThat(result).isInstanceOf(Result.Success::class.java)
+        assertThat((result as Result.Success).data.outcome).isEqualTo(BackupRestoreOutcome.COMPLETE)
+        verify(preferencesRepository).setGuideDefaultCategoryId(
+            com.streamvault.domain.repository.ChannelRepository.ALL_CHANNELS_ID
+        )
+    }
+
+    @Test
+    fun `portable guide favorite group remaps its local id on import`() = runBlocking {
+        val context: Context = mock()
+        val contentResolver: ContentResolver = mock()
+        val providerDao: ProviderDao = mock()
+        val virtualGroupDao: VirtualGroupDao = mock()
+        val categoryRepository: CategoryRepository = mock()
+        val preferencesRepository: PreferencesRepository = mock()
+        val sourceProvider = Provider(
+            id = 2L,
+            name = "Source",
+            type = ProviderType.XTREAM_CODES,
+            serverUrl = "https://example.com",
+            username = "user"
+        )
+        val sourceGroup = VirtualGroupEntity(
+            id = 24L,
+            providerId = sourceProvider.id,
+            name = "My Guide Group",
+            contentType = ContentType.LIVE
+        )
+        stubGuidePreferenceExport(preferencesRepository, -sourceGroup.id)
+        whenever(virtualGroupDao.getById(sourceGroup.id)).thenReturn(sourceGroup)
+        whenever(categoryRepository.getCategories(sourceProvider.id)).thenReturn(flowOf(emptyList()))
+
+        val portable = backupManagerForValidation(
+            context = context,
+            preferencesRepository = preferencesRepository,
+            categoryRepository = categoryRepository,
+            virtualGroupDao = virtualGroupDao
+        ).buildPortableProviderPreferences(listOf(sourceProvider))
+
+        assertThat(portable.guideDefaultVirtualGroup).isEqualTo(
+            com.streamvault.domain.manager.PortableVirtualGroupReference(
+                BackupProviderReference(
+                    sourceProvider.serverUrl,
+                    sourceProvider.username,
+                    providerType = sourceProvider.type
+                ),
+                sourceGroup.name,
+                ContentType.LIVE
+            )
+        )
+        assertThat(portable.unresolvedReferences).isEmpty()
+
+        val targetProvider = sourceProvider.copy(id = 9L, name = "Target")
+        val targetGroup = sourceGroup.copy(id = 88L, providerId = targetProvider.id)
+        whenever(context.contentResolver).thenReturn(contentResolver)
+        whenever(providerDao.getAllSync()).thenReturn(listOf(targetProvider.toEntity()))
+        whenever(virtualGroupDao.getByType(targetProvider.id, ContentType.LIVE.name))
+            .thenReturn(flowOf(listOf(targetGroup)))
+        whenever(categoryRepository.getCategories(targetProvider.id)).thenReturn(flowOf(emptyList()))
+        whenever(contentResolver.openInputStream(anyOrNull())).thenReturn(
+            ByteArrayInputStream(
+                Gson().toJson(BackupData(portableProviderPreferences = portable)).toByteArray()
+            )
+        )
+
+        val result = backupManagerForValidation(
+            context = context,
+            preferencesRepository = preferencesRepository,
+            providerDao = providerDao,
+            categoryRepository = categoryRepository,
+            virtualGroupDao = virtualGroupDao,
+            channelDao = mock<ChannelDao>().also { dao ->
+                whenever(dao.getByProviderSync(targetProvider.id)).thenReturn(emptyList())
+            },
+            storedProviders = listOf(targetProvider)
+        ).importConfig("content://guide-default-group", preferencesOnlyPlan())
+
+        assertThat(result).isInstanceOf(Result.Success::class.java)
+        val imported = (result as Result.Success).data
+        assertThat(imported.unresolvedReferences).isEmpty()
+        assertThat(imported.outcome).isEqualTo(BackupRestoreOutcome.COMPLETE)
+        verify(virtualGroupDao).getByType(targetProvider.id, ContentType.LIVE.name)
+        verify(preferencesRepository).setGuideDefaultCategoryId(-targetGroup.id)
+    }
+
+    @Test
+    fun `portable guide combined category restores from its stable name`() = runBlocking {
+        val context: Context = mock()
+        val contentResolver: ContentResolver = mock()
+        val providerDao: ProviderDao = mock()
+        val categoryRepository: CategoryRepository = mock()
+        val preferencesRepository: PreferencesRepository = mock()
+        val memberDao: com.streamvault.data.local.dao.CombinedM3uProfileMemberDao = mock()
+        val sourceProvider = Provider(
+            id = 2L,
+            name = "Source",
+            type = ProviderType.XTREAM_CODES,
+            serverUrl = "https://example.com",
+            username = "user"
+        )
+        val category = Category(id = 50L, name = "Sports", type = ContentType.LIVE)
+        val categoryId = com.streamvault.domain.model.CombinedCategoryIdentity.idForName(category.name)
+        stubGuidePreferenceExport(preferencesRepository, categoryId)
+        whenever(preferencesRepository.activeLiveSource).thenReturn(
+            flowOf(com.streamvault.domain.model.ActiveLiveSource.CombinedM3uSource(31L))
+        )
+        whenever(categoryRepository.getCategories(sourceProvider.id)).thenReturn(flowOf(listOf(category)))
+        whenever(memberDao.getForProfileSync(31L)).thenReturn(
+            listOf(
+                com.streamvault.data.local.entity.CombinedM3uProfileMemberWithProvider(
+                    id = 1L,
+                    profileId = 31L,
+                    providerId = sourceProvider.id,
+                    priority = 0,
+                    enabled = true,
+                    providerName = sourceProvider.name
+                )
+            )
+        )
+
+        val portable = backupManagerForValidation(
+            context = context,
+            preferencesRepository = preferencesRepository,
+            categoryRepository = categoryRepository,
+            combinedM3uProfileMemberDao = memberDao
+        ).buildPortableProviderPreferences(listOf(sourceProvider))
+
+        assertThat(portable.guideDefaultCombinedCategoryName).isEqualTo("Sports")
+        assertThat(portable.guideDefaultCategory).isNull()
+        assertThat(portable.unresolvedReferences).isEmpty()
+
+        whenever(context.contentResolver).thenReturn(contentResolver)
+        whenever(providerDao.getAllSync()).thenReturn(listOf(sourceProvider.toEntity()))
+        whenever(categoryRepository.getCategories(sourceProvider.id)).thenReturn(flowOf(listOf(category)))
+        whenever(contentResolver.openInputStream(anyOrNull())).thenReturn(
+            ByteArrayInputStream(
+                Gson().toJson(BackupData(portableProviderPreferences = portable)).toByteArray()
+            )
+        )
+        val channelDao: ChannelDao = mock()
+        whenever(channelDao.getByProviderSync(sourceProvider.id)).thenReturn(emptyList())
+
+        val result = backupManagerForValidation(
+            context = context,
+            preferencesRepository = preferencesRepository,
+            providerDao = providerDao,
+            categoryRepository = categoryRepository,
+            channelDao = channelDao,
+            storedProviders = listOf(sourceProvider)
+        ).importConfig("content://guide-default-combined", preferencesOnlyPlan())
+
+        assertThat(result).isInstanceOf(Result.Success::class.java)
+        assertThat((result as Result.Success).data.outcome).isEqualTo(BackupRestoreOutcome.COMPLETE)
+        assertThat((result as Result.Success).data.unresolvedReferences).isEmpty()
+        verify(preferencesRepository).setGuideDefaultCategoryId(categoryId)
+    }
+
+    @Test
     fun `local backup credentials hydrate redacted provider before restore`() {
         val manager = backupManagerForValidation(mock())
         val provider = Provider(
@@ -3839,6 +4034,25 @@ class BackupManagerImplTest {
         assertThat(first.values.any { it.contains("\"catalogHours\":48") }).isTrue()
     }
 
+    private fun stubGuidePreferenceExport(
+        preferencesRepository: PreferencesRepository,
+        guideCategoryId: Long
+    ) {
+        whenever(preferencesRepository.lastActiveProviderId).thenReturn(flowOf(null))
+        whenever(preferencesRepository.guideDefaultCategoryId).thenReturn(flowOf(guideCategoryId))
+        whenever(preferencesRepository.promotedLiveGroupIds).thenReturn(flowOf(emptySet()))
+        whenever(preferencesRepository.getHiddenChannelIds(any())).thenReturn(flowOf(emptySet()))
+        whenever(preferencesRepository.getHiddenCategoryIds(any(), any())).thenReturn(flowOf(emptySet()))
+        whenever(preferencesRepository.getPinnedCategoryIds(any(), any())).thenReturn(flowOf(emptySet()))
+        whenever(preferencesRepository.getCategorySortMode(any(), any())).thenReturn(
+            flowOf(com.streamvault.domain.model.CategorySortMode.DEFAULT)
+        )
+        whenever(preferencesRepository.epgTimeShiftsByProvider).thenReturn(flowOf(emptyMap()))
+        whenever(preferencesRepository.liveVariantSelections).thenReturn(flowOf(emptyMap()))
+        whenever(preferencesRepository.vodVariantSelections).thenReturn(flowOf(emptyMap()))
+        whenever(preferencesRepository.vodTrackPreferencesByScope).thenReturn(flowOf(emptyMap()))
+    }
+
     private fun backupManagerForValidation(
         context: Context,
         preferencesRepository: PreferencesRepository = mock(),
@@ -3852,6 +4066,7 @@ class BackupManagerImplTest {
         virtualGroupDao: VirtualGroupDao = mock(),
         credentialCrypto: CredentialCrypto = mock(),
         epgSourceDao: EpgSourceDao? = null,
+        combinedM3uProfileMemberDao: com.streamvault.data.local.dao.CombinedM3uProfileMemberDao? = null,
         recordingManager: RecordingManager = mock(),
         storedProviders: List<Provider> = emptyList(),
     ): BackupManagerImpl {
@@ -3897,7 +4112,8 @@ class BackupManagerImplTest {
             backupRestoreLedgerDao = restoreLedgerDao,
             channelDao = channelDao,
             seriesDao = mock(),
-            epgSourceDao = epgSourceDao
+            epgSourceDao = epgSourceDao,
+            combinedM3uProfileMemberDao = combinedM3uProfileMemberDao
         )
     }
 

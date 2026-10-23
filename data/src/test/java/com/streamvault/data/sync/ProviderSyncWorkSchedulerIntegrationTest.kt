@@ -16,6 +16,25 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [28], manifest = Config.NONE)
 class ProviderSyncWorkSchedulerIntegrationTest {
+    @Test fun `manual Xtream sections do not wait behind delayed provider recovery`() {
+        val context = RuntimeEnvironment.getApplication()
+        val manager = workManager()
+        val providerId = 987958L
+        val recovery = androidx.work.OneTimeWorkRequestBuilder<ProviderSyncWorker>()
+            .setInitialDelay(3600L, java.util.concurrent.TimeUnit.SECONDS).build()
+        manager.enqueueUniqueWork(providerWorkUniqueName(providerId), androidx.work.ExistingWorkPolicy.KEEP,
+            recovery).result.get()
+        XtreamIndexWorker.enqueue(context, providerId, "MOVIE", automatic = false, initialDelaySeconds = 3600L)
+        XtreamIndexWorker.enqueue(context, providerId, "SERIES", automatic = false, initialDelaySeconds = 3600L)
+
+        val setup = manager.getWorkInfosForUniqueWork(providerWorkUniqueName(providerId)).get()
+        val indexes = manager.getWorkInfosForUniqueWork(xtreamIndexWorkUniqueName(providerId)).get()
+        assertThat(setup.map { it.id }).containsExactly(recovery.id)
+        assertThat(indexes).hasSize(2)
+        assertThat(indexes.count { it.state == androidx.work.WorkInfo.State.ENQUEUED }).isEqualTo(1)
+        assertThat(indexes.count { it.state == androidx.work.WorkInfo.State.BLOCKED }).isEqualTo(1)
+    }
+
     private fun workManager(): WorkManager {
         val context = RuntimeEnvironment.getApplication()
         return runCatching { WorkManager.getInstance(context) }.getOrElse {

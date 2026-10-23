@@ -961,4 +961,5 @@
     <string name="settings_epg_phone_qr_warning">Bezpieczeństwo: Parowanie wysyła dane logowania bez szyfrowania przez sieć lokalną. Korzystaj tylko z zaufanej, prywatnej sieci Wi-Fi.</string>
     <string name="settings_epg_phone_qr_complete">Dodano</string>
     <string name="settings_epg_phone_qr_error">Błąd</string>
+    <string name="settings_backup_export_sections">Wybierz sekcje do eksportu</string>
 </resources>

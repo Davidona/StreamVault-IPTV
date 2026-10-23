@@ -951,4 +951,5 @@
     <string name="settings_epg_phone_qr_warning">Seguridad: El emparejamiento envía las credenciales sin cifrar por tu red local. Usa solo una red Wi-Fi privada y de confianza.</string>
     <string name="settings_epg_phone_qr_complete">Añadido</string>
     <string name="settings_epg_phone_qr_error">Error</string>
+    <string name="settings_backup_export_sections">Elige las secciones que quieres exportar</string>
 </resources>

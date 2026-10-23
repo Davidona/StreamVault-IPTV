@@ -23,6 +23,8 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.MaterialTheme
@@ -107,16 +109,17 @@ fun BackupImportPreviewDialog(
                 style = MaterialTheme.typography.titleSmall,
                 color = Primary
             )
-            BackupToggleRow(stringResource(R.string.settings_backup_section_preferences), plan.importPreferences, onImportPreferencesChanged)
-            BackupToggleRow(stringResource(R.string.settings_backup_section_providers), plan.importProviders, onImportProvidersChanged)
-            BackupToggleRow(stringResource(R.string.settings_backup_section_saved), plan.importSavedLibrary, onImportSavedLibraryChanged)
-            BackupToggleRow(stringResource(R.string.settings_backup_section_history), plan.importPlaybackHistory, onImportPlaybackHistoryChanged)
-            BackupToggleRow(stringResource(R.string.settings_backup_section_multiview), plan.importMultiViewPresets, onImportMultiViewChanged)
-            BackupToggleRow(stringResource(R.string.settings_backup_section_recordings), plan.importRecordingSchedules, onImportRecordingSchedulesChanged)
+            BackupToggleRow(stringResource(R.string.settings_backup_section_preferences), plan.importPreferences, onImportPreferencesChanged, enabled = preview.availableSections.exportPreferences)
+            BackupToggleRow(stringResource(R.string.settings_backup_section_providers), plan.importProviders, onImportProvidersChanged, enabled = preview.availableSections.exportProviders)
+            BackupToggleRow(stringResource(R.string.settings_backup_section_saved), plan.importSavedLibrary, onImportSavedLibraryChanged, enabled = preview.availableSections.exportSavedLibrary)
+            BackupToggleRow(stringResource(R.string.settings_backup_section_history), plan.importPlaybackHistory, onImportPlaybackHistoryChanged, enabled = preview.availableSections.exportPlaybackHistory)
+            BackupToggleRow(stringResource(R.string.settings_backup_section_multiview), plan.importMultiViewPresets, onImportMultiViewChanged, enabled = preview.availableSections.exportMultiViewPresets)
+            BackupToggleRow(stringResource(R.string.settings_backup_section_recordings), plan.importRecordingSchedules, onImportRecordingSchedulesChanged, enabled = preview.availableSections.exportRecordingSchedules)
             BackupToggleRow(
                 stringResource(R.string.settings_backup_section_stremio_addons),
                 plan.importStremioAddons,
-                onImportStremioAddonsChanged
+                onImportStremioAddonsChanged,
+                enabled = preview.availableSections.exportStremioAddons
             )
         },
         footer = {
@@ -194,10 +197,12 @@ private fun BackupStrategyChip(
 }
 
 @Composable
-private fun BackupToggleRow(
+internal fun BackupToggleRow(
     label: String,
     checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit
+    onCheckedChange: (Boolean) -> Unit,
+    enabled: Boolean = true,
+    modifier: Modifier = Modifier
 ) {
     var isFocused by remember { mutableStateOf(false) }
 
@@ -209,8 +214,10 @@ private fun BackupToggleRow(
         Text(label, style = MaterialTheme.typography.bodyLarge, color = OnBackground)
         Switch(
             checked = checked,
+            enabled = enabled,
             onCheckedChange = onCheckedChange,
-            modifier = Modifier
+            modifier = modifier
+                .semantics { contentDescription = label }
                 .onFocusChanged { isFocused = it.isFocused }
                 .then(
                     if (isFocused) {

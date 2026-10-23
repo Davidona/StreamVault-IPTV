@@ -953,4 +953,5 @@
     <string name="settings_epg_phone_qr_warning">امنیت: اطلاعات ورود هنگام جفت‌سازی بدون رمزگذاری از شبکه محلی شما فرستاده می‌شود. فقط از شبکه خصوصی Wi-Fi مطمئن استفاده کنید.</string>
     <string name="settings_epg_phone_qr_complete">افزوده شد</string>
     <string name="settings_epg_phone_qr_error">خطا</string>
+    <string name="settings_backup_export_sections">بخش‌های مورد نظر برای برون‌بری را انتخاب کنید</string>
 </resources>

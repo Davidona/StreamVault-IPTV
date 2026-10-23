@@ -956,4 +956,5 @@
     <string name="settings_epg_phone_qr_warning">Sigurnost: Uparivanje šalje podatke za prijavu nešifrirane putem vaše lokalne mreže. Koristite samo pouzdanu privatnu Wi-Fi mrežu.</string>
     <string name="settings_epg_phone_qr_complete">Dodano</string>
     <string name="settings_epg_phone_qr_error">Pogreška</string>
+    <string name="settings_backup_export_sections">Odaberite odjeljke za izvoz</string>
 </resources>

@@ -955,4 +955,5 @@
     <string name="settings_epg_phone_qr_warning">Güvenlik: Eşleştirme, oturum açma bilgilerini yerel ağınız üzerinden şifrelemeden gönderir. Yalnızca güvendiğiniz özel bir Wi-Fi ağı kullanın.</string>
     <string name="settings_epg_phone_qr_complete">Eklendi</string>
     <string name="settings_epg_phone_qr_error">Hata</string>
+    <string name="settings_backup_export_sections">Dışa aktarılacak bölümleri seçin</string>
 </resources>

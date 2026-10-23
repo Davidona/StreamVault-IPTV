@@ -955,4 +955,5 @@
     <string name="settings_epg_phone_qr_warning">Ασφάλεια: Η σύζευξη στέλνει στοιχεία σύνδεσης χωρίς κρυπτογράφηση μέσω του τοπικού δικτύου σας. Χρησιμοποιήστε μόνο ιδιωτικό δίκτυο Wi-Fi που εμπιστεύεστε.</string>
     <string name="settings_epg_phone_qr_complete">Προστέθηκε</string>
     <string name="settings_epg_phone_qr_error">Σφάλμα</string>
+    <string name="settings_backup_export_sections">Επιλέξτε ενότητες για εξαγωγή</string>
 </resources>

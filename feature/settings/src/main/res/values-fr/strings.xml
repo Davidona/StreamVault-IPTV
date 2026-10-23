@@ -955,4 +955,5 @@
     <string name="settings_epg_phone_qr_warning">Sécurité : l’association envoie les identifiants sans chiffrement sur votre réseau local. Utilisez uniquement un réseau Wi-Fi privé de confiance.</string>
     <string name="settings_epg_phone_qr_complete">Ajouté</string>
     <string name="settings_epg_phone_qr_error">Erreur</string>
+    <string name="settings_backup_export_sections">Choisissez les sections à exporter</string>
 </resources>

@@ -953,4 +953,5 @@
     <string name="settings_epg_phone_qr_warning">Безбедност: Спарувањето ги испраќа податоците за најава нешифрирани преку локалната мрежа. Користете само доверлива приватна Wi-Fi мрежа.</string>
     <string name="settings_epg_phone_qr_complete">Додадено</string>
     <string name="settings_epg_phone_qr_error">Грешка</string>
+    <string name="settings_backup_export_sections">Изберете делови за извезување</string>
 </resources>

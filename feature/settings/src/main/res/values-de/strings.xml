@@ -951,4 +951,5 @@
     <string name="settings_epg_phone_qr_warning">Sicherheit: Bei der Kopplung werden Zugangsdaten unverschlüsselt über dein lokales Netzwerk gesendet. Verwende nur ein vertrauenswürdiges privates WLAN.</string>
     <string name="settings_epg_phone_qr_complete">Hinzugefügt</string>
     <string name="settings_epg_phone_qr_error">Fehler</string>
+    <string name="settings_backup_export_sections">Abschnitte zum Exportieren auswählen</string>
 </resources>

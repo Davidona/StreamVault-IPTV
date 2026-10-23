@@ -145,7 +145,7 @@ private class FakeImportBackupManager(
     var lastInspectUri: String? = null
     var lastImportCall: Pair<String, BackupImportPlan>? = null
 
-    override suspend fun exportConfig(uriString: String): Result<Unit> = error("Not used in test")
+    override suspend fun exportConfig(uriString: String, plan: com.streamvault.domain.manager.BackupExportPlan): Result<Unit> = error("Not used in test")
 
     override suspend fun inspectBackup(uriString: String): Result<BackupPreview> {
         lastInspectUri = uriString

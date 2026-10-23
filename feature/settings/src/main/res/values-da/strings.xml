@@ -955,4 +955,5 @@
     <string name="settings_epg_phone_qr_warning">Sikkerhed: Parring sender loginoplysninger uden kryptering via dit lokale netværk. Brug kun et privat Wi-Fi-netværk, du har tillid til.</string>
     <string name="settings_epg_phone_qr_complete">Tilføjet</string>
     <string name="settings_epg_phone_qr_error">Fejl</string>
+    <string name="settings_backup_export_sections">Vælg sektioner til eksport</string>
 </resources>

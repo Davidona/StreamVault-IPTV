@@ -955,4 +955,5 @@
     <string name="settings_epg_phone_qr_warning">Sikkerhet: Paringen sender påloggingsinformasjon ukryptert over det lokale nettverket. Bruk bare et privat Wi-Fi-nettverk du stoler på.</string>
     <string name="settings_epg_phone_qr_complete">Lagt til</string>
     <string name="settings_epg_phone_qr_error">Feil</string>
+    <string name="settings_backup_export_sections">Velg seksjoner som skal eksporteres</string>
 </resources>

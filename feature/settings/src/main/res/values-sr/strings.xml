@@ -956,4 +956,5 @@
     <string name="settings_epg_phone_qr_warning">Безбедност: Упаривање шаље податке за пријаву нешифроване преко локалне мреже. Користите само поуздану приватну Wi-Fi мрежу.</string>
     <string name="settings_epg_phone_qr_complete">Додато</string>
     <string name="settings_epg_phone_qr_error">Грешка</string>
+    <string name="settings_backup_export_sections">Изаберите одељке за извоз</string>
 </resources>

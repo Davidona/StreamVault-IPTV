@@ -958,4 +958,5 @@
     <string name="settings_epg_phone_qr_warning">Securitate: Asocierea trimite datele de conectare necriptate prin rețeaua locală. Folosiți numai o rețea Wi-Fi privată și de încredere.</string>
     <string name="settings_epg_phone_qr_complete">Adăugat</string>
     <string name="settings_epg_phone_qr_error">Eroare</string>
+    <string name="settings_backup_export_sections">Alegeți secțiunile de exportat</string>
 </resources>

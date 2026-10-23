@@ -53,6 +53,15 @@ import org.mockito.kotlin.never
 
 class PendingBackupRestoreCoordinatorTest {
     @Test
+    fun `every deferred section must have state matrix or replace scope coverage`() {
+        val implemented = PendingBackupRestoreCoordinator::class.java.declaredFields
+            .filter { it.name.startsWith("SECTION_") }
+            .map { field -> field.isAccessible = true; field.get(null) as String }
+        val covered = PendingBackupRestoreStateMatrixTest.cases().map { it[0] }.toSet() + "REPLACE_SCOPE"
+        assertThat(implemented).containsExactlyElementsIn(covered)
+    }
+
+    @Test
     fun `cancellation leaves restore instruction retryable`() = runBlocking {
         val ledger: BackupRestoreLedgerDao = mock()
         val providerDao: ProviderDao = mock()
@@ -588,6 +597,82 @@ class PendingBackupRestoreCoordinatorTest {
             updatedAt = any()
         )
         Unit
+    }
+
+    @Test
+    fun `replace scope never clears favorites while any target is unavailable`() = runBlocking {
+        val ledger: BackupRestoreLedgerDao = mock()
+        val providers: ProviderDao = mock()
+        val favorites: FavoriteDao = mock()
+        val channels: ChannelDao = mock()
+        val gson = Gson()
+        val reference = PortableContentReference(
+            BackupProviderReference("https://example.com", "user", providerType = ProviderType.XTREAM_CODES),
+            ContentType.LIVE, "42"
+        )
+        val marker = BackupRestoreItemEntity(
+            id = 1, jobId = "job", providerIdentityKey = "provider", localProviderId = 77,
+            section = "REPLACE_SCOPE", contentType = "LIVE", stableReferenceKey = "scope",
+            referenceJson = "{}",
+            payloadJson = """{"targetSection":"FAVORITES","contentType":"LIVE"}""",
+            createdAt = 1, updatedAt = 1
+        )
+        val target = marker.copy(id = 2, section = "FAVORITES", stableReferenceKey = "LIVE:42",
+            referenceJson = gson.toJson(reference), payloadJson = gson.toJson(PortableFavoriteBackup(reference)))
+        whenever(providers.getById(77)).thenReturn(ProviderEntity(id = 77, name = "Provider", type = ProviderType.XTREAM_CODES))
+        whenever(ledger.getRetryableItemsByLocalProviderId(77)).thenReturn(listOf(marker, target))
+        whenever(ledger.getItems("job")).thenReturn(listOf(marker, target))
+        whenever(channels.getByProviderSync(77)).thenReturn(emptyList())
+        val subject = coordinator(ledger, providers, favorites, channels, gson)
+        assertThat(subject.applyForProvider(77)).isEqualTo(RestoreResolutionSummary(unresolvedCount = 2))
+        verify(favorites, never()).deleteGlobalByProviderAndType(any(), any())
+        verify(favorites, never()).insert(any())
+
+        whenever(channels.getByStreamId(77, 42)).thenReturn(ChannelEntity(id = 900, streamId = 42, name = "News", providerId = 77))
+        assertThat(subject.applyForProvider(77)).isEqualTo(RestoreResolutionSummary(appliedCount = 1))
+        verify(favorites).deleteGlobalByProviderAndType(77, "LIVE")
+        verify(favorites, org.mockito.kotlin.times(1)).insert(any())
+        verify(ledger).updateItemStatus(eq(2), eq(BackupRestoreItemEntity.STATUS_APPLIED), eq(77), eq(1), isNull(), any())
+    }
+
+    @Test
+    fun `global multiview waits for every provider and restores channels in saved order`() = runBlocking {
+        val ledger: BackupRestoreLedgerDao = mock()
+        val providers: ProviderDao = mock()
+        val snapshots: ProviderSnapshotRepository = mock()
+        val channels: ChannelDao = mock()
+        val preferences: PreferencesRepository = mock()
+        val gson = Gson()
+        val first = LegacyProvider(id = 77, name = "First", type = ProviderType.XTREAM_CODES,
+            serverUrl = "https://first.example", username = "user")
+        val second = first.copy(id = 88, name = "Second", serverUrl = "https://second.example")
+        fun reference(provider: LegacyProvider) = PortableContentReference(
+            BackupProviderReference(provider.serverUrl, provider.username, providerType = provider.type),
+            ContentType.LIVE, "42"
+        )
+        val item = BackupRestoreItemEntity(
+            id = 1, jobId = "job", providerIdentityKey = "__GLOBAL__", section = "MULTIVIEW",
+            stableReferenceKey = "preset_2", referenceJson = "{}",
+            payloadJson = gson.toJson(PortableMultiViewPresetV14Backup("preset_2", listOf(reference(second), reference(first)))),
+            createdAt = 1, updatedAt = 1
+        )
+        fun entity(provider: LegacyProvider) = ProviderEntity(id = provider.id, name = provider.name, type = provider.type)
+        whenever(ledger.getRetryableItems("__GLOBAL__")).thenReturn(listOf(item))
+        whenever(providers.getAllSync()).thenReturn(listOf(entity(first)))
+        whenever(snapshots.getSnapshot(77)).thenReturn(first.toProviderSnapshot())
+        whenever(snapshots.getSnapshot(88)).thenReturn(second.toProviderSnapshot())
+        whenever(channels.getByStreamId(77, 42)).thenReturn(ChannelEntity(id = 900, streamId = 42, name = "First news", providerId = 77))
+        whenever(channels.getByStreamId(88, 42)).thenReturn(ChannelEntity(id = 901, streamId = 42, name = "Second news", providerId = 88))
+        val subject = PendingBackupRestoreCoordinator(
+            ledger, providers, mock(), mock(), mock(), channels, mock(), mock(), mock(),
+            mock(), mock(), mock(), mock(), preferences, snapshots, mock(), gson
+        )
+        assertThat(subject.applyGlobal()).isEqualTo(RestoreResolutionSummary(unresolvedCount = 1))
+        verify(preferences, never()).setMultiViewPreset(any(), any())
+        whenever(providers.getAllSync()).thenReturn(listOf(entity(first), entity(second)))
+        assertThat(subject.applyGlobal()).isEqualTo(RestoreResolutionSummary(appliedCount = 1))
+        verify(preferences).setMultiViewPreset(1, listOf(901L, 900L))
+        verify(ledger).updateItemStatus(eq(1), eq(BackupRestoreItemEntity.STATUS_APPLIED), isNull(), eq(1), isNull(), any())
     }
 
     private fun coordinator(
