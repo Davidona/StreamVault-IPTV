@@ -106,4 +106,9 @@
     <string name="stremio_hidden_title">Doplňky kompatibilní se Stremio jsou skryty</string>
     <string name="stremio_open_settings">Otevřít nastavení</string>
     <string name="stremio_hidden_message">Chcete-li zobrazit své doplňky, otevřete Nastavení → Soukromí a vypněte Skrýt doplňky kompatibilní se Stremio. Nainstalované doplňky zůstanou zachovány.</string>
+    <string name="stremio_phone_qr_start">Zobrazit QR kód</string>
+    <string name="stremio_phone_qr_stop">Zastavit párování</string>
+    <string name="stremio_phone_qr_warning">Zabezpečení: Při párování se přihlašovací údaje odesílají přes místní síť bez šifrování. Používejte pouze důvěryhodnou soukromou Wi-Fi síť.</string>
+    <string name="stremio_phone_qr_complete">Přidáno</string>
+    <string name="stremio_phone_qr_error">Chyba</string>
 </resources>

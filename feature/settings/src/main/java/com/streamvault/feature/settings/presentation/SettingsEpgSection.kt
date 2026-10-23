@@ -21,6 +21,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.streamvault.core.ui.components.PhoneAddQrPanel
+import com.streamvault.domain.phone.PhoneAddKind
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -77,6 +80,25 @@ fun LazyListScope.epgSourcesSection(
             firstFocusModifier = if (targetItemId == "guide.source.add") {
                 targetFocusModifier
             } else firstFocusModifier,
+        )
+    }
+
+    item {
+        val phoneState by viewModel.phoneAddState.collectAsStateWithLifecycle()
+        PhoneAddQrPanel(
+            url = phoneState.url.takeIf { phoneState.kind == PhoneAddKind.EPG },
+            title = stringResource(R.string.settings_epg_add_source),
+            description = stringResource(R.string.settings_epg_phone_qr_warning),
+            status = when {
+                phoneState.kind != PhoneAddKind.EPG -> null
+                phoneState.completed -> stringResource(R.string.settings_epg_phone_qr_complete)
+                phoneState.error -> stringResource(R.string.settings_epg_phone_qr_error)
+                else -> null
+            },
+            startLabel = stringResource(R.string.settings_epg_phone_qr_start),
+            stopLabel = stringResource(R.string.settings_epg_phone_qr_stop),
+            onStart = viewModel::startEpgPhoneAdd,
+            onStop = viewModel::stopEpgPhoneAdd,
         )
     }
 

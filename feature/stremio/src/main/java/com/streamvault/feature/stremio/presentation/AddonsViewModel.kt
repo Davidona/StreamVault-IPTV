@@ -11,6 +11,8 @@ import com.streamvault.domain.model.stremio.StremioCatalogRef
 import com.streamvault.domain.model.stremio.StremioManifest
 import com.streamvault.domain.model.stremio.StremioResourceKind
 import com.streamvault.domain.repository.StremioAddonRepository
+import com.streamvault.domain.phone.PhoneAddKind
+import com.streamvault.domain.phone.PhoneAddSession
 import com.streamvault.domain.repository.StremioPlaybackHistoryRepository
 import com.streamvault.feature.stremio.R
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -31,8 +33,16 @@ class AddonsViewModel @Inject constructor(
     private val repository: StremioAddonRepository,
     private val historyRepository: StremioPlaybackHistoryRepository,
     private val contentAccess: StremioContentAccess,
+    private val phoneAddSession: PhoneAddSession,
     @param:ApplicationContext private val context: Context
 ) : ViewModel() {
+    val phoneAddState = phoneAddSession.state
+
+    fun startPhoneAdd() {
+        if (contentAccess.canAccessContentNow()) viewModelScope.launch { phoneAddSession.start(PhoneAddKind.STREMIO) }
+    }
+
+    fun stopPhoneAdd() = phoneAddSession.stop(PhoneAddKind.STREMIO)
 
     data class AddonEntry(
         val addon: StremioAddon,

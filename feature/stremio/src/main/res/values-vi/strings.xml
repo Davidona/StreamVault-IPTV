@@ -106,4 +106,9 @@
     <string name="stremio_hidden_title">Tiện ích Stremio đang bị ẩn</string>
     <string name="stremio_open_settings">Mở cài đặt</string>
     <string name="stremio_hidden_message">Để hiển thị tiện ích, hãy mở Cài đặt → Quyền riêng tư và tắt Ẩn tiện ích Stremio. Các tiện ích đã cài vẫn được giữ lại.</string>
+    <string name="stremio_phone_qr_start">Hiện mã QR</string>
+    <string name="stremio_phone_qr_stop">Dừng ghép nối</string>
+    <string name="stremio_phone_qr_warning">Bảo mật: Quá trình ghép nối gửi thông tin đăng nhập qua mạng cục bộ mà không mã hóa. Chỉ sử dụng mạng Wi-Fi riêng tư đáng tin cậy.</string>
+    <string name="stremio_phone_qr_complete">Đã thêm</string>
+    <string name="stremio_phone_qr_error">Lỗi</string>
 </resources>

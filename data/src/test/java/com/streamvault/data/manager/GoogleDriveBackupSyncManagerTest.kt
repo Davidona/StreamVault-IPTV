@@ -1,23 +1,37 @@
 package com.streamvault.data.manager
 
 import android.content.Context
+import android.content.ContextWrapper
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.tasks.Tasks
 import com.google.common.truth.Truth.assertThat
+import com.google.gson.Gson
+import com.streamvault.data.local.DatabaseTransactionRunner
+import com.streamvault.data.local.dao.PlaybackHistoryDao
+import com.streamvault.data.local.dao.ProviderDao
+import com.streamvault.data.preferences.PreferencesRepository
+import com.streamvault.data.security.CredentialCrypto
 import com.streamvault.domain.manager.BackupManager
 import com.streamvault.domain.manager.DriveAuthState
 import com.streamvault.domain.manager.DriveSyncError
 import com.streamvault.domain.manager.ProviderCredentials
+import com.streamvault.domain.manager.RecordingManager
 import com.streamvault.domain.model.Result
+import com.streamvault.domain.repository.CategoryRepository
+import com.streamvault.domain.usecase.ImportBackup
+import com.streamvault.domain.usecase.InspectBackupCommand
+import com.streamvault.domain.usecase.InspectBackupResult
 import java.io.File
 import java.net.URI
 import java.nio.file.Files
+import java.security.MessageDigest
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.atomic.AtomicInteger
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import okhttp3.mockwebserver.Dispatcher
 import okhttp3.mockwebserver.MockResponse
@@ -37,6 +51,7 @@ import org.mockito.kotlin.wheneverBlocking
 import org.json.JSONArray
 import org.json.JSONObject
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
@@ -110,6 +125,49 @@ class GoogleDriveBackupSyncManagerTest {
         val artifact = (result as Result.Success).data
         assertThat(File(URI(artifact.localUriString)).readText()).isEqualTo(backupJson)
         File(URI(artifact.localUriString)).delete()
+    }
+
+    @Test
+    fun pullBackupFeedsReleaseObfuscatedPayloadIntoRealInspector() = runTest {
+        val payload = """{"version":18,"portableFavorites":[{"a":{"a":{"a":"https://example.com","b":"user","c":null,"d":"XTREAM_CODES"},"b":"LIVE","c":"42","f":"News"},"b":3,"c":1700000000000}]}"""
+        val checksum = "sha256:" + MessageDigest.getInstance("SHA-256")
+            .digest(payload.toByteArray())
+            .joinToString(separator = "") { "%02x".format(it) }
+        val backupJson = """{"version":18,"checksum":"$checksum","portableFavorites":[{"a":{"a":{"a":"https://example.com","b":"user","c":null,"d":"XTREAM_CODES"},"b":"LIVE","c":"42","f":"News"},"b":3,"c":1700000000000}]}"""
+        enqueueFileList(listOf("compact-backup-id"))
+        server.enqueue(
+            MockResponse().setResponseCode(200).setBody(
+                """{"format":"streamvault-drive-bundle-v2","backupJson":${Gson().toJson(backupJson)},"credentials":[]}"""
+            )
+        )
+
+        val stagedCache = Files.createTempDirectory("drive-inspector-test").toFile()
+        val appContext = RuntimeEnvironment.getApplication()
+        val integrationContext = object : ContextWrapper(appContext) {
+            override fun getCacheDir(): File = stagedCache
+        }
+        val driveManager = GoogleDriveBackupSyncManager(
+            context = integrationContext,
+            backupManager = backupManager,
+            httpClient = okhttp3.OkHttpClient(),
+            driveApiBaseUrl = server.url("/").toString(),
+            fixedAccessToken = "test-token",
+        )
+        val inspector = backupInspector(integrationContext)
+
+        try {
+            val pullResult = driveManager.pullBackup()
+            assertThat(pullResult).isInstanceOf(Result.Success::class.java)
+            val artifact = (pullResult as Result.Success).data
+            assertThat(File(URI(artifact.localUriString)).readText()).isEqualTo(backupJson)
+
+            val inspectResult = ImportBackup(inspector).inspect(InspectBackupCommand(artifact.localUriString))
+
+            assertThat(inspectResult).isInstanceOf(InspectBackupResult.Success::class.java)
+            assertThat((inspectResult as InspectBackupResult.Success).preview.favoriteCount).isEqualTo(1)
+        } finally {
+            stagedCache.deleteRecursively()
+        }
     }
 
     @Test
@@ -384,6 +442,36 @@ class GoogleDriveBackupSyncManagerTest {
         driveApiBaseUrl = server.url("/").toString(),
         fixedAccessToken = "test-token",
     )
+
+    private fun backupInspector(context: Context): BackupManagerImpl {
+        val providerDao: ProviderDao = mock()
+        wheneverBlocking { providerDao.getAllSync() }.thenReturn(emptyList())
+        val playbackHistoryDao: PlaybackHistoryDao = mock()
+        wheneverBlocking { playbackHistoryDao.getAllSync() }.thenReturn(emptyList())
+        val recordingManager: RecordingManager = mock()
+        whenever(recordingManager.observeRecordingItems()).thenReturn(flowOf(emptyList()))
+
+        return BackupManagerImpl(
+            context = context,
+            preferencesRepository = mock<PreferencesRepository>(),
+            credentialCrypto = mock<CredentialCrypto>(),
+            providerDao = providerDao,
+            favoriteDao = mock(),
+            virtualGroupDao = mock(),
+            playbackHistoryDao = playbackHistoryDao,
+            movieDao = mock(),
+            episodeDao = mock(),
+            categoryRepository = mock<CategoryRepository>(),
+            recordingScheduleDao = mock(),
+            recordingManager = recordingManager,
+            transactionRunner = object : DatabaseTransactionRunner {
+                override suspend fun <T> inTransaction(block: suspend () -> T): T = block()
+            },
+            gson = Gson(),
+            channelDao = mock(),
+            seriesDao = mock(),
+        )
+    }
 
     private fun enqueueFileList(ids: List<String>) {
         val files = ids.mapIndexed { index, id ->

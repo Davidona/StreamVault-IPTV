@@ -106,4 +106,9 @@
     <string name="stremio_hidden_title">Doplnky Stremio sú skryté</string>
     <string name="stremio_open_settings">Otvoriť nastavenia</string>
     <string name="stremio_hidden_message">Ak chcete zobraziť svoje doplnky, otvorte Nastavenia → Súkromie a vypnite Skryť doplnky Stremio. Nainštalované doplnky zostanú zachované.</string>
+    <string name="stremio_phone_qr_start">Zobraziť QR kód</string>
+    <string name="stremio_phone_qr_stop">Zastaviť párovanie</string>
+    <string name="stremio_phone_qr_warning">Zabezpečenie: Pri párovaní sa prihlasovacie údaje odosielajú cez miestnu sieť bez šifrovania. Používajte iba dôveryhodnú súkromnú Wi-Fi sieť.</string>
+    <string name="stremio_phone_qr_complete">Pridané</string>
+    <string name="stremio_phone_qr_error">Chyba</string>
 </resources>

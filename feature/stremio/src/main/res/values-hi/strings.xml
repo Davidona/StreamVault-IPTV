@@ -106,4 +106,9 @@
     <string name="stremio_hidden_title">Stremio ऐड-ऑन छिपे हुए हैं</string>
     <string name="stremio_open_settings">सेटिंग्स खोलें</string>
     <string name="stremio_hidden_message">अपने ऐड-ऑन दिखाने के लिए सेटिंग्स → गोपनीयता खोलें और “Stremio ऐड-ऑन छिपाएँ” को बंद करें। आपके इंस्टॉल किए गए ऐड-ऑन सुरक्षित रहते हैं।</string>
+    <string name="stremio_phone_qr_start">QR कोड दिखाएँ</string>
+    <string name="stremio_phone_qr_stop">पेयरिंग बंद करें</string>
+    <string name="stremio_phone_qr_warning">सुरक्षा: पेयरिंग के दौरान लॉगिन जानकारी आपके स्थानीय नेटवर्क पर बिना एन्क्रिप्शन भेजी जाती है। केवल भरोसेमंद निजी Wi-Fi नेटवर्क का उपयोग करें।</string>
+    <string name="stremio_phone_qr_complete">जोड़ा गया</string>
+    <string name="stremio_phone_qr_error">त्रुटि</string>
 </resources>

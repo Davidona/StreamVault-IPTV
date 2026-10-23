@@ -946,4 +946,9 @@
     <string name="settings_sync_index_progress">%1$s · %2$s</string>
     <string name="settings_refresh_rate_matching">Ajustar à taxa de fotogramas do conteúdo</string>
     <string name="settings_refresh_rate_matching_description">Adapta a taxa de atualização do ecrã ao vídeo para movimentos mais fluidos. Requer um ecrã compatível; ao mudar, o ecrã pode ficar preto por instantes.</string>
+    <string name="settings_epg_phone_qr_start">Mostrar código QR</string>
+    <string name="settings_epg_phone_qr_stop">Parar emparelhamento</string>
+    <string name="settings_epg_phone_qr_warning">Segurança: O emparelhamento envia as credenciais sem encriptação pela rede local. Utilize apenas uma rede Wi-Fi privada e de confiança.</string>
+    <string name="settings_epg_phone_qr_complete">Adicionado</string>
+    <string name="settings_epg_phone_qr_error">Erro</string>
 </resources>

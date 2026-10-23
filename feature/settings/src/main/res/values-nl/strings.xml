@@ -950,4 +950,9 @@
     <string name="settings_sync_index_progress">%1$s · %2$s</string>
     <string name="settings_refresh_rate_matching">Afstemmen op de beeldsnelheid van inhoud</string>
     <string name="settings_refresh_rate_matching_description">Stemt de vernieuwingsfrequentie van het scherm af op de video voor vloeiendere bewegingen. Vereist schermondersteuning; bij het omschakelen kan het scherm kort zwart worden.</string>
+    <string name="settings_epg_phone_qr_start">QR-code tonen</string>
+    <string name="settings_epg_phone_qr_stop">Koppelen stoppen</string>
+    <string name="settings_epg_phone_qr_warning">Beveiliging: Koppelen verstuurt inloggegevens onversleuteld via je lokale netwerk. Gebruik alleen een vertrouwd privé-Wi-Fi-netwerk.</string>
+    <string name="settings_epg_phone_qr_complete">Toegevoegd</string>
+    <string name="settings_epg_phone_qr_error">Fout</string>
 </resources>

@@ -946,4 +946,9 @@
     <string name="settings_sync_index_progress">%1$s · %2$s</string>
     <string name="settings_refresh_rate_matching">匹配内容帧率</string>
     <string name="settings_refresh_rate_matching_description">根据视频调整显示器刷新率，让运动画面更流畅。需要显示器支持；切换时屏幕可能会短暂变黑。</string>
+    <string name="settings_epg_phone_qr_start">显示二维码</string>
+    <string name="settings_epg_phone_qr_stop">停止配对</string>
+    <string name="settings_epg_phone_qr_warning">安全提示：配对会通过本地网络以未加密的方式发送登录凭据。请仅使用可信的私人 Wi-Fi 网络。</string>
+    <string name="settings_epg_phone_qr_complete">已添加</string>
+    <string name="settings_epg_phone_qr_error">错误</string>
 </resources>

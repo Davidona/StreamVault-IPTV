@@ -14,6 +14,7 @@ import com.streamvault.domain.model.VodCatalogItem
 import com.streamvault.domain.model.VodCategoryKind
 import com.streamvault.domain.model.VodCategoryHydration
 import com.streamvault.domain.model.VodCategoryHydrationRequest
+import com.streamvault.domain.util.SearchTextNormalizer
 import com.streamvault.domain.repository.ProviderRepository
 import com.streamvault.domain.repository.PlaybackHistoryRepository
 import com.streamvault.domain.repository.VodRepository
@@ -509,7 +510,7 @@ class VodViewModel @Inject constructor(
         sortBy: LibrarySortBy,
         query: String
     ): List<VodCatalogItem> {
-        val normalizedQuery = query.trim()
+        val normalizedQuery = SearchTextNormalizer.normalize(query.trim())
         val historyIds = history.mapTo(mutableSetOf()) { it.seriesId ?: it.contentId }
         val completedIds = history
             .filter { it.totalDurationMs > 0 && it.resumePositionMs >= (it.totalDurationMs * 0.95f).toLong() }
@@ -517,12 +518,12 @@ class VodViewModel @Inject constructor(
         val watchCounts = history.groupingBy { it.seriesId ?: it.contentId }.eachCount()
         val searched = if (normalizedQuery.isBlank()) items else items.filter { item ->
             when (item) {
-                is VodCatalogItem.MovieItem -> item.movie.name.contains(normalizedQuery, true) ||
-                    item.movie.plot?.contains(normalizedQuery, true) == true ||
-                    item.movie.genre?.contains(normalizedQuery, true) == true
-                is VodCatalogItem.SeriesItem -> item.series.name.contains(normalizedQuery, true) ||
-                    item.series.plot?.contains(normalizedQuery, true) == true ||
-                    item.series.genre?.contains(normalizedQuery, true) == true
+                is VodCatalogItem.MovieItem -> SearchTextNormalizer.normalize(item.movie.name).contains(normalizedQuery) ||
+                    item.movie.plot?.let { SearchTextNormalizer.normalize(it).contains(normalizedQuery) } == true ||
+                    item.movie.genre?.let { SearchTextNormalizer.normalize(it).contains(normalizedQuery) } == true
+                is VodCatalogItem.SeriesItem -> SearchTextNormalizer.normalize(item.series.name).contains(normalizedQuery) ||
+                    item.series.plot?.let { SearchTextNormalizer.normalize(it).contains(normalizedQuery) } == true ||
+                    item.series.genre?.let { SearchTextNormalizer.normalize(it).contains(normalizedQuery) } == true
             }
         }
         val filtered = when (filterType) {

@@ -64,6 +64,7 @@ public fun SettingsScreen(
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    DisposableEffect(Unit) { onDispose { viewModel.stopEpgPhoneAdd() } }
     val settingsNavFocusRequester = remember { FocusRequester() }
     val settingsSearchFocusRequester = remember { FocusRequester() }
 

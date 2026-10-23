@@ -630,21 +630,19 @@ class ChannelRepositoryImplTest {
     }
 
     @Test
-    fun `searchChannels returns empty list when sqlite throws for malformed fts query`() = runTest {
+    fun `searchChannels falls back to paged browse rows when fts query throws`() = runTest {
         whenever(channelDao.search(eq(7L), any(), any())).thenReturn(
             flow { throw SQLiteException("malformed MATCH expression") }
         )
-        whenever(channelDao.searchFallback(eq(7L), any(), any())).thenReturn(
-            flowOf(
-                listOf(
-                    ChannelBrowseEntity(
-                        id = 99L,
-                        streamId = 199L,
-                        name = "News One",
-                        streamUrl = "https://stream/news",
-                        number = 9,
-                        providerId = 7L
-                    )
+        whenever(channelDao.getByProviderBrowsePageOffset(eq(7L), any(), any())).thenReturn(
+            listOf(
+                ChannelBrowseEntity(
+                    id = 99L,
+                    streamId = 199L,
+                    name = "News One",
+                    streamUrl = "https://stream/news",
+                    number = 9,
+                    providerId = 7L
                 )
             )
         )

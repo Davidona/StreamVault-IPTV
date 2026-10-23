@@ -946,4 +946,9 @@
     <string name="settings_sync_index_progress">%1$s · %2$s</string>
     <string name="settings_refresh_rate_matching">Ajustar a la frecuencia del contenido</string>
     <string name="settings_refresh_rate_matching_description">Adapta la frecuencia de actualización de la pantalla al vídeo para un movimiento más fluido. Requiere una pantalla compatible; al cambiar, la pantalla puede quedar negra brevemente.</string>
+    <string name="settings_epg_phone_qr_start">Mostrar código QR</string>
+    <string name="settings_epg_phone_qr_stop">Detener emparejamiento</string>
+    <string name="settings_epg_phone_qr_warning">Seguridad: El emparejamiento envía las credenciales sin cifrar por tu red local. Usa solo una red Wi-Fi privada y de confianza.</string>
+    <string name="settings_epg_phone_qr_complete">Añadido</string>
+    <string name="settings_epg_phone_qr_error">Error</string>
 </resources>

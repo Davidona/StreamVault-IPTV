@@ -19,6 +19,7 @@ import com.streamvault.domain.model.ProviderType
 import com.streamvault.domain.model.Result
 import com.streamvault.domain.model.VodCategoryHydrationRequest
 import com.streamvault.domain.model.Series
+import com.streamvault.domain.util.SearchTextNormalizer
 import com.streamvault.domain.repository.FavoriteRepository
 import com.streamvault.domain.repository.PlaybackHistoryRepository
 import com.streamvault.domain.repository.ProviderRepository
@@ -1559,14 +1560,14 @@ class SeriesViewModel @Inject constructor(
             }
             .mapNotNullTo(mutableSetOf()) { it.seriesId }
         val watchCounts = history.groupingBy { it.seriesId ?: it.contentId }.eachCount()
-        val normalizedQuery = query.trim().lowercase()
+        val normalizedQuery = SearchTextNormalizer.normalize(query.trim())
         val searched = if (normalizedQuery.isBlank()) {
             items
         } else {
             items.filter { series ->
-                series.name.contains(normalizedQuery, ignoreCase = true) ||
-                    (series.plot?.contains(normalizedQuery, ignoreCase = true) == true) ||
-                    (series.genre?.contains(normalizedQuery, ignoreCase = true) == true)
+                SearchTextNormalizer.normalize(series.name).contains(normalizedQuery) ||
+                    (series.plot?.let { SearchTextNormalizer.normalize(it).contains(normalizedQuery) } == true) ||
+                    (series.genre?.let { SearchTextNormalizer.normalize(it).contains(normalizedQuery) } == true)
             }
         }
         val filtered = when (filterType) {

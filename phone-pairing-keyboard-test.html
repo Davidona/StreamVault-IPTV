@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>Pairing keyboard test</title>
+  <style>
+    * { box-sizing: border-box; }
+    :root { color-scheme: dark; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color: #eff2f8; background: #0b0e14; }
+    body { margin: 0; min-height: 100vh; padding: 24px; background: radial-gradient(ellipse at 50% 0, rgba(101,85,211,.14), transparent 65%); }
+    main { max-width: 600px; margin: 0 auto; }
+    h1 { font-size: 28px; margin: 0 0 10px; }
+    p { color: #aeb5c5; line-height: 1.5; margin: 0 0 22px; }
+    section { margin: 0 0 18px; padding: 20px 28px 26px; background: linear-gradient(145deg, #191c28, #131620); border: 1px solid #2b2e3f; border-radius: 22px; }
+    h2 { font-size: 19px; margin: 0 0 4px; }
+    label { display: block; margin: 19px 0 9px; font-size: 12px; font-weight: 600; color: #c4c8d5; letter-spacing: .2px; }
+    input { display: block; width: 100%; min-width: 0; min-height: 50px; padding: 13px 14px; border-radius: 10px; border: 1px solid #333747; background: #0f121c; color: #f0f1f6; font: inherit; font-size: 16px; transition: border-color .15s, box-shadow .15s; }
+    input:hover { border-color: #515368; }
+    input:focus-visible { outline: 0; border-color: #ac96f3; box-shadow: 0 0 0 3px #a68be51c; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Pairing keyboard test</h1>
+    <p>Tap each field and check whether your keyboard opens. This file only tests typing; it sends nothing.</p>
+    <section>
+      <h2>Stremio</h2>
+      <label for="stremio-url">Add-on manifest URL</label>
+      <input id="stremio-url" name="url" autocomplete="off" dir="ltr" required maxlength="2048">
+    </section>
+    <section>
+      <h2>EPG</h2>
+      <label for="epg-name">Source name</label>
+      <input id="epg-name" name="name" autocomplete="off" required maxlength="2048">
+      <label for="epg-url">URL</label>
+      <input id="epg-url" name="url" autocomplete="off" dir="ltr" required maxlength="2048">
+      <label for="epg-timezone">Timezone</label>
+      <input id="epg-timezone" name="timezone" autocomplete="off" maxlength="2048">
+    </section>
+    <section>
+      <h2>Add-provider control</h2>
+      <label for="provider-name">Name</label>
+      <input id="provider-name" name="providerName" autocomplete="off">
+    </section>
+  </main>
+</body>
+</html>

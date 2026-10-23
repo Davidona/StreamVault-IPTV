@@ -950,4 +950,9 @@
     <string name="settings_sync_index_progress">%1$s · %2$s</string>
     <string name="settings_refresh_rate_matching">Mukauta sisällön kuvataajuuteen</string>
     <string name="settings_refresh_rate_matching_description">Mukauttaa näytön virkistystaajuuden videoon liikkeen sulavoittamiseksi. Edellyttää näytön tukea; näyttö voi pimentyä hetkeksi vaihdon aikana.</string>
+    <string name="settings_epg_phone_qr_start">Näytä QR-koodi</string>
+    <string name="settings_epg_phone_qr_stop">Lopeta pariliitos</string>
+    <string name="settings_epg_phone_qr_warning">Tietoturva: Pariliitos lähettää kirjautumistiedot salaamattomina lähiverkkosi kautta. Käytä vain luotettua yksityistä Wi-Fi-verkkoa.</string>
+    <string name="settings_epg_phone_qr_complete">Lisätty</string>
+    <string name="settings_epg_phone_qr_error">Virhe</string>
 </resources>

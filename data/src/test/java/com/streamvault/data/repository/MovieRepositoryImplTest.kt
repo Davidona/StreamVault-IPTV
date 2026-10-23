@@ -968,12 +968,12 @@ class MovieRepositoryImplTest {
     }
 
     @Test
-    fun `searchMovies returns empty list when sqlite throws for malformed fts query`() = runTest {
+    fun `searchMovies falls back to paged browse rows when fts query throws`() = runTest {
         whenever(preferencesRepository.parentalControlLevel).thenReturn(flowOf(0))
         whenever(movieDao.search(eq(7L), any(), any())).thenReturn(
             flow { throw SQLiteException("malformed MATCH expression") }
         )
-        whenever(movieDao.searchFallback(eq(7L), any(), any())).thenReturn(
+        whenever(movieDao.getByProviderPage(eq(7L), any(), any())).thenReturn(
             flowOf(
                 listOf(
                     movieEntity(

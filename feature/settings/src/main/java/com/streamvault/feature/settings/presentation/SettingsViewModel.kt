@@ -123,11 +123,19 @@ class SettingsViewModel @Inject constructor(
     private val diagnosticsPort: SettingsDiagnosticsPort,
     private val syncProvider: SyncProvider,
     private val epgSourceRepository: com.streamvault.domain.repository.EpgSourceRepository,
+    private val phoneAddSession: com.streamvault.domain.phone.PhoneAddSession,
     private val appUpdatePort: SettingsAppUpdatePort,
     private val getCustomCategories: GetCustomCategories,
     private val audioCompatibilityMemoryStore: AudioCompatibilityMemoryStore,
     private val openSubtitlesAccountManager: OpenSubtitlesAccountManager,
 ) : ViewModel() {
+    val phoneAddState = phoneAddSession.state
+
+    fun startEpgPhoneAdd() {
+        viewModelScope.launch { phoneAddSession.start(com.streamvault.domain.phone.PhoneAddKind.EPG) }
+    }
+
+    fun stopEpgPhoneAdd() = phoneAddSession.stop(com.streamvault.domain.phone.PhoneAddKind.EPG)
     private val appContext = application
     private val exportBackup = ExportBackup(backupManager)
     private val importBackup = ImportBackup(backupManager)

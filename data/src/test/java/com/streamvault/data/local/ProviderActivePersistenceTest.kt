@@ -20,7 +20,7 @@ import java.io.File
 import java.nio.file.Files
 
 @RunWith(RobolectricTestRunner::class)
-@SQLiteMode(SQLiteMode.Mode.LEGACY)
+@SQLiteMode(SQLiteMode.Mode.NATIVE)
 class ProviderActivePersistenceTest {
 
     private val databaseName = "provider-active-persistence-test"

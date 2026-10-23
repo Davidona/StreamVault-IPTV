@@ -106,4 +106,9 @@
     <string name="stremio_hidden_title">Дополнения Stremio скрыты</string>
     <string name="stremio_open_settings">Открыть настройки</string>
     <string name="stremio_hidden_message">Чтобы показать дополнения, откройте Настройки → Конфиденциальность и отключите «Скрыть дополнения Stremio». Установленные дополнения сохранятся.</string>
+    <string name="stremio_phone_qr_start">Показать QR-код</string>
+    <string name="stremio_phone_qr_stop">Остановить сопряжение</string>
+    <string name="stremio_phone_qr_warning">Безопасность: При сопряжении данные для входа передаются по локальной сети без шифрования. Используйте только доверенную частную сеть Wi-Fi.</string>
+    <string name="stremio_phone_qr_complete">Добавлено</string>
+    <string name="stremio_phone_qr_error">Ошибка</string>
 </resources>

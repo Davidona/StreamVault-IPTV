@@ -106,4 +106,9 @@
     <string name="stremio_hidden_title">Stremio 擴充套件已隱藏</string>
     <string name="stremio_open_settings">開啟設定</string>
     <string name="stremio_hidden_message">若要顯示你的擴充套件，請開啟「設定 → 隱私」並關閉「隱藏 Stremio 擴充套件」。你已安裝的擴充套件會保留。</string>
+    <string name="stremio_phone_qr_start">顯示 QR 碼</string>
+    <string name="stremio_phone_qr_stop">停止配對</string>
+    <string name="stremio_phone_qr_warning">安全性：配對會透過本機網路以未加密方式傳送登入憑證。請只使用可信任的私人 Wi-Fi 網路。</string>
+    <string name="stremio_phone_qr_complete">已新增</string>
+    <string name="stremio_phone_qr_error">錯誤</string>
 </resources>

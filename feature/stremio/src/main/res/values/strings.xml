@@ -105,4 +105,9 @@
     <string name="pin_dialog_cancel">Cancel</string>
     <string name="movies_incorrect_pin">Incorrect PIN</string>
     <string name="a11y_locked">Locked</string>
+    <string name="stremio_phone_qr_start">Show QR code</string>
+    <string name="stremio_phone_qr_stop">Stop pairing</string>
+    <string name="stremio_phone_qr_warning">Security: Pairing sends credentials without encryption over your local network. Use a trusted private Wi-Fi network only.</string>
+    <string name="stremio_phone_qr_complete">Added</string>
+    <string name="stremio_phone_qr_error">Error</string>
 </resources>

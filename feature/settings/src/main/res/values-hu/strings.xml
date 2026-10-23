@@ -950,4 +950,9 @@
     <string name="settings_sync_index_progress">%1$s · %2$s</string>
     <string name="settings_refresh_rate_matching">Igazítás a tartalom képkockasebességéhez</string>
     <string name="settings_refresh_rate_matching_description">A kijelző frissítési gyakoriságát a videóhoz igazítja az egyenletesebb mozgásért. Kijelzőtámogatást igényel; váltáskor a képernyő rövid időre elsötétülhet.</string>
+    <string name="settings_epg_phone_qr_start">QR-kód megjelenítése</string>
+    <string name="settings_epg_phone_qr_stop">Párosítás leállítása</string>
+    <string name="settings_epg_phone_qr_warning">Biztonság: A párosítás titkosítás nélkül küldi a bejelentkezési adatokat a helyi hálózaton. Csak megbízható, privát Wi-Fi-hálózatot használj.</string>
+    <string name="settings_epg_phone_qr_complete">Hozzáadva</string>
+    <string name="settings_epg_phone_qr_error">Hiba</string>
 </resources>

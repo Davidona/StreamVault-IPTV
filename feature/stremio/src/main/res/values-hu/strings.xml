@@ -106,4 +106,9 @@
     <string name="stremio_hidden_title">A Stremio-kiegészítők el vannak rejtve</string>
     <string name="stremio_open_settings">Beállítások megnyitása</string>
     <string name="stremio_hidden_message">A kiegészítői megjelenítéséhez nyissa meg a Beállítások → Adatvédelem menüpontot, és kapcsolja ki a Stremio-kiegészítők elrejtése lehetőséget. A telepített kiegészítői megmaradnak.</string>
+    <string name="stremio_phone_qr_start">QR-kód megjelenítése</string>
+    <string name="stremio_phone_qr_stop">Párosítás leállítása</string>
+    <string name="stremio_phone_qr_warning">Biztonság: A párosítás titkosítás nélkül küldi a bejelentkezési adatokat a helyi hálózaton. Csak megbízható, privát Wi-Fi-hálózatot használj.</string>
+    <string name="stremio_phone_qr_complete">Hozzáadva</string>
+    <string name="stremio_phone_qr_error">Hiba</string>
 </resources>

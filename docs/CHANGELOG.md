@@ -4,6 +4,12 @@ All notable product changes are recorded in this document.
 
 ## [1.2.3]
 
+### Added
+- Added QR-based phone setup for EPG sources and Stremio add-ons, so their URLs can be submitted from a phone on the same local network.
+
+### Changed
+- Channel, movie, series, and VOD category searches now ignore Latin accents (for example, “café” matches “cafe”). Existing catalogs upgrade automatically, with their content preserved.
+
 ### Fixed
 - Fixed HLS playback failing on master playlists with `EXT-X-MEDIA` rendition tags missing the required `NAME` attribute.
 

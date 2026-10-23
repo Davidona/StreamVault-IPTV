@@ -946,4 +946,9 @@
     <string name="settings_sync_index_progress">%1$s · %2$s</string>
     <string name="settings_refresh_rate_matching">Bildrate des Inhalts anpassen</string>
     <string name="settings_refresh_rate_matching_description">Passt die Bildwiederholrate des Displays für flüssigere Bewegungen an das Video an. Erfordert ein unterstütztes Display; beim Wechsel kann der Bildschirm kurz schwarz werden.</string>
+    <string name="settings_epg_phone_qr_start">QR-Code anzeigen</string>
+    <string name="settings_epg_phone_qr_stop">Kopplung beenden</string>
+    <string name="settings_epg_phone_qr_warning">Sicherheit: Bei der Kopplung werden Zugangsdaten unverschlüsselt über dein lokales Netzwerk gesendet. Verwende nur ein vertrauenswürdiges privates WLAN.</string>
+    <string name="settings_epg_phone_qr_complete">Hinzugefügt</string>
+    <string name="settings_epg_phone_qr_error">Fehler</string>
 </resources>

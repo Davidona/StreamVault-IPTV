@@ -945,4 +945,9 @@
     <string name="settings_sync_index_progress">%1$s · %2$s</string>
     <string name="settings_refresh_rate_matching">Padankan kadar bingkai kandungan</string>
     <string name="settings_refresh_rate_matching_description">Memadankan kadar segar semula paparan dengan video untuk gerakan lebih lancar. Memerlukan sokongan paparan; skrin mungkin menjadi gelap seketika semasa pertukaran.</string>
+    <string name="settings_epg_phone_qr_start">Tunjuk kod QR</string>
+    <string name="settings_epg_phone_qr_stop">Hentikan gandingan</string>
+    <string name="settings_epg_phone_qr_warning">Keselamatan: Proses gandingan menghantar kelayakan tanpa penyulitan melalui rangkaian setempat anda. Gunakan rangkaian Wi-Fi peribadi yang dipercayai sahaja.</string>
+    <string name="settings_epg_phone_qr_complete">Ditambah</string>
+    <string name="settings_epg_phone_qr_error">Ralat</string>
 </resources>

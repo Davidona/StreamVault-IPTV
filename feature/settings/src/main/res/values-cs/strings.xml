@@ -956,4 +956,9 @@
     <string name="settings_sync_index_progress">%1$s · %2$s</string>
     <string name="settings_refresh_rate_matching">Přizpůsobit snímkové frekvenci obsahu</string>
     <string name="settings_refresh_rate_matching_description">Přizpůsobí obnovovací frekvenci displeje videu pro plynulejší pohyb. Vyžaduje podporu displeje; při přepnutí může obrazovka krátce zčernat.</string>
+    <string name="settings_epg_phone_qr_start">Zobrazit QR kód</string>
+    <string name="settings_epg_phone_qr_stop">Zastavit párování</string>
+    <string name="settings_epg_phone_qr_warning">Zabezpečení: Při párování se přihlašovací údaje odesílají přes místní síť bez šifrování. Používejte pouze důvěryhodnou soukromou Wi-Fi síť.</string>
+    <string name="settings_epg_phone_qr_complete">Přidáno</string>
+    <string name="settings_epg_phone_qr_error">Chyba</string>
 </resources>

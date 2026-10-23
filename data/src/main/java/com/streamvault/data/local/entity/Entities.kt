@@ -499,19 +499,31 @@ data class SeriesBrowseEntity(
     @ColumnInfo(name = "episode_playback_template_url") val episodePlaybackTemplateUrl: String? = null
 )
 
-@Fts4(contentEntity = ChannelEntity::class)
+@Fts4(
+    contentEntity = ChannelEntity::class,
+    tokenizer = "unicode61",
+    tokenizerArgs = ["remove_diacritics=2"]
+)
 @Entity(tableName = "channels_fts")
 data class ChannelFtsEntity(
     val name: String
 )
 
-@Fts4(contentEntity = MovieEntity::class)
+@Fts4(
+    contentEntity = MovieEntity::class,
+    tokenizer = "unicode61",
+    tokenizerArgs = ["remove_diacritics=2"]
+)
 @Entity(tableName = "movies_fts")
 data class MovieFtsEntity(
     val name: String
 )
 
-@Fts4(contentEntity = SeriesEntity::class)
+@Fts4(
+    contentEntity = SeriesEntity::class,
+    tokenizer = "unicode61",
+    tokenizerArgs = ["remove_diacritics=2"]
+)
 @Entity(tableName = "series_fts")
 data class SeriesFtsEntity(
     val name: String

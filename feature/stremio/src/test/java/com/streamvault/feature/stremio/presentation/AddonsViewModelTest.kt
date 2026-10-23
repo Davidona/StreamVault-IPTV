@@ -194,7 +194,17 @@ class AddonsViewModelTest {
 private fun createViewModel(
     repository: StremioAddonRepository,
     contentAccess: StremioContentAccess = FakeStremioContentAccess()
-) = AddonsViewModel(repository, FakeStremioPlaybackHistoryRepository(), contentAccess, mock())
+) = AddonsViewModel(
+    repository,
+    FakeStremioPlaybackHistoryRepository(),
+    contentAccess,
+    object : com.streamvault.domain.phone.PhoneAddSession {
+        override val state = MutableStateFlow(com.streamvault.domain.phone.PhoneAddState())
+        override suspend fun start(kind: com.streamvault.domain.phone.PhoneAddKind) = Unit
+        override fun stop(kind: com.streamvault.domain.phone.PhoneAddKind) = Unit
+    },
+    mock(),
+)
 
 private class FakeStremioPlaybackHistoryRepository : StremioPlaybackHistoryRepository {
     override fun observeContinueWatching(limit: Int): Flow<List<StremioPlaybackHistory>> =

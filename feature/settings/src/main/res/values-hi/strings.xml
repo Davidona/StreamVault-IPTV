@@ -948,4 +948,9 @@
     <string name="settings_sync_index_progress">%1$s · %2$s</string>
     <string name="settings_refresh_rate_matching">सामग्री की फ़्रेम दर से मिलाएँ</string>
     <string name="settings_refresh_rate_matching_description">ज़्यादा सहज गति के लिए डिस्प्ले की रीफ़्रेश दर को वीडियो से मिलाएँ। डिस्प्ले का समर्थन ज़रूरी है; बदलते समय स्क्रीन कुछ पल के लिए काली हो सकती है।</string>
+    <string name="settings_epg_phone_qr_start">QR कोड दिखाएँ</string>
+    <string name="settings_epg_phone_qr_stop">पेयरिंग बंद करें</string>
+    <string name="settings_epg_phone_qr_warning">सुरक्षा: पेयरिंग के दौरान लॉगिन जानकारी आपके स्थानीय नेटवर्क पर बिना एन्क्रिप्शन भेजी जाती है। केवल भरोसेमंद निजी Wi-Fi नेटवर्क का उपयोग करें।</string>
+    <string name="settings_epg_phone_qr_complete">जोड़ा गया</string>
+    <string name="settings_epg_phone_qr_error">त्रुटि</string>
 </resources>

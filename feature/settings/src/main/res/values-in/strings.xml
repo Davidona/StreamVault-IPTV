@@ -950,4 +950,9 @@
     <string name="settings_sync_index_progress">%1$s · %2$s</string>
     <string name="settings_refresh_rate_matching">Sesuaikan dengan laju bingkai konten</string>
     <string name="settings_refresh_rate_matching_description">Menyesuaikan laju penyegaran layar dengan video agar gerakan lebih mulus. Memerlukan dukungan layar; layar mungkin menjadi hitam sesaat saat berganti.</string>
+    <string name="settings_epg_phone_qr_start">Tampilkan kode QR</string>
+    <string name="settings_epg_phone_qr_stop">Hentikan pemasangan</string>
+    <string name="settings_epg_phone_qr_warning">Keamanan: Proses pemasangan mengirim kredensial tanpa enkripsi melalui jaringan lokal Anda. Gunakan hanya Wi-Fi pribadi yang tepercaya.</string>
+    <string name="settings_epg_phone_qr_complete">Ditambahkan</string>
+    <string name="settings_epg_phone_qr_error">Kesalahan</string>
 </resources>

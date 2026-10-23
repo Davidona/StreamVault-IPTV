@@ -65,6 +65,14 @@
 -keep class com.streamvault.domain.manager.PortableChannelReference { *; }
 -keep class com.streamvault.domain.manager.ProtectedCategoryBackup { *; }
 -keep class com.streamvault.domain.manager.ScheduledRecordingBackup { *; }
+# Gson reads backup DTO fields reflectively. Keep every portable and *Backup wire
+# type's field names stable; the importer still accepts compact aliases emitted by
+# older minified releases.
+-keep class com.streamvault.domain.manager.Portable* { *; }
+-keep class com.streamvault.domain.manager.*Backup { *; }
+-keep class com.streamvault.domain.manager.ProviderCredentials { *; }
+-keep class com.streamvault.domain.settings.VodTrackPreference { *; }
+-keep class com.streamvault.domain.settings.VodTrackPreferences { *; }
 -keep class com.streamvault.data.local.entity.** { *; }
 -keep class com.streamvault.data.remote.xtream.model.** { *; }
 

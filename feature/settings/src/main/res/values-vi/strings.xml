@@ -947,4 +947,9 @@
     <string name="settings_sync_index_progress">%1$s · %2$s</string>
     <string name="settings_refresh_rate_matching">Khớp với tốc độ khung hình nội dung</string>
     <string name="settings_refresh_rate_matching_description">Điều chỉnh tần số quét màn hình theo video để chuyển động mượt hơn. Cần màn hình hỗ trợ; màn hình có thể tối trong chốc lát khi chuyển đổi.</string>
+    <string name="settings_epg_phone_qr_start">Hiện mã QR</string>
+    <string name="settings_epg_phone_qr_stop">Dừng ghép nối</string>
+    <string name="settings_epg_phone_qr_warning">Bảo mật: Quá trình ghép nối gửi thông tin đăng nhập qua mạng cục bộ mà không mã hóa. Chỉ sử dụng mạng Wi-Fi riêng tư đáng tin cậy.</string>
+    <string name="settings_epg_phone_qr_complete">Đã thêm</string>
+    <string name="settings_epg_phone_qr_error">Lỗi</string>
 </resources>

@@ -106,4 +106,9 @@
     <string name="stremio_hidden_title">Додатоците за Stremio се скриени</string>
     <string name="stremio_open_settings">Отвори поставки</string>
     <string name="stremio_hidden_message">За да ги прикажеш додатоците, отвори Поставки → Приватност и исклучи „Скриј додатоци за Stremio“. Инсталираните додатоци се задржуваат.</string>
+    <string name="stremio_phone_qr_start">Прикажи QR код</string>
+    <string name="stremio_phone_qr_stop">Запрени го поврзувањето</string>
+    <string name="stremio_phone_qr_warning">Безбедност: Спарувањето ги испраќа податоците за најава нешифрирани преку локалната мрежа. Користете само доверлива приватна Wi-Fi мрежа.</string>
+    <string name="stremio_phone_qr_complete">Додадено</string>
+    <string name="stremio_phone_qr_error">Грешка</string>
 </resources>

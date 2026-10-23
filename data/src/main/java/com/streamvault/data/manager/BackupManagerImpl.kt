@@ -92,6 +92,7 @@ import com.streamvault.domain.manager.ProtectedCategoryBackup
 import com.streamvault.domain.manager.BackupProviderReference
 import com.streamvault.domain.manager.ProviderBackupSnapshot
 import com.streamvault.domain.settings.PlaybackQualityPreferences
+import com.streamvault.domain.settings.VodTrackPreference
 import com.streamvault.domain.manager.CombinedM3uProfileBackup
 import com.streamvault.domain.manager.CombinedM3uProfileMemberBackup
 import com.streamvault.domain.manager.PortableCategoryReference
@@ -2148,15 +2149,56 @@ class BackupManagerImpl @Inject constructor(
             PORTABLE_CATEGORY_REFERENCE_TYPE -> listOf("provider", "name", "type", "remoteCategoryId")
             PORTABLE_CATEGORY_SORT_REFERENCE_TYPE -> listOf("provider", "type", "mode")
             PORTABLE_GROUP_REFERENCE_TYPE -> listOf("provider", "name", "contentType")
-            PORTABLE_CHANNEL_REFERENCE_TYPE -> listOf("provider", "streamId", "name", "streamUrl")
+            PORTABLE_CHANNEL_REFERENCE_TYPE -> listOf("provider", "streamId", "name", "streamUrl", "remoteCategoryId")
             PORTABLE_CHANNEL_PREFERENCE_REFERENCE_TYPE -> listOf("channel", "aspectRatio", "audioVideoOffsetMs")
             PORTABLE_EPG_TIME_SHIFT_REFERENCE_TYPE -> listOf("provider", "minutes")
             PORTABLE_VARIANT_SELECTION_REFERENCE_TYPE -> listOf(
-                "provider", "logicalGroupId", "rawItemId", "remoteItemId", "contentType"
+                "provider", "logicalGroupId", "rawItemId", "remoteItemId", "contentType", "remoteCategoryId"
             )
+            PORTABLE_CONTENT_REFERENCE_TYPE -> listOf(
+                "provider", "contentType", "remoteContentId", "parentRemoteContentId",
+                "remoteCategoryId", "name", "urlFallback"
+            )
+            PORTABLE_VOD_TRACK_PREFERENCE_TYPE -> listOf("content", "preferences")
+            VOD_TRACK_PREFERENCES_TYPE -> listOf("audio", "subtitle")
+            VOD_TRACK_PREFERENCE_TYPE -> listOf("trackId", "language", "label", "disabled")
+            PORTABLE_PLAYBACK_QUALITY_PREFERENCE_TYPE -> listOf(
+                "provider", "scopeType", "scopeKey", "identityVersion", "heightOverride",
+                "maxVideoHeight", "bitrateOverride", "maxVideoBitrateBps"
+            )
+            PORTABLE_FAVORITE_TYPE -> listOf("content", "position", "addedAt")
+            PORTABLE_CUSTOM_GROUP_TYPE -> listOf(
+                "provider", "contentType", "name", "icon", "position", "createdAt", "members"
+            )
+            PORTABLE_PLAYBACK_HISTORY_TYPE -> listOf(
+                "content", "resumePositionMs", "totalDurationMs", "lastWatchedAt", "watchCount",
+                "watchedStatus", "posterUrl", "seasonNumber", "episodeNumber"
+            )
+            PORTABLE_PROTECTED_CONTENT_TYPE, PORTABLE_HIDDEN_CONTENT_TYPE -> listOf("content")
+            PORTABLE_CONTENT_PREFERENCE_TYPE -> listOf("content", "aspectRatio", "audioVideoOffsetMs")
+            PORTABLE_VARIANT_CHOICE_TYPE -> listOf("logicalGroupId", "selectedContent")
+            PORTABLE_MANUAL_EPG_V14_TYPE -> listOf(
+                "content", "sourceUrl", "xmltvChannelId", "sourceType", "matchType", "confidence", "source"
+            )
+            PORTABLE_MULTIVIEW_V14_TYPE -> listOf("name", "channels")
+            PORTABLE_SEARCH_HISTORY_TYPE -> listOf("query", "contentScope", "provider", "usedAt", "useCount")
             COMBINED_M3U_PROFILE_TYPE -> listOf("name", "enabled", "members", "createdAt", "updatedAt")
             ACTIVE_LIVE_SOURCE_BACKUP_TYPE -> listOf(
                 "type", "provider", "combinedProfileName", "combinedProfileProviders"
+            )
+            SPORTS_PROVIDER_BACKUP_TYPE -> listOf(
+                "instanceId", "typeId", "configurationVersion", "enabled", "priority", "baseUrl",
+                "eventLeagueIds", "customDefinitionJson"
+            )
+            SPORTS_PROVIDER_CREDENTIALS_BACKUP_TYPE -> listOf("instanceId", "secret", "username")
+            STREMIO_ADDON_BACKUP_TYPE -> listOf(
+                "installUrl", "manifestId", "name", "version", "manifestJson", "enabled", "sortOrder",
+                "catalogSettingsJson", "createdAt", "updatedAt", "manifestRefreshedAt"
+            )
+            STREMIO_PLAYBACK_HISTORY_BACKUP_TYPE -> listOf(
+                "contentKey", "mediaType", "exactVideoId", "parentSeriesId", "title", "posterUrl",
+                "resumePositionMs", "totalDurationMs", "isWatched", "lastWatchedAt", "catalogOriginKey",
+                "streamOriginKeyHint"
             )
             PROTECTED_CATEGORY_TYPE -> listOf(
                 "providerServerUrl", "providerUsername", "providerStalkerMacAddress",
@@ -2166,7 +2208,7 @@ class BackupManagerImpl @Inject constructor(
                 "providerServerUrl", "providerUsername", "providerStalkerMacAddress", "channelId",
                 "channelName", "streamUrl", "scheduledStartMs", "scheduledEndMs", "requestedStartMs",
                 "requestedEndMs", "paddingBeforeMs", "paddingAfterMs", "programTitle", "recurrence",
-                "recurringRuleId", "providerType"
+                "recurringRuleId", "providerType", "channel"
             )
             RECORDING_STORAGE_TYPE -> listOf("fileNamePattern", "retentionDays", "maxSimultaneousRecordings")
             PROVIDER_EPG_ASSIGNMENT_TYPE -> listOf("provider", "sourceUrl", "priority", "enabled")
@@ -2213,6 +2255,105 @@ class BackupManagerImpl @Inject constructor(
                         )
                     }
                 }
+            }
+            PORTABLE_CONTENT_REFERENCE_TYPE -> objectValue.get("provider")?.let { provider ->
+                objectValue.add(
+                    "provider",
+                    normalizeLegacyBackupElement(provider, BACKUP_PROVIDER_REFERENCE_TYPE)
+                )
+            }
+            PORTABLE_FAVORITE_TYPE,
+            PORTABLE_PLAYBACK_HISTORY_TYPE,
+            PORTABLE_PROTECTED_CONTENT_TYPE,
+            PORTABLE_HIDDEN_CONTENT_TYPE,
+            PORTABLE_CONTENT_PREFERENCE_TYPE,
+            PORTABLE_MANUAL_EPG_V14_TYPE -> objectValue.get("content")?.let { content ->
+                objectValue.add(
+                    "content",
+                    normalizeLegacyBackupElement(content, PORTABLE_CONTENT_REFERENCE_TYPE)
+                )
+            }
+            PORTABLE_VOD_TRACK_PREFERENCE_TYPE -> {
+                objectValue.get("content")?.let { content ->
+                    objectValue.add(
+                        "content",
+                        normalizeLegacyBackupElement(content, PORTABLE_CONTENT_REFERENCE_TYPE)
+                    )
+                }
+                objectValue.get("preferences")?.let { preferences ->
+                    objectValue.add(
+                        "preferences",
+                        normalizeLegacyBackupElement(preferences, VOD_TRACK_PREFERENCES_TYPE)
+                    )
+                }
+            }
+            VOD_TRACK_PREFERENCES_TYPE -> listOf("audio", "subtitle").forEach { field ->
+                objectValue.get(field)?.let { preference ->
+                    objectValue.add(
+                        field,
+                        normalizeLegacyBackupElement(preference, VOD_TRACK_PREFERENCE_TYPE)
+                    )
+                }
+            }
+            SCHEDULED_RECORDING_TYPE -> objectValue.get("channel")?.let { channel ->
+                objectValue.add(
+                    "channel",
+                    normalizeLegacyBackupElement(channel, PORTABLE_CONTENT_REFERENCE_TYPE)
+                )
+            }
+            PORTABLE_CUSTOM_GROUP_TYPE -> {
+                objectValue.get("provider")?.let { provider ->
+                    objectValue.add(
+                        "provider",
+                        normalizeLegacyBackupElement(provider, BACKUP_PROVIDER_REFERENCE_TYPE)
+                    )
+                }
+                objectValue.get("members")?.takeIf { it.isJsonArray }?.let { members ->
+                    val normalizedMembers = com.google.gson.JsonArray()
+                    members.asJsonArray.forEach { member ->
+                        normalizedMembers.add(normalizeLegacyBackupElement(member, PORTABLE_FAVORITE_TYPE))
+                    }
+                    objectValue.add("members", normalizedMembers)
+                }
+            }
+            PORTABLE_VARIANT_CHOICE_TYPE -> objectValue.get("selectedContent")?.let { content ->
+                objectValue.add(
+                    "selectedContent",
+                    normalizeLegacyBackupElement(content, PORTABLE_CONTENT_REFERENCE_TYPE)
+                )
+            }
+            PORTABLE_MULTIVIEW_V14_TYPE -> objectValue.get("channels")
+                ?.takeIf { it.isJsonArray }
+                ?.let { channels ->
+                    val normalizedChannels = com.google.gson.JsonArray()
+                    channels.asJsonArray.forEach { channel ->
+                        normalizedChannels.add(
+                            normalizeLegacyBackupElement(channel, PORTABLE_CONTENT_REFERENCE_TYPE)
+                        )
+                    }
+                    objectValue.add("channels", normalizedChannels)
+                }
+            PORTABLE_SEARCH_HISTORY_TYPE,
+            PORTABLE_PLAYBACK_QUALITY_PREFERENCE_TYPE -> objectValue.get("provider")?.let { provider ->
+                objectValue.add(
+                    "provider",
+                    normalizeLegacyBackupElement(provider, BACKUP_PROVIDER_REFERENCE_TYPE)
+                )
+            }
+            PROVIDER_EPG_ASSIGNMENT_TYPE,
+            M3U_CLASSIFICATION_OVERRIDE_TYPE,
+            M3U_CLASSIFICATION_RULE_TYPE,
+            PROGRAM_REMINDER_TYPE -> objectValue.get("provider")?.let { provider ->
+                objectValue.add(
+                    "provider",
+                    normalizeLegacyBackupElement(provider, BACKUP_PROVIDER_REFERENCE_TYPE)
+                )
+            }
+            MANUAL_EPG_MAPPING_TYPE -> objectValue.get("channel")?.let { channel ->
+                objectValue.add(
+                    "channel",
+                    normalizeLegacyBackupElement(channel, PORTABLE_CHANNEL_REFERENCE_TYPE)
+                )
             }
             COMBINED_M3U_PROFILE_TYPE -> {
                 objectValue.get("members")?.takeIf { it.isJsonArray }?.asJsonArray?.forEach { member ->
@@ -6542,11 +6683,15 @@ private val PORTABLE_CHANNEL_REFERENCE_TYPE: Type = PortableChannelReference::cl
 private val PORTABLE_CHANNEL_PREFERENCE_REFERENCE_TYPE: Type = PortableChannelPreferenceReference::class.java
 private val PORTABLE_EPG_TIME_SHIFT_REFERENCE_TYPE: Type = PortableEpgTimeShiftReference::class.java
 private val PORTABLE_VARIANT_SELECTION_REFERENCE_TYPE: Type = PortableVariantSelectionReference::class.java
+private val PORTABLE_CONTENT_REFERENCE_TYPE: Type = PortableContentReference::class.java
 private val PORTABLE_VOD_TRACK_PREFERENCE_TYPE: Type = PortableVodTrackPreferenceBackup::class.java
+private val VOD_TRACK_PREFERENCES_TYPE: Type = VodTrackPreferences::class.java
+private val VOD_TRACK_PREFERENCE_TYPE: Type = VodTrackPreference::class.java
 private val PORTABLE_PLAYBACK_QUALITY_PREFERENCE_TYPE: Type = PortablePlaybackQualityPreferenceBackup::class.java
 private val COMBINED_M3U_PROFILE_TYPE: Type = CombinedM3uProfileBackup::class.java
 private val COMBINED_M3U_PROFILE_LIST_TYPE: Type = object : TypeToken<List<CombinedM3uProfileBackup>>() {}.type
 private val ACTIVE_LIVE_SOURCE_BACKUP_TYPE: Type = ActiveLiveSourceBackup::class.java
+private val PORTABLE_SEARCH_HISTORY_TYPE: Type = PortableSearchHistoryBackup::class.java
 private val LONG_TYPE: Type = java.lang.Long::class.java
 private val STRING_TYPE: Type = String::class.java
 private val PROVIDER_LIST_TYPE: Type = object : TypeToken<List<com.streamvault.domain.model.LegacyProvider>>() {}.type
@@ -6575,7 +6720,6 @@ private val PORTABLE_FAVORITE_TYPE: Type = PortableFavoriteBackup::class.java
 private val PORTABLE_CUSTOM_GROUP_TYPE: Type = PortableCustomGroupBackup::class.java
 private val PORTABLE_PLAYBACK_HISTORY_TYPE: Type = PortablePlaybackHistoryBackup::class.java
 private val PORTABLE_PROTECTED_CONTENT_TYPE: Type = PortableProtectedContentBackup::class.java
-private val PORTABLE_SEARCH_HISTORY_TYPE: Type = PortableSearchHistoryBackup::class.java
 private val PORTABLE_HIDDEN_CONTENT_TYPE: Type = PortableHiddenContentBackup::class.java
 private val PORTABLE_CONTENT_PREFERENCE_TYPE: Type = PortableContentPreferenceBackup::class.java
 private val PORTABLE_VARIANT_CHOICE_TYPE: Type = PortableVariantChoiceBackup::class.java

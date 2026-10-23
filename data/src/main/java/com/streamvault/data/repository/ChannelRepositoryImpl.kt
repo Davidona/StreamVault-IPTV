@@ -38,6 +38,7 @@ import com.streamvault.domain.model.StreamInfo
 import com.streamvault.domain.model.StreamType
 import com.streamvault.domain.repository.ChannelRepository
 import com.streamvault.domain.util.ChannelNormalizer
+import com.streamvault.domain.util.SearchTextNormalizer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.withContext
@@ -72,6 +73,7 @@ class ChannelRepositoryImpl @Inject constructor(
         const val GLOBAL_SEARCH_LIMIT = 500
         const val CATEGORY_SEARCH_LIMIT = 300
         const val MIN_SEARCH_QUERY_LENGTH = 2
+        const val SEARCH_FALLBACK_PAGE_SIZE = 512
     }
 
     private data class ChannelPresentationSettings(
@@ -459,15 +461,13 @@ class ChannelRepositoryImpl @Inject constructor(
             } else if (categoryId == ChannelRepository.ALL_CHANNELS_ID) {
                 safeSearchFlow(
                     source = channelDao.search(providerId, ftsQuery, limit),
-                    fallback = { channelDao.searchFallback(providerId, query.trim().toSqlLikePattern(), limit) },
+                    fallback = { fallbackChannelSearch(providerId, categoryId, query.trim(), limit) },
                     rawQuery = query.trim()
                 )
             } else {
                 safeSearchFlow(
                     source = channelDao.searchByCategory(providerId, categoryId, ftsQuery, limit),
-                    fallback = {
-                        channelDao.searchByCategoryFallback(providerId, categoryId, query.trim().toSqlLikePattern(), limit)
-                    },
+                    fallback = { fallbackChannelSearch(providerId, categoryId, query.trim(), limit) },
                     rawQuery = query.trim()
                 )
             }
@@ -824,21 +824,52 @@ class ChannelRepositoryImpl @Inject constructor(
                 }
             }
         } catch (error: SQLiteException) {
-            Log.w(TAG, "FTS channel search failed for query '$rawQuery'; using LIKE-only search", error)
+            Log.w(TAG, "FTS channel search failed for query '$rawQuery'; using normalized search fallback", error)
             emitAll(fallback())
         }
     }
 
-    private fun String.toSqlLikePattern(): String {
-        val escaped = buildString(length) {
-            this@toSqlLikePattern.forEach { char ->
-                when (char) {
-                    '%', '_', '\\' -> append('\\')
+    private fun fallbackChannelSearch(
+        providerId: Long,
+        categoryId: Long,
+        query: String,
+        limit: Int
+    ): Flow<List<ChannelBrowseEntity>> {
+        val foldedQuery = SearchTextNormalizer.normalize(query)
+        if (foldedQuery.isBlank() || limit <= 0) return flowOf(emptyList())
+
+        return flow {
+            val matches = sortedSetOf(compareBy<ChannelBrowseEntity> { it.name }.thenBy { it.id })
+            var offset = 0
+            while (true) {
+                val page = if (categoryId == ChannelRepository.ALL_CHANNELS_ID) {
+                    channelDao.getByProviderBrowsePageOffset(providerId, SEARCH_FALLBACK_PAGE_SIZE, offset)
+                } else {
+                    channelDao.getByCategoryBrowsePageOffset(
+                        providerId,
+                        categoryId,
+                        SEARCH_FALLBACK_PAGE_SIZE,
+                        offset
+                    )
                 }
-                append(char)
+                if (page.isEmpty()) break
+
+                page.forEach { channel ->
+                    val matchesQuery = sequenceOf(channel.name, channel.groupTitle, channel.categoryName)
+                        .filterNotNull()
+                        .any { SearchTextNormalizer.normalize(it).contains(foldedQuery) }
+                    if (matchesQuery) {
+                        matches += channel
+                        if (matches.size > limit) matches.remove(matches.last())
+                    }
+                }
+
+                offset += page.size
+                if (page.size < SEARCH_FALLBACK_PAGE_SIZE) break
             }
+
+            emit(matches.toList())
         }
-        return "%$escaped%"
     }
 
     private fun channelGroupKey(entity: ChannelBrowseEntity): String =

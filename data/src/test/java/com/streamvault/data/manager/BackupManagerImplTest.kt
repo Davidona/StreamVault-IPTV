@@ -406,6 +406,107 @@ class BackupManagerImplTest {
     }
 
     @Test
+    fun `inspectBackup accepts release-obfuscated portable favorites with EPG and hidden state`() = runBlocking {
+        val context: Context = mock()
+        val contentResolver: ContentResolver = mock()
+        val providerDao: ProviderDao = mock()
+        val playbackHistoryDao: PlaybackHistoryDao = mock()
+        val recordingManager: RecordingManager = mock()
+        val payload = """
+            {
+              "version":18,
+              "providerSnapshots":[
+                {
+                  "provider":{"id":1,"name":"News IPTV","type":"XTREAM_CODES","isActive":true,"status":"UNKNOWN","lastSyncedAt":0,"createdAt":1700000000000},
+                  "xtreamConfig":{"serverUrl":"https://example.com","username":"user","password":"pass","httpUserAgent":"","httpHeaders":"","epgSyncMode":"BACKGROUND","guideSourcePolicy":"AUTO","channelLogoSourcePolicy":"SUPPLIER_PREFERRED","fastSyncEnabled":true,"liveSyncMode":"AUTO","schemaVersion":1,"preferredLiveStreamFormat":null}
+                }
+              ],
+              "providerCredentials":[
+                {"a":"https://example.com","b":"user","c":"pass","d":"XTREAM_CODES"}
+              ],
+              "portableFavorites":[
+                {"a":{"a":{"a":"https://example.com","b":"user","c":null,"d":"XTREAM_CODES"},"b":"LIVE","c":"42","f":"News"},"b":3,"c":1700000000000}
+              ],
+              "portableManualEpgMappings":[
+                {"a":{"a":{"a":"https://example.com","b":"user","c":null,"d":"XTREAM_CODES"},"b":"LIVE","c":"42","f":"News"},"b":"https://example.com/guide-1.xml","c":"news.example","d":"EXTERNAL","e":"MANUAL","f":1.0}
+              ],
+              "portableHiddenContent":[
+                {"a":{"a":{"a":"https://example.com","b":"user","c":null,"d":"XTREAM_CODES"},"b":"LIVE","c":"42","f":"News"}}
+              ],
+              "portableProviderPreferences":{
+                "a":[{"a":"https://example.com","b":"user","c":null,"d":"XTREAM_CODES"}],
+                "g":[{"a":{"a":"https://example.com","b":"user","c":null,"d":"XTREAM_CODES"},"b":42,"c":"News","d":"https://example.com/live/42","e":7}],
+                "vodTrackPreferences":[{"a":{"a":{"a":"https://example.com","b":"user","c":null,"d":"XTREAM_CODES"},"b":"LIVE","c":"42","f":"News"},"b":{"a":{"a":"audio-track","b":"en","c":"English","d":false},"b":null}}]
+              },
+              "epgSources":[
+                {"id":1,"name":"Guide 1","url":"https://example.com/guide-1.xml"},
+                {"id":2,"name":"Guide 2","url":"https://example.com/guide-2.xml"},
+                {"id":3,"name":"Guide 3","url":"https://example.com/guide-3.xml"}
+              ],
+              "providerEpgAssignments":[
+                {"a":{"a":"https://example.com","b":"user","c":null,"d":"XTREAM_CODES"},"b":"https://example.com/guide-1.xml","c":0,"d":true}
+              ],
+              "scheduledRecordings":[
+                {"a":"https://example.com","b":"user","c":null,"d":42,"e":"News","f":"https://example.com/live/42","g":1700000000000,"h":1700003600000,"i":null,"j":null,"k":0,"l":0,"m":null,"n":"NONE","o":null,"p":"XTREAM_CODES","q":{"a":{"a":"https://example.com","b":"user","c":null,"d":"XTREAM_CODES"},"b":"LIVE","c":"42","f":"News"}}
+              ]
+            }
+        """.trimIndent()
+        whenever(context.contentResolver).thenReturn(contentResolver)
+        whenever(contentResolver.openInputStream(anyOrNull())).thenAnswer {
+            ByteArrayInputStream(payload.toByteArray())
+        }
+        whenever(providerDao.getAllSync()).thenReturn(emptyList())
+        whenever(playbackHistoryDao.getAllSync()).thenReturn(emptyList())
+        whenever(recordingManager.observeRecordingItems()).thenReturn(flowOf(emptyList()))
+
+        val manager = BackupManagerImpl(
+            context = context,
+            preferencesRepository = mock(),
+            credentialCrypto = mock(),
+            providerDao = providerDao,
+            favoriteDao = mock(),
+            virtualGroupDao = mock(),
+            playbackHistoryDao = playbackHistoryDao,
+            movieDao = mock(),
+            episodeDao = mock(),
+            categoryRepository = mock(),
+            recordingScheduleDao = mock(),
+            recordingManager = recordingManager,
+            transactionRunner = object : DatabaseTransactionRunner {
+                override suspend fun <T> inTransaction(block: suspend () -> T): T = block()
+            },
+            gson = Gson(),
+            channelDao = mock(),
+            seriesDao = mock()
+        )
+
+        val readMethod = BackupManagerImpl::class.java
+            .getDeclaredMethod("readBackupData", String::class.java)
+            .apply { isAccessible = true }
+        val parsed = readMethod.invoke(manager, "content://release-obfuscated-portable-favorite")
+        val dataField = parsed!!::class.java.getDeclaredField("data").apply { isAccessible = true }
+        val parsedData = dataField.get(parsed) as BackupData
+        assertThat(parsedData.portableManualEpgMappings?.single()?.content?.remoteContentId).isEqualTo("42")
+        assertThat(parsedData.portableManualEpgMappings?.single()?.sourceUrl)
+            .isEqualTo("https://example.com/guide-1.xml")
+        assertThat(parsedData.portableHiddenContent?.single()?.content?.name).isEqualTo("News")
+        assertThat(parsedData.portableProviderPreferences?.hiddenChannels?.single()?.remoteCategoryId).isEqualTo(7L)
+        assertThat(parsedData.portableProviderPreferences?.vodTrackPreferences?.single()?.preferences?.audio?.trackId)
+            .isEqualTo("audio-track")
+        assertThat(parsedData.providerEpgAssignments?.single()?.sourceUrl)
+            .isEqualTo("https://example.com/guide-1.xml")
+        assertThat(parsedData.providerCredentials?.single()?.password).isEqualTo("pass")
+        assertThat(parsedData.scheduledRecordings?.single()?.channel?.remoteContentId).isEqualTo("42")
+
+        val result = manager.inspectBackup("content://release-obfuscated-portable-favorite")
+
+        assertThat(result).isInstanceOf(Result.Success::class.java)
+        val preview = (result as Result.Success).data
+        assertThat(preview.favoriteCount).isEqualTo(1)
+        assertThat(preview.providerCount).isEqualTo(1)
+    }
+
+    @Test
     fun `release obfuscated backup fields remain importable`() = runBlocking {
         val payload = """{"version":12,"portableProviderPreferences":{"a":[{"a":"https://example.com","b":"user"}],"e":false,"f":[],"g":[],"h":[],"i":[{"a":{"a":"https://example.com","b":"user"},"b":"News","c":"LIVE","d":50}],"j":true,"k":[{"a":{"a":"https://example.com","b":"user"},"b":"LIVE","c":"TITLE_ASC"}],"l":true,"m":[{"a":{"a":"https://example.com","b":"user"},"b":30}],"n":true,"o":[{"a":{"a":"https://example.com","b":"user"},"b":"news","c":400}],"p":true,"q":[{"a":{"a":"https://example.com","b":"user"},"b":"movie","c":401}],"r":true,"s":[],"t":[{"a":{"a":{"a":"https://example.com","b":"user"},"b":400,"c":"News","d":"https://example.com/news"},"b":"FIT","c":125}],"u":true}}"""
         val checksum = "sha256:" + MessageDigest.getInstance("SHA-256")

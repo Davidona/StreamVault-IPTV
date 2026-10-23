@@ -945,4 +945,9 @@
     <string name="settings_sync_index_progress">%1$s · %2$s</string>
     <string name="settings_refresh_rate_matching">配合內容影格率</string>
     <string name="settings_refresh_rate_matching_description">依照影片調整顯示器更新率，讓動態畫面更流暢。需要顯示器支援；切換時螢幕可能會短暫變黑。</string>
+    <string name="settings_epg_phone_qr_start">顯示 QR 碼</string>
+    <string name="settings_epg_phone_qr_stop">停止配對</string>
+    <string name="settings_epg_phone_qr_warning">安全性：配對會透過本機網路以未加密方式傳送登入憑證。請只使用可信任的私人 Wi-Fi 網路。</string>
+    <string name="settings_epg_phone_qr_complete">已新增</string>
+    <string name="settings_epg_phone_qr_error">錯誤</string>
 </resources>

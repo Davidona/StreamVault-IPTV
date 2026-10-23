@@ -50,6 +50,7 @@ import com.streamvault.core.ui.design.BrowseColors.TextTertiary as OnSurfaceDim
 import androidx.compose.foundation.BorderStroke
 import com.streamvault.feature.catalog.R
 import com.streamvault.core.ui.components.SearchInput
+import com.streamvault.domain.util.SearchTextNormalizer
 import com.streamvault.feature.catalog.presentation.components.SelectionChip
 import com.streamvault.feature.catalog.presentation.components.SelectionChipRow
 import com.streamvault.core.ui.components.dialogs.PremiumDialog
@@ -199,7 +200,10 @@ fun VodCategoryPickerDialog(
     val filteredCategories = remember(categories, query) {
         val normalized = query.trim()
         if (normalized.isBlank()) categories
-        else categories.filter { it.name.contains(normalized, ignoreCase = true) }
+        else {
+            val foldedQuery = SearchTextNormalizer.normalize(normalized)
+            categories.filter { SearchTextNormalizer.normalize(it.name).contains(foldedQuery) }
+        }
     }
 
     PremiumDialog(

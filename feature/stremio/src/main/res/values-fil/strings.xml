@@ -106,4 +106,9 @@
     <string name="stremio_hidden_title">Nakatago ang mga add-on ng Stremio</string>
     <string name="stremio_open_settings">Buksan ang mga setting</string>
     <string name="stremio_hidden_message">Para ipakita ang iyong mga add-on, buksan ang Mga Setting → Privacy at i-off ang Itago ang mga add-on ng Stremio. Pinananatili ang mga naka-install mong add-on.</string>
+    <string name="stremio_phone_qr_start">Ipakita ang QR code</string>
+    <string name="stremio_phone_qr_stop">Ihinto ang pairing</string>
+    <string name="stremio_phone_qr_warning">Seguridad: Ipinapadala ng pagpapares ang mga kredensyal nang walang encryption sa lokal mong network. Gumamit lamang ng pribado at pinagkakatiwalaang Wi-Fi.</string>
+    <string name="stremio_phone_qr_complete">Naidagdag</string>
+    <string name="stremio_phone_qr_error">Error</string>
 </resources>

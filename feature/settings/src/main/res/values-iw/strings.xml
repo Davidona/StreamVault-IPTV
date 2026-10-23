@@ -953,4 +953,9 @@
     <string name="settings_sync_index_progress">%1$s · %2$s</string>
     <string name="settings_refresh_rate_matching">התאמת קצב הרענון לתוכן</string>
     <string name="settings_refresh_rate_matching_description">התאמת קצב הרענון של המסך לסרטון לתנועה חלקה יותר. נדרשת תמיכה במסך; בעת המעבר המסך עשוי להחשיך לזמן קצר.</string>
+    <string name="settings_epg_phone_qr_start">הצג קוד QR</string>
+    <string name="settings_epg_phone_qr_stop">עצור התאמה</string>
+    <string name="settings_epg_phone_qr_warning">אבטחה: הצימוד שולח פרטי התחברות ללא הצפנה דרך הרשת המקומית. יש להשתמש רק ברשת Wi-Fi פרטית ומהימנה.</string>
+    <string name="settings_epg_phone_qr_complete">נוסף</string>
+    <string name="settings_epg_phone_qr_error">שגיאה</string>
 </resources>

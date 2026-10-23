@@ -106,4 +106,9 @@
     <string name="stremio_hidden_title">افزونه‌های سازگار با Stremio پنهان هستند</string>
     <string name="stremio_open_settings">باز کردن تنظیمات</string>
     <string name="stremio_hidden_message">برای نمایش افزونه‌های خود، تنظیمات → حریم خصوصی را باز کنید و پنهان کردن افزونه‌های سازگار با Stremio را خاموش کنید. افزونه‌های نصب‌شدهٔ شما حفظ می‌شوند.</string>
+    <string name="stremio_phone_qr_start">نمایش کد QR</string>
+    <string name="stremio_phone_qr_stop">توقف جفت‌سازی</string>
+    <string name="stremio_phone_qr_warning">امنیت: اطلاعات ورود هنگام جفت‌سازی بدون رمزگذاری از شبکه محلی شما فرستاده می‌شود. فقط از شبکه خصوصی Wi-Fi مطمئن استفاده کنید.</string>
+    <string name="stremio_phone_qr_complete">افزوده شد</string>
+    <string name="stremio_phone_qr_error">خطا</string>
 </resources>

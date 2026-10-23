@@ -106,4 +106,9 @@
     <string name="stremio_hidden_title">Shtesat Stremio janë të fshehura</string>
     <string name="stremio_open_settings">Hap cilësimet</string>
     <string name="stremio_hidden_message">Për të shfaqur shtesat e tua, hap Cilësimet → Privatësia dhe çaktivizo Fshih shtesat Stremio. Shtesat e instaluara ruhen.</string>
+    <string name="stremio_phone_qr_start">Shfaq kodin QR</string>
+    <string name="stremio_phone_qr_stop">Ndalo çiftimin</string>
+    <string name="stremio_phone_qr_warning">Siguria: Çiftimi dërgon të dhënat e hyrjes pa enkriptim përmes rrjetit lokal. Përdor vetëm një rrjet privat Wi-Fi të besuar.</string>
+    <string name="stremio_phone_qr_complete">U shtua</string>
+    <string name="stremio_phone_qr_error">Gabim</string>
 </resources>

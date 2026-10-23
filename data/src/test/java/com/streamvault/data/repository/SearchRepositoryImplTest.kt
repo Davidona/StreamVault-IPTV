@@ -139,7 +139,7 @@ class SearchRepositoryImplTest {
 
         verify(searchDao).searchAll(
             providerId = eq(PROVIDER_ID),
-            ftsQuery = eq("NeWs*"),
+            ftsQuery = eq("news*"),
             rawQuery = eq("NeWs"),
             prefixLike = eq("NeWs%"),
             limitPerSection = eq(LIMIT)

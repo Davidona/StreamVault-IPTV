@@ -57,6 +57,7 @@ import com.streamvault.domain.provider.CapabilityResolution
 import com.streamvault.domain.provider.ProviderContentReference
 import com.streamvault.domain.util.KeyedMutexRegistry
 import com.streamvault.domain.util.BoundedKeySet
+import com.streamvault.domain.util.SearchTextNormalizer
 import javax.inject.Singleton
 
 @Singleton
@@ -85,6 +86,7 @@ class SeriesRepositoryImpl @Inject constructor(
         const val SEARCH_RESULT_LIMIT = 200
         const val SEARCH_OVERSAMPLE_LIMIT = 500
         const val MIN_SEARCH_QUERY_LENGTH = 2
+        const val SEARCH_FALLBACK_PAGE_SIZE = 512
         const val BROWSE_WINDOW_BUFFER = 80
         const val XTREAM_CATEGORY_HYDRATION_CONCURRENCY = 1
         const val XTREAM_EMPTY_CATEGORY_RETRY_COOLDOWN_MILLIS = 30_000L
@@ -455,9 +457,7 @@ class SeriesRepositoryImpl @Inject constructor(
             } else combine(
                 safeSeriesSearchFlow(
                     source = seriesDao.search(providerId, ftsQuery, SEARCH_RESULT_LIMIT),
-                    fallback = {
-                        seriesDao.searchFallback(providerId, query.trim().toSqlLikePattern(), SEARCH_RESULT_LIMIT)
-                    },
+                    fallback = { fallbackSeriesSearch(providerId, query.trim(), SEARCH_RESULT_LIMIT) },
                     rawQuery = query.trim()
                 ),
                 preferencesRepository.parentalControlLevel
@@ -914,11 +914,11 @@ class SeriesRepositoryImpl @Inject constructor(
                         safeSeriesSearchFlow(
                             source = seriesDao.searchByCategory(query.providerId, categoryId, ftsQuery, SEARCH_OVERSAMPLE_LIMIT),
                             fallback = {
-                                seriesDao.searchByCategoryFallback(
+                                fallbackSeriesSearch(
                                     query.providerId,
-                                    categoryId,
-                                    normalizedSearch.toSqlLikePattern(),
-                                    SEARCH_OVERSAMPLE_LIMIT
+                                    normalizedSearch,
+                                    SEARCH_OVERSAMPLE_LIMIT,
+                                    categoryId
                                 )
                             },
                             rawQuery = normalizedSearch
@@ -1588,11 +1588,11 @@ class SeriesRepositoryImpl @Inject constructor(
     }
 
     private fun seriesMatchesSearch(series: Series, searchQuery: String): Boolean {
-        val normalizedQuery = searchQuery.trim().lowercase()
+        val normalizedQuery = SearchTextNormalizer.normalize(searchQuery.trim())
         if (normalizedQuery.isBlank()) return true
         return sequenceOf(series.name, series.genre, series.categoryName)
             .filterNotNull()
-            .any { value -> value.lowercase().contains(normalizedQuery) }
+            .any { value -> SearchTextNormalizer.normalize(value).contains(normalizedQuery) }
     }
 
     private fun safeSeriesSearchFlow(
@@ -1609,21 +1609,45 @@ class SeriesRepositoryImpl @Inject constructor(
                 }
             }
         } catch (error: SQLiteException) {
-            Log.w(TAG, "FTS series search failed for queryLength=${rawQuery.length}; using LIKE-only search", error)
+            Log.w(TAG, "FTS series search failed for queryLength=${rawQuery.length}; using normalized search fallback", error)
             emitAll(fallback())
         }
     }
 
-    private fun String.toSqlLikePattern(): String {
-        val escaped = buildString(length) {
-            this@toSqlLikePattern.forEach { char ->
-                when (char) {
-                    '%', '_', '\\' -> append('\\')
+    private fun fallbackSeriesSearch(
+        providerId: Long,
+        query: String,
+        limit: Int,
+        categoryId: Long? = null
+    ): Flow<List<SeriesBrowseEntity>> {
+        val foldedQuery = SearchTextNormalizer.normalize(query)
+        if (foldedQuery.isBlank() || limit <= 0) return flowOf(emptyList())
+
+        return flow {
+            val matches = sortedSetOf(compareBy<SeriesBrowseEntity> { it.name }.thenBy { it.id })
+            var offset = 0
+            while (true) {
+                val page = categoryId?.let {
+                    seriesDao.getByCategoryPage(providerId, it, SEARCH_FALLBACK_PAGE_SIZE, offset)
+                }?.first() ?: seriesDao.getByProviderPage(providerId, SEARCH_FALLBACK_PAGE_SIZE, offset).first()
+                if (page.isEmpty()) break
+
+                page.forEach { item ->
+                    val matchesQuery = sequenceOf(item.name, item.genre, item.categoryName)
+                        .filterNotNull()
+                        .any { SearchTextNormalizer.normalize(it).contains(foldedQuery) }
+                    if (matchesQuery) {
+                        matches += item
+                        if (matches.size > limit) matches.remove(matches.last())
+                    }
                 }
-                append(char)
+
+                offset += page.size
+                if (page.size < SEARCH_FALLBACK_PAGE_SIZE) break
             }
+
+            emit(matches.toList())
         }
-        return "%$escaped%"
     }
 
     private fun String.toSqlPrefixLikePattern(): String {

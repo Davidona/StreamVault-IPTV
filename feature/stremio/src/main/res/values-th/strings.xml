@@ -106,4 +106,9 @@
     <string name="stremio_hidden_title">ส่วนเสริม Stremio ถูกซ่อนอยู่</string>
     <string name="stremio_open_settings">เปิดการตั้งค่า</string>
     <string name="stremio_hidden_message">หากต้องการแสดงส่วนเสริมของคุณ ให้เปิด ตั้งค่า → ความเป็นส่วนตัว แล้วปิดตัวเลือกซ่อนส่วนเสริม Stremio ส่วนเสริมที่ติดตั้งไว้จะยังคงอยู่</string>
+    <string name="stremio_phone_qr_start">แสดงคิวอาร์โค้ด</string>
+    <string name="stremio_phone_qr_stop">หยุดจับคู่</string>
+    <string name="stremio_phone_qr_warning">ความปลอดภัย: การจับคู่จะส่งข้อมูลเข้าสู่ระบบผ่านเครือข่ายท้องถิ่นโดยไม่มีการเข้ารหัส ใช้เฉพาะเครือข่าย Wi-Fi ส่วนตัวที่เชื่อถือได้เท่านั้น</string>
+    <string name="stremio_phone_qr_complete">เพิ่มแล้ว</string>
+    <string name="stremio_phone_qr_error">ข้อผิดพลาด</string>
 </resources>
