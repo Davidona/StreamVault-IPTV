@@ -502,7 +502,7 @@ data class SeriesBrowseEntity(
 @Fts4(
     contentEntity = ChannelEntity::class,
     tokenizer = "unicode61",
-    tokenizerArgs = ["remove_diacritics=2"]
+    tokenizerArgs = ["remove_diacritics=1"]
 )
 @Entity(tableName = "channels_fts")
 data class ChannelFtsEntity(
@@ -512,7 +512,7 @@ data class ChannelFtsEntity(
 @Fts4(
     contentEntity = MovieEntity::class,
     tokenizer = "unicode61",
-    tokenizerArgs = ["remove_diacritics=2"]
+    tokenizerArgs = ["remove_diacritics=1"]
 )
 @Entity(tableName = "movies_fts")
 data class MovieFtsEntity(
@@ -522,7 +522,7 @@ data class MovieFtsEntity(
 @Fts4(
     contentEntity = SeriesEntity::class,
     tokenizer = "unicode61",
-    tokenizerArgs = ["remove_diacritics=2"]
+    tokenizerArgs = ["remove_diacritics=1"]
 )
 @Entity(tableName = "series_fts")
 data class SeriesFtsEntity(

@@ -16,7 +16,7 @@ internal object FeatureMigrationsV87To88 {
             db.execSQL("DROP TABLE IF EXISTS `$index`")
             db.execSQL(
                 "CREATE VIRTUAL TABLE IF NOT EXISTS `$index` " +
-                    "USING FTS4(`name` TEXT NOT NULL, tokenize=unicode61 `remove_diacritics=2`, " +
+                    "USING FTS4(`name` TEXT NOT NULL, tokenize=unicode61 `remove_diacritics=1`, " +
                     "content=`$contentTable`)"
             )
             db.execSQL("INSERT INTO `$index`(`$index`) VALUES('rebuild')")
