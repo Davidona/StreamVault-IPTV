@@ -1,6 +1,12 @@
 ﻿# Changelog
 
 All notable product changes are recorded in this document.
+
+## [1.2.3]
+
+### Fixed
+- Fixed HLS playback failing on master playlists with `EXT-X-MEDIA` rendition tags missing the required `NAME` attribute.
+
 ## [1.2.2]
 
 ### Added

@@ -97,6 +97,7 @@ class PlayerMediaSourceFactory(
             streamInfo.streamType == StreamType.RTSP || resolvedStreamType == ResolvedStreamType.RTSP ->
                 RtspMediaSource.Factory()
             resolvedStreamType == ResolvedStreamType.HLS -> HlsMediaSource.Factory(dataSourceFactory)
+                .setPlaylistParserFactory(LenientHlsPlaylistParserFactory())
                 .setAllowChunklessPreparation(true)
                 .setLoadErrorHandlingPolicy(retryPolicy)
 
