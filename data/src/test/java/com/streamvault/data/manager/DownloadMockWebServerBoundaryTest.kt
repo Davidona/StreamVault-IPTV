@@ -48,7 +48,7 @@ class DownloadMockWebServerBoundaryTest {
             MockResponse()
                 .setResponseCode(HttpURLConnection.HTTP_PARTIAL)
                 .setHeader("Content-Range", "bytes 512-999/1000")
-                .setBody("remaining")
+                .setBody("r".repeat(488))
         )
         server.enqueue(
             MockResponse()

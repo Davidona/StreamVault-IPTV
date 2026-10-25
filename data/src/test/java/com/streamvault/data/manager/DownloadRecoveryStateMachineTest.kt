@@ -192,4 +192,25 @@ class DownloadRecoveryStateMachineTest {
             )
         ).isEqualTo(DownloadResumeResponse.RESTART)
     }
+
+    @Test
+    fun `resumed 206 must describe a consistent range of the same resource`() {
+        fun resume(contentRange: String?, contentLength: Long?, expectedTotal: Long? = 1_000L) = resolveResumeResponse(
+            resumeFrom = 512L,
+            responseCode = 206,
+            contentLength = contentLength,
+            acceptRanges = "bytes",
+            contentRange = contentRange,
+            expectedTotalBytes = expectedTotal
+        )
+
+        assertThat(resume("bytes 512-999/1000", 488L)).isEqualTo(DownloadResumeResponse.TRANSFER(true, 1_000L, true))
+        assertThat(resume("bytes 512-999/1001", 488L)).isEqualTo(DownloadResumeResponse.RESTART)
+        assertThat(resume("bytes 512-999/1000", 500L)).isEqualTo(DownloadResumeResponse.RESTART)
+        assertThat(resume("bytes 512-1000/1000", 489L)).isEqualTo(DownloadResumeResponse.RESTART)
+        assertThat(resume("bytes */1000", 488L)).isEqualTo(DownloadResumeResponse.RESTART)
+        assertThat(resume(null, 488L)).isEqualTo(DownloadResumeResponse.RESTART)
+        assertThat(resume("bytes 512-999/*", 488L, expectedTotal = null))
+            .isEqualTo(DownloadResumeResponse.TRANSFER(true, 1_000L, true))
+    }
 }

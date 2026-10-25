@@ -26,10 +26,15 @@ internal class DownloadTransferStateMachine(
         require(maxRetries >= 0) { "maxRetries must be non-negative" }
     }
 
+    /**
+     * [canResumeOutput] reports that the partial output matches its checkpoint and the server
+     * accepts byte ranges, so a scheduled retry can continue it instead of starting over.
+     */
     fun failure(
         currentRetryCount: Int,
         kind: DownloadFailureKind,
-        reason: String
+        reason: String,
+        canResumeOutput: Boolean = false
     ): DownloadFailureTransition {
         require(currentRetryCount >= 0) { "currentRetryCount must be non-negative" }
         if (kind == DownloadFailureKind.PERMANENT || currentRetryCount >= maxRetries) {
@@ -46,7 +51,7 @@ internal class DownloadTransferStateMachine(
         return DownloadFailureTransition(
             status = DownloadStatus.PAUSED,
             retryCount = nextRetryCount,
-            resetOutput = true,
+            resetOutput = !canResumeOutput,
             retryAfterMillis = retryDelayMillis(nextRetryCount),
             reason = reason
         )

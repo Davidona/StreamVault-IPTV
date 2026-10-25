@@ -403,7 +403,8 @@ class DownloadManagerImpl @Inject constructor(
                     responseCode = response.code,
                     contentLength = body.contentLength().takeIf { it >= 0L },
                     acceptRanges = response.header("Accept-Ranges"),
-                    contentRange = response.header("Content-Range")
+                    contentRange = response.header("Content-Range"),
+                    expectedTotalBytes = current.totalBytes.takeIf { resumeFrom > 0L }
                 )
                 if (resumeDecision == DownloadResumeResponse.RESTART) {
                     throw RestartFromZeroException()
@@ -478,6 +479,16 @@ class DownloadManagerImpl @Inject constructor(
                     }
                 }
 
+                // A body can end cleanly before the advertised total (short range, close-delimited
+                // body); only a file of exactly the known size is complete.
+                if (totalBytes != null) {
+                    val written = current.copy(outputUri = target.uri.toString(), outputDisplayPath = target.displayPath)
+                    val actualLength = outputLength(written) ?: bytesWritten
+                    if (bytesWritten != totalBytes || actualLength != totalBytes) {
+                        throw ProtocolException("Download ended at $bytesWritten of $totalBytes bytes")
+                    }
+                }
+
                 downloadDao.update(
                     current.copy(
                         outputUri = target.uri.toString(),
@@ -549,7 +560,8 @@ class DownloadManagerImpl @Inject constructor(
         val transition = transferStateMachine.failure(
             currentRetryCount = entity.retryCount,
             kind = if (isTransient(error)) DownloadFailureKind.TRANSIENT else DownloadFailureKind.PERMANENT,
-            reason = reason
+            reason = reason,
+            canResumeOutput = canResumeOutput(entity)
         )
         if (transition.status == DownloadStatus.FAILED) {
             resetInterruptedDownload(entity, transition.status, transition.reason)
@@ -557,7 +569,21 @@ class DownloadManagerImpl @Inject constructor(
         }
 
         val retryCount = transition.retryCount
-        resetInterruptedDownload(entity, transition.status, transition.reason, retryCount)
+        if (transition.resetOutput) {
+            resetInterruptedDownload(entity, transition.status, transition.reason, retryCount)
+        } else {
+            // Keep the verified partial output; the retry sends a Range request from bytesWritten.
+            downloadDao.update(
+                entity.copy(
+                    status = transition.status,
+                    retryCount = retryCount,
+                    completedAt = null,
+                    failureReason = transition.reason,
+                    ownerId = null,
+                    heartbeatAt = null
+                )
+            )
+        }
         applicationScope.launch(Dispatchers.IO) {
             delay(requireNotNull(transition.retryAfterMillis))
             downloadDao.getByIdOnce(entity.id)
@@ -602,6 +628,12 @@ class DownloadManagerImpl @Inject constructor(
             )
         )
     }
+
+    private fun canResumeOutput(entity: DownloadEntity): Boolean =
+        entity.supportsResume &&
+            entity.bytesWritten > 0L &&
+            entity.totalBytes?.let { entity.bytesWritten < it } != false &&
+            outputLength(entity) == entity.bytesWritten
 
     private fun outputLength(entity: DownloadEntity): Long? {
         entity.outputDisplayPath
@@ -855,7 +887,8 @@ internal fun resolveResumeResponse(
     responseCode: Int,
     contentLength: Long?,
     acceptRanges: String?,
-    contentRange: String?
+    contentRange: String?,
+    expectedTotalBytes: Long? = null
 ): DownloadResumeResponse {
     val parsedRange = parseContentRange(contentRange)
     if (resumeFrom > 0L) {
@@ -868,6 +901,17 @@ internal fun resolveResumeResponse(
         }
         if (responseCode == HttpURLConnection.HTTP_PARTIAL) {
             if (parsedRange?.start != resumeFrom) return DownloadResumeResponse.RESTART
+            // Without stored validators, a consistent range and an unchanged total are the
+            // evidence that the bytes belong to the same resource; anything else restarts.
+            val end = parsedRange.end ?: return DownloadResumeResponse.RESTART
+            if (end < resumeFrom) return DownloadResumeResponse.RESTART
+            if (parsedRange.total != null && end >= parsedRange.total) return DownloadResumeResponse.RESTART
+            if (expectedTotalBytes != null && parsedRange.total != expectedTotalBytes) {
+                return DownloadResumeResponse.RESTART
+            }
+            if (contentLength != null && contentLength != end - resumeFrom + 1) {
+                return DownloadResumeResponse.RESTART
+            }
             return DownloadResumeResponse.TRANSFER(
                 append = true,
                 totalBytes = parsedRange.total
@@ -921,17 +965,19 @@ internal fun buildDownloadHttpRequest(
 
 private data class ParsedContentRange(
     val start: Long?,
-    val total: Long?
+    val total: Long?,
+    val end: Long? = null
 )
 
 private fun parseContentRange(header: String?): ParsedContentRange? {
     val value = header?.trim() ?: return null
-    Regex("""bytes\s+(\d+)-\d+/(\d+|\*)""", RegexOption.IGNORE_CASE)
+    Regex("""bytes\s+(\d+)-(\d+)/(\d+|\*)""", RegexOption.IGNORE_CASE)
         .matchEntire(value)
         ?.let { match ->
             return ParsedContentRange(
                 start = match.groupValues[1].toLongOrNull(),
-                total = match.groupValues[2].takeUnless { it == "*" }?.toLongOrNull()
+                total = match.groupValues[3].takeUnless { it == "*" }?.toLongOrNull(),
+                end = match.groupValues[2].toLongOrNull()
             )
         }
     Regex("""bytes\s+\*/(\d+)""", RegexOption.IGNORE_CASE)

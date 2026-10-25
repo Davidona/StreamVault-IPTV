@@ -163,4 +163,31 @@ class DownloadTransferStateMachineTest {
             )
         ).isTrue()
     }
+
+    @Test
+    fun `resumable transient failures keep output on the same retry schedule`() {
+        val machine = DownloadTransferStateMachine(maxRetries = 5)
+
+        val transitions = (0..4).map { retryCount ->
+            machine.failure(retryCount, DownloadFailureKind.TRANSIENT, "reset", canResumeOutput = true)
+        }
+
+        assertThat(transitions.map { it.status }).containsExactly(*Array(5) { DownloadStatus.PAUSED })
+        assertThat(transitions.map { it.resetOutput }).containsExactly(false, false, false, false, false)
+        assertThat(transitions.map { it.retryAfterMillis })
+            .containsExactly(5_000L, 15_000L, 45_000L, 300_000L, 300_000L).inOrder()
+    }
+
+    @Test
+    fun `resumable output is still reset when retries are exhausted or the failure is permanent`() {
+        val machine = DownloadTransferStateMachine(maxRetries = 5)
+
+        val exhausted = machine.failure(5, DownloadFailureKind.TRANSIENT, "reset", canResumeOutput = true)
+        val permanent = machine.failure(0, DownloadFailureKind.PERMANENT, "403", canResumeOutput = true)
+
+        assertThat(exhausted.status).isEqualTo(DownloadStatus.FAILED)
+        assertThat(exhausted.resetOutput).isTrue()
+        assertThat(permanent.status).isEqualTo(DownloadStatus.FAILED)
+        assertThat(permanent.resetOutput).isTrue()
+    }
 }
