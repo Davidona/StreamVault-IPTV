@@ -257,7 +257,7 @@ class DownloadManagerImpl @Inject constructor(
                 .firstOrNull {
                     !activeJobs.containsKey(it.id) &&
                         (it.status == DownloadStatus.PENDING || it.retryCount == 0) &&
-                        it.retryCount < MAX_RETRIES
+                        it.retryCount <= MAX_RETRIES
                 }
                 ?: return
             startDownloadJob(next)
