@@ -7,6 +7,7 @@ import android.net.NetworkCapabilities
 import android.net.NetworkRequest
 import android.net.Uri
 import android.os.Environment
+import android.util.Log
 import android.webkit.MimeTypeMap
 import androidx.core.content.FileProvider
 import androidx.documentfile.provider.DocumentFile
@@ -719,26 +720,32 @@ class DownloadManagerImpl @Inject constructor(
     }
 
     private fun deleteOutput(entity: DownloadEntity) {
-        var deleted = false
         entity.outputUri
             ?.takeIf { it.isNotBlank() }
             ?.let { outputUri ->
                 val uri = Uri.parse(outputUri)
-                deleted = runCatching {
+                val deleted = runCatching {
                     DocumentFile.fromSingleUri(context, uri)?.delete() == true
                 }.getOrDefault(false)
                 if (!deleted) {
-                    deleted = runCatching {
-                        context.contentResolver.delete(uri, null, null) > 0
-                    }.getOrDefault(false)
+                    runCatching { context.contentResolver.delete(uri, null, null) }
                 }
             }
 
+        // App-storage outputs use FileProvider URIs, for which DocumentFile.delete() reports
+        // success without deleting anything, so judge the result by the file itself.
         val displayPath = entity.outputDisplayPath?.takeIf { it.isNotBlank() } ?: return
         val file = File(displayPath)
-        if (!deleted && file.isAbsolute) {
-            runCatching { file.delete() }
+        if (!file.isAbsolute || !file.exists() || !isInDownloadDirectory(file)) return
+        if (!runCatching { file.delete() }.getOrDefault(false)) {
+            Log.w(TAG, "Download output could not be deleted")
         }
+    }
+
+    private fun isInDownloadDirectory(file: File): Boolean {
+        val parent = runCatching { file.canonicalFile.parentFile }.getOrNull() ?: return false
+        return listOfNotNull(context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS), context.filesDir)
+            .any { root -> runCatching { File(root, "StreamVault").canonicalFile }.getOrNull() == parent }
     }
 
     private fun buildFileName(entity: DownloadEntity, mimeType: String): String {
@@ -790,6 +797,7 @@ class DownloadManagerImpl @Inject constructor(
     )
 
     private companion object {
+        const val TAG = "DownloadManager"
         const val MAX_RETRIES = 5
         const val INTERRUPTED_RESUME_REASON =
             "Interrupted after app process stopped; validated output queued to resume."
