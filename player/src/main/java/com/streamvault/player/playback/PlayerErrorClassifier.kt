@@ -6,7 +6,7 @@ import androidx.media3.datasource.HttpDataSource
 import androidx.media3.exoplayer.mediacodec.MediaCodecRenderer
 import androidx.media3.exoplayer.source.BehindLiveWindowException
 import java.io.EOFException
-import java.net.ConnectException
+import java.net.SocketException
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 import javax.net.ssl.SSLException
@@ -73,7 +73,12 @@ object PlayerErrorClassifier {
                 playbackException?.errorCode == PlaybackException.ERROR_CODE_PARSING_CONTAINER_MALFORMED ||
                 playbackException?.errorCode == PlaybackException.ERROR_CODE_PARSING_MANIFEST_MALFORMED ->
                 PlaybackErrorCategory.SOURCE_MALFORMED
-            chain.any { it is SocketTimeoutException || it is ConnectException || it is UnknownHostException || it is EOFException } ||
+            // A failure while reading an accepted response body is a transport failure: for example an idle VOD
+            // connection closed while the buffer was full ("Connection reset", or "unexpected end of stream" when it is
+            // closed cleanly). Media3 reports it as HttpDataSourceException(TYPE_READ) without a PlaybackException.
+            // SocketException also covers ConnectException.
+            chain.any { it is SocketTimeoutException || it is SocketException || it is UnknownHostException || it is EOFException } ||
+                chain.any { it.isBodyReadFailure() } ||
                 playbackException?.errorCode in networkErrors ->
                 PlaybackErrorCategory.NETWORK
             else -> PlaybackErrorCategory.UNKNOWN
@@ -109,3 +114,7 @@ object PlayerErrorClassifier {
         PlaybackException.ERROR_CODE_DRM_UNSPECIFIED
     )
 }
+
+/** True for Media3's error while reading the body of an HTTP response that had already been accepted. */
+internal fun Throwable.isBodyReadFailure(): Boolean =
+    this is HttpDataSource.HttpDataSourceException && type == HttpDataSource.HttpDataSourceException.TYPE_READ
