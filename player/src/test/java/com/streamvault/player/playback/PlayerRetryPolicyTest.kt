@@ -14,6 +14,7 @@ import androidx.media3.exoplayer.upstream.LoadErrorHandlingPolicy
 import com.google.common.truth.Truth.assertThat
 import com.streamvault.domain.model.PlaybackContentKind
 import java.io.IOException
+import java.net.SocketException
 import java.net.SocketTimeoutException
 import javax.net.ssl.SSLHandshakeException
 import org.junit.Test
@@ -341,6 +342,43 @@ class PlayerRetryPolicyTest {
         assertThat(policy.shouldRetry(error, liveContext, playbackStarted = true, attempt = 10)).isTrue()
         assertThat(policy.shouldRetry(error, liveContext, playbackStarted = true, attempt = 11)).isFalse()
         assertThat(policy.maxAttempts(error, playbackStarted = true)).isEqualTo(10)
+    }
+
+    @Test
+    fun `progressive connection reset after playback start is retried in place`() {
+        val error = SocketException("Connection reset")
+
+        assertThat(progressivePolicy.shouldRetry(error, progressiveContext, playbackStarted = true, attempt = 1))
+            .isTrue()
+        assertThat(progressivePolicy.shouldRetry(error, progressiveContext, playbackStarted = true, attempt = 10))
+            .isTrue()
+        assertThat(progressivePolicy.shouldRetry(error, progressiveContext, playbackStarted = true, attempt = 11))
+            .isFalse()
+    }
+
+    @Test
+    fun `progressive body truncated after playback start is retried in place`() {
+        // OkHttp's error when an idle connection is closed cleanly before Content-Length, as Media3 wraps it.
+        val error = HttpDataSource.HttpDataSourceException(
+            java.net.ProtocolException("unexpected end of stream"),
+            DataSpec.Builder().setUri("https://example.com/movie.mp4").build(),
+            PlaybackException.ERROR_CODE_IO_UNSPECIFIED,
+            HttpDataSource.HttpDataSourceException.TYPE_READ
+        )
+
+        assertThat(PlayerErrorClassifier.classify(error)).isEqualTo(PlaybackErrorCategory.NETWORK)
+        assertThat(progressivePolicy.shouldRetry(error, progressiveContext, playbackStarted = true, attempt = 10))
+            .isTrue()
+        assertThat(progressivePolicy.shouldRetry(error, progressiveContext, playbackStarted = true, attempt = 11))
+            .isFalse()
+    }
+
+    @Test
+    fun `live connection reset after playback start keeps the live retry budget`() {
+        val error = SocketException("Connection reset")
+
+        assertThat(policy.shouldRetry(error, liveContext, playbackStarted = true, attempt = 10)).isTrue()
+        assertThat(policy.shouldRetry(error, liveContext, playbackStarted = true, attempt = 11)).isFalse()
     }
 
     @Test
