@@ -299,9 +299,11 @@ private fun TorrentCacheCard(
                     )
                 }
             }
+            // Stays enabled while clearing (presses are ignored): a disabled button loses the remote's focus, which
+            // would jump to the top menu.
             Button(
-                onClick = onClear,
-                enabled = status != null && status.activeSessionCount == 0 && !isClearing,
+                onClick = { if (!isClearing) onClear() },
+                enabled = status != null && status.activeSessionCount == 0,
                 modifier = Modifier.align(Alignment.End)
             ) {
                 if (isClearing) {
