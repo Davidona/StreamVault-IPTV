@@ -38,6 +38,15 @@ class ExternalNavigationRequestParserTest {
     }
 
     @Test
+    fun downloadsLegacyRouteOpensDownloads() {
+        val intent = Intent().putExtra(MainActivity.EXTRA_EXTERNAL_ROUTE, "downloads")
+
+        assertThat(parser.parse(intent)).isEqualTo(
+            ExternalNavigationRequest.Destination(AppDestination.Downloads)
+        )
+    }
+
+    @Test
     fun playlistMimeWithContentUriBecomesImportRequest() {
         val uri = Uri.parse("content://example/playlist")
         val intent = Intent(Intent.ACTION_VIEW)
