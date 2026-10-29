@@ -155,6 +155,43 @@ class DownloadsRemoteNavigationTest {
         composeRule.onNode(hasText("Delete") and hasClickAction() and isFocused()).assertExists()
     }
 
+    @Test
+    fun clearCacheKeepsFocusWhileClearing() {
+        var clearing by mutableStateOf(false)
+        var clears = 0
+        composeRule.setContent {
+            StreamVaultTheme {
+                MaterialTheme {
+                    DownloadsContent(
+                        uiState = DownloadsUiState(
+                            isLoading = false,
+                            torrentCacheStatus = TorrentCacheStatus(0, 8_000_000_000, 20_000_000_000, 0),
+                            isClearingTorrentCache = clearing
+                        ),
+                        scaffold = scaffoldWithMenu,
+                        onChangeFolder = {},
+                        onOpen = {},
+                        onResume = {},
+                        onDelete = {},
+                        onConfirmDelete = {},
+                        onDismissDelete = {},
+                        onClearTorrentCache = { clears++ },
+                    )
+                }
+            }
+        }
+        focus("Clear cache")
+
+        clearing = true
+        composeRule.waitForIdle()
+        press(Key.Enter) // ignored while clearing
+        clearing = false
+        composeRule.waitForIdle()
+
+        composeRule.onNode(hasText("Clear cache") and hasClickAction()).assertIsFocused()
+        assertThat(clears).isEqualTo(0)
+    }
+
     private var downloads by mutableStateOf(emptyList<DownloadItem>())
     private var confirmItem by mutableStateOf<DownloadItem?>(null)
 
