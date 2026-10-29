@@ -46,6 +46,7 @@
     <string name="torrent_cache_confirm_message">Buang data torrent sementara? Muat turun tersimpan tidak akan dipadamkan.</string>
     <string name="torrent_cache_active">Hentikan main balik torrent sebelum mengosongkan cache.</string>
     <string name="torrent_cache_clear_failed">Cache sementara tidak dapat dikosongkan.</string>
+    <string name="torrent_cache_cleared">Cache sementara dikosongkan.</string>
 
     <string name="extensions_title">Sambungan</string>
     <string name="plugins_section_description">Tambah ciri pada StreamVault dengan aplikasi pendamping Android.</string>

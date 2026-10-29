@@ -60,4 +60,5 @@
     <string name="torrent_cache_confirm_message">Remove temporary torrent data? Saved downloads will not be deleted.</string>
     <string name="torrent_cache_active">Stop torrent playback before clearing the cache.</string>
     <string name="torrent_cache_clear_failed">Could not clear the temporary cache.</string>
+    <string name="torrent_cache_cleared">Temporary cache cleared.</string>
 </resources>

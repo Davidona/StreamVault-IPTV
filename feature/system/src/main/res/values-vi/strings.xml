@@ -46,6 +46,7 @@
     <string name="torrent_cache_confirm_message">Xóa dữ liệu torrent tạm thời? Nội dung đã tải xuống sẽ không bị xóa.</string>
     <string name="torrent_cache_active">Hãy dừng phát torrent trước khi xóa bộ nhớ đệm.</string>
     <string name="torrent_cache_clear_failed">Không thể xóa bộ nhớ đệm tạm thời.</string>
+    <string name="torrent_cache_cleared">Đã xóa bộ nhớ đệm tạm thời.</string>
     <string name="extensions_title">Tiện ích mở rộng</string>
     <string name="plugins_section_description">Thêm tính năng cho StreamVault bằng các ứng dụng Android đồng hành.</string>
     <string name="plugins_install_url">Cài trình cắm từ URL</string>

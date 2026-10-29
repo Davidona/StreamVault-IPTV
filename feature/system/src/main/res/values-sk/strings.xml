@@ -46,6 +46,7 @@
     <string name="torrent_cache_confirm_message">Odstrániť dočasné údaje torrentov? Uložené sťahovania sa nevymažú.</string>
     <string name="torrent_cache_active">Pred vymazaním vyrovnávacej pamäte zastavte prehrávanie torrentu.</string>
     <string name="torrent_cache_clear_failed">Dočasnú vyrovnávaciu pamäť sa nepodarilo vymazať.</string>
+    <string name="torrent_cache_cleared">Dočasná vyrovnávacia pamäť bola vymazaná.</string>
     <string name="extensions_title">Rozšírenia</string>
     <string name="plugins_section_description">Pridajte do StreamVault nové funkcie pomocou sprievodných aplikácií pre Android.</string>
     <string name="plugins_install_url">Nainštalovať plugin z URL</string>

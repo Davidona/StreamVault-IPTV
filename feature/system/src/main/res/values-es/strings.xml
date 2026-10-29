@@ -46,6 +46,7 @@
     <string name="torrent_cache_confirm_message">¿Quitar los datos temporales de torrents? Las descargas guardadas no se borrarán.</string>
     <string name="torrent_cache_active">Detén la reproducción del torrent antes de borrar la caché.</string>
     <string name="torrent_cache_clear_failed">No se pudo borrar la caché temporal.</string>
+    <string name="torrent_cache_cleared">Caché temporal borrada.</string>
     <string name="extensions_title">Extensiones</string>
     <string name="plugins_section_description">Añade funciones a StreamVault con aplicaciones Android complementarias.</string>
     <string name="plugins_install_url">Instalar plugin desde URL</string>

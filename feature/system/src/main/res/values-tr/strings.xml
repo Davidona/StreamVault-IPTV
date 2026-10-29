@@ -46,6 +46,7 @@
     <string name="torrent_cache_confirm_message">Geçici torrent verileri kaldırılsın mı? Kaydedilen indirmeler silinmez.</string>
     <string name="torrent_cache_active">Önbelleği temizlemeden önce torrent oynatmayı durdurun.</string>
     <string name="torrent_cache_clear_failed">Geçici önbellek temizlenemedi.</string>
+    <string name="torrent_cache_cleared">Geçici önbellek temizlendi.</string>
     <string name="extensions_title">Eklentiler</string>
     <string name="plugins_section_description">Android yardımcı uygulamalarıyla StreamVault\'a özellik ekleyin.</string>
     <string name="plugins_install_url">URL\'den eklenti yükle</string>

@@ -46,6 +46,7 @@
     <string name="torrent_cache_confirm_message">Ta bort tillfälliga torrentdata? Sparade nedladdningar tas inte bort.</string>
     <string name="torrent_cache_active">Stoppa torrentuppspelningen innan du rensar cachen.</string>
     <string name="torrent_cache_clear_failed">Det gick inte att rensa den tillfälliga cachen.</string>
+    <string name="torrent_cache_cleared">Den tillfälliga cachen har rensats.</string>
     <string name="extensions_title">Tillägg</string>
     <string name="plugins_section_description">Lägg till funktioner i StreamVault med kompanjonappar för Android.</string>
     <string name="plugins_install_url">Installera insticksprogram från URL</string>

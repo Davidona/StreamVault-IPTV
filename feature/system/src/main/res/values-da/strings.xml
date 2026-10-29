@@ -46,6 +46,7 @@
     <string name="torrent_cache_confirm_message">Fjern midlertidige torrentdata? Gemte downloads slettes ikke.</string>
     <string name="torrent_cache_active">Stop torrentafspilning, før du rydder cachen.</string>
     <string name="torrent_cache_clear_failed">Den midlertidige cache kunne ikke ryddes.</string>
+    <string name="torrent_cache_cleared">Den midlertidige cache er ryddet.</string>
     <string name="extensions_title">Udvidelser</string>
     <string name="plugins_section_description">Føj funktioner til StreamVault med ledsagende Android-apps.</string>
     <string name="plugins_install_url">Installér plugin fra URL</string>
