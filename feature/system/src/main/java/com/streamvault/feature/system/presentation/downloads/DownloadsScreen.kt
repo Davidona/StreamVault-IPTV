@@ -21,9 +21,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -37,10 +35,14 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
@@ -58,10 +60,13 @@ import coil3.compose.AsyncImage
 import com.streamvault.feature.system.R
 import com.streamvault.core.ui.image.rememberCrossfadeImageModel
 import com.streamvault.core.ui.design.BrowseColors as AppColors
+import com.streamvault.core.ui.design.requestFocusSafely
 import com.streamvault.core.navigation.AppDestination
 import com.streamvault.domain.model.DownloadItem
 import com.streamvault.domain.model.DownloadStatus
 import com.streamvault.feature.system.api.SystemScaffoldContent
+import com.streamvault.core.ui.components.dialogs.PremiumDialog
+import com.streamvault.core.ui.components.dialogs.PremiumDialogFooterButton
 
 @Composable
 fun DownloadsScreen(
@@ -128,6 +133,18 @@ internal fun DownloadsContent(
     onConfirmClearTorrentCache: () -> Unit = {},
     onDismissClearTorrentCache: () -> Unit = {},
 ) {
+    // When a deleted download's card disappears, the remote's focus would otherwise jump out of the screen (to the
+    // top menu), so it's put on the screen's first button instead.
+    val folderButtonFocus = remember { FocusRequester() }
+    var deletingId by remember { mutableStateOf<String?>(null) }
+    LaunchedEffect(deletingId, uiState.downloads) {
+        val id = deletingId ?: return@LaunchedEffect
+        if (uiState.downloads.none { it.id == id }) {
+            deletingId = null
+            folderButtonFocus.requestFocusSafely(tag = "DownloadsScreen", target = "Downloads after delete")
+        }
+    }
+
     scaffold(
         AppDestination.Downloads,
         stringResource(R.string.nav_downloads),
@@ -146,7 +163,7 @@ internal fun DownloadsContent(
                     .padding(horizontal = 16.dp, vertical = 8.dp),
                 horizontalAlignment = Alignment.End
             ) {
-                Button(onClick = onChangeFolder) {
+                Button(onClick = onChangeFolder, modifier = Modifier.focusRequester(folderButtonFocus)) {
                     Text(text = stringResource(R.string.download_folder_change))
                 }
                 Text(
@@ -185,26 +202,22 @@ internal fun DownloadsContent(
     uiState.deleteConfirmItem?.let { item ->
         DeleteConfirmDialog(
             item = item,
-            onConfirm = onConfirmDelete,
+            onConfirm = {
+                deletingId = item.id
+                onConfirmDelete()
+            },
             onDismiss = onDismissDelete
         )
     }
 
     if (uiState.showClearTorrentCacheConfirm) {
-        AlertDialog(
-            onDismissRequest = onDismissClearTorrentCache,
-            title = { Text(stringResource(R.string.torrent_cache_title)) },
-            text = { Text(stringResource(R.string.torrent_cache_confirm_message)) },
-            confirmButton = {
-                TextButton(onClick = onConfirmClearTorrentCache) {
-                    Text(stringResource(R.string.torrent_cache_clear))
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = onDismissClearTorrentCache) {
-                    Text(stringResource(R.string.settings_cancel))
-                }
-            }
+        ConfirmDialog(
+            title = stringResource(R.string.torrent_cache_title),
+            message = stringResource(R.string.torrent_cache_confirm_message),
+            confirmLabel = stringResource(R.string.torrent_cache_clear),
+            destructive = false,
+            onConfirm = onConfirmClearTorrentCache,
+            onDismiss = onDismissClearTorrentCache
         )
     }
 }
@@ -560,31 +573,56 @@ private fun DeleteConfirmDialog(
     onConfirm: () -> Unit,
     onDismiss: () -> Unit
 ) {
-    AlertDialog(
+    ConfirmDialog(
+        title = stringResource(R.string.downloads_delete_confirm_title),
+        message = stringResource(
+            R.string.downloads_delete_confirm_msg,
+            item.contentName.ifBlank { stringResource(R.string.downloads_item_title) }
+        ),
+        confirmLabel = stringResource(R.string.downloads_delete_confirm_delete),
+        destructive = true,
+        onConfirm = onConfirm,
+        onDismiss = onDismiss
+    )
+}
+
+/**
+ * The app's TV dialog: its buttons show clearly which one the remote is on, and it ignores presses for a moment after
+ * opening, so the OK that opened it can't also confirm it.
+ */
+@Composable
+private fun ConfirmDialog(
+    title: String,
+    message: String,
+    confirmLabel: String,
+    destructive: Boolean,
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    PremiumDialog(
+        title = title,
         onDismissRequest = onDismiss,
-        title = {
-            Text(text = stringResource(R.string.downloads_delete_confirm_title))
-        },
-        text = {
+        widthFraction = 0.44f,
+        heightFraction = null,
+        bodyHeightFraction = 0.22f,
+        content = {
             Text(
-                text = stringResource(
-                    R.string.downloads_delete_confirm_msg,
-                    item.contentName.ifBlank { stringResource(R.string.downloads_item_title) }
-                )
+                text = message,
+                style = MaterialTheme.typography.bodyLarge,
+                color = AppColors.TextSecondary
             )
         },
-        confirmButton = {
-            Button(
+        footer = {
+            PremiumDialogFooterButton(
+                label = stringResource(R.string.settings_cancel),
+                onClick = onDismiss
+            )
+            PremiumDialogFooterButton(
+                label = confirmLabel,
                 onClick = onConfirm,
-                colors = ButtonDefaults.buttonColors(containerColor = AppColors.Live)
-            ) {
-                Text(text = stringResource(R.string.downloads_delete_confirm_delete))
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text(text = stringResource(R.string.settings_cancel))
-            }
+                destructive = destructive,
+                emphasized = true
+            )
         }
     )
 }
