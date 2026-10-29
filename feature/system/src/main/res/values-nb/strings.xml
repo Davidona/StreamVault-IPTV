@@ -32,6 +32,7 @@
   <string name="download_folder_default">Standard nedlastingsmappe</string>
   <string name="download_resume">Fortsett</string>
   <string name="download_delete">Slett</string>
+  <string name="download_play">Spill av</string>
   <string name="downloads_resumed">Nedlasting gjenopptatt</string>
   <string name="extensions_tab_plugins">Programtillegg</string>
   <string name="extensions_tab_stremio_addons">Stremio-tillegg</string>

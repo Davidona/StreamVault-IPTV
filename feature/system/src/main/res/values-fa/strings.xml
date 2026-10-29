@@ -45,6 +45,7 @@
   <string name="download_folder_default">پوشه پیش‌فرض دانلود</string>
   <string name="download_resume">ادامه</string>
   <string name="download_delete">حذف</string>
+  <string name="download_play">پخش</string>
   <string name="downloads_resumed">دانلود ادامه یافت</string>
   <string name="extensions_tab_plugins">افزونه‌ها</string>
   <string name="extensions_tab_stremio_addons">افزونه‌های Stremio</string>

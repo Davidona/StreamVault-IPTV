@@ -32,6 +32,7 @@
   <string name="download_folder_default">Стандардна папка за преземања</string>
   <string name="download_resume">Продолжи</string>
   <string name="download_delete">Избриши</string>
+  <string name="download_play">Репродуцирај</string>
   <string name="downloads_resumed">Преземањето е продолжено</string>
   <string name="extensions_tab_plugins">Приклучоци</string>
   <string name="extensions_tab_stremio_addons">Додатоци за Stremio</string>

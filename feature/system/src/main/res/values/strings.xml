@@ -51,6 +51,7 @@
   <string name="download_folder_default">Default downloads folder</string>
   <string name="download_resume">Resume</string>
   <string name="download_delete">Delete</string>
+  <string name="download_play">Play</string>
   <string name="downloads_resumed">Download resumed</string>
   <string name="plugins_configure">Configure</string>
     <string name="torrent_cache_title">Temporary torrent cache</string>

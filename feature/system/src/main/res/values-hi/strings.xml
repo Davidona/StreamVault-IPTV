@@ -32,6 +32,7 @@
   <string name="download_folder_default">डिफ़ॉल्ट डाउनलोड फ़ोल्डर</string>
   <string name="download_resume">फिर शुरू करें</string>
   <string name="download_delete">हटाएँ</string>
+  <string name="download_play">चलाएँ</string>
   <string name="downloads_resumed">डाउनलोड फिर शुरू हुआ</string>
   <string name="extensions_tab_plugins">प्लगइन</string>
   <string name="extensions_tab_stremio_addons">Stremio ऐड-ऑन</string>

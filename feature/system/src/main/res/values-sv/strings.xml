@@ -32,6 +32,7 @@
   <string name="download_folder_default">Standardmapp för nedladdningar</string>
   <string name="download_resume">Återuppta</string>
   <string name="download_delete">Ta bort</string>
+  <string name="download_play">Spela</string>
   <string name="downloads_resumed">Nedladdning återupptagen</string>
   <string name="extensions_tab_plugins">Insticksprogram</string>
   <string name="extensions_tab_stremio_addons">Stremio-tillägg</string>

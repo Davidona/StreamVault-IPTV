@@ -32,6 +32,7 @@
   <string name="download_folder_default">Latausten oletuskansio</string>
   <string name="download_resume">Jatka</string>
   <string name="download_delete">Poista</string>
+  <string name="download_play">Toista</string>
   <string name="downloads_resumed">Lataus jatkui</string>
   <string name="extensions_tab_plugins">Liitännäiset</string>
   <string name="extensions_tab_stremio_addons">Stremio-lisäosat</string>

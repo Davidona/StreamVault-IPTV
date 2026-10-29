@@ -32,6 +32,7 @@
   <string name="download_folder_default">默认下载文件夹</string>
   <string name="download_resume">继续</string>
   <string name="download_delete">删除</string>
+  <string name="download_play">播放</string>
   <string name="downloads_resumed">下载已继续</string>
   <string name="extensions_tab_plugins">插件</string>
   <string name="extensions_tab_stremio_addons">Stremio 扩展</string>

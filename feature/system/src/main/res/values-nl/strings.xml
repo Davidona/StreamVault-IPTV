@@ -32,6 +32,7 @@
   <string name="download_folder_default">Standaard downloadmap</string>
   <string name="download_resume">Hervatten</string>
   <string name="download_delete">Verwijderen</string>
+  <string name="download_play">Afspelen</string>
   <string name="downloads_resumed">Download hervat</string>
   <string name="extensions_tab_plugins">Plugins</string>
   <string name="extensions_tab_stremio_addons">Stremio-add-ons</string>

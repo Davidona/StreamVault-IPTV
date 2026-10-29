@@ -34,6 +34,7 @@
   <string name="download_folder_default">Dossier de téléchargement par défaut</string>
   <string name="download_resume">Reprendre</string>
   <string name="download_delete">Supprimer</string>
+  <string name="download_play">Lire</string>
   <string name="downloads_resumed">Téléchargement repris</string>
   <string name="extensions_tab_plugins">Plugins</string>
   <string name="extensions_tab_stremio_addons">Extensions Stremio</string>

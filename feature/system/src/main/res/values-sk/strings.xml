@@ -32,6 +32,7 @@
   <string name="download_folder_default">Predvolený priečinok sťahovaní</string>
   <string name="download_resume">Pokračovať</string>
   <string name="download_delete">Odstrániť</string>
+  <string name="download_play">Prehrať</string>
   <string name="downloads_resumed">Sťahovanie obnovené</string>
   <string name="extensions_tab_plugins">Pluginy</string>
   <string name="extensions_tab_stremio_addons">Doplnky Stremio</string>
