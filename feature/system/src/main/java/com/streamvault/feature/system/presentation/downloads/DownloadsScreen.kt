@@ -5,7 +5,7 @@ import com.streamvault.core.ui.design.BrowseShapes
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,9 +17,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
@@ -41,16 +45,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.onClick
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.Dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.Lifecycle
@@ -136,11 +143,13 @@ internal fun DownloadsContent(
     // When a deleted download's card disappears, the remote's focus would otherwise jump out of the screen (to the
     // top menu), so it's put on the screen's first button instead.
     val folderButtonFocus = remember { FocusRequester() }
+    val gridState = rememberLazyListState()
     var deletingId by remember { mutableStateOf<String?>(null) }
     LaunchedEffect(deletingId, uiState.downloads) {
         val id = deletingId ?: return@LaunchedEffect
         if (uiState.downloads.none { it.id == id }) {
             deletingId = null
+            gridState.scrollToItem(0)
             folderButtonFocus.requestFocusSafely(tag = "DownloadsScreen", target = "Downloads after delete")
         }
     }
@@ -152,15 +161,14 @@ internal fun DownloadsContent(
         true,
         false
     ) {
-        Column(modifier = Modifier.fillMaxSize()) {
-            val downloadFolderLabel = uiState.storageConfig.displayName
-                ?: uiState.storageConfig.treeUri
-                ?: stringResource(R.string.download_folder_default)
-
+        val downloadFolderLabel = uiState.storageConfig.displayName
+            ?: uiState.storageConfig.treeUri
+            ?: stringResource(R.string.download_folder_default)
+        val header: @Composable (Dp) -> Unit = { horizontalPadding ->
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                    .padding(horizontal = horizontalPadding, vertical = 8.dp),
                 horizontalAlignment = Alignment.End
             ) {
                 Button(onClick = onChangeFolder, modifier = Modifier.focusRequester(folderButtonFocus)) {
@@ -182,20 +190,31 @@ internal fun DownloadsContent(
             TorrentCacheCard(
                 status = uiState.torrentCacheStatus,
                 isClearing = uiState.isClearingTorrentCache,
-                onClear = onClearTorrentCache
+                onClear = onClearTorrentCache,
+                horizontalPadding = horizontalPadding
             )
+        }
 
-            when {
-                uiState.isLoading -> DownloadsLoadingState(Modifier.weight(1f))
-                uiState.downloads.isEmpty() -> DownloadsEmptyState(Modifier.weight(1f))
-                else -> DownloadsGrid(
-                    downloads = uiState.downloads,
-                    onOpenClick = onOpen,
-                    onResumeClick = onResume,
-                    onDeleteClick = onDelete,
-                    modifier = Modifier.weight(1f)
-                )
+        when {
+            uiState.isLoading -> Column(modifier = Modifier.fillMaxSize()) {
+                header(16.dp)
+                DownloadsLoadingState(Modifier.weight(1f))
             }
+            uiState.downloads.isEmpty() -> Column(modifier = Modifier.fillMaxSize()) {
+                header(16.dp)
+                DownloadsEmptyState(Modifier.weight(1f))
+            }
+            // The header scrolls with the cards: a card is taller than the space left below a fixed header on a TV,
+            // so its buttons would sit off screen where the remote can't reach them.
+            else -> DownloadsGrid(
+                downloads = uiState.downloads,
+                state = gridState,
+                header = { header(0.dp) },
+                onOpenClick = onOpen,
+                onResumeClick = onResume,
+                onDeleteClick = onDelete,
+                modifier = Modifier.fillMaxSize()
+            )
         }
     }
 
@@ -226,13 +245,14 @@ internal fun DownloadsContent(
 private fun TorrentCacheCard(
     status: com.streamvault.domain.model.TorrentCacheStatus?,
     isClearing: Boolean,
-    onClear: () -> Unit
+    onClear: () -> Unit,
+    horizontalPadding: Dp = 16.dp
 ) {
     val context = LocalContext.current
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 4.dp),
+            .padding(horizontal = horizontalPadding, vertical = 4.dp),
         color = AppColors.Surface,
         shape = BrowseShapes.Control
     ) {
@@ -345,31 +365,53 @@ private fun DownloadsEmptyState(modifier: Modifier = Modifier) {
 @Composable
 private fun DownloadsGrid(
     downloads: List<DownloadItem>,
+    state: LazyListState,
+    header: @Composable () -> Unit,
     onOpenClick: (DownloadItem) -> Unit,
     onResumeClick: (DownloadItem) -> Unit,
     onDeleteClick: (DownloadItem) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val columns = if (LocalConfiguration.current.screenWidthDp < 700) {
-        GridCells.Adaptive(180.dp)
-    } else {
-        GridCells.Adaptive(250.dp)
-    }
+    val minCardWidth = if (LocalConfiguration.current.screenWidthDp < 700) 180.dp else 250.dp
+    val spacing = 12.dp
 
-    LazyVerticalGrid(
-        columns = columns,
-        modifier = modifier.fillMaxSize(),
-        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        items(downloads, key = { it.id }) { download ->
-            DownloadCard(
-                download = download,
-                onOpenClick = { onOpenClick(download) },
-                onResumeClick = { onResumeClick(download) },
-                onDeleteClick = { onDeleteClick(download) }
-            )
+    BoxWithConstraints(modifier = modifier.fillMaxSize()) {
+        // As many columns as GridCells.Adaptive(minCardWidth) would give.
+        val columns = ((maxWidth - 32.dp + spacing) / (minCardWidth + spacing)).toInt().coerceAtLeast(1)
+        LazyColumn(
+            state = state,
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(spacing)
+        ) {
+            item(key = "header") {
+                header()
+            }
+            items(downloads.chunked(columns), key = { row -> row.first().id }) { row ->
+                // The cards of a row share one height, so their buttons line up and Up/Down move straight between
+                // rows instead of sideways to whichever card's buttons happen to sit lower.
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(IntrinsicSize.Min),
+                    horizontalArrangement = Arrangement.spacedBy(spacing)
+                ) {
+                    row.forEach { download ->
+                        DownloadCard(
+                            download = download,
+                            onOpenClick = { onOpenClick(download) },
+                            onResumeClick = { onResumeClick(download) },
+                            onDeleteClick = { onDeleteClick(download) },
+                            modifier = Modifier
+                                .weight(1f)
+                                .fillMaxHeight()
+                        )
+                    }
+                    repeat(columns - row.size) {
+                        Spacer(modifier = Modifier.weight(1f))
+                    }
+                }
+            }
         }
     }
 }
@@ -379,26 +421,37 @@ private fun DownloadCard(
     download: DownloadItem,
     onOpenClick: () -> Unit,
     onResumeClick: () -> Unit,
-    onDeleteClick: () -> Unit
+    onDeleteClick: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     val progress = download.totalBytes?.takeIf { it > 0L }?.let { total ->
         (download.bytesWritten.toFloat() / total.toFloat()).coerceIn(0f, 1f)
     } ?: 0f
 
     Surface(
-        // Tapping the card still opens it, but the remote skips the card: a focused card never lets focus reach its
-        // buttons, so on TV the card's Play and Delete buttons are the way in.
-        modifier = Modifier
+        // Tapping a completed card still opens it, but the card is no focus target: a focusable card (even one the
+        // remote skips) keeps focus from reaching its buttons or moving to the next card's, so on TV the card's own
+        // Play and Delete buttons are the way in. It's still read as one item by accessibility services.
+        modifier = modifier
             .fillMaxWidth()
             .clip(BrowseShapes.Control)
-            .focusProperties { canFocus = false }
-            .clickable(enabled = download.status == DownloadStatus.COMPLETED, onClick = onOpenClick),
+            .semantics(mergeDescendants = true) {
+                if (download.status == DownloadStatus.COMPLETED) {
+                    onClick { onOpenClick(); true }
+                }
+            }
+            .pointerInput(download.status) {
+                if (download.status == DownloadStatus.COMPLETED) {
+                    detectTapGestures(onTap = { onOpenClick() })
+                }
+            },
         color = AppColors.Surface,
         shape = BrowseShapes.Control
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
+                .fillMaxHeight()
                 .padding(12.dp)
         ) {
             Box(
@@ -463,6 +516,8 @@ private fun DownloadCard(
                     modifier = Modifier.padding(top = 4.dp)
                 )
             }
+
+            Spacer(modifier = Modifier.weight(1f))
 
             Row(
                 modifier = Modifier
