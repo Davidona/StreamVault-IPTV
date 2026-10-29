@@ -32,6 +32,7 @@
   <string name="download_folder_default">Folder unduhan default</string>
   <string name="download_resume">Lanjutkan</string>
   <string name="download_delete">Hapus</string>
+  <string name="download_play">Putar</string>
   <string name="downloads_resumed">Unduhan dilanjutkan</string>
   <string name="extensions_tab_plugins">Plugin</string>
   <string name="extensions_tab_stremio_addons">Add-on Stremio</string>

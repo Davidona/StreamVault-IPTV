@@ -32,6 +32,7 @@
   <string name="download_folder_default">Default na download folder</string>
   <string name="download_resume">Ituloy</string>
   <string name="download_delete">Burahin</string>
+  <string name="download_play">I-play</string>
   <string name="downloads_resumed">Na-resume ang download</string>
   <string name="extensions_tab_plugins">Mga plugin</string>
   <string name="extensions_tab_stremio_addons">Mga add-on ng Stremio</string>

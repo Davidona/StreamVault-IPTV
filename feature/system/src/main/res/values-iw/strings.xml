@@ -32,6 +32,7 @@
   <string name="download_folder_default">תיקיית הורדות ברירת מחדל</string>
   <string name="download_resume">המשך</string>
   <string name="download_delete">מחק</string>
+  <string name="download_play">נגן</string>
   <string name="downloads_resumed">ההורדה חודשה</string>
   <string name="extensions_tab_plugins">תוספים</string>
   <string name="extensions_tab_stremio_addons">תוספי Stremio</string>

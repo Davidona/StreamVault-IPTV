@@ -32,6 +32,7 @@
   <string name="download_folder_default">Папка за изтегляния по подразбиране</string>
   <string name="download_resume">Продължи</string>
   <string name="download_delete">Изтрий</string>
+  <string name="download_play">Възпроизведи</string>
   <string name="downloads_resumed">Изтеглянето е продължено</string>
   <string name="extensions_tab_plugins">Приставки</string>
   <string name="extensions_tab_stremio_addons">Добавки за Stremio</string>

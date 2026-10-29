@@ -32,6 +32,7 @@
   <string name="download_folder_default">Carpeta de descargas predeterminada</string>
   <string name="download_resume">Reanudar</string>
   <string name="download_delete">Eliminar</string>
+  <string name="download_play">Reproducir</string>
   <string name="downloads_resumed">Descarga reanudada</string>
   <string name="extensions_tab_plugins">Plugins</string>
   <string name="extensions_tab_stremio_addons">Complementos de Stremio</string>

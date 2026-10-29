@@ -32,6 +32,7 @@
   <string name="download_folder_default">Папка загрузок по умолчанию</string>
   <string name="download_resume">Возобновить</string>
   <string name="download_delete">Удалить</string>
+  <string name="download_play">Воспроизвести</string>
   <string name="downloads_resumed">Загрузка возобновлена</string>
   <string name="extensions_tab_plugins">Плагины</string>
   <string name="extensions_tab_stremio_addons">Дополнения Stremio</string>

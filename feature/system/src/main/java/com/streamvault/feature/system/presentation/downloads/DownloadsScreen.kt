@@ -40,6 +40,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
@@ -372,9 +373,12 @@ private fun DownloadCard(
     } ?: 0f
 
     Surface(
+        // Tapping the card still opens it, but the remote skips the card: a focused card never lets focus reach its
+        // buttons, so on TV the card's Play and Delete buttons are the way in.
         modifier = Modifier
             .fillMaxWidth()
             .clip(BrowseShapes.Control)
+            .focusProperties { canFocus = false }
             .clickable(enabled = download.status == DownloadStatus.COMPLETED, onClick = onOpenClick),
         color = AppColors.Surface,
         shape = BrowseShapes.Control
@@ -453,6 +457,11 @@ private fun DownloadCard(
                     .padding(top = 8.dp),
                 horizontalArrangement = Arrangement.End
             ) {
+                if (download.status == DownloadStatus.COMPLETED) {
+                    TextButton(onClick = onOpenClick) {
+                        Text(text = stringResource(R.string.download_play))
+                    }
+                }
                 if (download.status == DownloadStatus.FAILED) {
                     TextButton(onClick = onResumeClick) {
                         Text(text = stringResource(R.string.download_resume))

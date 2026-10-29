@@ -32,6 +32,7 @@
   <string name="download_folder_default">Varsayılan indirme klasörü</string>
   <string name="download_resume">Devam ettir</string>
   <string name="download_delete">Sil</string>
+  <string name="download_play">Oynat</string>
   <string name="downloads_resumed">İndirme devam ettirildi</string>
   <string name="extensions_tab_plugins">Eklentiler</string>
   <string name="extensions_tab_stremio_addons">Stremio eklentileri</string>

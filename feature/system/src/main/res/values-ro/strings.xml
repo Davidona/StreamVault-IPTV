@@ -32,6 +32,7 @@
   <string name="download_folder_default">Folderul de descărcare implicit</string>
   <string name="download_resume">Reluați</string>
   <string name="download_delete">Ștergeți</string>
+  <string name="download_play">Redați</string>
   <string name="downloads_resumed">Descărcare reluată</string>
   <string name="extensions_tab_plugins">Pluginuri</string>
   <string name="extensions_tab_stremio_addons">Extensii Stremio</string>

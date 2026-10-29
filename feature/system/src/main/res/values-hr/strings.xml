@@ -32,6 +32,7 @@
   <string name="download_folder_default">Zadana mapa za preuzimanja</string>
   <string name="download_resume">Nastavi</string>
   <string name="download_delete">Izbriši</string>
+  <string name="download_play">Reproduciraj</string>
   <string name="downloads_resumed">Preuzimanje nastavljeno</string>
   <string name="extensions_tab_plugins">Priključci</string>
   <string name="extensions_tab_stremio_addons">Stremio dodaci</string>

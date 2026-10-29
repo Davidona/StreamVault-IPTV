@@ -32,6 +32,7 @@
   <string name="download_folder_default">Dosja e parazgjedhur e shkarkimeve</string>
   <string name="download_resume">Vazhdo</string>
   <string name="download_delete">Fshi</string>
+  <string name="download_play">Luaj</string>
   <string name="downloads_resumed">Shkarkimi vazhdoi</string>
   <string name="extensions_tab_plugins">Shtojcat</string>
   <string name="extensions_tab_stremio_addons">Shtesa Stremio</string>

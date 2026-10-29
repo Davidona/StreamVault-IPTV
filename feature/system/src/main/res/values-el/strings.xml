@@ -32,6 +32,7 @@
   <string name="download_folder_default">Προεπιλεγμένος φάκελος λήψεων</string>
   <string name="download_resume">Συνέχιση</string>
   <string name="download_delete">Διαγραφή</string>
+  <string name="download_play">Αναπαραγωγή</string>
   <string name="downloads_resumed">Η λήψη συνεχίστηκε</string>
   <string name="extensions_tab_plugins">Πρόσθετα</string>
   <string name="extensions_tab_stremio_addons">Πρόσθετα Stremio</string>

@@ -32,6 +32,7 @@
   <string name="download_folder_default">โฟลเดอร์ดาวน์โหลดเริ่มต้น</string>
   <string name="download_resume">ดำเนินการต่อ</string>
   <string name="download_delete">ลบ</string>
+  <string name="download_play">เล่น</string>
   <string name="downloads_resumed">ดำเนินการดาวน์โหลดต่อแล้ว</string>
   <string name="extensions_tab_plugins">ปลั๊กอิน</string>
   <string name="extensions_tab_stremio_addons">ส่วนเสริม Stremio</string>
