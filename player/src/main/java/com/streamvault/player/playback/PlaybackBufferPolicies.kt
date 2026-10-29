@@ -52,6 +52,7 @@ internal object PlaybackBufferPolicies {
     private const val LARGE_LIVE_MAX_BUFFER_MS = 90_000
     private const val LARGE_LIVE_PLAYBACK_BUFFER_MS = 5_000
     private const val LARGE_LIVE_REBUFFER_MS = 15_000
+    private const val RAW_TS_LOADING_WINDOW_MS = 2_000
 
     fun forPlayback(
         isLive: Boolean,
@@ -104,9 +105,11 @@ internal object PlaybackBufferPolicies {
         val isLive = isLivePlayback(kind, resolvedStreamType)
         if (bufferMode == PlaybackBufferMode.MEDIUM && isLive) {
             return mediumLivePolicy(label = "medium-live", qualityReason = "user-medium")
+                .withRawTsLoadingWindow(resolvedStreamType)
         }
         if (bufferMode == PlaybackBufferMode.LARGE && isLive) {
             return largeLivePolicy(label = "large-live", qualityReason = "user-large")
+                .withRawTsLoadingWindow(resolvedStreamType)
         }
         if (!isLive && resolvedStreamType == ResolvedStreamType.HLS) {
             return baselineLivePolicy(
@@ -227,6 +230,17 @@ internal object PlaybackBufferPolicies {
                 targetBufferBytes = DEFAULT_TARGET_BUFFER_BYTES,
                 prioritizeTimeOverSizeThresholds = false
             )
+    }
+
+    private fun PlaybackBufferPolicy.withRawTsLoadingWindow(
+        resolvedStreamType: ResolvedStreamType
+    ): PlaybackBufferPolicy {
+        if (resolvedStreamType != ResolvedStreamType.MPEG_TS_LIVE) return this
+        // Continuous TS keeps one response open while loading pauses. Retain the existing
+        // ceiling and restart loading near it to avoid prolonged socket backpressure.
+        // Startup/refill thresholds and byte limits are independent of this loading floor.
+        // Progressive loading checks can overshoot this duration window.
+        return copy(minBufferMs = maxOf(minBufferMs, maxBufferMs - RAW_TS_LOADING_WINDOW_MS))
     }
 
     private fun mediumLivePolicy(

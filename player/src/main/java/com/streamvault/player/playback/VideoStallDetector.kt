@@ -15,12 +15,15 @@ class VideoStallDetector(
     private var lastPositionMs: Long = 0L
     private var lastPositionCheckMs: Long = 0L
     private var stalled = false
+    private var bufferingReserveHighWaterMs: Long? = null
+    private var lastBufferingProgressAtMs: Long? = null
 
     @Synchronized
     fun restartAfterRecoveryAttempt() {
         startedAtMs = nowMs()
         lastPositionCheckMs = startedAtMs
         stalled = false
+        clearBufferingProgress()
         // Retain lastFrameAtMs: a seek attempt is not evidence of a rendered frame.
     }
 
@@ -33,6 +36,7 @@ class VideoStallDetector(
         lastPositionMs = 0L
         lastPositionCheckMs = now
         stalled = false
+        clearBufferingProgress()
     }
 
     @Synchronized
@@ -61,7 +65,8 @@ class VideoStallDetector(
         recoverBufferingStalls: Boolean = false,
         recoverReadyStalls: Boolean = true,
         recoverPositionAdvancingReadyStalls: Boolean = true,
-        recoverFrameSilentReadyStalls: Boolean = false
+        recoverFrameSilentReadyStalls: Boolean = false,
+        deferReporting: Boolean = false
     ): Boolean {
         val now = nowMs()
         val playbackRequested = isPlaying || playWhenReady
@@ -71,15 +76,31 @@ class VideoStallDetector(
             lastPositionMs = currentPositionMs
             lastPositionCheckMs = now
             stalled = false
+            clearBufferingProgress()
+            return false
+        }
+        if (canEvaluateBufferingStall) {
+            val previousReserve = bufferingReserveHighWaterMs
+            if (previousReserve == null || bufferedDurationMs > previousReserve) {
+                bufferingReserveHighWaterMs = bufferedDurationMs
+                // A first observation is only a baseline. Later growth proves active refill;
+                // frame silence is expected while load control waits for enough media.
+                if (previousReserve != null) lastBufferingProgressAtMs = now
+            }
+        } else {
+            clearBufferingProgress()
+        }
+        if (deferReporting) {
+            // Observe refill throughout startup grace, but do not consume a one-shot stall
+            // that the caller cannot handle yet. Keep frame and progress clocks intact.
+            stalled = false
             return false
         }
         if (now - startedAtMs < initialGraceMs) return false
         if (canEvaluateBufferingStall) {
-            val frameSilent = if (lastFrameAtMs <= 0L) {
-                now - startedAtMs >= bufferingStallThresholdMs
-            } else {
-                now - lastFrameAtMs >= bufferingStallThresholdMs
-            }
+            val frameAtMs = if (lastFrameAtMs <= 0L) startedAtMs else lastFrameAtMs
+            val lastProgressAtMs = maxOf(frameAtMs, lastBufferingProgressAtMs ?: frameAtMs)
+            val frameSilent = now - lastProgressAtMs >= bufferingStallThresholdMs
             if (frameSilent && !stalled) {
                 stalled = true
                 return true
@@ -123,5 +144,10 @@ class VideoStallDetector(
         }
         if (!frameSilent) stalled = false
         return false
+    }
+
+    private fun clearBufferingProgress() {
+        bufferingReserveHighWaterMs = null
+        lastBufferingProgressAtMs = null
     }
 }

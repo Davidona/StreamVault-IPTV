@@ -1,9 +1,9 @@
 package com.streamvault.domain.util
 
 import com.streamvault.domain.model.LivePlaybackIdentity
-import java.io.ByteArrayOutputStream
 import java.io.Closeable
 import java.io.IOException
+import java.net.URI
 import java.security.MessageDigest
 import java.util.concurrent.ScheduledThreadPoolExecutor
 import java.util.concurrent.TimeUnit
@@ -23,8 +23,39 @@ private data class CachedHlsResource(
     val aliases: Set<HlsResourceKey>,
     val bytes: ByteArray,
     val updatedAtMs: Long,
-    val isPlaylist: Boolean
+    val isPlaylist: Boolean,
+    val isMediaSegment: Boolean,
+    val wasReferencedDependency: Boolean,
+    val references: HlsPlaylistReferences?
 )
+
+private data class HlsPlaylistReferences(val media: Set<String>, val dependencies: Set<String>)
+
+/** Identify resource roles conservatively before reclaiming media or consumed dependencies. */
+private fun hlsPlaylistReferences(baseUrl: String, bytes: ByteArray): HlsPlaylistReferences? = runCatching {
+    require(bytes.looksLikeHlsPlaylist())
+    val base = URI(baseUrl)
+    val media = HashSet<String>()
+    val dependencies = HashSet<String>()
+    var mediaUriExpected = false
+    bytes.toString(Charsets.UTF_8).lineSequence().forEach { rawLine ->
+        val line = rawLine.trim().removePrefix("\uFEFF")
+        if (line.startsWith("#EXTINF:")) mediaUriExpected = true
+        if (line.startsWith("#") && ':' in line) {
+            val attributes = line.substringAfter(':')
+            val uris = HLS_URI_ATTRIBUTE.findAll(attributes).map { it.groupValues[1] }.toList()
+            // Unknown/unresolved attribute syntax must not make a dependency evictable.
+            if ("URI=" in attributes) require(uris.isNotEmpty())
+            uris.forEach { dependencies.add(base.resolve(it).toString()) }
+        } else if (line.isNotEmpty() && !line.startsWith("#")) {
+            if (mediaUriExpected) media.add(base.resolve(line).toString())
+            mediaUriExpected = false
+        }
+    }
+    HlsPlaylistReferences(media, dependencies)
+}.getOrNull()
+
+private val HLS_URI_ATTRIBUTE = Regex("(?:^|,)URI=\"([^\"]*)\"")
 
 private data class HlsResourceKey(
     val url: String,
@@ -52,6 +83,56 @@ private fun ByteArray.looksLikeText(): Boolean = all { byte ->
 }
 
 private val HLS_WHITESPACE_BYTES = setOf(' '.code, '\t'.code, '\n'.code, '\r'.code)
+
+/** Accumulates responses without copying all earlier bytes whenever the buffer grows. */
+private class HlsResponseBuffer {
+    private val chunks = ArrayList<ByteArray>()
+    private var tailSize = 0
+    var size: Int = 0
+        private set
+
+    fun write(bytes: ByteArray, offset: Int, length: Int) {
+        var sourceOffset = offset
+        var remaining = length
+        while (remaining > 0) {
+            if (chunks.isEmpty() || tailSize == chunks.last().size) {
+                // Small playlists and keys do not need a full segment-sized chunk.
+                chunks.add(ByteArray(if (chunks.isEmpty()) remaining.coerceIn(4096, 65536) else 65536))
+                tailSize = 0
+            }
+            val tail = chunks.last()
+            val count = minOf(remaining, tail.size - tailSize)
+            bytes.copyInto(tail, tailSize, sourceOffset, sourceOffset + count)
+            tailSize += count
+            sourceOffset += count
+            remaining -= count
+            size += count
+        }
+    }
+
+    fun takeBytes(): ByteArray {
+        val result = if (chunks.size == 1 && tailSize == chunks[0].size) {
+            chunks[0]
+        } else {
+            ByteArray(size).also { bytes ->
+                var offset = 0
+                chunks.forEachIndexed { index, chunk ->
+                    val count = if (index == chunks.lastIndex) tailSize else chunk.size
+                    chunk.copyInto(bytes, offset, 0, count)
+                    offset += count
+                }
+            }
+        }
+        clear()
+        return result
+    }
+
+    fun clear() {
+        chunks.clear()
+        tailSize = 0
+        size = 0
+    }
+}
 
 class LivePlaybackCaptureBackpressureException : IOException(
     "Live playback capture exceeded its bounded buffer."
@@ -352,9 +433,15 @@ class LivePlaybackByteTap @Inject constructor() {
         @Synchronized
         private fun consume(resourceId: Long, capture: HlsCaptureImpl) {
             val resource = resourcesById[resourceId] ?: return
-            if (capture !in captures || resource.id < capture.firstRecordingResourceId) return
+            if (capture !in captures || resource.id < capture.firstRecordingResourceId &&
+                !resource.wasReferencedDependency && !isReferencedDependency(resource)
+            ) return
             capture.consumedResourceIds += resource.id
-            if (!isRequiredByCapture(resource)) removeResource(resource)
+            // Initialization maps can be consumed by one recording and still be needed
+            // by another recording which attaches after Media3's one-time map request.
+            if (!isRequiredByCapture(resource) && !resource.isPlaylist &&
+                !resource.wasReferencedDependency && !isReferencedDependency(resource)
+            ) removeResource(resource)
         }
 
         @Synchronized
@@ -369,19 +456,54 @@ class LivePlaybackByteTap @Inject constructor() {
         @Synchronized
         private fun detach(capture: HlsCaptureImpl) {
             captures.remove(capture)
-            resourcesById.values.toList()
-                .filterNot(::isRequiredByCapture)
-                .forEach(::removeResource)
             if (captures.isEmpty()) {
                 failure = null
+                // Keep the current manifest and warm dependencies for a subsequent
+                // recording. Closing the last reader must not discard a cached key/map
+                // which playback may never request again.
+                pruneIdleObsoleteResources()
                 scheduleHlsCleanup(this@HlsSourceSession)
+            } else {
+                resourcesById.values.toList()
+                    .filter { it.isMediaSegment && !isRequiredByCapture(it) && !isReferencedDependency(it) }
+                    .forEach(::removeResource)
             }
+        }
+
+        private fun isReferencedDependency(resource: CachedHlsResource): Boolean =
+            resourcesById.values.any { playlist ->
+                playlist.references?.dependencies?.let { dependencies ->
+                    resource.aliases.any { it.url in dependencies }
+                } == true
+            }
+
+        /** Idle readers never record media from before attachment. Retain the current
+         * window conservatively, but release classified resources once every cached
+         * playlist has rolled past them. Unknown manifests/resources remain bounded
+         * by the existing cache policy rather than being guessed disposable here. */
+        private fun pruneIdleObsoleteResources() {
+            if (captures.isNotEmpty()) return
+            val playlists = resourcesById.values.filter { it.isPlaylist }
+            if (playlists.isEmpty()) return
+            val references = playlists.map { it.references ?: return }
+            val referenced = HashSet<String>()
+            references.forEach {
+                referenced.addAll(it.media)
+                referenced.addAll(it.dependencies)
+            }
+            resourcesById.values.toList()
+                .filter { resource ->
+                    !resource.isPlaylist && (resource.isMediaSegment || resource.wasReferencedDependency) &&
+                        resource.aliases.none { it.url in referenced }
+                }
+                .forEach(::removeResource)
         }
 
         private fun isRequiredByCapture(resource: CachedHlsResource): Boolean =
             captures.any { capture ->
-                resource.id >= capture.firstRecordingResourceId &&
-                    resource.id !in capture.consumedResourceIds
+                resource.id !in capture.consumedResourceIds &&
+                    (resource.id >= capture.firstRecordingResourceId ||
+                        resource.wasReferencedDependency || isReferencedDependency(resource))
             }
 
         @Synchronized
@@ -409,18 +531,29 @@ class LivePlaybackByteTap @Inject constructor() {
                 return
             }
 
-            val used = if (isPlaylist) playlistBytes else payloadBytes
-            if (captures.isNotEmpty() && used + bytes.size > limit) {
-                // A recording must not silently skip an evicted segment. Fail the capture before
-                // producing a file with gaps; foreground playback remains non-blocking.
-                failure = LivePlaybackCaptureBackpressureException()
-                return
-            }
-            while (captures.isEmpty() &&
-                (if (isPlaylist) playlistBytes else payloadBytes) + bytes.size > limit
-            ) {
-                val oldest = resourcesById.values.firstOrNull { it.isPlaylist == isPlaylist } ?: break
+            val playlists = resourcesById.values.filter { it.isPlaylist }
+            val references = playlists.mapNotNull { it.references }
+            val dependenciesKnown = playlists.isNotEmpty() && references.size == playlists.size
+            val dependencies = references.flatMapTo(HashSet()) { it.dependencies }
+            val isMediaSegment = !isPlaylist &&
+                aliases.any { alias -> references.any { alias.url in it.media } } &&
+                aliases.none { it.url in dependencies }
+            while ((if (isPlaylist) playlistBytes else payloadBytes) + bytes.size > limit) {
+                val oldest = resourcesById.values.firstOrNull { resource ->
+                    resource.isPlaylist == isPlaylist &&
+                        // Keep referenced keys/maps warm even before a recording attaches.
+                        resource.aliases.none { it.url in dependencies } &&
+                        (captures.isEmpty() ||
+                            dependenciesKnown && !isRequiredByCapture(resource) &&
+                                (resource.isMediaSegment || resource.wasReferencedDependency))
+                } ?: break
                 removeResource(oldest)
+            }
+            if ((if (isPlaylist) playlistBytes else payloadBytes) + bytes.size > limit) {
+                // Never evict a segment still owed to a recording, or guess that a warm key,
+                // initialization response, or unclassified payload is disposable media.
+                if (captures.isNotEmpty()) failure = LivePlaybackCaptureBackpressureException()
+                return
             }
 
             val resourceId = nextResourceId++
@@ -430,11 +563,15 @@ class LivePlaybackByteTap @Inject constructor() {
                 aliases = aliases,
                 bytes = bytes,
                 updatedAtMs = elapsedRealtimeMs(),
-                isPlaylist = isPlaylist
+                isPlaylist = isPlaylist,
+                isMediaSegment = isMediaSegment,
+                wasReferencedDependency = !isPlaylist && aliases.any { it.url in dependencies },
+                references = if (isPlaylist) hlsPlaylistReferences(resolvedUrl, bytes) else null
             )
             resourcesById[resourceId] = entry
             aliases.forEach { resourcesByUrl[it] = entry }
             if (isPlaylist) playlistBytes += bytes.size else payloadBytes += bytes.size
+            if (isPlaylist) pruneIdleObsoleteResources()
         }
 
         private fun CachedHlsResource.toPublicResource() =
@@ -451,6 +588,9 @@ class LivePlaybackByteTap @Inject constructor() {
         private fun removeResource(resource: CachedHlsResource) {
             val entry = resourcesById.entries.firstOrNull { it.value === resource } ?: return
             resourcesById.remove(entry.key)
+            // IDs are monotonic and cannot become readable again after removal.
+            // Keeping their consumption history would grow for the entire recording.
+            captures.forEach { it.consumedResourceIds.remove(resource.id) }
             resource.aliases.forEach { alias ->
                 if (resourcesByUrl[alias] === resource) resourcesByUrl.remove(alias)
             }
@@ -464,7 +604,7 @@ class LivePlaybackByteTap @Inject constructor() {
             private val rangeStart: Long,
             private val rangeLength: Long
         ) : HlsPublisher {
-            private var output = ByteArrayOutputStream()
+            private val output = HlsResponseBuffer()
             private var completed = false
             private var oversized = false
 
@@ -474,9 +614,9 @@ class LivePlaybackByteTap @Inject constructor() {
                 synchronized(this@HlsSourceSession) {
                     if (completed || oversized) return
                     lastActivityAtMs = elapsedRealtimeMs()
-                    if (output.size() + length > MAX_HLS_RESOURCE_BYTES) {
+                    if (length > MAX_HLS_RESOURCE_BYTES - output.size) {
                         oversized = true
-                        output.reset()
+                        output.clear()
                         return
                     }
                     output.write(buffer, offset, length)
@@ -490,12 +630,12 @@ class LivePlaybackByteTap @Inject constructor() {
                     if (oversized) {
                         if (captures.isNotEmpty()) failure = LivePlaybackCaptureBackpressureException()
                     } else {
-                        val bytes = output.toByteArray()
+                        val bytes = output.takeBytes()
                         val bodyIsPlaylist = bytes.looksLikeHlsPlaylist() ||
                             (isPlaylist && bytes.looksLikeText())
                         store(requestedUrl, resolvedUrl, bytes, bodyIsPlaylist, rangeStart, rangeLength)
                     }
-                    output = ByteArrayOutputStream()
+                    output.clear()
                 }
                 scheduleHlsCleanup(this@HlsSourceSession)
             }
@@ -504,7 +644,7 @@ class LivePlaybackByteTap @Inject constructor() {
                 synchronized(this@HlsSourceSession) {
                     if (completed) return
                     completed = true
-                    output = ByteArrayOutputStream()
+                    output.clear()
                 }
                 scheduleHlsCleanup(this@HlsSourceSession)
             }

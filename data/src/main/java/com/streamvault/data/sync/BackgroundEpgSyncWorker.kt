@@ -18,6 +18,9 @@ import com.streamvault.data.local.entity.ProviderWorkflowReason
 import com.streamvault.data.local.dao.ProviderDao
 import com.streamvault.data.local.dao.XtreamIndexJobDao
 import com.streamvault.domain.model.ProviderType
+import com.streamvault.domain.sync.AutomaticSyncActivity
+import com.streamvault.data.preferences.PreferencesRepository
+import kotlinx.coroutines.flow.combine
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.EntryPointAccessors
@@ -36,6 +39,8 @@ class BackgroundEpgSyncWorker(
         fun providerWorkflowRunner(): ProviderWorkflowRunner
         fun providerDao(): ProviderDao
         fun xtreamIndexJobDao(): XtreamIndexJobDao
+        fun automaticSyncRunner(): AutomaticSyncRunner
+        fun preferencesRepository(): PreferencesRepository
     }
 
     override suspend fun doWork(): Result {
@@ -54,6 +59,7 @@ class BackgroundEpgSyncWorker(
         }
 
         val force = inputData.getBoolean(KEY_FORCE_REFRESH, false)
+        val userInitiated = inputData.getBoolean(KEY_USER_INITIATED, false)
 
         return try {
             val entryPoint = EntryPointAccessors.fromApplication(
@@ -61,6 +67,14 @@ class BackgroundEpgSyncWorker(
                 BackgroundEpgSyncWorkerEntryPoint::class.java
             )
             val provider = entryPoint.providerDao().getById(providerId)
+            if (provider != null && shouldDeferBackgroundEpgForPlayback(
+                    userInitiated = userInitiated,
+                    deferWhileBusy = entryPoint.automaticSyncRunner().settings(providerId).deferWhileBusy,
+                    playbackActive = AutomaticSyncActivity.hasPlayback
+                )) {
+                Log.i(TAG, "Deferring background EPG sync for provider $providerId: playback is active")
+                return Result.retry()
+            }
             if (!force && provider?.type == ProviderType.XTREAM_CODES &&
                 entryPoint.xtreamIndexJobDao().hasPendingCatalogWork(providerId)
             ) {
@@ -77,43 +91,56 @@ class BackgroundEpgSyncWorker(
                         block = sync
                     )
                 }) {
-                    val epgResult = entryPoint.syncCommands().syncEpg(providerId, force = force)
-                    when (val result = epgResult) {
-                        is com.streamvault.domain.model.Result.Success -> {
-                            // A successful EPG sync may still have transient partial failures.
-                            val syncState = entryPoint.syncCommands().currentSyncState(providerId)
-                            if (syncState is com.streamvault.domain.model.SyncState.Partial &&
-                                syncState.hasRetryableEpgFailure
-                            ) {
-                                Log.i(TAG, "Scheduling retry for provider $providerId: EPG completed with retryable failure")
+                    runGuideWithPlaybackYield(
+                        enabled = canYieldInflightGuide(provider?.type, userInitiated),
+                        shouldDefer = combine(AutomaticSyncActivity.playbackActive,
+                            entryPoint.preferencesRepository().automaticSyncConfiguration) { active, settings ->
+                            shouldDeferBackgroundEpgForPlayback(userInitiated,
+                                settings.forProvider(providerId).deferWhileBusy, active)
+                        }
+                    ) {
+                        val epgResult = entryPoint.syncCommands().syncEpg(providerId, force = force)
+                        when (val result = epgResult) {
+                            is com.streamvault.domain.model.Result.Success -> {
+                                // A successful EPG sync may still have transient partial failures.
+                                val syncState = entryPoint.syncCommands().currentSyncState(providerId)
+                                if (syncState is com.streamvault.domain.model.SyncState.Partial &&
+                                    syncState.hasRetryableEpgFailure
+                                ) {
+                                    Log.i(TAG, "Scheduling retry for provider $providerId: EPG completed with retryable failure")
+                                    ProviderWorkflowOutcome.Failure(
+                                        code = "EPG_PARTIAL_RETRYABLE",
+                                        message = "EPG completed with a retryable partial failure.",
+                                        retryable = true
+                                    )
+                                } else {
+                                    ProviderWorkflowOutcome.Success(
+                                        partial = syncState is com.streamvault.domain.model.SyncState.Partial
+                                    )
+                                }
+                            }
+                            is com.streamvault.domain.model.Result.Error -> {
+                                if (result.message.contains("not found", ignoreCase = true)) {
+                                    ProviderWorkflowOutcome.Success()
+                                } else {
+                                    ProviderWorkflowOutcome.Failure(
+                                        code = "EPG_SYNC",
+                                        message = result.message,
+                                        cause = result.exception
+                                    )
+                                }
+                            }
+                            com.streamvault.domain.model.Result.Loading ->
                                 ProviderWorkflowOutcome.Failure(
-                                    code = "EPG_PARTIAL_RETRYABLE",
-                                    message = "EPG completed with a retryable partial failure.",
+                                    code = "EPG_LOADING",
+                                    message = "EPG operation did not reach a terminal state.",
                                     retryable = true
                                 )
-                            } else {
-                                ProviderWorkflowOutcome.Success(
-                                    partial = syncState is com.streamvault.domain.model.SyncState.Partial
-                                )
-                            }
                         }
-                        is com.streamvault.domain.model.Result.Error -> {
-                            if (result.message.contains("not found", ignoreCase = true)) {
-                                ProviderWorkflowOutcome.Success()
-                            } else {
-                                ProviderWorkflowOutcome.Failure(
-                                    code = "EPG_SYNC",
-                                    message = result.message,
-                                    cause = result.exception
-                                )
-                            }
+                    }.also { outcome ->
+                        if (outcome == ProviderWorkflowOutcome.Deferred) {
+                            Log.i(TAG, "Deferring in-flight background EPG sync for provider $providerId: playback became active")
                         }
-                        com.streamvault.domain.model.Result.Loading ->
-                            ProviderWorkflowOutcome.Failure(
-                                code = "EPG_LOADING",
-                                message = "EPG operation did not reach a terminal state.",
-                                retryable = true
-                            )
                     }
                 }
             ) {
@@ -139,6 +166,7 @@ class BackgroundEpgSyncWorker(
         private const val TAG = "BackgroundEpgWorker"
         private const val KEY_PROVIDER_ID = "provider_id"
         private const val KEY_FORCE_REFRESH = "force_refresh"
+        private const val KEY_USER_INITIATED = "user_initiated"
         private const val INVALID_PROVIDER_ID = -1L
         /**
          * Default delay before the first background EPG sync runs after enqueue. This
@@ -151,7 +179,8 @@ class BackgroundEpgSyncWorker(
             context: Context,
             providerId: Long,
             force: Boolean = false,
-            initialDelaySeconds: Long = DEFAULT_INITIAL_DELAY_SECONDS
+            initialDelaySeconds: Long = DEFAULT_INITIAL_DELAY_SECONDS,
+            userInitiated: Boolean = false
         ) {
             if (providerId <= 0L) return
             val request = OneTimeWorkRequestBuilder<BackgroundEpgSyncWorker>()
@@ -159,6 +188,7 @@ class BackgroundEpgSyncWorker(
                     Data.Builder()
                         .putLong(KEY_PROVIDER_ID, providerId)
                         .putBoolean(KEY_FORCE_REFRESH, force)
+                        .putBoolean(KEY_USER_INITIATED, userInitiated)
                         .build()
                 )
                 .setConstraints(

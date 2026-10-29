@@ -186,6 +186,7 @@ class ProviderRepositoryImplTest {
             ).thenAnswer { invocation ->
                 val block = invocation.getArgument<suspend () -> ProviderWorkflowOutcome>(6)
                 when (val outcome = runBlocking { block() }) {
+                    ProviderWorkflowOutcome.Deferred -> ProviderWorkflowDisposition.RETRY
                     is ProviderWorkflowOutcome.Success -> ProviderWorkflowDisposition.SUCCEEDED
                     is ProviderWorkflowOutcome.Failure -> if (outcome.retryable) {
                         ProviderWorkflowDisposition.RETRY

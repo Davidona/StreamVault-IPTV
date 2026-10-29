@@ -10,6 +10,8 @@ import androidx.media3.exoplayer.upstream.DefaultBandwidthMeter
 import androidx.media3.exoplayer.source.preload.DefaultPreloadManager
 import androidx.media3.exoplayer.upstream.LoadErrorHandlingPolicy
 import com.google.common.truth.Truth.assertThat
+import com.streamvault.domain.model.PlaybackBufferMode
+import com.streamvault.domain.model.PlaybackContentKind
 import androidx.media3.common.C
 import com.streamvault.domain.model.StreamType
 import com.streamvault.player.PlayerPreloadContentType
@@ -173,6 +175,58 @@ class Media3PreloadWindowManagerTest {
         assertThat(manager.getMediaSource(current)?.mediaSource).isSameInstanceAs(currentSource)
         assertThat(manager.getMediaSource(next)).isNull()
         assertThat(manager.getMediaSource(changedNext)?.mediaSource).isNotNull()
+
+        player.release()
+        manager.release()
+    }
+
+    @Test
+    fun `mode change cannot hand off a deliberately mislabeled live stream's previous target source`() {
+        val context = RuntimeEnvironment.getApplication()
+        val dataSourceProvider = PlayerDataSourceFactoryProvider(
+            context = context,
+            baseClient = okhttp3.OkHttpClient()
+        )
+        var mode = PlaybackBufferMode.AUTO
+        val mediaSourceFactory = PlayerMediaSourceFactory(dataSourceProvider) { mode }
+        val manager = Media3PreloadWindowManager(
+            context = context,
+            mediaSourceFactory = mediaSourceFactory,
+            dataSourceFactoryProvider = dataSourceProvider,
+            bandwidthMeter = DefaultBandwidthMeter.Builder(context).build()
+        )
+        val player = manager.createPlayer(
+            renderersFactory = DefaultRenderersFactory(context),
+            loadControl = DefaultLoadControl(),
+            preloadDataSourceFactory = DefaultDataSource.Factory(context)
+        ) {
+            it.setReleaseTimeoutMs(0L)
+        }
+        val liveHls = StreamInfo(
+            url = "https://example.test/live/channel.m3u8",
+            streamType = StreamType.HLS,
+            containerExtension = "m3u8",
+            playbackContentKind = PlaybackContentKind.LIVE
+        )
+        // Normal LIVE entries are excluded from preloading. Deliberately label this LIVE
+        // StreamInfo as VOD to exercise defensive cache identity if such an item is supplied.
+        val window = PlayerPreloadWindow(
+            items = listOf(PlayerPreloadItem("managed-live-hls", liveHls, PlayerPreloadContentType.VOD)),
+            currentIndex = 0
+        )
+
+        manager.updateWindow(window)
+        val previous = manager.getMediaSource(liveHls)!!
+        val previousMediaId = previous.mediaSource.mediaItem.mediaId
+        mode = PlaybackBufferMode.MEDIUM
+
+        assertThat(manager.getMediaSource(liveHls)).isNull()
+
+        manager.updateWindow(window)
+        val updated = manager.getMediaSource(liveHls)!!
+
+        assertThat(updated.mediaSource).isNotSameInstanceAs(previous.mediaSource)
+        assertThat(updated.mediaSource.mediaItem.mediaId).isNotEqualTo(previousMediaId)
 
         player.release()
         manager.release()

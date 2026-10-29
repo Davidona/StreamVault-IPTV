@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="player_error_live_startup_timeout">Uppspelningen kunde inte starta. Prova en annan ström.</string>
+</resources>

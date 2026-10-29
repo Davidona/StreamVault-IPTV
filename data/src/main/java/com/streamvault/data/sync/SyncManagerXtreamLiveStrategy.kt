@@ -49,7 +49,8 @@ internal class SyncManagerXtreamLiveStrategy(
     private val liveCategorySequentialModeWarning: String,
     private val isCurrentlyLowOnMemory: () -> Boolean = { false },
     private val stageChannelItems: suspend (Long, List<Channel>, MutableSet<Long>, FallbackCategoryCollector, Long?) -> StagedCatalogSnapshot,
-    private val emitProgress: (Long, SyncProgress) -> Unit
+    private val emitProgress: (Long, SyncProgress) -> Unit,
+    private val beforeBulkLiveBatch: suspend (Long) -> Unit = {}
 ) {
     suspend fun syncXtreamLiveCatalog(
         provider: Provider,
@@ -340,6 +341,7 @@ internal class SyncManagerXtreamLiveStrategy(
 
         suspend fun flushRawBatch(rawBatch: List<RawItem>) {
             if (rawBatch.isEmpty()) return
+            beforeBulkLiveBatch(provider.id)
             lateinit var mappedChannels: List<Channel>
             mappingElapsedMs += measureTimeMillis {
                 val mapped = mapRawBatch(rawBatch.asSequence()).toList()

@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="player_error_live_startup_timeout">प्लेबैक शुरू नहीं हो सका। कोई दूसरी स्ट्रीम आज़माएँ।</string>
+</resources>

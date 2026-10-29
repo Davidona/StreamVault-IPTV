@@ -48,6 +48,24 @@ class ProviderWorkflowRunnerTest {
     }
 
     @Test
+    fun `cooperative deferral clears the lease without publishing a failure and can immediately resume`() = runTest {
+        insertProvider()
+        val disposition = runner.execute(PROVIDER_ID, ProviderWorkflowPhase.EPG, ProviderWorkflowReason.PERIODIC) {
+            ProviderWorkflowOutcome.Deferred
+        }
+        assertThat(disposition).isEqualTo(ProviderWorkflowDisposition.RETRY)
+        val workflow = database.providerWorkflowDao().getWorkflow(PROVIDER_ID)!!
+        assertThat(workflow.state).isEqualTo(ProviderWorkflowState.PENDING)
+        assertThat(workflow.leaseToken).isNull()
+        assertThat(workflow.lastErrorCode).isNull()
+        assertThat(database.providerWorkflowDao().getPhases(PROVIDER_ID, workflow.generation).single().state)
+            .isEqualTo(ProviderWorkflowPhaseState.PENDING)
+        assertThat(runner.execute(PROVIDER_ID, ProviderWorkflowPhase.EPG, ProviderWorkflowReason.PERIODIC) {
+            ProviderWorkflowOutcome.Success()
+        }).isEqualTo(ProviderWorkflowDisposition.SUCCEEDED)
+    }
+
+    @Test
     fun `successful execution publishes the terminal phase and workflow`() = runTest {
         insertProvider()
 

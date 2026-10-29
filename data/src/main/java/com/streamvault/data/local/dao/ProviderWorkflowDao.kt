@@ -602,6 +602,18 @@ abstract class ProviderWorkflowDao {
     }
 
     @Transaction
+    open suspend fun defer(lease: ProviderWorkflowLease, now: Long): Boolean {
+        if (ownsLease(lease.providerId, lease.generation, lease.phase, lease.token) != 1) return false
+        check(finishPhase(
+            lease.providerId, lease.generation, lease.phase, ProviderWorkflowPhaseState.PENDING,
+            getCheckpoint(lease.providerId, lease.generation, lease.phase), null, null, now
+        ) == 1)
+        return finishWorkflowOwnership(
+            lease.providerId, lease.generation, lease.token, ProviderWorkflowState.PENDING, null, null, now
+        ) == 1
+    }
+
+    @Transaction
     open suspend fun fail(
         lease: ProviderWorkflowLease,
         now: Long,

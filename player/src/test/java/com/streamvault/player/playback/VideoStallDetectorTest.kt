@@ -8,6 +8,79 @@ class VideoStallDetectorTest {
     private var nowMs = 0L
 
     @Test
+    fun `active refill can outlast frame silence but stalled refill still times out`() {
+        val detector = VideoStallDetector(nowMs = { nowMs })
+        detector.reset()
+        nowMs = 1_000L
+        detector.onVideoFrameRendered(500L)
+        for (second in 2..14) {
+            nowMs = second * 1_000L
+            assertThat(detector.shouldReportStall(
+                PlaybackState.BUFFERING, false, true, 500L, (second - 2) * 1_000L,
+                playWhenReady = true, recoverBufferingStalls = true
+            )).isFalse()
+        }
+        nowMs = 21_999L
+        assertThat(detector.shouldReportStall(
+            PlaybackState.BUFFERING, false, true, 500L, 12_000L,
+            playWhenReady = true, recoverBufferingStalls = true
+        )).isFalse()
+        nowMs = 22_000L
+        assertThat(detector.shouldReportStall(
+            PlaybackState.BUFFERING, false, true, 500L, 12_000L,
+            playWhenReady = true, recoverBufferingStalls = true
+        )).isTrue()
+        assertThat(detector.shouldReportStall(
+            PlaybackState.BUFFERING, false, true, 500L, 12_000L,
+            playWhenReady = true, recoverBufferingStalls = true
+        )).isFalse()
+    }
+
+    @Test
+    fun `reserve oscillation below previous maximum is not refill progress`() {
+        val detector = VideoStallDetector(nowMs = { nowMs })
+        detector.reset()
+        nowMs = 1_000L
+        detector.onVideoFrameRendered(500L)
+        for ((time, reserve) in listOf(2_000L to 1_000L, 3_000L to 2_000L,
+            4_000L to 1_900L, 5_000L to 2_000L)) {
+            nowMs = time
+            assertThat(detector.shouldReportStall(
+                PlaybackState.BUFFERING, false, true, 500L, reserve,
+                playWhenReady = true, recoverBufferingStalls = true
+            )).isFalse()
+        }
+        nowMs = 11_000L
+        assertThat(detector.shouldReportStall(
+            PlaybackState.BUFFERING, false, true, 500L, 2_000L,
+            playWhenReady = true, recoverBufferingStalls = true
+        )).isTrue()
+    }
+
+    @Test
+    fun `refill progress does not suppress a ready decoder stall`() {
+        val detector = VideoStallDetector(nowMs = { nowMs })
+        detector.reset()
+        nowMs = 1_000L
+        detector.onVideoFrameRendered(500L)
+        nowMs = 7_000L
+        detector.shouldReportStall(
+            PlaybackState.BUFFERING, false, true, 500L, 100L,
+            playWhenReady = true, recoverBufferingStalls = true
+        )
+        nowMs = 8_000L
+        detector.shouldReportStall(
+            PlaybackState.BUFFERING, false, true, 500L, 4_000L,
+            playWhenReady = true, recoverBufferingStalls = true
+        )
+        nowMs = 9_000L
+        assertThat(detector.shouldReportStall(
+            PlaybackState.READY, true, true, 9_000L, 4_000L,
+            recoverFrameSilentReadyStalls = true
+        )).isTrue()
+    }
+
+    @Test
     fun `unsuccessful recovery is reported again after grace without inventing a rendered frame`() {
         val detector = detector()
         detector.reset()

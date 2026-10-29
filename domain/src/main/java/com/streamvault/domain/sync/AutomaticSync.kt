@@ -84,12 +84,22 @@ data class AutomaticSyncStatus(
     val sections: List<RefreshSection> = emptyList()
 )
 
-/** In-process playback ownership, including paused/buffering players and split screen. */
+/** Engine-owned playback sessions, including paused/buffering players and split screen. */
 object AutomaticSyncActivity {
-    private val players = java.util.concurrent.ConcurrentHashMap.newKeySet<Any>()
+    private val players = java.util.concurrent.ConcurrentHashMap<Any, Long>()
     private val mutablePlaybackActive = kotlinx.coroutines.flow.MutableStateFlow(false)
     val playbackActive: kotlinx.coroutines.flow.StateFlow<Boolean> get() = mutablePlaybackActive
     val hasPlayback: Boolean get() = players.isNotEmpty()
-    fun started(owner: Any) { synchronized(players) { players.add(owner); mutablePlaybackActive.value = players.isNotEmpty() } }
+    fun started(owner: Any) = started(owner, null)
+    fun started(owner: Any, providerId: Long?) {
+        synchronized(players) {
+            // Reprepare transfers this owner's provider instead of adding a second session.
+            players[owner] = providerId?.takeIf { it > 0L } ?: 0L
+            mutablePlaybackActive.value = players.isNotEmpty()
+        }
+    }
+    fun isProviderPlaybackActive(providerId: Long): Boolean = providerId > 0L && synchronized(players) {
+        players.containsValue(providerId)
+    }
     fun stopped(owner: Any) { synchronized(players) { players.remove(owner); mutablePlaybackActive.value = players.isNotEmpty() } }
 }

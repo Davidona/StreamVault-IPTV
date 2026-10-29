@@ -11,6 +11,7 @@ import androidx.media3.common.MimeTypes
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.datasource.DataSource
 import androidx.media3.extractor.DefaultExtractorsFactory
+import androidx.media3.extractor.ExtractorsFactory
 import androidx.media3.extractor.ts.TsExtractor
 import androidx.media3.extractor.ts.DefaultTsPayloadReaderFactory
 import androidx.media3.exoplayer.dash.DashMediaSource
@@ -23,6 +24,8 @@ import androidx.media3.exoplayer.source.ProgressiveMediaSource
 import androidx.media3.exoplayer.drm.DrmSessionManagerProvider
 import com.streamvault.domain.model.DrmInfo
 import com.streamvault.domain.model.DrmScheme
+import com.streamvault.domain.model.PlaybackBufferMode
+import com.streamvault.domain.model.PlaybackContentKind
 import com.streamvault.domain.model.VodHttpProtocolMode
 import com.streamvault.domain.model.StreamInfo
 import com.streamvault.domain.model.StreamType
@@ -38,8 +41,8 @@ private val TS_SUBTITLE_FORMATS: List<Format> = listOf(
         .build()
 )
 
-internal fun liveMpegTsExtractorsFactory(): DefaultExtractorsFactory =
-    DefaultExtractorsFactory()
+internal fun liveMpegTsExtractorsFactory(normalizeAvcSamples: Boolean = true): ExtractorsFactory {
+    val factory = DefaultExtractorsFactory()
         .setDisableArtworkMetadata(true)
         // Xtream live ".ts" URLs are raw transport streams, not HLS segments. The HLS
         // mode path is more permissive about segment continuity, but it also enables
@@ -51,11 +54,18 @@ internal fun liveMpegTsExtractorsFactory(): DefaultExtractorsFactory =
                 or DefaultTsPayloadReaderFactory.FLAG_IGNORE_SPLICE_INFO_STREAM
         )
         .setTsSubtitleFormats(TS_SUBTITLE_FORMATS)
+    // Detection remains enabled for streams without AUD. Normalize prefix-only samples
+    // instead of removing their bytes or disabling that compatibility path.
+    return if (normalizeAvcSamples) AvcAccessUnitExtractorsFactory(factory) else factory
+}
 
 @UnstableApi
 class PlayerMediaSourceFactory(
-    private val dataSourceFactoryProvider: PlayerDataSourceFactoryProvider
+    private val dataSourceFactoryProvider: PlayerDataSourceFactoryProvider,
+    private val bufferModeProvider: () -> PlaybackBufferMode = { PlaybackBufferMode.AUTO }
 ) {
+    private val transfers = PlaybackTransferTracker()
+    val hasActiveNetworkTransfers: Boolean get() = transfers.hasActiveTransfers
     fun create(
         streamInfo: StreamInfo,
         resolvedStreamType: ResolvedStreamType,
@@ -70,11 +80,13 @@ class PlayerMediaSourceFactory(
             vodHttpProtocolMode = vodHttpProtocolMode,
             preload = preload
         )
-        val mediaSource = mediaSourceFactory.createMediaSource(mediaItemFor(streamInfo))
+        val mediaItem = mediaItemFor(streamInfo, resolvedStreamType)
+        val mediaSource = mediaSourceFactory.createMediaSource(mediaItem)
 
         Log.i(
             TAG,
             "media-source streamType=$resolvedStreamType timeout=$timeoutProfile source=${mediaSource::class.java.simpleName} " +
+                "requestedLiveTargetFloorMs=${liveTargetOffsetMsFor(streamInfo, resolvedStreamType)} " +
                 "target=${PlaybackLogSanitizer.sanitizeUrl(streamInfo.requestHeadersOrigin ?: streamInfo.url)}"
         )
         return timeoutProfile to mediaSource
@@ -87,17 +99,24 @@ class PlayerMediaSourceFactory(
         vodHttpProtocolMode: VodHttpProtocolMode = VodHttpProtocolMode.COMPATIBILITY_HTTP1,
         preload: Boolean = false
     ): Pair<PlayerTimeoutProfile, MediaSource.Factory> {
-        val (timeoutProfile, dataSourceFactory) = dataSourceFactoryProvider.createFactory(
+        val (timeoutProfile, upstreamDataSourceFactory) = dataSourceFactoryProvider.createFactory(
             streamInfo = streamInfo,
             resolvedStreamType = resolvedStreamType,
             vodHttpProtocolMode = vodHttpProtocolMode,
             preload = preload
         )
+        val dataSourceFactory = if (isLivePlayback(streamInfo.playbackContentKind, resolvedStreamType) &&
+            streamInfo.drmInfo == null && resolvedStreamType != ResolvedStreamType.RTSP
+        ) transfers.wrap(upstreamDataSourceFactory) else upstreamDataSourceFactory
         val mediaSourceFactory = when {
             streamInfo.streamType == StreamType.RTSP || resolvedStreamType == ResolvedStreamType.RTSP ->
                 RtspMediaSource.Factory()
             resolvedStreamType == ResolvedStreamType.HLS -> HlsMediaSource.Factory(dataSourceFactory)
-                .setPlaylistParserFactory(LenientHlsPlaylistParserFactory())
+                .applyPlaybackTimestampInitializationPolicy(streamInfo.playbackContentKind)
+                .applyPlaybackRenditionLoadingPolicy(streamInfo.playbackContentKind)
+                .setPlaylistParserFactory(LenientHlsPlaylistParserFactory(
+                    stabilityTargetOffsetMs = liveTargetOffsetMsFor(streamInfo, resolvedStreamType)
+                ))
                 .setAllowChunklessPreparation(true)
                 .setLoadErrorHandlingPolicy(retryPolicy)
 
@@ -114,7 +133,9 @@ class PlayerMediaSourceFactory(
 
             resolvedStreamType == ResolvedStreamType.MPEG_TS_LIVE -> ProgressiveMediaSource.Factory(
                 dataSourceFactory,
-                liveMpegTsExtractorsFactory()
+                liveMpegTsExtractorsFactory(
+                    normalizeAvcSamples = isLivePlayback(streamInfo.playbackContentKind, resolvedStreamType)
+                )
             )
                 .setLoadErrorHandlingPolicy(retryPolicy)
 
@@ -142,10 +163,23 @@ class PlayerMediaSourceFactory(
         return timeoutProfile to mediaSourceFactory
     }
 
-    internal fun mediaItemFor(streamInfo: StreamInfo): MediaItem {
+    internal fun liveTargetOffsetMsFor(
+        streamInfo: StreamInfo,
+        resolvedStreamType: ResolvedStreamType = StreamTypeResolver.resolve(streamInfo),
+        bufferMode: PlaybackBufferMode = bufferModeProvider()
+    ): Long? = if (
+        streamInfo.playbackContentKind == PlaybackContentKind.LIVE &&
+        resolvedStreamType == ResolvedStreamType.HLS &&
+        bufferMode in setOf(PlaybackBufferMode.MEDIUM, PlaybackBufferMode.LARGE)
+    ) STABILITY_LIVE_TARGET_MS else null
+
+    internal fun mediaItemFor(
+        streamInfo: StreamInfo,
+        resolvedStreamType: ResolvedStreamType = StreamTypeResolver.resolve(streamInfo)
+    ): MediaItem {
         return MediaItem.Builder()
             .setUri(Uri.parse(streamInfo.url))
-            .setMediaId(mediaIdFor(streamInfo))
+            .setMediaId(mediaIdFor(streamInfo, resolvedStreamType))
             .setMediaMetadata(
                 androidx.media3.common.MediaMetadata.Builder()
                     .setTitle(streamInfo.title)
@@ -170,9 +204,22 @@ class PlayerMediaSourceFactory(
             .build()
     }
 
-    fun mediaIdFor(streamInfo: StreamInfo): String {
+    fun mediaIdFor(
+        streamInfo: StreamInfo,
+        resolvedStreamType: ResolvedStreamType = StreamTypeResolver.resolve(streamInfo)
+    ): String {
+        val key = mediaIdentityKeyFor(streamInfo)
+        val target = liveTargetOffsetMsFor(streamInfo, resolvedStreamType)
+        return stableHash(if (target == null) key else "$key|liveTargetOffsetMs=$target")
+    }
+
+    /** Decoder history belongs to the media, independently of its live-start policy. */
+    internal fun compatibilityMediaIdFor(streamInfo: StreamInfo): String =
+        stableHash(mediaIdentityKeyFor(streamInfo))
+
+    private fun mediaIdentityKeyFor(streamInfo: StreamInfo): String {
         val drmKey = streamInfo.drmInfo?.let { "${it.scheme}:${it.licenseUrl}" }.orEmpty()
-        return stableHash("${streamInfo.url}|${streamInfo.title.orEmpty()}|$drmKey")
+        return "${streamInfo.url}|${streamInfo.title.orEmpty()}|$drmKey"
     }
 
     private fun DrmScheme.toUuid(): UUID = when (this) {
@@ -183,6 +230,7 @@ class PlayerMediaSourceFactory(
 
     companion object {
         private const val TAG = "PlayerMediaSourceFactory"
+        private const val STABILITY_LIVE_TARGET_MS = 10_000L
     }
 }
 

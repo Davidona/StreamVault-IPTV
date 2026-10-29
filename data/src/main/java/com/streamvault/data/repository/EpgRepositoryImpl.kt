@@ -298,7 +298,13 @@ class EpgRepositoryImpl @Inject constructor(
                                 "EpgRepository",
                                 "EPG request failed for provider $providerId (${request.safeRequestIdentitySummary(providerRequestProfile)}): HTTP ${response.code}"
                             )
-                            return@withLock Result.error("Failed to download EPG: HTTP ${response.code}")
+                            val message = "Failed to download EPG: HTTP ${response.code}"
+                            // Preserve transient HTTP failures through the guide executor's result wrapper.
+                            // Authentication and other permanent client errors must not enter retry backoff.
+                            val cause = if (response.code == 408 || response.code == 429 || response.code in 500..599) {
+                                IOException(message)
+                            } else null
+                            return@withLock Result.error(message, cause)
                         }
 
                         val contentLength = response.header("Content-Length")?.toLongOrNull() ?: -1L

@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="player_error_live_startup_timeout">Không thể bắt đầu phát. Hãy thử luồng khác.</string>
+</resources>

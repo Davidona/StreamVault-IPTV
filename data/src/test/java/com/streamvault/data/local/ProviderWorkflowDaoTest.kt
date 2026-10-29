@@ -39,6 +39,21 @@ class ProviderWorkflowDaoTest {
     }
 
     @Test
+    fun `deferral is lease fenced and preserves the last checkpoint`() = runTest {
+        insertProvider()
+        val dao = database.providerWorkflowDao()
+        val ticket = dao.request(PROVIDER_ID, ProviderWorkflowPhase.EPG, ProviderWorkflowReason.PERIODIC, 100L)
+        val lease = checkNotNull(dao.claim(ticket, "guide", 101L, 1000L, 0L))
+        dao.updateRunningCheckpoint(PROVIDER_ID, ticket.generation, ticket.phase, lease.token, "stage=5000", 102L)
+        assertThat(dao.defer(lease.copy(token = "stale"), 103L)).isFalse()
+        assertThat(dao.getWorkflow(PROVIDER_ID)!!.state).isEqualTo(ProviderWorkflowState.RUNNING)
+        assertThat(dao.defer(lease, 104L)).isTrue()
+        assertThat(dao.getCheckpoint(PROVIDER_ID, ticket.generation, ticket.phase)).isEqualTo("stage=5000")
+        assertThat(dao.getWorkflow(PROVIDER_ID)!!.lastErrorCode).isNull()
+        assertThat(dao.claim(ticket, "resumed", 105L, 1000L, 0L)).isNotNull()
+    }
+
+    @Test
     fun `concurrent schedulers grant exactly one workflow lease`() = runTest {
         insertProvider()
         val dao = database.providerWorkflowDao()

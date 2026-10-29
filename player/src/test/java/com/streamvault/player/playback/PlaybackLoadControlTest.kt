@@ -32,6 +32,24 @@ class PlaybackLoadControlTest {
     )
 
     @Test
+    fun `allocation diagnostics remain safe after the playback thread releases the player`() {
+        val control = PlaybackLoadControl(policy, 192L * MIB, false)
+        val id = PlayerId.UNSET
+        val selection = fixedVideo(20_000_000)
+        val parameters = LoadControl.Parameters(
+            id, timeline, MediaSource.MediaPeriodId(timeline.getUidOfPeriod(0)),
+            0L, 0L, 1f, true, false, C.TIME_UNSET, C.TIME_UNSET
+        )
+        control.onPrepared(id)
+        control.onTracksSelected(parameters, TrackGroupArray(selection.trackGroup), arrayOf(selection))
+        control.shouldContinueLoading(parameters)
+        assertThat(control.describeAllocation()).contains("allocatedBytes=0")
+        control.onReleased(id)
+        // Transition callbacks may run after playback-thread release. They must not query its allocator.
+        assertThat(control.describeAllocation()).contains("allocatedBytes=unknown")
+    }
+
+    @Test
     fun `high bitrate playback keeps loading past the old 32 MiB restriction`() {
         assertThat(loadingAfter(48, 192, fixedVideo(80_000_000))).isTrue()
     }

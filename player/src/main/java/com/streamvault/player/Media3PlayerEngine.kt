@@ -48,6 +48,7 @@ import com.streamvault.domain.model.StreamInfo
 import com.streamvault.domain.util.LivePlaybackByteTap
 import com.streamvault.domain.settings.VodTrackPreferences
 import com.streamvault.domain.model.VideoFormat
+import com.streamvault.player.stats.PlaybackBufferingTracker
 import com.streamvault.domain.repository.PlaybackCompatibilityRepository
 import com.streamvault.player.audio.PlayerAudioFocusController
 import com.streamvault.player.playback.ActiveDecoderPolicy
@@ -88,6 +89,11 @@ import com.streamvault.player.playback.resolveRetrySeekPositionMs
 import com.streamvault.player.playback.resolveScheduledRetrySeekPositionMs
 import com.streamvault.player.playback.StreamTypeResolver
 import com.streamvault.player.playback.VideoStallDetector
+import com.streamvault.player.playback.LiveStartupWatchdog
+import com.streamvault.player.playback.LiveMpegTsEndRecovery
+import com.streamvault.player.playback.canRecoverLiveMpegTsEnd
+import com.streamvault.player.playback.StartupRefreshGate
+import com.streamvault.player.playback.liveStartupTimeoutMessage
 import com.streamvault.player.playback.AutomaticRecoveryAction
 import com.streamvault.player.playback.buildDecoderReuseWorkaroundEvaluation
 import com.streamvault.player.playback.buildPlaybackRendererPlan
@@ -263,6 +269,10 @@ class Media3PlayerEngine @Inject constructor(
     private var liveBufferingRecoveryArmed = false
     private var playbackStartedRecoveryArmed = false
     private var hasRenderedFirstVideoFrame = false
+    private val liveStartupWatchdog = LiveStartupWatchdog()
+    private val startupRefreshGate = StartupRefreshGate()
+    private val liveMpegTsEndRecovery = LiveMpegTsEndRecovery()
+    private var startupTimedOut = false
     private var prepareStartMs = 0L
     private var retryAttempt = 0
     private var retryJob: Job? = null
@@ -372,6 +382,7 @@ class Media3PlayerEngine @Inject constructor(
         .setResetOnNetworkTypeChange(true)
         .build()
     private val frameRateDetector = FrameRateDetector()
+    private val bufferingTracker = PlaybackBufferingTracker(SystemClock::elapsedRealtime)
     private val statsCollector = PlayerStatsCollector(
         scopeProvider = { scope },
         currentPosition = _currentPosition,
@@ -394,7 +405,9 @@ class Media3PlayerEngine @Inject constructor(
             transferListener = transferByteCounter,
             livePlaybackByteTap = livePlaybackByteTap
         )
-    private val mediaSourceFactory = PlayerMediaSourceFactory(dataSourceFactoryProvider)
+    private val mediaSourceFactory = PlayerMediaSourceFactory(dataSourceFactoryProvider) {
+        requestedPlaybackBufferMode
+    }
     private var preloadWindowManager: Media3PreloadWindowManager? = null
     private var pendingPreloadWindow: PlayerPreloadWindow? = null
     private val compatibilityProfile: PlaybackCompatibilityProfile = DefaultPlaybackCompatibilityProfile
@@ -495,6 +508,62 @@ class Media3PlayerEngine @Inject constructor(
                 val liveStream = isCurrentStreamLive()
                 val selectedVideo = exoPlayer?.currentTracks?.isTypeSelected(C.TRACK_TYPE_VIDEO) == true
                 val effectivePlaybackStarted = isEffectivelyPlaybackStarted()
+                val startupPlayer = exoPlayer
+                if (liveMpegTsEndRecovery.isPending) {
+                    when (liveMpegTsEndRecovery.evaluate(
+                        nowMs = SystemClock.elapsedRealtime(),
+                        canResume = lastStreamInfo != null && startupPlayer?.playWhenReady == true &&
+                            _playbackQualityGate.value == null && viewBinder.hasUsableVideoOutput(startupPlayer),
+                        hasActiveTransfers = mediaSourceFactory.hasActiveNetworkTransfers
+                    )) {
+                        StartupRefreshGate.Action.READY -> {
+                            Log.i(TAG, "live-ts-end transfers-drained refresh=1")
+                            lastStreamInfo?.let { prepareInternal(it, true, null, true) }
+                        }
+                        StartupRefreshGate.Action.GIVE_UP -> {
+                            Log.w(TAG, "live-ts-end refresh-abandoned reason=transfers-not-drained")
+                            _isPlaying.value = false
+                            _playbackState.value = PlaybackState.ENDED
+                            audioFocusController.onPauseOrStop()
+                            com.streamvault.domain.sync.AutomaticSyncActivity.stopped(this)
+                        }
+                        StartupRefreshGate.Action.WAIT -> Unit
+                    }
+                    continue
+                }
+                if (startupRefreshGate.isPending) {
+                    val gateAction = startupRefreshGate.evaluate(
+                        nowMs = SystemClock.elapsedRealtime(),
+                        canResume = lastStreamInfo != null && startupPlayer?.playWhenReady == true &&
+                            _playbackQualityGate.value == null && viewBinder.hasUsableVideoOutput(startupPlayer),
+                        hasActiveTransfers = mediaSourceFactory.hasActiveNetworkTransfers
+                    )
+                    if (gateAction == StartupRefreshGate.Action.READY) {
+                        Log.i(TAG, "startup-watchdog transfers-drained")
+                        lastStreamInfo?.let { prepareInternal(it, true, null, true) }
+                    } else if (gateAction == StartupRefreshGate.Action.GIVE_UP) {
+                        handleStartupWatchdog(LiveStartupWatchdog.Action.GIVE_UP)
+                    }
+                    continue
+                }
+                val startupAction = liveStartupWatchdog.evaluate(
+                    nowMs = SystemClock.elapsedRealtime(),
+                    eligible = liveStream && !startupTimedOut && lastStreamInfo != null &&
+                        lastStreamInfo?.drmInfo == null && currentResolvedStreamType != ResolvedStreamType.RTSP &&
+                        _playbackState.value in setOf(PlaybackState.BUFFERING, PlaybackState.READY) &&
+                        startupPlayer?.playWhenReady == true && _playbackQualityGate.value == null &&
+                        !isPlayingTimeshiftSnapshot && activeLiveTimeshiftStreamInfo == null &&
+                        viewBinder.hasUsableVideoOutput(startupPlayer) &&
+                        currentRetryPolicy?.hasPendingLoadRecovery != true && retryJob?.isActive != true,
+                    firstVideoFrameRendered = hasRenderedFirstVideoFrame,
+                    audioOnlyPlaying = !selectedVideo && _isPlaying.value,
+                    bufferedDurationMs = stats.bufferedDurationMs,
+                    sourceRetryAlreadyUsed = retryAttempt > 0
+                )
+                if (startupAction != LiveStartupWatchdog.Action.NONE) {
+                    handleStartupWatchdog(startupAction)
+                    continue
+                }
                 val liveBufferingRecoveryEligible = liveStream && effectivePlaybackStarted
                 val appStallRecoveryDeferred = shouldDeferAppStallRecovery(
                     activeMediaLoadRetry = currentRetryPolicy?.hasPendingLoadRecovery == true,
@@ -519,7 +588,9 @@ class Media3PlayerEngine @Inject constructor(
                         liveStream && selectedVideo && !appStallRecoveryDeferred && shouldRecoverFrameSilentReadyStalls(
                             currentResolvedStreamType,
                             lastStreamInfo?.playbackContentKind ?: PlaybackContentKind.UNKNOWN
-                        )
+                        ),
+                    // Track refill during grace without consuming an unhandled stall event.
+                    deferReporting = shouldIgnoreLiveHlsStartupStall()
                 )
                 val qualityPolicy = trackController.qualityPolicySnapshot(
                     constrainResolutionForMultiView = constrainResolutionForMultiView,
@@ -579,14 +650,7 @@ class Media3PlayerEngine @Inject constructor(
                     continue
                 }
                 if (stalled) {
-                    if (shouldIgnoreLiveHlsStartupStall()) {
-                        Log.w(
-                            TAG,
-                            "video-stall startup grace retained for live-hls surface=${_renderSurfaceType.value} target=${PlaybackLogSanitizer.sanitizeUrl(lastStreamInfo?.url)}"
-                        )
-                    } else {
-                        handleVideoStall()
-                    }
+                    handleVideoStall()
                 }
             }
         }
@@ -594,7 +658,7 @@ class Media3PlayerEngine @Inject constructor(
 
     override fun prepare(streamInfo: StreamInfo) {
         if (ensureNotDisposed("prepare")) return
-        com.streamvault.domain.sync.AutomaticSyncActivity.started(this)
+        com.streamvault.domain.sync.AutomaticSyncActivity.started(this, streamInfo.livePlaybackIdentity?.providerId)
         if (_subtitleOffsetMs.value != 0) {
             _subtitleOffsetMs.value = 0
             subtitleOffsetUs.set(0L)
@@ -627,7 +691,7 @@ class Media3PlayerEngine @Inject constructor(
         )
 
         lastStreamInfo = streamInfo
-        lastMediaId = mediaSourceFactory.mediaIdFor(streamInfo)
+        lastMediaId = mediaSourceFactory.compatibilityMediaIdFor(streamInfo)
         currentResolvedStreamType = playbackPlan.resolvedStreamType
         currentTimeoutProfile = playbackPlan.timeoutProfile
         currentRetryContext = playbackPlan.retryContext
@@ -645,6 +709,12 @@ class Media3PlayerEngine @Inject constructor(
             vodHttpProtocolMode = requestedVodHttpProtocolMode,
             preload = false
         ).second
+        startupTimedOut = false
+        hasRenderedFirstVideoFrame = false
+        prepareStartMs = System.currentTimeMillis()
+        liveStartupWatchdog.reset(preserveEpisode = true)
+        startupRefreshGate.clear()
+        liveMpegTsEndRecovery.reset(preserveAttempt = true)
 
         player.setMediaSource(withSubtitleOffset(mediaSource), /* resetPosition= */ false)
         player.prepare()
@@ -656,7 +726,7 @@ class Media3PlayerEngine @Inject constructor(
     }
 
     override fun play() {
-        if (exoPlayer != null && lastStreamInfo != null) com.streamvault.domain.sync.AutomaticSyncActivity.started(this)
+        if (exoPlayer != null && lastStreamInfo != null) com.streamvault.domain.sync.AutomaticSyncActivity.started(this, lastStreamInfo?.livePlaybackIdentity?.providerId)
         if (_playbackQualityGate.value != null) {
             qualityGateResumeIntent = true
             return
@@ -668,6 +738,9 @@ class Media3PlayerEngine @Inject constructor(
     }
 
     override fun pause() {
+        liveStartupWatchdog.pauseClock()
+        startupRefreshGate.pauseClock()
+        liveMpegTsEndRecovery.pauseClock()
         if (_playbackQualityGate.value != null) qualityGateResumeIntent = false
         retryJob?.cancel()
         exoPlayer?.playWhenReady = false
@@ -675,6 +748,10 @@ class Media3PlayerEngine @Inject constructor(
     }
 
     override fun stop() {
+        startupTimedOut = false
+        liveStartupWatchdog.reset()
+        startupRefreshGate.clear()
+        liveMpegTsEndRecovery.reset()
         viewBinder.setDisplayFrameRate(null)
         com.streamvault.domain.sync.AutomaticSyncActivity.stopped(this)
         clearAdaptiveDecodePressure()
@@ -698,6 +775,7 @@ class Media3PlayerEngine @Inject constructor(
         setInjectedSubtitleText(null)
         statsCollector.stop()
         statsCollector.reset()
+        bufferingTracker.reset()
         audioFocusController.onPauseOrStop()
     }
 
@@ -766,10 +844,16 @@ class Media3PlayerEngine @Inject constructor(
 
     override fun setPlaybackBufferMode(mode: PlaybackBufferMode) {
         if (requestedPlaybackBufferMode == mode) return
+        val previousMode = requestedPlaybackBufferMode
         requestedPlaybackBufferMode = mode
         lastStreamInfo?.let { streamInfo ->
             val wasPlaying = exoPlayer?.playWhenReady == true
-            val position = exoPlayer?.currentPosition
+            val targetChanged = mediaSourceFactory.liveTargetOffsetMsFor(
+                streamInfo, currentResolvedStreamType, previousMode
+            ) != mediaSourceFactory.liveTargetOffsetMsFor(streamInfo, currentResolvedStreamType, mode)
+            // Preserving the old live position would override the new target in Media3's
+            // speed controller. Rejoin its default position when the user changes that target.
+            val position = exoPlayer?.currentPosition.takeUnless { targetChanged }
             prepareInternal(streamInfo, preserveRetryState = false, seekPositionMs = position, autoPlay = wasPlaying)
         }
     }
@@ -1222,11 +1306,20 @@ class Media3PlayerEngine @Inject constructor(
     }
 
     override fun clearRenderBinding() {
+        liveStartupWatchdog.pauseClock()
+        startupRefreshGate.pauseClock()
+        liveMpegTsEndRecovery.pauseClock()
         viewBinder.attachPlayer(null)
     }
 
     override fun releaseRenderView(renderView: android.view.View) {
+        val hadOutput = viewBinder.hasUsableVideoOutput(exoPlayer)
         viewBinder.release(renderView)
+        if (hadOutput && !viewBinder.hasUsableVideoOutput(exoPlayer)) {
+            liveStartupWatchdog.pauseClock()
+            startupRefreshGate.pauseClock()
+            liveMpegTsEndRecovery.pauseClock()
+        }
     }
 
     override fun resetLiveHandoffGrace() {
@@ -1284,6 +1377,10 @@ class Media3PlayerEngine @Inject constructor(
         currentBufferIsLive = null
         currentBufferPolicyLabel = null
         currentBufferPolicy = null
+        startupTimedOut = false
+        liveStartupWatchdog.reset()
+        startupRefreshGate.clear()
+        liveMpegTsEndRecovery.reset()
         playbackStarted = false
         liveBufferingRecoveryArmed = false
         playbackStartedRecoveryArmed = false
@@ -1350,8 +1447,12 @@ class Media3PlayerEngine @Inject constructor(
         retryGeneration++
         pendingRetrySeekPositionOverrideMs = null
         lastStreamInfo = streamInfo
-        val mediaId = mediaSourceFactory.mediaIdFor(streamInfo)
+        val mediaId = mediaSourceFactory.compatibilityMediaIdFor(streamInfo)
         val mediaChanged = lastMediaId != mediaId
+        startupTimedOut = false
+        startupRefreshGate.clear()
+        liveMpegTsEndRecovery.reset(preserveAttempt = preserveRetryState && !mediaChanged)
+        liveStartupWatchdog.reset(preserveEpisode = preserveRetryState && !mediaChanged)
         if (!preserveRetryState || mediaChanged) {
             _playbackQualityGate.value = null
             qualityGateResumeIntent = false
@@ -1392,6 +1493,7 @@ class Media3PlayerEngine @Inject constructor(
         _chapters.value = emptyList()
         trackController.resetSelections(preserveVideoSelection = preserveRetryState && !mediaChanged)
         statsCollector.reset()
+        bufferingTracker.reset(recovering = preserveRetryState && !mediaChanged)
         videoStallDetector.reset()
         if (!preserveRetryState) {
             liveBufferingRecoveryArmed = false
@@ -2010,10 +2112,45 @@ class Media3PlayerEngine @Inject constructor(
 
     private fun createPlayerListener(): Player.Listener {
         return object : Player.Listener {
+            override fun onEvents(player: Player, events: Player.Events) {
+                if (player !== exoPlayer) return
+                if (!events.containsAny(
+                        Player.EVENT_PLAYBACK_STATE_CHANGED,
+                        Player.EVENT_IS_PLAYING_CHANGED,
+                        Player.EVENT_PLAY_WHEN_READY_CHANGED,
+                        Player.EVENT_POSITION_DISCONTINUITY
+                    )) return
+                // onEvents observes the final state after the individual callbacks in this batch.
+                statsCollector.updatePlaybackActivity(player.isPlaying, player.playWhenReady)
+                bufferingTracker.update(
+                    state = _playbackState.value,
+                    playWhenReady = player.playWhenReady,
+                    playbackStarted = isEffectivelyPlaybackStarted()
+                ).forEach { event ->
+                    if (event.cause == PlaybackBufferingTracker.Cause.REBUFFER &&
+                        event.outcome == PlaybackBufferingTracker.Outcome.STARTED
+                    ) statsCollector.incrementRebufferCount()
+                    val liveOffset = player.currentLiveOffset.takeUnless { it == C.TIME_UNSET }
+                    Log.i(
+                        TAG,
+                        "buffering-event cause=${event.cause} outcome=${event.outcome} durationMs=${event.durationMs} " +
+                            "bufferMs=${player.totalBufferedDuration} liveOffsetMs=$liveOffset " +
+                            "loading=${player.isLoading} policy=$currentBufferPolicyLabel " +
+                            "${playbackLoadControl?.describeAllocation().orEmpty()} " +
+                            "selectedBps=${exoPlayer?.videoFormat?.bitrate} " +
+                            "estimateBps=${lastBandwidthEstimateBps.get()} decoder=$selectedVideoDecoderName"
+                    )
+                }
+            }
+
             override fun onPlaybackStateChanged(state: Int) {
+                if (state == Player.STATE_ENDED && tryRecoverLiveMpegTsEnd()) return
                 if (state == Player.STATE_ENDED) com.streamvault.domain.sync.AutomaticSyncActivity.stopped(this)
-                val previousState = _playbackState.value
-                _playbackState.value = when (state) {
+                _playbackState.value = if (startupTimedOut) PlaybackState.ERROR
+                else if ((startupRefreshGate.isPending || liveMpegTsEndRecovery.isPending) &&
+                    state in setOf(Player.STATE_IDLE, Player.STATE_ENDED)) PlaybackState.BUFFERING
+                else if (liveMpegTsEndRecovery.abandoned && state == Player.STATE_IDLE) PlaybackState.ENDED
+                else when (state) {
                     Player.STATE_IDLE -> PlaybackState.IDLE
                     Player.STATE_BUFFERING -> PlaybackState.BUFFERING
                     Player.STATE_READY -> PlaybackState.READY
@@ -2021,9 +2158,6 @@ class Media3PlayerEngine @Inject constructor(
                     else -> PlaybackState.IDLE
                 }
                 updateForegroundPreloadPriority()
-                if (previousState == PlaybackState.READY && _playbackState.value == PlaybackState.BUFFERING) {
-                    statsCollector.incrementRebufferCount()
-                }
                 if (_playbackState.value == PlaybackState.READY) {
                     _retryStatus.value = null
                     retryAttempt = resolveRetryAttemptAfterReady(
@@ -2051,21 +2185,20 @@ class Media3PlayerEngine @Inject constructor(
             }
 
             override fun onIsPlayingChanged(isPlaying: Boolean) {
-                _isPlaying.value = isPlaying
+                _isPlaying.value = isPlaying && !startupTimedOut
                 updateForegroundPreloadPriority()
                 if (isPlaying) {
                     if (_playbackState.value == PlaybackState.READY) {
                         markPlaybackStarted("playing-ready")
                     }
-                    statsCollector.start()
                     audioFocusController.onPlaybackStarted()
-                } else {
-                    statsCollector.stop()
                 }
                 syncTimeshiftState()
             }
 
             override fun onPlayerError(error: PlaybackException) {
+                if (startupTimedOut || startupRefreshGate.isPending || liveMpegTsEndRecovery.isPending ||
+                    liveMpegTsEndRecovery.abandoned) return
                 if (_playbackQualityGate.value != null) {
                     if (deferredQualityGateError == null) deferredQualityGateError = error
                     Log.w(
@@ -2083,6 +2216,7 @@ class Media3PlayerEngine @Inject constructor(
                 newPosition: Player.PositionInfo,
                 reason: Int
             ) {
+                if (reason == Player.DISCONTINUITY_REASON_SEEK) bufferingTracker.onSeek()
                 adaptiveDecodePressurePolicy.discontinuity()
                 _currentPosition.value = newPosition.positionMs
                 syncTimeshiftState()
@@ -2366,6 +2500,60 @@ class Media3PlayerEngine @Inject constructor(
             liveBufferingRecoveryArmed = liveBufferingRecoveryArmed || playbackStartedRecoveryArmed
         )
 
+    private fun tryRecoverLiveMpegTsEnd(): Boolean {
+        if (isDisposed || startupTimedOut || liveMpegTsEndRecovery.abandoned) return false
+        if (liveMpegTsEndRecovery.isPending) return true
+        val player = exoPlayer ?: return false
+        val eligible = canRecoverLiveMpegTsEnd(
+            streamInfo = lastStreamInfo,
+            streamType = currentResolvedStreamType,
+            playbackStarted = isEffectivelyPlaybackStarted(),
+            playWhenReady = player.playWhenReady,
+            hasIndependentSourceOwner = isPlayingTimeshiftSnapshot || activeLiveTimeshiftStreamInfo != null ||
+                _playbackQualityGate.value != null,
+            retryPending = currentRetryPolicy?.hasPendingLoadRecovery == true || retryJob?.isActive == true ||
+                startupRefreshGate.isPending
+        )
+        if (!liveMpegTsEndRecovery.onEnded(SystemClock.elapsedRealtime(), eligible)) {
+            if (eligible) Log.w(TAG, "live-ts-end refresh-exhausted")
+            return false
+        }
+        Log.w(TAG, "live-ts-end refresh-requested attempt=1 " +
+            "target=${PlaybackLogSanitizer.sanitizeUrl(lastStreamInfo?.url.orEmpty())}")
+        bufferingTracker.onRecovery()
+        _playbackState.value = PlaybackState.BUFFERING
+        _isPlaying.value = false
+        preloadWindowManager?.clearWindow()
+        player.stop()
+        return true
+    }
+
+    private fun handleStartupWatchdog(action: LiveStartupWatchdog.Action) {
+        val streamInfo = lastStreamInfo ?: return
+        Log.w(TAG, "startup-watchdog action=$action streamType=$currentResolvedStreamType " +
+            "bufferMs=${_playerStats.value.bufferedDurationMs} target=${PlaybackLogSanitizer.sanitizeUrl(streamInfo.url)}")
+        if (action == LiveStartupWatchdog.Action.REFRESH_SOURCE) {
+            startupRefreshGate.begin(SystemClock.elapsedRealtime())
+            preloadWindowManager?.clearWindow()
+            exoPlayer?.stop()
+            return
+        }
+        startupRefreshGate.clear()
+        startupTimedOut = true
+        retryJob?.cancel()
+        retryJob = null
+        retryGeneration++
+        currentRetryPolicy?.clearPendingLoadRecovery()
+        _retryStatus.value = null
+        exoPlayer?.playWhenReady = false
+        exoPlayer?.stop()
+        audioFocusController.onPauseOrStop()
+        com.streamvault.domain.sync.AutomaticSyncActivity.stopped(this)
+        _isPlaying.value = false
+        _playbackState.value = PlaybackState.ERROR
+        _error.tryEmit(PlayerError.SourceError(liveStartupTimeoutMessage(context)))
+    }
+
     private fun handleVideoStall() {
         val streamInfo = lastStreamInfo ?: return
         if (exoPlayer?.currentTracks?.isTypeSelected(C.TRACK_TYPE_VIDEO) != true) return
@@ -2402,6 +2590,7 @@ class Media3PlayerEngine @Inject constructor(
                 )
             )) {
                 LiveVideoStallRecovery.Result.SEEKED -> {
+                    bufferingTracker.onRecovery()
                     videoStallDetector.restartAfterRecoveryAttempt()
                     Log.w(TAG, "video-stall in-place-live-seek attempt=$videoStallRecoveryAttempt")
                     return
@@ -2948,6 +3137,7 @@ class Media3PlayerEngine @Inject constructor(
         retryPolicy.clearPendingLoadRecovery()
         val nextAttempt = resolveNextAppSourceRetryAttempt(retryAttempt)
         if (retryPolicy.shouldRetryWholeSource(error, effectivePlaybackStarted, nextAttempt)) {
+            val mediaRefusalRefresh = retryPolicy.isLiveMediaRefusal(error)
             val delayMs = retryPolicy.retryDelayMs(error, nextAttempt)
             val player = exoPlayer
             val retrySeekPositionMs = resolveRetrySeekPositionMs(
@@ -3010,7 +3200,7 @@ class Media3PlayerEngine @Inject constructor(
                             liveBufferingRecoveryArmed = false
                         ),
                     seekPositionMs = scheduledSeekPositionMs,
-                    autoPlay = true
+                    autoPlay = if (mediaRefusalRefresh) exoPlayer?.playWhenReady == true else true
                 )
             }
             return
@@ -3018,9 +3208,12 @@ class Media3PlayerEngine @Inject constructor(
 
         pendingRetrySeekPositionOverrideMs = null
         _retryStatus.value = null
+        val failureReason = if (retryPolicy.isLiveMediaRefusal(error)) {
+            "live-media-refusal-budget-exhausted"
+        } else retryPolicy.retryReason(error)
         Log.e(
             TAG,
-            "fatal-error category=$category reason=${retryPolicy.retryReason(error)} " +
+            "fatal-error category=$category reason=$failureReason " +
                 "errorCode=${error.errorCodeName} causeChain=${formatErrorCauseChain(error)} " +
                 "target=${PlaybackLogSanitizer.sanitizeUrl(streamInfo.url)} message=${PlaybackLogSanitizer.sanitizeMessage(error.message)}"
         )

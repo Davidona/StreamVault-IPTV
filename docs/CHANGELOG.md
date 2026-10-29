@@ -11,12 +11,32 @@ All notable product changes are recorded in this document.
 
 ### Changed
 - Channel, movie, series, and VOD category searches now ignore Latin accents (for example, “café” matches “cafe”). Existing catalogs upgrade automatically, with their content preserved.
+- Reduced HLS playback allocations and released obsolete live-stream cache data while preserving resources needed by playback and shared recordings.
+- Reduced background UI work during playback by stopping hidden playback controls from collecting state updates; reopening controls and open settings or chapter sheets continue receiving current values.
+- Improved playback interruption diagnostics to distinguish rebuffering from dropped frames and track interruption durations more accurately.
 
 ### Fixed
+- Fixed eligible live MPEG-TS channels remaining unavailable after an Android TV-input video surface was recreated; playback now makes one safe recovery attempt.
+- Fixed interrupted Stalker guide downloads being marked fresh and losing automatic retry; useful partial guide data is retained until a complete refresh succeeds.
+- Fixed automatic guide refreshes stopping after temporary HTTP errors such as 429 and 503; they now retain cached guide data and retry, while authentication failures remain terminal.
 - Fixed a Sports tab crash on Android 11 when initializing Brazilian Portuguese EPG title parsing.
 - Fixed HLS playback failing on master playlists with `EXT-X-MEDIA` rendition tags missing the required `NAME` attribute.
 - Fixed some more backup and restore bugs.
 - Fixed sports listings ending in `- VT` appearing as scheduled matches instead of replays, and localized the new league names in Sports.
+- Fixed automatic background EPG refreshes and freshness-repair jobs ignoring the defer-while-busy preference during playback, while preserving manual refreshes and explicit overlap settings.
+- Fixed M3U guide imports already in progress continuing after playback starts; they now defer safely, retain existing guide data, and can retry after playback stops.
+- Fixed automatic Xtream bulk live-channel imports continuing during playback; they now yield safely and can retry when idle without replacing the existing channel list with partial data.
+- Fixed Stalker automatic indexing missing live playback from the same provider when deciding whether to defer background work.
+- Fixed Android TV-input playback not being recognized by background-sync scheduling, allowing automatic catalog and guide work to run despite defer-while-busy settings.
+- Fixed incorrect frame-rate estimates for streams with missing frame-rate metadata or rounded video timestamps.
+- Fixed repeated live HLS rebuffering in manual buffer modes when playback started too close to the live edge.
+- Fixed long pauses between reads in Medium and Large buffer modes causing idle-sensitive live MPEG-TS connections to close.
+- Fixed raw MPEG-TS H.264 picture freezes caused by header-only decoder samples with duplicate timestamps.
+- Improved bounded recovery from temporarily unavailable or expired live HLS media segments while preserving terminal authentication errors.
+- Fixed optional HLS subtitle loading blocking audio/video prefetch on affected live streams.
+- Fixed live streams remaining stuck before the first frame by allowing one recovery attempt and reporting failure if startup still cannot complete, including Android TV-input playback.
+- Added one bounded recovery attempt when an eligible live MPEG-TS stream ends unexpectedly, including Android TV-input playback, while preserving normal end-of-playback behavior for finite content.
+- Fixed shared HLS recording restarts losing required encryption keys or initialization data.
 
 ## [1.2.2]
 

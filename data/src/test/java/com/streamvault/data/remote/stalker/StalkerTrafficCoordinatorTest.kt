@@ -50,4 +50,42 @@ class StalkerTrafficCoordinatorTest {
 
         assertThat(StalkerTrafficCoordinator.isPlaybackActive(7L)).isTrue()
     }
+    @Test fun engineOwnedLivePlaybackDefersOnlyMatchingAutomaticWork() {
+        val owner=Any()
+        val automatic=com.streamvault.data.sync.AutomaticSyncExecution.automatic
+        val policy=com.streamvault.data.sync.AutomaticSyncExecution.policy
+        val previousAutomatic=automatic.get(); val previousPolicy=policy.get()
+        try {
+            com.streamvault.domain.sync.AutomaticSyncActivity.started(owner,7)
+            automatic.set(true); policy.set(com.streamvault.domain.sync.AutomaticSyncSettings())
+            assertThat(StalkerTrafficCoordinator.isPlaybackActive(7)).isTrue()
+            assertThat(StalkerTrafficCoordinator.shouldDeferIndexForPlayback(7)).isTrue()
+            assertThat(StalkerTrafficCoordinator.shouldDeferIndexForPlayback(8)).isFalse()
+            com.streamvault.domain.sync.AutomaticSyncActivity.stopped(owner)
+            assertThat(StalkerTrafficCoordinator.shouldDeferIndexForPlayback(7)).isFalse()
+        } finally {
+            automatic.set(previousAutomatic); policy.set(previousPolicy)
+            com.streamvault.domain.sync.AutomaticSyncActivity.stopped(owner)
+        }
+    }
+    @Test fun manualAndOptOutKeepWorkingWithoutHidingActualPlaybackOwnership() {
+        val owner=Any()
+        val automatic=com.streamvault.data.sync.AutomaticSyncExecution.automatic
+        val policy=com.streamvault.data.sync.AutomaticSyncExecution.policy
+        val previousAutomatic=automatic.get(); val previousPolicy=policy.get()
+        try {
+            com.streamvault.domain.sync.AutomaticSyncActivity.started(owner,7)
+            automatic.set(false); policy.set(com.streamvault.domain.sync.AutomaticSyncSettings())
+            assertThat(StalkerTrafficCoordinator.isPlaybackActive(7)).isTrue()
+            assertThat(StalkerTrafficCoordinator.shouldDeferIndexForPlayback(7)).isFalse()
+            automatic.set(true); policy.set(com.streamvault.domain.sync.AutomaticSyncSettings(deferWhileBusy=false))
+            assertThat(StalkerTrafficCoordinator.shouldDeferIndexForPlayback(7)).isFalse()
+            assertThat(StalkerTrafficCoordinator.backgroundInterPageDelayMillis(7,false)).isEqualTo(1000L)
+            policy.set(null)
+            assertThat(StalkerTrafficCoordinator.shouldDeferIndexForPlayback(7)).isTrue()
+        } finally {
+            automatic.set(previousAutomatic); policy.set(previousPolicy)
+            com.streamvault.domain.sync.AutomaticSyncActivity.stopped(owner)
+        }
+    }
 }
