@@ -16,6 +16,7 @@ import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isDialog
+import androidx.compose.ui.test.isFocused
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performKeyInput
@@ -28,6 +29,7 @@ import com.streamvault.core.ui.theme.StreamVaultTheme
 import com.streamvault.domain.model.DownloadContentType
 import com.streamvault.domain.model.DownloadItem
 import com.streamvault.domain.model.DownloadStatus
+import com.streamvault.domain.model.TorrentCacheStatus
 import com.streamvault.feature.system.api.SystemScaffoldContent
 import com.streamvault.feature.system.presentation.downloads.DownloadsContent
 import com.streamvault.feature.system.presentation.downloads.DownloadsUiState
@@ -112,6 +114,47 @@ class DownloadsRemoteNavigationTest {
         composeRule.onNode(hasText("Change download folder") and hasClickAction()).assertIsFocused()
     }
 
+    @Test
+    fun rightFromACompletedCardReachesTheNextCardsButtons() {
+        showDownloads(completedDownload(), failedDownload())
+
+        focus("Delete", index = 0)
+        press(Key.DirectionRight)
+
+        composeRule.onNode(hasText("Resume") and hasClickAction()).assertIsFocused()
+    }
+
+    @Test
+    fun buttonsOfCardsInARowLineUp() {
+        showDownloads(completedDownload(), failedDownload())
+
+        val deletes = composeRule.onAllNodes(hasText("Delete") and hasClickAction()).fetchSemanticsNodes()
+
+        assertThat(deletes.map { it.boundsInRoot.top }.distinct()).hasSize(1)
+    }
+
+    @Test
+    fun downReachesTheNextRowOfCards() {
+        showDownloads(*Array(4) { completedDownload().copy(id = "completed-$it", contentName = "Movie $it") })
+
+        focus("Delete", index = 0)
+        press(Key.DirectionDown)
+
+        val focused = composeRule.onAllNodes(hasText("Delete") and hasClickAction()).fetchSemanticsNodes()
+            .indexOfFirst { it.config.getOrElse(androidx.compose.ui.semantics.SemanticsProperties.Focused) { false } }
+        assertThat(focused).isEqualTo(3)
+    }
+
+    @Test
+    fun downFromClearCacheReachesACard() {
+        showDownloads(completedDownload(), failedDownload(), cacheStatus = TorrentCacheStatus(0, 8_000_000_000, 20_000_000_000, 0))
+
+        focus("Clear cache")
+        press(Key.DirectionDown)
+
+        composeRule.onNode(hasText("Delete") and hasClickAction() and isFocused()).assertExists()
+    }
+
     private var downloads by mutableStateOf(emptyList<DownloadItem>())
     private var confirmItem by mutableStateOf<DownloadItem?>(null)
 
@@ -167,13 +210,17 @@ class DownloadsRemoteNavigationTest {
         return different.toDouble() / (w * h)
     }
 
-    private fun showDownloads(vararg downloads: DownloadItem) {
+    private fun showDownloads(vararg downloads: DownloadItem, cacheStatus: TorrentCacheStatus? = null) {
         composeRule.setContent {
             StreamVaultTheme {
                 MaterialTheme {
                     DownloadsContent(
-                        uiState = DownloadsUiState(isLoading = false, downloads = downloads.toList()),
-                        scaffold = testScaffold,
+                        uiState = DownloadsUiState(
+                            isLoading = false,
+                            downloads = downloads.toList(),
+                            torrentCacheStatus = cacheStatus
+                        ),
+                        scaffold = scaffoldWithMenu,
                         onChangeFolder = {},
                         onOpen = { opened += it },
                         onResume = {},
@@ -186,8 +233,9 @@ class DownloadsRemoteNavigationTest {
         }
     }
 
-    private fun focus(text: String) {
-        composeRule.onNode(hasText(text) and hasClickAction())
+    private fun focus(text: String, index: Int? = null) {
+        val matcher = hasText(text) and hasClickAction()
+        (if (index == null) composeRule.onNode(matcher) else composeRule.onAllNodes(matcher)[index])
             .performSemanticsAction(SemanticsActions.RequestFocus)
         composeRule.waitForIdle()
     }
@@ -213,6 +261,17 @@ class DownloadsRemoteNavigationTest {
             content()
         }
     }
+
+    private fun failedDownload() = DownloadItem(
+        id = "failed",
+        providerId = 7L,
+        contentType = DownloadContentType.MOVIE,
+        contentId = 43L,
+        contentName = "Always Fails",
+        streamUrl = "https://example.test/failed.mp4",
+        status = DownloadStatus.FAILED,
+        failureReason = "HTTP 503",
+    )
 
     private fun completedDownload() = DownloadItem(
         id = "completed",
