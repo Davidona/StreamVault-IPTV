@@ -47,6 +47,7 @@
     <string name="torrent_cache_confirm_message">Eltávolítod az ideiglenes torrentadatokat? A mentett letöltések nem törlődnek.</string>
     <string name="torrent_cache_active">A gyorsítótár törlése előtt állítsd le a torrent lejátszását.</string>
     <string name="torrent_cache_clear_failed">Az ideiglenes gyorsítótár nem törölhető.</string>
+    <string name="torrent_cache_cleared">Az ideiglenes gyorsítótár törölve.</string>
     <string name="extensions_title">Kiterjesztések</string>
     <string name="plugins_section_description">Adjon új funkciókat a StreamVaulthoz társ Android-alkalmazásokkal.</string>
     <string name="plugins_install_url">Bővítmény telepítése URL-ről</string>

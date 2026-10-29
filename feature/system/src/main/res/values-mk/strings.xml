@@ -47,6 +47,7 @@
     <string name="torrent_cache_confirm_message">Да се отстранат привремените податоци за торенти? Зачуваните преземања нема да се избришат.</string>
     <string name="torrent_cache_active">Запрете ја репродукцијата на торент пред да го исчистите кешот.</string>
     <string name="torrent_cache_clear_failed">Привремениот кеш не може да се исчисти.</string>
+    <string name="torrent_cache_cleared">Привремениот кеш е исчистен.</string>
     <string name="extensions_title">Проширувања</string>
     <string name="plugins_section_description">Додај функции во StreamVault со придружни Android апликации.</string>
     <string name="plugins_install_url">Инсталирај приклучок од URL</string>

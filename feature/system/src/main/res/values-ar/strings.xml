@@ -47,6 +47,7 @@
     <string name="torrent_cache_confirm_message">إزالة بيانات التورنت المؤقتة؟ لن تُحذف التنزيلات المحفوظة.</string>
     <string name="torrent_cache_active">أوقف تشغيل التورنت قبل مسح الذاكرة المؤقتة.</string>
     <string name="torrent_cache_clear_failed">تعذر مسح الذاكرة المؤقتة.</string>
+    <string name="torrent_cache_cleared">تم مسح الذاكرة المؤقتة.</string>
     <string name="extensions_title">التمديدات</string>
     <string name="plugins_section_description">أضف ميزات إلى StreamVault باستخدام تطبيقات Android المرافقة.</string>
     <string name="plugins_install_url">تثبيت ملحق من رابط</string>

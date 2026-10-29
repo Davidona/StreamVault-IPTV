@@ -47,6 +47,7 @@
     <string name="torrent_cache_confirm_message">ลบข้อมูลทอร์เรนต์ชั่วคราวหรือไม่ รายการดาวน์โหลดที่บันทึกไว้จะไม่ถูกลบ</string>
     <string name="torrent_cache_active">หยุดเล่นทอร์เรนต์ก่อนล้างแคช</string>
     <string name="torrent_cache_clear_failed">ล้างแคชชั่วคราวไม่สำเร็จ</string>
+    <string name="torrent_cache_cleared">ล้างแคชชั่วคราวแล้ว</string>
     <string name="extensions_title">ส่วนขยาย</string>
     <string name="plugins_section_description">เพิ่มคุณสมบัติให้ StreamVault ด้วยแอป Android เสริม</string>
     <string name="plugins_install_url">ติดตั้งปลั๊กอินจาก URL</string>

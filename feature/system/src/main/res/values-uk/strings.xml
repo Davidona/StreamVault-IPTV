@@ -47,6 +47,7 @@
     <string name="torrent_cache_confirm_message">Видалити тимчасові дані торрентів? Збережені завантаження не буде видалено.</string>
     <string name="torrent_cache_active">Зупиніть відтворення торрента перед очищенням кешу.</string>
     <string name="torrent_cache_clear_failed">Не вдалося очистити тимчасовий кеш.</string>
+    <string name="torrent_cache_cleared">Тимчасовий кеш очищено.</string>
     <string name="extensions_title">Розширення</string>
     <string name="plugins_section_description">Розширюйте можливості StreamVault за допомогою супутніх Android-додатків.</string>
     <string name="plugins_install_url">Встановити плагін з URL-адреси</string>

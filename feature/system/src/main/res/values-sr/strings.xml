@@ -47,6 +47,7 @@
     <string name="torrent_cache_confirm_message">Уклонити привремене податке торената? Сачувана преузимања неће бити обрисана.</string>
     <string name="torrent_cache_active">Зауставите репродукцију торента пре брисања кеша.</string>
     <string name="torrent_cache_clear_failed">Привремени кеш није могуће обрисати.</string>
+    <string name="torrent_cache_cleared">Привремени кеш је обрисан.</string>
     <string name="extensions_title">Проширења</string>
     <string name="plugins_section_description">Додајте функције у StreamVault уз пратеће Android апликације.</string>
     <string name="plugins_install_url">Инсталирај прикључак са URL-а</string>

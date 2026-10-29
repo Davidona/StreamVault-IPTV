@@ -47,6 +47,7 @@
     <string name="torrent_cache_confirm_message">Odebrat dočasná data torrentů? Uložená stažení nebudou smazána.</string>
     <string name="torrent_cache_active">Před vymazáním mezipaměti zastavte přehrávání torrentu.</string>
     <string name="torrent_cache_clear_failed">Dočasnou mezipaměť se nepodařilo vymazat.</string>
+    <string name="torrent_cache_cleared">Dočasná mezipaměť byla vymazána.</string>
     <string name="extensions_title">Rozšíření</string>
     <string name="plugins_section_description">Přidejte StreamVaultu funkce pomocí doprovodných aplikací pro Android.</string>
     <string name="plugins_install_url">Nainstalovat plugin z URL</string>

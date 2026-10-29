@@ -47,6 +47,7 @@
     <string name="torrent_cache_confirm_message">अस्थायी टोरेंट डेटा हटाएँ? सेव किए गए डाउनलोड नहीं हटेंगे.</string>
     <string name="torrent_cache_active">कैश साफ़ करने से पहले टोरेंट प्लेबैक रोकें.</string>
     <string name="torrent_cache_clear_failed">अस्थायी कैश साफ़ नहीं किया जा सका।</string>
+    <string name="torrent_cache_cleared">अस्थायी कैश साफ़ किया गया।</string>
     <string name="extensions_title">एक्सटेंशन</string>
     <string name="plugins_section_description">कंपैनियन Android ऐप्स के साथ StreamVault में सुविधाएँ जोड़ें।</string>
     <string name="plugins_install_url">URL से प्लगइन इंस्टॉल करें</string>

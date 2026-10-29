@@ -47,6 +47,7 @@
     <string name="torrent_cache_confirm_message">Elimini datele temporare pentru torrente? Descărcările salvate nu vor fi șterse.</string>
     <string name="torrent_cache_active">Oprește redarea torrentului înainte de a șterge cache-ul.</string>
     <string name="torrent_cache_clear_failed">Cache-ul temporar nu a putut fi șters.</string>
+    <string name="torrent_cache_cleared">Cache-ul temporar a fost șters.</string>
     <string name="extensions_title">Extensii</string>
     <string name="plugins_section_description">Adaugă funcționalități la StreamVault cu aplicații companion Android.</string>
     <string name="plugins_install_url">Instalează plugin de la URL</string>

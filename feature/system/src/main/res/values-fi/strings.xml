@@ -47,6 +47,7 @@
     <string name="torrent_cache_confirm_message">Poistetaanko torrentin väliaikaiset tiedot? Tallennettuja latauksia ei poisteta.</string>
     <string name="torrent_cache_active">Pysäytä torrentin toisto ennen välimuistin tyhjentämistä.</string>
     <string name="torrent_cache_clear_failed">Väliaikaisen välimuistin tyhjentäminen epäonnistui.</string>
+    <string name="torrent_cache_cleared">Väliaikainen välimuisti tyhjennetty.</string>
     <string name="extensions_title">Laajennukset</string>
     <string name="plugins_section_description">Lisää ominaisuuksia StreamVaultiin kumppani-Android-sovelluksilla.</string>
     <string name="plugins_install_url">Asenna liitännäinen URL-osoitteesta</string>

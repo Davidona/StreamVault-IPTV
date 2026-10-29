@@ -47,6 +47,7 @@
     <string name="torrent_cache_confirm_message">Remover os dados temporários de torrents? Os downloads guardados não serão apagados.</string>
     <string name="torrent_cache_active">Pare a reprodução do torrent antes de limpar o cache.</string>
     <string name="torrent_cache_clear_failed">Não foi possível limpar o cache temporário.</string>
+    <string name="torrent_cache_cleared">Cache temporário limpo.</string>
     <string name="extensions_title">Extensões</string>
     <string name="plugins_section_description">Adicione funcionalidades ao StreamVault com apps Android complementares.</string>
     <string name="plugins_install_url">Instalar plugin a partir de URL</string>

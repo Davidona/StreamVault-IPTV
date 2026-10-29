@@ -47,6 +47,7 @@
     <string name="torrent_cache_confirm_message">Να αφαιρεθούν τα προσωρινά δεδομένα torrent; Οι αποθηκευμένες λήψεις δεν θα διαγραφούν.</string>
     <string name="torrent_cache_active">Σταματήστε την αναπαραγωγή torrent πριν από την εκκαθάριση.</string>
     <string name="torrent_cache_clear_failed">Δεν ήταν δυνατή η εκκαθάριση της προσωρινής cache.</string>
+    <string name="torrent_cache_cleared">Η προσωρινή cache εκκαθαρίστηκε.</string>
     <string name="extensions_title">Επεκτάσεις</string>
     <string name="plugins_section_description">Προσθέστε λειτουργίες στο StreamVault με συνοδευτικές εφαρμογές Android.</string>
     <string name="plugins_install_url">Εγκατάσταση πρόσθετου από URL</string>
