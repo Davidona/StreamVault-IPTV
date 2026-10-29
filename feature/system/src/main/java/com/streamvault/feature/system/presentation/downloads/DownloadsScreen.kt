@@ -39,6 +39,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -46,6 +47,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
@@ -154,6 +156,22 @@ internal fun DownloadsContent(
         }
     }
 
+    // The torrent cache box only shows while the cache holds data (or is in use or being cleared): an empty cache has
+    // nothing to clear. When it disappears after clearing, focus moves to the screen's first button instead of the
+    // top menu.
+    val cacheStatus = uiState.torrentCacheStatus
+    val showCacheCard = uiState.isClearingTorrentCache ||
+        (cacheStatus != null && (cacheStatus.cachedBytes > 0L || cacheStatus.activeSessionCount > 0))
+    var cacheCardHasFocus by remember { mutableStateOf(false) }
+    val cacheCardShown = rememberUpdatedState(showCacheCard)
+    LaunchedEffect(showCacheCard) {
+        if (!showCacheCard && cacheCardHasFocus) {
+            cacheCardHasFocus = false
+            gridState.scrollToItem(0)
+            folderButtonFocus.requestFocusSafely(tag = "DownloadsScreen", target = "Downloads after clearing the cache")
+        }
+    }
+
     scaffold(
         AppDestination.Downloads,
         stringResource(R.string.nav_downloads),
@@ -187,12 +205,17 @@ internal fun DownloadsContent(
                 )
             }
 
-            TorrentCacheCard(
-                status = uiState.torrentCacheStatus,
-                isClearing = uiState.isClearingTorrentCache,
-                onClear = onClearTorrentCache,
-                horizontalPadding = horizontalPadding
-            )
+            if (showCacheCard) {
+                // Removing the box also reports a focus loss; that one must not erase where focus was.
+                Box(modifier = Modifier.onFocusChanged { if (cacheCardShown.value) cacheCardHasFocus = it.hasFocus }) {
+                    TorrentCacheCard(
+                        status = uiState.torrentCacheStatus,
+                        isClearing = uiState.isClearingTorrentCache,
+                        onClear = onClearTorrentCache,
+                        horizontalPadding = horizontalPadding
+                    )
+                }
+            }
         }
 
         when {

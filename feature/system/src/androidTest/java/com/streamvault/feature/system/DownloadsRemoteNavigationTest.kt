@@ -147,7 +147,7 @@ class DownloadsRemoteNavigationTest {
 
     @Test
     fun downFromClearCacheReachesACard() {
-        showDownloads(completedDownload(), failedDownload(), cacheStatus = TorrentCacheStatus(0, 8_000_000_000, 20_000_000_000, 0))
+        showDownloads(completedDownload(), failedDownload(), cacheStatus = usedCache)
 
         focus("Clear cache")
         press(Key.DirectionDown)
@@ -165,7 +165,7 @@ class DownloadsRemoteNavigationTest {
                     DownloadsContent(
                         uiState = DownloadsUiState(
                             isLoading = false,
-                            torrentCacheStatus = TorrentCacheStatus(0, 8_000_000_000, 20_000_000_000, 0),
+                            torrentCacheStatus = usedCache,
                             isClearingTorrentCache = clearing
                         ),
                         scaffold = scaffoldWithMenu,
@@ -191,6 +191,60 @@ class DownloadsRemoteNavigationTest {
         composeRule.onNode(hasText("Clear cache") and hasClickAction()).assertIsFocused()
         assertThat(clears).isEqualTo(0)
     }
+
+    @Test
+    fun emptyCacheBoxIsHidden() {
+        showDownloads(completedDownload(), cacheStatus = TorrentCacheStatus(0, 8_000_000_000, 20_000_000_000, 0))
+
+        composeRule.onNode(hasText("Temporary torrent cache")).assertDoesNotExist()
+        composeRule.onNode(hasText("Clear cache") and hasClickAction()).assertDoesNotExist()
+    }
+
+    @Test
+    fun cacheBoxShowsWhenItHoldsData() {
+        showDownloads(completedDownload(), cacheStatus = usedCache)
+
+        composeRule.onNode(hasText("Temporary torrent cache")).assertExists()
+        composeRule.onNode(hasText("Clear cache") and hasClickAction()).assertExists()
+    }
+
+    @Test
+    fun focusMovesToTheFolderButtonWhenTheClearedBoxDisappears() {
+        var status by mutableStateOf(usedCache)
+        var clearing by mutableStateOf(false)
+        composeRule.setContent {
+            StreamVaultTheme {
+                MaterialTheme {
+                    DownloadsContent(
+                        uiState = DownloadsUiState(
+                            isLoading = false,
+                            downloads = listOf(completedDownload()),
+                            torrentCacheStatus = status,
+                            isClearingTorrentCache = clearing
+                        ),
+                        scaffold = scaffoldWithMenu,
+                        onChangeFolder = {},
+                        onOpen = {},
+                        onResume = {},
+                        onDelete = {},
+                        onConfirmDelete = {},
+                        onDismissDelete = {},
+                    )
+                }
+            }
+        }
+        focus("Clear cache")
+
+        clearing = true
+        composeRule.waitForIdle()
+        status = usedCache.copy(cachedBytes = 0)
+        clearing = false
+        composeRule.waitForIdle()
+
+        composeRule.onNode(hasText("Change download folder") and hasClickAction()).assertIsFocused()
+    }
+
+    private val usedCache = TorrentCacheStatus(1_500_000_000, 8_000_000_000, 20_000_000_000, 0)
 
     private var downloads by mutableStateOf(emptyList<DownloadItem>())
     private var confirmItem by mutableStateOf<DownloadItem?>(null)
