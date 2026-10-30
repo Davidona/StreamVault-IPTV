@@ -49,6 +49,7 @@ All notable product changes are recorded in this document.
 - Fixed live streams remaining stuck before the first frame by allowing one recovery attempt and reporting failure if startup still cannot complete, including Android TV-input playback.
 - Added one bounded recovery attempt when an eligible live MPEG-TS stream ends unexpectedly, including Android TV-input playback, while preserving normal end-of-playback behavior for finite content.
 - Fixed shared HLS recording restarts losing required encryption keys or initialization data.
+- Fixed SMB recording setup failing on authenticated shares in release builds by retaining the MD4 support required by NTLM during code shrinking.
 
 ## [1.2.2]
 

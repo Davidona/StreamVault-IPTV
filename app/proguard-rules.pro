@@ -118,5 +118,10 @@
 -renamesourcefileattribute SourceFile
 -keepattributes RuntimeVisibleAnnotations,RuntimeVisibleParameterAnnotations
 
+# jcifs-ng loads these Bouncy Castle MD4 classes by name during NTLM authentication.
+-keepnames class org.bouncycastle.jcajce.provider.digest.MD4
+-keep class org.bouncycastle.jcajce.provider.digest.MD4$Mappings { *; }
+-keep class org.bouncycastle.jcajce.provider.digest.MD4$Digest { *; }
+
 # SLF4J's binding is optional; jcifs-ng uses the API without bundling a backend.
 -dontwarn org.slf4j.impl.StaticLoggerBinder
