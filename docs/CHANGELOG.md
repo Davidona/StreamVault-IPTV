@@ -15,6 +15,7 @@ All notable product changes are recorded in this document.
 - Reduced HLS playback allocations and released obsolete live-stream cache data while preserving resources needed by playback and shared recordings.
 - Reduced background UI work during playback by stopping hidden playback controls from collecting state updates; reopening controls and open settings or chapter sheets continue receiving current values.
 - Improved playback interruption diagnostics to distinguish rebuffering from dropped frames and track interruption durations more accurately.
+- VOD timelines can now be scrubbed with the D-pad in 10-second steps; holding a direction previews repeated seeks, and releasing applies the selected position.
 
 ### Fixed
 - Fixed the player showing a generic recording error when Android alarm access is missing; it now explains how to enable access and retry.
