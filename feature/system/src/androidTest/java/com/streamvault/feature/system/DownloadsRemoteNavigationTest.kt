@@ -1,5 +1,6 @@
 package com.streamvault.feature.system
 
+import android.view.KeyEvent as AndroidKeyEvent
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.getValue
@@ -11,6 +12,7 @@ import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsFocused
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasAnyAncestor
@@ -21,9 +23,11 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performKeyInput
 import androidx.compose.ui.test.performSemanticsAction
+import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.pressKey
 import androidx.tv.material3.MaterialTheme
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
 import com.streamvault.core.ui.theme.StreamVaultTheme
 import com.streamvault.domain.model.DownloadContentType
@@ -53,9 +57,8 @@ class DownloadsRemoteNavigationTest {
 
         focus("Change download folder")
         press(Key.DirectionDown)
-        repeat(2) {
-            if (!isFocused("Delete")) press(Key.DirectionRight)
-        }
+        press(Key.DirectionDown)
+        if (!isFocused("Delete")) press(Key.DirectionRight)
 
         composeRule.onNode(hasText("Delete") and hasClickAction()).assertIsFocused()
         press(Key.Enter)
@@ -272,9 +275,13 @@ class DownloadsRemoteNavigationTest {
 
     private fun focus(text: String, index: Int? = null) {
         val matcher = hasText(text) and hasClickAction()
-        (if (index == null) composeRule.onNode(matcher) else composeRule.onAllNodes(matcher)[index])
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+        val target = if (index == null) composeRule.onNode(matcher) else composeRule.onAllNodes(matcher)[index]
+        if (runCatching { target.assertIsDisplayed() }.isFailure) target.performScrollTo()
+        // Exit Android touch mode as a physical TV remote does before requesting focus.
+        InstrumentationRegistry.getInstrumentation().sendKeyDownUpSync(AndroidKeyEvent.KEYCODE_DPAD_DOWN)
+        target.performSemanticsAction(SemanticsActions.RequestFocus)
         composeRule.waitForIdle()
+        target.assertIsFocused()
     }
 
     private fun press(key: Key) {
