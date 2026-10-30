@@ -1200,7 +1200,10 @@ class Media3PlayerEngine @Inject constructor(
     }
 
     override fun selectSubtitleTrack(trackId: String?) {
-        if (activeExternalSubtitle?.trackId != trackId) {
+        val selectedSource = trackId?.let { id ->
+            trackController.availableSubtitleTracks.value.firstOrNull { it.id == id }?.subtitleSource
+        }
+        if (trackId == null || selectedSource != activeExternalSubtitle?.source) {
             activeExternalSubtitle = null
         }
         exoPlayer?.let { trackController.selectSubtitleTrack(it, trackId) }

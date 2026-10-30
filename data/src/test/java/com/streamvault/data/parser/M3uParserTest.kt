@@ -448,6 +448,22 @@ class M3uParserTest {
     }
 
     @Test
+    fun `zero legacy timeshift is not advertised as catch-up`() {
+        val channels = parser.parseToChannels(
+            """
+                #EXTM3U
+                #EXTINF:-1 timeshift="0",No Archive
+                https://stream.example.com/no-archive.ts
+            """.trimIndent().byteInputStream(),
+            providerId = 9L
+        )
+
+        assertThat(channels.single().catchUpSupported).isFalse()
+        assertThat(channels.single().catchUpType).isNull()
+        assertThat(channels.single().catchUpDays).isEqualTo(0)
+    }
+
+    @Test
     fun `parseToChannels_marksCatchUpSupported_whenOnlyCatchUpSourceExists`() {
         val channels = parser.parseToChannels(
             """

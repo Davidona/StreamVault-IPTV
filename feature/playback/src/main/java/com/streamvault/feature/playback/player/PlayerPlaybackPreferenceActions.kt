@@ -18,6 +18,7 @@ import com.streamvault.player.SUBTITLE_OFFSET_MIN_MS
 import com.streamvault.player.PlaybackState
 import com.streamvault.player.PlayerError
 import com.streamvault.player.SubtitleTrackSource
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
@@ -45,8 +46,8 @@ fun PlayerViewModel.selectSubtitleTrack(trackId: String?) {
     playerEngine.selectSubtitleTrack(trackId)
 
     val current = activeVodTrackPreferences ?: VodTrackPreferences()
-    val rememberedDownloadId = current.subtitle
-        ?.externalSubtitleDownloadId
+    val previousDownloadId = current.subtitle?.externalSubtitleDownloadId
+    val rememberedDownloadId = previousDownloadId
         ?.takeIf { selectedTrack?.subtitleSource == SubtitleTrackSource.ONLINE }
     val subtitlePreference = when {
         trackId == null -> VodTrackPreference(disabled = true)
@@ -63,6 +64,16 @@ fun PlayerViewModel.selectSubtitleTrack(trackId: String?) {
             subtitle = subtitlePreference
         )
     )
+    if (previousDownloadId != null && rememberedDownloadId == null) {
+        viewModelScope.launch {
+            try {
+                downloadExternalSubtitleUseCase.deleteCachedSubtitle(previousDownloadId)
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (_: Exception) {
+            }
+        }
+    }
 }
 
 private fun com.streamvault.player.PlayerTrack.toVodTrackPreference() = VodTrackPreference(
@@ -98,11 +109,21 @@ internal fun PlayerViewModel.persistVodTrackPreferences(
 
 internal fun PlayerViewModel.clearRememberedOpenSubtitleForCurrentContent() {
     val current = activeVodTrackPreferences ?: return
-    if (current.subtitle?.externalSubtitleDownloadId == null) return
+    val downloadId = current.subtitle?.externalSubtitleDownloadId ?: return
+    val updated = current.copy(subtitle = null)
     persistVodTrackPreferences(
-        updated = current.copy(subtitle = null),
+        updated = updated,
         persistGlobal = false
     )
+    playerEngine.setVodTrackPreferences(updated)
+    viewModelScope.launch {
+        try {
+            downloadExternalSubtitleUseCase.deleteCachedSubtitle(downloadId)
+        } catch (cancelled: CancellationException) {
+            throw cancelled
+        } catch (_: Exception) {
+        }
+    }
 }
 
 fun PlayerViewModel.selectVideoQuality(trackId: String): Boolean {

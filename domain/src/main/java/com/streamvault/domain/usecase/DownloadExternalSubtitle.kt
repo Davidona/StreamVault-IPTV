@@ -14,4 +14,8 @@ class DownloadExternalSubtitle @Inject constructor(
 
     suspend fun cachedSubtitleFile(downloadId: String): File? =
         repository.cachedSubtitleFile(downloadId)
+
+    suspend fun deleteCachedSubtitle(downloadId: String) {
+        repository.deleteCachedSubtitle(downloadId)
+    }
 }

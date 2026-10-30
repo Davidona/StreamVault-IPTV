@@ -179,6 +179,75 @@ class ArchivePlaybackTest {
     }
 
     @Test
+    fun `auto mode is not offered for a template that still needs a programme identifier`() {
+        val now = 5 * 86_400_000L
+        val channel = Channel(
+            id = 42L,
+            name = "News",
+            providerId = 7L,
+            streamUrl = "https://live.example.com/channel.m3u8",
+            catchUpSupported = true,
+            catchUpSource = "https://archive.example.com/program/{catchup-id}.m3u8",
+            catchUpType = "append"
+        )
+        val program = Program(
+            channelId = "news",
+            title = "Replay with identifier",
+            startTime = now - 60_000L,
+            endTime = now - 30_000L
+        )
+
+        assertThat(channel.archivePlaybackCapability().canBuildReplayCandidate).isFalse()
+        assertThat(channel.isArchivePlayable(program, now)).isFalse()
+    }
+
+    @Test
+    fun `source-less append is not offered when the fallback format is disabled`() {
+        val now = 5 * 86_400_000L
+        val channel = Channel(
+            id = 42L,
+            name = "News",
+            providerId = 7L,
+            streamUrl = "https://live.example.com/news.ts",
+            catchUpSupported = true,
+            catchUpType = "append",
+            catchUpFallbackAvailable = false
+        )
+        val program = Program(
+            channelId = "news",
+            title = "Unmarked Bulletin",
+            startTime = now - 60_000L,
+            endTime = now - 30_000L
+        )
+
+        assertThat(channel.archivePlaybackCapability().canBuildReplayCandidate).isFalse()
+        assertThat(channel.isArchivePlayable(program, now)).isFalse()
+    }
+
+    @Test
+    fun `source-less append is offered when the fallback format is configured`() {
+        val now = 5 * 86_400_000L
+        val channel = Channel(
+            id = 42L,
+            name = "News",
+            providerId = 7L,
+            streamUrl = "https://live.example.com/news.ts",
+            catchUpSupported = true,
+            catchUpType = "append",
+            catchUpFallbackAvailable = true
+        )
+        val program = Program(
+            channelId = "news",
+            title = "Unmarked Bulletin",
+            startTime = now - 60_000L,
+            endTime = now - 30_000L
+        )
+
+        assertThat(channel.archivePlaybackCapability().canBuildReplayCandidate).isTrue()
+        assertThat(channel.isArchivePlayable(program, now)).isTrue()
+    }
+
+    @Test
     fun `unknown M3U catch-up window allows completed guide programme`() {
         val now = 5 * 86_400_000L
         val channel = Channel(

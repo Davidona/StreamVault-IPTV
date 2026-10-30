@@ -15,6 +15,7 @@ data class Channel(
     val catchUpSupported: Boolean = false,
     val catchUpDays: Int = 0,
     val catchUpSource: String? = null,
+    val catchUpFallbackAvailable: Boolean = true,
     val providerId: Long = 0,
     val currentProgram: Program? = null,
     val nextProgram: Program? = null,

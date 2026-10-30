@@ -132,6 +132,19 @@ class RecordingManagerImplTest {
     }
 
     @Test
+    fun `enabling a schedule without exact alarm access returns a typed error`() = runBlocking {
+        whenever(alarmScheduler.canScheduleExactAlarms()).thenReturn(false)
+
+        val result = createManager().setScheduleEnabled("recording-1", enabled = true)
+
+        assertThat((result as Result.Error).message)
+            .isEqualTo(RecordingAlarmScheduler.EXACT_ALARM_PERMISSION_MESSAGE)
+        assertThat(result.exception).isInstanceOf(ExactRecordingAlarmAccessException::class.java)
+        verify(recordingRunDao, never()).getById(any())
+        Unit
+    }
+
+    @Test
     fun `startManualRecording routes capture through foreground service`() = runBlocking {
         val request = recordingRequest()
         whenever(recordingSourceResolver.resolveLiveSource(any(), any(), any())).thenReturn(resolvedSource())

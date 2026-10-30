@@ -177,9 +177,22 @@ class OpenSubtitlesRepositoryImpl @Inject constructor(
         )
         if (!legacyCacheFile.isFile || legacyCacheFile.length() <= 0L) return@withContext null
 
-        runCatching { legacyCacheFile.copyTo(destination, overwrite = true) }
+        val migrated = runCatching { legacyCacheFile.copyTo(destination, overwrite = true) }
             .getOrNull()
             ?.takeIf { it.isFile && it.length() > 0L }
+        if (migrated != null) {
+            runCatching { legacyCacheFile.delete() }
+        }
+        migrated
+    }
+
+    override suspend fun deleteCachedSubtitle(downloadId: String) = withContext(Dispatchers.IO) {
+        val fileId = downloadId.toLongOrNull()?.takeIf { it > 0L } ?: return@withContext
+        runCatching { subtitleCacheFile(fileId).delete() }
+        runCatching {
+            File(context.cacheDir, "subtitles/opensubtitles/$fileId.srt").delete()
+        }
+        Unit
     }
 
     private suspend fun <T> requestWithOptionalSession(

@@ -21,7 +21,8 @@ All notable product changes are recorded in this document.
 ### Fixed
 - Fixed Hardware Only video decoding being overridden after live TV stalls; recovery now preserves explicit audio and video decoder settings and excludes software video decoders in Hardware Only mode.
 - Fixed channel numbers appearing in Guide Favorites views and selected-channel details when Live TV numbering is set to Hidden.
-- Fixed external subtitles disappearing after playback retries or when replaying a movie: attached subtitles are restored with the rebuilt source, and downloaded OpenSubtitles files are kept in durable app storage and remembered for that movie.
+- Fixed external subtitles disappearing after playback retries, reconnects, buffering, or when replaying a movie: attached subtitles are restored with the rebuilt source, downloaded OpenSubtitles files are kept in durable app storage and remembered for that movie, and replaced subtitle files are cleaned up.
+- Fixed M3U catch-up URL generation for legacy date placeholders and additional provider path/query styles, and stopped offering archive playback when the configured fallback cannot build a URL.
 - Fixed the player showing a generic recording error when Android alarm access is missing; it now explains how to enable access and retry.
 - Fixed the temporary torrent cache clear action to confirm when the cache was cleared successfully.
 - Fixed deleted downloads leaving partial files behind after earlier failed attempts.

@@ -129,25 +129,20 @@ class PlayerTrackController(
         }
 
         preferences.subtitle?.let { preference ->
-            if (preference.externalSubtitleDownloadId != null) {
-                builder
-                    .setTrackTypeDisabled(C.TRACK_TYPE_TEXT, true)
-                    .clearOverridesOfType(C.TRACK_TYPE_TEXT)
+            val selected = resolvePreferredPlayerTrack(preference, _availableSubtitleTracks.value)
+            val waitingForExternal = preference.externalSubtitleDownloadId != null &&
+                preference.trackId.isNullOrBlank()
+            builder.clearOverridesOfType(C.TRACK_TYPE_TEXT)
+            if (preference.disabled || waitingForExternal || selected == null) {
+                builder.setTrackTypeDisabled(C.TRACK_TYPE_TEXT, true)
                 _availableSubtitleTracks.update { tracks -> tracks.map { it.copy(isSelected = false) } }
             } else {
-                val selected = resolvePreferredPlayerTrack(preference, _availableSubtitleTracks.value)
-                builder.clearOverridesOfType(C.TRACK_TYPE_TEXT)
-                if (preference.disabled || selected == null) {
-                    builder.setTrackTypeDisabled(C.TRACK_TYPE_TEXT, true)
-                    _availableSubtitleTracks.update { tracks -> tracks.map { it.copy(isSelected = false) } }
-                } else {
-                    findOverride(player.currentTracks, C.TRACK_TYPE_TEXT, selected.id)?.let { override ->
-                        builder
-                            .setTrackTypeDisabled(C.TRACK_TYPE_TEXT, false)
-                            .setOverrideForType(override)
-                        _availableSubtitleTracks.update { tracks ->
-                            tracks.map { track -> track.copy(isSelected = track.id == selected.id) }
-                        }
+                findOverride(player.currentTracks, C.TRACK_TYPE_TEXT, selected.id)?.let { override ->
+                    builder
+                        .setTrackTypeDisabled(C.TRACK_TYPE_TEXT, false)
+                        .setOverrideForType(override)
+                    _availableSubtitleTracks.update { tracks ->
+                        tracks.map { track -> track.copy(isSelected = track.id == selected.id) }
                     }
                 }
             }

@@ -24,4 +24,6 @@ interface ExternalSubtitleRepository {
     suspend fun downloadToCache(subtitle: ExternalSubtitle): Result<File>
 
     suspend fun cachedSubtitleFile(downloadId: String): File? = null
+
+    suspend fun deleteCachedSubtitle(downloadId: String) = Unit
 }

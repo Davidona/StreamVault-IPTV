@@ -82,7 +82,8 @@ class ChannelRepositoryImpl @Inject constructor(
         val labelMode: GroupedChannelLabelMode,
         val preferenceMode: LiveVariantPreferenceMode,
         val preferredVariants: Map<String, Long>,
-        val observedQualities: Map<Long, LiveChannelObservedQuality>
+        val observedQualities: Map<Long, LiveChannelObservedQuality>,
+        val catchUpFallbackAvailable: Boolean
     )
 
     private val channelNumberComparator = compareBy<Channel>(
@@ -269,7 +270,7 @@ class ChannelRepositoryImpl @Inject constructor(
         val settings = currentPresentationSettings()
         val observation = settings.observedQualities[channelId]
         if (settings.groupingMode == LiveChannelGroupingMode.RAW_VARIANTS || entity.logicalGroupId.isBlank()) {
-            return entity.toPresentedRawChannel(observation, stalkerPortalUrl)
+            return entity.toPresentedRawChannel(observation, stalkerPortalUrl, settings.catchUpFallbackAvailable)
         }
         val groupedEntities = channelDao.getByLogicalGroupId(entity.providerId, entity.logicalGroupId)
             .ifEmpty { listOf(entity) }
@@ -429,9 +430,10 @@ class ChannelRepositoryImpl @Inject constructor(
                 preferencesRepository.liveChannelNumberingMode,
                 preferencesRepository.liveChannelGroupingMode,
                 preferencesRepository.groupedChannelLabelMode,
-                preferencesRepository.liveVariantPreferenceMode
-            ) { numberingMode, groupingMode, labelMode, preferenceMode ->
-                arrayOf(numberingMode, groupingMode, labelMode, preferenceMode)
+                preferencesRepository.liveVariantPreferenceMode,
+                preferencesRepository.m3uCatchUpQueryFormat
+            ) { numberingMode, groupingMode, labelMode, preferenceMode, catchUpQueryFormat ->
+                arrayOf(numberingMode, groupingMode, labelMode, preferenceMode, catchUpQueryFormat)
             },
             preferencesRepository.liveVariantSelections,
             preferencesRepository.liveVariantObservations
@@ -442,7 +444,8 @@ class ChannelRepositoryImpl @Inject constructor(
                 labelMode = settingsArray[2] as GroupedChannelLabelMode,
                 preferenceMode = settingsArray[3] as LiveVariantPreferenceMode,
                 preferredVariants = preferredVariants,
-                observedQualities = observedQualities
+                observedQualities = observedQualities,
+                catchUpFallbackAvailable = (settingsArray[4] as String).isNotBlank()
             )
         }
 
@@ -487,7 +490,8 @@ class ChannelRepositoryImpl @Inject constructor(
                 rawById[rawId]?.let { entity ->
                     entity.toPresentedRawChannel(
                         settings.observedQualities[rawId],
-                        stalkerPortalUrlForProvider(entity.providerId)
+                        stalkerPortalUrlForProvider(entity.providerId),
+                        settings.catchUpFallbackAvailable
                     )
                 }
             }
@@ -523,7 +527,8 @@ class ChannelRepositoryImpl @Inject constructor(
             entities.map { entity ->
                 entity.toPresentedRawChannel(
                     settings.observedQualities[entity.id],
-                    portalRootForProvider(entity.providerId)
+                    portalRootForProvider(entity.providerId),
+                    settings.catchUpFallbackAvailable
                 )
             }
         } else {
@@ -599,6 +604,7 @@ class ChannelRepositoryImpl @Inject constructor(
                 catchUpSource = selectedVariant.catchUpSource,
                 catchUpType = selectedVariant.catchUpType,
                 catchUpCorrectionSeconds = selectedVariant.catchUpCorrectionSeconds,
+                catchUpFallbackAvailable = settings.catchUpFallbackAvailable,
                 providerId = representative.providerId,
                 isAdult = representative.isAdult,
                 isUserProtected = representative.isUserProtected,
@@ -913,7 +919,8 @@ class ChannelRepositoryImpl @Inject constructor(
 
     private fun ChannelBrowseEntity.toPresentedRawChannel(
         observedQuality: LiveChannelObservedQuality?,
-        stalkerPortalUrl: String?
+        stalkerPortalUrl: String?,
+        catchUpFallbackAvailable: Boolean
     ): Channel {
         val variant = toVariant(observedQuality)
         return Channel(
@@ -933,6 +940,7 @@ class ChannelRepositoryImpl @Inject constructor(
             catchUpSource = catchUpSource,
             catchUpType = catchUpType,
             catchUpCorrectionSeconds = catchUpCorrectionSeconds,
+            catchUpFallbackAvailable = catchUpFallbackAvailable,
             providerId = providerId,
             isAdult = isAdult,
             isUserProtected = isUserProtected,

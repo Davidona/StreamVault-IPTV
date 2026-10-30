@@ -224,7 +224,7 @@ class M3uParser {
             catchUp = extinf.catchUp?.takeIf(String::isNotBlank)
                 ?: extinf.catchUpType?.takeIf(String::isNotBlank),
             catchUpDays = extinf.catchUpDays?.toIntOrNull()?.takeIf { it in 0..365 }
-                ?: extinf.timeshift?.toIntOrNull()?.takeIf { it in 0..365 },
+                ?: extinf.timeshift?.toIntOrNull()?.takeIf { it in 1..365 },
             catchUpSource = extinf.catchUpSource,
             timeshift = extinf.timeshift,
             url = url,
@@ -238,14 +238,15 @@ class M3uParser {
                 ?.trim()
                 ?.lowercase()
                 ?.takeIf(String::isNotBlank)
-                ?: extinf.timeshift?.takeIf(String::isNotBlank)?.let { "shift" },
+                ?: extinf.timeshift?.toIntOrNull()?.takeIf { it > 0 }?.let { "shift" },
             catchUpCorrectionSeconds = parseCatchUpCorrectionSeconds(extinf.catchUpCorrection)
                 ?: globalCatchUpCorrectionSeconds
         )
     }
 
     private fun M3uEntry.supportsCatchUp(): Boolean {
-        return !catchUpType.isNullOrBlank() || !catchUpSource.isNullOrBlank() || !timeshift.isNullOrBlank()
+        return !catchUpType.isNullOrBlank() || !catchUpSource.isNullOrBlank() ||
+            (timeshift?.toIntOrNull() ?: 0) > 0
     }
 
     private fun parseCatchUpCorrectionSeconds(value: String?): Int? {

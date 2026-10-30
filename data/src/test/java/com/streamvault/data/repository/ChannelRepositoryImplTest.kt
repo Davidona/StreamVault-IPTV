@@ -64,6 +64,7 @@ class ChannelRepositoryImplTest {
         whenever(preferencesRepository.liveVariantPreferenceMode).thenReturn(flowOf(LiveVariantPreferenceMode.BALANCED))
         whenever(preferencesRepository.liveVariantSelections).thenReturn(flowOf(emptyMap()))
         whenever(preferencesRepository.liveVariantObservations).thenReturn(flowOf(emptyMap()))
+        whenever(preferencesRepository.m3uCatchUpQueryFormat).thenReturn(flowOf("?utc={utc}"))
         whenever(preferencesRepository.hideDecorativeLiveRows).thenReturn(flowOf(true))
         whenever(preferencesRepository.getHiddenChannelIds(any())).thenReturn(flowOf(emptySet()))
         whenever(providerSnapshotDao.getConfigSync(any())).thenReturn(null)
@@ -570,6 +571,34 @@ class ChannelRepositoryImplTest {
             "http://one.example/stalker_portal/misc/logos/120/101.png",
             "http://two.example/stalker_portal/misc/logos/120/202.png"
         ).inOrder()
+    }
+
+    @Test
+    fun `presented channels expose whether the catch-up fallback is configured`() = runTest {
+        whenever(preferencesRepository.liveChannelGroupingMode).thenReturn(
+            flowOf(LiveChannelGroupingMode.RAW_VARIANTS)
+        )
+        whenever(preferencesRepository.m3uCatchUpQueryFormat).thenReturn(flowOf(""))
+        whenever(channelDao.getByIds(listOf(42L))).thenReturn(
+            flowOf(
+                listOf(
+                    ChannelBrowseEntity(
+                        id = 42L,
+                        streamId = 42L,
+                        name = "Fallback Channel",
+                        streamUrl = "https://stream/42.ts",
+                        number = 1,
+                        catchUpSupported = true,
+                        catchUpType = "append",
+                        providerId = 7L
+                    )
+                )
+            )
+        )
+
+        val result = createRepository().getChannelsByIds(listOf(42L)).first()
+
+        assertThat(result.single().catchUpFallbackAvailable).isFalse()
     }
 
     @Test

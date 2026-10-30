@@ -508,7 +508,10 @@ class RecordingManagerImpl @Inject constructor(
 
     override suspend fun setScheduleEnabled(recordingId: String, enabled: Boolean): Result<Unit> = withContext(Dispatchers.IO) {
         if (enabled && !alarmScheduler.canScheduleExactAlarms()) {
-            return@withContext Result.error(RecordingAlarmScheduler.EXACT_ALARM_PERMISSION_MESSAGE)
+            return@withContext Result.error(
+                RecordingAlarmScheduler.EXACT_ALARM_PERMISSION_MESSAGE,
+                exactRecordingAlarmAccessException()
+            )
         }
         val run = recordingRunDao.getById(recordingId) ?: return@withContext Result.error("Recording not found")
         val schedule = recordingScheduleDao.getById(run.scheduleId) ?: return@withContext Result.error("Recording schedule not found")
@@ -1338,9 +1341,14 @@ class RecordingManagerImpl @Inject constructor(
 
     private fun ensureExactRecordingAlarmsAvailableOrThrow() {
         if (!alarmScheduler.canScheduleExactAlarms()) {
-            throw com.streamvault.domain.model.ExactRecordingAlarmAccessException(RecordingAlarmScheduler.EXACT_ALARM_PERMISSION_MESSAGE)
+            throw exactRecordingAlarmAccessException()
         }
     }
+
+    private fun exactRecordingAlarmAccessException() =
+        com.streamvault.domain.model.ExactRecordingAlarmAccessException(
+            RecordingAlarmScheduler.EXACT_ALARM_PERMISSION_MESSAGE
+        )
 
     private suspend fun scheduleStartAlarmOrFail(recordingId: String, whenMs: Long) {
         when (val result = alarmScheduler.scheduleStart(recordingId, whenMs)) {

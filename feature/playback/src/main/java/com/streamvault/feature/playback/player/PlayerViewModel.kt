@@ -1544,6 +1544,7 @@ class PlayerViewModel @Inject constructor(
                 seriesId = currentSeriesId
             )
         }
+        activeVodTrackPreferences = withoutMissingRememberedOpenSubtitle(activeVodTrackPreferences)
 
         val preparationResult = playerPreparationCoordinator.prepare(
             request = PlayerPreparationCoordinator.Request(

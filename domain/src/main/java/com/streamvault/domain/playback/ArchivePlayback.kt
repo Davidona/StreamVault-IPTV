@@ -37,9 +37,14 @@ fun Channel.archivePlaybackCapability(): ArchivePlaybackCapability {
     val needsUnmappedCatchUpId = Regex("\\$?\\{catchup-id}", RegexOption.IGNORE_CASE).containsMatchIn(source)
     val hasM3uTemplate = source.isNotBlank() && !needsUnmappedCatchUpId &&
         !normalizedSource.startsWith(STALKER_INTERNAL_PREFIX)
-    val hasM3uAutoMode = normalizedType in setOf(
-        "default", "append", "shift", "timeshift", "fs", "flussonic", "xc", "xc60", "xtream", "xtream-codes"
-    ) && !stream.startsWith(STALKER_INTERNAL_PREFIX)
+    val needsConfiguredFallback = source.isBlank() && normalizedType in setOf("default", "append")
+    val isFlussonicMode = normalizedType == "fs" || normalizedType.startsWith("flussonic")
+    val hasM3uAutoMode = (
+        normalizedType in setOf(
+            "default", "append", "shift", "timeshift", "xc", "xc60", "xtream", "xtream-codes"
+        ) || isFlussonicMode
+    ) && !stream.startsWith(STALKER_INTERNAL_PREFIX) && !needsUnmappedCatchUpId &&
+        (!needsConfiguredFallback || catchUpFallbackAvailable)
     val windowDays = catchUpDays.takeIf { it > 0 }
 
     return when {

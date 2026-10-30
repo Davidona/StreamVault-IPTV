@@ -1,14 +1,22 @@
 package com.streamvault.data.repository
 
 import java.net.URI
+import java.net.URLEncoder
+import java.text.SimpleDateFormat
 import java.time.Instant
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
+import java.util.Date
 import java.util.Locale
+import java.util.TimeZone
 import com.streamvault.domain.provider.DEFAULT_M3U_CATCH_UP_QUERY_FORMAT
 
 private val catchUpToken = Regex("\\$\\{([^{}]+)\\}|\\{([^{}]+)\\}")
-private val compactJavaDateFormat = Regex("yyyyMMdd(?:HHmmss)?")
+private val legacyCatchUpToken = Regex("\\$\\{\\((b|e)\\)([^}]+?)(?::(utc))?\\}")
+private val javaDatePatternRun = Regex("([yMLwdDFuHkKhmsS])\\1+")
+
+private const val DATE_LETTERS = "YmdHMS"
+private const val MILLIS_PER_SECOND = 1_000L
 
 internal fun buildM3uCatchUpUrls(
     source: String?,
@@ -24,45 +32,58 @@ internal fun buildM3uCatchUpUrls(
     val template = source?.trim().orEmpty()
     val mode = catchUpType?.trim()?.lowercase(Locale.ROOT).orEmpty()
     if (template.hasCatchUpIdPlaceholder()) return emptyList()
-    val now = System.currentTimeMillis() / 1_000L
+    val now = System.currentTimeMillis() / MILLIS_PER_SECOND
     val correctedStart = start + correctionSeconds
     val correctedEnd = maxOf(correctedStart + 1L, end + correctionSeconds)
     val correctedNow = now + correctionSeconds
 
     val fullSource = template.takeIf(::hasUrlScheme)
-    val candidate = when {
-        fullSource != null -> expandCatchUpTemplate(
-            fullSource,
-            correctedStart,
-            correctedEnd,
-            correctedNow,
-            correctionSeconds
+    val candidates = when {
+        fullSource != null -> listOf(
+            expandCatchUpTemplate(
+                fullSource,
+                correctedStart,
+                correctedEnd,
+                correctedNow,
+                correctionSeconds
+            )
         )
-        template.isNotBlank() && liveUrl.isNotBlank() && mode in APPEND_MODES ->
-            appendCatchUpSource(liveUrl, expandCatchUpTemplate(template, correctedStart, correctedEnd, correctedNow, correctionSeconds))
+        template.isNotBlank() && liveUrl.isNotBlank() && mode in APPEND_MODES -> listOf(
+            appendCatchUpSource(
+                liveUrl,
+                expandCatchUpTemplate(template, correctedStart, correctedEnd, correctedNow, correctionSeconds)
+            )
+        )
         mode in SHIFT_MODES && liveUrl.isNotBlank() -> {
             val shiftSource = template.ifBlank { "?utc={utc}&lutc={lutc}" }
-            appendCatchUpSource(liveUrl, expandCatchUpTemplate(shiftSource, correctedStart, correctedEnd, correctedNow, correctionSeconds))
+            listOf(
+                appendCatchUpSource(
+                    liveUrl,
+                    expandCatchUpTemplate(shiftSource, correctedStart, correctedEnd, correctedNow, correctionSeconds)
+                )
+            )
         }
-        mode in APPEND_MODES && liveUrl.isNotBlank() -> {
+        mode in APPEND_MODES && liveUrl.isNotBlank() -> listOfNotNull(
             fallbackTemplate.takeIf(String::isNotBlank)?.let { queryFormat ->
                 appendCatchUpSource(
                     liveUrl,
                     expandCatchUpTemplate(queryFormat, correctedStart, correctedEnd, correctedNow, correctionSeconds)
                 )
             }
-        }
-        mode in FLUSSONIC_MODES && liveUrl.isNotBlank() ->
-            buildFlussonicCatchUpUrl(liveUrl, correctedStart, now)
+        )
+        mode.isFlussonicMode() && liveUrl.isNotBlank() -> listOfNotNull(
+            buildFlussonicCatchUpUrl(liveUrl, correctedStart, correctedEnd)
+        )
         mode in XTREAM_MODES && liveUrl.isNotBlank() ->
-            buildXtreamCatchUpUrl(liveUrl, correctedStart, correctedEnd)
-        else -> null
+            buildXtreamCatchUpUrls(liveUrl, correctedStart, correctedEnd)
+        else -> emptyList()
     }
-    return listOfNotNull(candidate?.takeIf(String::isNotBlank)).distinct()
+    return candidates.filter(String::isNotBlank).distinct()
 }
 
 private fun String.hasCatchUpIdPlaceholder(): Boolean = catchUpToken.findAll(this).any { match ->
-    (match.groups[1]?.value ?: match.groups[2]?.value).equals("catchup-id", ignoreCase = true)
+    val specifier = match.groups[1]?.value ?: match.groups[2]?.value.orEmpty()
+    specifier.substringBefore(':').trim().equals("catchup-id", ignoreCase = true)
 }
 
 private fun expandCatchUpTemplate(
@@ -74,53 +95,89 @@ private fun expandCatchUpTemplate(
 ): String {
     val durationSeconds = (end - start).coerceAtLeast(1L)
     val durationMinutes = (durationSeconds / 60L).coerceAtLeast(1L)
-    return catchUpToken.replace(template) { match ->
-        val rawSpecifier = match.groups[1]?.value ?: match.groups[2]?.value.orEmpty()
-        val specifier = rawSpecifier.trim()
-        if (specifier == "YmdHis") {
-            return@replace formatTimestamp(start, "yyyyMMddHHmmss")
+    val expandedLegacy = legacyCatchUpToken.replace(template) { match ->
+        val seconds = if (match.groupValues[1] == "b") start else end
+        val format = match.groupValues[2]
+        if (format.equals("timestamp", ignoreCase = true)) {
+            seconds.toString()
+        } else {
+            formatDateToken(seconds, format) ?: match.value
         }
-        if (specifier in setOf("Y", "m", "d", "H", "M", "S")) {
-            return@replace formatTimestamp(start, specifier)
+    }
+    return catchUpToken.replace(expandedLegacy) { match ->
+        val specifier = (match.groups[1]?.value ?: match.groups[2]?.value.orEmpty()).trim()
+        if (specifier.isEmpty()) {
+            return@replace match.value
         }
         val name = specifier.substringBefore(':').lowercase(Locale.ROOT)
         val format = specifier.substringAfter(':', "")
-        when (name) {
-            "utc", "start" -> formatTimestamp(start, format)
-            "utcend", "end" -> formatTimestamp(end, format)
-            "lutc", "now", "timestamp" -> formatTimestamp(now, format)
-            "duration" -> {
-                val divisor = format.toLongOrNull()?.takeIf { it > 0L } ?: 1L
-                (durationSeconds / divisor).toString()
+        val instant = when (name) {
+            "utc", "start", "start-timestamp", "utcstart" -> start
+            "utcend", "end", "stop", "end-timestamp" -> end
+            "lutc", "now", "timenow", "currenttime", "timestamp" -> now
+            else -> null
+        }
+        if (instant != null) {
+            return@replace if (format.isBlank()) {
+                instant.toString()
+            } else {
+                formatDateToken(instant, format) ?: match.value
             }
+        }
+        when (name) {
+            "duration" -> formatDivided(durationSeconds, format) ?: match.value
             "duration_seconds" -> durationSeconds.toString()
             "duration_minutes" -> durationMinutes.toString()
-            "offset" -> {
-                val divisor = format.toLongOrNull()?.takeIf { it > 0L } ?: 1L
-                ((now - start).coerceAtLeast(0L) / divisor).toString()
-            }
-            else -> match.value
+            "offset" -> formatDivided((now - start).coerceAtLeast(0L), format) ?: match.value
+            else -> formatDateToken(start, specifier) ?: match.value
         }
     }
 }
 
-private fun formatTimestamp(epochSeconds: Long, format: String): String {
-    if (format.isBlank()) return epochSeconds.toString()
-    val date = Instant.ofEpochSecond(epochSeconds).atZone(ZoneOffset.UTC)
-    if (compactJavaDateFormat.matches(format)) {
-        return runCatching { date.format(DateTimeFormatter.ofPattern(format, Locale.ROOT)) }
-            .getOrDefault(epochSeconds.toString())
+private fun formatDivided(seconds: Long, divisorText: String): String? = if (divisorText.isBlank()) {
+    seconds.toString()
+} else {
+    divisorText.toLongOrNull()?.takeIf { it > 0L }?.let { divisor -> (seconds / divisor).toString() }
+}
+
+private fun formatDateToken(epochSeconds: Long, format: String): String? {
+    if (format.isBlank()) return null
+    if (format.equals("YmdHis", ignoreCase = true)) {
+        return formatDateLetters(epochSeconds, "YmdHMS")
     }
+    if (format.contains('y') || javaDatePatternRun.containsMatchIn(format)) {
+        return runCatching {
+            SimpleDateFormat(format, Locale.US).apply {
+                timeZone = TimeZone.getTimeZone("UTC")
+            }.format(Date(epochSeconds * MILLIS_PER_SECOND))
+        }.getOrNull()
+    }
+    return format.takeIf(::isDateLetterFormat)?.let { formatDateLetters(epochSeconds, it) }
+}
+
+private fun isDateLetterFormat(format: String): Boolean {
+    var hasDateLetter = false
+    format.forEach { character ->
+        if (!character.isLetter()) return@forEach
+        if (character !in DATE_LETTERS) return false
+        hasDateLetter = true
+    }
+    return hasDateLetter
+}
+
+private fun formatDateLetters(epochSeconds: Long, format: String): String {
+    val date = Instant.ofEpochSecond(epochSeconds).atZone(ZoneOffset.UTC)
+    fun two(value: Int) = value.toString().padStart(2, '0')
     return buildString(format.length) {
         format.forEach { character ->
             append(
                 when (character) {
                     'Y' -> date.format(DateTimeFormatter.ofPattern("yyyy", Locale.ROOT))
-                    'm' -> date.format(DateTimeFormatter.ofPattern("MM", Locale.ROOT))
-                    'd' -> date.format(DateTimeFormatter.ofPattern("dd", Locale.ROOT))
-                    'H' -> date.format(DateTimeFormatter.ofPattern("HH", Locale.ROOT))
-                    'M' -> date.format(DateTimeFormatter.ofPattern("mm", Locale.ROOT))
-                    'S' -> date.format(DateTimeFormatter.ofPattern("ss", Locale.ROOT))
+                    'm' -> two(date.monthValue)
+                    'd' -> two(date.dayOfMonth)
+                    'H' -> two(date.hour)
+                    'M' -> two(date.minute)
+                    'S' -> two(date.second)
                     else -> character
                 }
             )
@@ -146,27 +203,47 @@ private fun appendCatchUpSource(baseUrl: String, source: String): String {
     return appended + fragment
 }
 
-private fun buildFlussonicCatchUpUrl(liveUrl: String, start: Long, now: Long): String? {
+private fun buildFlussonicCatchUpUrl(liveUrl: String, start: Long, end: Long): String? {
     val uri = runCatching { URI(liveUrl) }.getOrNull() ?: return null
     if (uri.rawAuthority.isNullOrBlank()) return null
     val path = uri.rawPath?.takeIf(String::isNotBlank) ?: return null
     val lastSegment = path.substringAfterLast('/')
-    val isHls = lastSegment.endsWith(".m3u8", ignoreCase = true)
-    val extension = lastSegment.substringAfterLast('.', "ts").takeIf { it.isNotBlank() } ?: "ts"
-    val streamPath = when {
-        lastSegment.equals("index.m3u8", ignoreCase = true) -> path.substringBeforeLast('/')
-        lastSegment.equals("index.ts", ignoreCase = true) -> path.substringBeforeLast('/')
-        else -> path.substringBeforeLast('/').trimEnd('/') + "/" + lastSegment.substringBeforeLast('.', lastSegment)
-    }.trimEnd('/')
-    val archiveName = if (isHls) {
-        "timeshift_rel-${(now - start).coerceAtLeast(0L)}.m3u8"
-    } else {
-        "timeshift_abs-$start.$extension"
+    val prefix = path.substringBeforeLast('/', "")
+    val durationSeconds = (end - start).coerceAtLeast(1L)
+    val archiveName = when {
+        lastSegment.endsWith(".m3u8", ignoreCase = true) -> "timeshift_abs-$start.m3u8"
+        lastSegment.equals("mpegts", ignoreCase = true) ||
+            lastSegment.endsWith(".ts", ignoreCase = true) -> "archive-$start-$durationSeconds.ts"
+        else -> return null
     }
-    return rebuildUri(uri, "$streamPath/$archiveName")
+    val archivePath = prefix.trimEnd('/') + "/" + archiveName
+    return rebuildUri(uri, archivePath)
 }
 
-private fun buildXtreamCatchUpUrl(liveUrl: String, start: Long, end: Long): String? {
+private data class XtreamLiveUrlParts(
+    val uri: URI,
+    val username: String,
+    val password: String,
+    val streamId: String,
+    val extension: String,
+    val prefixSegments: List<String>
+)
+
+private fun buildXtreamCatchUpUrls(liveUrl: String, start: Long, end: Long): List<String> {
+    val parts = parseXtreamLiveUrl(liveUrl) ?: return emptyList()
+    val durationMinutes = ((end - start) / 60L).coerceAtLeast(1L)
+    val startText = Instant.ofEpochSecond(start)
+        .atZone(ZoneOffset.UTC)
+        .format(DateTimeFormatter.ofPattern("yyyy-MM-dd:HH-mm", Locale.ROOT))
+    val path = (parts.prefixSegments +
+        listOf("timeshift", parts.username, parts.password, durationMinutes.toString(), startText, "${parts.streamId}.${parts.extension}"))
+        .joinToString(separator = "/", prefix = "/")
+    val pathUrl = rebuildUri(parts.uri, path)
+    val phpUrl = buildXtreamPhpUrl(parts, startText, durationMinutes)
+    return listOf(phpUrl, pathUrl).distinct()
+}
+
+private fun parseXtreamLiveUrl(liveUrl: String): XtreamLiveUrlParts? {
     val uri = runCatching { URI(liveUrl) }.getOrNull() ?: return null
     if (uri.rawAuthority.isNullOrBlank()) return null
     val pathSegments = uri.rawPath.orEmpty().split('/').filter(String::isNotBlank)
@@ -182,14 +259,34 @@ private fun buildXtreamCatchUpUrl(liveUrl: String, start: Long, end: Long): Stri
     if (streamId.isBlank()) return null
     val extension = streamToken.substringAfterLast('.', "ts").takeIf(String::isNotBlank) ?: "ts"
     val prefix = pathSegments.take(if (liveIndex >= 0) liveIndex else credentialIndex)
-    val durationMinutes = ((end - start) / 60L).coerceAtLeast(1L)
-    val startText = Instant.ofEpochSecond(start)
-        .atZone(ZoneOffset.UTC)
-        .format(DateTimeFormatter.ofPattern("yyyy-MM-dd:HH-mm", Locale.ROOT))
-    val catchUpPath = (prefix + listOf("timeshift", username, password, durationMinutes.toString(), startText, "$streamId.$extension"))
-        .joinToString(separator = "/", prefix = "/")
-    return rebuildUri(uri, catchUpPath)
+    return XtreamLiveUrlParts(uri, username, password, streamId, extension, prefix)
 }
+
+private fun buildXtreamPhpUrl(
+    parts: XtreamLiveUrlParts,
+    startText: String,
+    durationMinutes: Long
+): String {
+    val scriptPath = if (parts.prefixSegments.isEmpty()) {
+        "/streaming/timeshift.php"
+    } else {
+        "/" + parts.prefixSegments.joinToString("/") + "/streaming/timeshift.php"
+    }
+    val query = listOf(
+        "username" to encodeQueryValue(parts.username),
+        "password" to encodeQueryValue(parts.password),
+        "stream" to encodeQueryValue(parts.streamId),
+        "start" to startText,
+        "duration" to durationMinutes.toString()
+    ).joinToString("&") { (key, value) -> "$key=$value" }
+    return buildString {
+        append(parts.uri.scheme).append("://").append(parts.uri.rawAuthority)
+        append(scriptPath).append('?').append(query)
+    }
+}
+
+private fun encodeQueryValue(value: String): String =
+    URLEncoder.encode(value, Charsets.UTF_8.name())
 
 private fun rebuildUri(uri: URI, path: String): String = buildString {
     append(uri.scheme).append("://").append(uri.rawAuthority).append(path)
@@ -200,7 +297,8 @@ private fun rebuildUri(uri: URI, path: String): String = buildString {
 private fun hasUrlScheme(value: String): Boolean =
     Regex("^[A-Za-z][A-Za-z0-9+.-]*://").containsMatchIn(value)
 
+private fun String.isFlussonicMode(): Boolean = this == "fs" || startsWith("flussonic")
+
 private val APPEND_MODES = setOf("", "default", "append")
 private val SHIFT_MODES = setOf("shift", "timeshift")
-private val FLUSSONIC_MODES = setOf("fs", "flussonic")
 private val XTREAM_MODES = setOf("xc", "xc60", "xtream", "xtream-codes")
