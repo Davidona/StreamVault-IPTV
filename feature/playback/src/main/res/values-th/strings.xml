@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="player_recording_exact_alarm_required">อนุญาตการปลุกและการช่วยเตือนสำหรับ StreamVault ในการตั้งค่า Android แล้วลองบันทึกอีกครั้ง</string>
+</resources>

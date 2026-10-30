@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="player_recording_exact_alarm_required">Дозвольте будильники й нагадування для StreamVault у налаштуваннях Android, а потім спробуйте записати знову.</string>
+</resources>

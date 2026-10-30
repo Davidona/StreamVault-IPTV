@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="player_recording_exact_alarm_required">Tillåt alarm och påminnelser för StreamVault i Android-inställningarna och försök sedan spela in igen.</string>
+</resources>

@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="player_recording_exact_alarm_required">Erlaube StreamVault in den Android-Einstellungen Alarme und Erinnerungen und versuche die Aufnahme erneut.</string>
+</resources>

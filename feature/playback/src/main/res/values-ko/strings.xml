@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="player_recording_exact_alarm_required">Android 설정에서 StreamVault의 알람 및 미리 알림을 허용한 다음 다시 녹화하세요.</string>
+</resources>

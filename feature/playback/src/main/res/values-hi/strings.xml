@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="player_recording_exact_alarm_required">Android की सेटिंग में StreamVault के लिए अलार्म और रिमाइंडर की अनुमति दें, फिर रिकॉर्डिंग दोबारा शुरू करें।</string>
+</resources>

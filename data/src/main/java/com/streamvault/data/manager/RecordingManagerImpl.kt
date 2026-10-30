@@ -184,14 +184,21 @@ class RecordingManagerImpl @Inject constructor(
         }
 
     override suspend fun startManualRecording(request: RecordingRequest): Result<RecordingItem> = withContext(Dispatchers.IO) {
+        // Do not log exception messages here: source and storage errors can contain credentials.
+        var failureStage = "storage"
         runSuspendCatching {
             val storage = ensureStorageStateSync()
             if (!storage.isWritable) {
+                Log.w(TAG, "Manual recording failed at storage validation")
                 return@withContext Result.error("Recording storage is not writable.")
             }
+            failureStage = "exact_alarm_access"
             ensureExactRecordingAlarmsAvailableOrThrow()
+            failureStage = "recording_window"
             validateRecordingWindowOrThrow(request.scheduledStartMs, request.scheduledEndMs, request.providerId)
+            failureStage = "source_resolution"
             val source = resolveRecordableSource(request.providerId, request.channelId, request.streamUrl)
+            failureStage = "output_creation"
             val outputTarget = createOutputTarget(
                 context = context,
                 storage = storage,
@@ -203,6 +210,7 @@ class RecordingManagerImpl @Inject constructor(
                 ),
                 credentialCrypto = credentialCrypto
             )
+            failureStage = "persistence"
             val run = try {
                 persistManualRun(request, source, outputTarget)
             } catch (cancelled: CancellationException) {
@@ -219,7 +227,9 @@ class RecordingManagerImpl @Inject constructor(
                 throw error
             }
 
+            failureStage = "stop_alarm"
             scheduleStopAlarmOrFail(run.id, request.scheduledEndMs)
+            failureStage = "service_start"
             try {
                 recordingServiceLauncher.startCapture(context, run.id)
             } catch (cancelled: CancellationException) {
@@ -231,7 +241,10 @@ class RecordingManagerImpl @Inject constructor(
             run.toStandaloneDomain()
         }.fold(
             onSuccess = { Result.success(it) },
-            onFailure = { error -> Result.error(error.message ?: "Failed to start recording", error) }
+            onFailure = { error ->
+                Log.w(TAG, "Manual recording failed at $failureStage")
+                Result.error(error.message ?: "Failed to start recording", error)
+            }
         )
     }
 
@@ -1325,7 +1338,7 @@ class RecordingManagerImpl @Inject constructor(
 
     private fun ensureExactRecordingAlarmsAvailableOrThrow() {
         if (!alarmScheduler.canScheduleExactAlarms()) {
-            throw IllegalStateException(RecordingAlarmScheduler.EXACT_ALARM_PERMISSION_MESSAGE)
+            throw com.streamvault.domain.model.ExactRecordingAlarmAccessException(RecordingAlarmScheduler.EXACT_ALARM_PERMISSION_MESSAGE)
         }
     }
 
