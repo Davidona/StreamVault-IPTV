@@ -3,10 +3,19 @@ package com.streamvault.player.playback
 import com.google.common.truth.Truth.assertThat
 import androidx.media3.exoplayer.source.BehindLiveWindowException
 import java.io.IOException
+import java.net.SocketException
 import javax.net.ssl.SSLHandshakeException
 import org.junit.Test
 
 class PlayerErrorClassifierTest {
+
+    @Test
+    fun `mid-load connection reset maps to network`() {
+        // As delivered to the load error policy: Media3's HttpDataSourceException caused by the socket reset.
+        val error = IOException(SocketException("Connection reset"))
+
+        assertThat(PlayerErrorClassifier.classify(error)).isEqualTo(PlaybackErrorCategory.NETWORK)
+    }
 
     @Test
     fun `401 maps to auth`() {

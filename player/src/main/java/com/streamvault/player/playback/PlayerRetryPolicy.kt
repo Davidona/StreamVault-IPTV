@@ -9,7 +9,7 @@ import androidx.media3.exoplayer.source.BehindLiveWindowException
 import androidx.media3.exoplayer.upstream.DefaultLoadErrorHandlingPolicy
 import androidx.media3.exoplayer.upstream.LoadErrorHandlingPolicy
 import com.streamvault.domain.model.PlaybackContentKind
-import java.net.ConnectException
+import java.net.SocketException
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 import java.util.concurrent.ConcurrentHashMap
@@ -279,7 +279,9 @@ class PlayerRetryPolicy(
             PlaybackErrorCategory.EMPTY_RESPONSE -> 0
             PlaybackErrorCategory.NETWORK -> when {
                 error.hasCause<UnknownHostException>() -> 1
-                error.hasCause<SocketTimeoutException>() || error.hasCause<ConnectException>() ->
+                // Connect failures, resets and body-read failures are retried like timeouts.
+                error.hasCause<SocketTimeoutException>() || error.hasCause<SocketException>() ||
+                    generateSequence(error) { it.cause }.any { it.isBodyReadFailure() } ->
                     when {
                         streamContext.isLive -> LIVE_TRANSIENT_RETRY_ATTEMPTS
                         streamContext.resolvedStreamType == ResolvedStreamType.PROGRESSIVE && playbackStarted ->
