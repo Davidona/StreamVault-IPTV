@@ -1579,14 +1579,18 @@ class Media3PlayerEngine @Inject constructor(
             learnedAudioCompatibility?.decision == AudioCompatibilityMemoryStore.DECISION_SOFTWARE_FFMPEG -> DecoderMode.SOFTWARE
             else -> audioDecoderPreferencePolicy.preferredMode(requestedAudioDecoderMode, mediaId)
         }
-        val preferredVideoDecoderMode = recoveryVideoDecoderModeOverride ?: videoDecoderPreferencePolicy.preferredMode(
+        val preferredVideoDecoderMode = if (requestedVideoDecoderMode == DecoderMode.HARDWARE) {
+            DecoderMode.HARDWARE
+        } else recoveryVideoDecoderModeOverride ?: videoDecoderPreferencePolicy.preferredMode(
             requestedVideoDecoderMode,
             mediaId
         )
         val nextAudioDecoderPolicy = recoveryAudioDecoderPolicyOverride ?: resolveActiveDecoderPolicy(
             policyModeFor(requestedAudioDecoderMode, preferredAudioDecoderMode)
         )
-        val nextVideoDecoderPolicy = recoveryVideoDecoderPolicyOverride ?: resolveActiveDecoderPolicy(
+        val nextVideoDecoderPolicy = if (requestedVideoDecoderMode == DecoderMode.HARDWARE) {
+            ActiveDecoderPolicy.HARDWARE_ONLY
+        } else recoveryVideoDecoderPolicyOverride ?: resolveActiveDecoderPolicy(
             policyModeFor(requestedVideoDecoderMode, preferredVideoDecoderMode)
         )
         compatibilityDecisionSource = when {
@@ -1627,7 +1631,7 @@ class Media3PlayerEngine @Inject constructor(
 
         Log.i(
             TAG,
-            "prepare resolvedStreamType=$currentResolvedStreamType timeoutProfile=$currentTimeoutProfile audioDecoderPreference=$activeAudioDecoderMode videoDecoderPreference=$activeVideoDecoderMode audioPolicy=$activeAudioDecoderPolicy videoPolicy=$activeVideoDecoderPolicy audioOutputPreference=$audioOutputPreference compatibilitySource=$compatibilityDecisionSource surface=${_renderSurfaceType.value} target=${PlaybackLogSanitizer.sanitizeUrl(streamInfo.url)}"
+            "prepare resolvedStreamType=$currentResolvedStreamType timeoutProfile=$currentTimeoutProfile audioDecoderPreference=$activeAudioDecoderMode videoDecoderPreference=$activeVideoDecoderMode audioPolicy=$activeAudioDecoderPolicy videoPolicy=$activeVideoDecoderPolicy requestedAudioDecoderMode=$requestedAudioDecoderMode requestedVideoDecoderMode=$requestedVideoDecoderMode audioOutputPreference=$audioOutputPreference compatibilitySource=$compatibilityDecisionSource surface=${_renderSurfaceType.value} target=${PlaybackLogSanitizer.sanitizeUrl(streamInfo.url)}"
         )
         Log.i(TAG, nextBufferPolicy.describeForLog(currentResolvedStreamType, requestedPlaybackBufferMode))
 
@@ -2720,6 +2724,12 @@ class Media3PlayerEngine @Inject constructor(
         seekPositionMs: Long?,
         autoPlay: Boolean
     ): Boolean {
+        if (!shouldAttemptAutomaticRecovery(
+                action = AutomaticRecoveryAction.DECODER_FALLBACK,
+                resolvedStreamType = currentResolvedStreamType,
+                playbackStarted = isEffectivelyPlaybackStarted()
+            )
+        ) return false
         val mediaId = lastMediaId ?: return false
         val fallbackMode = videoDecoderPreferencePolicy.onDecoderInitFailure(requestedVideoDecoderMode, mediaId) ?: return false
         val fallbackPolicy = resolveActiveDecoderPolicy(policyModeFor(requestedVideoDecoderMode, fallbackMode))
@@ -3081,10 +3091,14 @@ class Media3PlayerEngine @Inject constructor(
         if (!shouldForceSoftwareForAmbiguousDecoderFallback(audioFallbackMode, videoFallbackMode)) {
             return false
         }
-        recoveryAudioDecoderModeOverride = DecoderMode.SOFTWARE
-        recoveryVideoDecoderModeOverride = DecoderMode.SOFTWARE
-        recoveryAudioDecoderPolicyOverride = ActiveDecoderPolicy.SOFTWARE_PREFERRED
-        recoveryVideoDecoderPolicyOverride = ActiveDecoderPolicy.SOFTWARE_PREFERRED
+        if (audioFallbackMode == DecoderMode.SOFTWARE) {
+            recoveryAudioDecoderModeOverride = DecoderMode.SOFTWARE
+            recoveryAudioDecoderPolicyOverride = ActiveDecoderPolicy.SOFTWARE_PREFERRED
+        }
+        if (videoFallbackMode == DecoderMode.SOFTWARE) {
+            recoveryVideoDecoderModeOverride = DecoderMode.SOFTWARE
+            recoveryVideoDecoderPolicyOverride = ActiveDecoderPolicy.SOFTWARE_PREFERRED
+        }
         return true
     }
 

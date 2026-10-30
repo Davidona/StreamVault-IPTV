@@ -12,6 +12,7 @@ import com.streamvault.player.PlayerError
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
+import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
@@ -74,8 +75,7 @@ class PlayerRecoveryExecutionCoordinatorTest {
         coordinator.handlePlaybackError(liveHlsError, this, port)
         advanceUntilIdle()
 
-        assertThat(port.alternateStreamCalls).isEqualTo(1)
-        assertThat(port.lastAllowXtreamTsFallback).isFalse()
+        assertThat(port.alternateStreamCalls).isEqualTo(0)
         assertThat(port.recoveryState.retriedWithSoftwareDecoder).isFalse()
         assertThat(port.notices).isEmpty()
         verify(port.playerEngine, never()).setDecoderModes(DecoderMode.SOFTWARE, DecoderMode.SOFTWARE)
@@ -207,6 +207,53 @@ class PlayerRecoveryExecutionCoordinatorTest {
             request(PlayerError.NetworkError("timeout")).copy(contentType = ContentType.SERIES_EPISODE), this, port)
         advanceUntilIdle()
         assertThat(port.episodeFallbackCalls).isEqualTo(0)
+    }
+
+    @Test
+    fun `TS deferred live stall preserves explicit hardware video and software audio`() = runTest {
+        val port = RecordingRecoveryPort()
+        val failure = request(PlayerError.DecoderError(
+            "Video playback stalled. Automatic recovery was not attempted to avoid opening another provider connection."
+        )).copy(
+            contentType = ContentType.LIVE,
+            resolvedStreamInfo = StreamInfo(url = "https://example.test/live/1.ts", streamType = StreamType.MPEG_TS),
+            channel = Channel(id = 1L, name = "TS channel"),
+            requestedAudioDecoderMode = DecoderMode.SOFTWARE,
+            requestedVideoDecoderMode = DecoderMode.HARDWARE,
+            livePlaybackReady = true
+        )
+        PlayerRecoveryExecutionCoordinator().handlePlaybackError(failure, this, port)
+        advanceUntilIdle()
+        assertThat(port.recoveryState.retriedWithSoftwareDecoder).isFalse()
+        assertThat(port.notices).isEmpty()
+        verify(port.playerEngine, never()).setDecoderModes(any(), any())
+        verify(port.playerEngine, never()).play()
+    }
+
+    @Test
+    fun `audio recovery cannot override explicit hardware video`() = runTest {
+        val port = RecordingRecoveryPort()
+        val failure = request(PlayerError.DecoderError("decoder failed")).copy(
+            requestedVideoDecoderMode = DecoderMode.HARDWARE
+        )
+        PlayerRecoveryExecutionCoordinator().handlePlaybackError(failure, this, port)
+        advanceUntilIdle()
+        verify(port.playerEngine).setDecoderModes(DecoderMode.SOFTWARE, DecoderMode.HARDWARE)
+        verify(port.playerEngine).play()
+    }
+
+    @Test
+    fun `explicit modes cannot be overwritten by decoder recovery`() = runTest {
+        val port = RecordingRecoveryPort()
+        val failure = request(PlayerError.DecoderError("decoder failed")).copy(
+            requestedAudioDecoderMode = DecoderMode.SOFTWARE,
+            requestedVideoDecoderMode = DecoderMode.HARDWARE
+        )
+        PlayerRecoveryExecutionCoordinator().handlePlaybackError(failure, this, port)
+        advanceUntilIdle()
+        verify(port.playerEngine, never()).setDecoderModes(any(), any())
+        verify(port.playerEngine, never()).play()
+        assertThat(port.recoveryState.retriedWithSoftwareDecoder).isFalse()
     }
 
     private fun request(error: PlayerError) = PlayerRecoveryRequest(

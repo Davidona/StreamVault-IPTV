@@ -13,6 +13,7 @@ import java.util.Locale
 enum class ActiveDecoderPolicy {
     AUTO,
     HARDWARE_PREFERRED,
+    HARDWARE_ONLY,
     SOFTWARE_PREFERRED,
     COMPATIBILITY
 }
@@ -41,7 +42,8 @@ internal data class PlaybackRendererPlan(
     val useVideoManagedCodecSelector: Boolean,
     val audioExtensionRendererMode: PlaybackExtensionRendererMode,
     val videoExtensionRendererMode: PlaybackExtensionRendererMode,
-    val renderPath: String
+    val renderPath: String,
+    val hardwareOnlyVideo: Boolean = false
 ) {
     val useManagedCodecSelector: Boolean
         get() = useAudioManagedCodecSelector || useVideoManagedCodecSelector
@@ -69,7 +71,10 @@ internal fun buildPlaybackRendererFactorySettings(
     plan: PlaybackRendererPlan
 ): PlaybackRendererFactorySettings = PlaybackRendererFactorySettings(
     audioExtensionRendererMode = plan.audioExtensionRendererMode.toMedia3RendererMode(),
-    videoExtensionRendererMode = plan.videoExtensionRendererMode.toMedia3RendererMode(),
+    videoExtensionRendererMode = if (plan.hardwareOnlyVideo) {
+        DefaultRenderersFactory.EXTENSION_RENDERER_MODE_OFF
+    } else plan.videoExtensionRendererMode.toMedia3RendererMode(),
+    // Strict hardware video filters the candidate list; another hardware codec is still allowed.
     enableDecoderFallback = true
 )
 
@@ -139,7 +144,8 @@ internal fun buildPlaybackRendererPlan(
         useVideoManagedCodecSelector = useVideoManagedCodecSelector,
         audioExtensionRendererMode = audioExtensionRendererMode,
         videoExtensionRendererMode = videoExtensionRendererMode,
-        renderPath = renderPath
+        renderPath = renderPath,
+        hardwareOnlyVideo = requestedVideoMode == DecoderMode.HARDWARE
     )
 }
 
@@ -157,12 +163,15 @@ class PlaybackCodecSelector(
         val infos = delegate.getDecoderInfos(mimeType, requiresSecureDecoder, requiresTunnelingDecoder)
         val knownBad = knownBadProvider().map { it.lowercase(Locale.ROOT) }.toSet()
         val policy = policyProvider()
-        return infos.sortedWith(
+        return infos.filter { info ->
+            policy != ActiveDecoderPolicy.HARDWARE_ONLY ||
+                (info.hardwareAccelerated && !info.softwareOnly && !isSoftwareCodec(info.name))
+        }.sortedWith(
             compareBy<MediaCodecInfo> { info ->
                 if (info.name.lowercase(Locale.ROOT) in knownBad) 1 else 0
             }.thenBy { info ->
                 when (policy) {
-                    ActiveDecoderPolicy.AUTO -> 0
+                    ActiveDecoderPolicy.AUTO, ActiveDecoderPolicy.HARDWARE_ONLY -> 0
                     ActiveDecoderPolicy.HARDWARE_PREFERRED -> if (isSoftwareCodec(info.name)) 1 else 0
                     ActiveDecoderPolicy.SOFTWARE_PREFERRED,
                     ActiveDecoderPolicy.COMPATIBILITY -> if (isSoftwareCodec(info.name)) 0 else 1

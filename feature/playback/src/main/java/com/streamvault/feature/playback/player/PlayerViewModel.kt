@@ -1042,7 +1042,9 @@ class PlayerViewModel @Inject constructor(
                 channel = currentChannelFlow.value?.sanitizedForPlayer(),
                 isCatchUp = isCatchUpPlayback(),
                 currentProgramHasArchive = currentProgram.value?.hasArchive == true,
-                livePlaybackReady = livePlaybackReadyForCurrentSession
+                livePlaybackReady = livePlaybackReadyForCurrentSession,
+                requestedAudioDecoderMode = preferredAudioDecoderMode,
+                requestedVideoDecoderMode = preferredVideoDecoderMode
             ),
             sessionScope = playbackSessionScope(requestVersion),
             port = playerRecoveryExecutionPort
