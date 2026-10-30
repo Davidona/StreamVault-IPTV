@@ -73,6 +73,7 @@ class DownloadManagerImpl @Inject constructor(
     private val activeJobs = ConcurrentHashMap<String, Job>()
     private val activeCalls = ConcurrentHashMap<String, okhttp3.Call>()
     private val playbackPausedIds = ConcurrentHashMap.newKeySet<String>()
+    private val pendingLeftoverOutputBasenames = ConcurrentHashMap.newKeySet<String>()
     private val schedulerMutex = Mutex()
     private val recoveryMutex = Mutex()
     private val transferStateMachine = DownloadTransferStateMachine()
@@ -255,6 +256,7 @@ class DownloadManagerImpl @Inject constructor(
     private suspend fun startNextQueued() {
         ensureInterruptedDownloadsRecovered()
         schedulerMutex.withLock {
+            cleanupPendingLeftoverOutputsLocked()
             if (playbackActive || activeJobs.isNotEmpty()) return
             val next = downloadDao.getQueuedOnce()
                 .firstOrNull {
@@ -791,22 +793,62 @@ class DownloadManagerImpl @Inject constructor(
      * "name (n)" file that no download refers to any more. Only files named after this download and not used by
      * another one, and only while nothing is downloading, so a file being written is never removed.
      */
-    private suspend fun deleteLeftoverOutputs(entity: DownloadEntity) = schedulerMutex.withLock {
-        if (activeJobs.isNotEmpty()) return@withLock
-        val baseName = buildFileName(entity, "video/mp4").substringBeforeLast('.')
-        val leftoverName = Regex(Regex.escape(baseName) + "( \\(\\d+\\))?\\.[^.]+")
-        val inUse = downloadDao.getOutputDisplayPathsOnce()
-            .mapNotNull { path -> runCatching { File(path).canonicalPath }.getOrNull() }
-            .toSet()
-        listOfNotNull(context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS), context.filesDir)
-            .map { File(it, "StreamVault") }
-            .flatMap { it.listFiles()?.toList().orEmpty() }
-            .filter { it.isFile && leftoverName.matches(it.name) && it.canonicalPath !in inUse }
-            .forEach { file ->
-                if (!runCatching { file.delete() }.getOrDefault(false)) {
-                    Log.w("DownloadManager", "Leftover download file could not be deleted")
+    private fun deleteLeftoverOutputs(entity: DownloadEntity) {
+        pendingLeftoverOutputBasenames += buildFileName(entity, "video/mp4").substringBeforeLast('.')
+    }
+
+    /**
+     * Runs under [schedulerMutex] so a download cannot start between the active-job check and file deletion.
+     * Pending names stay queued when cleanup cannot safely finish and are retried at the next scheduler pass.
+     */
+    private suspend fun cleanupPendingLeftoverOutputsLocked() {
+        if (activeJobs.isNotEmpty() || pendingLeftoverOutputBasenames.isEmpty()) return
+
+        val inUse = try {
+            downloadDao.getOutputDisplayPathsOnce()
+                .map { path -> File(path).canonicalPath }
+                .toSet()
+        } catch (cancelled: CancellationException) {
+            throw cancelled
+        } catch (_: Exception) {
+            Log.w("DownloadManager", "Deferred leftover download cleanup could not check active output paths")
+            return
+        }
+        val directories = listOfNotNull(
+            context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS),
+            context.filesDir
+        ).map { File(it, "StreamVault") }
+
+        pendingLeftoverOutputBasenames.toList().forEach { baseName ->
+            try {
+                val leftoverName = Regex(Regex.escape(baseName) + "( \\(\\d+\\))?\\.[^.]+")
+                var complete = true
+                for (directory in directories) {
+                    if (!directory.exists()) continue
+                    val files = directory.listFiles()
+                    if (files == null) {
+                        complete = false
+                        continue
+                    }
+                    for (file in files) {
+                        if (!file.isFile || !leftoverName.matches(file.name)) continue
+                        val canonicalPath = runCatching { file.canonicalPath }.getOrNull()
+                        if (canonicalPath == null) {
+                            complete = false
+                            continue
+                        }
+                        if (canonicalPath in inUse) continue
+                        val deleted = runCatching { file.delete() }.getOrDefault(false)
+                        if (!deleted && file.exists()) complete = false
+                    }
                 }
+                if (complete) pendingLeftoverOutputBasenames.remove(baseName)
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (_: Exception) {
+                Log.w("DownloadManager", "Deferred leftover download cleanup could not inspect app storage")
             }
+        }
     }
 
     private data class OutputTarget(
