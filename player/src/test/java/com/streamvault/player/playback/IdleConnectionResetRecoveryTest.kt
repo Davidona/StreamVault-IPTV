@@ -145,7 +145,8 @@ class IdleConnectionResetRecoveryTest {
         val resume = server.requests[1]
         assertThat(resume.status).isEqualTo(206)
         assertThat(resume.rangeStart).isAtLeast(1_000_000L)
-        assertThat(resume.rangeStart).isAtMost(server.requests[0].bytesSent)
+        // A write interrupted by close may still deliver part of its current chunk.
+        assertThat(resume.rangeStart).isAtMost(server.requests[0].bytesSent + 16 * 1024L)
     }
 
     private fun idleFor(ms: Long) {

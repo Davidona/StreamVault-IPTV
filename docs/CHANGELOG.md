@@ -16,6 +16,7 @@ All notable product changes are recorded in this document.
 - Improved playback interruption diagnostics to distinguish rebuffering from dropped frames and track interruption durations more accurately.
 
 ### Fixed
+- Fixed interruptions during on-demand playback when an idle connection closes, by retrying the interrupted download in place.
 - Fixed Android TV guide publication failing when the platform rejects SQL filters on programme queries.
 - Fixed eligible live MPEG-TS channels remaining unavailable after an Android TV-input video surface was recreated; playback now makes one safe recovery attempt.
 - Fixed interrupted Stalker guide downloads being marked fresh and losing automatic retry; useful partial guide data is retained until a complete refresh succeeds.

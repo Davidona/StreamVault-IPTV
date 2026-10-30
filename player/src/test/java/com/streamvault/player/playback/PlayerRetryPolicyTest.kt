@@ -505,6 +505,52 @@ class PlayerRetryPolicyTest {
     }
 
     @Test
+    fun `body read retries remain bounded for live and on demand hls`() {
+        val error = HttpDataSource.HttpDataSourceException(
+            java.net.ProtocolException("unexpected end of stream"),
+            DataSpec.Builder().setUri("https://example.com/segment.ts").build(),
+            PlaybackException.ERROR_CODE_IO_UNSPECIFIED,
+            HttpDataSource.HttpDataSourceException.TYPE_READ
+        )
+        val vodContext = liveContext.copy(playbackContentKind = PlaybackContentKind.ON_DEMAND)
+        val vodPolicy = PlayerRetryPolicy(vodContext) { true }
+
+        assertThat(policy.maxAttempts(error, playbackStarted = false)).isEqualTo(10)
+        assertThat(policy.maxAttempts(error, playbackStarted = true)).isEqualTo(10)
+        assertThat(vodPolicy.maxAttempts(error, playbackStarted = true)).isEqualTo(2)
+        assertThat(vodPolicy.shouldRetry(error, vodContext, playbackStarted = true, attempt = 3)).isFalse()
+        assertThat(policy.getFallbackSelectionFor(fallbackOptions(2, 2), loadError(0, exception = error))).isNull()
+    }
+
+    @Test
+    fun `body read wrappers do not turn terminal ssl or malformed errors into retries`() {
+        val dataSpec = DataSpec.Builder().setUri("https://example.com/segment.ts").build()
+        fun readFailure(cause: IOException) = HttpDataSource.HttpDataSourceException(
+            cause, dataSpec, PlaybackException.ERROR_CODE_IO_UNSPECIFIED,
+            HttpDataSource.HttpDataSourceException.TYPE_READ
+        )
+        val ssl = readFailure(SSLHandshakeException("certificate verify failed"))
+        val malformed = readFailure(ParserException.createForMalformedContainer("bad segment", null))
+
+        assertThat(PlayerErrorClassifier.classify(ssl)).isEqualTo(PlaybackErrorCategory.SSL)
+        assertThat(policy.maxAttempts(ssl, playbackStarted = true)).isEqualTo(0)
+        assertThat(PlayerErrorClassifier.classify(malformed)).isEqualTo(PlaybackErrorCategory.SOURCE_MALFORMED)
+        assertThat(progressivePolicy.maxAttempts(malformed, playbackStarted = true)).isEqualTo(0)
+    }
+
+    @Test
+    fun `live timestamp dependency timeout remains limited when wrapped as a body read`() {
+        val error = HttpDataSource.HttpDataSourceException(
+            IOException(java.util.concurrent.TimeoutException("TimestampAdjuster failed to initialize in 30000 milliseconds")),
+            DataSpec.Builder().setUri("https://example.com/segment.ts").build(),
+            PlaybackException.ERROR_CODE_IO_UNSPECIFIED,
+            HttpDataSource.HttpDataSourceException.TYPE_READ
+        )
+
+        assertThat(policy.maxAttempts(error, playbackStarted = true)).isEqualTo(1)
+    }
+
+    @Test
     fun `progressive network timeouts after playback start retry 10 times`() {
         val error = SocketTimeoutException("timed out")
 
