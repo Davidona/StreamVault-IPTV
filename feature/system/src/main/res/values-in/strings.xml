@@ -47,6 +47,7 @@
     <string name="torrent_cache_confirm_message">Hapus data torrent sementara? Unduhan tersimpan tidak akan dihapus.</string>
     <string name="torrent_cache_active">Hentikan pemutaran torrent sebelum menghapus cache.</string>
     <string name="torrent_cache_clear_failed">Cache sementara tidak dapat dihapus.</string>
+    <string name="torrent_cache_cleared">Cache sementara dihapus.</string>
     <string name="extensions_title">Ekstensi</string>
     <string name="plugins_section_description">Tambahkan fitur ke StreamVault dengan aplikasi pendamping Android.</string>
     <string name="plugins_install_url">Pasang plugin dari URL</string>

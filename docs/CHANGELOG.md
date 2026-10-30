@@ -17,6 +17,7 @@ All notable product changes are recorded in this document.
 - Improved playback interruption diagnostics to distinguish rebuffering from dropped frames and track interruption durations more accurately.
 
 ### Fixed
+- Fixed the temporary torrent cache clear action to confirm when the cache was cleared successfully.
 - Fixed deleted downloads leaving partial files behind after earlier failed attempts.
 - Fixed TV remote navigation on Downloads so playback and delete actions, confirmation buttons, and items remain reachable and focused.
 - Fixed interruptions during on-demand playback when an idle connection closes, by retrying the interrupted download in place.

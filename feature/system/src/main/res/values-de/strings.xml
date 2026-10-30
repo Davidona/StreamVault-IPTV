@@ -47,6 +47,7 @@
     <string name="torrent_cache_confirm_message">Temporäre Torrent-Daten entfernen? Gespeicherte Downloads werden nicht gelöscht.</string>
     <string name="torrent_cache_active">Beende die Torrent-Wiedergabe, bevor du den Cache leerst.</string>
     <string name="torrent_cache_clear_failed">Der temporäre Cache konnte nicht geleert werden.</string>
+    <string name="torrent_cache_cleared">Temporärer Cache geleert.</string>
     <string name="extensions_title">Erweiterungen</string>
     <string name="plugins_section_description">Erweitere StreamVault mit begleitenden Android-Apps um neue Funktionen.</string>
     <string name="plugins_install_url">Plugin von URL installieren</string>

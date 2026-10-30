@@ -159,7 +159,7 @@ class DownloadsViewModel @Inject constructor(
                 .getOrElse { TorrentCacheClearResult.FAILED }
             val status = runCatching { torrentCacheManager.getStatus() }.getOrNull()
             val message = when (result) {
-                TorrentCacheClearResult.CLEARED -> null
+                TorrentCacheClearResult.CLEARED -> application.getString(R.string.torrent_cache_cleared)
                 TorrentCacheClearResult.PLAYBACK_ACTIVE -> application.getString(R.string.torrent_cache_active)
                 TorrentCacheClearResult.FAILED -> application.getString(R.string.torrent_cache_clear_failed)
             }
