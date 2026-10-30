@@ -17,12 +17,16 @@ import com.streamvault.core.navigation.PlayerNavigationRequest
 import com.streamvault.data.preferences.PreferencesRepository
 import com.streamvault.feature.playback.player.PlayerViewModel
 import com.streamvault.feature.playback.player.toggleControls
+import com.streamvault.feature.playback.player.cancelControlsAutoHide
+import com.streamvault.feature.playback.player.openEpgOverlay
+import com.streamvault.feature.playback.player.closeOverlays
 import com.streamvault.player.PlaybackState
 import dagger.hilt.internal.GeneratedComponentManager
 import javax.inject.Provider
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
 import org.json.JSONArray
 import org.json.JSONObject
 import org.junit.Assume.assumeTrue
@@ -41,6 +45,10 @@ class HiddenControlsPlaybackRuntimeTest {
         require(urls.all { Uri.parse(it).host in setOf("127.0.0.1", "localhost") })
         val seconds = args.getString("durationSeconds")?.toInt() ?: 130
         require(seconds in 10..160)
+        val overlayMode = args.getString("overlayMode")
+        require(overlayMode == null || overlayMode in setOf("hidden", "controls", "epg", "captions"))
+        val fixtureSurfaceMode = args.getString("fixtureSurfaceMode")
+        require(fixtureSurfaceMode == null || overlayMode == "hidden")
         val app = ApplicationProvider.getApplicationContext<Application>()
         val component = (app as GeneratedComponentManager<*>).generatedComponent()
         val prefs = (component.javaClass.getDeclaredField("preferencesRepositoryProvider").apply {
@@ -80,13 +88,17 @@ class HiddenControlsPlaybackRuntimeTest {
         var workerEngine: com.streamvault.player.PlayerEngine? = null
         var audioSourceProbe: PlaybackAudioSourceProbe? = null
         var audioSourceEngine: com.streamvault.player.PlayerEngine? = null
+        var publisherProbe: PlaybackPublisherProbe? = null
+        var overlayData: PlaybackOverlayDataProbe? = null
         try {
+            overlayData = PlaybackOverlayDataProbe.start(app, args, run, ::emit)
+            publisherProbe = PlaybackPublisherProbe.start(app, args, run, ::emit)
             inflightProbe = PlaybackInflightEpgProbe.start(app, component, args, run, ::emit)
             catalogProbe = PlaybackInflightCatalogProbe.start(app, args, run, ::emit)
             indexProbe = PlaybackIndexWorkProbe.start(app, args, run, ::emit)
             scenario = ActivityScenario.launch(MainActivity::class.java)
             urls.forEachIndexed { index, url ->
-                val navigation = indexProbe?.navigation(url) ?: inflightProbe?.navigation(url) ?: PlayerNavigationRequest(
+                val navigation = overlayData?.navigation() ?: publisherProbe?.navigation() ?: indexProbe?.navigation(url) ?: inflightProbe?.navigation(url) ?: PlayerNavigationRequest(
                     streamUrl = url, title = "Local live fixture $index", contentType = "LIVE")
                 scenario.onActivity { it.openPlayer(navigation) }
                 var vm: PlayerViewModel? = null
@@ -158,6 +170,7 @@ class HiddenControlsPlaybackRuntimeTest {
                         val audioMode = engine.javaClass.getDeclaredField("requestedAudioDecoderMode")
                             .apply { isAccessible = true }.get(engine).toString()
                         row = JSONObject().put("event", stage).put("channelIndex", index)
+                            .put("overlayMode", overlayMode ?: JSONObject.NULL)
                             .put("state", engine.playbackState.value.name).put("playing", engine.isPlaying.value)
                             .put("error", native.playerError?.errorCode ?: JSONObject.NULL)
                             .put("isLoading", native.isLoading)
@@ -192,12 +205,20 @@ class HiddenControlsPlaybackRuntimeTest {
                             .put("rebufferCount", engine.playerStats.value.rebufferCount)
                             .put("mainCpuMs", SystemClock.currentThreadTimeMillis())
                             .put("processCpuMs", android.os.Process.getElapsedCpuTime())
+                        appendOverlaySnapshot(row, model, engine, overlayMode)
                     }
                     return row
                 }
                 visibility(false)
                 Thread.sleep(1_000)
                 check(!model.showDiagnostics.value)
+                publisherProbe?.awaitBaselineReady()
+                overlayData?.awaitBaselineReady()
+                if (overlayMode != null) {
+                    workerEngine = engine
+                    configureOverlay(model, engine, overlayMode, ::main)
+                }
+                if (fixtureSurfaceMode != null) verifySurfaceSample(snapshot("surface-preflight"), fixtureSurfaceMode)
                 emit(snapshot("capture-begin"))
                 check(engine.javaClass.getDeclaredField("requestedVideoDecoderMode").apply {
                     isAccessible = true
@@ -207,7 +228,8 @@ class HiddenControlsPlaybackRuntimeTest {
                 }.get(engine).toString() == "AUTO") { "Expected default AUTO audio decoder mode" }
                 val workload = PlaybackImportWorkload.start(app, component, args, run, ::emit)
                 workerProbe = PlaybackWorkerAdmissionProbe.start(app, args, run, ::emit)
-                if (workerProbe != null || inflightProbe != null || catalogProbe != null || indexProbe != null) workerEngine = engine
+                if (workerProbe != null || inflightProbe != null || catalogProbe != null || indexProbe != null || publisherProbe != null) workerEngine = engine
+                publisherProbe?.playbackReady()
                 inflightProbe?.verifyPlaybackContext(model.javaClass.methods.single {
                     it.name.substringBefore('$') == "getCurrentProviderId" && it.parameterCount == 0
                 }.invoke(model) as Long)
@@ -220,7 +242,11 @@ class HiddenControlsPlaybackRuntimeTest {
                 try {
                     repeat(seconds) {
                         Thread.sleep(1_000)
-                        emit(snapshot("sample"))
+                        advanceCaption(engine, overlayMode, it, ::main)
+                        val sample = snapshot("sample")
+                        emit(sample)
+                        verifyOverlaySample(sample, overlayMode)
+                        verifySurfaceSample(sample, fixtureSurfaceMode)
                         audioSourceProbe?.drain()
                         check(!engine.playerStats.value.isTimeshiftPlayback)
                     }
@@ -230,7 +256,9 @@ class HiddenControlsPlaybackRuntimeTest {
                     inflightProbe?.finishWhilePlaying()
                     catalogProbe?.finishWhilePlaying()
                     indexProbe?.finishWhilePlaying()
+                    publisherProbe?.finishWhilePlaying()
                 }
+                if (overlayMode != null) main { engine.setInjectedSubtitleText(null); model.closeOverlays() }
                 visibility(true)
                 Thread.sleep(700)
                 emit(snapshot("controls-open"))
@@ -261,12 +289,89 @@ class HiddenControlsPlaybackRuntimeTest {
                 catalogProbe?.finishAfterPlayback()
                 indexProbe?.finishAfterPlayback()
             } finally {
-                try { indexProbe?.close() } finally { try { catalogProbe?.close() } finally {
+                closeDataProbes(overlayData, publisherProbe, indexProbe, catalogProbe) {
                     prefs.setPlayerTimeshiftEnabled(originalTimeshift)
                     app.filesDir.resolve("hidden-controls-$run.json").writeText(events.toString(2))
-                }
                 }
             }
         }
     }
+    private fun appendOverlaySnapshot(row: JSONObject, model: PlayerViewModel, engine: com.streamvault.player.PlayerEngine, mode: String?) {
+        if (mode == null) return
+        val binder = engine.javaClass.getDeclaredField("viewBinder").apply { isAccessible = true }.get(engine)
+        val bound = binder.javaClass.getDeclaredField("boundPlayerView").apply { isAccessible = true }.get(binder) as androidx.media3.ui.PlayerView
+        val view = checkNotNull(bound.subtitleView)
+        val cues = view.javaClass.getDeclaredField("cues").apply { isAccessible = true }.get(view) as List<*>
+        row.put("epgVisible", model.showEpgOverlay.value)
+            .put("currentProgramPresent", model.currentProgram.value != null)
+            .put("upcomingProgramCount", model.upcomingPrograms.value.size)
+            .put("renderedSubtitleCueCount", cues.size)
+            .put("subtitleViewVisibility", view.visibility)
+            .put("subtitleViewShown", view.isShown)
+        val video = bound.videoSurfaceView
+        row.put("actualVideoViewClass", video?.javaClass?.name ?: JSONObject.NULL)
+            .put("requestedSurfaceMode", engine.javaClass.getDeclaredField("requestedSurfaceMode").apply { isAccessible = true }.get(engine).toString())
+            .put("videoOutputReady", when (video) {
+                is android.view.TextureView -> video.isAvailable
+                is android.view.SurfaceView -> video.holder.surface.isValid
+                else -> false
+            })
+    }
+
+    private suspend fun configureOverlay(model: PlayerViewModel, engine: com.streamvault.player.PlayerEngine, mode: String, main: (() -> Unit) -> Unit) {
+        withTimeout(15_000) {
+            while (model.currentProgram.value == null || model.upcomingPrograms.value.size < 2) kotlinx.coroutines.delay(100)
+        }
+        main {
+            engine.setInjectedSubtitleText(null)
+            if (mode == "controls") model.toggleControls()
+            if (mode == "epg") model.openEpgOverlay()
+            if (mode == "captions") engine.setInjectedSubtitleText("Overlay caption 0: The quick brown fox crosses the screen.")
+        }
+        Thread.sleep(2_000)
+        main {
+            model.cancelControlsAutoHide()
+            Class.forName("com.streamvault.feature.playback.player.PlayerOverlayActionsKt").declaredMethods
+                .single { it.name.substringBefore('$') == "clearLiveOverlayAutoHide" }.invoke(null, model)
+        }
+        Thread.sleep(1_000)
+    }
+
+    private fun advanceCaption(engine: com.streamvault.player.PlayerEngine, mode: String?, second: Int, main: (() -> Unit) -> Unit) {
+        if (mode == "captions" && second % 2 == 0) main {
+            engine.setInjectedSubtitleText("Overlay caption ${second / 2 + 1}: The quick brown fox crosses the screen.")
+        }
+    }
+
+    private fun verifyOverlaySample(sample: JSONObject, mode: String?) {
+        if (mode == null) return
+        check(sample.getBoolean("controlsVisible") == (mode == "controls"))
+        check(sample.getBoolean("epgVisible") == (mode == "epg"))
+        check(sample.getBoolean("currentProgramPresent") && sample.getInt("upcomingProgramCount") >= 2)
+        check(sample.getInt("renderedSubtitleCueCount") == if (mode == "captions") 1 else 0)
+        if (mode == "captions") check(sample.getBoolean("subtitleViewShown"))
+    }
+
+    private fun verifySurfaceSample(sample: JSONObject, mode: String?) {
+        if (mode == null) return
+        val expected = if (mode == "TEXTURE_VIEW") "TEXTURE_VIEW" else "SURFACE_VIEW"
+        val expectedClass = if (mode == "TEXTURE_VIEW") "android.view.TextureView" else "android.view.SurfaceView"
+        check(sample.getString("requestedSurfaceMode") == mode)
+        check(sample.getString("renderSurfaceType") == expected) { "Production surface guard/fallback selected another path" }
+        check(sample.getString("actualVideoViewClass") == expectedClass && sample.getBoolean("videoOutputReady"))
+    }
+
+    private suspend fun closeDataProbes(
+        overlay: PlaybackOverlayDataProbe?, publisher: PlaybackPublisherProbe?,
+        index: PlaybackIndexWorkProbe?, catalog: PlaybackInflightCatalogProbe?, finish: suspend () -> Unit
+    ) {
+        try { overlay?.close() } finally {
+            try { publisher?.close() } finally {
+                try { index?.close() } finally {
+                    try { catalog?.close() } finally { finish() }
+                }
+            }
+        }
+    }
+
 }

@@ -1,0 +1,10 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application>
+        <activity
+            android:name="com.streamvault.app.tv.IndependentTvHostActivity"
+            android:exported="true"
+            android:process=":tif_death_host"
+            android:launchMode="singleTop"
+            android:theme="@android:style/Theme.Material.NoActionBar.Fullscreen" />
+    </application>
+</manifest>

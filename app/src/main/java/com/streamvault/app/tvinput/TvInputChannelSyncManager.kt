@@ -160,20 +160,22 @@ class TvInputChannelSyncManager @Inject constructor(
     private fun loadExistingPrograms(channelIds: Set<Long>): Map<String, Long> {
         if (channelIds.isEmpty()) return emptyMap()
         val result = linkedMapOf<String, Long>()
-        channelIds.chunked(PROGRAM_QUERY_CHANNEL_CHUNK_SIZE).forEach { chunk ->
-            val placeholders = chunk.joinToString(",") { "?" }
-            context.contentResolver.query(
-                TvContract.Programs.CONTENT_URI,
-                arrayOf(BaseColumns._ID, PROGRAM_COLUMN_INTERNAL_PROVIDER_DATA),
-                "$PROGRAM_COLUMN_CHANNEL_ID IN ($placeholders)",
-                chunk.map(Long::toString).toTypedArray(),
-                null
-            )?.use { cursor ->
-                val idIndex = cursor.getColumnIndexOrThrow(BaseColumns._ID)
-                val dataIndex = cursor.getColumnIndexOrThrow(PROGRAM_COLUMN_INTERNAL_PROVIDER_DATA)
-                while (cursor.moveToNext()) {
-                    cursor.getString(dataIndex)?.let { result[it] = cursor.getLong(idIndex) }
-                }
+        // TvProvider rejects SQL selection for ordinary TV inputs. It already scopes
+        // this query to our package; filter the replaceable channels in one cursor
+        // instead of sending an unsupported IN clause (or one Binder call/channel).
+        context.contentResolver.query(
+            TvContract.Programs.CONTENT_URI,
+            arrayOf(BaseColumns._ID, PROGRAM_COLUMN_CHANNEL_ID, PROGRAM_COLUMN_INTERNAL_PROVIDER_DATA),
+            null,
+            null,
+            null
+        )?.use { cursor ->
+            val idIndex = cursor.getColumnIndexOrThrow(BaseColumns._ID)
+            val channelIdIndex = cursor.getColumnIndexOrThrow(PROGRAM_COLUMN_CHANNEL_ID)
+            val dataIndex = cursor.getColumnIndexOrThrow(PROGRAM_COLUMN_INTERNAL_PROVIDER_DATA)
+            while (cursor.moveToNext()) {
+                if (cursor.getLong(channelIdIndex) !in channelIds) continue
+                cursor.getString(dataIndex)?.let { result[it] = cursor.getLong(idIndex) }
             }
         }
         return result
@@ -310,7 +312,6 @@ class TvInputChannelSyncManager @Inject constructor(
         const val PROGRAM_COLUMN_END_TIME_UTC_MILLIS = "end_time_utc_millis"
         const val PROGRAM_COLUMN_INTERNAL_PROVIDER_DATA = "internal_provider_data"
         const val EPG_QUERY_CHUNK_SIZE = 200
-        const val PROGRAM_QUERY_CHANNEL_CHUNK_SIZE = 500
         const val CONTENT_PROVIDER_BATCH_SIZE = 200
         const val MAX_PROGRAMS_PER_CHANNEL = 24
         const val PROGRAM_LOOKBACK_MS = 3 * 60 * 60 * 1000L

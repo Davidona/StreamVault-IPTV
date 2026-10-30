@@ -360,7 +360,102 @@ internal class PlaybackInflightEpgProbe private constructor(
         emit(JSONObject().put("event", "inflight-cleanup").put("providersRemoved", ids.size))
     }
 
+    /** Persist only disposable fixture ownership before the host kills this process. */
+    suspend fun checkpointForProcessDeath() {
+        val ownedKeys = ids.flatMap { id -> listOf("automatic_sync_status_$id",
+            "catalog_sync_upgrade_started_$id", "catalog_sync_engine_$id") }.toSet()
+        check(originalPreferences.asMap().keys.none { it.name in ownedKeys })
+        check(previousOverrides.values.all { it == null })
+        val info = networkSnapshot("process-death-checkpoint")
+        check(info.state == WorkInfo.State.RUNNING)
+        if (providerKind == "stalker") {
+            check(graph.database().programDao().countByProvider(guideId) >= 5001 && retainedSeedRows() == 1)
+        } else {
+            check(graph.database().programDao().countByProvider(guideId) == 1)
+            check(graph.database().programDao().countByProvider(-guideId) >= 5000)
+        }
+        val saved = JSONObject().put("base", base).put("kind", providerKind).put("run", run)
+            .put("providerIds", JSONArray(ids)).put("guideId", guideId)
+            .put("requestId", checkNotNull(guideRequestId).toString())
+            .put("lastEpgSuccess", prefixMetadata?.lastEpgSuccess ?: 0L)
+            .put("workIds", JSONArray(infos(guideId).map { it.id.toString() }))
+            .put("pid", android.os.Process.myPid())
+        app.filesDir.resolve("process-death-$run-owned.json").writeText(saved.toString(2))
+        emit(JSONObject().put("event", "process-death-ready").put("pid", android.os.Process.myPid()))
+    }
+
+    suspend fun observeAfterProcessDeath(saved: JSONObject, cleanupOnly: Boolean) {
+        try {
+            check(saved.getInt("pid") != android.os.Process.myPid()) { "Process did not restart" }
+            check(!AutomaticSyncActivity.hasPlayback)
+            val initial = networkSnapshot("process-restart-initial")
+            check(initial.state == WorkInfo.State.ENQUEUED || initial.state == WorkInfo.State.RUNNING)
+            check((graph.syncMetadata().getMetadata(guideId)?.lastEpgSuccess ?: 0L) == saved.getLong("lastEpgSuccess"))
+            if (cleanupOnly) return
+            URL("$base/release?run=$run").openConnection().apply { connectTimeout=5000; readTimeout=5000 }
+                .getInputStream().use { it.readBytes() }
+            withTimeout(300_000L) {
+                while (true) {
+                    val info = networkSnapshot("process-restart-poll")
+                    if (info.state.isFinished) {
+                        check(info.state == WorkInfo.State.SUCCEEDED)
+                        break
+                    }
+                    delay(2000L)
+                }
+            }
+            val rows = graph.database().programDao().countByProvider(guideId)
+            val stage = graph.database().programDao().countByProvider(-guideId)
+            val metadata = graph.syncMetadata().getMetadata(guideId)
+            check(rows == 100_000 && stage == 0)
+            check((metadata?.lastEpgSuccess ?: 0L) > saved.getLong("lastEpgSuccess"))
+            if (providerKind == "stalker") check(retainedSeedRows() == 0 && metadata?.epgCount == 100_000)
+            val beforeIds = saved.getJSONArray("workIds").let { array ->
+                (0 until array.length()).map { array.getString(it) }.toSet()
+            }
+            check(infos(guideId).map { it.id.toString() }.toSet() == beforeIds)
+            emit(JSONObject().put("event", "process-restart-recovered").put("sameRequest", true)
+                .put("programs", rows).put("stagedPrograms", stage).put("resubmitted", false))
+        } finally { cleanup() }
+    }
+
+    /** The independent TV host observed recovery without restarting instrumentation in the player. */
+    suspend fun verifyExternallyRecoveredGuide(saved: JSONObject) {
+        try {
+            check(!AutomaticSyncActivity.hasPlayback)
+            val info = networkSnapshot("external-guide-final")
+            check(info.state == WorkInfo.State.SUCCEEDED)
+            check(graph.database().programDao().countByProvider(guideId) == 100_000)
+            check(graph.database().programDao().countByProvider(-guideId) == 0)
+            check((graph.syncMetadata().getMetadata(guideId)?.lastEpgSuccess ?: 0L) > saved.getLong("lastEpgSuccess"))
+            val beforeIds = saved.getJSONArray("workIds").let { array ->
+                (0 until array.length()).map { array.getString(it) }.toSet()
+            }
+            check(infos(guideId).map { it.id.toString() }.toSet() == beforeIds)
+            if (providerKind == "stalker") check(retainedSeedRows() == 0)
+        } finally { cleanup() }
+    }
+
     companion object {
+        suspend fun resumeAfterProcessDeath(app: Application, component: Any, run: String,
+                                           emit: (JSONObject) -> Unit): Pair<PlaybackInflightEpgProbe, JSONObject> {
+            val saved = JSONObject(app.filesDir.resolve("process-death-$run-owned.json").readText())
+            require(saved.getString("run") == run && app.packageName.endsWith(".debug"))
+            require(Uri.parse(saved.getString("base")).host in setOf("127.0.0.1", "localhost"))
+            val probe = PlaybackInflightEpgProbe(app, component, saved.getString("base"), run, emit, saved.getString("kind"))
+            probe.guideId = saved.getLong("guideId")
+            probe.guideRequestId = UUID.fromString(saved.getString("requestId"))
+            probe.originalPreferences = emptyPreferences()
+            val ids = saved.getJSONArray("providerIds")
+            for (index in 0 until ids.length()) {
+                val id = ids.getLong(index)
+                check(probe.graph.database().providerDao().getById(id)?.name == "In-flight guide fixture $run ${if (id == probe.guideId) "background" else "manual"}")
+                probe.ids.add(id)
+                probe.previousOverrides[id] = null
+            }
+            return probe to saved
+        }
+
         suspend fun start(app: Application, component: Any, args: Bundle, run: String,
                           emit: (JSONObject) -> Unit): PlaybackInflightEpgProbe? {
             val base = args.getString("inflightFixtureBase") ?: return null

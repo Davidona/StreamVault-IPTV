@@ -161,7 +161,9 @@ class StreamVaultTvInputService : TvInputService() {
                             " bufferedMs=${player.totalBufferedDuration} firstFrame=$firstVideoFrame" +
                             " rendered=${counters?.renderedOutputBufferCount ?: 0}" +
                             " dropped=${counters?.droppedBufferCount ?: 0}" +
-                            " error=${player.playerError?.errorCode}")
+                            " error=${player.playerError?.errorCode}" +
+                            " owned=${tunedProviderId?.let { AutomaticSyncActivity.isProviderPlaybackActive(it) } ?: false}" +
+                            " globalOwned=${AutomaticSyncActivity.hasPlayback}")
                     }
                     if (surfaceRecovery.isPending) {
                         when (surfaceRecovery.evaluate(
@@ -291,7 +293,8 @@ class StreamVaultTvInputService : TvInputService() {
             endRecoveryGeneration = null
             scope.cancel()
             player.release()
-            if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "lifecycle event=release-end")
+            if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG,
+                "lifecycle event=release-end owned=${tunedProviderId?.let { AutomaticSyncActivity.isProviderPlaybackActive(it) } ?: false} globalOwned=${AutomaticSyncActivity.hasPlayback}")
         }
 
         private suspend fun tune(channelUri: Uri, generation: Long) {
