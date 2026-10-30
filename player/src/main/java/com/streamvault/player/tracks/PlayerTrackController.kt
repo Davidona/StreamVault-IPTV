@@ -129,18 +129,25 @@ class PlayerTrackController(
         }
 
         preferences.subtitle?.let { preference ->
-            val selected = resolvePreferredPlayerTrack(preference, _availableSubtitleTracks.value)
-            builder.clearOverridesOfType(C.TRACK_TYPE_TEXT)
-            if (preference.disabled || selected == null) {
-                builder.setTrackTypeDisabled(C.TRACK_TYPE_TEXT, true)
+            if (preference.externalSubtitleDownloadId != null) {
+                builder
+                    .setTrackTypeDisabled(C.TRACK_TYPE_TEXT, true)
+                    .clearOverridesOfType(C.TRACK_TYPE_TEXT)
                 _availableSubtitleTracks.update { tracks -> tracks.map { it.copy(isSelected = false) } }
             } else {
-                findOverride(player.currentTracks, C.TRACK_TYPE_TEXT, selected.id)?.let { override ->
-                    builder
-                        .setTrackTypeDisabled(C.TRACK_TYPE_TEXT, false)
-                        .setOverrideForType(override)
-                    _availableSubtitleTracks.update { tracks ->
-                        tracks.map { track -> track.copy(isSelected = track.id == selected.id) }
+                val selected = resolvePreferredPlayerTrack(preference, _availableSubtitleTracks.value)
+                builder.clearOverridesOfType(C.TRACK_TYPE_TEXT)
+                if (preference.disabled || selected == null) {
+                    builder.setTrackTypeDisabled(C.TRACK_TYPE_TEXT, true)
+                    _availableSubtitleTracks.update { tracks -> tracks.map { it.copy(isSelected = false) } }
+                } else {
+                    findOverride(player.currentTracks, C.TRACK_TYPE_TEXT, selected.id)?.let { override ->
+                        builder
+                            .setTrackTypeDisabled(C.TRACK_TYPE_TEXT, false)
+                            .setOverrideForType(override)
+                        _availableSubtitleTracks.update { tracks ->
+                            tracks.map { track -> track.copy(isSelected = track.id == selected.id) }
+                        }
                     }
                 }
             }
@@ -532,14 +539,19 @@ class PlayerTrackController(
         }
         val override = findOverride(player.currentTracks, C.TRACK_TYPE_TEXT, trackId) ?: return
         val selectedTrack = _availableSubtitleTracks.value.firstOrNull { it.id == trackId }
-        vodTrackPreferences = (vodTrackPreferences ?: VodTrackPreferences()).copy(
+        val currentPreferences = vodTrackPreferences ?: VodTrackPreferences()
+        val preservedDownloadId = currentPreferences.subtitle
+            ?.externalSubtitleDownloadId
+            ?.takeIf { selectedTrack?.subtitleSource == SubtitleTrackSource.ONLINE }
+        vodTrackPreferences = currentPreferences.copy(
             subtitle = selectedTrack?.let { track ->
                 VodTrackPreference(
                     trackId = track.id,
                     language = track.language,
-                    label = track.name
+                    label = track.name,
+                    externalSubtitleDownloadId = preservedDownloadId
                 )
-            } ?: VodTrackPreference(trackId = trackId)
+            } ?: VodTrackPreference(trackId = trackId, externalSubtitleDownloadId = preservedDownloadId)
         )
         player.trackSelectionParameters = player.trackSelectionParameters
             .buildUpon()
@@ -566,8 +578,17 @@ class PlayerTrackController(
         _availableSubtitleTracks.update { tracks ->
             tracks.map { existing -> existing.copy(isSelected = existing.id == track.id) }
         }
-        vodTrackPreferences = (vodTrackPreferences ?: VodTrackPreferences()).copy(
-            subtitle = VodTrackPreference(trackId = track.id, language = track.language, label = track.name)
+        val currentPreferences = vodTrackPreferences ?: VodTrackPreferences()
+        val preservedDownloadId = currentPreferences.subtitle
+            ?.externalSubtitleDownloadId
+            ?.takeIf { source == SubtitleTrackSource.ONLINE }
+        vodTrackPreferences = currentPreferences.copy(
+            subtitle = VodTrackPreference(
+                trackId = track.id,
+                language = track.language,
+                label = track.name,
+                externalSubtitleDownloadId = preservedDownloadId
+            )
         )
     }
 

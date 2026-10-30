@@ -48,19 +48,21 @@ private fun encodeVodTrackPreference(preference: VodTrackPreference?): String {
         if (preference.disabled) "1" else "0",
         encodeComponent(preference.trackId),
         encodeComponent(preference.language),
-        encodeComponent(preference.label)
+        encodeComponent(preference.label),
+        encodeComponent(preference.externalSubtitleDownloadId)
     ).joinToString("~")
 }
 
 private fun decodeVodTrackPreference(encoded: String): VodTrackPreference? {
     if (encoded == "-") return null
     val parts = encoded.split('~')
-    if (parts.size != 4) return null
+    if (parts.size !in 4..5) return null
     return VodTrackPreference(
         trackId = decodeComponent(parts[1]),
         language = decodeComponent(parts[2]),
         label = decodeComponent(parts[3]),
-        disabled = parts[0] == "1"
+        disabled = parts[0] == "1",
+        externalSubtitleDownloadId = parts.getOrNull(4)?.let(::decodeComponent)
     )
 }
 

@@ -22,4 +22,6 @@ interface ExternalSubtitleRepository {
     suspend fun languages(): Result<List<ExternalSubtitleLanguage>>
 
     suspend fun downloadToCache(subtitle: ExternalSubtitle): Result<File>
+
+    suspend fun cachedSubtitleFile(downloadId: String): File? = null
 }

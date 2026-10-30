@@ -1413,6 +1413,7 @@ class PlayerViewModel @Inject constructor(
     fun selectStremioSubtitle(option: StremioPlayerSubtitleOption) {
         if (option !in _stremioSubtitlePickerState.value.options) return
         val uri = option.url.trim().toHttpUrlOrNull()?.toString()?.let { Uri.parse(it) } ?: return
+        clearRememberedOpenSubtitleForCurrentContent()
         playerEngine.addExternalSubtitle(uri, option.languageTag, option.label, SubtitleTrackSource.STREMIO)
     }
 
@@ -1576,6 +1577,8 @@ class PlayerViewModel @Inject constructor(
 
         val success = preparationResult as PlayerPreparationCoordinator.Result.Success
         success.probeCacheKey?.let(probePassedPlaybackKeys::add)
+        if (!isCurrent()) return false
+        restoreRememberedOpenSubtitle()
         if (!isCurrent()) return false
         currentResolvedPlaybackUrl = success.streamInfo.url
         currentResolvedStreamInfo = success.streamInfo

@@ -178,6 +178,15 @@ class Media3PlayerEngine @Inject constructor(
         private val nextMediaSessionInstanceId = AtomicLong(1L)
     }
 
+    private data class ActiveExternalSubtitle(
+        val uri: android.net.Uri,
+        val language: String,
+        val label: String?,
+        val source: SubtitleTrackSource,
+        val trackId: String,
+        val mediaId: String
+    )
+
     var constrainResolutionForMultiView: Boolean = false
     var bypassAudioFocus: Boolean = false
         set(value) {
@@ -248,6 +257,7 @@ class Media3PlayerEngine @Inject constructor(
     @Volatile
     private var liveAudioTap: LiveAudioTap? = null
     private var lastStreamInfo: StreamInfo? = null
+    private var activeExternalSubtitle: ActiveExternalSubtitle? = null
     private var lastMediaId: String? = null
     private var currentResolvedStreamType: ResolvedStreamType = ResolvedStreamType.UNKNOWN
     private var currentTimeoutProfile: PlayerTimeoutProfile = PlayerTimeoutProfile.VOD
@@ -716,7 +726,14 @@ class Media3PlayerEngine @Inject constructor(
         startupRefreshGate.clear()
         liveMpegTsEndRecovery.reset(preserveAttempt = true)
 
-        player.setMediaSource(withSubtitleOffset(mediaSource), /* resetPosition= */ false)
+        val mediaSourceWithExternalSubtitle = activeExternalSubtitle
+            ?.takeIf { it.mediaId == lastMediaId }
+            ?.let { activeSubtitle ->
+                trackController.requestExternalSubtitleAutoSelect(activeSubtitle.source)
+                mergeExternalSubtitleMediaSource(mediaSource, activeSubtitle)
+            }
+            ?: mediaSource
+        player.setMediaSource(withSubtitleOffset(mediaSourceWithExternalSubtitle), /* resetPosition= */ false)
         player.prepare()
 
         Log.i(
@@ -1183,6 +1200,9 @@ class Media3PlayerEngine @Inject constructor(
     }
 
     override fun selectSubtitleTrack(trackId: String?) {
+        if (activeExternalSubtitle?.trackId != trackId) {
+            activeExternalSubtitle = null
+        }
         exoPlayer?.let { trackController.selectSubtitleTrack(it, trackId) }
     }
 
@@ -1226,11 +1246,16 @@ class Media3PlayerEngine @Inject constructor(
             label = label,
             subtitleSource = resolvedSubtitleSource
         )
-        val subtitleSource = buildExternalSubtitleMediaSource(
-            dataSourceFactory = androidx.media3.datasource.DefaultDataSource.Factory(context),
-            configuration = subtitleConfig
+        val externalSubtitle = ActiveExternalSubtitle(
+            uri = subtitleUri,
+            language = language,
+            label = label,
+            source = resolvedSubtitleSource,
+            trackId = subtitleConfig.id ?: return,
+            mediaId = mediaSourceFactory.compatibilityMediaIdFor(streamInfo)
         )
-        val merged = androidx.media3.exoplayer.source.MergingMediaSource(mainMediaSource, subtitleSource)
+        activeExternalSubtitle = externalSubtitle
+        val merged = mergeExternalSubtitleMediaSource(mainMediaSource, externalSubtitle)
 
         player.trackSelectionParameters = player.trackSelectionParameters.withExternalSubtitleEnabled()
         trackController.requestExternalSubtitleAutoSelect(resolvedSubtitleSource)
@@ -1243,6 +1268,23 @@ class Media3PlayerEngine @Inject constructor(
             "addExternalSubtitle language=$language " +
                 "target=${PlaybackLogSanitizer.sanitizeOrigin(subtitleUri.toString())}"
         )
+    }
+
+    private fun mergeExternalSubtitleMediaSource(
+        mainMediaSource: androidx.media3.exoplayer.source.MediaSource,
+        subtitle: ActiveExternalSubtitle
+    ): androidx.media3.exoplayer.source.MediaSource {
+        val subtitleConfiguration = buildExternalSubtitleConfiguration(
+            subtitleUri = subtitle.uri,
+            language = subtitle.language,
+            label = subtitle.label,
+            subtitleSource = subtitle.source
+        )
+        val subtitleMediaSource = buildExternalSubtitleMediaSource(
+            dataSourceFactory = androidx.media3.datasource.DefaultDataSource.Factory(context),
+            configuration = subtitleConfiguration
+        )
+        return androidx.media3.exoplayer.source.MergingMediaSource(mainMediaSource, subtitleMediaSource)
     }
 
     override fun toggleMute() {
@@ -1449,6 +1491,13 @@ class Media3PlayerEngine @Inject constructor(
         lastStreamInfo = streamInfo
         val mediaId = mediaSourceFactory.compatibilityMediaIdFor(streamInfo)
         val mediaChanged = lastMediaId != mediaId
+        if (mediaChanged && activeExternalSubtitle?.mediaId != mediaId) {
+            activeExternalSubtitle = if (preserveRetryState) {
+                activeExternalSubtitle?.copy(mediaId = mediaId)
+            } else {
+                null
+            }
+        }
         startupTimedOut = false
         startupRefreshGate.clear()
         liveMpegTsEndRecovery.reset(preserveAttempt = preserveRetryState && !mediaChanged)
@@ -1610,7 +1659,14 @@ class Media3PlayerEngine @Inject constructor(
             if (managedSource != null) {
                 Log.i(TAG, "preload-source reused mediaId=$mediaId source=window")
             }
-            player.setMediaSource(withSubtitleOffset(mediaSource))
+            val mediaSourceWithExternalSubtitle = activeExternalSubtitle
+                ?.takeIf { it.mediaId == mediaId }
+                ?.let { activeSubtitle ->
+                    trackController.requestExternalSubtitleAutoSelect(activeSubtitle.source)
+                    mergeExternalSubtitleMediaSource(mediaSource, activeSubtitle)
+                }
+                ?: mediaSource
+            player.setMediaSource(withSubtitleOffset(mediaSourceWithExternalSubtitle))
             player.prepare()
             seekPositionMs?.takeIf { it > 0L }?.let(player::seekTo)
 

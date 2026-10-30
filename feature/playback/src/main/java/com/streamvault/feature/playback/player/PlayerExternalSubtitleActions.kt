@@ -5,7 +5,10 @@ import androidx.lifecycle.viewModelScope
 import com.streamvault.domain.model.ContentType
 import com.streamvault.domain.model.ExternalSubtitleLanguage
 import com.streamvault.domain.model.Result
+import com.streamvault.domain.settings.VodTrackPreference
+import com.streamvault.domain.settings.VodTrackPreferences
 import com.streamvault.domain.settings.SubtitleLanguageOrdering
+import com.streamvault.player.SubtitleTrackSource
 import java.util.Locale
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.first
@@ -182,6 +185,17 @@ internal fun PlayerViewModel.downloadExternalSubtitle(subtitleId: String) {
         try {
             when (val result = downloadExternalSubtitleUseCase(subtitle)) {
                 is Result.Success -> {
+                    if (currentContentType == ContentType.MOVIE || currentContentType == ContentType.VOD) {
+                        val updatedPreferences = (activeVodTrackPreferences ?: VodTrackPreferences()).copy(
+                            subtitle = VodTrackPreference(
+                                language = subtitle.language,
+                                label = subtitle.displayLanguage,
+                                externalSubtitleDownloadId = subtitle.downloadId
+                            )
+                        )
+                        persistVodTrackPreferences(updatedPreferences, persistGlobal = false)
+                        playerEngine.setVodTrackPreferences(updatedPreferences)
+                    }
                     playerEngine.addExternalSubtitle(Uri.fromFile(result.data), subtitle.language)
                     externalSubtitleSearchStateFlow.update {
                         it.copy(downloadingSubtitleId = null, appliedSubtitleName = subtitle.displayLanguage)
@@ -199,6 +213,19 @@ internal fun PlayerViewModel.downloadExternalSubtitle(subtitleId: String) {
             }
         }
     }
+}
+
+internal suspend fun PlayerViewModel.restoreRememberedOpenSubtitle() {
+    if (currentContentType != ContentType.MOVIE && currentContentType != ContentType.VOD) return
+    val preference = activeVodTrackPreferences?.subtitle ?: return
+    val downloadId = preference.externalSubtitleDownloadId ?: return
+    val cachedFile = downloadExternalSubtitleUseCase.cachedSubtitleFile(downloadId) ?: return
+    playerEngine.addExternalSubtitle(
+        subtitleUri = Uri.fromFile(cachedFile),
+        language = preference.language?.takeIf { it.isNotBlank() } ?: "und",
+        label = preference.label,
+        subtitleSource = SubtitleTrackSource.ONLINE
+    )
 }
 
 internal fun PlayerViewModel.cancelExternalSubtitleSearch() {

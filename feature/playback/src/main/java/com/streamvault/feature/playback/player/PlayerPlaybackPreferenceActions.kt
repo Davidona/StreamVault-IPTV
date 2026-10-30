@@ -17,6 +17,7 @@ import com.streamvault.player.SUBTITLE_OFFSET_MAX_MS
 import com.streamvault.player.SUBTITLE_OFFSET_MIN_MS
 import com.streamvault.player.PlaybackState
 import com.streamvault.player.PlayerError
+import com.streamvault.player.SubtitleTrackSource
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
@@ -44,10 +45,18 @@ fun PlayerViewModel.selectSubtitleTrack(trackId: String?) {
     playerEngine.selectSubtitleTrack(trackId)
 
     val current = activeVodTrackPreferences ?: VodTrackPreferences()
-    val subtitlePreference = if (trackId == null) {
-        VodTrackPreference(disabled = true)
-    } else {
-        selectedTrack?.toVodTrackPreference() ?: VodTrackPreference(trackId = trackId)
+    val rememberedDownloadId = current.subtitle
+        ?.externalSubtitleDownloadId
+        ?.takeIf { selectedTrack?.subtitleSource == SubtitleTrackSource.ONLINE }
+    val subtitlePreference = when {
+        trackId == null -> VodTrackPreference(disabled = true)
+        selectedTrack != null -> selectedTrack.toVodTrackPreference().copy(
+            externalSubtitleDownloadId = rememberedDownloadId
+        )
+        else -> VodTrackPreference(
+            trackId = trackId,
+            externalSubtitleDownloadId = rememberedDownloadId
+        )
     }
     persistVodTrackPreferences(
         updated = current.copy(
@@ -62,8 +71,9 @@ private fun com.streamvault.player.PlayerTrack.toVodTrackPreference() = VodTrack
     label = name
 )
 
-private fun PlayerViewModel.persistVodTrackPreferences(
-    updated: VodTrackPreferences
+internal fun PlayerViewModel.persistVodTrackPreferences(
+    updated: VodTrackPreferences,
+    persistGlobal: Boolean = true
 ) {
     val scope = buildVodTrackPreferenceScope(
         contentType = currentContentType,
@@ -75,9 +85,24 @@ private fun PlayerViewModel.persistVodTrackPreferences(
     viewModelScope.launch {
         vodTrackPreferenceSaveMutex.withLock {
             playerPreferencesCoordinator.setVodTrackPreferences(scope, updated)
-            playerPreferencesCoordinator.setGlobalVodTrackPreferences(updated)
+            if (persistGlobal) {
+                playerPreferencesCoordinator.setGlobalVodTrackPreferences(
+                    updated.copy(
+                        subtitle = updated.subtitle?.copy(externalSubtitleDownloadId = null)
+                    )
+                )
+            }
         }
     }
+}
+
+internal fun PlayerViewModel.clearRememberedOpenSubtitleForCurrentContent() {
+    val current = activeVodTrackPreferences ?: return
+    if (current.subtitle?.externalSubtitleDownloadId == null) return
+    persistVodTrackPreferences(
+        updated = current.copy(subtitle = null),
+        persistGlobal = false
+    )
 }
 
 fun PlayerViewModel.selectVideoQuality(trackId: String): Boolean {

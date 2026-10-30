@@ -18,6 +18,7 @@ All notable product changes are recorded in this document.
 - VOD timelines can now be scrubbed with the D-pad in 10-second steps; holding a direction previews repeated seeks, and releasing applies the selected position.
 
 ### Fixed
+- Fixed external subtitles disappearing after playback retries or when replaying a movie: attached subtitles are restored with the rebuilt source, and downloaded OpenSubtitles files are kept in durable app storage and remembered for that movie.
 - Fixed the player showing a generic recording error when Android alarm access is missing; it now explains how to enable access and retry.
 - Fixed the temporary torrent cache clear action to confirm when the cache was cleared successfully.
 - Fixed deleted downloads leaving partial files behind after earlier failed attempts.
