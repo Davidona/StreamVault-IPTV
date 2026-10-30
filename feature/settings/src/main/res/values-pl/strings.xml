@@ -962,4 +962,7 @@
     <string name="settings_epg_phone_qr_complete">Dodano</string>
     <string name="settings_epg_phone_qr_error">Błąd</string>
     <string name="settings_backup_export_sections">Wybierz sekcje do eksportu</string>
+    <string name="settings_m3u_catchup_query_format">Format zapytania odtwarzania archiwum</string>
+    <string name="settings_m3u_catchup_query_format_subtitle">Używany dla kanałów M3U bez własnego źródła archiwum. Pozostaw puste, aby wyłączyć ten format zastępczy. Przykład: ?utc={utc}</string>
+    <string name="settings_m3u_catchup_query_format_disabled">Wyłączone</string>
 </resources>

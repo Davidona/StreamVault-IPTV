@@ -89,11 +89,13 @@ public fun LazyListScope.settingsPlaybackSection(
     item {
         val context = LocalContext.current
         val liveStreamFormatMode by viewModel.playerLiveStreamFormatMode.collectAsStateWithLifecycle()
+        val m3uCatchUpQueryFormat by viewModel.m3uCatchUpQueryFormat.collectAsStateWithLifecycle()
         var showQualityProfileDialog by rememberSaveable { mutableStateOf(false) }
         var showCustomQualityHeightDialog by rememberSaveable { mutableStateOf(false) }
         var showCustomQualityBitrateDialog by rememberSaveable { mutableStateOf(false) }
         var showWifiQualityBitrateDialog by rememberSaveable { mutableStateOf(false) }
         var showEthernetQualityBitrateDialog by rememberSaveable { mutableStateOf(false) }
+        var showM3uCatchUpQueryFormatDialog by rememberSaveable { mutableStateOf(false) }
         val qualityProfileOptions = remember { PlaybackQualityProfile.entries }
         val customQualityHeightOptions = remember { listOf(null, 480, 720, 1080, 2160) }
         val customQualityBitrateOptions = remember { listOf(null, 2_000_000L, 4_000_000L, 8_000_000L) }
@@ -121,6 +123,19 @@ public fun LazyListScope.settingsPlaybackSection(
                     )
                 }
             }
+        }
+
+        if (showM3uCatchUpQueryFormatDialog) {
+            SimpleTextValueDialog(
+                title = stringResource(R.string.settings_m3u_catchup_query_format),
+                subtitle = stringResource(R.string.settings_m3u_catchup_query_format_subtitle),
+                initialValue = m3uCatchUpQueryFormat,
+                onDismiss = { showM3uCatchUpQueryFormatDialog = false },
+                onConfirm = { format ->
+                    viewModel.setM3uCatchUpQueryFormat(format)
+                    showM3uCatchUpQueryFormatDialog = false
+                }
+            )
         }
 
         if (showCustomQualityHeightDialog) {
@@ -609,6 +624,20 @@ public fun LazyListScope.settingsPlaybackSection(
                     onClick = { onShowTimeshiftBackendDialogChange(true) }
                 ,
                     modifier = if (targetItemId == "live.timeshift_backend") targetFocusModifier else Modifier,)
+                ClickableSettingsRow(
+                    label = stringResource(R.string.settings_m3u_catchup_query_format),
+                    value = m3uCatchUpQueryFormat.ifBlank {
+                        stringResource(R.string.settings_m3u_catchup_query_format_disabled)
+                    },
+                    onClick = { showM3uCatchUpQueryFormatDialog = true },
+                    modifier = if (targetItemId == "live.m3u_catchup_query_format") targetFocusModifier else Modifier,
+                )
+                Text(
+                    text = stringResource(R.string.settings_m3u_catchup_query_format_subtitle),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = OnBackground.copy(alpha = 0.6f),
+                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                )
                 Text(
                     text = stringResource(R.string.settings_live_timeshift_backend_subtitle),
                     style = MaterialTheme.typography.bodySmall,

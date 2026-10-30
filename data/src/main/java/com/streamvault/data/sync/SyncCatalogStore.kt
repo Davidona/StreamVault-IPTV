@@ -861,6 +861,8 @@ internal class SyncCatalogStore(
                     catchUpSupported = channel.catchUpSupported,
                     catchUpDays = channel.catchUpDays,
                     catchUpSource = channel.catchUpSource,
+                    catchUpType = channel.catchUpType,
+                    catchUpCorrectionSeconds = channel.catchUpCorrectionSeconds,
                     isAdult = channel.isAdult,
                     logicalGroupId = channel.logicalGroupId,
                     errorCount = channel.errorCount,
@@ -1138,6 +1140,8 @@ internal class SyncCatalogStore(
                 channel.number.toString(),
                 channel.catchUpSupported.toString(),
                 channel.catchUpDays.toString(),
+                channel.catchUpType.orEmpty(),
+                channel.catchUpCorrectionSeconds.toString(),
                 channel.isAdult.toString(),
                 normalizeText(xtreamLiveToken.containerExtension),
                 M3uPlaybackMetadataCodec.fingerprint(channel.playbackMetadataJson)
@@ -1155,6 +1159,8 @@ internal class SyncCatalogStore(
             channel.catchUpSupported.toString(),
             channel.catchUpDays.toString(),
             normalizeUrl(channel.catchUpSource),
+            channel.catchUpType.orEmpty(),
+            channel.catchUpCorrectionSeconds.toString(),
             channel.isAdult.toString(),
             M3uPlaybackMetadataCodec.fingerprint(channel.playbackMetadataJson)
         )

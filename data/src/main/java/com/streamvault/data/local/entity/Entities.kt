@@ -236,7 +236,9 @@ data class ChannelEntity(
     @ColumnInfo(name = "error_count") val errorCount: Int = 0,
     @ColumnInfo(name = "quality_options_json") val qualityOptionsJson: String? = null,
     @ColumnInfo(name = "playback_metadata_json") val playbackMetadataJson: String? = null,
-    @ColumnInfo(name = "sync_fingerprint") val syncFingerprint: String = ""
+    @ColumnInfo(name = "sync_fingerprint") val syncFingerprint: String = "",
+    @ColumnInfo(name = "catch_up_type") val catchUpType: String? = null,
+    @ColumnInfo(name = "catch_up_correction_seconds") val catchUpCorrectionSeconds: Int = 0
 )
 
 data class ChannelBrowseEntity(
@@ -260,7 +262,9 @@ data class ChannelBrowseEntity(
     @ColumnInfo(name = "is_adult") val isAdult: Boolean = false,
     @ColumnInfo(name = "is_user_protected") val isUserProtected: Boolean = false,
     @ColumnInfo(name = "logical_group_id") val logicalGroupId: String = "",
-    @ColumnInfo(name = "error_count") val errorCount: Int = 0
+    @ColumnInfo(name = "error_count") val errorCount: Int = 0,
+    @ColumnInfo(name = "catch_up_type") val catchUpType: String? = null,
+    @ColumnInfo(name = "catch_up_correction_seconds") val catchUpCorrectionSeconds: Int = 0
 )
 
 data class ChannelGuideLookupEntity(
@@ -658,7 +662,9 @@ data class ChannelImportStageEntity(
     @ColumnInfo(name = "logical_group_id") val logicalGroupId: String = "",
     @ColumnInfo(name = "error_count") val errorCount: Int = 0,
     @ColumnInfo(name = "playback_metadata_json") val playbackMetadataJson: String? = null,
-    @ColumnInfo(name = "sync_fingerprint") val syncFingerprint: String = ""
+    @ColumnInfo(name = "sync_fingerprint") val syncFingerprint: String = "",
+    @ColumnInfo(name = "catch_up_type") val catchUpType: String? = null,
+    @ColumnInfo(name = "catch_up_correction_seconds") val catchUpCorrectionSeconds: Int = 0
 )
 
 @Entity(

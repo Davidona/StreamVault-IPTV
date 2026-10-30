@@ -968,4 +968,7 @@
     <string name="settings_epg_phone_qr_complete">تمت الإضافة</string>
     <string name="settings_epg_phone_qr_error">خطأ</string>
     <string name="settings_backup_export_sections">اختر الأقسام المراد تصديرها</string>
+    <string name="settings_m3u_catchup_query_format">تنسيق استعلام الإعادة</string>
+    <string name="settings_m3u_catchup_query_format_subtitle">يُستخدم لقنوات M3U التي لا تحتوي على مصدر إعادة خاص بها. اتركه فارغًا لتعطيل هذا البديل. مثال: ?utc={utc}</string>
+    <string name="settings_m3u_catchup_query_format_disabled">معطّل</string>
 </resources>

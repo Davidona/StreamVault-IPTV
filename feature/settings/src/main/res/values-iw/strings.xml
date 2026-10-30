@@ -959,4 +959,7 @@
     <string name="settings_epg_phone_qr_complete">נוסף</string>
     <string name="settings_epg_phone_qr_error">שגיאה</string>
     <string name="settings_backup_export_sections">בחרו אילו חלקים לייצא</string>
+    <string name="settings_m3u_catchup_query_format">תבנית שאילתת צפייה בארכיון</string>
+    <string name="settings_m3u_catchup_query_format_subtitle">משמשת לערוצי M3U ללא מקור צפייה בארכיון משלהם. יש להשאיר ריק כדי להשבית את תבנית הגיבוי הזו. לדוגמה: ?utc={utc}</string>
+    <string name="settings_m3u_catchup_query_format_disabled">מושבת</string>
 </resources>

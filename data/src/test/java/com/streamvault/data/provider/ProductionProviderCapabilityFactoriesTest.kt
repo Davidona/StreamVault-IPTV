@@ -24,6 +24,7 @@ import com.streamvault.domain.model.StalkerObservationSource
 import com.streamvault.domain.model.StalkerPortalLearning
 import com.streamvault.domain.model.XtreamConfig
 import com.streamvault.domain.provider.CapabilityResolution
+import com.streamvault.domain.provider.CatchUpRequest
 import com.streamvault.domain.provider.PlaybackResolver
 import com.streamvault.domain.provider.PlaybackRequest
 import com.streamvault.domain.provider.ProviderContentReference
@@ -41,6 +42,29 @@ class ProductionProviderCapabilityFactoriesTest {
     private val channelDao: ChannelDao = mock()
     private val movieDao: MovieDao = mock()
     private val programDao: ProgramDao = mock()
+
+    @Test
+    fun `M3U adapter builds catch-up URL from channel metadata and configured fallback`() = runTest {
+        val provider = snapshot(ProviderType.M3U, M3uConfig("https://playlist.test/channels.m3u"))
+        val capabilitySet = M3uCapabilityFactory(categoryDao, channelDao, movieDao, programDao).create(provider)
+        val catchUp = (capabilitySet.catchUp() as CapabilityResolution.Available).capability
+
+        val urls = catchUp.buildCatchUpUrls(
+            CatchUpRequest(
+                streamId = 42L,
+                start = 1_710_000_000L,
+                end = 1_710_003_600L,
+                sourceStreamUrl = "https://live.test/channel.ts?token=abc",
+                sourceCatchUpType = "default",
+                catchUpCorrectionSeconds = 3_600,
+                fallbackCatchUpTemplate = "&from={utc}&to={utcend}&minutes={duration:60}"
+            )
+        )
+
+        assertThat(urls).containsExactly(
+            "https://live.test/channel.ts?token=abc&from=1710003600&to=1710007200&minutes=60"
+        )
+    }
 
     @Test fun `Xtream live identity preserves every generated archive time range even on stable renewal`() = runTest {
         val config = XtreamConfig("https://archive.test/base", "user name", "pass/word",

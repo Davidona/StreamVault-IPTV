@@ -11,6 +11,7 @@ All notable product changes are recorded in this document.
 - Added recognition of Brazilian Portuguese sports listings, including matchups, broadcast notes, and Brazilian and South American competitions.
 
 ### Changed
+- Improved M3U catch-up playback by preserving playlist replay modes and time corrections, supporting additional replay URL formats, and adding a configurable fallback query format. Eligible past guide programmes can now play when replay is advertised but the archive window is unspecified.
 - Channel, movie, series, and VOD category searches now ignore Latin accents (for example, “café” matches “cafe”). Existing catalogs upgrade automatically, with their content preserved.
 - Reduced HLS playback allocations and released obsolete live-stream cache data while preserving resources needed by playback and shared recordings.
 - Reduced background UI work during playback by stopping hidden playback controls from collecting state updates; reopening controls and open settings or chapter sheets continue receiving current values.

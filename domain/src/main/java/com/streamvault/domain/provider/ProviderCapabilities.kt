@@ -68,8 +68,13 @@ data class CatchUpRequest(
     val start: Long,
     val end: Long,
     val sourceStreamUrl: String? = null,
-    val sourceCatchUpTemplate: String? = null
+    val sourceCatchUpTemplate: String? = null,
+    val sourceCatchUpType: String? = null,
+    val catchUpCorrectionSeconds: Int = 0,
+    val fallbackCatchUpTemplate: String = DEFAULT_M3U_CATCH_UP_QUERY_FORMAT
 )
+
+const val DEFAULT_M3U_CATCH_UP_QUERY_FORMAT = "?utc={utc}&lutc={lutc}"
 
 enum class ProviderCapability {
     AUTHENTICATION,

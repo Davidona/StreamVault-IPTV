@@ -408,6 +408,46 @@ class M3uParserTest {
     }
 
     @Test
+    fun `parse_catchUpTypeCorrectionAndLegacyTimeshift`() {
+        val result = parser.parse(
+            """
+                #EXTM3U catchup-correction="-2.5"
+                #EXTINF:-1 catchup-type="shift" catchup-days="7" catchup-correction="1.25",Shift Channel
+                https://stream.example.com/shift.ts
+                #EXTINF:-1 timeshift="3",Legacy Channel
+                https://stream.example.com/legacy.ts
+            """.trimIndent().byteInputStream()
+        )
+
+        assertThat(result.header.catchUpCorrectionSeconds).isEqualTo(-9_000)
+        assertThat(result.entries).hasSize(2)
+        with(result.entries[0]) {
+            assertThat(catchUpType).isEqualTo("shift")
+            assertThat(catchUpDays).isEqualTo(7)
+            assertThat(catchUpCorrectionSeconds).isEqualTo(4_500)
+        }
+        with(result.entries[1]) {
+            assertThat(catchUpType).isEqualTo("shift")
+            assertThat(catchUpDays).isEqualTo(3)
+            assertThat(catchUpCorrectionSeconds).isEqualTo(-9_000)
+        }
+
+        val channels = parser.parseToChannels(
+            """
+                #EXTM3U catchup-correction="-2.5"
+                #EXTINF:-1 catchup-type="shift" catchup-days="7",Shift Channel
+                https://stream.example.com/shift.ts
+                #EXTINF:-1 timeshift="3",Legacy Channel
+                https://stream.example.com/legacy.ts
+            """.trimIndent().byteInputStream(),
+            providerId = 9L
+        )
+        assertThat(channels.map { it.catchUpType }).containsExactly("shift", "shift").inOrder()
+        assertThat(channels.map { it.catchUpDays }).containsExactly(7, 3).inOrder()
+        assertThat(channels.map { it.catchUpCorrectionSeconds }).containsExactly(-9_000, -9_000).inOrder()
+    }
+
+    @Test
     fun `parseToChannels_marksCatchUpSupported_whenOnlyCatchUpSourceExists`() {
         val channels = parser.parseToChannels(
             """

@@ -39,6 +39,22 @@ private const val M3U_SERIES_RECONCILIATION_PAGE_SIZE = 2_048
 private const val M3U_MAX_SERIES_CATEGORY_QUERY_IDS = 900
 private const val M3U_IMPORTER_TAG = "SyncManagerM3u"
 
+private fun sanitizeCatchUpSource(source: String?, catchUpType: String?): String? {
+    val value = source?.trim().orEmpty()
+    if (value.isEmpty() || value.length > 8_192) return null
+    if (value.any { it == '\r' || it == '\n' || it == '\t' }) return null
+
+    // Append-mode sources are query fragments, not standalone URLs. Preserve them after
+    // validating that they cannot inject another scheme or a control separator.
+    if (value.startsWith('?') || value.startsWith('&')) {
+        val mode = catchUpType?.trim()?.lowercase().orEmpty()
+        return value.takeIf { mode.isEmpty() || mode in setOf("default", "append", "shift", "timeshift") }
+    }
+
+    val validationValue = value.replace(Regex("\\$?\\{[^}]{1,64}}"), "catchup-token")
+    return value.takeIf { UrlSecurityPolicy.isAllowedStreamEntryUrl(validationValue) }
+}
+
 internal class SyncManagerM3uImporter(
     private val m3uParser: M3uParser,
     private val okHttpClient: OkHttpClient,
@@ -156,6 +172,7 @@ internal class SyncManagerM3uImporter(
                                 entry.tvgLanguage,
                                 entry.tvgCountry,
                                 entry.catchUp,
+                                entry.catchUpType,
                                 entry.catchUpSource,
                                 entry.timeshift,
                                 entry.url,
@@ -188,7 +205,7 @@ internal class SyncManagerM3uImporter(
                         }
 
                         val safeLogoUrl = UrlSecurityPolicy.sanitizeImportedAssetUrl(entry.tvgLogo)
-                        val safeCatchUpSource = UrlSecurityPolicy.sanitizeImportedAssetUrl(entry.catchUpSource)
+                        val safeCatchUpSource = sanitizeCatchUpSource(entry.catchUpSource, entry.catchUpType)
                         val playbackMetadataJson = entry.playbackMetadata?.let(M3uPlaybackMetadataCodec::encode)
 
                         val sourceKey = M3uSourceIdentity.fromEntry(provider.id, entry)
@@ -220,6 +237,8 @@ internal class SyncManagerM3uImporter(
                                         !entry.timeshift.isNullOrBlank(),
                                     catchUpDays = entry.catchUpDays ?: 0,
                                     catchUpSource = safeCatchUpSource,
+                                    catchUpType = entry.catchUpType,
+                                    catchUpCorrectionSeconds = entry.catchUpCorrectionSeconds,
                                     providerId = provider.id,
                                     isAdult = AdultContentClassifier.isAdultCategoryName(groupTitle),
                                     playbackMetadataJson = playbackMetadataJson
@@ -302,6 +321,8 @@ internal class SyncManagerM3uImporter(
                                         !entry.timeshift.isNullOrBlank(),
                                     catchUpDays = entry.catchUpDays ?: 0,
                                     catchUpSource = safeCatchUpSource,
+                                    catchUpType = entry.catchUpType,
+                                    catchUpCorrectionSeconds = entry.catchUpCorrectionSeconds,
                                     providerId = provider.id,
                                     isAdult = isAdult,
                                     playbackMetadataJson = playbackMetadataJson

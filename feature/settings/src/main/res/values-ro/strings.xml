@@ -959,4 +959,7 @@
     <string name="settings_epg_phone_qr_complete">Adăugat</string>
     <string name="settings_epg_phone_qr_error">Eroare</string>
     <string name="settings_backup_export_sections">Alegeți secțiunile de exportat</string>
+    <string name="settings_m3u_catchup_query_format">Formatul interogării de redare din arhivă</string>
+    <string name="settings_m3u_catchup_query_format_subtitle">Este folosit pentru canalele M3U fără o sursă proprie de redare din arhivă. Lăsați gol pentru a dezactiva formatul alternativ. Exemplu: ?utc={utc}</string>
+    <string name="settings_m3u_catchup_query_format_disabled">Dezactivat</string>
 </resources>

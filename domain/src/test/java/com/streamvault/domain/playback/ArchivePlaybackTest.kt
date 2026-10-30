@@ -157,6 +157,72 @@ class ArchivePlaybackTest {
     }
 
     @Test
+    fun `catchup id template is not offered before programme identifiers are mapped`() {
+        val now = 5 * 86_400_000L
+        val channel = Channel(
+            id = 42L,
+            name = "News",
+            providerId = 7L,
+            streamUrl = "https://live.example.com/channel.m3u8",
+            catchUpSupported = true,
+            catchUpSource = "https://archive.example.com/program/{catchup-id}.m3u8",
+            catchUpType = "vod"
+        )
+        val program = Program(
+            channelId = "news",
+            title = "Replay with identifier",
+            startTime = now - 60_000L,
+            endTime = now - 30_000L
+        )
+
+        assertThat(channel.isArchivePlayable(program, now)).isFalse()
+    }
+
+    @Test
+    fun `unknown M3U catch-up window allows completed guide programme`() {
+        val now = 5 * 86_400_000L
+        val channel = Channel(
+            id = 42L,
+            name = "News",
+            providerId = 7L,
+            catchUpSupported = true,
+            catchUpDays = 0,
+            catchUpType = "shift",
+            streamUrl = "https://live.example.com/news.ts"
+        )
+        val program = Program(
+            channelId = "news",
+            title = "Unmarked Bulletin",
+            startTime = now - 60_000L,
+            endTime = now - 30_000L
+        )
+
+        assertThat(channel.isArchivePlayable(program, now)).isTrue()
+    }
+
+    @Test
+    fun `unknown Xtream catch-up window allows completed guide programme`() {
+        val now = 5 * 86_400_000L
+        val channel = Channel(
+            id = 42L,
+            name = "News",
+            providerId = 7L,
+            catchUpSupported = true,
+            catchUpDays = 0,
+            streamUrl = "xtream://7/live/42",
+            streamId = 42L
+        )
+        val program = Program(
+            channelId = "news",
+            title = "Unmarked Bulletin",
+            startTime = now - 60_000L,
+            endTime = now - 30_000L
+        )
+
+        assertThat(channel.isArchivePlayable(program, now)).isTrue()
+    }
+
+    @Test
     fun `capability classifies xtream stream id replay`() {
         val capability = Channel(
             id = 42L,

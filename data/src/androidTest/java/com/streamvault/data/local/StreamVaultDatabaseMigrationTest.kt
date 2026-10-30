@@ -52,6 +52,77 @@ class StreamVaultDatabaseMigrationTest {
     }
 
     @Test
+    fun migrate89To90_preservesCatalogRowsAndAddsCatchUpMetadataColumns() {
+        val databaseName = "streamvault-migrate-89-90-catchup"
+        val database = migrationTestHelper.createDatabase(databaseName, 89)
+        database.execSQL(
+            """
+                INSERT INTO providers (id, name, type, is_active, status, last_synced_at, created_at)
+                VALUES (901, 'Migration Provider', 'M3U', 1, 'ACTIVE', 0, 0)
+            """.trimIndent()
+        )
+        database.execSQL(
+            """
+                INSERT INTO channels (
+                    stream_id, name, stream_url, number, catch_up_supported, catch_up_days,
+                    provider_id, is_adult, is_user_protected, logical_group_id, error_count, sync_fingerprint
+                ) VALUES (902, 'Archive Channel', 'https://example.invalid/live.ts', 1, 1, 3,
+                         901, 0, 0, '', 0, 'before-migration')
+            """.trimIndent()
+        )
+        database.execSQL(
+            """
+                INSERT INTO channel_import_stage (
+                    session_id, provider_id, stream_id, name, stream_url, number,
+                    catch_up_supported, catch_up_days, is_adult, logical_group_id, error_count, sync_fingerprint
+                ) VALUES (903, 901, 902, 'Archive Channel', 'https://example.invalid/live.ts', 1,
+                         1, 3, 0, '', 0, 'before-migration')
+            """.trimIndent()
+        )
+        database.close()
+
+        val migrated = migrationTestHelper.runMigrationsAndValidate(
+            databaseName,
+            90,
+            true,
+            StreamVaultDatabase.MIGRATION_89_90
+        )
+
+        migrated.query("SELECT name FROM providers WHERE id = 901").use { cursor ->
+            assertEquals(true, cursor.moveToFirst())
+            assertEquals("Migration Provider", cursor.getString(0))
+            assertEquals(false, cursor.moveToNext())
+        }
+
+        migrated.query(
+            "SELECT catch_up_type, catch_up_correction_seconds FROM channels WHERE stream_id = 902"
+        ).use { cursor ->
+            assertEquals(true, cursor.moveToFirst())
+            assertEquals(null, cursor.getString(0))
+            assertEquals(0, cursor.getInt(1))
+        }
+        migrated.query(
+            "SELECT catch_up_type, catch_up_correction_seconds FROM channel_import_stage WHERE stream_id = 902"
+        ).use { cursor ->
+            assertEquals(true, cursor.moveToFirst())
+            assertEquals(null, cursor.getString(0))
+            assertEquals(0, cursor.getInt(1))
+        }
+
+        migrated.execSQL(
+            "UPDATE channels SET catch_up_type = 'append', catch_up_correction_seconds = -14400 WHERE stream_id = 902"
+        )
+        migrated.query(
+            "SELECT catch_up_type, catch_up_correction_seconds FROM channels WHERE stream_id = 902"
+        ).use { cursor ->
+            assertEquals(true, cursor.moveToFirst())
+            assertEquals("append", cursor.getString(0))
+            assertEquals(-14_400, cursor.getInt(1))
+        }
+        migrated.close()
+    }
+
+    @Test
     fun migrate9To10_createsBackfillsAndMaintainsFtsTables() {
         migrationTestHelper.createDatabase(testDbName, 9).apply {
             execSQL(

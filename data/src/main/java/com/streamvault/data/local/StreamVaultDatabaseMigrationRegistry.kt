@@ -26,10 +26,11 @@ object StreamVaultDatabaseMigrationRegistry {
     val v86To87: List<Migration> = listOf(FeatureMigrationsV86To87.MIGRATION_86_87)
     val v87To88: List<Migration> = listOf(FeatureMigrationsV87To88.MIGRATION_87_88)
     val v88To89: List<Migration> = listOf(FeatureMigrationsV88To89.MIGRATION_88_89)
+    val v89To90: List<Migration> = listOf(FeatureMigrationsV89To90.MIGRATION_89_90)
     val all: List<Migration> = (
         v1To24 + v24To49 + v49To75 + v75To76 + v76To77 + v77To78 + v78To79 + v79To80 +
             v80To81 + v81To82 + v82To83 + v83To84 + v84To85 + v85To86 + v86To87 + v87To88 +
-            v88To89
+            v88To89 + v89To90
         ).also(::validate)
 
     private fun validate(migrations: List<Migration>) {

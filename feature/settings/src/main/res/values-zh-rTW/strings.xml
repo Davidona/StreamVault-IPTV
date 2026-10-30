@@ -951,4 +951,7 @@
     <string name="settings_epg_phone_qr_complete">已新增</string>
     <string name="settings_epg_phone_qr_error">錯誤</string>
     <string name="settings_backup_export_sections">選擇要匯出的部分</string>
+    <string name="settings_m3u_catchup_query_format">回看查詢格式</string>
+    <string name="settings_m3u_catchup_query_format_subtitle">用於沒有專屬回看來源的 M3U 頻道。留空即可停用此備用格式。範例：?utc={utc}</string>
+    <string name="settings_m3u_catchup_query_format_disabled">已停用</string>
 </resources>

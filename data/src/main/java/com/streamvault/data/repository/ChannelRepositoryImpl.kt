@@ -597,6 +597,8 @@ class ChannelRepositoryImpl @Inject constructor(
                 catchUpSupported = selectedVariant.catchUpSupported,
                 catchUpDays = selectedVariant.catchUpDays,
                 catchUpSource = selectedVariant.catchUpSource,
+                catchUpType = selectedVariant.catchUpType,
+                catchUpCorrectionSeconds = selectedVariant.catchUpCorrectionSeconds,
                 providerId = representative.providerId,
                 isAdult = representative.isAdult,
                 isUserProtected = representative.isUserProtected,
@@ -902,6 +904,8 @@ class ChannelRepositoryImpl @Inject constructor(
             catchUpSupported = catchUpSupported,
             catchUpDays = catchUpDays,
             catchUpSource = catchUpSource,
+            catchUpType = catchUpType,
+            catchUpCorrectionSeconds = catchUpCorrectionSeconds,
             attributes = classification.attributes,
             observedQuality = observedQuality ?: LiveChannelObservedQuality()
         )
@@ -927,6 +931,8 @@ class ChannelRepositoryImpl @Inject constructor(
             catchUpSupported = catchUpSupported,
             catchUpDays = catchUpDays,
             catchUpSource = catchUpSource,
+            catchUpType = catchUpType,
+            catchUpCorrectionSeconds = catchUpCorrectionSeconds,
             providerId = providerId,
             isAdult = isAdult,
             isUserProtected = isUserProtected,

@@ -954,4 +954,7 @@
     <string name="settings_epg_phone_qr_complete">追加済み</string>
     <string name="settings_epg_phone_qr_error">エラー</string>
     <string name="settings_backup_export_sections">エクスポートする項目を選択</string>
+    <string name="settings_m3u_catchup_query_format">キャッチアップクエリ形式</string>
+    <string name="settings_m3u_catchup_query_format_subtitle">専用のキャッチアップソースがないM3Uチャンネルに使用します。この代替形式を無効にするには空欄にします。例: ?utc={utc}</string>
+    <string name="settings_m3u_catchup_query_format_disabled">無効</string>
 </resources>

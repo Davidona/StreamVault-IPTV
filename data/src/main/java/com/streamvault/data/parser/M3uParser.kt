@@ -31,7 +31,8 @@ class M3uParser {
 
     data class M3uHeader(
         val tvgUrls: List<String> = emptyList(),
-        val userAgent: String? = null
+        val userAgent: String? = null,
+        val catchUpCorrectionSeconds: Int = 0
     ) {
         val tvgUrl: String? get() = tvgUrls.firstOrNull()
     }
@@ -55,7 +56,9 @@ class M3uParser {
         val year: String? = null,
         val genre: String? = null,
         val durationSeconds: Int? = null,
-        val playbackMetadata: M3uPlaybackMetadata? = null
+        val playbackMetadata: M3uPlaybackMetadata? = null,
+        val catchUpType: String? = catchUp,
+        val catchUpCorrectionSeconds: Int = 0
     )
 
     data class ParseResult(
@@ -95,6 +98,7 @@ class M3uParser {
                                 pendingExtinf!!,
                                 line,
                                 header.userAgent,
+                                header.catchUpCorrectionSeconds,
                                 pendingPlaybackMetadata?.build()
                             )?.let(entries::add)
                             pendingExtinf = null
@@ -158,6 +162,7 @@ class M3uParser {
                             pendingExtinf!!,
                             line,
                             header.userAgent,
+                            header.catchUpCorrectionSeconds,
                             pendingPlaybackMetadata?.build()
                         )
                             ?.let { onEntry(it) }
@@ -190,6 +195,8 @@ class M3uParser {
                 catchUpSupported = entry.supportsCatchUp(),
                 catchUpDays = entry.catchUpDays ?: 0,
                 catchUpSource = entry.catchUpSource,
+                catchUpType = entry.catchUpType,
+                catchUpCorrectionSeconds = entry.catchUpCorrectionSeconds,
                 providerId = providerId,
                 logicalGroupId = ChannelNormalizer.getLogicalGroupId(entry.name, providerId)
             )
@@ -200,6 +207,7 @@ class M3uParser {
         extinf: ParsedExtinf,
         url: String,
         globalUserAgent: String?,
+        globalCatchUpCorrectionSeconds: Int,
         playbackMetadata: M3uPlaybackMetadata?
     ): M3uEntry? {
         if (url.isBlank() || extinf.name.isBlank()) return null
@@ -213,8 +221,10 @@ class M3uParser {
             tvgChno = extinf.tvgChno?.toIntOrNull()?.takeIf { it in 1..99999 },
             tvgLanguage = extinf.tvgLanguage,
             tvgCountry = extinf.tvgCountry,
-            catchUp = extinf.catchUp,
-            catchUpDays = extinf.catchUpDays?.toIntOrNull()?.takeIf { it in 0..365 },
+            catchUp = extinf.catchUp?.takeIf(String::isNotBlank)
+                ?: extinf.catchUpType?.takeIf(String::isNotBlank),
+            catchUpDays = extinf.catchUpDays?.toIntOrNull()?.takeIf { it in 0..365 }
+                ?: extinf.timeshift?.toIntOrNull()?.takeIf { it in 0..365 },
             catchUpSource = extinf.catchUpSource,
             timeshift = extinf.timeshift,
             url = url,
@@ -223,12 +233,25 @@ class M3uParser {
             year = extinf.year,
             genre = extinf.genre,
             durationSeconds = extinf.durationSeconds,
-            playbackMetadata = playbackMetadata
+            playbackMetadata = playbackMetadata,
+            catchUpType = (extinf.catchUp?.takeIf(String::isNotBlank) ?: extinf.catchUpType)
+                ?.trim()
+                ?.lowercase()
+                ?.takeIf(String::isNotBlank)
+                ?: extinf.timeshift?.takeIf(String::isNotBlank)?.let { "shift" },
+            catchUpCorrectionSeconds = parseCatchUpCorrectionSeconds(extinf.catchUpCorrection)
+                ?: globalCatchUpCorrectionSeconds
         )
     }
 
     private fun M3uEntry.supportsCatchUp(): Boolean {
-        return !catchUp.isNullOrBlank() || !catchUpSource.isNullOrBlank() || !timeshift.isNullOrBlank()
+        return !catchUpType.isNullOrBlank() || !catchUpSource.isNullOrBlank() || !timeshift.isNullOrBlank()
+    }
+
+    private fun parseCatchUpCorrectionSeconds(value: String?): Int? {
+        val hours = value?.trim()?.toDoubleOrNull() ?: return null
+        if (!hours.isFinite()) return null
+        return (hours.coerceIn(-12.0, 14.0) * 3_600.0).toInt()
     }
 
     private fun applyPendingDirective(extinf: ParsedExtinf, line: String): ParsedExtinf {
@@ -250,8 +273,10 @@ class M3uParser {
         val tvgLanguage: String?,
         val tvgCountry: String?,
         val catchUp: String?,
+        val catchUpType: String?,
         val catchUpDays: String?,
         val catchUpSource: String?,
+        val catchUpCorrection: String?,
         val timeshift: String?,
         val userAgent: String?,
         val rating: String?,
@@ -263,7 +288,8 @@ class M3uParser {
         val attributes = parseAttributes(line, line.indexOf(' '))
         return M3uHeader(
             tvgUrls = extractHeaderEpgUrls(attributes),
-            userAgent = attributes["user-agent"]
+            userAgent = attributes["user-agent"],
+            catchUpCorrectionSeconds = parseCatchUpCorrectionSeconds(attributes["catchup-correction"]) ?: 0
         )
     }
 
@@ -398,8 +424,10 @@ class M3uParser {
             tvgLanguage = attributes["tvg-language"],
             tvgCountry = attributes["tvg-country"],
             catchUp = attributes["catchup"],
+            catchUpType = attributes["catchup-type"],
             catchUpDays = attributes["catchup-days"],
             catchUpSource = attributes["catchup-source"],
+            catchUpCorrection = attributes["catchup-correction"],
             timeshift = attributes["timeshift"],
             userAgent = attributes["user-agent"],
             rating = attributes["rating"],
@@ -579,8 +607,10 @@ class M3uParser {
             "tvg-language",
             "tvg-country",
             "catchup",
+            "catchup-type",
             "catchup-days",
             "catchup-source",
+            "catchup-correction",
             "timeshift",
             "user-agent",
             "rating",

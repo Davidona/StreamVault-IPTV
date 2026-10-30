@@ -139,6 +139,10 @@ interface SettingsPreferences {
 
     val playerTimeshiftBackend: Flow<TimeshiftBackendPreference>
 
+    val m3uCatchUpQueryFormat: Flow<String>
+
+    suspend fun setM3uCatchUpQueryFormat(format: String)
+
     val defaultStopPlaybackTimerMinutes: Flow<Int>
 
     val defaultIdleStandbyTimerMinutes: Flow<Int>

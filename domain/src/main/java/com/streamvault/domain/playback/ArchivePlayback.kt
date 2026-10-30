@@ -29,11 +29,17 @@ fun Channel.archivePlaybackCapability(): ArchivePlaybackCapability {
     val stream = streamUrl.trim().lowercase(Locale.ROOT)
     val source = catchUpSource?.trim().orEmpty()
     val normalizedSource = source.lowercase(Locale.ROOT)
+    val normalizedType = catchUpType?.trim()?.lowercase(Locale.ROOT).orEmpty()
     val hasProviderContext = id > 0L && providerId > 0L
     val hasXtreamReplayContext = stream.startsWith(XTREAM_INTERNAL_PREFIX) && streamId > 0L
     val hasStalkerReplayContext =
         stream.startsWith(STALKER_INTERNAL_PREFIX) || normalizedSource.startsWith(STALKER_INTERNAL_PREFIX)
-    val hasM3uTemplate = source.isNotBlank() && !normalizedSource.startsWith(STALKER_INTERNAL_PREFIX)
+    val needsUnmappedCatchUpId = Regex("\\$?\\{catchup-id}", RegexOption.IGNORE_CASE).containsMatchIn(source)
+    val hasM3uTemplate = source.isNotBlank() && !needsUnmappedCatchUpId &&
+        !normalizedSource.startsWith(STALKER_INTERNAL_PREFIX)
+    val hasM3uAutoMode = normalizedType in setOf(
+        "default", "append", "shift", "timeshift", "fs", "flussonic", "xc", "xc60", "xtream", "xtream-codes"
+    ) && !stream.startsWith(STALKER_INTERNAL_PREFIX)
     val windowDays = catchUpDays.takeIf { it > 0 }
 
     return when {
@@ -55,7 +61,7 @@ fun Channel.archivePlaybackCapability(): ArchivePlaybackCapability {
             advertisedByProvider = catchUpSupported,
             windowDays = windowDays
         )
-        hasM3uTemplate -> ArchivePlaybackCapability(
+        hasM3uTemplate || hasM3uAutoMode -> ArchivePlaybackCapability(
             mechanism = ArchiveReplayMechanism.M3U_TEMPLATE,
             canBuildReplayCandidate = true,
             advertisedByProvider = catchUpSupported,
@@ -86,9 +92,9 @@ fun Channel.isArchivePlayable(
     if (!capability.canBuildReplayCandidate) return false
     if (program.hasArchive) return true
     if (!catchUpSupported || program.endTime > now) return false
-    val windowDays = capability.windowDays?.takeIf { it > 0 } ?: return false
-
+    val windowDays = capability.windowDays?.takeIf { it > 0 }
+        ?: return capability.mechanism == ArchiveReplayMechanism.XTREAM_STREAM_ID ||
+            capability.mechanism == ArchiveReplayMechanism.M3U_TEMPLATE
     val catchUpWindowStart = now - (windowDays.toLong() * MILLIS_PER_DAY)
-
     return program.startTime >= catchUpWindowStart
 }

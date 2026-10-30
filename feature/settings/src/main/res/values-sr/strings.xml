@@ -957,4 +957,7 @@
     <string name="settings_epg_phone_qr_complete">Додато</string>
     <string name="settings_epg_phone_qr_error">Грешка</string>
     <string name="settings_backup_export_sections">Изаберите одељке за извоз</string>
+    <string name="settings_m3u_catchup_query_format">Формат упита за репродукцију архиве</string>
+    <string name="settings_m3u_catchup_query_format_subtitle">Користи се за M3U канале без сопственог извора за репродукцију архиве. Оставите празно да бисте искључили овај резервни формат. Пример: ?utc={utc}</string>
+    <string name="settings_m3u_catchup_query_format_disabled">Искључено</string>
 </resources>

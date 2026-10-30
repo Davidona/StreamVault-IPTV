@@ -59,6 +59,7 @@ import com.streamvault.domain.model.VodVariantObservation
 import com.streamvault.domain.model.VodVariantPreferenceMode
 import com.streamvault.domain.model.PlayerSurfaceMode
 import com.streamvault.domain.model.PlayerBackButtonVisibility
+import com.streamvault.domain.provider.DEFAULT_M3U_CATCH_UP_QUERY_FORMAT
 import com.streamvault.domain.settings.VodTrackPreferenceScope
 import com.streamvault.domain.settings.VodTrackPreferences
 import com.streamvault.domain.sports.provider.SportsEventSourceMode
@@ -545,6 +546,7 @@ class PreferencesRepository @Inject constructor(
         val PLAYER_TIMESHIFT_ENABLED = booleanPreferencesKey("player_timeshift_enabled")
         val PLAYER_TIMESHIFT_DEPTH_MINUTES = intPreferencesKey("player_timeshift_depth_minutes")
         val PLAYER_TIMESHIFT_BACKEND = stringPreferencesKey("player_timeshift_backend")
+        val M3U_CATCH_UP_QUERY_FORMAT = stringPreferencesKey("m3u_catch_up_query_format")
         val DEFAULT_STOP_PLAYBACK_TIMER_MINUTES = intPreferencesKey("default_stop_playback_timer_minutes")
         val DEFAULT_IDLE_STANDBY_TIMER_MINUTES = intPreferencesKey("default_idle_standby_timer_minutes")
         val LAST_SPEED_TEST_MEGABITS = stringPreferencesKey("last_speed_test_megabits")
@@ -980,6 +982,10 @@ class PreferencesRepository @Inject constructor(
 
     override val playerTimeshiftBackend: Flow<TimeshiftBackendPreference> = context.dataStore.data.map { preferences ->
         parseTimeshiftBackendPreference(preferences[PreferencesKeys.PLAYER_TIMESHIFT_BACKEND])
+    }
+
+    override val m3uCatchUpQueryFormat: Flow<String> = context.dataStore.data.map { preferences ->
+        preferences[PreferencesKeys.M3U_CATCH_UP_QUERY_FORMAT] ?: DEFAULT_M3U_CATCH_UP_QUERY_FORMAT
     }
 
     override val defaultStopPlaybackTimerMinutes: Flow<Int> = context.dataStore.data.map { preferences ->
@@ -1832,6 +1838,18 @@ class PreferencesRepository @Inject constructor(
     override suspend fun setPlayerTimeshiftBackend(preference: TimeshiftBackendPreference) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.PLAYER_TIMESHIFT_BACKEND] = preference.name
+        }
+    }
+
+    override suspend fun setM3uCatchUpQueryFormat(format: String) {
+        val normalized = format.trim().filterNot { it == '\r' || it == '\n' || it == '\t' }
+            .take(8_192)
+        context.dataStore.edit { preferences ->
+            if (normalized.isBlank()) {
+                preferences.remove(PreferencesKeys.M3U_CATCH_UP_QUERY_FORMAT)
+            } else {
+                preferences[PreferencesKeys.M3U_CATCH_UP_QUERY_FORMAT] = normalized
+            }
         }
     }
 

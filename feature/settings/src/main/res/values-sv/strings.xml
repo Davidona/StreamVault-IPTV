@@ -956,4 +956,7 @@
     <string name="settings_epg_phone_qr_complete">Tillagd</string>
     <string name="settings_epg_phone_qr_error">Fel</string>
     <string name="settings_backup_export_sections">Välj avsnitt att exportera</string>
+    <string name="settings_m3u_catchup_query_format">Format för catch-up-förfrågan</string>
+    <string name="settings_m3u_catchup_query_format_subtitle">Används för M3U-kanaler utan egen catch-up-källa. Lämna fältet tomt för att inaktivera reservformatet. Exempel: ?utc={utc}</string>
+    <string name="settings_m3u_catchup_query_format_disabled">Inaktiverat</string>
 </resources>

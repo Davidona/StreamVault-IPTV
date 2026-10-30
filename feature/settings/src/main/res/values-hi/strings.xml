@@ -954,4 +954,7 @@
     <string name="settings_epg_phone_qr_complete">जोड़ा गया</string>
     <string name="settings_epg_phone_qr_error">त्रुटि</string>
     <string name="settings_backup_export_sections">निर्यात करने के लिए अनुभाग चुनें</string>
+    <string name="settings_m3u_catchup_query_format">कैच-अप क्वेरी प्रारूप</string>
+    <string name="settings_m3u_catchup_query_format_subtitle">उन M3U चैनलों के लिए उपयोग किया जाता है जिनका अपना कैच-अप स्रोत नहीं है। इस वैकल्पिक प्रारूप को बंद करने के लिए खाली छोड़ें। उदाहरण: ?utc={utc}</string>
+    <string name="settings_m3u_catchup_query_format_disabled">बंद</string>
 </resources>

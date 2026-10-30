@@ -328,6 +328,7 @@ class BackupManagerImpl @Inject constructor(
             put("pinnedSubtitleLanguages", preferencesRepository.pinnedSubtitleLanguages.first().joinToString("\n"))
             put("playerLiveTranslationEnabled", preferencesRepository.playerLiveTranslationEnabled.first().toString())
             put("playerLiveTranslationEndpoint", preferencesRepository.playerLiveTranslationEndpoint.first())
+            put("m3uCatchUpQueryFormat", preferencesRepository.m3uCatchUpQueryFormat.first())
             put("playerControlsTimeoutSeconds", preferencesRepository.playerControlsTimeoutSeconds.first().toString())
             put("playerLiveOverlayTimeoutSeconds", preferencesRepository.playerLiveOverlayTimeoutSeconds.first().toString())
             put("playerLiveClockEnabled", preferencesRepository.playerLiveClockEnabled.first().toString())
@@ -3864,6 +3865,7 @@ class BackupManagerImpl @Inject constructor(
             put("pinnedSubtitleLanguages", preferencesRepository.pinnedSubtitleLanguages.first().joinToString("\n"))
             put("playerLiveTranslationEnabled", preferencesRepository.playerLiveTranslationEnabled.first().toString())
             put("playerLiveTranslationEndpoint", preferencesRepository.playerLiveTranslationEndpoint.first())
+            put("m3uCatchUpQueryFormat", preferencesRepository.m3uCatchUpQueryFormat.first())
             put("playerControlsTimeoutSeconds", preferencesRepository.playerControlsTimeoutSeconds.first().toString())
             put("playerLiveOverlayTimeoutSeconds", preferencesRepository.playerLiveOverlayTimeoutSeconds.first().toString())
             put("playerLiveClockEnabled", preferencesRepository.playerLiveClockEnabled.first().toString())
@@ -4651,6 +4653,7 @@ class BackupManagerImpl @Inject constructor(
         prefs["playerLiveTranslationEnabled"]?.toBooleanStrictOrNull()
             ?.let { preferencesRepository.setPlayerLiveTranslationEnabled(it) }
         prefs["playerLiveTranslationEndpoint"]?.let { preferencesRepository.setPlayerLiveTranslationEndpoint(it) }
+        prefs["m3uCatchUpQueryFormat"]?.let { preferencesRepository.setM3uCatchUpQueryFormat(it) }
         prefs["playerControlsTimeoutSeconds"]?.toIntOrNull()
             ?.let { preferencesRepository.setPlayerControlsTimeoutSeconds(it) }
         prefs["playerLiveOverlayTimeoutSeconds"]?.toIntOrNull()

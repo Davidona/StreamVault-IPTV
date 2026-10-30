@@ -65,6 +65,7 @@ import com.streamvault.domain.model.EpgResolutionSummary
 import com.streamvault.domain.model.GuideSourcePolicy
 import com.streamvault.domain.model.Result
 import com.streamvault.domain.model.TimeshiftBackendPreference
+import com.streamvault.domain.provider.DEFAULT_M3U_CATCH_UP_QUERY_FORMAT
 import com.streamvault.domain.model.VirtualCategoryIds
 import com.streamvault.domain.model.VodVariantPreferenceMode
 import com.streamvault.domain.usecase.ExportBackup
@@ -162,6 +163,11 @@ class SettingsViewModel @Inject constructor(
             started = SharingStarted.WhileSubscribed(5_000),
             initialValue = LiveStreamFormatMode.AUTO
         )
+    val m3uCatchUpQueryFormat: StateFlow<String> = preferencesRepository.m3uCatchUpQueryFormat.stateIn(
+        viewModelScope,
+        SharingStarted.WhileSubscribed(5_000),
+        DEFAULT_M3U_CATCH_UP_QUERY_FORMAT
+    )
     private val activeProviderIdFlow = providerRepository.getActiveProvider().map { it?.id }
     private val appUpdateActions = SettingsAppUpdateActions(
         appContext = application,
@@ -968,6 +974,12 @@ class SettingsViewModel @Inject constructor(
     fun setPlayerTimeshiftEnabled(enabled: Boolean) {
         viewModelScope.launch {
             preferencesRepository.setPlayerTimeshiftEnabled(enabled)
+        }
+    }
+
+    fun setM3uCatchUpQueryFormat(format: String) {
+        viewModelScope.launch {
+            preferencesRepository.setM3uCatchUpQueryFormat(format)
         }
     }
 

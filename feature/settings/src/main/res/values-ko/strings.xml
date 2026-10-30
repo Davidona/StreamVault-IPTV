@@ -952,4 +952,7 @@
     <string name="settings_epg_phone_qr_complete">추가됨</string>
     <string name="settings_epg_phone_qr_error">오류</string>
     <string name="settings_backup_export_sections">내보낼 항목 선택</string>
+    <string name="settings_m3u_catchup_query_format">캐치업 쿼리 형식</string>
+    <string name="settings_m3u_catchup_query_format_subtitle">전용 캐치업 소스가 없는 M3U 채널에 사용됩니다. 이 대체 형식을 끄려면 비워 두세요. 예: ?utc={utc}</string>
+    <string name="settings_m3u_catchup_query_format_disabled">사용 안 함</string>
 </resources>

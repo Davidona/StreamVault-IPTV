@@ -951,4 +951,7 @@
     <string name="settings_epg_phone_qr_complete">Ditambah</string>
     <string name="settings_epg_phone_qr_error">Ralat</string>
     <string name="settings_backup_export_sections">Pilih bahagian untuk dieksport</string>
+    <string name="settings_m3u_catchup_query_format">Format pertanyaan tontonan semula</string>
+    <string name="settings_m3u_catchup_query_format_subtitle">Digunakan untuk saluran M3U tanpa sumber tontonan semula sendiri. Biarkan kosong untuk mematikan format sandaran ini. Contoh: ?utc={utc}</string>
+    <string name="settings_m3u_catchup_query_format_disabled">Dimatikan</string>
 </resources>

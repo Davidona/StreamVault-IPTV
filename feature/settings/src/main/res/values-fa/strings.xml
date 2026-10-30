@@ -954,4 +954,7 @@
     <string name="settings_epg_phone_qr_complete">افزوده شد</string>
     <string name="settings_epg_phone_qr_error">خطا</string>
     <string name="settings_backup_export_sections">بخش‌های مورد نظر برای برون‌بری را انتخاب کنید</string>
+    <string name="settings_m3u_catchup_query_format">قالب پرس‌وجوی بازپخش آرشیوی</string>
+    <string name="settings_m3u_catchup_query_format_subtitle">برای کانال‌های M3U بدون منبع بازپخش اختصاصی استفاده می‌شود. برای غیرفعال کردن این گزینه، آن را خالی بگذارید. نمونه: ?utc={utc}</string>
+    <string name="settings_m3u_catchup_query_format_disabled">غیرفعال</string>
 </resources>

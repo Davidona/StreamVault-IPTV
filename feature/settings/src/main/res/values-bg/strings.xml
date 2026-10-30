@@ -954,4 +954,7 @@
     <string name="settings_epg_phone_qr_complete">Добавен</string>
     <string name="settings_epg_phone_qr_error">Грешка</string>
     <string name="settings_backup_export_sections">Изберете раздели за експортиране</string>
+    <string name="settings_m3u_catchup_query_format">Формат на заявката за архивно предаване</string>
+    <string name="settings_m3u_catchup_query_format_subtitle">Използва се за M3U канали без собствен източник за архивно предаване. Оставете празно, за да изключите резервния формат. Пример: ?utc={utc}</string>
+    <string name="settings_m3u_catchup_query_format_disabled">Изключено</string>
 </resources>

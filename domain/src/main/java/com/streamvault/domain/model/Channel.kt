@@ -26,7 +26,9 @@ data class Channel(
     val qualityOptions: List<ChannelQualityOption> = emptyList(),
     val alternativeStreams: List<String> = emptyList(),
     val variants: List<LiveChannelVariant> = emptyList(),
-    val streamId: Long = 0L
+    val streamId: Long = 0L,
+    val catchUpType: String? = null,
+    val catchUpCorrectionSeconds: Int = 0
 ) {
     init {
         require(number >= 0) { "number must be non-negative" }
@@ -67,6 +69,8 @@ data class Channel(
             catchUpSupported = selected.catchUpSupported,
             catchUpDays = selected.catchUpDays,
             catchUpSource = selected.catchUpSource,
+            catchUpType = selected.catchUpType,
+            catchUpCorrectionSeconds = selected.catchUpCorrectionSeconds,
             selectedVariantId = selected.rawChannelId,
             errorCount = selected.errorCount,
             qualityOptions = updatedQualityOptions,
@@ -99,7 +103,9 @@ data class LiveChannelVariant(
     val catchUpDays: Int = 0,
     val catchUpSource: String? = null,
     val attributes: LiveChannelVariantAttributes = LiveChannelVariantAttributes(),
-    val observedQuality: LiveChannelObservedQuality = LiveChannelObservedQuality()
+    val observedQuality: LiveChannelObservedQuality = LiveChannelObservedQuality(),
+    val catchUpType: String? = null,
+    val catchUpCorrectionSeconds: Int = 0
 ) {
     init {
         require(number >= 0) { "number must be non-negative" }

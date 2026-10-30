@@ -962,4 +962,7 @@
     <string name="settings_epg_phone_qr_complete">Přidáno</string>
     <string name="settings_epg_phone_qr_error">Chyba</string>
     <string name="settings_backup_export_sections">Vyberte sekce k exportu</string>
+    <string name="settings_m3u_catchup_query_format">Formát dotazu pro přehrávání archivu</string>
+    <string name="settings_m3u_catchup_query_format_subtitle">Použije se u kanálů M3U bez vlastního zdroje archivu. Prázdná hodnota tento záložní formát vypne. Příklad: ?utc={utc}</string>
+    <string name="settings_m3u_catchup_query_format_disabled">Vypnuto</string>
 </resources>

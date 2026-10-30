@@ -954,4 +954,7 @@
     <string name="settings_epg_phone_qr_complete">Naidagdag</string>
     <string name="settings_epg_phone_qr_error">Error</string>
     <string name="settings_backup_export_sections">Piliin ang mga seksyong ie-export</string>
+    <string name="settings_m3u_catchup_query_format">Format ng query para sa catch-up</string>
+    <string name="settings_m3u_catchup_query_format_subtitle">Ginagamit para sa mga M3U channel na walang sariling source ng catch-up. Iwanang blangko para i-disable ang fallback na ito. Halimbawa: ?utc={utc}</string>
+    <string name="settings_m3u_catchup_query_format_disabled">Naka-disable</string>
 </resources>

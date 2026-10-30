@@ -956,4 +956,7 @@
     <string name="settings_epg_phone_qr_complete">Προστέθηκε</string>
     <string name="settings_epg_phone_qr_error">Σφάλμα</string>
     <string name="settings_backup_export_sections">Επιλέξτε ενότητες για εξαγωγή</string>
+    <string name="settings_m3u_catchup_query_format">Μορφή ερωτήματος επανάληψης</string>
+    <string name="settings_m3u_catchup_query_format_subtitle">Χρησιμοποιείται για κανάλια M3U χωρίς δική τους πηγή επανάληψης. Αφήστε το κενό για να απενεργοποιήσετε αυτήν την εναλλακτική. Παράδειγμα: ?utc={utc}</string>
+    <string name="settings_m3u_catchup_query_format_disabled">Απενεργοποιημένο</string>
 </resources>

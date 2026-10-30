@@ -962,4 +962,7 @@
     <string name="settings_epg_phone_qr_complete">Додано</string>
     <string name="settings_epg_phone_qr_error">Помилка</string>
     <string name="settings_backup_export_sections">Виберіть розділи для експорту</string>
+    <string name="settings_m3u_catchup_query_format">Формат запиту для відтворення архіву</string>
+    <string name="settings_m3u_catchup_query_format_subtitle">Використовується для каналів M3U без власного джерела архіву. Залиште поле порожнім, щоб вимкнути цей резервний формат. Приклад: ?utc={utc}</string>
+    <string name="settings_m3u_catchup_query_format_disabled">Вимкнено</string>
 </resources>

@@ -953,4 +953,7 @@
     <string name="settings_epg_phone_qr_complete">Đã thêm</string>
     <string name="settings_epg_phone_qr_error">Lỗi</string>
     <string name="settings_backup_export_sections">Chọn các phần để xuất</string>
+    <string name="settings_m3u_catchup_query_format">Định dạng truy vấn phát lại từ kho lưu trữ</string>
+    <string name="settings_m3u_catchup_query_format_subtitle">Dùng cho các kênh M3U không có nguồn phát lại riêng. Để trống để tắt định dạng dự phòng này. Ví dụ: ?utc={utc}</string>
+    <string name="settings_m3u_catchup_query_format_disabled">Đã tắt</string>
 </resources>

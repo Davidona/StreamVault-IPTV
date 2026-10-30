@@ -956,4 +956,7 @@
     <string name="settings_epg_phone_qr_complete">Toegevoegd</string>
     <string name="settings_epg_phone_qr_error">Fout</string>
     <string name="settings_backup_export_sections">Kies onderdelen om te exporteren</string>
+    <string name="settings_m3u_catchup_query_format">Formaat van de terugkijkquery</string>
+    <string name="settings_m3u_catchup_query_format_subtitle">Wordt gebruikt voor M3U-kanalen zonder eigen terugkijkbron. Laat dit leeg om dit reserveformaat uit te schakelen. Voorbeeld: ?utc={utc}</string>
+    <string name="settings_m3u_catchup_query_format_disabled">Uitgeschakeld</string>
 </resources>
