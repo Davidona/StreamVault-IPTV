@@ -53,6 +53,9 @@ interface DownloadDao {
     @Update
     suspend fun update(entity: DownloadEntity)
 
+    @Query("SELECT output_display_path FROM downloads WHERE output_display_path IS NOT NULL")
+    suspend fun getOutputDisplayPathsOnce(): List<String>
+
     @Query("DELETE FROM downloads WHERE id = :id")
     suspend fun deleteById(id: String)
 }

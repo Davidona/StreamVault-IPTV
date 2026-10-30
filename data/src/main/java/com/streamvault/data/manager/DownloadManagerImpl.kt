@@ -7,6 +7,7 @@ import android.net.NetworkCapabilities
 import android.net.NetworkRequest
 import android.net.Uri
 import android.os.Environment
+import android.util.Log
 import android.webkit.MimeTypeMap
 import androidx.core.content.FileProvider
 import androidx.documentfile.provider.DocumentFile
@@ -193,8 +194,10 @@ class DownloadManagerImpl @Inject constructor(
         return runSuspendCatching {
             activeCalls.remove(id)?.cancel()
             activeJobs.remove(id)?.cancelAndJoin()
-            downloadDao.getByIdOnce(id)?.let { deleteOutput(it) }
+            val entity = downloadDao.getByIdOnce(id)
+            entity?.let { deleteOutput(it) }
             downloadDao.deleteById(id)
+            entity?.let { deleteLeftoverOutputs(it) }
             startNextQueued()
         }.fold(
             onSuccess = { Result.success(Unit) },
@@ -781,6 +784,29 @@ class DownloadManagerImpl @Inject constructor(
             index += 1
         }
         return candidate
+    }
+
+    /**
+     * Frees the storage a deleted download's earlier attempts left in app storage: each failed attempt started a new
+     * "name (n)" file that no download refers to any more. Only files named after this download and not used by
+     * another one, and only while nothing is downloading, so a file being written is never removed.
+     */
+    private suspend fun deleteLeftoverOutputs(entity: DownloadEntity) = schedulerMutex.withLock {
+        if (activeJobs.isNotEmpty()) return@withLock
+        val baseName = buildFileName(entity, "video/mp4").substringBeforeLast('.')
+        val leftoverName = Regex(Regex.escape(baseName) + "( \\(\\d+\\))?\\.[^.]+")
+        val inUse = downloadDao.getOutputDisplayPathsOnce()
+            .mapNotNull { path -> runCatching { File(path).canonicalPath }.getOrNull() }
+            .toSet()
+        listOfNotNull(context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS), context.filesDir)
+            .map { File(it, "StreamVault") }
+            .flatMap { it.listFiles()?.toList().orEmpty() }
+            .filter { it.isFile && leftoverName.matches(it.name) && it.canonicalPath !in inUse }
+            .forEach { file ->
+                if (!runCatching { file.delete() }.getOrDefault(false)) {
+                    Log.w("DownloadManager", "Leftover download file could not be deleted")
+                }
+            }
     }
 
     private data class OutputTarget(
