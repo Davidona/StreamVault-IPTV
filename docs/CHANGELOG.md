@@ -5,6 +5,7 @@ All notable product changes are recorded in this document.
 ## [1.2.3]
 
 ### Added
+- Added support for launcher shortcuts to open the Downloads screen directly.
 - Added backup export selection so you can choose which sections to include when saving, sharing, or uploading a backup to Google Drive.
 - Added QR-based phone setup for EPG sources and Stremio add-ons, so their URLs can be submitted from a phone on the same local network.
 - Added recognition of Brazilian Portuguese sports listings, including matchups, broadcast notes, and Brazilian and South American competitions.
