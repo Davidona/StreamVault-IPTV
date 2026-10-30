@@ -179,7 +179,10 @@ internal fun ImmersiveGuideHero(
                 )
                 Text(
                     text = buildString {
-                        channel?.let { append("${it.number}. ${it.name}") }
+                        channel?.let {
+                            if (it.number > 0) append("${it.number}. ")
+                            append(it.name)
+                        }
                         if (providerLabel.isNotBlank()) {
                             if (isNotEmpty()) append("  |  ")
                             append(providerLabel)

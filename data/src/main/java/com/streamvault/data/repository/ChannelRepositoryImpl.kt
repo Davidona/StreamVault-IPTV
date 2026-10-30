@@ -481,9 +481,9 @@ class ChannelRepositoryImpl @Inject constructor(
         stalkerPortalUrlForProvider: (Long) -> String?
     ): List<Channel> {
         if (requestedEntities.isEmpty()) return emptyList()
-        if (settings.groupingMode == LiveChannelGroupingMode.RAW_VARIANTS) {
+        val channels = if (settings.groupingMode == LiveChannelGroupingMode.RAW_VARIANTS) {
             val rawById = requestedEntities.associateBy { it.id }
-            return requestedIds.mapNotNull { rawId ->
+            requestedIds.mapNotNull { rawId ->
                 rawById[rawId]?.let { entity ->
                     entity.toPresentedRawChannel(
                         settings.observedQualities[rawId],
@@ -491,15 +491,20 @@ class ChannelRepositoryImpl @Inject constructor(
                     )
                 }
             }
+        } else {
+            val groupedChannels = buildGroupedChannels(entityPool, settings, stalkerPortalUrlForProvider)
+            val groupedByRawId = buildRawVariantLookup(groupedChannels)
+            val seenLogicalGroups = linkedSetOf<String>()
+            requestedIds.mapNotNull { rawId ->
+                groupedByRawId[rawId]
+            }.filter { channel ->
+                seenLogicalGroups.add(channel.logicalGroupId.ifBlank { channel.id.toString() })
+            }
         }
-
-        val groupedChannels = buildGroupedChannels(entityPool, settings, stalkerPortalUrlForProvider)
-        val groupedByRawId = buildRawVariantLookup(groupedChannels)
-        val seenLogicalGroups = linkedSetOf<String>()
-        return requestedIds.mapNotNull { rawId ->
-            groupedByRawId[rawId]
-        }.filter { channel ->
-            seenLogicalGroups.add(channel.logicalGroupId.ifBlank { channel.id.toString() })
+        return if (settings.numberingMode == ChannelNumberingMode.HIDDEN) {
+            channels.map { it.copy(number = 0) }
+        } else {
+            channels
         }
     }
 
