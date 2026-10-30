@@ -1,7 +1,13 @@
 package com.streamvault.feature.system.presentation.downloads
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.performSemanticsAction
+import androidx.compose.ui.test.hasAnyAncestor
+import androidx.compose.ui.test.hasClickAction
+import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.isDialog
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
@@ -117,12 +123,16 @@ class DownloadsPresentationTest {
         composeRule.onNodeWithText("Completed").assertIsDisplayed()
         composeRule.onNodeWithText("completed").performTouchInput { click() }
         composeRule.onNodeWithText("Delete download").assertIsDisplayed()
-        composeRule.onAllNodesWithText("Delete")[1].performClick()
+        // The dialog ignores presses for a moment after opening.
+        composeRule.mainClock.advanceTimeBy(1_000)
+        composeRule.onNode(hasText("Delete") and hasClickAction() and hasAnyAncestor(isDialog()))
+            .performSemanticsAction(SemanticsActions.OnClick)
         assertThat(confirmed).isEqualTo(1)
         assertThat(openedId).isEqualTo("completed")
 
         composeRule.onNodeWithText("Delete download").assertIsDisplayed()
-        composeRule.onNodeWithText("Cancel").performClick()
+        composeRule.onNode(hasText("Cancel") and hasClickAction())
+            .performSemanticsAction(SemanticsActions.OnClick)
         assertThat(dismissed).isEqualTo(1)
     }
 

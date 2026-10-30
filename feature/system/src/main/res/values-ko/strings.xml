@@ -32,6 +32,7 @@
   <string name="download_folder_default">기본 다운로드 폴더</string>
   <string name="download_resume">계속</string>
   <string name="download_delete">삭제</string>
+  <string name="download_play">재생</string>
   <string name="downloads_resumed">다운로드가 다시 시작되었습니다</string>
   <string name="extensions_tab_plugins">플러그인</string>
   <string name="extensions_tab_stremio_addons">Stremio 애드온</string>

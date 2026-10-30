@@ -32,6 +32,7 @@
   <string name="download_folder_default">Thư mục tải xuống mặc định</string>
   <string name="download_resume">Tiếp tục</string>
   <string name="download_delete">Xóa</string>
+  <string name="download_play">Phát</string>
   <string name="downloads_resumed">Đã tiếp tục tải xuống</string>
   <string name="extensions_tab_plugins">Trình cắm</string>
   <string name="extensions_tab_stremio_addons">Tiện ích Stremio</string>

@@ -32,6 +32,7 @@
   <string name="download_folder_default">Подразумевана фасцикла за преузимања</string>
   <string name="download_resume">Настави</string>
   <string name="download_delete">Избриши</string>
+  <string name="download_play">Пусти</string>
   <string name="downloads_resumed">Преузимање је настављено</string>
   <string name="extensions_tab_plugins">Прикључци</string>
   <string name="extensions_tab_stremio_addons">Stremio додаци</string>

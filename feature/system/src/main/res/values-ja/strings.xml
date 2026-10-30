@@ -32,6 +32,7 @@
   <string name="download_folder_default">デフォルトのダウンロードフォルダ</string>
   <string name="download_resume">再開</string>
   <string name="download_delete">削除</string>
+  <string name="download_play">再生</string>
   <string name="downloads_resumed">ダウンロードを再開しました</string>
   <string name="extensions_tab_plugins">プラグイン</string>
   <string name="extensions_tab_stremio_addons">Stremioアドオン</string>

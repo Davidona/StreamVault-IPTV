@@ -32,6 +32,7 @@
   <string name="download_folder_default">Стандартна папка завантажень</string>
   <string name="download_resume">Продовжити</string>
   <string name="download_delete">Видалити</string>
+  <string name="download_play">Відтворити</string>
   <string name="downloads_resumed">Завантаження поновлено</string>
   <string name="extensions_tab_plugins">Плагіни</string>
   <string name="extensions_tab_stremio_addons">Доповнення Stremio</string>

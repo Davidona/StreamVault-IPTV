@@ -32,6 +32,7 @@
   <string name="download_folder_default">Standard-Downloadordner</string>
   <string name="download_resume">Fortsetzen</string>
   <string name="download_delete">Löschen</string>
+  <string name="download_play">Abspielen</string>
   <string name="downloads_resumed">Download fortgesetzt</string>
   <string name="extensions_tab_plugins">Plugins</string>
   <string name="extensions_tab_stremio_addons">Stremio-Add-ons</string>

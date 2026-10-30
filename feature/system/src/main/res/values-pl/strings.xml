@@ -32,6 +32,7 @@
   <string name="download_folder_default">Domyślny folder pobierania</string>
   <string name="download_resume">Wznów</string>
   <string name="download_delete">Usuń</string>
+  <string name="download_play">Odtwórz</string>
   <string name="downloads_resumed">Pobieranie wznowione</string>
   <string name="extensions_tab_plugins">Wtyczki</string>
   <string name="extensions_tab_stremio_addons">Dodatki Stremio</string>

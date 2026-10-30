@@ -32,6 +32,7 @@
   <string name="download_folder_default">Standardmappen for downloads</string>
   <string name="download_resume">Genoptag</string>
   <string name="download_delete">Slet</string>
+  <string name="download_play">Afspil</string>
   <string name="downloads_resumed">Download genoptaget</string>
   <string name="extensions_tab_plugins">Plugins</string>
   <string name="extensions_tab_stremio_addons">Stremio-tilføjelser</string>

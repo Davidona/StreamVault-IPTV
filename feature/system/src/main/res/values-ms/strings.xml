@@ -32,6 +32,7 @@
   <string name="download_folder_default">Folder muat turun lalai</string>
   <string name="download_resume">Sambung</string>
   <string name="download_delete">Padam</string>
+  <string name="download_play">Main</string>
   <string name="downloads_resumed">Muat turun disambung</string>
   <string name="extensions_tab_plugins">Pemalam</string>
   <string name="extensions_tab_stremio_addons">Alat tambah Stremio</string>

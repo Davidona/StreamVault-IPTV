@@ -32,6 +32,7 @@
   <string name="download_folder_default">Cartella download predefinita</string>
   <string name="download_resume">Riprendi</string>
   <string name="download_delete">Elimina</string>
+  <string name="download_play">Riproduci</string>
   <string name="downloads_resumed">Download ripristinato</string>
   <string name="extensions_tab_plugins">Plugin</string>
   <string name="extensions_tab_stremio_addons">Componenti aggiuntivi Stremio</string>
