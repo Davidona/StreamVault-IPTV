@@ -32,8 +32,10 @@ class ExternalDownloadsRouteRuntimeTest {
 
     @Test
     fun externalDownloadsRouteOpensInAlreadyRunningActivity() {
-        ActivityScenario.launch<MainActivity>(Intent(app, MainActivity::class.java)).use { scenario ->
-            scenario.onActivity { activity -> activity.onNewIntent(externalDownloadsIntent()) }
+        ActivityScenario.launch<MainActivity>(Intent(app, MainActivity::class.java)).use {
+            app.startActivity(
+                externalDownloadsIntent().addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            )
 
             assertTrue(
                 "Running activity did not reach Downloads",

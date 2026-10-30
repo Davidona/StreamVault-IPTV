@@ -387,6 +387,7 @@ abstract class MergeStartupRulesIntoBaselineProfileTask : DefaultTask() {
 
     testOptions {
         animationsDisabled = true
+        unitTests.isIncludeAndroidResources = true
     }
 
     lint {
