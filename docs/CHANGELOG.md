@@ -19,6 +19,7 @@ All notable product changes are recorded in this document.
 - VOD timelines can now be scrubbed with the D-pad in 10-second steps; holding a direction previews repeated seeks, and releasing applies the selected position.
 
 ### Fixed
+- Fixed live TV continuing to play in the background after leaving the player, including when exiting while a channel was still loading. Playback and the Android media session are now released immediately, and abandoned Home or Guide previews are closed.
 - Fixed Hardware Only video decoding being overridden after live TV stalls; recovery now preserves explicit audio and video decoder settings and excludes software video decoders in Hardware Only mode.
 - Fixed channel numbers appearing in Guide Favorites views and selected-channel details when Live TV numbering is set to Hidden.
 - Fixed external subtitles disappearing after playback retries, reconnects, buffering, or when replaying a movie: attached subtitles are restored with the rebuilt source, downloaded OpenSubtitles files are kept in durable app storage and remembered for that movie, and replaced subtitle files are cleaned up.

@@ -345,6 +345,7 @@ class PlayerViewModel @Inject constructor(
             playerPlaybackContextCoordinator.pendingCatchUpUrls = value
         }
     internal var livePlaybackReadyForCurrentSession: Boolean = false
+    internal var terminalPlaybackCleanupStarted: Boolean = false
     internal var channelNumberingMode: ChannelNumberingMode = ChannelNumberingMode.GROUP
         set(value) {
             field = value

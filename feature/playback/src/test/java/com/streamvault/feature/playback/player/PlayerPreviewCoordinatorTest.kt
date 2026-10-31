@@ -18,6 +18,7 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -110,6 +111,33 @@ class PlayerPreviewCoordinatorTest {
 
         assertThat(adopted).isFalse()
         assertThat(coordinator.consumeAdoptedHandoffSource()).isNull()
+    }
+
+    @Test
+    fun `clearing the handoff forgets the recorded reverse source`() = runTest(testDispatcher) {
+        val coordinator = coordinator()
+        val channel = channel(id = 13L, providerId = 3L)
+
+        assertThat(adopt(coordinator, channel, PreviewHandoffSource.HOME)).isTrue()
+
+        coordinator.clear(engineCoordinator.currentEngine)
+
+        assertThat(coordinator.consumeAdoptedHandoffSource()).isNull()
+    }
+
+    @Test
+    fun `discarding a pending fullscreen handoff releases the preview engine`() = runTest(testDispatcher) {
+        val coordinator = coordinator()
+        val previewEngine = mock<PlayerEngine>()
+        val channel = channel(id = 14L, providerId = 3L)
+        val streamInfo = StreamInfo(url = "https://example.com/live.m3u8", title = channel.name)
+
+        handoffManager.registerPreviewSession(channel, streamInfo, previewEngine)
+        handoffManager.beginFullscreenHandoff(channel.id, previewEngine)
+
+        coordinator.discardPendingFullscreenHandoff(engineCoordinator.mainEngine)
+
+        verify(previewEngine).release()
     }
 
     private fun channel(id: Long, providerId: Long): Channel = Channel(

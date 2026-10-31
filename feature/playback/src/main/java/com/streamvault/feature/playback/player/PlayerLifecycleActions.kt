@@ -268,6 +268,16 @@ fun PlayerViewModel.onPlayerScreenDisposed(): Job? {
     playerEngine.stopLiveTimeshift()
     stopLiveTranslationSession()
     clearPlaybackTimers()
+    // The screen is gone, even when navigation kept the ViewModelStore alive. Cancel any
+    // in-flight preparation before it can finish and start playback in the background, and
+    // pause the engine in case it was already playing. Terminal cleanup owns the engine and
+    // may hand it back to a preview surface, so it skips these steps.
+    if (!terminalPlaybackCleanupStarted) {
+        playbackSessionCoordinator.invalidate()
+        if (playerEngine.playbackState.value != PlaybackState.IDLE) {
+            playerEngine.pause()
+        }
+    }
     return progressFlush
 }
 
@@ -295,6 +305,7 @@ fun PlayerViewModel.handOffPlaybackToMultiView(): Job? {
 }
 
 internal fun PlayerViewModel.cleanupAfterCleared(mainPlayerEngine: PlayerEngine) {
+    terminalPlaybackCleanupStarted = true
     onPlayerScreenDisposed()
     channelInfoHideJob?.cancel()
     liveOverlayHideJob?.cancel()
@@ -335,6 +346,7 @@ internal fun PlayerViewModel.cleanupAfterCleared(mainPlayerEngine: PlayerEngine)
         )
         mainPlayerEngine.resetForReuse()
     } else {
+        playerPreviewCoordinator.discardPendingFullscreenHandoff(mainPlayerEngine)
         playerPreviewCoordinator.clear(activeEngine)
         if (activeEngine === mainPlayerEngine) {
             mainPlayerEngine.resetForReuse()

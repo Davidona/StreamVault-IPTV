@@ -120,12 +120,17 @@ internal class NavControllerNavigator(
             currentDestinationId?.let { destinationId ->
                 popUpTo(destinationId) {
                     inclusive = true
-                    saveState = true
+                    saveState = shouldSaveCurrentState()
                 }
             }
         }
         return true
     }
+
+    private fun shouldSaveCurrentState(): Boolean =
+        shouldSaveCurrentStateOnReplacement(
+            navController.currentBackStackEntry?.destination?.route
+        )
 
     private fun NavOptionsBuilder.apply(options: NavigationOptions) {
         launchSingleTop = options.launchSingleTop
@@ -133,7 +138,7 @@ internal class NavControllerNavigator(
         options.popUpTo?.let { destination ->
             popUpTo(AppRouteCodec.encode(destination)) {
                 inclusive = options.inclusive
-                saveState = options.saveState
+                saveState = options.saveState && shouldSaveCurrentState()
             }
         }
     }

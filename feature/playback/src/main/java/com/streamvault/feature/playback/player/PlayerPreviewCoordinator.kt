@@ -29,6 +29,19 @@ class PlayerPreviewCoordinator @Inject constructor(
 
     internal fun clear(engine: PlayerEngine?) {
         handoffManager.clear(engine)
+        adoptedHandoffSource = null
+    }
+
+    /**
+     * Releases a preview engine that was handed to a fullscreen player that never claimed it.
+     * Without this, leaving the player before adoption leaves that engine playing until the
+     * handoff timeout expires.
+     */
+    internal fun discardPendingFullscreenHandoff(mainEngine: PlayerEngine) {
+        val pending = handoffManager.discardPendingFullscreenHandoff() ?: return
+        if (pending.engine !== mainEngine) {
+            pending.engine.release()
+        }
     }
 
     /**
