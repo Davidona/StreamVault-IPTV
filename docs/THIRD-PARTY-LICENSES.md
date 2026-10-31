@@ -12,9 +12,13 @@ StreamVault includes third-party software. The licenses below apply to those com
 | AndroidX Media3 libraries, including the FFmpeg decoder wrapper | Media3 1.11.0; source commit `2bc207851df311340767e913931ca7b28cab1794`; Copyright (C) 2016 The Android Open Source Project | Apache License 2.0 | [`Apache-2.0.txt`](../app/src/main/assets/licenses/Apache-2.0.txt) |
 | Other packaged app libraries (non-Media3 AndroidX, Kotlin/Kotlinx, Dagger/Hilt, OkHttp/Retrofit, Gson, Coil, ZXing and core-library desugaring) | Versions in the app's Gradle catalog/module declarations | Apache License 2.0 | [`Apache-2.0.txt`](../app/src/main/assets/licenses/Apache-2.0.txt) |
 | FFmpeg decoder libraries in the Media3 AAR | FFmpeg source commit `ba69be84a1ceabfb39127831ad8da0fd7cb471f3` (release/6.0) | GNU LGPL 2.1 or later, subject to the enabled configuration | [`FFmpeg-LGPL-2.1.txt`](../app/src/main/assets/licenses/FFmpeg-LGPL-2.1.txt), [`GPL-2.0.txt`](../app/src/main/assets/licenses/GPL-2.0.txt) |
-| libtorrent4j | 2.0.6-26 | MIT | [`libtorrent4j-MIT.txt`](../app/src/main/assets/licenses/libtorrent4j-MIT.txt) |
-| libtorrent native library | Source commit `ed88357b4cdf7ae9d4b35aa77e654afbe2b7b11c` pinned by libtorrent4j 2.0.6-26 | BSD-3-Clause | [`libtorrent-BSD-3-Clause.txt`](../app/src/main/assets/licenses/libtorrent-BSD-3-Clause.txt) |
+| libtorrent4j | 2.1.0-38 | MIT | [`libtorrent4j-MIT.txt`](../app/src/main/assets/licenses/libtorrent4j-MIT.txt) |
+| libtorrent native library | Source commit `a01469c8d1f88dd83bed458ffccffab2727b9d2a` pinned by libtorrent4j 2.1.0-38 | BSD-3-Clause | [`libtorrent-BSD-3-Clause.txt`](../app/src/main/assets/licenses/libtorrent-BSD-3-Clause.txt) |
 | Apple `route.h` notice included in the libtorrent notice bundle | Upstream libtorrent source notice | Apple Public Source License 2.0 | [`APSL-2.0.txt`](../app/src/main/assets/licenses/APSL-2.0.txt) |
+| OpenSSL linked by the torrent native binaries | 3.5.2 | Apache License 2.0 | [`OpenSSL-3.5.2-LICENSE.txt`](../app/src/main/assets/licenses/OpenSSL-3.5.2-LICENSE.txt) |
+| Boost used by the torrent native binaries | 1.89.0 | Boost Software License 1.0 | [`Boost-1.0.txt`](../app/src/main/assets/licenses/Boost-1.0.txt) |
+| libdatachannel and libjuice for WebTorrent | Pinned source revisions in the native dependency notices | Mozilla Public License 2.0 | [`libdatachannel-MPL-2.0.txt`](../app/src/main/assets/licenses/libdatachannel-MPL-2.0.txt), [`libjuice-LICENSE.txt`](../app/src/main/assets/licenses/libjuice-LICENSE.txt) |
+| Other WebTorrent dependencies: plog, nlohmann/json, usrsctp, libsrtp | Pinned source revisions in the native dependency notices | MIT and BSD licenses | [`libtorrent4j-native-NOTICES.txt`](../app/src/main/assets/licenses/libtorrent4j-native-NOTICES.txt) lists their packaged licenses and sources |
 
 The libtorrent notice file also preserves notices for its other bundled source components, including Boost-licensed and public-domain code.
 
@@ -29,7 +33,7 @@ The source for the application is published at [github.com/Davidona/StreamVault-
 * jcifs-ng 2.1.10 source: [tag `jcifs-ng-2.1.10`](https://github.com/AgNO3/jcifs-ng/tree/jcifs-ng-2.1.10).
 * Bouncy Castle 1.76 source: [tag `r1rv76`](https://github.com/bcgit/bc-java/tree/r1rv76).
 * SLF4J 1.7.36 source: [tag `v_1.7.36`](https://github.com/qos-ch/slf4j/tree/v_1.7.36).
-* libtorrent4j 2.0.6-26 source: [tag `v2.0.6-26`](https://github.com/aldenml/libtorrent4j/tree/v2.0.6-26). That tag pins its native libtorrent source to commit [`ed88357b4cdf7ae9d4b35aa77e654afbe2b7b11c`](https://github.com/arvidn/libtorrent/tree/ed88357b4cdf7ae9d4b35aa77e654afbe2b7b11c).
+* libtorrent4j 2.1.0-38 source: [tag `v2.1.0-38`](https://github.com/aldenml/libtorrent4j/tree/v2.1.0-38). That tag pins its native libtorrent source to commit [`a01469c8d1f88dd83bed458ffccffab2727b9d2a`](https://github.com/arvidn/libtorrent/tree/a01469c8d1f88dd83bed458ffccffab2727b9d2a).
 * AndroidX Media3 decoder wrapper source: [pinned decoder module](https://github.com/androidx/media/tree/2bc207851df311340767e913931ca7b28cab1794/libraries/decoder_ffmpeg). Its [pinned README](https://github.com/androidx/media/blob/2bc207851df311340767e913931ca7b28cab1794/libraries/decoder_ffmpeg/README.md) documents the FFmpeg build and AAR assembly steps.
 * FFmpeg source: [pinned FFmpeg revision](https://github.com/FFmpeg/FFmpeg/tree/ba69be84a1ceabfb39127831ad8da0fd7cb471f3).
 
@@ -46,3 +50,5 @@ For the bundled FFmpeg AAR, the project records the enabled decoders, supported 
 * [MIT License for libtorrent4j](../app/src/main/assets/licenses/libtorrent4j-MIT.txt)
 * [BSD-3-Clause and component notices for libtorrent](../app/src/main/assets/licenses/libtorrent-BSD-3-Clause.txt)
 * [Apple Public Source License 2.0](../app/src/main/assets/licenses/APSL-2.0.txt)
+
+Native dependencies of libtorrent4j (OpenSSL 3.5.2, Boost 1.89.0 and WebTorrent dependencies): see [packaged native dependency notices](../app/src/main/assets/licenses/libtorrent4j-native-NOTICES.txt) for pinned source revisions and license texts, including MPL-2.0-covered source.

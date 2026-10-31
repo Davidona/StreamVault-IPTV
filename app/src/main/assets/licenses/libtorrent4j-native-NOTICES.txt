@@ -1,0 +1,46 @@
+Native dependencies of libtorrent4j 2.1.0-38
+
+These upstream sources are offered for the bundled native components, including
+MPL-2.0-covered libdatachannel/libjuice source. StreamVault uses unmodified
+upstream Maven binaries. Exact native build settings and dependency revisions
+are recorded in the libtorrent4j v2.1.0-38 source tree and its submodules.
+
+libtorrent4j-MIT.txt
+Source: https://github.com/aldenml/libtorrent4j/tree/v2.1.0-38
+Packaged license: libtorrent4j-MIT.txt
+
+libtorrent-BSD-3-Clause.txt
+Source: https://github.com/arvidn/libtorrent/tree/a01469c8d1f88dd83bed458ffccffab2727b9d2a
+Packaged license: libtorrent-BSD-3-Clause.txt
+
+Boost-1.0.txt
+Source: https://github.com/boostorg/boost/tree/boost-1.89.0
+Packaged license: Boost-1.0.txt
+
+OpenSSL-3.5.2-LICENSE.txt
+Source: https://github.com/openssl/openssl/tree/openssl-3.5.2
+Packaged license: OpenSSL-3.5.2-LICENSE.txt
+
+libdatachannel-MPL-2.0.txt
+Source: https://github.com/paullouisageneau/libdatachannel/tree/6ab310b5887eab78cf0c0767a8ced2ebff8c7479
+Packaged license: libdatachannel-MPL-2.0.txt
+
+libjuice-LICENSE.txt
+Source: https://github.com/paullouisageneau/libjuice/tree/2de35247f0b15fa385406f3e2020d0e3d4d5cfcc
+Packaged license: libjuice-LICENSE.txt
+
+plog-MIT.txt
+Source: https://github.com/SergiusTheBest/plog/tree/e21baecd4753f14da64ede979c5a19302618b752
+Packaged license: plog-MIT.txt
+
+usrsctp-BSD.txt
+Source: https://github.com/sctplab/usrsctp/tree/ebb18adac6501bad4501b1f6dccb67a1c85cc299
+Packaged license: usrsctp-BSD.txt
+
+nlohmann-json-MIT.txt
+Source: https://github.com/nlohmann/json/tree/9cca280a4d0ccf0c08f47a99aa71d1b0e52f8d03
+Packaged license: nlohmann-json-MIT.txt
+
+libsrtp-BSD.txt
+Source: https://github.com/cisco/libsrtp/tree/a566a9cfcd619e8327784aa7cff4a1276dc1e895
+Packaged license: libsrtp-BSD.txt
