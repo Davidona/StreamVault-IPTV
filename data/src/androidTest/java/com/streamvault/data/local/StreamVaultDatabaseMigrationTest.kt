@@ -1,6 +1,7 @@
 package com.streamvault.data.local
 
 import android.database.Cursor
+import android.os.Build
 import androidx.room.testing.MigrationTestHelper
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory
@@ -33,6 +34,11 @@ class StreamVaultDatabaseMigrationTest {
             (StreamVaultDatabaseMigrationRegistry.CURRENT_VERSION - 1 downTo 3).toList() + 1
 
         exportedHistoricalVersions.forEach { startVersion ->
+            // Schema v88 was exported with remove_diacritics=2, which only exists in SQLite
+            // 3.27+ (API 30+). A v88 database could never be created on older platforms.
+            if (startVersion == 88 && Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+                return@forEach
+            }
             val databaseName = "streamvault-every-schema-$startVersion"
             migrationTestHelper.createDatabase(databaseName, startVersion).close()
             val pathToCurrent = StreamVaultDatabaseMigrationRegistry.all
