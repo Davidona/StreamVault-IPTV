@@ -34,7 +34,8 @@ fun Channel.archivePlaybackCapability(): ArchivePlaybackCapability {
     val hasXtreamReplayContext = stream.startsWith(XTREAM_INTERNAL_PREFIX) && streamId > 0L
     val hasStalkerReplayContext =
         stream.startsWith(STALKER_INTERNAL_PREFIX) || normalizedSource.startsWith(STALKER_INTERNAL_PREFIX)
-    val needsUnmappedCatchUpId = Regex("\\$?\\{catchup-id}", RegexOption.IGNORE_CASE).containsMatchIn(source)
+    val needsUnmappedCatchUpId = source.contains("{catchup-id}", ignoreCase = true) ||
+        source.contains("{catchup-id:", ignoreCase = true)
     val hasM3uTemplate = source.isNotBlank() && !needsUnmappedCatchUpId &&
         !normalizedSource.startsWith(STALKER_INTERNAL_PREFIX)
     val needsConfiguredFallback = source.isBlank() && normalizedType in setOf("default", "append")

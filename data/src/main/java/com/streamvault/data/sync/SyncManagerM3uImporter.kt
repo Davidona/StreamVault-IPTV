@@ -51,7 +51,7 @@ private fun sanitizeCatchUpSource(source: String?, catchUpType: String?): String
         return value.takeIf { mode.isEmpty() || mode in setOf("default", "append", "shift", "timeshift") }
     }
 
-    val validationValue = value.replace(Regex("\\$?\\{[^}]{1,64}}"), "catchup-token")
+    val validationValue = value.replace(Regex("\\$?\\{[^}]{1,64}\\}"), "catchup-token")
     return value.takeIf { UrlSecurityPolicy.isAllowedStreamEntryUrl(validationValue) }
 }
 

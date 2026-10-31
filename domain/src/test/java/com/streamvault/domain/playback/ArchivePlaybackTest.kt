@@ -179,6 +179,36 @@ class ArchivePlaybackTest {
     }
 
     @Test
+    fun `catchup id template variants are not offered before programme identifiers are mapped`() {
+        val now = 5 * 86_400_000L
+        val program = Program(
+            channelId = "news",
+            title = "Replay with identifier",
+            startTime = now - 60_000L,
+            endTime = now - 30_000L
+        )
+        val sources = listOf(
+            "https://archive.example.com/program/${'$'}{catchup-id}.m3u8",
+            "https://archive.example.com/program/{catchup-id:raw}.m3u8"
+        )
+
+        sources.forEach { source ->
+            val channel = Channel(
+                id = 42L,
+                name = "News",
+                providerId = 7L,
+                streamUrl = "https://live.example.com/channel.m3u8",
+                catchUpSupported = true,
+                catchUpSource = source,
+                catchUpType = "append"
+            )
+
+            assertThat(channel.archivePlaybackCapability().canBuildReplayCandidate).isFalse()
+            assertThat(channel.isArchivePlayable(program, now)).isFalse()
+        }
+    }
+
+    @Test
     fun `auto mode is not offered for a template that still needs a programme identifier`() {
         val now = 5 * 86_400_000L
         val channel = Channel(
