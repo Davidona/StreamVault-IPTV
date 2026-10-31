@@ -14,6 +14,7 @@ import androidx.media3.exoplayer.upstream.LoadErrorHandlingPolicy
 import com.google.common.truth.Truth.assertThat
 import com.streamvault.domain.model.PlaybackContentKind
 import java.io.IOException
+import java.net.SocketException
 import java.net.SocketTimeoutException
 import javax.net.ssl.SSLHandshakeException
 import org.junit.Test
@@ -258,6 +259,129 @@ class PlayerRetryPolicyTest {
     }
 
     @Test
+    fun `post-start live hls media refusals get one fast load retry then one source retry`() {
+        var started = true
+        val observed = PlayerRetryPolicy(liveContext, playbackStarted = { started })
+
+        for (status in listOf(403, 404, 410)) {
+            val first = loadError(responseCode = status, errorCount = 1)
+            assertThat(observed.getRetryDelayMsFor(first)).isEqualTo(500L)
+            assertThat(observed.hasPendingLoadRecovery).isTrue()
+            observed.onLoadTaskConcluded(first.loadEventInfo.loadTaskId)
+            assertThat(observed.hasPendingLoadRecovery).isFalse()
+
+            val exhausted = loadError(responseCode = status, errorCount = 2, exception = first.exception)
+            assertThat(observed.getRetryDelayMsFor(exhausted)).isEqualTo(C.TIME_UNSET)
+            assertThat(observed.isLiveMediaRefusal(first.exception)).isTrue()
+            assertThat(observed.retryReason(first.exception)).isEqualTo("refresh-live-media-playlist")
+            assertThat(observed.retryDelayMs(first.exception, 1)).isEqualTo(500L)
+            assertThat(observed.maxWholeSourceRetryAttempts(first.exception, playbackStarted = true)).isEqualTo(1)
+            assertThat(observed.shouldRetryWholeSource(first.exception, playbackStarted = true, attempt = 1)).isTrue()
+            assertThat(observed.shouldRetryWholeSource(first.exception, playbackStarted = true, attempt = 2)).isFalse()
+        }
+    }
+
+    @Test
+    fun `media refusal recovery is tied to the exhausted exception identity`() {
+        val observed = PlayerRetryPolicy(liveContext, playbackStarted = { true })
+        val first = loadError(responseCode = 403, errorCount = 1)
+        observed.getRetryDelayMsFor(first)
+        val exhausted = loadError(responseCode = 403, errorCount = 2, exception = first.exception)
+
+        assertThat(observed.getRetryDelayMsFor(exhausted)).isEqualTo(C.TIME_UNSET)
+        val sameFailureWrapped = IOException("player source error", first.exception)
+        val another403 = loadError(responseCode = 403, errorCount = 2).exception
+        assertThat(observed.isLiveMediaRefusal(sameFailureWrapped)).isTrue()
+        assertThat(observed.shouldRetryWholeSource(sameFailureWrapped, playbackStarted = true, attempt = 1)).isTrue()
+        assertThat(observed.isLiveMediaRefusal(another403)).isFalse()
+        assertThat(observed.shouldRetryWholeSource(another403, playbackStarted = true, attempt = 1)).isFalse()
+        assertThat(observed.shouldRetryWholeSource(IOException("HTTP 403"), playbackStarted = true, attempt = 1))
+            .isFalse()
+    }
+
+    @Test
+    fun `only post-start live hls media refusal is eligible for contextual retry`() {
+        val manifest403 = loadError(responseCode = 403, dataType = C.DATA_TYPE_MANIFEST, errorCount = 2)
+        assertMediaRefusalNotEligible(manifest403)
+
+        val drm403 = loadError(responseCode = 403, dataType = C.DATA_TYPE_DRM, errorCount = 2)
+        assertMediaRefusalNotEligible(drm403)
+
+        val startupPolicy = PlayerRetryPolicy(liveContext, playbackStarted = { false })
+        val media403 = loadError(responseCode = 403, errorCount = 1)
+        assertThat(startupPolicy.getRetryDelayMsFor(media403)).isEqualTo(C.TIME_UNSET)
+        assertThat(startupPolicy.isLiveMediaRefusal(media403.exception)).isFalse()
+        assertThat(startupPolicy.shouldRetryWholeSource(media403.exception, playbackStarted = false, attempt = 1))
+            .isFalse()
+
+        val vodContext = PlaybackRetryContext(
+            resolvedStreamType = ResolvedStreamType.HLS,
+            timeoutProfile = PlayerTimeoutProfile.VOD,
+            playbackContentKind = PlaybackContentKind.ON_DEMAND
+        )
+        val vodPolicy = PlayerRetryPolicy(vodContext, playbackStarted = { true })
+        val vodMedia403 = loadError(responseCode = 403, errorCount = 1)
+        assertThat(vodPolicy.getRetryDelayMsFor(vodMedia403)).isEqualTo(C.TIME_UNSET)
+        assertThat(vodPolicy.isLiveMediaRefusal(vodMedia403.exception)).isFalse()
+        assertThat(vodPolicy.shouldRetryWholeSource(vodMedia403.exception, playbackStarted = true, attempt = 1))
+            .isFalse()
+
+        val dashContext = PlaybackRetryContext(
+            resolvedStreamType = ResolvedStreamType.DASH,
+            timeoutProfile = PlayerTimeoutProfile.LIVE,
+            playbackContentKind = PlaybackContentKind.LIVE
+        )
+        val dashPolicy = PlayerRetryPolicy(dashContext, playbackStarted = { true })
+        val dashMedia403 = loadError(responseCode = 403, errorCount = 1)
+        assertThat(dashPolicy.getRetryDelayMsFor(dashMedia403)).isEqualTo(C.TIME_UNSET)
+        assertThat(dashPolicy.isLiveMediaRefusal(dashMedia403.exception)).isFalse()
+        assertThat(dashPolicy.shouldRetryWholeSource(dashMedia403.exception, playbackStarted = true, attempt = 1))
+            .isFalse()
+    }
+
+    @Test
+    fun `excluded refusal codes keep their existing policy and do not authorize source refresh`() {
+        val observed = PlayerRetryPolicy(liveContext, playbackStarted = { true })
+        for (status in listOf(401, 456, 509)) {
+            val error = loadError(responseCode = status, errorCount = 1)
+            assertThat(observed.getRetryDelayMsFor(error)).isEqualTo(C.TIME_UNSET)
+            assertThat(observed.isLiveMediaRefusal(error.exception)).isFalse()
+            assertThat(observed.shouldRetryWholeSource(error.exception, playbackStarted = true, attempt = 1)).isFalse()
+        }
+
+        val outsideSet410 = loadError(responseCode = 410, dataType = C.DATA_TYPE_DRM, errorCount = 2)
+        assertThat(observed.getRetryDelayMsFor(outsideSet410)).isEqualTo(observed.retryDelayMs(outsideSet410.exception, 2))
+        assertThat(observed.isLiveMediaRefusal(outsideSet410.exception)).isFalse()
+        assertThat(observed.retryReason(outsideSet410.exception)).isNotEqualTo("refresh-live-media-playlist")
+    }
+
+    @Test
+    fun `bounded exhausted media refusal context survives load completion and evicts oldest identity`() {
+        val observed = PlayerRetryPolicy(liveContext, playbackStarted = { true })
+        val errors = (0..8).map { index ->
+            val first = loadError(responseCode = 403, errorCount = 1)
+            observed.getRetryDelayMsFor(first)
+            observed.onLoadTaskConcluded(first.loadEventInfo.loadTaskId)
+            val exhausted = loadError(responseCode = 403, errorCount = 2, exception = first.exception)
+            observed.getRetryDelayMsFor(exhausted)
+            first.exception
+        }
+
+        assertThat(observed.isLiveMediaRefusal(errors.first())).isFalse()
+        assertThat(errors.drop(1).all(observed::isLiveMediaRefusal)).isTrue()
+        assertThat(errors.drop(1).all {
+            observed.shouldRetryWholeSource(it, playbackStarted = true, attempt = 1)
+        }).isTrue()
+    }
+
+    private fun assertMediaRefusalNotEligible(errorInfo: LoadErrorHandlingPolicy.LoadErrorInfo) {
+        val observed = PlayerRetryPolicy(liveContext, playbackStarted = { true })
+        assertThat(observed.getRetryDelayMsFor(errorInfo)).isEqualTo(C.TIME_UNSET)
+        assertThat(observed.isLiveMediaRefusal(errorInfo.exception)).isFalse()
+        assertThat(observed.shouldRetryWholeSource(errorInfo.exception, playbackStarted = true, attempt = 1)).isFalse()
+    }
+
+    @Test
     fun `eligible server error falls back to an available track when no alternate location exists`() {
         val selection = policy.getFallbackSelectionFor(
             fallbackOptions(locations = 1, tracks = 2),
@@ -344,6 +468,89 @@ class PlayerRetryPolicyTest {
     }
 
     @Test
+    fun `progressive connection reset after playback start is retried in place`() {
+        val error = SocketException("Connection reset")
+
+        assertThat(progressivePolicy.shouldRetry(error, progressiveContext, playbackStarted = true, attempt = 1))
+            .isTrue()
+        assertThat(progressivePolicy.shouldRetry(error, progressiveContext, playbackStarted = true, attempt = 10))
+            .isTrue()
+        assertThat(progressivePolicy.shouldRetry(error, progressiveContext, playbackStarted = true, attempt = 11))
+            .isFalse()
+    }
+
+    @Test
+    fun `progressive body truncated after playback start is retried in place`() {
+        // OkHttp's error when an idle connection is closed cleanly before Content-Length, as Media3 wraps it.
+        val error = HttpDataSource.HttpDataSourceException(
+            java.net.ProtocolException("unexpected end of stream"),
+            DataSpec.Builder().setUri("https://example.com/movie.mp4").build(),
+            PlaybackException.ERROR_CODE_IO_UNSPECIFIED,
+            HttpDataSource.HttpDataSourceException.TYPE_READ
+        )
+
+        assertThat(PlayerErrorClassifier.classify(error)).isEqualTo(PlaybackErrorCategory.NETWORK)
+        assertThat(progressivePolicy.shouldRetry(error, progressiveContext, playbackStarted = true, attempt = 10))
+            .isTrue()
+        assertThat(progressivePolicy.shouldRetry(error, progressiveContext, playbackStarted = true, attempt = 11))
+            .isFalse()
+    }
+
+    @Test
+    fun `live connection reset after playback start keeps the live retry budget`() {
+        val error = SocketException("Connection reset")
+
+        assertThat(policy.shouldRetry(error, liveContext, playbackStarted = true, attempt = 10)).isTrue()
+        assertThat(policy.shouldRetry(error, liveContext, playbackStarted = true, attempt = 11)).isFalse()
+    }
+
+    @Test
+    fun `body read retries remain bounded for live and on demand hls`() {
+        val error = HttpDataSource.HttpDataSourceException(
+            java.net.ProtocolException("unexpected end of stream"),
+            DataSpec.Builder().setUri("https://example.com/segment.ts").build(),
+            PlaybackException.ERROR_CODE_IO_UNSPECIFIED,
+            HttpDataSource.HttpDataSourceException.TYPE_READ
+        )
+        val vodContext = liveContext.copy(playbackContentKind = PlaybackContentKind.ON_DEMAND)
+        val vodPolicy = PlayerRetryPolicy(vodContext) { true }
+
+        assertThat(policy.maxAttempts(error, playbackStarted = false)).isEqualTo(10)
+        assertThat(policy.maxAttempts(error, playbackStarted = true)).isEqualTo(10)
+        assertThat(vodPolicy.maxAttempts(error, playbackStarted = true)).isEqualTo(2)
+        assertThat(vodPolicy.shouldRetry(error, vodContext, playbackStarted = true, attempt = 3)).isFalse()
+        assertThat(policy.getFallbackSelectionFor(fallbackOptions(2, 2), loadError(0, exception = error))).isNull()
+    }
+
+    @Test
+    fun `body read wrappers do not turn terminal ssl or malformed errors into retries`() {
+        val dataSpec = DataSpec.Builder().setUri("https://example.com/segment.ts").build()
+        fun readFailure(cause: IOException) = HttpDataSource.HttpDataSourceException(
+            cause, dataSpec, PlaybackException.ERROR_CODE_IO_UNSPECIFIED,
+            HttpDataSource.HttpDataSourceException.TYPE_READ
+        )
+        val ssl = readFailure(SSLHandshakeException("certificate verify failed"))
+        val malformed = readFailure(ParserException.createForMalformedContainer("bad segment", null))
+
+        assertThat(PlayerErrorClassifier.classify(ssl)).isEqualTo(PlaybackErrorCategory.SSL)
+        assertThat(policy.maxAttempts(ssl, playbackStarted = true)).isEqualTo(0)
+        assertThat(PlayerErrorClassifier.classify(malformed)).isEqualTo(PlaybackErrorCategory.SOURCE_MALFORMED)
+        assertThat(progressivePolicy.maxAttempts(malformed, playbackStarted = true)).isEqualTo(0)
+    }
+
+    @Test
+    fun `live timestamp dependency timeout remains limited when wrapped as a body read`() {
+        val error = HttpDataSource.HttpDataSourceException(
+            IOException(java.util.concurrent.TimeoutException("TimestampAdjuster failed to initialize in 30000 milliseconds")),
+            DataSpec.Builder().setUri("https://example.com/segment.ts").build(),
+            PlaybackException.ERROR_CODE_IO_UNSPECIFIED,
+            HttpDataSource.HttpDataSourceException.TYPE_READ
+        )
+
+        assertThat(policy.maxAttempts(error, playbackStarted = true)).isEqualTo(1)
+    }
+
+    @Test
     fun `progressive network timeouts after playback start retry 10 times`() {
         val error = SocketTimeoutException("timed out")
 
@@ -407,11 +614,16 @@ class PlayerRetryPolicyTest {
     private fun fallbackOptions(locations: Int, tracks: Int) =
         LoadErrorHandlingPolicy.FallbackOptions(locations, 0, tracks, 0, false)
 
-    private fun loadError(responseCode: Int): LoadErrorHandlingPolicy.LoadErrorInfo {
+    private fun loadError(
+        responseCode: Int,
+        dataType: Int = C.DATA_TYPE_MEDIA,
+        errorCount: Int = 1,
+        exception: IOException? = null
+    ): LoadErrorHandlingPolicy.LoadErrorInfo {
         val dataSpec = DataSpec.Builder()
             .setUri("https://example.com/manifest.m3u8")
             .build()
-        val exception = HttpDataSource.InvalidResponseCodeException(
+        val failure = exception ?: HttpDataSource.InvalidResponseCodeException(
             responseCode,
             null,
             null,
@@ -422,9 +634,9 @@ class PlayerRetryPolicyTest {
         val loadEventInfo = LoadEventInfo.Builder(LoadEventInfo.getNewId(), dataSpec, 0L).build()
         return LoadErrorHandlingPolicy.LoadErrorInfo(
             loadEventInfo,
-            MediaLoadData(C.DATA_TYPE_MEDIA),
-            exception,
-            1
+            MediaLoadData(dataType),
+            failure,
+            errorCount
         )
     }
 }

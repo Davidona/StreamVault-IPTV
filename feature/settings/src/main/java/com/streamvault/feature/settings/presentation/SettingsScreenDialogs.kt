@@ -299,8 +299,11 @@ public fun SettingsScreenDialogs(
         )
     }
 
-    if (uiState.pendingRestoreProviders.isNotEmpty()) {
-        val hasSelectedRestoreProvider = uiState.selectedRestoreProviderIndices.isNotEmpty()
+    val syncableRestoreProviders = uiState.pendingRestoreProviders.withIndex().filter { (_, reference) ->
+        uiState.providers.findRestoreSyncProvider(reference) != null
+    }
+    if (syncableRestoreProviders.isNotEmpty()) {
+        val hasSelectedRestoreProvider = syncableRestoreProviders.any { it.index in uiState.selectedRestoreProviderIndices }
         AlertDialog(
             onDismissRequest = viewModel::restoreSyncLater,
             title = {
@@ -315,7 +318,7 @@ public fun SettingsScreenDialogs(
                         text = stringResource(R.string.settings_restore_sync_description),
                         color = TextSecondary
                     )
-                    uiState.pendingRestoreProviders.forEachIndexed { index, provider ->
+                    syncableRestoreProviders.forEach { (index, provider) ->
                         Row {
                             Checkbox(
                                 checked = index in uiState.selectedRestoreProviderIndices,

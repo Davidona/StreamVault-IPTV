@@ -235,6 +235,7 @@ class HlsLiveCaptureEngine @Inject constructor(
                     }
                 }
                 var lastWrittenMapIdentity: String? = null
+                var sharedRecordingStarted = false
                 val byteRangeState = HlsByteRangeState()
                 var lastDataAt = System.currentTimeMillis()
                 while (kotlinx.coroutines.currentCoroutineContext().isActive && System.currentTimeMillis() < scheduledEndMs) {
@@ -322,6 +323,7 @@ class HlsLiveCaptureEngine @Inject constructor(
                             // Cache key bytes by URI so rotated keys are fetched once each
                             val keyCache = mutableMapOf<String, ByteArray>()
                             var newSegmentsThisRound = false
+                            val skippedBeforeStart = ArrayList<String>()
                             for (segment in playlist.segments) {
                                 kotlinx.coroutines.currentCoroutineContext().ensureActive()
                                 val rangeIdentity = segment.byteRange?.let { "@${it.offset}:${it.length}" }.orEmpty()
@@ -336,7 +338,17 @@ class HlsLiveCaptureEngine @Inject constructor(
                                     segmentRangeLength
                                 )
                                 val bytes = if (activeCapture != null) {
-                                    capturedSegment?.bytes ?: break
+                                    if (capturedSegment == null) {
+                                        // The foreground player may already have downloaded the
+                                        // beginning of this live window before recording attached.
+                                        // Choose the first available post-attachment segment once;
+                                        // after writing starts, every missing segment must be awaited.
+                                        if (!sharedRecordingStarted) {
+                                            skippedBeforeStart += segmentIdentity
+                                            continue
+                                        } else break
+                                    }
+                                    capturedSegment.bytes
                                 } else {
                                     try {
                                         fetchBytes(segment.uri, headers, client, source, segment.byteRange)
@@ -416,6 +428,10 @@ class HlsLiveCaptureEngine @Inject constructor(
                                 }
                                 capturedMap?.let { activeCapture?.consume(it) }
                                 sink.write(payload)
+                                if (activeCapture != null && !sharedRecordingStarted) {
+                                    seenSegments.addAll(skippedBeforeStart)
+                                    sharedRecordingStarted = true
+                                }
                                 seenSegments += segmentIdentity
                                 capturedSegment?.let { activeCapture?.consume(it) }
                                 bytesWritten += payload.size

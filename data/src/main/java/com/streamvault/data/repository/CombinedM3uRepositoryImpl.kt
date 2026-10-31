@@ -12,6 +12,7 @@ import com.streamvault.domain.model.Category
 import com.streamvault.domain.model.Channel
 import com.streamvault.domain.model.CombinedCategory
 import com.streamvault.domain.model.CombinedCategoryBinding
+import com.streamvault.domain.model.CombinedCategoryIdentity
 import com.streamvault.domain.model.CombinedM3uProfile
 import com.streamvault.domain.model.ContentType
 import com.streamvault.domain.model.LegacyProvider as Provider
@@ -284,7 +285,7 @@ class CombinedM3uRepositoryImpl @Inject constructor(
                                         it.id !in hiddenCategoryIds
                                 }
                                 .map { category ->
-                                    Triple(member, category, normalizeCategoryKey(category.name))
+                                    Triple(member, category, CombinedCategoryIdentity.keyForName(category.name))
                                 }
                         }
                         .groupBy { it.third }
@@ -300,8 +301,8 @@ class CombinedM3uRepositoryImpl @Inject constructor(
                             }
                             CombinedCategory(
                                 category = first.second.copy(
-                                    id = syntheticCombinedCategoryId(first.third),
-                                    roomId = syntheticCombinedCategoryId(first.third),
+                                    id = CombinedCategoryIdentity.idForKey(first.third),
+                                    roomId = CombinedCategoryIdentity.idForKey(first.third),
                                     name = first.second.name,
                                     count = group.sumOf { it.second.count },
                                     isVirtual = false,
@@ -364,11 +365,5 @@ class CombinedM3uRepositoryImpl @Inject constructor(
             .combine(memberDao.getForProfile(profileId)) { profile, members ->
                 profile?.toDomain(members.map { it.toDomain() })
             }
-
-    private fun normalizeCategoryKey(name: String): String =
-        name.trim().lowercase(Locale.ROOT).replace("\\s+".toRegex(), " ")
-
-    private fun syntheticCombinedCategoryId(key: String): Long =
-        -2_000_000_000L - key.hashCode().toLong().let { kotlin.math.abs(it) }
 
 }

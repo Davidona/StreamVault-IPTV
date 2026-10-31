@@ -22,6 +22,7 @@ import com.streamvault.data.manager.recording.ResolvedRecordingSource
 import com.streamvault.data.manager.recording.TsPassThroughCaptureEngine
 import com.streamvault.data.preferences.PreferencesRepository
 import com.streamvault.domain.model.ProviderType
+import com.streamvault.domain.model.ExactRecordingAlarmAccessException
 import com.streamvault.domain.model.RecordingFailureCategory
 import com.streamvault.domain.model.RecordingRecurrence
 import com.streamvault.domain.model.RecordingReconciliationResult
@@ -114,6 +115,33 @@ class RecordingManagerImplTest {
         assertThat(result).isInstanceOf(Result.Error::class.java)
         verify(recordingScheduleDao, never()).insert(any())
         verify(recordingRunDao, never()).insert(any())
+    }
+
+    @Test
+    fun `manual recording rejects missing exact alarm access before resolving or starting capture`() = runBlocking {
+        whenever(alarmScheduler.canScheduleExactAlarms()).thenReturn(false)
+
+        val result = createManager().startManualRecording(recordingRequest())
+
+        assertThat((result as Result.Error).message)
+            .isEqualTo(RecordingAlarmScheduler.EXACT_ALARM_PERMISSION_MESSAGE)
+        assertThat(result.exception).isInstanceOf(ExactRecordingAlarmAccessException::class.java)
+        verify(recordingSourceResolver, never()).resolveLiveSource(any(), any(), any())
+        verify(recordingRunDao, never()).insert(any())
+        verify(recordingServiceLauncher, never()).startCapture(any(), any())
+    }
+
+    @Test
+    fun `enabling a schedule without exact alarm access returns a typed error`() = runBlocking {
+        whenever(alarmScheduler.canScheduleExactAlarms()).thenReturn(false)
+
+        val result = createManager().setScheduleEnabled("recording-1", enabled = true)
+
+        assertThat((result as Result.Error).message)
+            .isEqualTo(RecordingAlarmScheduler.EXACT_ALARM_PERMISSION_MESSAGE)
+        assertThat(result.exception).isInstanceOf(ExactRecordingAlarmAccessException::class.java)
+        verify(recordingRunDao, never()).getById(any())
+        Unit
     }
 
     @Test

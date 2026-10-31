@@ -365,6 +365,34 @@ class SyncCatalogStoreTest {
     }
 
     @Test
+    fun `stageChannelBatch persists and fingerprints M3U catch-up mode and correction`() = runTest {
+        val providerId = 7L
+        val baseChannel = ChannelEntity(
+            streamId = 778L,
+            name = "Archive News",
+            streamUrl = "https://stream.example.test/live/archive-news.m3u8",
+            catchUpSupported = true,
+            catchUpSource = "https://archive.example.test/{utc}/{duration}",
+            catchUpType = "append",
+            catchUpCorrectionSeconds = 3_600,
+            providerId = providerId
+        )
+
+        val store = store()
+        store.stageChannelBatch(providerId, 90L, listOf(baseChannel))
+        store.stageChannelBatch(providerId, 91L, listOf(baseChannel.copy(catchUpType = "shift")))
+        store.stageChannelBatch(providerId, 92L, listOf(baseChannel.copy(catchUpCorrectionSeconds = 7_200)))
+
+        val insertedStages = argumentCaptor<List<ChannelImportStageEntity>>()
+        verify(catalogSyncDao, org.mockito.kotlin.times(3)).insertChannelStages(insertedStages.capture())
+        val stages = insertedStages.allValues.map { it.single() }
+
+        assertThat(stages.first().catchUpType).isEqualTo("append")
+        assertThat(stages.first().catchUpCorrectionSeconds).isEqualTo(3_600)
+        assertThat(stages.map { it.syncFingerprint }.distinct()).hasSize(3)
+    }
+
+    @Test
     fun `stageSeriesBatch preserves provider identity and metadata needed by staged apply`() = runTest {
         val providerId = 7L
         val sessionId = 89L

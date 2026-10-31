@@ -50,6 +50,7 @@ interface DriveBackupSyncManager {
      */
     suspend fun pushBackup(
         credentials: List<ProviderCredentials> = emptyList(),
+        plan: BackupExportPlan = BackupExportPlan(),
     ): Result<DriveSyncStatus>
 
     /** Lists available Drive snapshots, newest first, for user selection. */

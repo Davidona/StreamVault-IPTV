@@ -32,6 +32,7 @@
   <string name="download_folder_default">預設下載資料夾</string>
   <string name="download_resume">繼續</string>
   <string name="download_delete">刪除</string>
+  <string name="download_play">播放</string>
   <string name="downloads_resumed">下載已繼續</string>
   <string name="extensions_tab_plugins">外掛程式</string>
   <string name="extensions_tab_stremio_addons">Stremio 擴充套件</string>
@@ -46,6 +47,7 @@
     <string name="torrent_cache_confirm_message">要移除暫存 Torrent 資料嗎？不會刪除已儲存的下載內容。</string>
     <string name="torrent_cache_active">請先停止 Torrent 播放，再清除快取。</string>
     <string name="torrent_cache_clear_failed">無法清除暫存快取。</string>
+    <string name="torrent_cache_cleared">已清除暫存快取。</string>
     <string name="extensions_title">擴充功能</string>
     <string name="plugins_section_description">透過相容的 Android 應用程式為 StreamVault 新增功能。</string>
     <string name="plugins_install_url">從 URL 安裝外掛程式</string>

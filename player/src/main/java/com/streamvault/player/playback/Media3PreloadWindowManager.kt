@@ -223,13 +223,13 @@ internal class Media3PreloadWindowManager(
 
         val currentItem = normalized.items[normalized.currentIndex]
         val reusableCurrent = candidatesByKey[currentItem.key]
-            ?.takeIf { it.streamIdentity == preloadStreamIdentity(currentItem.streamInfo) }
+            ?.takeIf { it.streamIdentity == streamIdentityFor(currentItem.streamInfo) }
         if (reusableCurrent == null) providerLimitBlocked = false
         val stableCurrentIndex = reusableCurrent?.rankingIndex ?: normalized.currentIndex
 
         val nextCandidates = linkedMapOf<String, ManagedCandidate>()
         normalized.items.forEachIndexed { rankingIndex, item ->
-            val streamIdentity = preloadStreamIdentity(item.streamInfo)
+            val streamIdentity = streamIdentityFor(item.streamInfo)
             val expectedRankingIndex = stableCurrentIndex + rankingIndex - normalized.currentIndex
             val existing = candidatesByKey[item.key]
             if (existing != null && existing.streamIdentity == streamIdentity &&
@@ -294,7 +294,7 @@ internal class Media3PreloadWindowManager(
     fun getMediaSource(streamInfo: StreamInfo): ManagedMediaSource? {
         val manager = preloadManager ?: return null
         if (released) return null
-        val mediaItem = mediaItemsByStreamIdentity[preloadStreamIdentity(streamInfo)] ?: return null
+        val mediaItem = mediaItemsByStreamIdentity[streamIdentityFor(streamInfo)] ?: return null
         val candidate = candidatesByKey.values.firstOrNull { it.mediaItem == mediaItem } ?: return null
         completedMediaItems.remove(mediaItem)
         foregroundMediaItems += mediaItem
@@ -416,6 +416,9 @@ internal class Media3PreloadWindowManager(
             streamIdentity = streamIdentity
         )
     }
+
+    private fun streamIdentityFor(streamInfo: StreamInfo): String =
+        "${preloadStreamIdentity(streamInfo)}:${mediaSourceFactory.mediaIdFor(streamInfo)}"
 
     private fun logSkip(item: PlayerPreloadItem, reason: String) {
         safeLog(

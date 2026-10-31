@@ -32,6 +32,7 @@
   <string name="download_folder_default">Standard nedlastingsmappe</string>
   <string name="download_resume">Fortsett</string>
   <string name="download_delete">Slett</string>
+  <string name="download_play">Spill av</string>
   <string name="downloads_resumed">Nedlasting gjenopptatt</string>
   <string name="extensions_tab_plugins">Programtillegg</string>
   <string name="extensions_tab_stremio_addons">Stremio-tillegg</string>
@@ -46,6 +47,7 @@
     <string name="torrent_cache_confirm_message">Fjerne midlertidige torrentdata? Lagrede nedlastinger slettes ikke.</string>
     <string name="torrent_cache_active">Stopp torrentavspillingen før du tømmer bufferen.</string>
     <string name="torrent_cache_clear_failed">Den midlertidige bufferen kunne ikke tømmes.</string>
+    <string name="torrent_cache_cleared">Den midlertidige bufferen er tømt.</string>
     <string name="extensions_title">Utvidelser</string>
     <string name="plugins_section_description">Legg til funksjoner i StreamVault med ledsagerapper for Android.</string>
     <string name="plugins_install_url">Installer programtillegg fra URL</string>

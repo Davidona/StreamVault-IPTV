@@ -32,6 +32,7 @@
   <string name="download_folder_default">Domyślny folder pobierania</string>
   <string name="download_resume">Wznów</string>
   <string name="download_delete">Usuń</string>
+  <string name="download_play">Odtwórz</string>
   <string name="downloads_resumed">Pobieranie wznowione</string>
   <string name="extensions_tab_plugins">Wtyczki</string>
   <string name="extensions_tab_stremio_addons">Dodatki Stremio</string>
@@ -46,6 +47,7 @@
     <string name="torrent_cache_confirm_message">Usunąć tymczasowe dane torrentów? Zapisane pliki nie zostaną usunięte.</string>
     <string name="torrent_cache_active">Zatrzymaj odtwarzanie torrenta przed wyczyszczeniem pamięci.</string>
     <string name="torrent_cache_clear_failed">Nie udało się wyczyścić pamięci tymczasowej.</string>
+    <string name="torrent_cache_cleared">Pamięć tymczasowa została wyczyszczona.</string>
     <string name="extensions_title">Rozszerzenia</string>
     <string name="plugins_section_description">Dodaj funkcje do StreamVault dzięki towarzyszącym aplikacjom na Androida.</string>
     <string name="plugins_install_url">Zainstaluj wtyczkę z adresu URL</string>

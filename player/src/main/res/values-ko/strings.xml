@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="player_error_live_startup_timeout">재생을 시작할 수 없습니다. 다른 스트림을 시도해 보세요.</string>
+</resources>

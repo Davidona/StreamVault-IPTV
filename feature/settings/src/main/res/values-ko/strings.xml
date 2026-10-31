@@ -946,4 +946,13 @@
     <string name="settings_sync_index_progress">%1$s · %2$s</string>
     <string name="settings_refresh_rate_matching">콘텐츠 프레임 속도에 맞추기</string>
     <string name="settings_refresh_rate_matching_description">더 부드러운 움직임을 위해 디스플레이 주사율을 동영상에 맞춥니다. 디스플레이의 지원이 필요하며 전환 시 화면이 잠시 검게 변할 수 있습니다.</string>
+    <string name="settings_epg_phone_qr_start">QR 코드 표시</string>
+    <string name="settings_epg_phone_qr_stop">페어링 중지</string>
+    <string name="settings_epg_phone_qr_warning">보안: 페어링 중 로그인 정보가 로컬 네트워크를 통해 암호화되지 않은 상태로 전송됩니다. 신뢰할 수 있는 개인 Wi-Fi만 사용하세요.</string>
+    <string name="settings_epg_phone_qr_complete">추가됨</string>
+    <string name="settings_epg_phone_qr_error">오류</string>
+    <string name="settings_backup_export_sections">내보낼 항목 선택</string>
+    <string name="settings_m3u_catchup_query_format">캐치업 쿼리 형식</string>
+    <string name="settings_m3u_catchup_query_format_subtitle">전용 캐치업 소스가 없는 M3U 채널에 사용됩니다. 이 대체 형식을 끄려면 비워 두세요. 예: ?utc={utc}</string>
+    <string name="settings_m3u_catchup_query_format_disabled">사용 안 함</string>
 </resources>

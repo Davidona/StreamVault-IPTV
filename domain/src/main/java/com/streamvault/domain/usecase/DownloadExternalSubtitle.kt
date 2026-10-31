@@ -11,4 +11,11 @@ class DownloadExternalSubtitle @Inject constructor(
 ) {
     suspend operator fun invoke(subtitle: ExternalSubtitle): Result<File> =
         repository.downloadToCache(subtitle)
+
+    suspend fun cachedSubtitleFile(downloadId: String): File? =
+        repository.cachedSubtitleFile(downloadId)
+
+    suspend fun deleteCachedSubtitle(downloadId: String) {
+        repository.deleteCachedSubtitle(downloadId)
+    }
 }

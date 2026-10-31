@@ -106,4 +106,9 @@
     <string name="stremio_hidden_title">Stremio 扩展已隐藏</string>
     <string name="stremio_open_settings">打开设置</string>
     <string name="stremio_hidden_message">要显示你的扩展，请打开“设置 → 隐私”并关闭“隐藏 Stremio 扩展”。你已安装的扩展会保留。</string>
+    <string name="stremio_phone_qr_start">显示二维码</string>
+    <string name="stremio_phone_qr_stop">停止配对</string>
+    <string name="stremio_phone_qr_warning">安全提示：配对会通过本地网络以未加密的方式发送登录凭据。请仅使用可信的私人 Wi-Fi 网络。</string>
+    <string name="stremio_phone_qr_complete">已添加</string>
+    <string name="stremio_phone_qr_error">错误</string>
 </resources>

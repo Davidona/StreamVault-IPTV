@@ -32,6 +32,7 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -72,6 +73,8 @@ import androidx.tv.material3.Border
 import androidx.compose.foundation.BorderStroke
 import com.streamvault.core.ui.interaction.TvClickableSurface
 import com.streamvault.core.ui.components.shell.ExtensionsSectionTabs
+import com.streamvault.core.ui.components.PhoneAddQrPanel
+import com.streamvault.domain.phone.PhoneAddKind
 import com.streamvault.domain.model.stremio.StremioMetaPreview
 import com.streamvault.domain.model.stremio.StremioPlaybackHistory
 import com.streamvault.domain.model.stremio.StremioResourceKind
@@ -94,6 +97,8 @@ fun AddonsScreen(
     viewModel: AddonsViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val phoneAddState by viewModel.phoneAddState.collectAsStateWithLifecycle()
+    DisposableEffect(Unit) { onDispose { viewModel.stopPhoneAdd() } }
     LifecycleEventEffect(Lifecycle.Event.ON_START) {
         viewModel.refreshStaleManifests()
     }
@@ -162,6 +167,21 @@ fun AddonsScreen(
             state.statusMessageRes?.let { messageRes ->
                 MessageBanner(message = stringResource(messageRes), onClick = viewModel::consumeStatusMessage)
             }
+            PhoneAddQrPanel(
+                url = phoneAddState.url.takeIf { phoneAddState.kind == PhoneAddKind.STREMIO },
+                title = stringResource(R.string.stremio_install_title),
+                description = stringResource(R.string.stremio_phone_qr_warning),
+                status = when {
+                    phoneAddState.kind != PhoneAddKind.STREMIO -> null
+                    phoneAddState.completed -> stringResource(R.string.stremio_phone_qr_complete)
+                    phoneAddState.error -> stringResource(R.string.stremio_phone_qr_error)
+                    else -> null
+                },
+                startLabel = stringResource(R.string.stremio_phone_qr_start),
+                stopLabel = stringResource(R.string.stremio_phone_qr_stop),
+                onStart = viewModel::startPhoneAdd,
+                onStop = viewModel::stopPhoneAdd,
+            )
             when {
                 state.loading && state.addons.isEmpty() -> Box(
                     modifier = Modifier.weight(1f).fillMaxWidth(),

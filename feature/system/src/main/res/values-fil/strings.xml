@@ -32,6 +32,7 @@
   <string name="download_folder_default">Default na download folder</string>
   <string name="download_resume">Ituloy</string>
   <string name="download_delete">Burahin</string>
+  <string name="download_play">I-play</string>
   <string name="downloads_resumed">Na-resume ang download</string>
   <string name="extensions_tab_plugins">Mga plugin</string>
   <string name="extensions_tab_stremio_addons">Mga add-on ng Stremio</string>
@@ -46,6 +47,7 @@
     <string name="torrent_cache_confirm_message">Alisin ang pansamantalang data ng torrent? Hindi buburahin ang mga naka-save na download.</string>
     <string name="torrent_cache_active">Ihinto muna ang pag-play ng torrent bago i-clear ang cache.</string>
     <string name="torrent_cache_clear_failed">Hindi na-clear ang pansamantalang cache.</string>
+    <string name="torrent_cache_cleared">Na-clear ang pansamantalang cache.</string>
     <string name="extensions_title">Mga extension</string>
     <string name="plugins_section_description">Magdagdag ng feature sa StreamVault gamit ang mga kasamang Android app.</string>
     <string name="plugins_install_url">I-install ang plugin mula sa URL</string>

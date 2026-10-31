@@ -359,7 +359,15 @@ private class M3uCapabilityAdapter(
     }
     override suspend fun buildCatchUpUrl(streamId: Long, start: Long, end: Long): String? = null
     override suspend fun buildCatchUpUrls(request: CatchUpRequest): List<String> =
-        request.sourceCatchUpTemplate?.let { buildM3uCatchUpUrls(it, request.start, request.end) }.orEmpty()
+        buildM3uCatchUpUrls(
+            source = request.sourceCatchUpTemplate,
+            streamUrl = request.sourceStreamUrl,
+            catchUpType = request.sourceCatchUpType,
+            start = request.start,
+            end = request.end,
+            correctionSeconds = request.catchUpCorrectionSeconds,
+            fallbackTemplate = request.fallbackCatchUpTemplate
+        )
 
     private companion object {
         const val GUIDE_LOOKBACK_MILLIS = 12L * 60L * 60L * 1000L

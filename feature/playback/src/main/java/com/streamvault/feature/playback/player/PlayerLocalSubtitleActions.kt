@@ -26,6 +26,7 @@ internal fun PlayerViewModel.loadLocalSrtSubtitle(uri: Uri) {
         try {
             val subtitle = withContext(Dispatchers.IO) { copyLocalSrtSubtitle(uri) }
             deactivateLiveTranslation()
+            clearRememberedOpenSubtitleForCurrentContent()
             playerEngine.addExternalSubtitle(
                 subtitleUri = Uri.fromFile(subtitle.file),
                 language = "und",

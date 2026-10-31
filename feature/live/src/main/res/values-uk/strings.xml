@@ -267,6 +267,11 @@
     <string name="live_sports_forget_choice">Забути цей вибір</string>
     <string name="live_sports_no_matching_channels">Відповідних каналів не знайдено</string>
     <string name="live_sports_league_efl_championship">Чемпіонат Англійської футбольної ліги</string>
+    <string name="live_sports_league_brasileirao_serie_a">Чемпіонат Бразилії Серія A</string>
+    <string name="live_sports_league_brasileirao_serie_b">Чемпіонат Бразилії Серія B</string>
+    <string name="live_sports_league_copa_do_brasil">Кубок Бразилії</string>
+    <string name="live_sports_league_copa_libertadores">Кубок Лібертадорес</string>
+    <string name="live_sports_league_copa_sul_americana">Південноамериканський кубок</string>
     <string name="live_sports_standings">Турнірна таблиця</string>
     <string name="live_sports_standings_rank">Місце</string>
     <string name="live_sports_standings_team">Команда</string>

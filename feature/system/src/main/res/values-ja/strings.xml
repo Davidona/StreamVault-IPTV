@@ -32,6 +32,7 @@
   <string name="download_folder_default">デフォルトのダウンロードフォルダ</string>
   <string name="download_resume">再開</string>
   <string name="download_delete">削除</string>
+  <string name="download_play">再生</string>
   <string name="downloads_resumed">ダウンロードを再開しました</string>
   <string name="extensions_tab_plugins">プラグイン</string>
   <string name="extensions_tab_stremio_addons">Stremioアドオン</string>
@@ -46,6 +47,7 @@
     <string name="torrent_cache_confirm_message">トレントの一時データを削除しますか？保存済みのダウンロードは削除されません。</string>
     <string name="torrent_cache_active">キャッシュを消去する前にトレント再生を停止してください。</string>
     <string name="torrent_cache_clear_failed">一時キャッシュを消去できませんでした。</string>
+    <string name="torrent_cache_cleared">一時キャッシュを消去しました。</string>
     <string name="extensions_title">拡張機能</string>
     <string name="plugins_section_description">AndroidコンパニオンアプリでStreamVaultに機能を追加できます。</string>
     <string name="plugins_install_url">URLからプラグインをインストール</string>

@@ -1,8 +1,10 @@
 package com.streamvault.app.navigation
 
 import android.app.SearchManager
+import android.content.ComponentName
 import android.content.Intent
 import android.net.Uri
+import android.content.pm.PackageManager
 import android.speech.RecognizerIntent
 import com.google.common.truth.Truth.assertThat
 import com.streamvault.app.MainActivity
@@ -35,6 +37,35 @@ class ExternalNavigationRequestParserTest {
         assertThat(parser.parse(intent)).isEqualTo(
             ExternalNavigationRequest.Destination(AppDestination.Home)
         )
+    }
+
+    @Test
+    fun downloadsLegacyRouteOpensDownloads() {
+        val intent = Intent().putExtra(MainActivity.EXTRA_EXTERNAL_ROUTE, "downloads")
+
+        assertThat(parser.parse(intent)).isEqualTo(
+            ExternalNavigationRequest.Destination(AppDestination.Downloads)
+        )
+    }
+
+    @Test
+    fun advertisedExternalRoutesAreAcceptedByTheLegacyParser() {
+        @Suppress("DEPRECATION")
+        val activityInfo = context.packageManager.getActivityInfo(
+            ComponentName(context, MainActivity::class.java),
+            PackageManager.GET_META_DATA
+        )
+        val routes = checkNotNull(activityInfo.metaData)
+            .getString("com.streamvault.app.EXTERNAL_ROUTES")
+            .orEmpty()
+            .split(',')
+            .map(String::trim)
+            .filter(String::isNotEmpty)
+
+        assertThat(routes).containsExactly("home", "plugins", "downloads").inOrder()
+        routes.forEach { route ->
+            assertThat(AppRouteCodec.decodeLegacyExternalRoute(route)).isNotNull()
+        }
     }
 
     @Test

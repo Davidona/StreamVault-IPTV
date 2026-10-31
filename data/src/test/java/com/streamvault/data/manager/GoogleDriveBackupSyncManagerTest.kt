@@ -1,23 +1,39 @@
 package com.streamvault.data.manager
 
 import android.content.Context
+import android.content.ContextWrapper
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.tasks.Tasks
 import com.google.common.truth.Truth.assertThat
+import com.google.gson.Gson
+import com.streamvault.data.local.DatabaseTransactionRunner
+import com.streamvault.data.local.dao.PlaybackHistoryDao
+import com.streamvault.data.local.dao.ProviderDao
+import com.streamvault.data.preferences.PreferencesRepository
+import com.streamvault.data.security.CredentialCrypto
 import com.streamvault.domain.manager.BackupManager
+import com.streamvault.domain.manager.BackupImportPlan
+import com.streamvault.domain.manager.BackupRestoreOutcome
 import com.streamvault.domain.manager.DriveAuthState
 import com.streamvault.domain.manager.DriveSyncError
 import com.streamvault.domain.manager.ProviderCredentials
+import com.streamvault.domain.manager.RecordingManager
 import com.streamvault.domain.model.Result
+import com.streamvault.domain.repository.CategoryRepository
+import com.streamvault.domain.usecase.ImportBackup
+import com.streamvault.domain.usecase.InspectBackupCommand
+import com.streamvault.domain.usecase.InspectBackupResult
 import java.io.File
 import java.net.URI
 import java.nio.file.Files
+import java.security.MessageDigest
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.atomic.AtomicInteger
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import okhttp3.mockwebserver.Dispatcher
 import okhttp3.mockwebserver.MockResponse
@@ -37,6 +53,7 @@ import org.mockito.kotlin.wheneverBlocking
 import org.json.JSONArray
 import org.json.JSONObject
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
@@ -54,7 +71,7 @@ class GoogleDriveBackupSyncManagerTest {
         server.start()
         cacheDir = Files.createTempDirectory("drive-sync-test").toFile()
         whenever(context.cacheDir).thenReturn(cacheDir)
-        wheneverBlocking { backupManager.exportConfig(any()) }.doSuspendableAnswer { invocation ->
+        wheneverBlocking { backupManager.exportConfig(any(), any()) }.doSuspendableAnswer { invocation ->
             val uri = invocation.getArgument<String>(0)
             File(URI(uri)).writeText("{\"version\":11,\"providers\":[]}")
             Result.Success(Unit)
@@ -110,6 +127,66 @@ class GoogleDriveBackupSyncManagerTest {
         val artifact = (result as Result.Success).data
         assertThat(File(URI(artifact.localUriString)).readText()).isEqualTo(backupJson)
         File(URI(artifact.localUriString)).delete()
+    }
+
+    @Test
+    fun pullBackupFeedsReleaseObfuscatedPayloadIntoRealInspector() = runTest {
+        val payload = """{"version":19,"portableFavorites":[{"a":{"a":{"a":"https://example.com","b":"user","c":null,"d":"XTREAM_CODES"},"b":"LIVE","c":"42","f":"News"},"b":3,"c":1700000000000}],"portableProviderPreferences":{"guideDefaultVirtualCategoryId":-1000000,"guideDefaultCategorySpecified":true}}"""
+        val checksum = "sha256:" + MessageDigest.getInstance("SHA-256")
+            .digest(payload.toByteArray())
+            .joinToString(separator = "") { "%02x".format(it) }
+        val backupJson = """{"version":19,"checksum":"$checksum","portableFavorites":[{"a":{"a":{"a":"https://example.com","b":"user","c":null,"d":"XTREAM_CODES"},"b":"LIVE","c":"42","f":"News"},"b":3,"c":1700000000000}],"portableProviderPreferences":{"guideDefaultVirtualCategoryId":-1000000,"guideDefaultCategorySpecified":true}}"""
+        enqueueFileList(listOf("compact-backup-id"))
+        server.enqueue(
+            MockResponse().setResponseCode(200).setBody(
+                """{"format":"streamvault-drive-bundle-v2","backupJson":${Gson().toJson(backupJson)},"credentials":[]}"""
+            )
+        )
+
+        val stagedCache = Files.createTempDirectory("drive-inspector-test").toFile()
+        val appContext = RuntimeEnvironment.getApplication()
+        val integrationContext = object : ContextWrapper(appContext) {
+            override fun getCacheDir(): File = stagedCache
+        }
+        val restoredPreferences: PreferencesRepository = mock()
+        val driveManager = GoogleDriveBackupSyncManager(
+            context = integrationContext,
+            backupManager = backupManager,
+            httpClient = okhttp3.OkHttpClient(),
+            driveApiBaseUrl = server.url("/").toString(),
+            fixedAccessToken = "test-token",
+        )
+        val inspector = backupInspector(integrationContext, restoredPreferences)
+
+        try {
+            val pullResult = driveManager.pullBackup()
+            assertThat(pullResult).isInstanceOf(Result.Success::class.java)
+            val artifact = (pullResult as Result.Success).data
+            assertThat(File(URI(artifact.localUriString)).readText()).isEqualTo(backupJson)
+
+            val inspectResult = ImportBackup(inspector).inspect(InspectBackupCommand(artifact.localUriString))
+
+            assertThat(inspectResult).isInstanceOf(InspectBackupResult.Success::class.java)
+            assertThat((inspectResult as InspectBackupResult.Success).preview.favoriteCount).isEqualTo(1)
+
+            val restoreResult = inspector.importConfig(
+                artifact.localUriString,
+                BackupImportPlan(
+                    importPreferences = true,
+                    importProviders = false,
+                    importSavedLibrary = false,
+                    importPlaybackHistory = false,
+                    importMultiViewPresets = false,
+                    importRecordingSchedules = false
+                )
+            )
+            assertThat(restoreResult).isInstanceOf(Result.Success::class.java)
+            assertThat((restoreResult as Result.Success).data.outcome)
+                .isEqualTo(BackupRestoreOutcome.COMPLETE)
+            verify(restoredPreferences).setGuideDefaultCategoryId(-1_000_000L)
+        } finally {
+            stagedCache.deleteRecursively()
+        }
     }
 
     @Test
@@ -377,6 +454,195 @@ class GoogleDriveBackupSyncManagerTest {
         assertThat(server.takeRequest().method).isEqualTo("DELETE")
     }
 
+    @Test
+    fun missingOrDeletedSnapshot_neverDownloadsOrDeletesAnotherSnapshot() = runTest {
+        val driveManager = manager()
+        for (operation in listOf("pull", "delete")) {
+            enqueueFileList(listOf("other-snapshot"))
+            val result = if (operation == "pull") driveManager.pullBackup("deleted") else driveManager.deleteBackup("deleted")
+            assertThat(result).isInstanceOf(Result.Error::class.java)
+            assertThat((result as Result.Error).message).isEqualTo(DriveSyncError.NO_REMOTE_BACKUP)
+            assertThat(driveManager.syncStatus.value.lastErrorMessage).isEqualTo(DriveSyncError.NO_REMOTE_BACKUP)
+            assertThat(server.takeRequest().method).isEqualTo("GET")
+        }
+        assertThat(server.requestCount).isEqualTo(2)
+        assertThat(cacheDir.listFiles().orEmpty()).isEmpty()
+    }
+
+    @Test
+    fun emptyRemoteAccount_returnsEmptyListAndTypedPullFailure() = runTest {
+        val driveManager = manager()
+        enqueueFileList(emptyList())
+        val list = driveManager.listBackups()
+        assertThat(list).isInstanceOf(Result.Success::class.java)
+        assertThat((list as Result.Success).data).isEmpty()
+        enqueueFileList(emptyList())
+        val pull = driveManager.pullBackup()
+        assertThat(pull).isInstanceOf(Result.Error::class.java)
+        assertThat((pull as Result.Error).message).isEqualTo(DriveSyncError.NO_REMOTE_BACKUP)
+        assertThat(cacheDir.listFiles().orEmpty()).isEmpty()
+    }
+
+    @Test
+    fun failedExport_doesNotUploadOrLeaveCredentialsOnDisk() = runTest {
+        whenever(backupManager.exportConfig(any(), any())).thenReturn(Result.Error("export unavailable"))
+        val driveManager = manager()
+        val result = driveManager.pushBackup(listOf(ProviderCredentials("https://example.com", "user", "secret")))
+        assertThat(result).isInstanceOf(Result.Error::class.java)
+        assertThat((result as Result.Error).message).isEqualTo(DriveSyncError.EXPORT_FAILED)
+        assertThat(server.requestCount).isEqualTo(0)
+        assertThat(cacheDir.listFiles().orEmpty()).isEmpty()
+        assertThat(driveManager.syncStatus.value.lastPushAtMs).isNull()
+    }
+
+    @Test
+    fun malformedBundleVariants_areRejectedWithoutStagingOrImporting() = runTest {
+        val driveManager = manager()
+        val invalidBundles = listOf(
+            "{}",
+            """{"format":"unknown","backupJson":"{}","credentials":[]}""",
+            """{"format":"streamvault-drive-bundle-v2","credentials":[]}""",
+            """{"format":"streamvault-drive-bundle-v2","backupJson":"{}"}""",
+            """{"format":"streamvault-drive-bundle-v2","backupJson":"broken","credentials":[]}"""
+        )
+        for (bundle in invalidBundles) {
+            enqueueFileList(listOf("snapshot"))
+            server.enqueue(MockResponse().setBody(bundle))
+            val result = driveManager.pullBackup()
+            assertThat(result).isInstanceOf(Result.Error::class.java)
+            assertThat((result as Result.Error).message).isEqualTo(DriveSyncError.IMPORT_FAILED)
+            assertThat(cacheDir.listFiles().orEmpty()).isEmpty()
+            assertThat(driveManager.syncStatus.value.lastPullAtMs).isNull()
+        }
+        org.mockito.kotlin.verifyNoInteractions(backupManager)
+    }
+
+    @Test
+    fun failedDownload_canBeRetriedAndClearsErrorWithoutLeavingTemporaryFiles() = runTest {
+        val driveManager = manager()
+        enqueueFileList(listOf("snapshot"))
+        server.enqueue(MockResponse().setResponseCode(503))
+        assertThat(driveManager.pullBackup()).isInstanceOf(Result.Error::class.java)
+        assertThat(cacheDir.listFiles().orEmpty()).isEmpty()
+
+        enqueueFileList(listOf("snapshot"))
+        server.enqueue(MockResponse().setBody(
+            """{"format":"streamvault-drive-bundle-v2","backupJson":"{\"version\":19}","credentials":[]}"""
+        ))
+        val retry = driveManager.pullBackup()
+        assertThat(retry).isInstanceOf(Result.Success::class.java)
+        val target = File(URI((retry as Result.Success).data.localUriString))
+        assertThat(target.readText()).isEqualTo("""{"version":19}""")
+        assertThat(cacheDir.listFiles().orEmpty().toList()).containsExactly(target)
+        assertThat(driveManager.syncStatus.value.lastErrorMessage).isNull()
+        assertThat(driveManager.syncStatus.value.lastPullAtMs).isNotNull()
+        target.delete()
+    }
+
+    @Test
+    fun uploadSuccess_survivesRetentionFailureAndClearsPreviousError() = runTest {
+        val driveManager = manager()
+        server.enqueue(MockResponse().setResponseCode(503))
+        assertThat(driveManager.pushBackup(emptyList())).isInstanceOf(Result.Error::class.java)
+        server.enqueue(MockResponse().setBody("{}"))
+        server.enqueue(MockResponse().setResponseCode(503)) // Retention listing after upload.
+        assertThat(driveManager.pushBackup(emptyList())).isInstanceOf(Result.Success::class.java)
+        assertThat(driveManager.syncStatus.value.lastPushAtMs).isNotNull()
+        assertThat(driveManager.syncStatus.value.lastErrorMessage).isNull()
+        assertThat(cacheDir.listFiles().orEmpty()).isEmpty()
+    }
+
+    @Test
+    fun cancelledExport_propagatesCancellationAndRemovesTemporaryFiles() = runTest {
+        whenever(backupManager.exportConfig(any(), any())).thenThrow(kotlinx.coroutines.CancellationException("cancelled"))
+        var cancelled = false
+        try {
+            manager().pushBackup(emptyList())
+        } catch (_: kotlinx.coroutines.CancellationException) {
+            cancelled = true
+        }
+        assertThat(cancelled).isTrue()
+        assertThat(server.requestCount).isEqualTo(0)
+        assertThat(cacheDir.listFiles().orEmpty()).isEmpty()
+    }
+
+    @Test
+    fun emptyAndMalformedExports_doNotUploadAndRemoveBothTemporaryFiles() = runTest {
+        for (exportText in listOf("", "broken-json")) {
+            whenever(backupManager.exportConfig(any(), any())).doSuspendableAnswer { invocation ->
+                File(URI(invocation.getArgument<String>(0))).writeText(exportText)
+                Result.Success(Unit)
+            }
+            val result = manager().pushBackup(emptyList())
+            assertThat(result).isInstanceOf(Result.Error::class.java)
+            assertThat((result as Result.Error).message).isEqualTo(DriveSyncError.EXPORT_FAILED)
+            assertThat(cacheDir.listFiles().orEmpty()).isEmpty()
+        }
+        assertThat(server.requestCount).isEqualTo(0)
+    }
+
+    @Test
+    fun uploadedBundle_roundTripsThroughDownloadChecksumInspectionAndRealRestore() = runTest {
+        val payload = """{"version":19,"portableProviderPreferences":{"guideDefaultVirtualCategoryId":-1000000,"guideDefaultCategorySpecified":true}}"""
+        val checksum = "sha256:" + MessageDigest.getInstance("SHA-256").digest(payload.toByteArray())
+            .joinToString("") { "%02x".format(it) }
+        val backupJson = payload.replace("\"version\":19", "\"version\":19,\"checksum\":\"$checksum\"")
+        whenever(backupManager.exportConfig(any(), any())).doSuspendableAnswer { invocation ->
+            File(URI(invocation.getArgument<String>(0))).writeText(backupJson)
+            Result.Success(Unit)
+        }
+        server.enqueue(MockResponse().setBody("{}"))
+        enqueueFileList(emptyList()) // Retention pass.
+        val driveManager = manager()
+        val credentials = listOf(ProviderCredentials("https://example.com", "user", "secret"))
+        assertThat(driveManager.pushBackup(credentials)).isInstanceOf(Result.Success::class.java)
+        val upload = server.takeRequest()
+        assertThat(upload.getHeader("Authorization")).isEqualTo("Bearer test-token")
+        val boundary = requireNotNull(upload.getHeader("Content-Type")).substringAfter("boundary=")
+        val bundle = upload.body.readUtf8().split("--$boundary")
+            .single { it.contains("\"backupJson\"") }.substringAfter("\r\n\r\n").trim()
+        assertThat(JSONObject(bundle).getString("backupJson")).isEqualTo(backupJson)
+        server.takeRequest() // Retention listing.
+        assertThat(cacheDir.listFiles().orEmpty()).isEmpty()
+
+        enqueueFileList(listOf("uploaded"))
+        server.enqueue(MockResponse().setBody(bundle))
+        val pull = driveManager.pullBackup("uploaded")
+        assertThat(pull).isInstanceOf(Result.Success::class.java)
+        val artifact = (pull as Result.Success).data
+        assertThat(artifact.credentials).containsExactlyElementsIn(credentials)
+        assertThat(File(URI(artifact.localUriString)).readText()).isEqualTo(backupJson)
+        val restoredPreferences: PreferencesRepository = mock()
+        val realManager = backupInspector(RuntimeEnvironment.getApplication(), restoredPreferences)
+        assertThat(realManager.inspectBackup(artifact.localUriString)).isInstanceOf(Result.Success::class.java)
+        val restore = realManager.importConfig(artifact.localUriString, BackupImportPlan(
+            importPreferences = true, importProviders = false, importSavedLibrary = false,
+            importPlaybackHistory = false, importMultiViewPresets = false, importRecordingSchedules = false,
+            importStremioAddons = false
+        ))
+        assertThat(restore).isInstanceOf(Result.Success::class.java)
+        assertThat((restore as Result.Success).data.outcome).isEqualTo(BackupRestoreOutcome.COMPLETE)
+        verify(restoredPreferences).setGuideDefaultCategoryId(-1_000_000L)
+        File(URI(artifact.localUriString)).delete()
+        assertThat(cacheDir.listFiles().orEmpty()).isEmpty()
+    }
+
+    @Test
+    fun selectivePush_forwardsPlanAndNeverBundlesUnselectedProviderCredentials() = runTest {
+        val plan = com.streamvault.domain.manager.BackupExportPlan(
+            exportProviders = false, exportSavedLibrary = false, exportPlaybackHistory = false,
+            exportMultiViewPresets = false, exportRecordingSchedules = false, exportStremioAddons = false
+        )
+        server.enqueue(MockResponse().setBody("{}"))
+        enqueueFileList(emptyList())
+        val result = manager().pushBackup(listOf(ProviderCredentials("https://example.com", "user", "excluded-secret")), plan)
+        assertThat(result).isInstanceOf(Result.Success::class.java)
+        val upload = server.takeRequest().body.readUtf8()
+        assertThat(upload).doesNotContain("excluded-secret")
+        assertThat(upload).contains("\"credentials\":[]")
+        verify(backupManager).exportConfig(any(), org.mockito.kotlin.eq(plan))
+    }
+
     private fun manager(): GoogleDriveBackupSyncManager = GoogleDriveBackupSyncManager(
         context = context,
         backupManager = backupManager,
@@ -384,6 +650,39 @@ class GoogleDriveBackupSyncManagerTest {
         driveApiBaseUrl = server.url("/").toString(),
         fixedAccessToken = "test-token",
     )
+
+    private fun backupInspector(
+        context: Context,
+        preferencesRepository: PreferencesRepository = mock()
+    ): BackupManagerImpl {
+        val providerDao: ProviderDao = mock()
+        wheneverBlocking { providerDao.getAllSync() }.thenReturn(emptyList())
+        val playbackHistoryDao: PlaybackHistoryDao = mock()
+        wheneverBlocking { playbackHistoryDao.getAllSync() }.thenReturn(emptyList())
+        val recordingManager: RecordingManager = mock()
+        whenever(recordingManager.observeRecordingItems()).thenReturn(flowOf(emptyList()))
+
+        return BackupManagerImpl(
+            context = context,
+            preferencesRepository = preferencesRepository,
+            credentialCrypto = mock<CredentialCrypto>(),
+            providerDao = providerDao,
+            favoriteDao = mock(),
+            virtualGroupDao = mock(),
+            playbackHistoryDao = playbackHistoryDao,
+            movieDao = mock(),
+            episodeDao = mock(),
+            categoryRepository = mock<CategoryRepository>(),
+            recordingScheduleDao = mock(),
+            recordingManager = recordingManager,
+            transactionRunner = object : DatabaseTransactionRunner {
+                override suspend fun <T> inTransaction(block: suspend () -> T): T = block()
+            },
+            gson = Gson(),
+            channelDao = mock(),
+            seriesDao = mock(),
+        )
+    }
 
     private fun enqueueFileList(ids: List<String>) {
         val files = ids.mapIndexed { index, id ->

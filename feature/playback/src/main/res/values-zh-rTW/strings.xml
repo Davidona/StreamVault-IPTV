@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="player_recording_exact_alarm_required">在 Android 設定中允許 StreamVault 使用鬧鐘和提醒，然後重新嘗試錄影。</string>
+</resources>

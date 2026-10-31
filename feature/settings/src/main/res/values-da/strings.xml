@@ -950,4 +950,13 @@
     <string name="settings_sync_index_progress">%1$s · %2$s</string>
     <string name="settings_refresh_rate_matching">Tilpas til indholdets billedfrekvens</string>
     <string name="settings_refresh_rate_matching_description">Tilpasser skærmens opdateringshastighed til videoen for mere flydende bevægelser. Kræver understøttelse fra skærmen; skærmen kan kortvarigt blive sort ved skift.</string>
+    <string name="settings_epg_phone_qr_start">Vis QR-kode</string>
+    <string name="settings_epg_phone_qr_stop">Stop parring</string>
+    <string name="settings_epg_phone_qr_warning">Sikkerhed: Parring sender loginoplysninger uden kryptering via dit lokale netværk. Brug kun et privat Wi-Fi-netværk, du har tillid til.</string>
+    <string name="settings_epg_phone_qr_complete">Tilføjet</string>
+    <string name="settings_epg_phone_qr_error">Fejl</string>
+    <string name="settings_backup_export_sections">Vælg sektioner til eksport</string>
+    <string name="settings_m3u_catchup_query_format">Format for catch-up-forespørgsel</string>
+    <string name="settings_m3u_catchup_query_format_subtitle">Bruges til M3U-kanaler uden deres egen catch-up-kilde. Lad feltet være tomt for at slå reserveformatet fra. Eksempel: ?utc={utc}</string>
+    <string name="settings_m3u_catchup_query_format_disabled">Deaktiveret</string>
 </resources>

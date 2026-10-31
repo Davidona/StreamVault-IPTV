@@ -32,6 +32,7 @@
   <string name="download_folder_default">Cartella download predefinita</string>
   <string name="download_resume">Riprendi</string>
   <string name="download_delete">Elimina</string>
+  <string name="download_play">Riproduci</string>
   <string name="downloads_resumed">Download ripristinato</string>
   <string name="extensions_tab_plugins">Plugin</string>
   <string name="extensions_tab_stremio_addons">Componenti aggiuntivi Stremio</string>
@@ -46,6 +47,7 @@
     <string name="torrent_cache_confirm_message">Rimuovere i dati torrent temporanei? I download salvati non verranno eliminati.</string>
     <string name="torrent_cache_active">Interrompi la riproduzione del torrent prima di svuotare la cache.</string>
     <string name="torrent_cache_clear_failed">Impossibile svuotare la cache temporanea.</string>
+    <string name="torrent_cache_cleared">Cache temporanea svuotata.</string>
     <string name="extensions_title">Estensioni</string>
     <string name="plugins_section_description">Aggiungi funzionalità a StreamVault con app Android complementari.</string>
     <string name="plugins_install_url">Installa plugin da URL</string>

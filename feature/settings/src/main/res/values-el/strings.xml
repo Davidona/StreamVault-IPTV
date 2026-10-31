@@ -950,4 +950,13 @@
     <string name="settings_sync_index_progress">%1$s · %2$s</string>
     <string name="settings_refresh_rate_matching">Αντιστοίχιση ρυθμού καρέ περιεχομένου</string>
     <string name="settings_refresh_rate_matching_description">Προσαρμόζει τον ρυθμό ανανέωσης της οθόνης στο βίντεο για πιο ομαλή κίνηση. Απαιτεί υποστήριξη από την οθόνη· κατά την αλλαγή η οθόνη μπορεί να μαυρίσει στιγμιαία.</string>
+    <string name="settings_epg_phone_qr_start">Εμφάνιση κωδικού QR</string>
+    <string name="settings_epg_phone_qr_stop">Διακοπή σύζευξης</string>
+    <string name="settings_epg_phone_qr_warning">Ασφάλεια: Η σύζευξη στέλνει στοιχεία σύνδεσης χωρίς κρυπτογράφηση μέσω του τοπικού δικτύου σας. Χρησιμοποιήστε μόνο ιδιωτικό δίκτυο Wi-Fi που εμπιστεύεστε.</string>
+    <string name="settings_epg_phone_qr_complete">Προστέθηκε</string>
+    <string name="settings_epg_phone_qr_error">Σφάλμα</string>
+    <string name="settings_backup_export_sections">Επιλέξτε ενότητες για εξαγωγή</string>
+    <string name="settings_m3u_catchup_query_format">Μορφή ερωτήματος επανάληψης</string>
+    <string name="settings_m3u_catchup_query_format_subtitle">Χρησιμοποιείται για κανάλια M3U χωρίς δική τους πηγή επανάληψης. Αφήστε το κενό για να απενεργοποιήσετε αυτήν την εναλλακτική. Παράδειγμα: ?utc={utc}</string>
+    <string name="settings_m3u_catchup_query_format_disabled">Απενεργοποιημένο</string>
 </resources>

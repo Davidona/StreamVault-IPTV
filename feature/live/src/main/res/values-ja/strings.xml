@@ -267,6 +267,11 @@
     <string name="live_sports_forget_choice">この選択を忘れる</string>
     <string name="live_sports_no_matching_channels">一致するチャンネルがありません</string>
     <string name="live_sports_league_efl_championship">イングランド・フットボールリーグ・チャンピオンシップ</string>
+    <string name="live_sports_league_brasileirao_serie_a">ブラジル選手権セリエA</string>
+    <string name="live_sports_league_brasileirao_serie_b">ブラジル選手権セリエB</string>
+    <string name="live_sports_league_copa_do_brasil">ブラジル杯</string>
+    <string name="live_sports_league_copa_libertadores">コパ・リベルタドーレス</string>
+    <string name="live_sports_league_copa_sul_americana">コパ・スダメリカーナ</string>
     <string name="live_sports_standings">順位表</string>
     <string name="live_sports_standings_rank">順位</string>
     <string name="live_sports_standings_team">チーム</string>

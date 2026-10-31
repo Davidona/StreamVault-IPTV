@@ -14,6 +14,7 @@ import com.google.android.gms.common.api.Scope
 import com.google.android.gms.tasks.Task
 import com.streamvault.data.remote.http.useCancellableResponse
 import com.streamvault.domain.manager.BackupManager
+import com.streamvault.domain.manager.BackupExportPlan
 import com.streamvault.domain.manager.DriveAccount
 import com.streamvault.domain.manager.DriveAuthState
 import com.streamvault.domain.manager.DriveBackupArtifact
@@ -245,8 +246,12 @@ class GoogleDriveBackupSyncManager private constructor(
         addOnCanceledListener { cont.resume(null) }
     }
 
+    suspend fun pushBackup(credentials: List<ProviderCredentials> = emptyList()): Result<DriveSyncStatus> =
+        pushBackup(credentials, BackupExportPlan())
+
     override suspend fun pushBackup(
         credentials: List<ProviderCredentials>,
+        plan: BackupExportPlan,
     ): Result<DriveSyncStatus> = withContext(Dispatchers.IO) {
         operationMutex.withLock {
             val accessTokenResult = accessTokenResult()
@@ -257,63 +262,63 @@ class GoogleDriveBackupSyncManager private constructor(
             val bundleFile = File.createTempFile("drive_sync_bundle_", ".json", context.cacheDir)
             val exportUri = tempFile.toURI().toString()
 
-            val exportResult = backupManager.exportConfig(exportUri)
-            if (exportResult is Result.Error) {
-                return@withContext driveError(DriveSyncError.EXPORT_FAILED, exportResult.exception)
-            }
-            if (!tempFile.exists() || tempFile.length() == 0L || tempFile.length() > MAX_BACKUP_BYTES) {
-                tempFile.delete()
-                return@withContext driveError(DriveSyncError.EXPORT_FAILED)
-            }
+            try {
+                val exportResult = backupManager.exportConfig(exportUri, plan)
+                if (exportResult is Result.Error) {
+                    return@withContext driveError(DriveSyncError.EXPORT_FAILED, exportResult.exception)
+                }
+                if (!tempFile.exists() || tempFile.length() == 0L || tempFile.length() > MAX_BACKUP_BYTES) {
+                    return@withContext driveError(DriveSyncError.EXPORT_FAILED)
+                }
 
-            val bundleBuilt = try {
-                // Keep the exported backup text unchanged. Re-parsing it into a
-                // JSONObject and serializing it again can alter escaping/order and
-                // breaks exact-byte checksum compatibility for older releases.
-                val backupJson = tempFile.readText(Charsets.UTF_8)
-                JSONObject(backupJson)
-                val bundle = JSONObject()
-                    .put("format", DRIVE_BUNDLE_FORMAT)
-                    .put("backupJson", backupJson)
-                    .put("credentials", credentials.toJsonArray())
-                bundleFile.writeText(bundle.toString(), Charsets.UTF_8)
-                bundleFile.length() > 0L && bundleFile.length() <= MAX_DRIVE_FILE_BYTES
-            } catch (t: Throwable) {
-                Log.e("DriveSync", "pushBackup: failed to build bundle", t)
-                false
-            }
-            if (!bundleBuilt) {
-                tempFile.delete()
-                bundleFile.delete()
-                return@withContext driveError(DriveSyncError.EXPORT_FAILED)
-            }
+                val bundleBuilt = try {
+                    // Keep the exported backup text unchanged. Re-parsing it into a
+                    // JSONObject and serializing it again can alter escaping/order and
+                    // breaks exact-byte checksum compatibility for older releases.
+                    val backupJson = tempFile.readText(Charsets.UTF_8)
+                    JSONObject(backupJson)
+                    val bundle = JSONObject()
+                        .put("format", DRIVE_BUNDLE_FORMAT)
+                        .put("backupJson", backupJson)
+                        .put("credentials", (if (plan.exportProviders) credentials else emptyList()).toJsonArray())
+                    bundleFile.writeText(bundle.toString(), Charsets.UTF_8)
+                    bundleFile.length() > 0L && bundleFile.length() <= MAX_DRIVE_FILE_BYTES
+                } catch (t: Throwable) {
+                    Log.e("DriveSync", "pushBackup: failed to build bundle", t)
+                    false
+                }
+                if (!bundleBuilt) {
+                    return@withContext driveError(DriveSyncError.EXPORT_FAILED)
+                }
 
-            val bundleFileName = buildBundleFileName()
-            val uploadOk = try {
-                uploadAppDataFile(
-                    authToken = token,
-                    payload = bundleFile,
-                    fileName = bundleFileName,
-                    overwriteExisting = false,
+                val bundleFileName = buildBundleFileName()
+                val uploadOk = try {
+                    uploadAppDataFile(
+                        authToken = token,
+                        payload = bundleFile,
+                        fileName = bundleFileName,
+                        overwriteExisting = false,
+                    )
+                } catch (io: IOException) {
+                    return@withContext driveHttpError(io)
+                }
+                if (!uploadOk) {
+                    return@withContext driveError(DriveSyncError.NETWORK)
+                }
+
+                trimRemoteBackups(token)
+
+                val updated = _syncStatus.value.copy(
+                    lastPushAtMs = System.currentTimeMillis(),
+                    lastErrorMessage = null,
                 )
-            } catch (io: IOException) {
-                return@withContext driveHttpError(io)
+                _syncStatus.value = updated
+                Result.Success(updated)
             } finally {
+                // Export can fail or be cancelled before the upload's cleanup is reached.
                 tempFile.delete()
                 bundleFile.delete()
             }
-            if (!uploadOk) {
-                return@withContext driveError(DriveSyncError.NETWORK)
-            }
-
-            trimRemoteBackups(token)
-
-            val updated = _syncStatus.value.copy(
-                lastPushAtMs = System.currentTimeMillis(),
-                lastErrorMessage = null,
-            )
-            _syncStatus.value = updated
-            Result.Success(updated)
         }
     }
 

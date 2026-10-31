@@ -240,6 +240,7 @@ data class PlayerStats(
     val measuredFrameRate: Float = 0f,
     /** Running average of the whole-stream network bitrate in bps, rounded to 0.1 Mbps; 0 until measured. */
     val measuredBitrate: Long = 0L,
+    /** Cumulative drops reported by Media3 callbacks; can trail its immediate decoder counter. */
     val droppedFrames: Int = 0,
     val width: Int = 0,
     val height: Int = 0,

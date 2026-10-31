@@ -406,6 +406,107 @@ class BackupManagerImplTest {
     }
 
     @Test
+    fun `inspectBackup accepts release-obfuscated portable favorites with EPG and hidden state`() = runBlocking {
+        val context: Context = mock()
+        val contentResolver: ContentResolver = mock()
+        val providerDao: ProviderDao = mock()
+        val playbackHistoryDao: PlaybackHistoryDao = mock()
+        val recordingManager: RecordingManager = mock()
+        val payload = """
+            {
+              "version":18,
+              "providerSnapshots":[
+                {
+                  "provider":{"id":1,"name":"News IPTV","type":"XTREAM_CODES","isActive":true,"status":"UNKNOWN","lastSyncedAt":0,"createdAt":1700000000000},
+                  "xtreamConfig":{"serverUrl":"https://example.com","username":"user","password":"pass","httpUserAgent":"","httpHeaders":"","epgSyncMode":"BACKGROUND","guideSourcePolicy":"AUTO","channelLogoSourcePolicy":"SUPPLIER_PREFERRED","fastSyncEnabled":true,"liveSyncMode":"AUTO","schemaVersion":1,"preferredLiveStreamFormat":null}
+                }
+              ],
+              "providerCredentials":[
+                {"a":"https://example.com","b":"user","c":"pass","d":"XTREAM_CODES"}
+              ],
+              "portableFavorites":[
+                {"a":{"a":{"a":"https://example.com","b":"user","c":null,"d":"XTREAM_CODES"},"b":"LIVE","c":"42","f":"News"},"b":3,"c":1700000000000}
+              ],
+              "portableManualEpgMappings":[
+                {"a":{"a":{"a":"https://example.com","b":"user","c":null,"d":"XTREAM_CODES"},"b":"LIVE","c":"42","f":"News"},"b":"https://example.com/guide-1.xml","c":"news.example","d":"EXTERNAL","e":"MANUAL","f":1.0}
+              ],
+              "portableHiddenContent":[
+                {"a":{"a":{"a":"https://example.com","b":"user","c":null,"d":"XTREAM_CODES"},"b":"LIVE","c":"42","f":"News"}}
+              ],
+              "portableProviderPreferences":{
+                "a":[{"a":"https://example.com","b":"user","c":null,"d":"XTREAM_CODES"}],
+                "g":[{"a":{"a":"https://example.com","b":"user","c":null,"d":"XTREAM_CODES"},"b":42,"c":"News","d":"https://example.com/live/42","e":7}],
+                "vodTrackPreferences":[{"a":{"a":{"a":"https://example.com","b":"user","c":null,"d":"XTREAM_CODES"},"b":"LIVE","c":"42","f":"News"},"b":{"a":{"a":"audio-track","b":"en","c":"English","d":false},"b":null}}]
+              },
+              "epgSources":[
+                {"id":1,"name":"Guide 1","url":"https://example.com/guide-1.xml"},
+                {"id":2,"name":"Guide 2","url":"https://example.com/guide-2.xml"},
+                {"id":3,"name":"Guide 3","url":"https://example.com/guide-3.xml"}
+              ],
+              "providerEpgAssignments":[
+                {"a":{"a":"https://example.com","b":"user","c":null,"d":"XTREAM_CODES"},"b":"https://example.com/guide-1.xml","c":0,"d":true}
+              ],
+              "scheduledRecordings":[
+                {"a":"https://example.com","b":"user","c":null,"d":42,"e":"News","f":"https://example.com/live/42","g":1700000000000,"h":1700003600000,"i":null,"j":null,"k":0,"l":0,"m":null,"n":"NONE","o":null,"p":"XTREAM_CODES","q":{"a":{"a":"https://example.com","b":"user","c":null,"d":"XTREAM_CODES"},"b":"LIVE","c":"42","f":"News"}}
+              ]
+            }
+        """.trimIndent()
+        whenever(context.contentResolver).thenReturn(contentResolver)
+        whenever(contentResolver.openInputStream(anyOrNull())).thenAnswer {
+            ByteArrayInputStream(payload.toByteArray())
+        }
+        whenever(providerDao.getAllSync()).thenReturn(emptyList())
+        whenever(playbackHistoryDao.getAllSync()).thenReturn(emptyList())
+        whenever(recordingManager.observeRecordingItems()).thenReturn(flowOf(emptyList()))
+
+        val manager = BackupManagerImpl(
+            context = context,
+            preferencesRepository = mock(),
+            credentialCrypto = mock(),
+            providerDao = providerDao,
+            favoriteDao = mock(),
+            virtualGroupDao = mock(),
+            playbackHistoryDao = playbackHistoryDao,
+            movieDao = mock(),
+            episodeDao = mock(),
+            categoryRepository = mock(),
+            recordingScheduleDao = mock(),
+            recordingManager = recordingManager,
+            transactionRunner = object : DatabaseTransactionRunner {
+                override suspend fun <T> inTransaction(block: suspend () -> T): T = block()
+            },
+            gson = Gson(),
+            channelDao = mock(),
+            seriesDao = mock()
+        )
+
+        val readMethod = BackupManagerImpl::class.java
+            .getDeclaredMethod("readBackupData", String::class.java)
+            .apply { isAccessible = true }
+        val parsed = readMethod.invoke(manager, "content://release-obfuscated-portable-favorite")
+        val dataField = parsed!!::class.java.getDeclaredField("data").apply { isAccessible = true }
+        val parsedData = dataField.get(parsed) as BackupData
+        assertThat(parsedData.portableManualEpgMappings?.single()?.content?.remoteContentId).isEqualTo("42")
+        assertThat(parsedData.portableManualEpgMappings?.single()?.sourceUrl)
+            .isEqualTo("https://example.com/guide-1.xml")
+        assertThat(parsedData.portableHiddenContent?.single()?.content?.name).isEqualTo("News")
+        assertThat(parsedData.portableProviderPreferences?.hiddenChannels?.single()?.remoteCategoryId).isEqualTo(7L)
+        assertThat(parsedData.portableProviderPreferences?.vodTrackPreferences?.single()?.preferences?.audio?.trackId)
+            .isEqualTo("audio-track")
+        assertThat(parsedData.providerEpgAssignments?.single()?.sourceUrl)
+            .isEqualTo("https://example.com/guide-1.xml")
+        assertThat(parsedData.providerCredentials?.single()?.password).isEqualTo("pass")
+        assertThat(parsedData.scheduledRecordings?.single()?.channel?.remoteContentId).isEqualTo("42")
+
+        val result = manager.inspectBackup("content://release-obfuscated-portable-favorite")
+
+        assertThat(result).isInstanceOf(Result.Success::class.java)
+        val preview = (result as Result.Success).data
+        assertThat(preview.favoriteCount).isEqualTo(1)
+        assertThat(preview.providerCount).isEqualTo(1)
+    }
+
+    @Test
     fun `release obfuscated backup fields remain importable`() = runBlocking {
         val payload = """{"version":12,"portableProviderPreferences":{"a":[{"a":"https://example.com","b":"user"}],"e":false,"f":[],"g":[],"h":[],"i":[{"a":{"a":"https://example.com","b":"user"},"b":"News","c":"LIVE","d":50}],"j":true,"k":[{"a":{"a":"https://example.com","b":"user"},"b":"LIVE","c":"TITLE_ASC"}],"l":true,"m":[{"a":{"a":"https://example.com","b":"user"},"b":30}],"n":true,"o":[{"a":{"a":"https://example.com","b":"user"},"b":"news","c":400}],"p":true,"q":[{"a":{"a":"https://example.com","b":"user"},"b":"movie","c":401}],"r":true,"s":[],"t":[{"a":{"a":{"a":"https://example.com","b":"user"},"b":400,"c":"News","d":"https://example.com/news"},"b":"FIT","c":125}],"u":true}}"""
         val checksum = "sha256:" + MessageDigest.getInstance("SHA-256")
@@ -2238,6 +2339,201 @@ class BackupManagerImplTest {
     }
 
     @Test
+    fun `portable guide default category preserves all channels selection`() = runBlocking {
+        val context: Context = mock()
+        val contentResolver: ContentResolver = mock()
+        val providerDao: ProviderDao = mock()
+        val preferencesRepository: PreferencesRepository = mock()
+        whenever(preferencesRepository.lastActiveProviderId).thenReturn(flowOf(null))
+        whenever(preferencesRepository.guideDefaultCategoryId)
+            .thenReturn(flowOf(com.streamvault.domain.repository.ChannelRepository.ALL_CHANNELS_ID))
+        whenever(preferencesRepository.promotedLiveGroupIds).thenReturn(flowOf(emptySet()))
+        whenever(preferencesRepository.epgTimeShiftsByProvider).thenReturn(flowOf(emptyMap()))
+        whenever(preferencesRepository.liveVariantSelections).thenReturn(flowOf(emptyMap()))
+        whenever(preferencesRepository.vodVariantSelections).thenReturn(flowOf(emptyMap()))
+        whenever(preferencesRepository.vodTrackPreferencesByScope).thenReturn(flowOf(emptyMap()))
+
+        val portable = backupManagerForValidation(
+            context = context,
+            preferencesRepository = preferencesRepository
+        ).buildPortableProviderPreferences(emptyList())
+
+        assertThat(portable.guideDefaultVirtualCategoryId)
+            .isEqualTo(com.streamvault.domain.repository.ChannelRepository.ALL_CHANNELS_ID)
+        assertThat(portable.guideDefaultCategory).isNull()
+        assertThat(portable.unresolvedReferences).isEmpty()
+
+        whenever(context.contentResolver).thenReturn(contentResolver)
+        whenever(providerDao.getAllSync()).thenReturn(emptyList())
+        whenever(contentResolver.openInputStream(anyOrNull())).thenReturn(
+            ByteArrayInputStream(
+                Gson().toJson(BackupData(portableProviderPreferences = portable)).toByteArray()
+            )
+        )
+        val result = backupManagerForValidation(
+            context = context,
+            preferencesRepository = preferencesRepository,
+            providerDao = providerDao
+        ).importConfig("content://guide-default-all-channels", preferencesOnlyPlan())
+
+        assertThat(result).isInstanceOf(Result.Success::class.java)
+        assertThat((result as Result.Success).data.outcome).isEqualTo(BackupRestoreOutcome.COMPLETE)
+        verify(preferencesRepository).setGuideDefaultCategoryId(
+            com.streamvault.domain.repository.ChannelRepository.ALL_CHANNELS_ID
+        )
+    }
+
+    @Test
+    fun `portable guide favorite group remaps its local id on import`() = runBlocking {
+        val context: Context = mock()
+        val contentResolver: ContentResolver = mock()
+        val providerDao: ProviderDao = mock()
+        val virtualGroupDao: VirtualGroupDao = mock()
+        val categoryRepository: CategoryRepository = mock()
+        val preferencesRepository: PreferencesRepository = mock()
+        val sourceProvider = Provider(
+            id = 2L,
+            name = "Source",
+            type = ProviderType.XTREAM_CODES,
+            serverUrl = "https://example.com",
+            username = "user"
+        )
+        val sourceGroup = VirtualGroupEntity(
+            id = 24L,
+            providerId = sourceProvider.id,
+            name = "My Guide Group",
+            contentType = ContentType.LIVE
+        )
+        stubGuidePreferenceExport(preferencesRepository, -sourceGroup.id)
+        whenever(virtualGroupDao.getById(sourceGroup.id)).thenReturn(sourceGroup)
+        whenever(categoryRepository.getCategories(sourceProvider.id)).thenReturn(flowOf(emptyList()))
+
+        val portable = backupManagerForValidation(
+            context = context,
+            preferencesRepository = preferencesRepository,
+            categoryRepository = categoryRepository,
+            virtualGroupDao = virtualGroupDao
+        ).buildPortableProviderPreferences(listOf(sourceProvider))
+
+        assertThat(portable.guideDefaultVirtualGroup).isEqualTo(
+            com.streamvault.domain.manager.PortableVirtualGroupReference(
+                BackupProviderReference(
+                    sourceProvider.serverUrl,
+                    sourceProvider.username,
+                    providerType = sourceProvider.type
+                ),
+                sourceGroup.name,
+                ContentType.LIVE
+            )
+        )
+        assertThat(portable.unresolvedReferences).isEmpty()
+
+        val targetProvider = sourceProvider.copy(id = 9L, name = "Target")
+        val targetGroup = sourceGroup.copy(id = 88L, providerId = targetProvider.id)
+        whenever(context.contentResolver).thenReturn(contentResolver)
+        whenever(providerDao.getAllSync()).thenReturn(listOf(targetProvider.toEntity()))
+        whenever(virtualGroupDao.getByType(targetProvider.id, ContentType.LIVE.name))
+            .thenReturn(flowOf(listOf(targetGroup)))
+        whenever(categoryRepository.getCategories(targetProvider.id)).thenReturn(flowOf(emptyList()))
+        whenever(contentResolver.openInputStream(anyOrNull())).thenReturn(
+            ByteArrayInputStream(
+                Gson().toJson(BackupData(portableProviderPreferences = portable)).toByteArray()
+            )
+        )
+
+        val result = backupManagerForValidation(
+            context = context,
+            preferencesRepository = preferencesRepository,
+            providerDao = providerDao,
+            categoryRepository = categoryRepository,
+            virtualGroupDao = virtualGroupDao,
+            channelDao = mock<ChannelDao>().also { dao ->
+                whenever(dao.getByProviderSync(targetProvider.id)).thenReturn(emptyList())
+            },
+            storedProviders = listOf(targetProvider)
+        ).importConfig("content://guide-default-group", preferencesOnlyPlan())
+
+        assertThat(result).isInstanceOf(Result.Success::class.java)
+        val imported = (result as Result.Success).data
+        assertThat(imported.unresolvedReferences).isEmpty()
+        assertThat(imported.outcome).isEqualTo(BackupRestoreOutcome.COMPLETE)
+        verify(virtualGroupDao).getByType(targetProvider.id, ContentType.LIVE.name)
+        verify(preferencesRepository).setGuideDefaultCategoryId(-targetGroup.id)
+    }
+
+    @Test
+    fun `portable guide combined category restores from its stable name`() = runBlocking {
+        val context: Context = mock()
+        val contentResolver: ContentResolver = mock()
+        val providerDao: ProviderDao = mock()
+        val categoryRepository: CategoryRepository = mock()
+        val preferencesRepository: PreferencesRepository = mock()
+        val memberDao: com.streamvault.data.local.dao.CombinedM3uProfileMemberDao = mock()
+        val sourceProvider = Provider(
+            id = 2L,
+            name = "Source",
+            type = ProviderType.XTREAM_CODES,
+            serverUrl = "https://example.com",
+            username = "user"
+        )
+        val category = Category(id = 50L, name = "Sports", type = ContentType.LIVE)
+        val categoryId = com.streamvault.domain.model.CombinedCategoryIdentity.idForName(category.name)
+        stubGuidePreferenceExport(preferencesRepository, categoryId)
+        whenever(preferencesRepository.activeLiveSource).thenReturn(
+            flowOf(com.streamvault.domain.model.ActiveLiveSource.CombinedM3uSource(31L))
+        )
+        whenever(categoryRepository.getCategories(sourceProvider.id)).thenReturn(flowOf(listOf(category)))
+        whenever(memberDao.getForProfileSync(31L)).thenReturn(
+            listOf(
+                com.streamvault.data.local.entity.CombinedM3uProfileMemberWithProvider(
+                    id = 1L,
+                    profileId = 31L,
+                    providerId = sourceProvider.id,
+                    priority = 0,
+                    enabled = true,
+                    providerName = sourceProvider.name
+                )
+            )
+        )
+
+        val portable = backupManagerForValidation(
+            context = context,
+            preferencesRepository = preferencesRepository,
+            categoryRepository = categoryRepository,
+            combinedM3uProfileMemberDao = memberDao
+        ).buildPortableProviderPreferences(listOf(sourceProvider))
+
+        assertThat(portable.guideDefaultCombinedCategoryName).isEqualTo("Sports")
+        assertThat(portable.guideDefaultCategory).isNull()
+        assertThat(portable.unresolvedReferences).isEmpty()
+
+        whenever(context.contentResolver).thenReturn(contentResolver)
+        whenever(providerDao.getAllSync()).thenReturn(listOf(sourceProvider.toEntity()))
+        whenever(categoryRepository.getCategories(sourceProvider.id)).thenReturn(flowOf(listOf(category)))
+        whenever(contentResolver.openInputStream(anyOrNull())).thenReturn(
+            ByteArrayInputStream(
+                Gson().toJson(BackupData(portableProviderPreferences = portable)).toByteArray()
+            )
+        )
+        val channelDao: ChannelDao = mock()
+        whenever(channelDao.getByProviderSync(sourceProvider.id)).thenReturn(emptyList())
+
+        val result = backupManagerForValidation(
+            context = context,
+            preferencesRepository = preferencesRepository,
+            providerDao = providerDao,
+            categoryRepository = categoryRepository,
+            channelDao = channelDao,
+            storedProviders = listOf(sourceProvider)
+        ).importConfig("content://guide-default-combined", preferencesOnlyPlan())
+
+        assertThat(result).isInstanceOf(Result.Success::class.java)
+        assertThat((result as Result.Success).data.outcome).isEqualTo(BackupRestoreOutcome.COMPLETE)
+        assertThat((result as Result.Success).data.unresolvedReferences).isEmpty()
+        verify(preferencesRepository).setGuideDefaultCategoryId(categoryId)
+    }
+
+    @Test
     fun `local backup credentials hydrate redacted provider before restore`() {
         val manager = backupManagerForValidation(mock())
         val provider = Provider(
@@ -3738,6 +4034,25 @@ class BackupManagerImplTest {
         assertThat(first.values.any { it.contains("\"catalogHours\":48") }).isTrue()
     }
 
+    private fun stubGuidePreferenceExport(
+        preferencesRepository: PreferencesRepository,
+        guideCategoryId: Long
+    ) {
+        whenever(preferencesRepository.lastActiveProviderId).thenReturn(flowOf(null))
+        whenever(preferencesRepository.guideDefaultCategoryId).thenReturn(flowOf(guideCategoryId))
+        whenever(preferencesRepository.promotedLiveGroupIds).thenReturn(flowOf(emptySet()))
+        whenever(preferencesRepository.getHiddenChannelIds(any())).thenReturn(flowOf(emptySet()))
+        whenever(preferencesRepository.getHiddenCategoryIds(any(), any())).thenReturn(flowOf(emptySet()))
+        whenever(preferencesRepository.getPinnedCategoryIds(any(), any())).thenReturn(flowOf(emptySet()))
+        whenever(preferencesRepository.getCategorySortMode(any(), any())).thenReturn(
+            flowOf(com.streamvault.domain.model.CategorySortMode.DEFAULT)
+        )
+        whenever(preferencesRepository.epgTimeShiftsByProvider).thenReturn(flowOf(emptyMap()))
+        whenever(preferencesRepository.liveVariantSelections).thenReturn(flowOf(emptyMap()))
+        whenever(preferencesRepository.vodVariantSelections).thenReturn(flowOf(emptyMap()))
+        whenever(preferencesRepository.vodTrackPreferencesByScope).thenReturn(flowOf(emptyMap()))
+    }
+
     private fun backupManagerForValidation(
         context: Context,
         preferencesRepository: PreferencesRepository = mock(),
@@ -3751,6 +4066,7 @@ class BackupManagerImplTest {
         virtualGroupDao: VirtualGroupDao = mock(),
         credentialCrypto: CredentialCrypto = mock(),
         epgSourceDao: EpgSourceDao? = null,
+        combinedM3uProfileMemberDao: com.streamvault.data.local.dao.CombinedM3uProfileMemberDao? = null,
         recordingManager: RecordingManager = mock(),
         storedProviders: List<Provider> = emptyList(),
     ): BackupManagerImpl {
@@ -3796,7 +4112,8 @@ class BackupManagerImplTest {
             backupRestoreLedgerDao = restoreLedgerDao,
             channelDao = channelDao,
             seriesDao = mock(),
-            epgSourceDao = epgSourceDao
+            epgSourceDao = epgSourceDao,
+            combinedM3uProfileMemberDao = combinedM3uProfileMemberDao
         )
     }
 

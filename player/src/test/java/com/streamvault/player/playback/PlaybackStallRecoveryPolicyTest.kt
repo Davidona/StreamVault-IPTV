@@ -2,9 +2,64 @@ package com.streamvault.player.playback
 
 import com.google.common.truth.Truth.assertThat
 import com.streamvault.domain.model.PlaybackContentKind
+import com.streamvault.player.PlaybackState
 import org.junit.Test
 
 class PlaybackStallRecoveryPolicyTest {
+    @Test
+    fun `startup grace does not consume the first buffering stall after recovery`() {
+        var nowMs = 1L
+        val detector = VideoStallDetector(nowMs = { nowMs })
+        detector.reset()
+
+        fun evaluate(graceActive: Boolean): Boolean {
+            val deferred = shouldDeferAppStallRecovery(
+                activeMediaLoadRetry = false,
+                sourceRetryPending = false
+            )
+            return detector.shouldReportStall(
+                playbackState = PlaybackState.BUFFERING,
+                isPlaying = false,
+                playbackStarted = true, // Recovery is armed from prior playback.
+                currentPositionMs = 0L,
+                bufferedDurationMs = 0L,
+                playWhenReady = true,
+                recoverBufferingStalls = !deferred,
+                deferReporting = graceActive
+            )
+        }
+
+        nowMs = 9_001L
+        assertThat(evaluate(graceActive = true)).isFalse()
+        nowMs = 15_001L
+        assertThat(evaluate(graceActive = false)).isTrue()
+        assertThat(evaluate(graceActive = false)).isFalse()
+    }
+
+    @Test
+    fun `active refill after startup grace still protects valid buffering`() {
+        var nowMs = 1L
+        val detector = VideoStallDetector(nowMs = { nowMs })
+        detector.reset()
+        for (second in 1..30) {
+            nowMs = second * 1_000L + 1L
+            val deferred = shouldDeferAppStallRecovery(
+                activeMediaLoadRetry = false,
+                sourceRetryPending = false
+            )
+            assertThat(detector.shouldReportStall(
+                playbackState = PlaybackState.BUFFERING,
+                isPlaying = false,
+                playbackStarted = true,
+                currentPositionMs = 0L,
+                bufferedDurationMs = second * 1_000L,
+                playWhenReady = true,
+                recoverBufferingStalls = !deferred,
+                deferReporting = second < 15
+            )).isFalse()
+        }
+    }
+
     @Test
     fun `pending Media3 load retry defers app level stall recovery`() {
         assertThat(

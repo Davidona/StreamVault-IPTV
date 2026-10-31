@@ -2,7 +2,10 @@ package com.streamvault.feature.settings.presentation
 
 import com.streamvault.domain.manager.BackupConflictStrategy
 import com.streamvault.domain.manager.BackupImportPlan
+import com.streamvault.domain.manager.BackupExportPlan
 import com.streamvault.domain.manager.BackupRestoreOutcome
+import com.streamvault.domain.manager.BackupProviderReference
+import com.streamvault.domain.model.LegacyProvider
 import com.streamvault.domain.manager.BACKUP_SECTION_STREMIO_ADDONS
 import com.streamvault.domain.usecase.ExportBackup
 import com.streamvault.domain.usecase.ExportBackupCommand
@@ -21,7 +24,8 @@ class SettingsBackupActions(
     private val exportBackup: ExportBackup,
     private val importBackup: ImportBackup,
     private val uiState: MutableStateFlow<SettingsUiState>,
-    private val stremioAddonSectionLabel: (() -> String)? = null
+    private val stremioAddonSectionLabel: (() -> String)? = null,
+    private val loadRestoreProviders: suspend () -> List<LegacyProvider> = { uiState.value.providers }
 ) {
     fun exportConfig(
         scope: CoroutineScope,
@@ -29,6 +33,7 @@ class SettingsBackupActions(
         onSuccess: (() -> Unit)? = null,
         successMessage: String? = null,
         onFinished: ((Boolean) -> Unit)? = null,
+        plan: BackupExportPlan = BackupExportPlan(),
     ) {
         scope.launch {
             uiState.update {
@@ -40,7 +45,7 @@ class SettingsBackupActions(
                     pendingDriveCredentials = null
                 )
             }
-            val result = exportBackup(ExportBackupCommand(uriString))
+            val result = exportBackup(ExportBackupCommand(uriString, plan))
             if (result is ExportBackupResult.Success) {
                 onSuccess?.invoke()
             }
@@ -148,6 +153,7 @@ class SettingsBackupActions(
         // loop, so only one call wins the transition isImportingBackup=false→true.
         var capturedUri: String? = null
         var capturedPlan: BackupImportPlan? = null
+        var offerProviderSync = false
         uiState.update { state ->
             if (state.isImportingBackup || state.pendingBackupUri == null) return@update state
             val plan = state.backupImportPlan
@@ -159,12 +165,21 @@ class SettingsBackupActions(
             }
             capturedUri = state.pendingBackupUri
             capturedPlan = plan
+            offerProviderSync = plan.importProviders && (state.backupPreview?.providerCount ?: 0) > 0
             state.copy(isImportingBackup = true)
         }
         val uriString = capturedUri ?: return
         val plan = capturedPlan ?: return
         scope.launch {
             val result = importBackup.confirm(ImportBackupCommand(uriString, plan))
+            val affectedProviders = if (offerProviderSync) {
+                (result as? ImportBackupResult.Success)?.result?.affectedProviders.orEmpty()
+            } else emptyList()
+            // Read after import commits: the UI observer may not yet include newly imported providers.
+            val configuredProviders = if (affectedProviders.isEmpty()) emptyList() else loadRestoreProviders()
+            val syncableProviders = affectedProviders.distinct().filter { reference ->
+                configuredProviders.findRestoreSyncProvider(reference) != null
+            }
             uiState.update { state ->
                 val importResult = (result as? ImportBackupResult.Success)?.result
                 val completed = importResult?.outcome == BackupRestoreOutcome.COMPLETE ||
@@ -187,7 +202,7 @@ class SettingsBackupActions(
                     pendingBackupUri = if (completed) null else state.pendingBackupUri,
                     backupImportPlan = if (completed) BackupImportPlan() else state.backupImportPlan,
                     pendingRestoreJobId = importResult?.restoreJobId,
-                    pendingRestoreProviders = importResult?.affectedProviders.orEmpty(),
+                    pendingRestoreProviders = syncableProviders,
                     selectedRestoreProviderIndices = emptySet()
                 )
             }
@@ -221,3 +236,12 @@ class SettingsBackupActions(
         }
     }
 }
+
+/** Only offer sync when a backup reference identifies exactly one configured provider. */
+internal fun List<LegacyProvider>.findRestoreSyncProvider(reference: BackupProviderReference): LegacyProvider? =
+    singleOrNull { candidate ->
+        candidate.serverUrl.trim().trimEnd('/').equals(reference.serverUrl.trim().trimEnd('/'), true) &&
+            candidate.username.trim() == reference.username.trim() &&
+            (reference.providerType == null || candidate.type == reference.providerType) &&
+            candidate.stalkerMacAddress.trim().equals(reference.stalkerMacAddress.orEmpty().trim(), true)
+    }

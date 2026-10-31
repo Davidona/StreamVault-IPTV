@@ -956,4 +956,13 @@
     <string name="settings_sync_index_progress">%1$s · %2$s</string>
     <string name="settings_refresh_rate_matching">Dopasuj do liczby klatek treści</string>
     <string name="settings_refresh_rate_matching_description">Dopasowuje częstotliwość odświeżania ekranu do filmu, aby ruch był płynniejszy. Wymaga obsługi przez ekran; podczas zmiany ekran może na chwilę zgasnąć.</string>
+    <string name="settings_epg_phone_qr_start">Pokaż kod QR</string>
+    <string name="settings_epg_phone_qr_stop">Zatrzymaj parowanie</string>
+    <string name="settings_epg_phone_qr_warning">Bezpieczeństwo: Parowanie wysyła dane logowania bez szyfrowania przez sieć lokalną. Korzystaj tylko z zaufanej, prywatnej sieci Wi-Fi.</string>
+    <string name="settings_epg_phone_qr_complete">Dodano</string>
+    <string name="settings_epg_phone_qr_error">Błąd</string>
+    <string name="settings_backup_export_sections">Wybierz sekcje do eksportu</string>
+    <string name="settings_m3u_catchup_query_format">Format zapytania odtwarzania archiwum</string>
+    <string name="settings_m3u_catchup_query_format_subtitle">Używany dla kanałów M3U bez własnego źródła archiwum. Pozostaw puste, aby wyłączyć ten format zastępczy. Przykład: ?utc={utc}</string>
+    <string name="settings_m3u_catchup_query_format_disabled">Wyłączone</string>
 </resources>

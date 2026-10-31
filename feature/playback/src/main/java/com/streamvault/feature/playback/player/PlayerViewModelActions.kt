@@ -3,6 +3,7 @@ package com.streamvault.feature.playback.player
 import androidx.lifecycle.viewModelScope
 import com.streamvault.feature.playback.R
 import com.streamvault.domain.model.ContentType
+import com.streamvault.domain.model.ExactRecordingAlarmAccessException
 import com.streamvault.domain.model.RecordingRecurrence
 import com.streamvault.domain.model.RecordingRequest
 import com.streamvault.domain.model.Result
@@ -106,6 +107,13 @@ fun PlayerViewModel.stopCasting() {
     )
 }
 
+internal fun recordingFailureMessageRes(error: Result.Error): Int =
+    if (error.exception is ExactRecordingAlarmAccessException) {
+        R.string.player_recording_exact_alarm_required
+    } else {
+        R.string.player_recording_failed_notice
+    }
+
 fun PlayerViewModel.startManualRecording() {
     val channel = currentChannel.value
     if (currentContentType != ContentType.LIVE || channel == null || currentProviderId <= 0) {
@@ -127,7 +135,7 @@ fun PlayerViewModel.startManualRecording() {
         )
         showPlayerNotice(
             message = if (result is Result.Error) {
-                appContext.getString(R.string.player_recording_failed_notice)
+                appContext.getString(recordingFailureMessageRes(result))
             } else {
                 appContext.getString(R.string.player_recording_started_notice, channel.name)
             },
@@ -175,7 +183,7 @@ fun PlayerViewModel.scheduleRecordingByTime(
         val title = (result as? Result.Success)?.data?.programTitle ?: channel.name
         showPlayerNotice(
             message = if (result is Result.Error) {
-                appContext.getString(R.string.player_recording_failed_notice)
+                appContext.getString(recordingFailureMessageRes(result))
             } else {
                 recordingScheduledNotice(recurrence, title)
             },
@@ -201,7 +209,7 @@ private fun PlayerViewModel.scheduleRecordingInternal(recurrence: RecordingRecur
         val title = scheduledItem?.programTitle ?: currentTitle
         showPlayerNotice(
             message = if (result is Result.Error) {
-                appContext.getString(R.string.player_recording_failed_notice)
+                appContext.getString(recordingFailureMessageRes(result))
             } else {
                 recordingScheduledNotice(recurrence, title)
             },

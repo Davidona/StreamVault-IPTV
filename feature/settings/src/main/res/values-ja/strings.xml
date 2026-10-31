@@ -948,4 +948,13 @@
     <string name="settings_sync_index_progress">%1$s · %2$s</string>
     <string name="settings_refresh_rate_matching">コンテンツのフレームレートに合わせる</string>
     <string name="settings_refresh_rate_matching_description">映像の動きを滑らかにするため、画面のリフレッシュレートを動画に合わせます。対応するディスプレイが必要です。切り替え時に画面が一瞬暗くなることがあります。</string>
+    <string name="settings_epg_phone_qr_start">QR コードを表示</string>
+    <string name="settings_epg_phone_qr_stop">ペアリングを停止</string>
+    <string name="settings_epg_phone_qr_warning">セキュリティ: ペアリングではログイン情報が暗号化されずにローカルネットワーク経由で送信されます。信頼できるプライベート Wi-Fi のみ使用してください。</string>
+    <string name="settings_epg_phone_qr_complete">追加済み</string>
+    <string name="settings_epg_phone_qr_error">エラー</string>
+    <string name="settings_backup_export_sections">エクスポートする項目を選択</string>
+    <string name="settings_m3u_catchup_query_format">キャッチアップクエリ形式</string>
+    <string name="settings_m3u_catchup_query_format_subtitle">専用のキャッチアップソースがないM3Uチャンネルに使用します。この代替形式を無効にするには空欄にします。例: ?utc={utc}</string>
+    <string name="settings_m3u_catchup_query_format_disabled">無効</string>
 </resources>

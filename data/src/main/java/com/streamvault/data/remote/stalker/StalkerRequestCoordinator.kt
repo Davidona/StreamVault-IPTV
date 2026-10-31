@@ -366,7 +366,7 @@ class StalkerRequestCoordinator internal constructor(
                     val backgroundBlocked = lowPriority &&
                         (state.interactiveWaiters > 0 || state.interactiveInFlight > 0)
                     val adaptiveIndex = adaptiveIndexingEnabled && priority == StalkerNetworkPriority.INDEX
-                    val playbackActive = StalkerTrafficCoordinator.isPlaybackActive(providerId)
+                    val playbackActive = StalkerTrafficCoordinator.shouldDeferIndexForPlayback(providerId)
                     val indexWait = if (adaptiveIndex && playbackActive) NETWORK_ADMISSION_POLL_MILLIS else 0L
                     val indexWindowFull = adaptiveIndex && state.indexNetworkInFlight >=
                         (if (playbackActive) 1 else state.indexLimit())
@@ -449,7 +449,7 @@ class StalkerRequestCoordinator internal constructor(
         val state = states[permit.providerId] ?: return
         state.mutex.withLock {
             val changed = when {
-                error == null -> state.indexPacing.success(StalkerTrafficCoordinator.isPlaybackActive(permit.providerId))
+                error == null -> state.indexPacing.success(StalkerTrafficCoordinator.shouldDeferIndexForPlayback(permit.providerId))
                 error.isProviderStressSignal() -> state.indexPacing.stress()
                 else -> { state.indexPacing.resetHealth(); false }
             }

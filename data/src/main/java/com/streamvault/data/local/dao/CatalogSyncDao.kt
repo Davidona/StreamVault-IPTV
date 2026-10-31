@@ -348,6 +348,20 @@ interface CatalogSyncDao {
                   AND stage.provider_id = :providerId
                   AND stage.stream_id = channels.stream_id
             ),
+            catch_up_type = (
+                SELECT stage.catch_up_type
+                FROM channel_import_stage AS stage
+                WHERE stage.session_id = :sessionId
+                  AND stage.provider_id = :providerId
+                  AND stage.stream_id = channels.stream_id
+            ),
+            catch_up_correction_seconds = (
+                SELECT stage.catch_up_correction_seconds
+                FROM channel_import_stage AS stage
+                WHERE stage.session_id = :sessionId
+                  AND stage.provider_id = :providerId
+                  AND stage.stream_id = channels.stream_id
+            ),
             logical_group_id = (
                 SELECT stage.logical_group_id
                 FROM channel_import_stage AS stage
@@ -411,6 +425,8 @@ interface CatalogSyncDao {
             catch_up_supported,
             catch_up_days,
             catchUpSource,
+            catch_up_type,
+            catch_up_correction_seconds,
             logical_group_id,
             error_count,
             provider_id,
@@ -432,6 +448,8 @@ interface CatalogSyncDao {
             stage.catch_up_supported,
             stage.catch_up_days,
             stage.catchUpSource,
+            stage.catch_up_type,
+            stage.catch_up_correction_seconds,
             stage.logical_group_id,
             stage.error_count,
             stage.provider_id,

@@ -64,6 +64,7 @@ class ChannelRepositoryImplTest {
         whenever(preferencesRepository.liveVariantPreferenceMode).thenReturn(flowOf(LiveVariantPreferenceMode.BALANCED))
         whenever(preferencesRepository.liveVariantSelections).thenReturn(flowOf(emptyMap()))
         whenever(preferencesRepository.liveVariantObservations).thenReturn(flowOf(emptyMap()))
+        whenever(preferencesRepository.m3uCatchUpQueryFormat).thenReturn(flowOf("?utc={utc}"))
         whenever(preferencesRepository.hideDecorativeLiveRows).thenReturn(flowOf(true))
         whenever(preferencesRepository.getHiddenChannelIds(any())).thenReturn(flowOf(emptySet()))
         whenever(providerSnapshotDao.getConfigSync(any())).thenReturn(null)
@@ -573,6 +574,34 @@ class ChannelRepositoryImplTest {
     }
 
     @Test
+    fun `presented channels expose whether the catch-up fallback is configured`() = runTest {
+        whenever(preferencesRepository.liveChannelGroupingMode).thenReturn(
+            flowOf(LiveChannelGroupingMode.RAW_VARIANTS)
+        )
+        whenever(preferencesRepository.m3uCatchUpQueryFormat).thenReturn(flowOf(""))
+        whenever(channelDao.getByIds(listOf(42L))).thenReturn(
+            flowOf(
+                listOf(
+                    ChannelBrowseEntity(
+                        id = 42L,
+                        streamId = 42L,
+                        name = "Fallback Channel",
+                        streamUrl = "https://stream/42.ts",
+                        number = 1,
+                        catchUpSupported = true,
+                        catchUpType = "append",
+                        providerId = 7L
+                    )
+                )
+            )
+        )
+
+        val result = createRepository().getChannelsByIds(listOf(42L)).first()
+
+        assertThat(result.single().catchUpFallbackAvailable).isFalse()
+    }
+
+    @Test
     fun `getChannel reads updated stalker portal config after an edit`() = runTest {
         whenever(channelDao.getBrowseById(536L)).thenReturn(
             ChannelBrowseEntity(
@@ -630,21 +659,19 @@ class ChannelRepositoryImplTest {
     }
 
     @Test
-    fun `searchChannels returns empty list when sqlite throws for malformed fts query`() = runTest {
+    fun `searchChannels falls back to paged browse rows when fts query throws`() = runTest {
         whenever(channelDao.search(eq(7L), any(), any())).thenReturn(
             flow { throw SQLiteException("malformed MATCH expression") }
         )
-        whenever(channelDao.searchFallback(eq(7L), any(), any())).thenReturn(
-            flowOf(
-                listOf(
-                    ChannelBrowseEntity(
-                        id = 99L,
-                        streamId = 199L,
-                        name = "News One",
-                        streamUrl = "https://stream/news",
-                        number = 9,
-                        providerId = 7L
-                    )
+        whenever(channelDao.getByProviderBrowsePageOffset(eq(7L), any(), any())).thenReturn(
+            listOf(
+                ChannelBrowseEntity(
+                    id = 99L,
+                    streamId = 199L,
+                    name = "News One",
+                    streamUrl = "https://stream/news",
+                    number = 9,
+                    providerId = 7L
                 )
             )
         )

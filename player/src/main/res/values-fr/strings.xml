@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="player_error_live_startup_timeout">La lecture n’a pas pu démarrer. Essayez un autre flux.</string>
+</resources>

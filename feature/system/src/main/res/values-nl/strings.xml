@@ -32,6 +32,7 @@
   <string name="download_folder_default">Standaard downloadmap</string>
   <string name="download_resume">Hervatten</string>
   <string name="download_delete">Verwijderen</string>
+  <string name="download_play">Afspelen</string>
   <string name="downloads_resumed">Download hervat</string>
   <string name="extensions_tab_plugins">Plugins</string>
   <string name="extensions_tab_stremio_addons">Stremio-add-ons</string>
@@ -46,6 +47,7 @@
     <string name="torrent_cache_confirm_message">Tijdelijke torrentgegevens verwijderen? Opgeslagen downloads worden niet verwijderd.</string>
     <string name="torrent_cache_active">Stop de torrentweergave voordat je de cache wist.</string>
     <string name="torrent_cache_clear_failed">De tijdelijke cache kan niet worden gewist.</string>
+    <string name="torrent_cache_cleared">Tijdelijke cache gewist.</string>
     <string name="extensions_title">Extensies</string>
     <string name="plugins_section_description">Voeg functies toe aan StreamVault met begeleidende Android-apps.</string>
     <string name="plugins_install_url">Plugin installeren vanaf URL</string>

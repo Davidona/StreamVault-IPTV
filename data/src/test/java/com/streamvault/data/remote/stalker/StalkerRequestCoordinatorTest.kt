@@ -5,6 +5,7 @@ import com.streamvault.domain.model.StalkerRequestPriority
 import java.net.SocketTimeoutException
 import java.util.concurrent.atomic.AtomicInteger
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.asContextElement
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -422,5 +423,52 @@ class StalkerRequestCoordinatorTest {
         category.await()
         bulk.await()
         assertThat(bulkStarted.isCompleted).isTrue()
+    }
+    @Test fun engineOwnedAutomaticIndexWaitsForReleaseWhileInteractiveRequestsContinue() = runTest {
+        val owner=Any()
+        val coordinator=StalkerRequestCoordinator(null,true) { testScheduler.currentTime }
+        try {
+            com.streamvault.domain.sync.AutomaticSyncActivity.started(owner,707)
+            kotlinx.coroutines.withContext(
+                com.streamvault.data.sync.AutomaticSyncExecution.automatic.asContextElement(true) +
+                    com.streamvault.data.sync.AutomaticSyncExecution.policy.asContextElement(com.streamvault.domain.sync.AutomaticSyncSettings())
+            ) {
+                val pending=async { coordinator.acquireNetworkPermit(707,StalkerNetworkPriority.INDEX) }
+                runCurrent()
+                assertThat(pending.isCompleted).isFalse()
+                val interactive=coordinator.acquireNetworkPermit(707,StalkerNetworkPriority.INTERACTIVE)
+                coordinator.releaseNetworkPermit(interactive)
+                com.streamvault.domain.sync.AutomaticSyncActivity.stopped(owner)
+                advanceUntilIdle()
+                coordinator.releaseNetworkPermit(pending.await())
+            }
+        } finally { com.streamvault.domain.sync.AutomaticSyncActivity.stopped(owner) }
+    }
+    @Test fun engineOwnedPlaybackDoesNotBlockManualOrOptOutIndexNetworkAdmission() = runTest {
+        val owner=Any()
+        val coordinator=StalkerRequestCoordinator(null,true) { testScheduler.currentTime }
+        try {
+            com.streamvault.domain.sync.AutomaticSyncActivity.started(owner,708)
+            for (automatic in listOf(false,true)) kotlinx.coroutines.withContext(
+                com.streamvault.data.sync.AutomaticSyncExecution.automatic.asContextElement(automatic) +
+                    com.streamvault.data.sync.AutomaticSyncExecution.policy.asContextElement(com.streamvault.domain.sync.AutomaticSyncSettings(deferWhileBusy=!automatic))
+            ) {
+                val pending=async { coordinator.acquireNetworkPermit(708,StalkerNetworkPriority.INDEX) }
+                runCurrent(); assertThat(pending.isCompleted).isTrue()
+                coordinator.releaseNetworkPermit(pending.await())
+            }
+        } finally { com.streamvault.domain.sync.AutomaticSyncActivity.stopped(owner) }
+    }
+    @Test fun engineOwnedOtherProviderDoesNotBlockAutomaticIndexNetworkAdmission() = runTest {
+        val owner=Any()
+        val coordinator=StalkerRequestCoordinator(null,true) { testScheduler.currentTime }
+        try {
+            com.streamvault.domain.sync.AutomaticSyncActivity.started(owner,709)
+            kotlinx.coroutines.withContext(com.streamvault.data.sync.AutomaticSyncExecution.automatic.asContextElement(true)) {
+                val pending=async { coordinator.acquireNetworkPermit(710,StalkerNetworkPriority.INDEX) }
+                runCurrent(); assertThat(pending.isCompleted).isTrue()
+                coordinator.releaseNetworkPermit(pending.await())
+            }
+        } finally { com.streamvault.domain.sync.AutomaticSyncActivity.stopped(owner) }
     }
 }

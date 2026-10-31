@@ -36,4 +36,14 @@ class ReturnNavigationPolicyTest {
             )
         ).isEqualTo(ReturnNavigationPlan.NavigateHome)
     }
+
+    @Test
+    fun playerStateIsNeverSavedWhileReplacingIt() {
+        assertThat(shouldSaveCurrentStateOnReplacement(AppRoutePatterns.PLAYER)).isFalse()
+    }
+
+    @Test
+    fun nonPlayerStateKeepsExistingSaveStateBehavior() {
+        assertThat(shouldSaveCurrentStateOnReplacement(AppRoutePatterns.LIVE_TV)).isTrue()
+    }
 }

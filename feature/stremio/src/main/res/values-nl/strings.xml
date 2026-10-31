@@ -106,4 +106,9 @@
     <string name="stremio_hidden_title">Stremio-add-ons zijn verborgen</string>
     <string name="stremio_open_settings">Instellingen openen</string>
     <string name="stremio_hidden_message">Om je add-ons te tonen, open je Instellingen → Privacy en schakel je Stremio-add-ons verbergen uit. Je geïnstalleerde add-ons blijven behouden.</string>
+    <string name="stremio_phone_qr_start">QR-code tonen</string>
+    <string name="stremio_phone_qr_stop">Koppelen stoppen</string>
+    <string name="stremio_phone_qr_warning">Beveiliging: Koppelen verstuurt inloggegevens onversleuteld via je lokale netwerk. Gebruik alleen een vertrouwd privé-Wi-Fi-netwerk.</string>
+    <string name="stremio_phone_qr_complete">Toegevoegd</string>
+    <string name="stremio_phone_qr_error">Fout</string>
 </resources>

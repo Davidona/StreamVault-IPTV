@@ -267,6 +267,11 @@
     <string name="live_sports_forget_choice">ลืมตัวเลือกนี้</string>
     <string name="live_sports_no_matching_channels">ไม่พบช่องที่ตรงกัน</string>
     <string name="live_sports_league_efl_championship">แชมเปียนชิปลีกฟุตบอลอังกฤษ</string>
+    <string name="live_sports_league_brasileirao_serie_a">แชมเปียนชิปบราซิล เซเรียอา</string>
+    <string name="live_sports_league_brasileirao_serie_b">แชมเปียนชิปบราซิล เซเรียบี</string>
+    <string name="live_sports_league_copa_do_brasil">บราซิลคัพ</string>
+    <string name="live_sports_league_copa_libertadores">โกปาลิเบร์ตาโดเรส</string>
+    <string name="live_sports_league_copa_sul_americana">โกปาซูดาเมริกานา</string>
     <string name="live_sports_standings">ตารางคะแนน</string>
     <string name="live_sports_standings_rank">อันดับ</string>
     <string name="live_sports_standings_team">ทีม</string>

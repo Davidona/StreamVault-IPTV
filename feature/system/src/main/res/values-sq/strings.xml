@@ -32,6 +32,7 @@
   <string name="download_folder_default">Dosja e parazgjedhur e shkarkimeve</string>
   <string name="download_resume">Vazhdo</string>
   <string name="download_delete">Fshi</string>
+  <string name="download_play">Luaj</string>
   <string name="downloads_resumed">Shkarkimi vazhdoi</string>
   <string name="extensions_tab_plugins">Shtojcat</string>
   <string name="extensions_tab_stremio_addons">Shtesa Stremio</string>
@@ -46,6 +47,7 @@
     <string name="torrent_cache_confirm_message">Të hiqen të dhënat e përkohshme të torrentit? Shkarkimet e ruajtura nuk do të fshihen.</string>
     <string name="torrent_cache_active">Ndalo luajtjen e torrentit para pastrimit të memories.</string>
     <string name="torrent_cache_clear_failed">Memoria e përkohshme nuk mund të pastrohej.</string>
+    <string name="torrent_cache_cleared">Memoria e përkohshme u pastrua.</string>
     <string name="extensions_title">Zgjerimet</string>
     <string name="plugins_section_description">Shto funksione në StreamVault me aplikacione shoqëruese Android.</string>
     <string name="plugins_install_url">Instalo shtojcë nga URL</string>

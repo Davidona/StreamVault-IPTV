@@ -32,6 +32,7 @@
   <string name="download_folder_default">תיקיית הורדות ברירת מחדל</string>
   <string name="download_resume">המשך</string>
   <string name="download_delete">מחק</string>
+  <string name="download_play">נגן</string>
   <string name="downloads_resumed">ההורדה חודשה</string>
   <string name="extensions_tab_plugins">תוספים</string>
   <string name="extensions_tab_stremio_addons">תוספי Stremio</string>
@@ -46,6 +47,7 @@
     <string name="torrent_cache_confirm_message">להסיר נתוני טורנט זמניים? הורדות שמורות לא יימחקו.</string>
     <string name="torrent_cache_active">יש לעצור את ניגון הטורנט לפני ניקוי המטמון.</string>
     <string name="torrent_cache_clear_failed">לא ניתן לנקות את המטמון הזמני.</string>
+    <string name="torrent_cache_cleared">המטמון הזמני נוקה.</string>
     <string name="extensions_title">הרחבות</string>
     <string name="plugins_section_description">הוספת תכונות ל-StreamVault עם אפליקציות Android נלוות.</string>
     <string name="plugins_install_url">התקנת תוסף מכתובת URL</string>

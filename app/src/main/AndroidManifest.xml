@@ -65,6 +65,11 @@
             android:screenOrientation="unspecified"
             android:windowSoftInputMode="adjustResize">
 
+            <!-- Simple routes other apps may open with EXTRA_EXTERNAL_ROUTE (launchers can check before sending). -->
+            <meta-data
+                android:name="com.streamvault.app.EXTERNAL_ROUTES"
+                android:value="home,plugins,downloads" />
+
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH" />
                 <category android:name="android.intent.category.DEFAULT" />

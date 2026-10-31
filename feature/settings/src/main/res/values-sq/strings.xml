@@ -948,4 +948,13 @@
     <string name="settings_sync_index_progress">%1$s · %2$s</string>
     <string name="settings_refresh_rate_matching">Përshtat shpejtësinë e kuadrove të përmbajtjes</string>
     <string name="settings_refresh_rate_matching_description">Përshtat ritmin e rifreskimit të ekranit me videon për lëvizje më të rrjedhshme. Kërkon mbështetje nga ekrani; gjatë ndërrimit ekrani mund të nxihet për pak çaste.</string>
+    <string name="settings_epg_phone_qr_start">Shfaq kodin QR</string>
+    <string name="settings_epg_phone_qr_stop">Ndalo çiftimin</string>
+    <string name="settings_epg_phone_qr_warning">Siguria: Çiftimi dërgon të dhënat e hyrjes pa enkriptim përmes rrjetit lokal. Përdor vetëm një rrjet privat Wi-Fi të besuar.</string>
+    <string name="settings_epg_phone_qr_complete">U shtua</string>
+    <string name="settings_epg_phone_qr_error">Gabim</string>
+    <string name="settings_backup_export_sections">Zgjidhni seksionet për eksport</string>
+    <string name="settings_m3u_catchup_query_format">Formati i kërkesës së riluajtjes nga arkivi</string>
+    <string name="settings_m3u_catchup_query_format_subtitle">Përdoret për kanalet M3U pa burimin e tyre të riluajtjes nga arkivi. Lëreni bosh për ta çaktivizuar këtë format rezervë. Shembull: ?utc={utc}</string>
+    <string name="settings_m3u_catchup_query_format_disabled">Joaktiv</string>
 </resources>

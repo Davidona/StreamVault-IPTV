@@ -267,6 +267,11 @@
     <string name="live_sports_forget_choice">यह चयन भूलें</string>
     <string name="live_sports_no_matching_channels">कोई मिलता-जुलता चैनल नहीं</string>
     <string name="live_sports_league_efl_championship">इंग्लिश फुटबॉल लीग चैंपियनशिप</string>
+    <string name="live_sports_league_brasileirao_serie_a">ब्राज़ीलियाई चैम्पियनशिप सीरी ए</string>
+    <string name="live_sports_league_brasileirao_serie_b">ब्राज़ीलियाई चैम्पियनशिप सीरी बी</string>
+    <string name="live_sports_league_copa_do_brasil">ब्राज़ील कप</string>
+    <string name="live_sports_league_copa_libertadores">कोपा लिबर्टाडोरेस</string>
+    <string name="live_sports_league_copa_sul_americana">कोपा सुदामेरिकाना</string>
     <string name="live_sports_standings">अंक तालिका</string>
     <string name="live_sports_standings_rank">स्थान</string>
     <string name="live_sports_standings_team">टीम</string>

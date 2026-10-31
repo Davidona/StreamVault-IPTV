@@ -65,6 +65,7 @@ import com.streamvault.domain.model.EpgResolutionSummary
 import com.streamvault.domain.model.GuideSourcePolicy
 import com.streamvault.domain.model.Result
 import com.streamvault.domain.model.TimeshiftBackendPreference
+import com.streamvault.domain.provider.DEFAULT_M3U_CATCH_UP_QUERY_FORMAT
 import com.streamvault.domain.model.VirtualCategoryIds
 import com.streamvault.domain.model.VodVariantPreferenceMode
 import com.streamvault.domain.usecase.ExportBackup
@@ -123,11 +124,19 @@ class SettingsViewModel @Inject constructor(
     private val diagnosticsPort: SettingsDiagnosticsPort,
     private val syncProvider: SyncProvider,
     private val epgSourceRepository: com.streamvault.domain.repository.EpgSourceRepository,
+    private val phoneAddSession: com.streamvault.domain.phone.PhoneAddSession,
     private val appUpdatePort: SettingsAppUpdatePort,
     private val getCustomCategories: GetCustomCategories,
     private val audioCompatibilityMemoryStore: AudioCompatibilityMemoryStore,
     private val openSubtitlesAccountManager: OpenSubtitlesAccountManager,
 ) : ViewModel() {
+    val phoneAddState = phoneAddSession.state
+
+    fun startEpgPhoneAdd() {
+        viewModelScope.launch { phoneAddSession.start(com.streamvault.domain.phone.PhoneAddKind.EPG) }
+    }
+
+    fun stopEpgPhoneAdd() = phoneAddSession.stop(com.streamvault.domain.phone.PhoneAddKind.EPG)
     private val appContext = application
     private val exportBackup = ExportBackup(backupManager)
     private val importBackup = ImportBackup(backupManager)
@@ -154,6 +163,11 @@ class SettingsViewModel @Inject constructor(
             started = SharingStarted.WhileSubscribed(5_000),
             initialValue = LiveStreamFormatMode.AUTO
         )
+    val m3uCatchUpQueryFormat: StateFlow<String> = preferencesRepository.m3uCatchUpQueryFormat.stateIn(
+        viewModelScope,
+        SharingStarted.WhileSubscribed(5_000),
+        DEFAULT_M3U_CATCH_UP_QUERY_FORMAT
+    )
     private val activeProviderIdFlow = providerRepository.getActiveProvider().map { it?.id }
     private val appUpdateActions = SettingsAppUpdateActions(
         appContext = application,
@@ -165,7 +179,8 @@ class SettingsViewModel @Inject constructor(
         exportBackup = exportBackup,
         importBackup = importBackup,
         uiState = _uiState,
-        stremioAddonSectionLabel = { appContext.getString(R.string.settings_backup_section_stremio_addons) }
+        stremioAddonSectionLabel = { appContext.getString(R.string.settings_backup_section_stremio_addons) },
+        loadRestoreProviders = { providerRepository.getProviders().first() }
     )
     private val driveBackupActions = SettingsDriveBackupActions(
         driveManager = driveBackupSyncManager,
@@ -962,6 +977,12 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
+    fun setM3uCatchUpQueryFormat(format: String) {
+        viewModelScope.launch {
+            preferencesRepository.setM3uCatchUpQueryFormat(format)
+        }
+    }
+
     fun setPlayerLiveTranslationEnabled(enabled: Boolean) {
         viewModelScope.launch {
             preferencesRepository.setPlayerLiveTranslationEnabled(enabled)
@@ -1454,6 +1475,7 @@ class SettingsViewModel @Inject constructor(
         onSuccess: (() -> Unit)? = null,
         successMessage: String? = null,
         onFinished: ((Boolean) -> Unit)? = null,
+        plan: com.streamvault.domain.manager.BackupExportPlan = com.streamvault.domain.manager.BackupExportPlan(),
     ) {
         backupActions.exportConfig(
             scope = viewModelScope,
@@ -1461,6 +1483,7 @@ class SettingsViewModel @Inject constructor(
             onSuccess = onSuccess,
             successMessage = successMessage,
             onFinished = onFinished,
+            plan = plan,
         )
     }
 
@@ -1537,18 +1560,16 @@ class SettingsViewModel @Inject constructor(
         val references = state.selectedRestoreProviderIndices.mapNotNull(state.pendingRestoreProviders::getOrNull)
         if (references.isEmpty()) return
         viewModelScope.launch {
+            val configuredProviders = providerRepository.getProviders().first()
+            val providers = references.mapNotNull { configuredProviders.findRestoreSyncProvider(it) }.distinctBy { it.id }
+            if (providers.isEmpty()) {
+                backupActions.dismissRestoreSyncChooser()
+                return@launch
+            }
             _uiState.update { it.copy(isSyncing = true, syncProgress = "Syncing restored providers…", syncCanCancel = false) }
             val failures = mutableListOf<String>()
-            references.forEach { reference ->
-                val provider = _uiState.value.providers.singleOrNull { candidate ->
-                    candidate.serverUrl.trim().trimEnd('/').equals(reference.serverUrl.trim().trimEnd('/'), true) &&
-                        candidate.username.trim() == reference.username.trim() &&
-                        (reference.providerType == null || candidate.type == reference.providerType) &&
-                        candidate.stalkerMacAddress.trim().equals(reference.stalkerMacAddress.orEmpty().trim(), true)
-                }
-                if (provider == null) {
-                    failures += reference.serverUrl
-                } else if (settingsOperations.syncProvider(provider.id, force = true) is Result.Error) {
+            providers.forEach { provider ->
+                if (settingsOperations.syncProvider(provider.id, force = true) is Result.Error) {
                     failures += provider.name
                 }
             }
@@ -1579,8 +1600,8 @@ class SettingsViewModel @Inject constructor(
         driveBackupActions.signOut(viewModelScope)
     }
 
-    fun pushToDrive() {
-        driveBackupActions.pushBackup(viewModelScope)
+    fun pushToDrive(plan: com.streamvault.domain.manager.BackupExportPlan = com.streamvault.domain.manager.BackupExportPlan()) {
+        driveBackupActions.pushBackup(viewModelScope, plan)
     }
 
     fun pullFromDrive() {

@@ -6,15 +6,16 @@ import org.junit.Test
 
 class ProviderWorkSchedulingTest {
     @Test
-    fun `Stalker catalog guide and setup have independent work identities`() {
+    fun `Xtream and Stalker catalogs guide and setup have independent work identities`() {
         val identities = listOf(
             providerWorkUniqueName(7L),
+            xtreamIndexWorkUniqueName(7L),
             stalkerIndexWorkUniqueName(7L),
             providerEpgWorkUniqueName(7L),
             providerAutomaticIndexWorkUniqueName(7L)
         )
 
-        assertThat(identities.distinct()).hasSize(4)
+        assertThat(identities.distinct()).hasSize(5)
     }
 
     @Test

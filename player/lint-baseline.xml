@@ -2,6 +2,17 @@
 <issues format="6" by="lint 8.10.1" type="baseline" client="gradle" dependencies="false" name="AGP (8.10.1)" variant="all" version="8.10.1">
 
     <issue
+        id="AppBundleLocaleChanges"
+        message="Found dynamic locale changes, but did not find corresponding Play Core library calls for downloading languages and splitting by language is not disabled in the `bundle` configuration"
+        errorLine1="    configuration.setLocale(Locale.getDefault())"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/streamvault/player/playback/LiveStartupErrorMessage.kt"
+            line="12"
+            column="5"/>
+    </issue>
+
+    <issue
         id="CustomX509TrustManager"
         message="Implementing a custom `X509TrustManager` is error-prone and likely to be insecure. It is likely to disable certificate validation altogether, and is non-trivial to implement correctly without calling Android&apos;s default implementation."
         errorLine1="    val trustAllManager = object : X509TrustManager {"
@@ -96,7 +107,7 @@
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/streamvault/player/playback/PlayerMediaSourceFactory.kt"
-            line="126"
+            line="181"
             column="21"/>
     </issue>
 

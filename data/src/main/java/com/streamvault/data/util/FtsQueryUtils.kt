@@ -1,5 +1,7 @@
 package com.streamvault.data.util
 
+import com.streamvault.domain.util.SearchTextNormalizer
+
 /**
  * Builds a Room FTS MATCH query string from a raw user search term.
  *
@@ -10,9 +12,9 @@ package com.streamvault.data.util
  * Example: "star wars" → "star* wars*"
  */
 internal fun String.toFtsPrefixQuery(): String? {
-    val tokens = trim()
+    val tokens = SearchTextNormalizer.normalize(trim())
         .split(Regex("\\s+"))
-        .map { token -> token.replace(Regex("[^\\p{L}\\p{N}_]"), "") }
+        .map { token -> token.replace(Regex("[^\\p{L}\\p{M}\\p{N}_]"), "") }
         .filter { it.length >= 2 }
 
     if (tokens.isEmpty()) return null

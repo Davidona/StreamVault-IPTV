@@ -30,6 +30,8 @@ internal data class PlayerRecoveryRequest(
     val isCatchUp: Boolean,
     val currentProgramHasArchive: Boolean,
     val livePlaybackReady: Boolean,
+    val requestedAudioDecoderMode: DecoderMode = DecoderMode.AUTO,
+    val requestedVideoDecoderMode: DecoderMode = DecoderMode.AUTO,
 )
 
 internal interface PlayerRecoveryExecutionPort {
@@ -95,6 +97,13 @@ class PlayerRecoveryExecutionCoordinator @Inject constructor() {
         if (!port.isActivePlaybackSession(request.requestVersion, request.playbackUrl)) return null
         if (request.contentType == ContentType.SERIES_EPISODE && port.handleEpisodeReplacementError(error)) return null
 
+        // The engine deliberately keeps deferred live stalls on the current source.
+        // Calling play() here would undo that decision and reopen a provider connection.
+        if (error is PlayerError.DecoderError && error.isDeferredLiveStall &&
+            request.contentType == ContentType.LIVE && !request.isCatchUp &&
+            request.resolvedStreamInfo?.playbackContentKind != PlaybackContentKind.CATCH_UP
+        ) return null
+
         if (error is PlayerError.DecoderError && !port.recoveryState.retriedWithSoftwareDecoder) {
             if (!port.isActivePlaybackSession(request.requestVersion, request.playbackUrl)) return null
             if (request.contentType == ContentType.LIVE) {
@@ -118,25 +127,31 @@ class PlayerRecoveryExecutionCoordinator @Inject constructor() {
                     return null
                 }
             }
-            port.recoveryState.retriedWithSoftwareDecoder = true
-            logWarning("Decoder error detected. Retrying with software decoder mode.")
-            port.playerEngine.setDecoderModes(
-                audioMode = DecoderMode.SOFTWARE,
-                videoMode = DecoderMode.SOFTWARE
-            )
-            port.updateDecoderModes(
-                audioMode = DecoderMode.SOFTWARE,
-                videoMode = DecoderMode.SOFTWARE
-            )
-            port.setLastFailureReason(error.message)
-            port.appendRecoveryAction("Switched to software decoder")
-            port.playerEngine.play()
-            port.showPlayerNotice(
-                message = "Retrying with software decoding for this stream.",
-                recoveryType = PlayerRecoveryType.DECODER,
-                actions = port.buildRecoveryActions(PlayerRecoveryType.DECODER)
-            )
-            return null
+            if (request.requestedAudioDecoderMode == DecoderMode.AUTO ||
+                request.requestedVideoDecoderMode == DecoderMode.AUTO
+            ) {
+                val audioMode = request.requestedAudioDecoderMode.softwareRecoveryMode()
+                val videoMode = request.requestedVideoDecoderMode.softwareRecoveryMode()
+                port.recoveryState.retriedWithSoftwareDecoder = true
+                logWarning("Decoder error detected. Retrying with software decoder mode.")
+                port.playerEngine.setDecoderModes(
+                    audioMode = audioMode,
+                    videoMode = videoMode
+                )
+                port.updateDecoderModes(
+                    audioMode = audioMode,
+                    videoMode = videoMode
+                )
+                port.setLastFailureReason(error.message)
+                port.appendRecoveryAction("Switched to software decoder")
+                port.playerEngine.play()
+                port.showPlayerNotice(
+                    message = "Retrying with software decoding for this stream.",
+                    recoveryType = PlayerRecoveryType.DECODER,
+                    actions = port.buildRecoveryActions(PlayerRecoveryType.DECODER)
+                )
+                return null
+            }
         }
 
         port.recordMovieVariantFailureObservation(error)
@@ -316,3 +331,6 @@ private fun PlayerRecoveryRequest.isLiveHlsSession(): Boolean {
     return listOfNotNull(streamInfo?.url, currentStreamUrl, playbackUrl)
         .any { url -> StreamTypeResolver.resolve(url = url, isLive = true) == ResolvedStreamType.HLS }
 }
+
+private fun DecoderMode.softwareRecoveryMode(): DecoderMode =
+    if (this == DecoderMode.AUTO) DecoderMode.SOFTWARE else this

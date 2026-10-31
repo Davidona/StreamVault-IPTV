@@ -71,7 +71,16 @@ class ImportBackup @Inject constructor(
         return when (val result = backupManager.inspectBackup(command.uriString)) {
             is Result.Success -> InspectBackupResult.Success(
                 uriString = command.uriString,
-                preview = result.data
+                preview = result.data,
+                defaultPlan = result.data.availableSections.let { available -> BackupImportPlan(
+                    importPreferences = available.exportPreferences,
+                    importProviders = available.exportProviders,
+                    importSavedLibrary = available.exportSavedLibrary,
+                    importPlaybackHistory = available.exportPlaybackHistory,
+                    importMultiViewPresets = available.exportMultiViewPresets,
+                    importRecordingSchedules = available.exportRecordingSchedules,
+                    importStremioAddons = available.exportStremioAddons
+                ) }
             )
 
             is Result.Error -> InspectBackupResult.Error(result.message, result.exception)

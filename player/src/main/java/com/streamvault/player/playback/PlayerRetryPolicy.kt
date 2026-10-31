@@ -9,7 +9,7 @@ import androidx.media3.exoplayer.source.BehindLiveWindowException
 import androidx.media3.exoplayer.upstream.DefaultLoadErrorHandlingPolicy
 import androidx.media3.exoplayer.upstream.LoadErrorHandlingPolicy
 import com.streamvault.domain.model.PlaybackContentKind
-import java.net.ConnectException
+import java.net.SocketException
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 import java.util.concurrent.ConcurrentHashMap
@@ -38,6 +38,9 @@ class PlayerRetryPolicy(
 ) : LoadErrorHandlingPolicy {
     private val defaultFallbackPolicy = DefaultLoadErrorHandlingPolicy()
     private val pendingLoadRecoveryTaskIds = ConcurrentHashMap.newKeySet<Long>()
+    // Published from load callbacks for the application-thread fatal-error handler. Keep
+    // exact exception identities: a playlist/auth error with the same status is not media.
+    @Volatile private var exhaustedMediaRefusals: List<Throwable> = emptyList()
 
     /** True while Media3 still owns a retry or fallback for a failed load task. */
     val hasPendingLoadRecovery: Boolean
@@ -67,10 +70,17 @@ class PlayerRetryPolicy(
      */
     fun shouldRetryWholeSource(error: Throwable, playbackStarted: Boolean, attempt: Int): Boolean =
         attempt <= MAX_WHOLE_SOURCE_RETRIES_PER_OUTAGE &&
-            shouldRetry(error, streamContext, playbackStarted, attempt)
+            (playbackStarted && isLiveMediaRefusal(error) ||
+                shouldRetry(error, streamContext, playbackStarted, attempt))
 
     fun maxWholeSourceRetryAttempts(error: Throwable, playbackStarted: Boolean): Int =
-        if (maxAttempts(error, playbackStarted) > 0) MAX_WHOLE_SOURCE_RETRIES_PER_OUTAGE else 0
+        if (playbackStarted && isLiveMediaRefusal(error) || maxAttempts(error, playbackStarted) > 0)
+            MAX_WHOLE_SOURCE_RETRIES_PER_OUTAGE else 0
+
+    internal fun isLiveMediaRefusal(error: Throwable): Boolean {
+        val refusals = exhaustedMediaRefusals
+        return generateSequence(error) { it.cause }.any { cause -> refusals.any { it === cause } }
+    }
 
     fun clearPendingLoadRecovery() {
         val hadPendingRecovery = pendingLoadRecoveryTaskIds.isNotEmpty()
@@ -79,6 +89,7 @@ class PlayerRetryPolicy(
     }
 
     fun retryDelayMs(error: Throwable, attempt: Int): Long {
+        if (isLiveMediaRefusal(error)) return FAST_TRANSIENT_RETRY_DELAY_MS
         val category = PlayerErrorClassifier.classify(error)
         if (fastRetryOnTransientFailures() && isFastRetryEligible(category)) {
             return FAST_TRANSIENT_RETRY_DELAY_MS
@@ -115,6 +126,7 @@ class PlayerRetryPolicy(
     }
 
     fun retryReason(error: Throwable): String {
+        if (isLiveMediaRefusal(error)) return "refresh-live-media-playlist"
         return when (PlayerErrorClassifier.classify(error)) {
             PlaybackErrorCategory.LIVE_WINDOW -> "refresh-live-window"
             PlaybackErrorCategory.NETWORK -> "transient-network"
@@ -183,10 +195,25 @@ class PlayerRetryPolicy(
         val error = loadErrorInfo.exception
         val started = playbackStarted()
         val category = PlayerErrorClassifier.classify(error)
-        val retryDelayMs = if (shouldRetry(error, streamContext, started, attempt)) {
+        val mediaRefusal = started && streamContext.isLive &&
+            streamContext.resolvedStreamType == ResolvedStreamType.HLS &&
+            loadErrorInfo.mediaLoadData.dataType == C.DATA_TYPE_MEDIA &&
+            generateSequence<Throwable>(error) { it.cause }
+                .filterIsInstance<HttpDataSource.InvalidResponseCodeException>()
+                .any { it.responseCode in setOf(403, 404, 410) }
+        val retryDelayMs = if (mediaRefusal) {
+            if (attempt == 1) FAST_TRANSIENT_RETRY_DELAY_MS else C.TIME_UNSET
+        } else if (shouldRetry(error, streamContext, started, attempt)) {
             retryDelayMs(error, attempt)
         } else {
             C.TIME_UNSET
+        }
+        if (mediaRefusal && attempt > 1 && retryDelayMs == C.TIME_UNSET &&
+            exhaustedMediaRefusals.none { it === error }
+        ) {
+            // Multiple audio/video loads can fail together. Bound retention even if a
+            // track is abandoned before its fatal error reaches the player.
+            exhaustedMediaRefusals = (exhaustedMediaRefusals + error).takeLast(8)
         }
         if (Log.isLoggable(PLAYBACK_PERF_TAG, Log.DEBUG)) {
             val causeTypes = generateSequence<Throwable>(error) { it.cause }
@@ -196,6 +223,7 @@ class PlayerRetryPolicy(
             Log.d(
                 PLAYBACK_PERF_TAG,
                 "load-retry category=$category attempt=$attempt delayMs=$retryDelayMs " +
+                    "dataType=${loadErrorInfo.mediaLoadData.dataType} mediaRefusal=$mediaRefusal " +
                     "started=$started streamType=${streamContext.resolvedStreamType} " +
                     "contentKind=${streamContext.playbackContentKind} causes=$causeTypes"
             )
@@ -219,7 +247,16 @@ class PlayerRetryPolicy(
         streamContext: PlaybackRetryContext,
         playbackStarted: Boolean
     ): Int {
-        return when (PlayerErrorClassifier.classify(error)) {
+        val category = PlayerErrorClassifier.classify(error)
+        if (streamContext.isLive && streamContext.resolvedStreamType == ResolvedStreamType.HLS &&
+            category in setOf(PlaybackErrorCategory.NETWORK, PlaybackErrorCategory.UNKNOWN) &&
+            isHlsTimestampInitializationTimeout(error)
+        ) {
+            // A dependency wait is not a failed socket read. Repeating the normal live
+            // request budget would turn the finite wait into minutes before refreshing.
+            return 1
+        }
+        return when (category) {
             PlaybackErrorCategory.DRM,
             PlaybackErrorCategory.DECODER,
             PlaybackErrorCategory.CLEAR_TEXT_BLOCKED,
@@ -242,7 +279,9 @@ class PlayerRetryPolicy(
             PlaybackErrorCategory.EMPTY_RESPONSE -> 0
             PlaybackErrorCategory.NETWORK -> when {
                 error.hasCause<UnknownHostException>() -> 1
-                error.hasCause<SocketTimeoutException>() || error.hasCause<ConnectException>() ->
+                // Connect failures, resets and body-read failures are retried like timeouts.
+                error.hasCause<SocketTimeoutException>() || error.hasCause<SocketException>() ||
+                    generateSequence(error) { it.cause }.any { it.isBodyReadFailure() } ->
                     when {
                         streamContext.isLive -> LIVE_TRANSIENT_RETRY_ATTEMPTS
                         streamContext.resolvedStreamType == ResolvedStreamType.PROGRESSIVE && playbackStarted ->

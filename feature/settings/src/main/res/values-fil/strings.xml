@@ -948,4 +948,13 @@
     <string name="settings_sync_index_progress">%1$s · %2$s</string>
     <string name="settings_refresh_rate_matching">Itugma sa frame rate ng nilalaman</string>
     <string name="settings_refresh_rate_matching_description">Itinutugma ang refresh rate ng display sa video para sa mas maayos na galaw. Kailangan ng suporta ng display; maaaring umitim sandali ang screen kapag nagpapalit.</string>
+    <string name="settings_epg_phone_qr_start">Ipakita ang QR code</string>
+    <string name="settings_epg_phone_qr_stop">Ihinto ang pairing</string>
+    <string name="settings_epg_phone_qr_warning">Seguridad: Ipinapadala ng pagpapares ang mga kredensyal nang walang encryption sa lokal mong network. Gumamit lamang ng pribado at pinagkakatiwalaang Wi-Fi.</string>
+    <string name="settings_epg_phone_qr_complete">Naidagdag</string>
+    <string name="settings_epg_phone_qr_error">Error</string>
+    <string name="settings_backup_export_sections">Piliin ang mga seksyong ie-export</string>
+    <string name="settings_m3u_catchup_query_format">Format ng query para sa catch-up</string>
+    <string name="settings_m3u_catchup_query_format_subtitle">Ginagamit para sa mga M3U channel na walang sariling source ng catch-up. Iwanang blangko para i-disable ang fallback na ito. Halimbawa: ?utc={utc}</string>
+    <string name="settings_m3u_catchup_query_format_disabled">Naka-disable</string>
 </resources>

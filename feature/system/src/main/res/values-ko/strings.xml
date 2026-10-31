@@ -32,6 +32,7 @@
   <string name="download_folder_default">기본 다운로드 폴더</string>
   <string name="download_resume">계속</string>
   <string name="download_delete">삭제</string>
+  <string name="download_play">재생</string>
   <string name="downloads_resumed">다운로드가 다시 시작되었습니다</string>
   <string name="extensions_tab_plugins">플러그인</string>
   <string name="extensions_tab_stremio_addons">Stremio 애드온</string>
@@ -46,6 +47,7 @@
     <string name="torrent_cache_confirm_message">임시 토렌트 데이터를 삭제할까요? 저장된 다운로드는 삭제되지 않습니다.</string>
     <string name="torrent_cache_active">캐시를 지우기 전에 토렌트 재생을 중지하세요.</string>
     <string name="torrent_cache_clear_failed">임시 캐시를 지우지 못했습니다.</string>
+    <string name="torrent_cache_cleared">임시 캐시를 지웠습니다.</string>
     <string name="extensions_title">확장 기능</string>
     <string name="plugins_section_description">동반 Android 앱으로 StreamVault에 기능을 추가하세요.</string>
     <string name="plugins_install_url">URL에서 플러그인 설치</string>

@@ -34,6 +34,11 @@ class ProviderSyncWorkScheduler @Inject constructor(
             initialDelaySeconds = if (force) 0L else 30L)
     }
 
+    fun scheduleManualEpg(providerId: Long) {
+        BackgroundEpgSyncWorker.enqueue(applicationContext, providerId, force = true,
+            initialDelaySeconds = 0L, userInitiated = true)
+    }
+
     fun scheduleProviderResume(providerId: Long, configurationGeneration: Long? = null) {
         if (configurationGeneration != null) {
             ProviderSyncWorker.enqueueProviderConfigRevision(

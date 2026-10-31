@@ -845,7 +845,17 @@ class SyncManager @Inject constructor(
             stageChannelItems = { id, items, seen, categories, session ->
                 catalogStager.stageChannelItems(id, items, seen, categories, session, useLiveAdmissionCount = true)
             },
-            emitProgress = ::emitProviderProgress
+            emitProgress = ::emitProviderProgress,
+            beforeBulkLiveBatch = { providerId ->
+                if (kotlin.coroutines.coroutineContext[ProviderWorkflowExecutionContext]?.lease?.phase ==
+                    com.streamvault.data.local.entity.ProviderWorkflowPhase.PRIMARY_CATALOG &&
+                    AutomaticSyncExecution.automatic.get() == true &&
+                    shouldYieldXtreamLiveBatch(true,
+                        preferencesRepository.automaticSyncConfiguration.first().forProvider(providerId).deferWhileBusy,
+                        com.streamvault.domain.sync.AutomaticSyncActivity.hasPlayback)) {
+                    throw XtreamLivePlaybackDeferredException()
+                }
+            }
         )
     }
 
@@ -931,7 +941,7 @@ class SyncManager @Inject constructor(
     override fun scheduleAutomaticSyncCheck() { ProviderSyncWorker.enqueueForegroundCheck(applicationContext) }
 
     override fun scheduleManualEpgSync(providerId: Long) {
-        providerSyncWorkScheduler.scheduleBackgroundEpg(providerId, force = true)
+        providerSyncWorkScheduler.scheduleManualEpg(providerId)
     }
 
     override fun scheduleBackgroundEpgSync(providerId: Long) {

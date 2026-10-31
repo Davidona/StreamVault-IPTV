@@ -948,4 +948,13 @@
     <string name="settings_sync_index_progress">%1$s · %2$s</string>
     <string name="settings_refresh_rate_matching">Съгласуване с кадровата честота</string>
     <string name="settings_refresh_rate_matching_description">Съгласува честотата на опресняване на дисплея с видеото за по-плавно движение. Изисква поддръжка от дисплея; при превключване екранът може за кратко да изгасне.</string>
+    <string name="settings_epg_phone_qr_start">Покажи QR код</string>
+    <string name="settings_epg_phone_qr_stop">Спри сдвояването</string>
+    <string name="settings_epg_phone_qr_warning">Сигурност: При сдвояването данните за вход се изпращат през локалната ви мрежа без криптиране. Използвайте само доверена частна Wi-Fi мрежа.</string>
+    <string name="settings_epg_phone_qr_complete">Добавен</string>
+    <string name="settings_epg_phone_qr_error">Грешка</string>
+    <string name="settings_backup_export_sections">Изберете раздели за експортиране</string>
+    <string name="settings_m3u_catchup_query_format">Формат на заявката за архивно предаване</string>
+    <string name="settings_m3u_catchup_query_format_subtitle">Използва се за M3U канали без собствен източник за архивно предаване. Оставете празно, за да изключите резервния формат. Пример: ?utc={utc}</string>
+    <string name="settings_m3u_catchup_query_format_disabled">Изключено</string>
 </resources>

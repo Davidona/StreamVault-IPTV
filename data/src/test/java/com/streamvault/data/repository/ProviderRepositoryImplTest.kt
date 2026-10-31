@@ -42,6 +42,10 @@ import com.streamvault.data.security.CredentialCrypto
 import com.streamvault.data.provider.ProviderConfigurationCodec
 import com.streamvault.data.provider.ProviderCapabilityResolver
 import com.streamvault.data.provider.TypedProviderClientFactory
+import com.streamvault.domain.provider.CapabilityResolution
+import com.streamvault.domain.provider.CatchUpRequest
+import com.streamvault.domain.provider.CatchUpSource
+import com.streamvault.domain.provider.ProviderCapabilitySet
 import com.streamvault.data.remote.stalker.StalkerPortalStateStore
 import com.streamvault.data.remote.stalker.StalkerRemoteIdentityResolver
 import com.streamvault.data.provider.toProviderSnapshot
@@ -186,6 +190,7 @@ class ProviderRepositoryImplTest {
             ).thenAnswer { invocation ->
                 val block = invocation.getArgument<suspend () -> ProviderWorkflowOutcome>(6)
                 when (val outcome = runBlocking { block() }) {
+                    ProviderWorkflowOutcome.Deferred -> ProviderWorkflowDisposition.RETRY
                     is ProviderWorkflowOutcome.Success -> ProviderWorkflowDisposition.SUCCEEDED
                     is ProviderWorkflowOutcome.Failure -> if (outcome.retryable) {
                         ProviderWorkflowDisposition.RETRY
@@ -206,6 +211,45 @@ class ProviderRepositoryImplTest {
             whenever(seriesDao.countByProvider(any())).thenReturn(0)
             whenever(providerDeletionCleanupDao.countByProvider(any())).thenReturn(1)
         }
+    }
+
+    @Test
+    fun `M3U archive request receives persisted channel metadata and saved query format`() = runTest {
+        val channel = ChannelEntity(
+            id = 42L,
+            streamId = 42L,
+            name = "Archive channel",
+            streamUrl = "https://live.test/channel.ts",
+            catchUpSupported = true,
+            catchUpDays = 5,
+            catchUpType = "append",
+            catchUpCorrectionSeconds = 1_800,
+            providerId = 7L
+        )
+        whenever(providerDao.getById(7L)).thenReturn(ProviderEntity(id = 7L, name = "M3U", type = ProviderType.M3U))
+        whenever(channelDao.getById(42L)).thenReturn(channel)
+        whenever(preferencesRepository.m3uCatchUpQueryFormat).thenReturn(flowOf("&from={utc}"))
+
+        var captured: CatchUpRequest? = null
+        val catchUp = object : CatchUpSource {
+            override suspend fun buildCatchUpUrl(streamId: Long, start: Long, end: Long): String? = null
+
+            override suspend fun buildCatchUpUrls(request: CatchUpRequest): List<String> {
+                captured = request
+                return listOf("https://archive.test/program.m3u8")
+            }
+        }
+        val capabilities = mock<ProviderCapabilitySet>()
+        whenever(capabilities.catchUp()).thenReturn(CapabilityResolution.Available(catchUp))
+        whenever(providerCapabilityResolver.resolve(7L)).thenReturn(CapabilityResolution.Available(capabilities))
+
+        val urls = repository.buildCatchUpUrls(7L, 42L, 1_710_000_000L, 1_710_003_600L)
+
+        assertThat(urls).containsExactly("https://archive.test/program.m3u8")
+        assertThat(captured?.sourceStreamUrl).isEqualTo("https://live.test/channel.ts")
+        assertThat(captured?.sourceCatchUpType).isEqualTo("append")
+        assertThat(captured?.catchUpCorrectionSeconds).isEqualTo(1_800)
+        assertThat(captured?.fallbackCatchUpTemplate).isEqualTo("&from={utc}")
     }
 
     @Test

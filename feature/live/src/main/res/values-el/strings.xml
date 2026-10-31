@@ -267,6 +267,11 @@
     <string name="live_sports_forget_choice">Κατάργηση αυτής της επιλογής</string>
     <string name="live_sports_no_matching_channels">Δεν βρέθηκαν κανάλια που να ταιριάζουν</string>
     <string name="live_sports_league_efl_championship">Πρωτάθλημα της Αγγλικής Ποδοσφαιρικής Λίγκας</string>
+    <string name="live_sports_league_brasileirao_serie_a">Πρωτάθλημα Βραζιλίας Σέριε Α</string>
+    <string name="live_sports_league_brasileirao_serie_b">Πρωτάθλημα Βραζιλίας Σέριε Β</string>
+    <string name="live_sports_league_copa_do_brasil">Κύπελλο Βραζιλίας</string>
+    <string name="live_sports_league_copa_libertadores">Κόπα Λιμπερταδόρες</string>
+    <string name="live_sports_league_copa_sul_americana">Κόπα Σουνταμερικάνα</string>
     <string name="live_sports_standings">Βαθμολογία</string>
     <string name="live_sports_standings_rank">Θέση</string>
     <string name="live_sports_standings_team">Ομάδα</string>

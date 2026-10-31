@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="player_recording_exact_alarm_required">Permita alarmes e lembretes para o StreamVault nas definições do Android e tente gravar novamente.</string>
+</resources>

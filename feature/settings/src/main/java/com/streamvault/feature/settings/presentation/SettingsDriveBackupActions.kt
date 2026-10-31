@@ -158,7 +158,7 @@ class SettingsDriveBackupActions(
         }
     }
 
-    fun pushBackup(scope: CoroutineScope) {
+    fun pushBackup(scope: CoroutineScope, plan: com.streamvault.domain.manager.BackupExportPlan = com.streamvault.domain.manager.BackupExportPlan()) {
         scope.launch {
             if (uiState.value.driveAuthState !is DriveAuthState.SignedIn) {
                 uiState.update { it.copy(userMessage = "Sign in to Google Drive first") }
@@ -181,7 +181,7 @@ class SettingsDriveBackupActions(
             // Read credentials before starting the export so the Drive manager
             // can commit one matching backup+credentials bundle atomically.
             val credentials = runCatching {
-                providerRepository.getAllProviderCredentials()
+                if (plan.exportProviders) providerRepository.getAllProviderCredentials() else emptyList()
             }.getOrElse { error ->
                 uiState.update {
                     it.copy(
@@ -191,7 +191,7 @@ class SettingsDriveBackupActions(
                 }
                 return@launch
             }
-            val backupResult = driveManager.pushBackup(credentials)
+            val backupResult = driveManager.pushBackup(credentials, plan)
             if (backupResult is Result.Error) {
                 uiState.update {
                     it.copy(

@@ -267,6 +267,11 @@
     <string name="live_sports_forget_choice">Kalimutan ang pagpiling ito</string>
     <string name="live_sports_no_matching_channels">Walang tumutugmang channel</string>
     <string name="live_sports_league_efl_championship">Kampeonato ng English Football League</string>
+    <string name="live_sports_league_brasileirao_serie_a">Kampeonato ng Brazil Serye A</string>
+    <string name="live_sports_league_brasileirao_serie_b">Kampeonato ng Brazil Serye B</string>
+    <string name="live_sports_league_copa_do_brasil">Kopa ng Brazil</string>
+    <string name="live_sports_league_copa_libertadores">Kopa Libertadores</string>
+    <string name="live_sports_league_copa_sul_americana">Kopa Sudamericana</string>
     <string name="live_sports_standings">Talaan</string>
     <string name="live_sports_standings_rank">Ranggo</string>
     <string name="live_sports_standings_team">Koponan</string>

@@ -72,6 +72,18 @@ class DownloadsViewModelTest {
     }
 
     @Test
+    fun clearingTheCacheSaysSoWhenItWorked() = runTest {
+        val viewModel = createViewModel(RecordingDownloadManager())
+        advanceUntilIdle()
+
+        viewModel.showClearTorrentCacheConfirm()
+        viewModel.confirmClearTorrentCache()
+        advanceUntilIdle()
+
+        assertThat(viewModel.uiState.value.userMessage).isEqualTo("Temporary cache cleared.")
+    }
+
+    @Test
     fun missingOutputUriReturnsNullWithoutStoppingPlayback() {
         val manager = RecordingDownloadManager()
         val viewModel = createViewModel(manager)
@@ -157,6 +169,7 @@ class DownloadsViewModelTest {
     ): DownloadsViewModel {
         whenever(application.getString(R.string.downloads_deleted)).thenReturn("Downloads deleted")
         whenever(application.getString(R.string.downloads_resumed)).thenReturn("Downloads resumed")
+        whenever(application.getString(R.string.torrent_cache_cleared)).thenReturn("Temporary cache cleared.")
         return DownloadsViewModel(
             downloadManager = manager,
             torrentCacheManager = object : TorrentCacheManager {

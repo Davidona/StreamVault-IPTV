@@ -32,6 +32,7 @@
   <string name="download_folder_default">Zadana mapa za preuzimanja</string>
   <string name="download_resume">Nastavi</string>
   <string name="download_delete">Izbriši</string>
+  <string name="download_play">Reproduciraj</string>
   <string name="downloads_resumed">Preuzimanje nastavljeno</string>
   <string name="extensions_tab_plugins">Priključci</string>
   <string name="extensions_tab_stremio_addons">Stremio dodaci</string>
@@ -46,6 +47,7 @@
     <string name="torrent_cache_confirm_message">Ukloniti privremene torrent podatke? Spremljena preuzimanja neće se izbrisati.</string>
     <string name="torrent_cache_active">Zaustavite reprodukciju torrenta prije čišćenja predmemorije.</string>
     <string name="torrent_cache_clear_failed">Privremenu predmemoriju nije moguće očistiti.</string>
+    <string name="torrent_cache_cleared">Privremena predmemorija je očišćena.</string>
     <string name="extensions_title">Proširenja</string>
     <string name="plugins_section_description">Dodajte značajke u StreamVault uz popratne Android aplikacije.</string>
     <string name="plugins_install_url">Instaliraj priključak s URL-a</string>

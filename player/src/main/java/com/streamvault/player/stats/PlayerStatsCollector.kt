@@ -90,7 +90,12 @@ class PlayerStatsCollector(
         lastAudioFormat = format
     }
 
-    /** Called by [androidx.media3.exoplayer.analytics.AnalyticsListener] — always on Main. */
+    /**
+     * Media3 reports batches, so this total can lag DecoderCounters.droppedBufferCount
+     * until the renderer reaches its notification threshold or stops. They are overlapping
+     * measurements of the same drops; adding the native count would double count them.
+     * Called by [androidx.media3.exoplayer.analytics.AnalyticsListener] on Main.
+     */
     fun onDroppedFrames(count: Int) {
         droppedFrames += count
     }
@@ -116,16 +121,24 @@ class PlayerStatsCollector(
      * | Data | Interval |
      * |---|---|
      * | `currentPosition` / `duration` | Every 250 ms |
-     * | `bufferedDurationMs` | Every 500 ms (every 2 ticks) |
-     * | Codec / bitrate / dropped frames | Every 1 000 ms (every 4 ticks) |
+     * | `bufferedDurationMs` | Every 500 ms, including requested buffering |
+     * | Codec / bitrate / dropped frames | Every 1 000 ms |
      */
+    fun updatePlaybackActivity(isPlaying: Boolean, playWhenReady: Boolean) {
+        if (isPlaying || playWhenReady && playbackState.value == PlaybackState.BUFFERING) {
+            start()
+        } else {
+            stop()
+        }
+    }
+
     fun start() {
-        stop()
+        if (pollingJob?.isActive == true) return
         pollingJob = scopeProvider().launch(Dispatchers.Main.immediate) {
-            // Initialise to their trigger thresholds so the very first tick emits
+            // Initialise to their trigger thresholds so the first poll emits
             // buffered and stats updates immediately (consistent with player-start UX).
-            var ticksSinceBufferedUpdate = BUFFERED_UPDATE_TICKS
-            var ticksSinceStatsUpdate = STATS_UPDATE_TICKS
+            var bufferedElapsedMs = BUFFERED_UPDATE_INTERVAL_MS
+            var statsElapsedMs = STATS_UPDATE_INTERVAL_MS
 
             while (isActive) {
                 val player = playerProvider?.invoke()
@@ -141,15 +154,14 @@ class PlayerStatsCollector(
                     }
 
                     // --- Tier 2: Buffered duration (every 500 ms) ------------------
-                    if (ticksSinceBufferedUpdate >= BUFFERED_UPDATE_TICKS) {
-                        val buffered = (player.bufferedPosition - player.currentPosition)
-                            .coerceAtLeast(0L)
+                    if (bufferedElapsedMs >= BUFFERED_UPDATE_INTERVAL_MS) {
+                        val buffered = player.totalBufferedDuration.coerceAtLeast(0L)
                         playerStats.value = playerStats.value.copy(bufferedDurationMs = buffered)
-                        ticksSinceBufferedUpdate = 0
+                        bufferedElapsedMs = 0L
                     }
 
                     // --- Tier 3: Codec / bitrate / dropped frames (every 1 000 ms) -
-                    if (ticksSinceStatsUpdate >= STATS_UPDATE_TICKS) {
+                    if (statsElapsedMs >= STATS_UPDATE_INTERVAL_MS) {
                         val video = lastVideoFormat
                         val audio = lastAudioFormat
                         val dropped = droppedFrames
@@ -186,13 +198,17 @@ class PlayerStatsCollector(
                                                 ?: playerStats.value.height,
                             bandwidthEstimate = lastBandwidthEstimate
                         )
-                        ticksSinceStatsUpdate = 0
+                        statsElapsedMs = 0L
                     }
                 }
 
-                delay(POSITION_UPDATE_INTERVAL_MS)
-                ticksSinceBufferedUpdate++
-                ticksSinceStatsUpdate++
+                // During buffering only diagnostics advance; do not poll stalled position at 4 Hz.
+                val intervalMs = if (playbackState.value == PlaybackState.BUFFERING) {
+                    BUFFERED_UPDATE_INTERVAL_MS
+                } else POSITION_UPDATE_INTERVAL_MS
+                delay(intervalMs)
+                bufferedElapsedMs += intervalMs
+                statsElapsedMs += intervalMs
             }
         }
     }
@@ -206,10 +222,10 @@ class PlayerStatsCollector(
         /** Base polling interval. All other intervals are multiples of this. */
         private const val POSITION_UPDATE_INTERVAL_MS = 250L
 
-        /** Buffered duration sampled every 2 ticks = 500 ms. */
-        private const val BUFFERED_UPDATE_TICKS = 2
+        /** Buffer diagnostics remain current while position polling is suspended. */
+        private const val BUFFERED_UPDATE_INTERVAL_MS = 500L
 
-        /** Heavy stats (codec / bitrate / dropped frames) every 4 ticks = 1 000 ms. */
-        private const val STATS_UPDATE_TICKS = 4
+        /** Heavy stats (codec / bitrate / dropped frames) once per second. */
+        private const val STATS_UPDATE_INTERVAL_MS = 1_000L
     }
 }

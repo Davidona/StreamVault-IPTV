@@ -267,6 +267,11 @@
     <string name="live_sports_forget_choice">忘记此选择</string>
     <string name="live_sports_no_matching_channels">没有匹配的频道</string>
     <string name="live_sports_league_efl_championship">英格兰足球联赛冠军赛</string>
+    <string name="live_sports_league_brasileirao_serie_a">巴西足球甲级联赛</string>
+    <string name="live_sports_league_brasileirao_serie_b">巴西足球乙级联赛</string>
+    <string name="live_sports_league_copa_do_brasil">巴西杯</string>
+    <string name="live_sports_league_copa_libertadores">南美解放者杯</string>
+    <string name="live_sports_league_copa_sul_americana">南美俱乐部杯</string>
     <string name="live_sports_standings">积分榜</string>
     <string name="live_sports_standings_rank">排名</string>
     <string name="live_sports_standings_team">球队</string>

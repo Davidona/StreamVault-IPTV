@@ -1,11 +1,13 @@
 package com.streamvault.domain.usecase
 
 import com.streamvault.domain.manager.BackupManager
+import com.streamvault.domain.manager.BackupExportPlan
 import com.streamvault.domain.model.Result
 import javax.inject.Inject
 
 data class ExportBackupCommand(
-    val uriString: String
+    val uriString: String,
+    val plan: BackupExportPlan = BackupExportPlan()
 )
 
 sealed class ExportBackupResult {
@@ -21,7 +23,7 @@ class ExportBackup @Inject constructor(
             return ExportBackupResult.Error("Backup destination is unavailable.")
         }
 
-        return when (val result = backupManager.exportConfig(command.uriString)) {
+        return when (val result = backupManager.exportConfig(command.uriString, command.plan)) {
             is Result.Success -> ExportBackupResult.Success
             is Result.Error -> ExportBackupResult.Error(result.message, result.exception)
             is Result.Loading -> ExportBackupResult.Error("Unexpected loading state")

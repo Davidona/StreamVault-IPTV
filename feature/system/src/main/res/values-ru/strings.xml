@@ -32,6 +32,7 @@
   <string name="download_folder_default">Папка загрузок по умолчанию</string>
   <string name="download_resume">Возобновить</string>
   <string name="download_delete">Удалить</string>
+  <string name="download_play">Воспроизвести</string>
   <string name="downloads_resumed">Загрузка возобновлена</string>
   <string name="extensions_tab_plugins">Плагины</string>
   <string name="extensions_tab_stremio_addons">Дополнения Stremio</string>
@@ -46,6 +47,7 @@
     <string name="torrent_cache_confirm_message">Удалить временные данные торрентов? Сохранённые загрузки не будут удалены.</string>
     <string name="torrent_cache_active">Остановите воспроизведение торрента перед очисткой кэша.</string>
     <string name="torrent_cache_clear_failed">Не удалось очистить временный кэш.</string>
+    <string name="torrent_cache_cleared">Временный кэш очищен.</string>
     <string name="extensions_title">Расширения</string>
     <string name="plugins_section_description">Добавляйте функции в StreamVault с помощью приложений-компаньонов для Android.</string>
     <string name="plugins_install_url">Установить плагин по URL</string>

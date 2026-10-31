@@ -954,4 +954,13 @@
     <string name="settings_sync_index_progress">%1$s · %2$s</string>
     <string name="settings_refresh_rate_matching">Prispôsobiť snímkovej frekvencii obsahu</string>
     <string name="settings_refresh_rate_matching_description">Prispôsobí obnovovaciu frekvenciu displeja videu pre plynulejší pohyb. Vyžaduje podporu displeja; pri prepnutí môže obrazovka nakrátko stmavnúť.</string>
+    <string name="settings_epg_phone_qr_start">Zobraziť QR kód</string>
+    <string name="settings_epg_phone_qr_stop">Zastaviť párovanie</string>
+    <string name="settings_epg_phone_qr_warning">Zabezpečenie: Pri párovaní sa prihlasovacie údaje odosielajú cez miestnu sieť bez šifrovania. Používajte iba dôveryhodnú súkromnú Wi-Fi sieť.</string>
+    <string name="settings_epg_phone_qr_complete">Pridané</string>
+    <string name="settings_epg_phone_qr_error">Chyba</string>
+    <string name="settings_backup_export_sections">Vyberte sekcie na export</string>
+    <string name="settings_m3u_catchup_query_format">Formát požiadavky na prehrávanie archívu</string>
+    <string name="settings_m3u_catchup_query_format_subtitle">Používa sa pre kanály M3U bez vlastného zdroja archívu. Ak chcete vypnúť tento náhradný formát, nechajte pole prázdne. Príklad: ?utc={utc}</string>
+    <string name="settings_m3u_catchup_query_format_disabled">Vypnuté</string>
 </resources>

@@ -16,6 +16,12 @@ internal fun providerEpgWorkUniqueName(providerId: Long): String {
 }
 
 /** Catalog continuation must not inherit setup or guide failure/cancellation. */
+internal fun xtreamIndexWorkUniqueName(providerId: Long): String {
+    require(providerId > 0L) { "Provider work requires a positive provider ID." }
+    return "provider-xtream-index-$providerId"
+}
+
+/** Catalog continuation must not inherit setup or guide failure/cancellation. */
 internal fun stalkerIndexWorkUniqueName(providerId: Long): String {
     require(providerId > 0L) { "Provider work requires a positive provider ID." }
     return "provider-stalker-index-$providerId"

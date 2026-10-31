@@ -21,6 +21,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 sealed interface ProviderWorkflowOutcome {
+    /** Cooperative scheduling control, not a provider or network failure. */
+    data object Deferred : ProviderWorkflowOutcome
     data class Success(
         val checkpoint: String? = null,
         val partial: Boolean = false
@@ -153,6 +155,9 @@ class ProviderWorkflowRunner @Inject constructor(
     ): ProviderWorkflowDisposition {
         val now = System.currentTimeMillis()
         return when (outcome) {
+            ProviderWorkflowOutcome.Deferred -> if (workflowDao.defer(lease, now)) {
+                ProviderWorkflowDisposition.RETRY
+            } else ProviderWorkflowDisposition.SUPERSEDED
             is ProviderWorkflowOutcome.Success -> {
                 if (
                     workflowDao.complete(

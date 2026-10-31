@@ -267,6 +267,11 @@
     <string name="live_sports_forget_choice">فراموش کردن این انتخاب</string>
     <string name="live_sports_no_matching_channels">کانال منطبقی پیدا نشد</string>
     <string name="live_sports_league_efl_championship">قهرمانی لیگ فوتبال انگلیس</string>
+    <string name="live_sports_league_brasileirao_serie_a">قهرمانی برزیل سری آ</string>
+    <string name="live_sports_league_brasileirao_serie_b">قهرمانی برزیل سری ب</string>
+    <string name="live_sports_league_copa_do_brasil">جام حذفی برزیل</string>
+    <string name="live_sports_league_copa_libertadores">کوپا لیبرتادورس</string>
+    <string name="live_sports_league_copa_sul_americana">کوپا سودامریکانا</string>
     <string name="live_sports_standings">جدول رده‌بندی</string>
     <string name="live_sports_standings_rank">رتبه</string>
     <string name="live_sports_standings_team">تیم</string>

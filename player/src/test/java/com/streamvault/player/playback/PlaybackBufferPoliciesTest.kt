@@ -85,6 +85,115 @@ class PlaybackBufferPoliciesTest {
         }
     }
 
+    @Test
+    fun `manual raw TS live retains existing buffer ceilings with a two second loading window`() {
+        for (lowMemory in listOf(false, true)) {
+            for (mode in listOf(PlaybackBufferMode.MEDIUM, PlaybackBufferMode.LARGE)) {
+                val actual = PlaybackBufferPolicies.forPlayback(
+                    resolvedStreamType = ResolvedStreamType.MPEG_TS_LIVE,
+                    compatibilityMode = false,
+                    lowMemoryDevice = lowMemory,
+                    bufferMode = mode,
+                    streamInfo = StreamInfo(
+                        url = "http://fixture.invalid/live.ts",
+                        streamType = StreamType.MPEG_TS,
+                        playbackContentKind = PlaybackContentKind.LIVE
+                    )
+                )
+                val expected = when (mode) {
+                    PlaybackBufferMode.MEDIUM -> PlaybackBufferPolicy(
+                        label = "medium-live",
+                        minBufferMs = 43_000,
+                        maxBufferMs = 45_000,
+                        playbackBufferMs = 3_000,
+                        rebufferMs = 10_000,
+                        targetBufferBytes = 32 * 1024 * 1024,
+                        prioritizeTimeOverSizeThresholds = false,
+                        qualityReason = "user-medium"
+                    )
+                    PlaybackBufferMode.LARGE -> PlaybackBufferPolicy(
+                        label = "large-live",
+                        minBufferMs = 88_000,
+                        maxBufferMs = 90_000,
+                        playbackBufferMs = 5_000,
+                        rebufferMs = 15_000,
+                        targetBufferBytes = 64 * 1024 * 1024,
+                        prioritizeTimeOverSizeThresholds = false,
+                        qualityReason = "user-large"
+                    )
+                    else -> error("Only manual modes belong in this assertion")
+                }
+
+                assertEquals("$mode / lowMemory=$lowMemory", expected, actual)
+            }
+        }
+    }
+
+    @Test
+    fun `manual mode ceilings stay unchanged for non-raw formats and non-live content`() {
+        val liveFormats = listOf(
+            ResolvedStreamType.HLS to StreamType.HLS,
+            ResolvedStreamType.DASH to StreamType.DASH,
+            ResolvedStreamType.SMOOTH_STREAMING to StreamType.SMOOTH_STREAMING,
+            ResolvedStreamType.PROGRESSIVE to StreamType.PROGRESSIVE,
+            ResolvedStreamType.RTSP to StreamType.RTSP
+        )
+        for ((resolvedType, declaredType) in liveFormats) {
+            for (lowMemory in listOf(false, true)) {
+                for (mode in listOf(PlaybackBufferMode.MEDIUM, PlaybackBufferMode.LARGE)) {
+                    val actual = PlaybackBufferPolicies.forPlayback(
+                        resolvedStreamType = resolvedType,
+                        compatibilityMode = false,
+                        lowMemoryDevice = lowMemory,
+                        bufferMode = mode,
+                        streamInfo = StreamInfo(
+                            url = "https://example.invalid/live/content",
+                            streamType = declaredType,
+                            playbackContentKind = PlaybackContentKind.LIVE
+                        )
+                    )
+
+                    assertEquals(
+                        "$resolvedType / $mode / lowMemory=$lowMemory",
+                        expectedPolicy(PlaybackContentKind.LIVE, resolvedType, lowMemory, mode),
+                        actual
+                    )
+                    assertThat(actual.maxBufferMs).isEqualTo(
+                        if (mode == PlaybackBufferMode.MEDIUM) 45_000 else 90_000
+                    )
+                }
+            }
+        }
+
+        for (kind in listOf(PlaybackContentKind.ON_DEMAND, PlaybackContentKind.CATCH_UP)) {
+            for (lowMemory in listOf(false, true)) {
+                for (mode in listOf(PlaybackBufferMode.MEDIUM, PlaybackBufferMode.LARGE)) {
+                    val info = StreamInfo(
+                        url = "http://fixture.invalid/archive.ts",
+                        streamType = StreamType.MPEG_TS,
+                        playbackContentKind = kind
+                    )
+                    val actual = PlaybackBufferPolicies.forPlayback(
+                        resolvedStreamType = ResolvedStreamType.MPEG_TS_LIVE,
+                        compatibilityMode = false,
+                        lowMemoryDevice = lowMemory,
+                        bufferMode = mode,
+                        streamInfo = info
+                    )
+                    val automatic = PlaybackBufferPolicies.forPlayback(
+                        resolvedStreamType = ResolvedStreamType.MPEG_TS_LIVE,
+                        compatibilityMode = false,
+                        lowMemoryDevice = lowMemory,
+                        bufferMode = PlaybackBufferMode.AUTO,
+                        streamInfo = info
+                    )
+
+                    assertEquals("$kind / lowMemory=$lowMemory / $mode", automatic, actual)
+                }
+            }
+        }
+    }
+
     private fun expectedPolicy(
         kind: PlaybackContentKind,
         resolvedType: ResolvedStreamType,
@@ -103,7 +212,7 @@ class PlaybackBufferPoliciesTest {
         }
 
         if (live && mode == PlaybackBufferMode.MEDIUM) {
-            return PlaybackBufferPolicy(
+            val policy = PlaybackBufferPolicy(
                 label = "medium-live",
                 minBufferMs = 15_000,
                 maxBufferMs = 45_000,
@@ -113,9 +222,14 @@ class PlaybackBufferPoliciesTest {
                 prioritizeTimeOverSizeThresholds = false,
                 qualityReason = "user-medium"
             )
+            return if (live && resolvedType == ResolvedStreamType.MPEG_TS_LIVE) {
+                policy.copy(minBufferMs = 43_000)
+            } else {
+                policy
+            }
         }
         if (live && mode == PlaybackBufferMode.LARGE) {
-            return PlaybackBufferPolicy(
+            val policy = PlaybackBufferPolicy(
                 label = "large-live",
                 minBufferMs = 30_000,
                 maxBufferMs = 90_000,
@@ -125,6 +239,11 @@ class PlaybackBufferPoliciesTest {
                 prioritizeTimeOverSizeThresholds = false,
                 qualityReason = "user-large"
             )
+            return if (live && resolvedType == ResolvedStreamType.MPEG_TS_LIVE) {
+                policy.copy(minBufferMs = 88_000)
+            } else {
+                policy
+            }
         }
 
         if (!live && resolvedType == ResolvedStreamType.HLS) {
@@ -492,7 +611,7 @@ class PlaybackBufferPoliciesTest {
         )
 
         assertThat(policy.label).isEqualTo("medium-live")
-        assertThat(policy.minBufferMs).isEqualTo(15_000)
+        assertThat(policy.minBufferMs).isEqualTo(43_000)
         assertThat(policy.maxBufferMs).isEqualTo(45_000)
         assertThat(policy.targetBufferBytes).isEqualTo(32 * 1024 * 1024)
     }

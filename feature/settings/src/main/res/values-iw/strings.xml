@@ -953,4 +953,13 @@
     <string name="settings_sync_index_progress">%1$s · %2$s</string>
     <string name="settings_refresh_rate_matching">התאמת קצב הרענון לתוכן</string>
     <string name="settings_refresh_rate_matching_description">התאמת קצב הרענון של המסך לסרטון לתנועה חלקה יותר. נדרשת תמיכה במסך; בעת המעבר המסך עשוי להחשיך לזמן קצר.</string>
+    <string name="settings_epg_phone_qr_start">הצג קוד QR</string>
+    <string name="settings_epg_phone_qr_stop">עצור התאמה</string>
+    <string name="settings_epg_phone_qr_warning">אבטחה: הצימוד שולח פרטי התחברות ללא הצפנה דרך הרשת המקומית. יש להשתמש רק ברשת Wi-Fi פרטית ומהימנה.</string>
+    <string name="settings_epg_phone_qr_complete">נוסף</string>
+    <string name="settings_epg_phone_qr_error">שגיאה</string>
+    <string name="settings_backup_export_sections">בחרו אילו חלקים לייצא</string>
+    <string name="settings_m3u_catchup_query_format">תבנית שאילתת צפייה בארכיון</string>
+    <string name="settings_m3u_catchup_query_format_subtitle">משמשת לערוצי M3U ללא מקור צפייה בארכיון משלהם. יש להשאיר ריק כדי להשבית את תבנית הגיבוי הזו. לדוגמה: ?utc={utc}</string>
+    <string name="settings_m3u_catchup_query_format_disabled">מושבת</string>
 </resources>

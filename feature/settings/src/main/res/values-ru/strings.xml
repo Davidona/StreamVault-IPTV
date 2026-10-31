@@ -956,4 +956,13 @@
     <string name="settings_sync_index_progress">%1$s · %2$s</string>
     <string name="settings_refresh_rate_matching">Подстраивать частоту под видеоконтент</string>
     <string name="settings_refresh_rate_matching_description">Подстраивает частоту обновления экрана под видео для более плавного движения. Требуется поддержка экрана; при переключении экран может ненадолго погаснуть.</string>
+    <string name="settings_epg_phone_qr_start">Показать QR-код</string>
+    <string name="settings_epg_phone_qr_stop">Остановить сопряжение</string>
+    <string name="settings_epg_phone_qr_warning">Безопасность: При сопряжении данные для входа передаются по локальной сети без шифрования. Используйте только доверенную частную сеть Wi-Fi.</string>
+    <string name="settings_epg_phone_qr_complete">Добавлено</string>
+    <string name="settings_epg_phone_qr_error">Ошибка</string>
+    <string name="settings_backup_export_sections">Выберите разделы для экспорта</string>
+    <string name="settings_m3u_catchup_query_format">Формат запроса для воспроизведения архива</string>
+    <string name="settings_m3u_catchup_query_format_subtitle">Используется для каналов M3U без собственного источника архива. Оставьте поле пустым, чтобы отключить этот резервный формат. Пример: ?utc={utc}</string>
+    <string name="settings_m3u_catchup_query_format_disabled">Отключено</string>
 </resources>

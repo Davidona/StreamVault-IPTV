@@ -167,12 +167,12 @@ internal fun SportsHubContent(
     val actionScope = rememberCoroutineScope()
     var inclusionsOpen by remember { mutableStateOf(false) }
     val visibleEvents = state.events.filter { it.matchesDiscovery(state) }
-    val eflChampionshipLabel = stringResource(R.string.live_sports_league_efl_championship)
+    val localizedLeagueNames = sportsLeagueLabels()
     val availableLeagues = state.events.asSequence()
         .filter { it.matches(state.selectedSportFilter) && it.sport.discoveryKey !in state.excludedSports &&
             it.leagueFilterKey !in state.excludedLeagues }
         .mapNotNull { event -> event.leagueFilterKey?.let { key ->
-            SportsLeagueFilterOption(key, event.localizedLeagueName(eflChampionshipLabel).orEmpty())
+            SportsLeagueFilterOption(key, event.localizedLeagueName(localizedLeagueNames).orEmpty())
         } }
         .filter { it.label.isNotBlank() }
         .distinctBy(SportsLeagueFilterOption::id)
@@ -223,7 +223,7 @@ internal fun SportsHubContent(
                         "category:${SportsTextNormalizer.normalize(it)}"
                     } ?: "category:sports"
                 }.map { (key, events) ->
-                    val label = events.firstNotNullOfOrNull { it.localizedLeagueName(eflChampionshipLabel) }
+                    val label = events.firstNotNullOfOrNull { it.localizedLeagueName(localizedLeagueNames) }
                         ?: events.firstNotNullOfOrNull { it.categoryLabel }
                         ?: fallbackLeague
                     Triple(key, label, events)
@@ -499,9 +499,8 @@ private fun FeaturedSportsEvent(
 
 @Composable
 private fun EventEyebrow(event: SportsEvent, isLive: Boolean) {
-    val leagueLabel = event.localizedLeagueName(
-        stringResource(R.string.live_sports_league_efl_championship),
-    ) ?: event.categoryLabel ?: stringResource(R.string.nav_sports)
+    val leagueLabel = event.localizedLeagueName(sportsLeagueLabels())
+        ?: event.categoryLabel ?: stringResource(R.string.nav_sports)
     val sourcedStatus = event.provenance.status
     Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -595,9 +594,18 @@ private fun SportsEvent.isLiveAt(nowMillis: Long): Boolean =
     provenance.status?.value?.state == ProviderGameState.LIVE ||
         broadcastStatusAt(nowMillis) == SportsBroadcastStatus.ON_AIR
 
-private fun SportsEvent.localizedLeagueName(eflChampionshipLabel: String): String? =
-    if (leagueInfo?.id == "efl-championship") eflChampionshipLabel
-    else league ?: leagueInfo?.displayName
+@Composable
+internal fun sportsLeagueLabels(): Map<String, String> = mapOf(
+    "efl-championship" to stringResource(R.string.live_sports_league_efl_championship),
+    "brasileirao-serie-a" to stringResource(R.string.live_sports_league_brasileirao_serie_a),
+    "brasileirao-serie-b" to stringResource(R.string.live_sports_league_brasileirao_serie_b),
+    "copa-do-brasil" to stringResource(R.string.live_sports_league_copa_do_brasil),
+    "copa-libertadores" to stringResource(R.string.live_sports_league_copa_libertadores),
+    "copa-sul-americana" to stringResource(R.string.live_sports_league_copa_sul_americana),
+)
+
+private fun SportsEvent.localizedLeagueName(localizedLeagueNames: Map<String, String>): String? =
+    leagueInfo?.id?.let(localizedLeagueNames::get) ?: league ?: leagueInfo?.displayName
 
 internal fun SportsEvent.scoreFor(competitor: SportsCompetitor): String? {
     val scores = provenance.score?.value?.scores.orEmpty()

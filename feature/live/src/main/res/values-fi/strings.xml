@@ -267,6 +267,11 @@
     <string name="live_sports_forget_choice">Unohda tämä valinta</string>
     <string name="live_sports_no_matching_channels">Vastaavia kanavia ei löytynyt</string>
     <string name="live_sports_league_efl_championship">Englannin jalkapalloliigan mestaruussarja</string>
+    <string name="live_sports_league_brasileirao_serie_a">Brasilian mestaruussarja Série A</string>
+    <string name="live_sports_league_brasileirao_serie_b">Brasilian mestaruussarja Série B</string>
+    <string name="live_sports_league_copa_do_brasil">Brasilian cup</string>
+    <string name="live_sports_league_copa_libertadores">Copa Libertadores</string>
+    <string name="live_sports_league_copa_sul_americana">Copa Sudamericana</string>
     <string name="live_sports_standings">Sarjataulukko</string>
     <string name="live_sports_standings_rank">Sija</string>
     <string name="live_sports_standings_team">Joukkue</string>

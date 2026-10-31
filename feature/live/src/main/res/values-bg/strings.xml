@@ -267,6 +267,11 @@
     <string name="live_sports_forget_choice">Забрави този избор</string>
     <string name="live_sports_no_matching_channels">Няма съвпадащи канали</string>
     <string name="live_sports_league_efl_championship">Шампионат на английската футболна лига</string>
+    <string name="live_sports_league_brasileirao_serie_a">Бразилско първенство Серия А</string>
+    <string name="live_sports_league_brasileirao_serie_b">Бразилско първенство Серия Б</string>
+    <string name="live_sports_league_copa_do_brasil">Купа на Бразилия</string>
+    <string name="live_sports_league_copa_libertadores">Копа Либертадорес</string>
+    <string name="live_sports_league_copa_sul_americana">Копа Судамерикана</string>
     <string name="live_sports_standings">Класиране</string>
     <string name="live_sports_standings_rank">Място</string>
     <string name="live_sports_standings_team">Отбор</string>

@@ -15,6 +15,54 @@ import org.robolectric.RobolectricTestRunner
 class PlaybackCodecSelectorTest {
 
     @Test
+    fun `strict hardware video excludes software even when hardware is known bad`() {
+        fun codec(name: String, hardware: Boolean) =
+            androidx.media3.exoplayer.mediacodec.MediaCodecInfo.newInstance(
+                name, "video/avc", "video/avc", null, hardware, !hardware, hardware, false, false
+            )
+        val hardware = codec("OMX.amlogic.avc.decoder.awesome2", true)
+        val software = codec("OMX.google.h264.decoder", false)
+        val selector = PlaybackCodecSelector(
+            delegate = androidx.media3.exoplayer.mediacodec.MediaCodecSelector { _, _, _ ->
+                mutableListOf(software, hardware)
+            },
+            policyProvider = { ActiveDecoderPolicy.HARDWARE_ONLY },
+            knownBadProvider = { setOf(hardware.name) }
+        )
+        assertThat(selector.getDecoderInfos("video/avc", false, false)).containsExactly(hardware)
+    }
+
+    @Test
+    fun `strict hardware video cannot use a software only codec list`() {
+        val software = androidx.media3.exoplayer.mediacodec.MediaCodecInfo.newInstance(
+            "OMX.google.h264.decoder", "video/avc", "video/avc", null, false, true, false, false, false
+        )
+        val selector = PlaybackCodecSelector(
+            delegate = androidx.media3.exoplayer.mediacodec.MediaCodecSelector { _, _, _ -> mutableListOf(software) },
+            policyProvider = { ActiveDecoderPolicy.HARDWARE_ONLY },
+            knownBadProvider = { emptySet() }
+        )
+        assertThat(selector.getDecoderInfos("video/avc", false, false)).isEmpty()
+    }
+
+    @Test
+    fun `hardware video disables extensions while software audio remains enabled`() {
+        val plan = buildPlaybackRendererPlan(
+            requestedAudioMode = DecoderMode.SOFTWARE,
+            activeAudioDecoderMode = DecoderMode.SOFTWARE,
+            audioDecoderPolicy = ActiveDecoderPolicy.SOFTWARE_PREFERRED,
+            requestedVideoMode = DecoderMode.HARDWARE,
+            activeVideoDecoderMode = DecoderMode.HARDWARE,
+            videoDecoderPolicy = ActiveDecoderPolicy.HARDWARE_ONLY,
+            useAudioVideoSyncSink = false,
+            useVideoRendererWorkaround = false
+        )
+        val settings = buildPlaybackRendererFactorySettings(plan)
+        assertThat(settings.videoExtensionRendererMode).isEqualTo(DefaultRenderersFactory.EXTENSION_RENDERER_MODE_OFF)
+        assertThat(settings.audioExtensionRendererMode).isEqualTo(DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER)
+    }
+
+    @Test
     fun `software codec names are recognized`() {
         assertThat(PlaybackCodecSelector.isSoftwareCodec("OMX.google.h264.decoder")).isTrue()
         assertThat(PlaybackCodecSelector.isSoftwareCodec("c2.android.hevc.decoder")).isTrue()

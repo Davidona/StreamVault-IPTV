@@ -9,7 +9,8 @@ data class VodTrackPreference(
     val trackId: String? = null,
     val language: String? = null,
     val label: String? = null,
-    val disabled: Boolean = false
+    val disabled: Boolean = false,
+    val externalSubtitleDownloadId: String? = null
 )
 
 data class VodTrackPreferences(

@@ -270,6 +270,7 @@ private fun resolvedSettingsCatalog(
         setting("live.timeshift_enabled", SettingsCategory.LIVE_TV, SettingsPage.TIMESHIFT, R.string.settings_live_timeshift),
         setting("live.timeshift_depth", SettingsCategory.LIVE_TV, SettingsPage.TIMESHIFT, R.string.settings_live_timeshift_depth),
         setting("live.timeshift_backend", SettingsCategory.LIVE_TV, SettingsPage.TIMESHIFT, R.string.settings_live_timeshift_backend),
+        setting("live.m3u_catchup_query_format", SettingsCategory.LIVE_TV, SettingsPage.TIMESHIFT, R.string.settings_m3u_catchup_query_format, "archive query format"),
         setting("live.zap_auto_revert", SettingsCategory.LIVE_TV, SettingsPage.TIMESHIFT, R.string.settings_zap_auto_revert, "bad channel return"),
         setting("live.clock_enabled", SettingsCategory.LIVE_TV, SettingsPage.CLOCK, R.string.settings_live_clock),
         setting("live.clock_position", SettingsCategory.LIVE_TV, SettingsPage.CLOCK, R.string.settings_live_clock_position),

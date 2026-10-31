@@ -191,6 +191,12 @@ fun LiveHomeScreen(
         }
     }
 
+    LaunchedEffect(isProMode) {
+        if (!isProMode) {
+            viewModel.clearPreview()
+        }
+    }
+
         val hasOverlay = showPinDialog || showSplitManagerDialog || pendingSplitPlannerChannel != null ||
         showAddQuickFilterDialog || showHiddenCategoriesDialog || showHiddenChannelsDialog ||
         uiState.showDialog || uiState.showDeleteGroupDialog ||

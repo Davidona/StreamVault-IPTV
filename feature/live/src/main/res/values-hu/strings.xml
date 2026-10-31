@@ -267,6 +267,11 @@
     <string name="live_sports_forget_choice">Választás elfelejtése</string>
     <string name="live_sports_no_matching_channels">Nincs egyező csatorna</string>
     <string name="live_sports_league_efl_championship">Az angol labdarúgó-bajnokság</string>
+    <string name="live_sports_league_brasileirao_serie_a">Brazil bajnokság Série A</string>
+    <string name="live_sports_league_brasileirao_serie_b">Brazil bajnokság Série B</string>
+    <string name="live_sports_league_copa_do_brasil">Brazil kupa</string>
+    <string name="live_sports_league_copa_libertadores">Libertadores-kupa</string>
+    <string name="live_sports_league_copa_sul_americana">Dél-amerikai kupa</string>
     <string name="live_sports_standings">Tabella</string>
     <string name="live_sports_standings_rank">Helyezés</string>
     <string name="live_sports_standings_team">Csapat</string>

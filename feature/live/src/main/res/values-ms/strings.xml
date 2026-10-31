@@ -267,6 +267,11 @@
     <string name="live_sports_forget_choice">Lupakan pilihan ini</string>
     <string name="live_sports_no_matching_channels">Tiada saluran yang sepadan</string>
     <string name="live_sports_league_efl_championship">Kejuaraan Liga Bola Sepak Inggeris</string>
+    <string name="live_sports_league_brasileirao_serie_a">Kejohanan Brazil Série A</string>
+    <string name="live_sports_league_brasileirao_serie_b">Kejohanan Brazil Série B</string>
+    <string name="live_sports_league_copa_do_brasil">Piala Brazil</string>
+    <string name="live_sports_league_copa_libertadores">Copa Libertadores</string>
+    <string name="live_sports_league_copa_sul_americana">Copa Sudamericana</string>
     <string name="live_sports_standings">Kedudukan</string>
     <string name="live_sports_standings_rank">Kedudukan</string>
     <string name="live_sports_standings_team">Pasukan</string>

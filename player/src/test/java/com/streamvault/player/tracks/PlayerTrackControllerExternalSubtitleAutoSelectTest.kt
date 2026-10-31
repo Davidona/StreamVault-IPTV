@@ -12,6 +12,7 @@ import com.google.common.truth.Truth.assertThat
 import com.streamvault.domain.settings.VodTrackPreference
 import com.streamvault.domain.settings.VodTrackPreferences
 import com.streamvault.player.DEVICE_SUBTITLE_TRACK_ID
+import com.streamvault.player.ONLINE_SUBTITLE_TRACK_ID
 import com.streamvault.player.SubtitleTrackSource
 import java.lang.reflect.Proxy
 import org.junit.Test
@@ -45,10 +46,31 @@ class PlayerTrackControllerExternalSubtitleAutoSelectTest {
         )
     )
 
+    private val onlineGroup = TrackGroup(
+        "online-subtitle",
+        Format.Builder()
+            .setId(ONLINE_SUBTITLE_TRACK_ID)
+            .setSampleMimeType(MimeTypes.APPLICATION_SUBRIP)
+            .setLanguage("en")
+            .setLabel("downloaded.srt")
+            .build()
+    )
+    private val onlineTracks = Tracks(
+        listOf(
+            Tracks.Group(
+                onlineGroup,
+                /* adaptiveSupported= */ false,
+                /* trackSupport= */ intArrayOf(C.FORMAT_HANDLED),
+                /* trackSelected= */ booleanArrayOf(false)
+            )
+        )
+    )
+
+    private var currentTracks: Tracks = tracks
     private var parameters = TrackSelectionParameters.Builder(context).build()
     private val player = Proxy.newProxyInstance(ExoPlayer::class.java.classLoader, arrayOf(ExoPlayer::class.java)) { _, method, args ->
         when (method.name) {
-            "getCurrentTracks" -> tracks
+            "getCurrentTracks" -> currentTracks
             "getTrackSelectionParameters" -> parameters
             "setTrackSelectionParameters" -> {
                 parameters = args!![0] as TrackSelectionParameters
@@ -114,5 +136,36 @@ class PlayerTrackControllerExternalSubtitleAutoSelectTest {
         controller.applyPendingExternalSubtitleAutoSelect(player)
 
         assertThat(parameters.overrides).isEmpty()
+    }
+
+    @Test
+    fun `remembered online subtitle survives a later tracks changed pass`() {
+        currentTracks = onlineTracks
+        controller.onTracksChanged(onlineTracks)
+        val onlineTrackId = controller.availableSubtitleTracks.value.single().id
+        controller.setVodTrackPreferences(
+            player,
+            VodTrackPreferences(
+                subtitle = VodTrackPreference(
+                    trackId = onlineTrackId,
+                    language = "en",
+                    label = "downloaded.srt",
+                    externalSubtitleDownloadId = "12345"
+                )
+            )
+        )
+        controller.requestExternalSubtitleAutoSelect(SubtitleTrackSource.ONLINE)
+
+        controller.applyVodTrackPreferences(player)
+        controller.applyPendingExternalSubtitleAutoSelect(player)
+
+        assertThat(parameters.overrides[onlineGroup]?.trackIndices).containsExactly(0)
+
+        controller.onTracksChanged(onlineTracks)
+        controller.applyVodTrackPreferences(player)
+        controller.applyPendingExternalSubtitleAutoSelect(player)
+
+        assertThat(parameters.overrides[onlineGroup]?.trackIndices).containsExactly(0)
+        assertThat(parameters.disabledTrackTypes).doesNotContain(C.TRACK_TYPE_TEXT)
     }
 }

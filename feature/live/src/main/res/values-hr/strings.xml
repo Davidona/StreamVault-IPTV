@@ -267,6 +267,11 @@
     <string name="live_sports_forget_choice">Zaboravi ovaj odabir</string>
     <string name="live_sports_no_matching_channels">Nema podudarnih kanala</string>
     <string name="live_sports_league_efl_championship">Prvenstvo engleske nogometne lige</string>
+    <string name="live_sports_league_brasileirao_serie_a">Brazilsko prvenstvo Série A</string>
+    <string name="live_sports_league_brasileirao_serie_b">Brazilsko prvenstvo Série B</string>
+    <string name="live_sports_league_copa_do_brasil">Brazilski kup</string>
+    <string name="live_sports_league_copa_libertadores">Copa Libertadores</string>
+    <string name="live_sports_league_copa_sul_americana">Copa Sudamericana</string>
     <string name="live_sports_standings">Poredak</string>
     <string name="live_sports_standings_rank">Mjesto</string>
     <string name="live_sports_standings_team">Momčad</string>

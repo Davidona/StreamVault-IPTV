@@ -38,6 +38,7 @@ import com.streamvault.domain.model.StreamInfo
 import com.streamvault.domain.model.StreamType
 import com.streamvault.domain.repository.ChannelRepository
 import com.streamvault.domain.util.ChannelNormalizer
+import com.streamvault.domain.util.SearchTextNormalizer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.withContext
@@ -72,6 +73,7 @@ class ChannelRepositoryImpl @Inject constructor(
         const val GLOBAL_SEARCH_LIMIT = 500
         const val CATEGORY_SEARCH_LIMIT = 300
         const val MIN_SEARCH_QUERY_LENGTH = 2
+        const val SEARCH_FALLBACK_PAGE_SIZE = 512
     }
 
     private data class ChannelPresentationSettings(
@@ -80,7 +82,8 @@ class ChannelRepositoryImpl @Inject constructor(
         val labelMode: GroupedChannelLabelMode,
         val preferenceMode: LiveVariantPreferenceMode,
         val preferredVariants: Map<String, Long>,
-        val observedQualities: Map<Long, LiveChannelObservedQuality>
+        val observedQualities: Map<Long, LiveChannelObservedQuality>,
+        val catchUpFallbackAvailable: Boolean
     )
 
     private val channelNumberComparator = compareBy<Channel>(
@@ -267,7 +270,7 @@ class ChannelRepositoryImpl @Inject constructor(
         val settings = currentPresentationSettings()
         val observation = settings.observedQualities[channelId]
         if (settings.groupingMode == LiveChannelGroupingMode.RAW_VARIANTS || entity.logicalGroupId.isBlank()) {
-            return entity.toPresentedRawChannel(observation, stalkerPortalUrl)
+            return entity.toPresentedRawChannel(observation, stalkerPortalUrl, settings.catchUpFallbackAvailable)
         }
         val groupedEntities = channelDao.getByLogicalGroupId(entity.providerId, entity.logicalGroupId)
             .ifEmpty { listOf(entity) }
@@ -427,9 +430,10 @@ class ChannelRepositoryImpl @Inject constructor(
                 preferencesRepository.liveChannelNumberingMode,
                 preferencesRepository.liveChannelGroupingMode,
                 preferencesRepository.groupedChannelLabelMode,
-                preferencesRepository.liveVariantPreferenceMode
-            ) { numberingMode, groupingMode, labelMode, preferenceMode ->
-                arrayOf(numberingMode, groupingMode, labelMode, preferenceMode)
+                preferencesRepository.liveVariantPreferenceMode,
+                preferencesRepository.m3uCatchUpQueryFormat
+            ) { numberingMode, groupingMode, labelMode, preferenceMode, catchUpQueryFormat ->
+                arrayOf(numberingMode, groupingMode, labelMode, preferenceMode, catchUpQueryFormat)
             },
             preferencesRepository.liveVariantSelections,
             preferencesRepository.liveVariantObservations
@@ -440,7 +444,8 @@ class ChannelRepositoryImpl @Inject constructor(
                 labelMode = settingsArray[2] as GroupedChannelLabelMode,
                 preferenceMode = settingsArray[3] as LiveVariantPreferenceMode,
                 preferredVariants = preferredVariants,
-                observedQualities = observedQualities
+                observedQualities = observedQualities,
+                catchUpFallbackAvailable = (settingsArray[4] as String).isNotBlank()
             )
         }
 
@@ -459,15 +464,13 @@ class ChannelRepositoryImpl @Inject constructor(
             } else if (categoryId == ChannelRepository.ALL_CHANNELS_ID) {
                 safeSearchFlow(
                     source = channelDao.search(providerId, ftsQuery, limit),
-                    fallback = { channelDao.searchFallback(providerId, query.trim().toSqlLikePattern(), limit) },
+                    fallback = { fallbackChannelSearch(providerId, categoryId, query.trim(), limit) },
                     rawQuery = query.trim()
                 )
             } else {
                 safeSearchFlow(
                     source = channelDao.searchByCategory(providerId, categoryId, ftsQuery, limit),
-                    fallback = {
-                        channelDao.searchByCategoryFallback(providerId, categoryId, query.trim().toSqlLikePattern(), limit)
-                    },
+                    fallback = { fallbackChannelSearch(providerId, categoryId, query.trim(), limit) },
                     rawQuery = query.trim()
                 )
             }
@@ -481,25 +484,31 @@ class ChannelRepositoryImpl @Inject constructor(
         stalkerPortalUrlForProvider: (Long) -> String?
     ): List<Channel> {
         if (requestedEntities.isEmpty()) return emptyList()
-        if (settings.groupingMode == LiveChannelGroupingMode.RAW_VARIANTS) {
+        val channels = if (settings.groupingMode == LiveChannelGroupingMode.RAW_VARIANTS) {
             val rawById = requestedEntities.associateBy { it.id }
-            return requestedIds.mapNotNull { rawId ->
+            requestedIds.mapNotNull { rawId ->
                 rawById[rawId]?.let { entity ->
                     entity.toPresentedRawChannel(
                         settings.observedQualities[rawId],
-                        stalkerPortalUrlForProvider(entity.providerId)
+                        stalkerPortalUrlForProvider(entity.providerId),
+                        settings.catchUpFallbackAvailable
                     )
                 }
             }
+        } else {
+            val groupedChannels = buildGroupedChannels(entityPool, settings, stalkerPortalUrlForProvider)
+            val groupedByRawId = buildRawVariantLookup(groupedChannels)
+            val seenLogicalGroups = linkedSetOf<String>()
+            requestedIds.mapNotNull { rawId ->
+                groupedByRawId[rawId]
+            }.filter { channel ->
+                seenLogicalGroups.add(channel.logicalGroupId.ifBlank { channel.id.toString() })
+            }
         }
-
-        val groupedChannels = buildGroupedChannels(entityPool, settings, stalkerPortalUrlForProvider)
-        val groupedByRawId = buildRawVariantLookup(groupedChannels)
-        val seenLogicalGroups = linkedSetOf<String>()
-        return requestedIds.mapNotNull { rawId ->
-            groupedByRawId[rawId]
-        }.filter { channel ->
-            seenLogicalGroups.add(channel.logicalGroupId.ifBlank { channel.id.toString() })
+        return if (settings.numberingMode == ChannelNumberingMode.HIDDEN) {
+            channels.map { it.copy(number = 0) }
+        } else {
+            channels
         }
     }
 
@@ -518,7 +527,8 @@ class ChannelRepositoryImpl @Inject constructor(
             entities.map { entity ->
                 entity.toPresentedRawChannel(
                     settings.observedQualities[entity.id],
-                    portalRootForProvider(entity.providerId)
+                    portalRootForProvider(entity.providerId),
+                    settings.catchUpFallbackAvailable
                 )
             }
         } else {
@@ -592,6 +602,9 @@ class ChannelRepositoryImpl @Inject constructor(
                 catchUpSupported = selectedVariant.catchUpSupported,
                 catchUpDays = selectedVariant.catchUpDays,
                 catchUpSource = selectedVariant.catchUpSource,
+                catchUpType = selectedVariant.catchUpType,
+                catchUpCorrectionSeconds = selectedVariant.catchUpCorrectionSeconds,
+                catchUpFallbackAvailable = settings.catchUpFallbackAvailable,
                 providerId = representative.providerId,
                 isAdult = representative.isAdult,
                 isUserProtected = representative.isUserProtected,
@@ -824,21 +837,52 @@ class ChannelRepositoryImpl @Inject constructor(
                 }
             }
         } catch (error: SQLiteException) {
-            Log.w(TAG, "FTS channel search failed for query '$rawQuery'; using LIKE-only search", error)
+            Log.w(TAG, "FTS channel search failed for query '$rawQuery'; using normalized search fallback", error)
             emitAll(fallback())
         }
     }
 
-    private fun String.toSqlLikePattern(): String {
-        val escaped = buildString(length) {
-            this@toSqlLikePattern.forEach { char ->
-                when (char) {
-                    '%', '_', '\\' -> append('\\')
+    private fun fallbackChannelSearch(
+        providerId: Long,
+        categoryId: Long,
+        query: String,
+        limit: Int
+    ): Flow<List<ChannelBrowseEntity>> {
+        val foldedQuery = SearchTextNormalizer.normalize(query)
+        if (foldedQuery.isBlank() || limit <= 0) return flowOf(emptyList())
+
+        return flow {
+            val matches = sortedSetOf(compareBy<ChannelBrowseEntity> { it.name }.thenBy { it.id })
+            var offset = 0
+            while (true) {
+                val page = if (categoryId == ChannelRepository.ALL_CHANNELS_ID) {
+                    channelDao.getByProviderBrowsePageOffset(providerId, SEARCH_FALLBACK_PAGE_SIZE, offset)
+                } else {
+                    channelDao.getByCategoryBrowsePageOffset(
+                        providerId,
+                        categoryId,
+                        SEARCH_FALLBACK_PAGE_SIZE,
+                        offset
+                    )
                 }
-                append(char)
+                if (page.isEmpty()) break
+
+                page.forEach { channel ->
+                    val matchesQuery = sequenceOf(channel.name, channel.groupTitle, channel.categoryName)
+                        .filterNotNull()
+                        .any { SearchTextNormalizer.normalize(it).contains(foldedQuery) }
+                    if (matchesQuery) {
+                        matches += channel
+                        if (matches.size > limit) matches.remove(matches.last())
+                    }
+                }
+
+                offset += page.size
+                if (page.size < SEARCH_FALLBACK_PAGE_SIZE) break
             }
+
+            emit(matches.toList())
         }
-        return "%$escaped%"
     }
 
     private fun channelGroupKey(entity: ChannelBrowseEntity): String =
@@ -866,6 +910,8 @@ class ChannelRepositoryImpl @Inject constructor(
             catchUpSupported = catchUpSupported,
             catchUpDays = catchUpDays,
             catchUpSource = catchUpSource,
+            catchUpType = catchUpType,
+            catchUpCorrectionSeconds = catchUpCorrectionSeconds,
             attributes = classification.attributes,
             observedQuality = observedQuality ?: LiveChannelObservedQuality()
         )
@@ -873,7 +919,8 @@ class ChannelRepositoryImpl @Inject constructor(
 
     private fun ChannelBrowseEntity.toPresentedRawChannel(
         observedQuality: LiveChannelObservedQuality?,
-        stalkerPortalUrl: String?
+        stalkerPortalUrl: String?,
+        catchUpFallbackAvailable: Boolean
     ): Channel {
         val variant = toVariant(observedQuality)
         return Channel(
@@ -891,6 +938,9 @@ class ChannelRepositoryImpl @Inject constructor(
             catchUpSupported = catchUpSupported,
             catchUpDays = catchUpDays,
             catchUpSource = catchUpSource,
+            catchUpType = catchUpType,
+            catchUpCorrectionSeconds = catchUpCorrectionSeconds,
+            catchUpFallbackAvailable = catchUpFallbackAvailable,
             providerId = providerId,
             isAdult = isAdult,
             isUserProtected = isUserProtected,

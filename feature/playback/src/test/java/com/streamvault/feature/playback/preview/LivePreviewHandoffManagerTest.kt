@@ -13,6 +13,7 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoInteractions
 import kotlinx.coroutines.test.setMain
@@ -66,6 +67,38 @@ class LivePreviewHandoffManagerTest {
 
         assertThat(manager.consumeFullscreenHandoff(channel.id, channel.providerId)).isNull()
         verify(engine).release()
+    }
+
+    @Test
+    fun `discarding a pending handoff removes it without waiting for the timeout`() = runTest(testDispatcher) {
+        val manager = LivePreviewHandoffManager()
+        val engine = mock<PlayerEngine>()
+        val channel = channel(id = 100L, providerId = 5L)
+        val streamInfo = StreamInfo(url = "https://example.com/preview.ts", title = channel.name)
+
+        manager.registerPreviewSession(channel, streamInfo, engine)
+        assertThat(manager.beginFullscreenHandoff(channel.id, engine)).isTrue()
+
+        val pending = manager.discardPendingFullscreenHandoff()
+
+        assertThat(pending?.engine).isSameInstanceAs(engine)
+        assertThat(manager.consumeFullscreenHandoff(channel.id, channel.providerId)).isNull()
+        advanceTimeBy(15_001L)
+        testDispatcher.scheduler.runCurrent()
+        verify(engine, never()).release()
+    }
+
+    @Test
+    fun `discarding does not take a session that was never handed to fullscreen`() = runTest(testDispatcher) {
+        val manager = LivePreviewHandoffManager()
+        val engine = mock<PlayerEngine>()
+        val channel = channel(id = 101L, providerId = 5L)
+        val streamInfo = StreamInfo(url = "https://example.com/preview.ts", title = channel.name)
+
+        manager.registerPreviewSession(channel, streamInfo, engine)
+
+        assertThat(manager.discardPendingFullscreenHandoff()).isNull()
+        assertThat(manager.consumeFullscreenHandoff(channel.id, channel.providerId)).isNull()
     }
 
     @Test

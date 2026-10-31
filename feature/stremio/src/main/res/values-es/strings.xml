@@ -106,4 +106,9 @@
     <string name="stremio_hidden_title">Los complementos compatibles con Stremio están ocultos</string>
     <string name="stremio_open_settings">Abrir ajustes</string>
     <string name="stremio_hidden_message">Para mostrar tus complementos, abre Ajustes → Privacidad y desactiva «Ocultar complementos compatibles con Stremio». Tus complementos instalados se conservan.</string>
+    <string name="stremio_phone_qr_start">Mostrar código QR</string>
+    <string name="stremio_phone_qr_stop">Detener emparejamiento</string>
+    <string name="stremio_phone_qr_warning">Seguridad: El emparejamiento envía las credenciales sin cifrar por tu red local. Usa solo una red Wi-Fi privada y de confianza.</string>
+    <string name="stremio_phone_qr_complete">Añadido</string>
+    <string name="stremio_phone_qr_error">Error</string>
 </resources>

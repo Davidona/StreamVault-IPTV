@@ -267,6 +267,11 @@
     <string name="live_sports_forget_choice">Deze keuze vergeten</string>
     <string name="live_sports_no_matching_channels">Geen overeenkomende zenders</string>
     <string name="live_sports_league_efl_championship">Kampioenschap van de Engelse voetbalcompetitie</string>
+    <string name="live_sports_league_brasileirao_serie_a">Braziliaans kampioenschap Série A</string>
+    <string name="live_sports_league_brasileirao_serie_b">Braziliaans kampioenschap Série B</string>
+    <string name="live_sports_league_copa_do_brasil">Braziliaanse beker</string>
+    <string name="live_sports_league_copa_libertadores">Copa Libertadores</string>
+    <string name="live_sports_league_copa_sul_americana">Copa Sudamericana</string>
     <string name="live_sports_standings">Stand</string>
     <string name="live_sports_standings_rank">Positie</string>
     <string name="live_sports_standings_team">Ploeg</string>

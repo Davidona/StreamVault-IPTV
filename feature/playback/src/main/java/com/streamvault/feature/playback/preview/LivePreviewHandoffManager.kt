@@ -95,6 +95,18 @@ class LivePreviewHandoffManager @Inject constructor() {
         session = null
     }
 
+    /**
+     * Removes a fullscreen handoff that was never claimed. The caller owns releasing the
+     * returned engine.
+     */
+    fun discardPendingFullscreenHandoff(): LivePreviewHandoffSession? {
+        val current = session ?: return null
+        if (!current.pendingFullscreen) return null
+        pendingReleaseJob?.cancel()
+        session = null
+        return current
+    }
+
     fun beginReverseHandoff(
         channel: Channel,
         streamInfo: StreamInfo,

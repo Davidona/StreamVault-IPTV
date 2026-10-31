@@ -267,6 +267,11 @@
     <string name="live_sports_forget_choice">Harroje këtë zgjedhje</string>
     <string name="live_sports_no_matching_channels">Nuk ka kanale përputhëse</string>
     <string name="live_sports_league_efl_championship">Kampionati i Ligës Angleze të Futbollit</string>
+    <string name="live_sports_league_brasileirao_serie_a">Kampionati brazilian Série A</string>
+    <string name="live_sports_league_brasileirao_serie_b">Kampionati brazilian Série B</string>
+    <string name="live_sports_league_copa_do_brasil">Kupa e Brazilit</string>
+    <string name="live_sports_league_copa_libertadores">Kopa Libertadores</string>
+    <string name="live_sports_league_copa_sul_americana">Kopa Sudamericana</string>
     <string name="live_sports_standings">Renditja</string>
     <string name="live_sports_standings_rank">Pozicioni</string>
     <string name="live_sports_standings_team">Ekipi</string>

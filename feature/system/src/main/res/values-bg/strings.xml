@@ -32,6 +32,7 @@
   <string name="download_folder_default">Папка за изтегляния по подразбиране</string>
   <string name="download_resume">Продължи</string>
   <string name="download_delete">Изтрий</string>
+  <string name="download_play">Възпроизведи</string>
   <string name="downloads_resumed">Изтеглянето е продължено</string>
   <string name="extensions_tab_plugins">Приставки</string>
   <string name="extensions_tab_stremio_addons">Добавки за Stremio</string>
@@ -46,6 +47,7 @@
     <string name="torrent_cache_confirm_message">Да се премахнат ли временните торент данни? Запазените изтегляния няма да бъдат изтрити.</string>
     <string name="torrent_cache_active">Спрете възпроизвеждането на торент, преди да изчистите кеша.</string>
     <string name="torrent_cache_clear_failed">Временният кеш не можа да бъде изчистен.</string>
+    <string name="torrent_cache_cleared">Временният кеш е изчистен.</string>
     <string name="extensions_title">Разширения</string>
     <string name="plugins_section_description">Добавяйте функции към StreamVault с придружаващи Android приложения.</string>
     <string name="plugins_install_url">Инсталиране на приставка от URL адрес</string>

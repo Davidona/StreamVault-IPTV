@@ -106,4 +106,9 @@
     <string name="stremio_hidden_title">Les extensions compatibles avec Stremio sont masquées</string>
     <string name="stremio_open_settings">Ouvrir les paramètres</string>
     <string name="stremio_hidden_message">Pour afficher vos extensions, ouvrez Paramètres → Confidentialité et désactivez « Masquer les extensions compatibles avec Stremio ». Vos extensions installées sont conservées.</string>
+    <string name="stremio_phone_qr_start">Afficher le code QR</string>
+    <string name="stremio_phone_qr_stop">Arrêter l’appairage</string>
+    <string name="stremio_phone_qr_warning">Sécurité : l’association envoie les identifiants sans chiffrement sur votre réseau local. Utilisez uniquement un réseau Wi-Fi privé de confiance.</string>
+    <string name="stremio_phone_qr_complete">Ajouté</string>
+    <string name="stremio_phone_qr_error">Erreur</string>
 </resources>

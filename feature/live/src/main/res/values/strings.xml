@@ -267,6 +267,11 @@
     <string name="live_sports_forget_choice">Forget this choice</string>
     <string name="live_sports_no_matching_channels">No matching channels</string>
     <string name="live_sports_league_efl_championship">EFL Championship</string>
+    <string name="live_sports_league_brasileirao_serie_a">Brazilian Championship Série A</string>
+    <string name="live_sports_league_brasileirao_serie_b">Brazilian Championship Série B</string>
+    <string name="live_sports_league_copa_do_brasil">Brazil Cup</string>
+    <string name="live_sports_league_copa_libertadores">Copa Libertadores</string>
+    <string name="live_sports_league_copa_sul_americana">Copa Sudamericana</string>
     <string name="live_sports_standings">Standings</string>
     <string name="live_sports_standings_rank">Rank</string>
     <string name="live_sports_standings_team">Team</string>

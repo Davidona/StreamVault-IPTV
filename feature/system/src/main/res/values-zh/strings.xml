@@ -32,6 +32,7 @@
   <string name="download_folder_default">默认下载文件夹</string>
   <string name="download_resume">继续</string>
   <string name="download_delete">删除</string>
+  <string name="download_play">播放</string>
   <string name="downloads_resumed">下载已继续</string>
   <string name="extensions_tab_plugins">插件</string>
   <string name="extensions_tab_stremio_addons">Stremio 扩展</string>
@@ -46,6 +47,7 @@
     <string name="torrent_cache_confirm_message">移除临时种子数据？不会删除已保存的下载内容。</string>
     <string name="torrent_cache_active">请先停止种子播放，再清除缓存。</string>
     <string name="torrent_cache_clear_failed">无法清除临时缓存。</string>
+    <string name="torrent_cache_cleared">已清除临时缓存。</string>
     <string name="extensions_title">扩展功能</string>
     <string name="plugins_section_description">通过兼容的 Android 应用为 StreamVault 添加功能。</string>
     <string name="plugins_install_url">从 URL 安装插件</string>

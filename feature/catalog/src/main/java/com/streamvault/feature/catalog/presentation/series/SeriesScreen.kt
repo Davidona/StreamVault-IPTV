@@ -53,6 +53,7 @@ import com.streamvault.domain.model.Category
 import com.streamvault.domain.model.LibraryFilterType
 import com.streamvault.domain.model.LibrarySortBy
 import com.streamvault.domain.model.Series
+import com.streamvault.domain.util.SearchTextNormalizer
 import kotlinx.coroutines.launch
 import androidx.compose.ui.res.stringResource
 import com.streamvault.feature.catalog.R
@@ -1258,6 +1259,7 @@ private fun SeriesVodClassicContent(
             traktPopularLabel,
             traktWatchlistLabel
         ) {
+            val normalizedCategoryQuery = SearchTextNormalizer.normalize(categoryQuery.trim())
             buildList {
                 add(
                     VodClassicCategoryOption(
@@ -1348,7 +1350,8 @@ private fun SeriesVodClassicContent(
                         )
                     }
             }.filter { option ->
-                categoryQuery.isBlank() || option.label.contains(categoryQuery.trim(), ignoreCase = true)
+                normalizedCategoryQuery.isBlank() ||
+                    SearchTextNormalizer.normalize(option.label).contains(normalizedCategoryQuery)
             }
         }
 

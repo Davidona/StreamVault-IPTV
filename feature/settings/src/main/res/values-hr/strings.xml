@@ -951,4 +951,13 @@
     <string name="settings_sync_index_progress">%1$s · %2$s</string>
     <string name="settings_refresh_rate_matching">Uskladi s brzinom kadrova sadržaja</string>
     <string name="settings_refresh_rate_matching_description">Usklađuje frekvenciju osvježavanja zaslona s videozapisom za glađe pokrete. Zahtijeva podršku zaslona; zaslon se pri promjeni može nakratko zacrniti.</string>
+    <string name="settings_epg_phone_qr_start">Prikaži QR kod</string>
+    <string name="settings_epg_phone_qr_stop">Zaustavi uparivanje</string>
+    <string name="settings_epg_phone_qr_warning">Sigurnost: Uparivanje šalje podatke za prijavu nešifrirane putem vaše lokalne mreže. Koristite samo pouzdanu privatnu Wi-Fi mrežu.</string>
+    <string name="settings_epg_phone_qr_complete">Dodano</string>
+    <string name="settings_epg_phone_qr_error">Pogreška</string>
+    <string name="settings_backup_export_sections">Odaberite odjeljke za izvoz</string>
+    <string name="settings_m3u_catchup_query_format">Format upita za reprodukciju arhive</string>
+    <string name="settings_m3u_catchup_query_format_subtitle">Koristi se za M3U kanale koji nemaju vlastiti izvor arhivske reprodukcije. Ostavite prazno da biste isključili ovaj zamjenski format. Primjer: ?utc={utc}</string>
+    <string name="settings_m3u_catchup_query_format_disabled">Isključeno</string>
 </resources>

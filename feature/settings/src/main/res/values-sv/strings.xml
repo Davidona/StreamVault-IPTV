@@ -950,4 +950,13 @@
     <string name="settings_sync_index_progress">%1$s · %2$s</string>
     <string name="settings_refresh_rate_matching">Anpassa till innehållets bildfrekvens</string>
     <string name="settings_refresh_rate_matching_description">Anpassar skärmens uppdateringsfrekvens till videon för jämnare rörelser. Kräver stöd från skärmen; skärmen kan bli svart en kort stund vid byte.</string>
+    <string name="settings_epg_phone_qr_start">Visa QR-kod</string>
+    <string name="settings_epg_phone_qr_stop">Stoppa parkopplingen</string>
+    <string name="settings_epg_phone_qr_warning">Säkerhet: Parkopplingen skickar inloggningsuppgifter okrypterade via ditt lokala nätverk. Använd endast ett privat Wi-Fi-nätverk som du litar på.</string>
+    <string name="settings_epg_phone_qr_complete">Tillagd</string>
+    <string name="settings_epg_phone_qr_error">Fel</string>
+    <string name="settings_backup_export_sections">Välj avsnitt att exportera</string>
+    <string name="settings_m3u_catchup_query_format">Format för catch-up-förfrågan</string>
+    <string name="settings_m3u_catchup_query_format_subtitle">Används för M3U-kanaler utan egen catch-up-källa. Lämna fältet tomt för att inaktivera reservformatet. Exempel: ?utc={utc}</string>
+    <string name="settings_m3u_catchup_query_format_disabled">Inaktiverat</string>
 </resources>

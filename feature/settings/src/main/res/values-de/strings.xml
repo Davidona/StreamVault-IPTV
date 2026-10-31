@@ -946,4 +946,13 @@
     <string name="settings_sync_index_progress">%1$s · %2$s</string>
     <string name="settings_refresh_rate_matching">Bildrate des Inhalts anpassen</string>
     <string name="settings_refresh_rate_matching_description">Passt die Bildwiederholrate des Displays für flüssigere Bewegungen an das Video an. Erfordert ein unterstütztes Display; beim Wechsel kann der Bildschirm kurz schwarz werden.</string>
+    <string name="settings_epg_phone_qr_start">QR-Code anzeigen</string>
+    <string name="settings_epg_phone_qr_stop">Kopplung beenden</string>
+    <string name="settings_epg_phone_qr_warning">Sicherheit: Bei der Kopplung werden Zugangsdaten unverschlüsselt über dein lokales Netzwerk gesendet. Verwende nur ein vertrauenswürdiges privates WLAN.</string>
+    <string name="settings_epg_phone_qr_complete">Hinzugefügt</string>
+    <string name="settings_epg_phone_qr_error">Fehler</string>
+    <string name="settings_backup_export_sections">Abschnitte zum Exportieren auswählen</string>
+    <string name="settings_m3u_catchup_query_format">Format der Catch-up-Abfrage</string>
+    <string name="settings_m3u_catchup_query_format_subtitle">Wird für M3U-Kanäle ohne eigene Catch-up-Quelle verwendet. Leer lassen, um dieses Ersatzformat zu deaktivieren. Beispiel: ?utc={utc}</string>
+    <string name="settings_m3u_catchup_query_format_disabled">Deaktiviert</string>
 </resources>

@@ -267,6 +267,11 @@
     <string name="live_sports_forget_choice">Zapomenout tuto volbu</string>
     <string name="live_sports_no_matching_channels">Nebyly nalezeny žádné odpovídající kanály</string>
     <string name="live_sports_league_efl_championship">Mistrovství anglické fotbalové ligy</string>
+    <string name="live_sports_league_brasileirao_serie_a">Brazilská liga Série A</string>
+    <string name="live_sports_league_brasileirao_serie_b">Brazilská liga Série B</string>
+    <string name="live_sports_league_copa_do_brasil">Brazilský pohár</string>
+    <string name="live_sports_league_copa_libertadores">Pohár osvoboditelů</string>
+    <string name="live_sports_league_copa_sul_americana">Jihoamerický pohár</string>
     <string name="live_sports_standings">Tabulka</string>
     <string name="live_sports_standings_rank">Pořadí</string>
     <string name="live_sports_standings_team">Tým</string>

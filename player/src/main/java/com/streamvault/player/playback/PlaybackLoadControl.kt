@@ -2,6 +2,7 @@
 
 package com.streamvault.player.playback
 
+import android.os.SystemClock
 import androidx.media3.common.C
 import androidx.media3.exoplayer.DefaultLoadControl
 import androidx.media3.exoplayer.LoadControl
@@ -30,8 +31,21 @@ internal class PlaybackLoadControl(
     private val selections = mutableMapOf<PlayerId, Array<out ExoTrackSelection?>>()
     private val appliedModes = mutableMapOf<PlayerId, Boolean>()
     private val references = mutableMapOf<PlayerId, Int>()
+    private var foregroundTargetBytes = DEFAULT_MIN_BUFFER_SIZE
+    private data class AllocationSnapshot(val playerId: PlayerId, val bytes: Int, val target: Int, val atMs: Long)
+    @Volatile private var foregroundAllocation: AllocationSnapshot? = null
+
+    /** Small immutable snapshot published from the playback thread for transition diagnostics. */
+    fun describeAllocation(): String {
+        val snapshot = foregroundAllocation ?: return "allocatedBytes=unknown targetBytes=unknown"
+        return "allocatedBytes=${snapshot.bytes} targetBytes=${snapshot.target} " +
+            "allocationSampleAgeMs=${(SystemClock.elapsedRealtime() - snapshot.atMs).coerceAtLeast(0L)}"
+    }
 
     override fun onPrepared(playerId: PlayerId) {
+        if (references[playerId] == null && playerId != PlayerId.PRELOAD) {
+            foregroundTargetBytes = DEFAULT_MIN_BUFFER_SIZE
+        }
         references[playerId] = (references[playerId] ?: 0) + 1
         super.onPrepared(playerId)
     }
@@ -57,7 +71,14 @@ internal class PlaybackLoadControl(
                 appliedModes[parameters.playerId] = multiviewMode
             }
         }
-        return super.shouldContinueLoading(parameters)
+        val loading = super.shouldContinueLoading(parameters)
+        if (parameters.playerId != PlayerId.PRELOAD) {
+            foregroundAllocation = AllocationSnapshot(
+                parameters.playerId, getAllocator(parameters.playerId).totalBytesAllocated,
+                foregroundTargetBytes, SystemClock.elapsedRealtime()
+            )
+        }
+        return loading
     }
 
     override fun onStopped(playerId: PlayerId) {
@@ -78,6 +99,7 @@ internal class PlaybackLoadControl(
             references.remove(playerId)
             selections.remove(playerId)
             appliedModes.remove(playerId)
+            if (foregroundAllocation?.playerId == playerId) foregroundAllocation = null
         }
     }
     // Reserve half the Java heap for the app, decoder bookkeeping and chunk overshoot.
@@ -113,6 +135,8 @@ internal class PlaybackLoadControl(
         }
         val floor = if (preload) DEFAULT_MIN_BUFFER_SIZE else
             maxOf(DEFAULT_MIN_BUFFER_SIZE, policy.targetBufferBytes)
-        return (knownBytes + unknownBytes).coerceAtLeast(floor.toLong()).coerceAtMost(budget).toInt()
+        val target = (knownBytes + unknownBytes).coerceAtLeast(floor.toLong()).coerceAtMost(budget).toInt()
+        if (!preload) foregroundTargetBytes = target
+        return target
     }
 }

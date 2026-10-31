@@ -16,6 +16,25 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [28], manifest = Config.NONE)
 class ProviderSyncWorkSchedulerIntegrationTest {
+    @Test fun `manual Xtream sections do not wait behind delayed provider recovery`() {
+        val context = RuntimeEnvironment.getApplication()
+        val manager = workManager()
+        val providerId = 987958L
+        val recovery = androidx.work.OneTimeWorkRequestBuilder<ProviderSyncWorker>()
+            .setInitialDelay(3600L, java.util.concurrent.TimeUnit.SECONDS).build()
+        manager.enqueueUniqueWork(providerWorkUniqueName(providerId), androidx.work.ExistingWorkPolicy.KEEP,
+            recovery).result.get()
+        XtreamIndexWorker.enqueue(context, providerId, "MOVIE", automatic = false, initialDelaySeconds = 3600L)
+        XtreamIndexWorker.enqueue(context, providerId, "SERIES", automatic = false, initialDelaySeconds = 3600L)
+
+        val setup = manager.getWorkInfosForUniqueWork(providerWorkUniqueName(providerId)).get()
+        val indexes = manager.getWorkInfosForUniqueWork(xtreamIndexWorkUniqueName(providerId)).get()
+        assertThat(setup.map { it.id }).containsExactly(recovery.id)
+        assertThat(indexes).hasSize(2)
+        assertThat(indexes.count { it.state == androidx.work.WorkInfo.State.ENQUEUED }).isEqualTo(1)
+        assertThat(indexes.count { it.state == androidx.work.WorkInfo.State.BLOCKED }).isEqualTo(1)
+    }
+
     private fun workManager(): WorkManager {
         val context = RuntimeEnvironment.getApplication()
         return runCatching { WorkManager.getInstance(context) }.getOrElse {
@@ -50,9 +69,29 @@ class ProviderSyncWorkSchedulerIntegrationTest {
         val manager = workManager()
         BackgroundEpgSyncWorker.enqueue(context, 987957L, force = false, initialDelaySeconds = 3600L)
         val original = manager.getWorkInfosForUniqueWork(providerEpgWorkUniqueName(987957L)).get().single { !it.state.isFinished }
-        BackgroundEpgSyncWorker.enqueue(context, 987957L, force = true, initialDelaySeconds = 3600L)
+        BackgroundEpgSyncWorker.enqueue(context, 987957L, force = true,
+            initialDelaySeconds = 3600L, userInitiated = true)
         val replacement = manager.getWorkInfosForUniqueWork(providerEpgWorkUniqueName(987957L)).get().single { !it.state.isFinished }
         assertThat(replacement.id).isNotEqualTo(original.id)
+        val input = kotlinx.coroutines.runBlocking(kotlinx.coroutines.Dispatchers.IO) {
+            (manager as androidx.work.impl.WorkManagerImpl).workDatabase.workSpecDao()
+                .getWorkSpec(replacement.id.toString())!!.input
+        }
+        assertThat(input.getBoolean("user_initiated", false)).isTrue()
+        assertThat(input.getBoolean("force_refresh", false)).isTrue()
+    }
+
+    @Test fun `background guide repair forces freshness without claiming a manual request`() {
+        val context = RuntimeEnvironment.getApplication()
+        val manager = workManager()
+        BackgroundEpgSyncWorker.enqueue(context, 987959L, force = true, initialDelaySeconds = 3600L)
+        val queued = manager.getWorkInfosForUniqueWork(providerEpgWorkUniqueName(987959L)).get().single { !it.state.isFinished }
+        val input = kotlinx.coroutines.runBlocking(kotlinx.coroutines.Dispatchers.IO) {
+            (manager as androidx.work.impl.WorkManagerImpl).workDatabase.workSpecDao()
+                .getWorkSpec(queued.id.toString())!!.input
+        }
+        assertThat(input.getBoolean("force_refresh", false)).isTrue()
+        assertThat(input.getBoolean("user_initiated", false)).isFalse()
     }
 
     @Test fun `a policy edit retains a successor check when a foreground check is already pending`() {

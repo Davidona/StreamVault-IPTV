@@ -345,6 +345,7 @@ class PlayerViewModel @Inject constructor(
             playerPlaybackContextCoordinator.pendingCatchUpUrls = value
         }
     internal var livePlaybackReadyForCurrentSession: Boolean = false
+    internal var terminalPlaybackCleanupStarted: Boolean = false
     internal var channelNumberingMode: ChannelNumberingMode = ChannelNumberingMode.GROUP
         set(value) {
             field = value
@@ -1042,7 +1043,9 @@ class PlayerViewModel @Inject constructor(
                 channel = currentChannelFlow.value?.sanitizedForPlayer(),
                 isCatchUp = isCatchUpPlayback(),
                 currentProgramHasArchive = currentProgram.value?.hasArchive == true,
-                livePlaybackReady = livePlaybackReadyForCurrentSession
+                livePlaybackReady = livePlaybackReadyForCurrentSession,
+                requestedAudioDecoderMode = preferredAudioDecoderMode,
+                requestedVideoDecoderMode = preferredVideoDecoderMode
             ),
             sessionScope = playbackSessionScope(requestVersion),
             port = playerRecoveryExecutionPort
@@ -1413,6 +1416,7 @@ class PlayerViewModel @Inject constructor(
     fun selectStremioSubtitle(option: StremioPlayerSubtitleOption) {
         if (option !in _stremioSubtitlePickerState.value.options) return
         val uri = option.url.trim().toHttpUrlOrNull()?.toString()?.let { Uri.parse(it) } ?: return
+        clearRememberedOpenSubtitleForCurrentContent()
         playerEngine.addExternalSubtitle(uri, option.languageTag, option.label, SubtitleTrackSource.STREMIO)
     }
 
@@ -1541,6 +1545,7 @@ class PlayerViewModel @Inject constructor(
                 seriesId = currentSeriesId
             )
         }
+        activeVodTrackPreferences = withoutMissingRememberedOpenSubtitle(activeVodTrackPreferences)
 
         val preparationResult = playerPreparationCoordinator.prepare(
             request = PlayerPreparationCoordinator.Request(
@@ -1576,6 +1581,8 @@ class PlayerViewModel @Inject constructor(
 
         val success = preparationResult as PlayerPreparationCoordinator.Result.Success
         success.probeCacheKey?.let(probePassedPlaybackKeys::add)
+        if (!isCurrent()) return false
+        restoreRememberedOpenSubtitle()
         if (!isCurrent()) return false
         currentResolvedPlaybackUrl = success.streamInfo.url
         currentResolvedStreamInfo = success.streamInfo

@@ -267,6 +267,11 @@
     <string name="live_sports_forget_choice">تجاهل هذا الاختيار</string>
     <string name="live_sports_no_matching_channels">لا توجد قنوات مطابقة</string>
     <string name="live_sports_league_efl_championship">بطولة دوري كرة القدم الإنجليزية</string>
+    <string name="live_sports_league_brasileirao_serie_a">الدوري البرازيلي الدرجة الأولى</string>
+    <string name="live_sports_league_brasileirao_serie_b">الدوري البرازيلي الدرجة الثانية</string>
+    <string name="live_sports_league_copa_do_brasil">كأس البرازيل</string>
+    <string name="live_sports_league_copa_libertadores">كأس ليبرتادوريس</string>
+    <string name="live_sports_league_copa_sul_americana">كأس سودأمريكانا</string>
     <string name="live_sports_standings">الترتيب</string>
     <string name="live_sports_standings_rank">المركز</string>
     <string name="live_sports_standings_team">الفريق</string>

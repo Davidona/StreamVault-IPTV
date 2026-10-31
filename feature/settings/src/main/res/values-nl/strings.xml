@@ -950,4 +950,13 @@
     <string name="settings_sync_index_progress">%1$s · %2$s</string>
     <string name="settings_refresh_rate_matching">Afstemmen op de beeldsnelheid van inhoud</string>
     <string name="settings_refresh_rate_matching_description">Stemt de vernieuwingsfrequentie van het scherm af op de video voor vloeiendere bewegingen. Vereist schermondersteuning; bij het omschakelen kan het scherm kort zwart worden.</string>
+    <string name="settings_epg_phone_qr_start">QR-code tonen</string>
+    <string name="settings_epg_phone_qr_stop">Koppelen stoppen</string>
+    <string name="settings_epg_phone_qr_warning">Beveiliging: Koppelen verstuurt inloggegevens onversleuteld via je lokale netwerk. Gebruik alleen een vertrouwd privé-Wi-Fi-netwerk.</string>
+    <string name="settings_epg_phone_qr_complete">Toegevoegd</string>
+    <string name="settings_epg_phone_qr_error">Fout</string>
+    <string name="settings_backup_export_sections">Kies onderdelen om te exporteren</string>
+    <string name="settings_m3u_catchup_query_format">Formaat van de terugkijkquery</string>
+    <string name="settings_m3u_catchup_query_format_subtitle">Wordt gebruikt voor M3U-kanalen zonder eigen terugkijkbron. Laat dit leeg om dit reserveformaat uit te schakelen. Voorbeeld: ?utc={utc}</string>
+    <string name="settings_m3u_catchup_query_format_disabled">Uitgeschakeld</string>
 </resources>

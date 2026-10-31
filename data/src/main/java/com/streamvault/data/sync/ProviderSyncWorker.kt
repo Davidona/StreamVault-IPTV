@@ -253,7 +253,20 @@ class ProviderSyncWorker(
                         // Interrupted setup is recovery, independent of automatic refresh policy.
                         entryPoint.syncCommands().resumePrimaryCatalog(provider.id, true)
                     } else {
-                        entryPoint.automaticSyncRunner().check(provider.id)
+                        try {
+                            entryPoint.automaticSyncRunner().check(provider.id)
+                        } catch (cancelled: kotlinx.coroutines.CancellationException) {
+                            // The pipeline cancels/joins its own reader and writer before this
+                            // control signal arrives. External worker cancellation stays cancellation.
+                            kotlinx.coroutines.currentCoroutineContext().let { context ->
+                                if (!context[kotlinx.coroutines.Job]!!.isActive) throw cancelled
+                            }
+                            if (!cancelled.isXtreamLivePlaybackDeferral()) throw cancelled
+                            entryPoint.automaticSyncRunner().reportIndexWaiting(provider.id,
+                                com.streamvault.domain.sync.AutomaticSyncOutcome.WAITING_PLAYBACK)
+                            Log.i(TAG, "Automatic bulk live catalog yielded before commit")
+                            return@execute ProviderWorkflowOutcome.Deferred
+                        }
                     }
                     if (requestedProviderId != provider.id && entryPoint.automaticSyncRunner().retryCheck(provider.id)) sawRetryableFailure = true
                     if (requestedProviderId == provider.id || (trackInitialLiveOnboarding && !provider.isActive)) {

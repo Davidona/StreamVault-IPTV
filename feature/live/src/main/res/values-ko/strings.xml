@@ -267,6 +267,11 @@
     <string name="live_sports_forget_choice">이 선택 잊기</string>
     <string name="live_sports_no_matching_channels">일치하는 채널이 없습니다</string>
     <string name="live_sports_league_efl_championship">잉글랜드 풋볼 리그 챔피언십</string>
+    <string name="live_sports_league_brasileirao_serie_a">브라질 선수권 세리이 A</string>
+    <string name="live_sports_league_brasileirao_serie_b">브라질 선수권 세리이 B</string>
+    <string name="live_sports_league_copa_do_brasil">브라질 컵</string>
+    <string name="live_sports_league_copa_libertadores">코파 리베르타도레스</string>
+    <string name="live_sports_league_copa_sul_americana">코파 수다메리카나</string>
     <string name="live_sports_standings">순위표</string>
     <string name="live_sports_standings_rank">순위</string>
     <string name="live_sports_standings_team">팀</string>

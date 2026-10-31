@@ -1285,12 +1285,12 @@ class SeriesRepositoryImplTest {
     }
 
     @Test
-    fun `searchSeries returns empty list when sqlite throws for malformed fts query`() = runTest {
+    fun `searchSeries falls back to paged browse rows when fts query throws`() = runTest {
         whenever(preferencesRepository.parentalControlLevel).thenReturn(flowOf(0))
         whenever(seriesDao.search(eq(7L), any(), any())).thenReturn(
             flow { throw SQLiteException("malformed MATCH expression") }
         )
-        whenever(seriesDao.searchFallback(eq(7L), any(), any())).thenReturn(
+        whenever(seriesDao.getByProviderPage(eq(7L), any(), any())).thenReturn(
             flowOf(
                 listOf(
                     SeriesBrowseEntity(

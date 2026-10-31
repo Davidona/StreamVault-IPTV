@@ -174,6 +174,9 @@
     <string name="settings_ffmpeg_compatibility_memory">Remember compatibility fixes</string>
     <string name="settings_ffmpeg_compatibility_memory_subtitle">Reuse successful FFmpeg-backed audio fixes for this device and stream in future sessions.</string>
     <string name="settings_live_timeshift">Enable Local Live Rewind</string>
+    <string name="settings_m3u_catchup_query_format">M3U Catch-up Query Format</string>
+    <string name="settings_m3u_catchup_query_format_subtitle">Used for M3U channels without their own catch-up source. Leave blank to disable this fallback. Example: ?utc={utc}</string>
+    <string name="settings_m3u_catchup_query_format_disabled">Disabled</string>
     <string name="settings_live_timeshift_backend">Live Rewind Backend</string>
     <string name="settings_live_timeshift_backend_subtitle">Choose whether local live rewind buffers to app storage or bounded memory. Automatic prefers storage and falls back to memory when the storage backend is constrained.</string>
     <string name="settings_live_timeshift_depth">Local Live Rewind Depth</string>
@@ -1025,4 +1028,10 @@
     <string name="settings_sync_index_progress">%1$s · %2$s</string>
     <string name="settings_refresh_rate_matching">Match content frame rate</string>
     <string name="settings_refresh_rate_matching_description">Match the display refresh rate to the video for smoother motion. Requires display support; switching may briefly blank the screen.</string>
+    <string name="settings_epg_phone_qr_start">Show QR code</string>
+    <string name="settings_epg_phone_qr_stop">Stop pairing</string>
+    <string name="settings_epg_phone_qr_warning">Security: Pairing sends credentials without encryption over your local network. Use a trusted private Wi-Fi network only.</string>
+    <string name="settings_epg_phone_qr_complete">Added</string>
+    <string name="settings_epg_phone_qr_error">Error</string>
+    <string name="settings_backup_export_sections">Choose sections to export</string>
 </resources>

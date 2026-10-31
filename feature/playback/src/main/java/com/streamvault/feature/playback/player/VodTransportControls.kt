@@ -14,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -26,6 +27,7 @@ import com.streamvault.feature.playback.R
 internal fun VodTransportControls(
     isPlaying: Boolean,
     playButtonFocusRequester: FocusRequester,
+    timelineFocusRequester: FocusRequester,
     canSeekPreviousChapter: Boolean,
     canSeekNextChapter: Boolean,
     onSeekPreviousChapter: () -> Unit,
@@ -55,6 +57,7 @@ internal fun VodTransportControls(
             onClick = onTogglePlayPause,
             modifier = Modifier
                 .focusRequester(playButtonFocusRequester)
+                .focusProperties { up = timelineFocusRequester }
                 .semantics { contentDescription = if (isPlaying) "Pause" else "Play" }
                 .padding(2.dp)
         ) {

@@ -1,6 +1,58 @@
 ﻿# Changelog
 
 All notable product changes are recorded in this document.
+
+## [1.2.3]
+
+### Added
+- Added support for launcher shortcuts to open the Downloads screen directly.
+- Added backup export selection so you can choose which sections to include when saving, sharing, or uploading a backup to Google Drive.
+- Added QR-based phone setup for EPG sources and Stremio add-ons, so their URLs can be submitted from a phone on the same local network.
+- Added recognition of Brazilian Portuguese sports listings, including matchups, broadcast notes, and Brazilian and South American competitions.
+
+### Changed
+- Improved M3U catch-up playback by preserving playlist replay modes and time corrections, supporting additional replay URL formats, and adding a configurable fallback query format. Eligible past guide programmes can now play when replay is advertised but the archive window is unspecified.
+- Channel, movie, series, and VOD category searches now ignore Latin accents (for example, “café” matches “cafe”). Existing catalogs upgrade automatically, with their content preserved.
+- Reduced HLS playback allocations and released obsolete live-stream cache data while preserving resources needed by playback and shared recordings.
+- Reduced background UI work during playback by stopping hidden playback controls from collecting state updates; reopening controls and open settings or chapter sheets continue receiving current values.
+- Improved playback interruption diagnostics to distinguish rebuffering from dropped frames and track interruption durations more accurately.
+- VOD timelines can now be scrubbed with the D-pad in 10-second steps; holding a direction previews repeated seeks, and releasing applies the selected position.
+
+### Fixed
+- Fixed live TV continuing to play in the background after leaving the player, including when exiting while a channel was still loading. Playback and the Android media session are now released immediately, and abandoned Home or Guide previews are closed.
+- Fixed Hardware Only video decoding being overridden after live TV stalls; recovery now preserves explicit audio and video decoder settings and excludes software video decoders in Hardware Only mode.
+- Fixed channel numbers appearing in Guide Favorites views and selected-channel details when Live TV numbering is set to Hidden.
+- Fixed external subtitles disappearing after playback retries, reconnects, buffering, or when replaying a movie: attached subtitles are restored with the rebuilt source, downloaded OpenSubtitles files are kept in durable app storage and remembered for that movie, and replaced subtitle files are cleaned up.
+- Fixed M3U catch-up URL generation for legacy date placeholders and additional provider path/query styles, and stopped offering archive playback when the configured fallback cannot build a URL.
+- Fixed the player showing a generic recording error when Android alarm access is missing; it now explains how to enable access and retry.
+- Fixed the temporary torrent cache clear action to confirm when the cache was cleared successfully.
+- Fixed deleted downloads leaving partial files behind after earlier failed attempts.
+- Fixed TV remote navigation on Downloads so playback and delete actions, confirmation buttons, and items remain reachable and focused.
+- Fixed interruptions during on-demand playback when an idle connection closes, by retrying the interrupted download in place.
+- Fixed Android TV guide publication failing when the platform rejects SQL filters on programme queries.
+- Fixed eligible live MPEG-TS channels remaining unavailable after an Android TV-input video surface was recreated; playback now makes one safe recovery attempt.
+- Fixed interrupted Stalker guide downloads being marked fresh and losing automatic retry; useful partial guide data is retained until a complete refresh succeeds.
+- Fixed automatic guide refreshes stopping after temporary HTTP errors such as 429 and 503; they now retain cached guide data and retry, while authentication failures remain terminal.
+- Fixed a Sports tab crash on Android 11 when initializing Brazilian Portuguese EPG title parsing.
+- Fixed HLS playback failing on master playlists with `EXT-X-MEDIA` rendition tags missing the required `NAME` attribute.
+- Fixed some more backup and restore bugs.
+- Fixed sports listings ending in `- VT` appearing as scheduled matches instead of replays, and localized the new league names in Sports.
+- Fixed automatic background EPG refreshes and freshness-repair jobs ignoring the defer-while-busy preference during playback, while preserving manual refreshes and explicit overlap settings.
+- Fixed M3U guide imports already in progress continuing after playback starts; they now defer safely, retain existing guide data, and can retry after playback stops.
+- Fixed automatic Xtream bulk live-channel imports continuing during playback; they now yield safely and can retry when idle without replacing the existing channel list with partial data.
+- Fixed Stalker automatic indexing missing live playback from the same provider when deciding whether to defer background work.
+- Fixed Android TV-input playback not being recognized by background-sync scheduling, allowing automatic catalog and guide work to run despite defer-while-busy settings.
+- Fixed incorrect frame-rate estimates for streams with missing frame-rate metadata or rounded video timestamps.
+- Fixed repeated live HLS rebuffering in manual buffer modes when playback started too close to the live edge.
+- Fixed long pauses between reads in Medium and Large buffer modes causing idle-sensitive live MPEG-TS connections to close.
+- Fixed raw MPEG-TS H.264 picture freezes caused by header-only decoder samples with duplicate timestamps.
+- Improved bounded recovery from temporarily unavailable or expired live HLS media segments while preserving terminal authentication errors.
+- Fixed optional HLS subtitle loading blocking audio/video prefetch on affected live streams.
+- Fixed live streams remaining stuck before the first frame by allowing one recovery attempt and reporting failure if startup still cannot complete, including Android TV-input playback.
+- Added one bounded recovery attempt when an eligible live MPEG-TS stream ends unexpectedly, including Android TV-input playback, while preserving normal end-of-playback behavior for finite content.
+- Fixed shared HLS recording restarts losing required encryption keys or initialization data.
+- Fixed SMB recording setup failing on authenticated shares in release builds by retaining the MD4 support required by NTLM during code shrinking.
+
 ## [1.2.2]
 
 ### Added

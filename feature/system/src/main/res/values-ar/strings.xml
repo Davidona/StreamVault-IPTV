@@ -32,6 +32,7 @@
   <string name="download_folder_default">مجلد التنزيلات الافتراضي</string>
   <string name="download_resume">استئناف</string>
   <string name="download_delete">حذف</string>
+  <string name="download_play">تشغيل</string>
   <string name="downloads_resumed">تم استئناف التنزيل</string>
   <string name="extensions_tab_plugins">الملحقات</string>
   <string name="extensions_tab_stremio_addons">إضافات Stremio</string>
@@ -46,6 +47,7 @@
     <string name="torrent_cache_confirm_message">إزالة بيانات التورنت المؤقتة؟ لن تُحذف التنزيلات المحفوظة.</string>
     <string name="torrent_cache_active">أوقف تشغيل التورنت قبل مسح الذاكرة المؤقتة.</string>
     <string name="torrent_cache_clear_failed">تعذر مسح الذاكرة المؤقتة.</string>
+    <string name="torrent_cache_cleared">تم مسح الذاكرة المؤقتة.</string>
     <string name="extensions_title">التمديدات</string>
     <string name="plugins_section_description">أضف ميزات إلى StreamVault باستخدام تطبيقات Android المرافقة.</string>
     <string name="plugins_install_url">تثبيت ملحق من رابط</string>

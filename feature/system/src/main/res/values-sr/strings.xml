@@ -32,6 +32,7 @@
   <string name="download_folder_default">Подразумевана фасцикла за преузимања</string>
   <string name="download_resume">Настави</string>
   <string name="download_delete">Избриши</string>
+  <string name="download_play">Пусти</string>
   <string name="downloads_resumed">Преузимање је настављено</string>
   <string name="extensions_tab_plugins">Прикључци</string>
   <string name="extensions_tab_stremio_addons">Stremio додаци</string>
@@ -46,6 +47,7 @@
     <string name="torrent_cache_confirm_message">Уклонити привремене податке торената? Сачувана преузимања неће бити обрисана.</string>
     <string name="torrent_cache_active">Зауставите репродукцију торента пре брисања кеша.</string>
     <string name="torrent_cache_clear_failed">Привремени кеш није могуће обрисати.</string>
+    <string name="torrent_cache_cleared">Привремени кеш је обрисан.</string>
     <string name="extensions_title">Проширења</string>
     <string name="plugins_section_description">Додајте функције у StreamVault уз пратеће Android апликације.</string>
     <string name="plugins_install_url">Инсталирај прикључак са URL-а</string>
