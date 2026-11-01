@@ -4,7 +4,7 @@
     <string name="nav_home">Ana sayfa</string>
     <string name="nav_live_tv">Canlı TV</string>
     <string name="nav_movies">Filmler</string>
-    <string name="nav_series">Serisi</string>
+    <string name="nav_series">Diziler</string>
     <string name="nav_epg">Rehber</string>
     <string name="nav_settings">Ayarlar</string>
     <string name="welcome_enter_app">Uygulamaya Girin</string>
@@ -143,7 +143,7 @@
     <string name="tv_channel_top_movies_description">%1$s içinden popüler seçimler</string>
     <string name="tv_channel_recommended_movies_title">Önerilen Filmler</string>
     <string name="tv_channel_recommended_movies_description">%1$s üzerindeki son seçimlerinize göre</string>
-    <string name="tv_channel_fresh_series_title">Taze Serisi</string>
+    <string name="tv_channel_fresh_series_title">Yeni Diziler</string>
     <string name="tv_channel_fresh_series_description">%1$s\'den son güncellenen diziler</string>
     <string name="search_title">Ara</string>
     <string name="parental_group_shell_subtitle">Korunan canlı, film ve dizi gruplarını premium ayarlar ekranından çıkmadan inceleyin.</string>
