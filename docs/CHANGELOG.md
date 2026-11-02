@@ -5,6 +5,7 @@ All notable product changes are recorded in this document.
 ## [1.2.4]
 
 ### Added
+- Added Trakt sign-in choices for browser authorization or device-code approval from a phone, with a QR code and encrypted recovery of pending approvals.
 - Expanded Stremio catalog support for live TV and custom media types, configurable catalog filters, add-on discovery, and an in-app programme guide.
 - Added Stremio account device linking, encrypted local credentials, linked add-on imports, and two-way library and viewing-progress sync, including watched episode state.
 - Added Home Continue Watching, Recently Watched and Up Next, Android TV Watch Next integration, resume/start-over/dismiss actions, library sorting, and season/show watched controls. Dismissed progress is preserved in backups.
@@ -18,6 +19,7 @@ All notable product changes are recorded in this document.
 - Stremio live TV catalogs and programme guides are available under Extensions; they do not become IPTV provider channels in the main Live TV tab.
 
 ### Fixed
+- Fixed Trakt sign-in staying pending when the browser does not return to StreamVault by adding a direct app handoff fallback.
 - Fixed Xtream movie and series refresh recovery: failed categories no longer loop without progress, retries resume from saved checkpoints, Settings returns control after work is queued, and deleted VOD items are reconciled only after a complete successful refresh.
 - Fixed archive seeks through Stremio Service by preventing an extra response byte from corrupting later requests on a reused connection.
 - Fixed VOD player controls disappearing while navigating with the remote; the idle timer now restarts after each key press.

@@ -959,4 +959,7 @@
     <string name="settings_m3u_catchup_query_format">Μορφή ερωτήματος επανάληψης</string>
     <string name="settings_m3u_catchup_query_format_subtitle">Χρησιμοποιείται για κανάλια M3U χωρίς δική τους πηγή επανάληψης. Αφήστε το κενό για να απενεργοποιήσετε αυτήν την εναλλακτική. Παράδειγμα: ?utc={utc}</string>
     <string name="settings_m3u_catchup_query_format_disabled">Απενεργοποιημένο</string>
+    <string name="trakt_browser_sign_in">Σύνδεση μέσω προγράμματος περιήγησης</string>
+    <string name="trakt_phone_sign_in">Έγκριση σε άλλη συσκευή</string>
+    <string name="trakt_device_instructions">Σαρώστε τον κωδικό QR ή ανοίξτε το %1$s στο τηλέφωνο. Εισαγάγετε τον παρακάτω κωδικό και εγκρίνετε την πρόσβαση. Αυτή η οθόνη συνδέεται αυτόματα. Αν ο κωδικός λήξει, ακυρώστε και δοκιμάστε ξανά.</string>
 </resources>

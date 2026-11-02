@@ -960,4 +960,7 @@
     <string name="settings_m3u_catchup_query_format">Format upita za reprodukciju arhive</string>
     <string name="settings_m3u_catchup_query_format_subtitle">Koristi se za M3U kanale koji nemaju vlastiti izvor arhivske reprodukcije. Ostavite prazno da biste isključili ovaj zamjenski format. Primjer: ?utc={utc}</string>
     <string name="settings_m3u_catchup_query_format_disabled">Isključeno</string>
+    <string name="trakt_browser_sign_in">Prijava putem preglednika</string>
+    <string name="trakt_phone_sign_in">Odobri na drugom uređaju</string>
+    <string name="trakt_device_instructions">Skenirajte QR kod ili otvorite %1$s na telefonu. Unesite kod u nastavku i odobrite pristup. Ovaj se zaslon automatski povezuje. Ako kod istekne, odustanite i pokušajte ponovno.</string>
 </resources>

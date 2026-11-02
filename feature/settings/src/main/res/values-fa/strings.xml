@@ -957,4 +957,7 @@
     <string name="settings_m3u_catchup_query_format">قالب پرس‌وجوی بازپخش آرشیوی</string>
     <string name="settings_m3u_catchup_query_format_subtitle">برای کانال‌های M3U بدون منبع بازپخش اختصاصی استفاده می‌شود. برای غیرفعال کردن این گزینه، آن را خالی بگذارید. نمونه: ?utc={utc}</string>
     <string name="settings_m3u_catchup_query_format_disabled">غیرفعال</string>
+    <string name="trakt_browser_sign_in">ورود با مرورگر</string>
+    <string name="trakt_phone_sign_in">تأیید در دستگاهی دیگر</string>
+    <string name="trakt_device_instructions">کد QR را اسکن کنید یا %1$s را در تلفن خود باز کنید. کد زیر را وارد و دسترسی را تأیید کنید. این صفحه خودکار متصل می‌شود. اگر کد منقضی شد، لغو کنید و دوباره تلاش کنید.</string>
 </resources>

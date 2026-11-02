@@ -37,6 +37,7 @@ import com.streamvault.domain.trakt.TraktDiscoveryCategory
 import com.streamvault.domain.trakt.TraktDiscoveryPage
 import com.streamvault.domain.trakt.TraktDiscoverySource
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -56,6 +57,10 @@ class TraktAuthService(
 ) : TraktAccount, TraktScrobbler, TraktHistorySource, TraktWatchlistSource, TraktFavoritesSource,
     TraktRatingsSource, TraktCustomListsSource, TraktDiscoverySource {
     private val mutex = Mutex()
+    private var deviceAttempt: TraktDeviceCode? = null
+    private var deviceExpiresAt = 0L
+    private var deviceNextPollAt = 0L
+    private var devicePollInterval = 0L
     private val mutableState = MutableStateFlow(TraktAccountState(configured = config.configured))
     override val state = mutableState.asStateFlow()
 
@@ -63,8 +68,18 @@ class TraktAuthService(
         mutex.withLock {
             try {
                 val session = store.read()
+                session.device?.let {
+                    deviceAttempt = it.code
+                    deviceExpiresAt = it.expiresAt
+                    deviceNextPollAt = it.nextPollAt
+                    devicePollInterval = it.interval.coerceAtLeast(1)
+                }
+                val device = deviceAttempt?.takeIf { now() < deviceExpiresAt }
+                if (device == null) deviceAttempt = null
                 mutableState.value = TraktAccountState(config.configured, session.tokens != null,
-                    connecting = session.pending?.let { now() - it.createdAt in 0..600 } == true)
+                    connecting = device != null || session.pending?.let { now() - it.createdAt in 0..600 } == true,
+                    deviceAuthorization = device?.let { com.streamvault.domain.trakt.TraktDeviceAuthorization(
+                        it.userCode, it.verificationUrl, devicePollInterval) })
                 if (session.tokens != null) updateProfile()
             } catch (failure: Exception) {
                 if (failure is CancellationException) throw failure
@@ -76,6 +91,7 @@ class TraktAuthService(
     override suspend fun beginSignIn(): String = withContext(Dispatchers.IO) {
         mutex.withLock {
             check(config.configured) { "Trakt configuration required" }
+            deviceAttempt = null
             val pending = TraktPendingLogin(TraktPkce.randomValue(), TraktPkce.randomValue(), now())
             store.write(TraktStoredSession(pending = pending))
             mutableState.value = TraktAccountState(configured = true, connecting = true)
@@ -88,6 +104,66 @@ class TraktAuthService(
                 "${encode(it.key)}=${encode(it.value)}"
             }
         }
+    }
+
+    override suspend fun beginDeviceSignIn(): com.streamvault.domain.trakt.TraktDeviceAuthorization = withContext(Dispatchers.IO) {
+        mutex.withLock {
+            check(config.configured)
+            deviceAttempt = null
+            store.write(TraktStoredSession())
+            mutableState.value = TraktAccountState(configured = true)
+            val attempt = api.deviceCode()
+            deviceAttempt = attempt
+            deviceExpiresAt = now() + attempt.expiresIn
+            devicePollInterval = attempt.interval.coerceAtLeast(1)
+            deviceNextPollAt = now() + devicePollInterval
+            saveDeviceAttempt(attempt)
+            val approval = com.streamvault.domain.trakt.TraktDeviceAuthorization(
+                attempt.userCode, attempt.verificationUrl, devicePollInterval)
+            mutableState.value = TraktAccountState(configured = true, connecting = true, deviceAuthorization = approval)
+            approval
+        }
+    }
+
+    override suspend fun pollDeviceSignIn(): Boolean = withContext(Dispatchers.IO) {
+        mutex.withLock {
+            val attempt = deviceAttempt ?: return@withLock true
+            try {
+                check(now() < deviceExpiresAt)
+                if (now() < deviceNextPollAt) return@withLock false
+                deviceNextPollAt = now() + devicePollInterval
+                saveDeviceAttempt(attempt)
+                val tokens = api.deviceToken(attempt.deviceCode)
+                // Cancellation must not allow a late network response to reconnect an account.
+                kotlinx.coroutines.currentCoroutineContext().ensureActive()
+                check(now() < deviceExpiresAt)
+                store.write(TraktStoredSession(tokens))
+                deviceAttempt = null
+                mutableState.value = TraktAccountState(configured = true, connected = true)
+                updateProfile()
+                true
+            } catch (failure: Exception) {
+                if (failure is CancellationException) throw failure
+                if (failure is TraktApiException && failure.status == 400 &&
+                    failure.oauthError in setOf(null, "authorization_pending")) return@withLock false
+                if (failure is TraktApiException && failure.status == 429) {
+                    devicePollInterval += 5
+                    deviceNextPollAt = now() + maxOf(devicePollInterval, failure.retryAfterSeconds ?: 0)
+                    saveDeviceAttempt(attempt)
+                    return@withLock false
+                }
+                deviceAttempt = null
+                store.write(TraktStoredSession())
+                mutableState.value = TraktAccountState(config.configured,
+                    message = message(failure, TraktMessage.SIGN_IN_FAILED))
+                true
+            }
+        }
+    }
+
+    private fun saveDeviceAttempt(attempt: TraktDeviceCode) {
+        store.write(TraktStoredSession(device = TraktPendingDevice(
+            attempt, deviceExpiresAt, deviceNextPollAt, devicePollInterval)))
     }
 
     override suspend fun completeSignIn(callback: String): Unit = withContext(Dispatchers.IO) {
@@ -128,14 +204,16 @@ class TraktAuthService(
 
     override suspend fun cancelSignIn(): Unit = withContext(Dispatchers.IO) {
         mutex.withLock {
+            deviceAttempt = null
             val session = store.read()
             store.write(TraktStoredSession(session.tokens))
-            mutableState.value = mutableState.value.copy(connecting = false)
+            mutableState.value = mutableState.value.copy(connecting = false, deviceAuthorization = null)
         }
     }
 
     override suspend fun disconnect(): Unit = withContext(Dispatchers.IO) {
         mutex.withLock {
+            deviceAttempt = null
             store.write(TraktStoredSession())
             mutableState.value = TraktAccountState(config.configured)
         }

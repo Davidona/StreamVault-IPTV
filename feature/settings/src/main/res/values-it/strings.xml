@@ -955,4 +955,7 @@
     <string name="settings_m3u_catchup_query_format">Formato query per la riproduzione d’archivio</string>
     <string name="settings_m3u_catchup_query_format_subtitle">Usato per i canali M3U senza una propria sorgente di catch-up. Lascia vuoto per disattivare questo formato di riserva. Esempio: ?utc={utc}</string>
     <string name="settings_m3u_catchup_query_format_disabled">Disattivato</string>
+    <string name="trakt_browser_sign_in">Accedi tramite browser</string>
+    <string name="trakt_phone_sign_in">Autorizza su un altro dispositivo</string>
+    <string name="trakt_device_instructions">Scansiona il codice QR o apri %1$s sul telefono. Inserisci il codice qui sotto e autorizza l’accesso. Questa schermata si connette automaticamente. Se il codice scade, annulla e riprova.</string>
 </resources>

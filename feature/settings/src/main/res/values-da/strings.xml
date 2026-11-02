@@ -959,4 +959,7 @@
     <string name="settings_m3u_catchup_query_format">Format for catch-up-forespørgsel</string>
     <string name="settings_m3u_catchup_query_format_subtitle">Bruges til M3U-kanaler uden deres egen catch-up-kilde. Lad feltet være tomt for at slå reserveformatet fra. Eksempel: ?utc={utc}</string>
     <string name="settings_m3u_catchup_query_format_disabled">Deaktiveret</string>
+    <string name="trakt_browser_sign_in">Log ind via browser</string>
+    <string name="trakt_phone_sign_in">Godkend på en anden enhed</string>
+    <string name="trakt_device_instructions">Scan QR-koden, eller åbn %1$s på telefonen. Indtast koden nedenfor, og godkend adgang. Denne skærm opretter automatisk forbindelse. Hvis koden udløber, skal du annullere og prøve igen.</string>
 </resources>

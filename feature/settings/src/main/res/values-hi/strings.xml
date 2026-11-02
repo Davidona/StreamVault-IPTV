@@ -957,4 +957,7 @@
     <string name="settings_m3u_catchup_query_format">कैच-अप क्वेरी प्रारूप</string>
     <string name="settings_m3u_catchup_query_format_subtitle">उन M3U चैनलों के लिए उपयोग किया जाता है जिनका अपना कैच-अप स्रोत नहीं है। इस वैकल्पिक प्रारूप को बंद करने के लिए खाली छोड़ें। उदाहरण: ?utc={utc}</string>
     <string name="settings_m3u_catchup_query_format_disabled">बंद</string>
+    <string name="trakt_browser_sign_in">ब्राउज़र से साइन इन करें</string>
+    <string name="trakt_phone_sign_in">दूसरे डिवाइस पर अनुमति दें</string>
+    <string name="trakt_device_instructions">QR कोड स्कैन करें या फ़ोन पर %1$s खोलें। नीचे दिया गया कोड डालें और अनुमति दें। यह स्क्रीन अपने आप जुड़ जाएगी। कोड की समय सीमा समाप्त होने पर रद्द करें और फिर कोशिश करें।</string>
 </resources>

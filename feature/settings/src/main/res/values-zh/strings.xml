@@ -955,4 +955,7 @@
     <string name="settings_m3u_catchup_query_format">回看查询格式</string>
     <string name="settings_m3u_catchup_query_format_subtitle">用于没有专属回看源的 M3U 频道。留空可停用此备用格式。示例：?utc={utc}</string>
     <string name="settings_m3u_catchup_query_format_disabled">已停用</string>
+    <string name="trakt_browser_sign_in">使用浏览器登录</string>
+    <string name="trakt_phone_sign_in">在其他设备上批准</string>
+    <string name="trakt_device_instructions">扫描二维码或在手机上打开 %1$s。输入下方代码并批准访问，此页面将自动连接。如果代码过期，请取消并重试。</string>
 </resources>

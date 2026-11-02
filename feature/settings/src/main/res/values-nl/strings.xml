@@ -959,4 +959,7 @@
     <string name="settings_m3u_catchup_query_format">Formaat van de terugkijkquery</string>
     <string name="settings_m3u_catchup_query_format_subtitle">Wordt gebruikt voor M3U-kanalen zonder eigen terugkijkbron. Laat dit leeg om dit reserveformaat uit te schakelen. Voorbeeld: ?utc={utc}</string>
     <string name="settings_m3u_catchup_query_format_disabled">Uitgeschakeld</string>
+    <string name="trakt_browser_sign_in">Aanmelden via browser</string>
+    <string name="trakt_phone_sign_in">Goedkeuren op een ander apparaat</string>
+    <string name="trakt_device_instructions">Scan de QR-code of open %1$s op je telefoon. Voer de onderstaande code in en geef toestemming. Dit scherm maakt automatisch verbinding. Als de code verloopt, annuleer je en probeer je het opnieuw.</string>
 </resources>

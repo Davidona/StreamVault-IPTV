@@ -46,6 +46,8 @@
 # OAuth records must retain their schema and reflective constructors across releases.
 -keep class com.streamvault.data.trakt.TraktTokens { *; }
 -keep class com.streamvault.data.trakt.TraktPendingLogin { *; }
+-keep class com.streamvault.data.trakt.TraktDeviceCode { *; }
+-keep class com.streamvault.data.trakt.TraktPendingDevice { *; }
 -keep class com.streamvault.data.trakt.TraktStoredSession { *; }
 
 # ── Room ────────────────────────────────────────────────────

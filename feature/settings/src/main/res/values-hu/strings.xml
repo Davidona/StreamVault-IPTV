@@ -959,4 +959,7 @@
     <string name="settings_m3u_catchup_query_format">Visszajátszási lekérdezés formátuma</string>
     <string name="settings_m3u_catchup_query_format_subtitle">Azoknál az M3U-csatornáknál használatos, amelyeknek nincs saját visszajátszási forrásuk. Hagyja üresen a tartalék formátum kikapcsolásához. Példa: ?utc={utc}</string>
     <string name="settings_m3u_catchup_query_format_disabled">Kikapcsolva</string>
+    <string name="trakt_browser_sign_in">Bejelentkezés böngészővel</string>
+    <string name="trakt_phone_sign_in">Jóváhagyás másik eszközön</string>
+    <string name="trakt_device_instructions">Olvassa be a QR-kódot, vagy nyissa meg a %1$s címet a telefonján. Adja meg az alábbi kódot, és engedélyezze a hozzáférést. Ez a képernyő automatikusan csatlakozik. Ha a kód lejár, szakítsa meg, és próbálja újra.</string>
 </resources>

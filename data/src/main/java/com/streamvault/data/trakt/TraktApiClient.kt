@@ -27,6 +27,7 @@ import com.streamvault.domain.trakt.TraktCustomListItemsPage
 import com.streamvault.domain.trakt.TraktDiscoveryCategory
 import com.streamvault.domain.trakt.TraktDiscoveryItem
 import com.streamvault.domain.trakt.TraktDiscoveryPage
+import java.net.URI
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 import kotlinx.coroutines.Dispatchers
@@ -464,6 +465,25 @@ class TraktApiClient(
         const val DISCOVERY_PAGE_SIZE = 100
         const val SYNC_PAGE_SIZE = 100
         const val MAX_SYNC_PAGES = 50
+    }
+
+    override suspend fun deviceCode(): TraktDeviceCode = gson.fromJson(
+        request("oauth/device/code", payload = mapOf("client_id" to config.clientId)),
+        TraktDeviceCode::class.java,
+    ).also {
+        val url = URI(it.verificationUrl)
+        require(url.scheme == "https" && url.host in setOf("trakt.tv", "auth.trakt.tv") &&
+            url.rawUserInfo == null && url.port == -1 && url.rawFragment == null)
+        require(!it.deviceCode.isNullOrBlank() && !it.userCode.isNullOrBlank() &&
+            it.expiresIn in 1..86400 && it.interval in 1..3600)
+    }
+
+    override suspend fun deviceToken(code: String): TraktTokens = gson.fromJson(
+        request("oauth/device/token", payload = mapOf("code" to code, "client_id" to config.clientId)),
+        TraktTokens::class.java,
+    ).also {
+        require(!it.accessToken.isNullOrBlank() && !it.refreshToken.isNullOrBlank() &&
+            it.expiresIn > 0 && it.createdAt > 0)
     }
 
     override suspend fun exchange(code: String, verifier: String): TraktTokens = tokens(mapOf(

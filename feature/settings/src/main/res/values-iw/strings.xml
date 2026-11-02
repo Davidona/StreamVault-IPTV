@@ -962,4 +962,7 @@
     <string name="settings_m3u_catchup_query_format">תבנית שאילתת צפייה בארכיון</string>
     <string name="settings_m3u_catchup_query_format_subtitle">משמשת לערוצי M3U ללא מקור צפייה בארכיון משלהם. יש להשאיר ריק כדי להשבית את תבנית הגיבוי הזו. לדוגמה: ?utc={utc}</string>
     <string name="settings_m3u_catchup_query_format_disabled">מושבת</string>
+    <string name="trakt_browser_sign_in">כניסה באמצעות הדפדפן</string>
+    <string name="trakt_phone_sign_in">אישור במכשיר אחר</string>
+    <string name="trakt_device_instructions">סרקו את קוד ה־QR או פתחו את %1$s בטלפון. הזינו את הקוד שלמטה ואשרו גישה. המסך הזה יתחבר אוטומטית. אם תוקף הקוד פג, בטלו ונסו שוב.</string>
 </resources>
