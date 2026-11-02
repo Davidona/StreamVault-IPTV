@@ -18,6 +18,7 @@ All notable product changes are recorded in this document.
 - Stremio live TV catalogs and programme guides are available under Extensions; they do not become IPTV provider channels in the main Live TV tab.
 
 ### Fixed
+- Fixed Xtream movie and series refresh recovery: failed categories no longer loop without progress, retries resume from saved checkpoints, Settings returns control after work is queued, and deleted VOD items are reconciled only after a complete successful refresh.
 - Fixed archive seeks through Stremio Service by preventing an extra response byte from corrupting later requests on a reused connection.
 - Fixed VOD player controls disappearing while navigating with the remote; the idle timer now restarts after each key press.
 - Raised XMLTV ingestion limits for very large feeds to 2 GiB downloaded and 4 GiB decompressed while keeping parsing streamed.

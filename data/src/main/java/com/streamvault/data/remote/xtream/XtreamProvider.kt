@@ -243,6 +243,7 @@ class XtreamProvider(
         val resolvedAdultCategoryIds = adultCategoryIds ?: loadAdultCategoryIds(ContentType.MOVIE)
         val buffer = mutableListOf<Movie>()
         var acceptedCount = 0
+        var malformedRows = false
         api.streamVodStreams(
             XtreamUrlFactory.buildPlayerApiUrl(
                 serverUrl = serverUrl,
@@ -253,7 +254,7 @@ class XtreamProvider(
             ),
             requestProfile
         ) { stream ->
-            mapVodStream(stream, resolvedAdultCategoryIds)?.let { movie ->
+            mapVodStream(stream, resolvedAdultCategoryIds).also { if (it == null) malformedRows = true }?.let { movie ->
                 buffer += movie
                 acceptedCount++
                 if (buffer.size >= batchSize) {
@@ -265,6 +266,7 @@ class XtreamProvider(
         if (buffer.isNotEmpty()) {
             onBatch(buffer.toList())
         }
+        if (malformedRows) throw XtreamParsingException("Malformed VOD summary coverage")
         Result.success(acceptedCount)
     } catch (e: CancellationException) {
         throw e
@@ -393,6 +395,7 @@ class XtreamProvider(
         val resolvedAdultCategoryIds = adultCategoryIds ?: loadAdultCategoryIds(ContentType.SERIES)
         val buffer = mutableListOf<Series>()
         var acceptedCount = 0
+        var malformedRows = false
         api.streamSeriesList(
             XtreamUrlFactory.buildPlayerApiUrl(
                 serverUrl = serverUrl,
@@ -403,7 +406,7 @@ class XtreamProvider(
             ),
             requestProfile
         ) { item ->
-            mapSeriesItem(item, resolvedAdultCategoryIds)?.let { series ->
+            mapSeriesItem(item, resolvedAdultCategoryIds).also { if (it == null) malformedRows = true }?.let { series ->
                 buffer += series
                 acceptedCount++
                 if (buffer.size >= batchSize) {
@@ -415,6 +418,7 @@ class XtreamProvider(
         if (buffer.isNotEmpty()) {
             onBatch(buffer.toList())
         }
+        if (malformedRows) throw XtreamParsingException("Malformed series summary coverage")
         Result.success(acceptedCount)
     } catch (e: CancellationException) {
         throw e

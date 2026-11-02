@@ -10,6 +10,8 @@ import com.streamvault.domain.model.Result
 import com.streamvault.domain.model.Series
 
 internal data class XtreamIncrementalIndexCallbacks(
+    val beginSnapshot: suspend (Long, ContentType) -> Unit,
+    val finishSnapshot: suspend (Long, ContentType) -> Unit,
     val getCategories: suspend (Long, ContentType) -> List<CategoryEntity>,
     val ensureCategoryShell: suspend (Provider, XtreamProvider, ContentType, Long, ((String) -> Unit)?) -> Unit,
     val getJob: suspend (Long, ContentType) -> XtreamIndexJobEntity?,
@@ -32,6 +34,9 @@ internal data class XtreamIncrementalIndexCallbacks(
 internal class CallbackXtreamIncrementalIndexOperations(
     private val callbacks: XtreamIncrementalIndexCallbacks
 ) : XtreamIncrementalIndexOperations {
+    override suspend fun beginSnapshot(providerId: Long, contentType: ContentType) = callbacks.beginSnapshot(providerId, contentType)
+    override suspend fun finishSnapshot(providerId: Long, contentType: ContentType) = callbacks.finishSnapshot(providerId, contentType)
+
     override suspend fun getCategories(providerId: Long, contentType: ContentType): List<CategoryEntity> =
         callbacks.getCategories(providerId, contentType)
 

@@ -17,6 +17,9 @@ import com.streamvault.domain.model.Series
  * supplied through one narrow operations port so the coordinator does not regain those seams.
  */
 internal interface XtreamIncrementalIndexOperations {
+    suspend fun beginSnapshot(providerId: Long, contentType: ContentType)
+    suspend fun finishSnapshot(providerId: Long, contentType: ContentType)
+
     fun monotonicTimeMillis(): Long = System.nanoTime() / 1_000_000L
 
     suspend fun getCategories(providerId: Long, contentType: ContentType): List<CategoryEntity>
@@ -115,7 +118,7 @@ internal class XtreamIncrementalIndexExecutor(
         val initialJob = operations.getJob(provider.id, contentType)
         val priorityCategoryId = initialJob?.priorityCategoryId
         val indexedCategories = operations.getCategories(provider.id, contentType)
-        val resumeJob = initialJob?.takeIf { it.state in setOf("QUEUED", "RUNNING", "PARTIAL") }
+        val resumeJob = initialJob?.takeIf { it.state in setOf("QUEUED", "RUNNING", "PARTIAL", "FAILED_RETRYABLE") }
         val categoryLimit = maxCategories?.coerceAtLeast(1) ?: Int.MAX_VALUE
         val restartIncompleteFailedSweep = resumeJob?.let { job ->
             job.state == "PARTIAL" &&
@@ -130,6 +133,7 @@ internal class XtreamIncrementalIndexExecutor(
         var restoreMovieWatchProgressPending = false
         try {
             if (shouldAttemptFullStream(resumeJob, priorityCategoryId)) {
+                operations.beginSnapshot(provider.id, contentType)
                 when (val streamed = streamFullSummary(
                     provider = provider,
                     api = api,
@@ -146,6 +150,11 @@ internal class XtreamIncrementalIndexExecutor(
                                 throw error
                             }
                         }
+                        if (indexedCategories.isEmpty()) {
+                            throw streamed.exception ?: java.io.IOException(streamed.message)
+                        }
+                        // Discard coverage from the incomplete bulk response before fallback.
+                        operations.beginSnapshot(provider.id, contentType)
                         operations.log(
                             "Full ${contentType.name} stream index failed for provider ${provider.id}; falling back to category slices: ${streamed.message}"
                         )
@@ -328,10 +337,12 @@ internal class XtreamIncrementalIndexExecutor(
             val finishedAt = System.currentTimeMillis()
             val hasMoreCategories = nextCategoryIndex < indexedCategories.size
             val finalState = when {
-                hasMoreCategories -> "QUEUED"
                 failedCategories > 0 -> "PARTIAL"
+                hasMoreCategories -> "QUEUED"
+                skippedMalformedRows > 0 -> "PARTIAL"
                 else -> "SUCCESS"
             }
+            if (finalState == "SUCCESS") operations.finishSnapshot(provider.id, contentType)
             val priorityWasNotPresent = priorityCategoryId != null &&
                 indexedCategories.none { it.categoryId == priorityCategoryId }
             upsertJob(
@@ -351,7 +362,7 @@ internal class XtreamIncrementalIndexExecutor(
                 lastError = lastError?.let(operations::sanitize)
             )
             operations.updateSummaryMetadata(provider.id, contentType, indexedRows, finalState, finishedAt)
-            if (hasMoreCategories) {
+            if (hasMoreCategories && failedCategories == 0) {
                 operations.scheduleIndex(provider.id, contentType)
             }
             if (!hasMoreCategories && failedCategories > 0) {
@@ -440,6 +451,7 @@ internal class XtreamIncrementalIndexExecutor(
                 is Result.Success -> {
                     val finishedAt = System.currentTimeMillis()
                     val acceptedCount = indexedRows.coerceAtLeast(streamResult.data)
+                    operations.finishSnapshot(provider.id, contentType)
                     upsertJob(
                         providerId = provider.id,
                         section = contentType.name,

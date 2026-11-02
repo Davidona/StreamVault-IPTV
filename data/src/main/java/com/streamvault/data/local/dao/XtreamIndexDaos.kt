@@ -250,6 +250,33 @@ abstract class XtreamContentIndexDao {
     open suspend fun pruneOrphanLocalContentRows(): Int =
         pruneOrphanLiveRows() + pruneOrphanMovieRows() + pruneOrphanSeriesRows()
 
+    // Coverage uses indexed_at rather than stale_state so cached search results remain usable.
+    @Query("UPDATE xtream_content_index SET indexed_at = 0 WHERE provider_id = :providerId AND content_type = :contentType")
+    abstract suspend fun beginSnapshot(providerId: Long, contentType: String): Int
+
+    @Query("DELETE FROM xtream_content_index WHERE provider_id = :providerId AND content_type = :contentType AND indexed_at = 0")
+    protected abstract suspend fun deleteUnseenIndexRows(providerId: Long, contentType: String): Int
+
+    @Query("""DELETE FROM movies WHERE provider_id = :providerId AND CAST(stream_id AS TEXT) IN
+        (SELECT remote_id FROM xtream_content_index WHERE provider_id = :providerId AND content_type = 'MOVIE' AND indexed_at = 0)""")
+    protected abstract suspend fun deleteUnseenMovies(providerId: Long): Int
+
+    @Query("""DELETE FROM series WHERE provider_id = :providerId AND COALESCE(NULLIF(provider_series_id, ''), CAST(series_id AS TEXT)) IN
+        (SELECT remote_id FROM xtream_content_index WHERE provider_id = :providerId AND content_type = 'SERIES' AND indexed_at = 0)""")
+    protected abstract suspend fun deleteUnseenSeries(providerId: Long): Int
+
+    /** Only a complete successful snapshot may remove remotely deleted content. */
+    @Transaction
+    open suspend fun pruneCompletedSnapshot(providerId: Long, contentType: String): Int {
+        val deleted = when (contentType) {
+            "MOVIE" -> deleteUnseenMovies(providerId)
+            "SERIES" -> deleteUnseenSeries(providerId)
+            else -> error("Unsupported snapshot type")
+        }
+        deleteUnseenIndexRows(providerId, contentType)
+        return deleted
+    }
+
     @Transaction
     open suspend fun pruneStaleLocalContentRows(providerId: Long, contentType: String): Int {
         val deleted = when (contentType) {

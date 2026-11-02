@@ -36,6 +36,17 @@ import org.junit.Test
 @OptIn(ExperimentalCoroutinesApi::class)
 class XtreamProviderTest {
 
+    @Test fun `malformed summaries cannot certify complete snapshot coverage`() = runTest {
+        val provider = XtreamProvider(providerId = 42,
+            api = FakeXtreamApiService(
+                vodStreams = listOf(vodStream("1"), vodStream("1").copy(streamId = 0)),
+                seriesList = listOf(XtreamSeriesItem(seriesId = 1, name = "Valid"),
+                    XtreamSeriesItem(seriesId = 0, name = "Invalid"))),
+            serverUrl = "https://example.com", username = "user", password = "pass")
+        assertThat(provider.streamVodSummaries(adultCategoryIds = emptySet()) { }).isInstanceOf(Result.Error::class.java)
+        assertThat(provider.streamSeriesSummaries(adultCategoryIds = emptySet()) { }).isInstanceOf(Result.Error::class.java)
+    }
+
     @Test
     fun `series compatibility fallback preserves cancellation and does not issue legacy request`() = runTest {
         val requestedEndpoints = mutableListOf<String>()
