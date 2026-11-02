@@ -1,7 +1,6 @@
 package com.streamvault.app.stremio
 
 import android.Manifest
-import android.annotation.SuppressLint
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -11,6 +10,7 @@ import android.content.pm.PackageManager
 import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.edit
 import androidx.hilt.work.HiltWorker
 import androidx.work.*
 import com.streamvault.app.MainActivity
@@ -42,7 +42,6 @@ class StremioBackgroundWorker @AssistedInject constructor(
     private val parental:StremioCatalogParentalAccess
 ):CoroutineWorker(context,parameters) {
     // Keep ledger writes durable before WorkManager receives a successful result.
-    @SuppressLint("ApplySharedPref")
     override suspend fun doWork():Result = withContext(Dispatchers.IO) {
         try {
             val synchronized=account.sync()
@@ -88,7 +87,9 @@ class StremioBackgroundWorker @AssistedInject constructor(
                 val records=history.filter { it.catalogOriginKey==origin && it.parentSeriesId==id }
                 val baselineKey="baseline:"+deliveryKey(origin,id,"")
                 val followedAt=stremioFollowedAt(addon.catalogSettings,meta.type,id) ?: ledger.getLong(baselineKey,0L).takeIf { it>0 }
-                    ?: now.toEpochMilli().also { ledger.edit().putLong(baselineKey,it).commit() }
+                    ?: now.toEpochMilli().also { baseline ->
+                        ledger.edit(commit = true) { putLong(baselineKey,baseline) }
+                    }
                 val baseline=maxOf(records.maxOfOrNull { it.lastWatchedAt } ?: 0L,followedAt)
                 val new=meta.videos.filter { video ->
                     video.releaseInstant()?.let { it<=now && it.toEpochMilli()>baseline }==true &&
@@ -116,9 +117,13 @@ class StremioBackgroundWorker @AssistedInject constructor(
                     .setContentIntent(pending).setAutoCancel(true).setVisibility(NotificationCompat.VISIBILITY_PRIVATE).build()
                 manager.notify(key,0,notification)
                 // Notification permission/channel blocking never consumes this delivery ledger.
-                ledger.edit().apply { new.forEach { putBoolean(deliveryKey(origin,id,it.id),true) } }.commit()
+                ledger.edit(commit = true) {
+                    new.forEach { putBoolean(deliveryKey(origin,id,it.id),true) }
+                }
             }
-            if(followed.isNotEmpty()) ledger.edit().putInt("cursor",(offset+batch.size)%followed.size).commit()
+            if(followed.isNotEmpty()) {
+                ledger.edit(commit = true) { putInt("cursor",(offset+batch.size)%followed.size) }
+            }
             if(synchronized && !failed) Result.success() else retryResult()
         } catch(cancel:CancellationException) { throw cancel
         } catch(_:Exception) { retryResult() }
