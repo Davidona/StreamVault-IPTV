@@ -61,7 +61,12 @@ class StremioAddonClient @Inject constructor(
         val location = StremioAddonUrl.parse(addonUrl) ?: return Result.error(INVALID_URL_MESSAGE)
         val path = StremioAddonUrl.catalogPath(type, catalogId, query.toExtras())
         return fetch(location.endpointUrl(path), StremioCatalogResponseDto.serializer()) { dto ->
-            dto.toDomain()
+            dto.toDomain().let { page ->
+                page.copy(
+                    metas = page.metas.map { if (it.type == StremioMediaType.UNKNOWN) it.copy(type = type) else it },
+                    detailedMetas = page.detailedMetas.map { if (it.type == StremioMediaType.UNKNOWN) it.copy(type = type) else it }
+                )
+            }
         }
     }
 
@@ -113,6 +118,33 @@ class StremioAddonClient @Inject constructor(
         return fetch(location.endpointUrl(path), StremioSubtitleResponseDto.serializer()) { dto ->
             dto.subtitles.orEmpty().mapNotNull { it.toDomain() }
         }
+    }
+
+    suspend fun fetchDirectory(addonUrl: String, catalog: com.streamvault.domain.model.stremio.StremioCatalogRef):
+        Result<List<com.streamvault.domain.model.stremio.StremioDirectoryEntry>> {
+        val location = StremioAddonUrl.parse(addonUrl) ?: return Result.error(INVALID_URL_MESSAGE)
+        return fetch(location.endpointUrl(StremioAddonUrl.resourcePath("addon_catalog", catalog.type, catalog.id)),
+            StremioDirectoryResponseDto.serializer()) { dto ->
+            dto.addons.mapNotNull { entry ->
+                if (entry.transportName != "http") return@mapNotNull null
+                val url = entry.transportUrl?.let(StremioAddonUrl::parse)?.manifestUrl ?: return@mapNotNull null
+                val manifest = entry.manifest?.toDomain() ?: return@mapNotNull null
+                com.streamvault.domain.model.stremio.StremioDirectoryEntry(url, manifest)
+            }.distinctBy { it.transportUrl }
+        }
+    }
+
+    suspend fun sendActivity(addonUrl: String, resource: String,
+        type: StremioMediaType, id: String, extras: List<Pair<String, String>>): Result<Unit> {
+        if (resource !in setOf("player", "library") || id.isBlank()) return Result.error(MISSING_ID_MESSAGE)
+        val location = StremioAddonUrl.parse(addonUrl) ?: return Result.error(INVALID_URL_MESSAGE)
+        return try {
+            withContext(Dispatchers.IO) {
+                executeBody(location.endpointUrl(StremioAddonUrl.resourcePath(resource, type, id, extras)))
+            }
+            Result.success(Unit)
+        } catch (cancel: CancellationException) { throw cancel
+        } catch (_: Exception) { Result.error("Addon request failed") }
     }
 
     private suspend fun <D, T> fetch(

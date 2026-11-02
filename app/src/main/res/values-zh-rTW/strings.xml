@@ -313,4 +313,6 @@
     <string name="torrent_storage_check_failed">無法檢查可用儲存空間，因此無法安全地繼續播放 Torrent。</string>
     <string name="nav_extensions">擴充功能</string>
     <string name="nav_sports">體育</string>
+    <string name="stremio_new_episode_channel">新集數通知</string>
+    <string name="stremio_new_episode_count">新集數: %1$d</string>
 </resources>

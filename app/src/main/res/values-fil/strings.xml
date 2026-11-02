@@ -344,4 +344,6 @@
     <string name="torrent_storage_check_failed">Hindi masuri ang available na storage. Hindi ligtas na maipagpapatuloy ang pag-play ng torrent.</string>
     <string name="nav_extensions">Mga extension</string>
     <string name="nav_sports">Palakasan</string>
+    <string name="stremio_new_episode_channel">Mga abiso para sa bagong episode</string>
+    <string name="stremio_new_episode_count">Mga bagong episode: %1$d</string>
 </resources>

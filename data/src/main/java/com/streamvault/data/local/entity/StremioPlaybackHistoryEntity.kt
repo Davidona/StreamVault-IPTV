@@ -17,5 +17,6 @@ data class StremioPlaybackHistoryEntity(
     @ColumnInfo(name = "is_watched") val isWatched: Boolean,
     @ColumnInfo(name = "last_watched_at") val lastWatchedAt: Long,
     @ColumnInfo(name = "catalog_origin_key") val catalogOriginKey: String,
-    @ColumnInfo(name = "stream_origin_key_hint") val streamOriginKeyHint: String?
+    @ColumnInfo(name = "stream_origin_key_hint") val streamOriginKeyHint: String?,
+    @ColumnInfo(name = "dismissed_at_ms", defaultValue = "0") val dismissedAtMs: Long = 0L
 )

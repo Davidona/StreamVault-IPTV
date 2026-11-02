@@ -2237,7 +2237,7 @@ class BackupManagerImpl @Inject constructor(
             STREMIO_PLAYBACK_HISTORY_BACKUP_TYPE -> listOf(
                 "contentKey", "mediaType", "exactVideoId", "parentSeriesId", "title", "posterUrl",
                 "resumePositionMs", "totalDurationMs", "isWatched", "lastWatchedAt", "catalogOriginKey",
-                "streamOriginKeyHint"
+                "streamOriginKeyHint", "dismissedAtMs"
             )
             PROTECTED_CATEGORY_TYPE -> listOf(
                 "providerServerUrl", "providerUsername", "providerStalkerMacAddress",
@@ -6948,7 +6948,8 @@ private fun StremioPlaybackHistoryEntity.toBackup() = StremioPlaybackHistoryBack
     isWatched = isWatched,
     lastWatchedAt = lastWatchedAt,
     catalogOriginKey = catalogOriginKey,
-    streamOriginKeyHint = streamOriginKeyHint
+    streamOriginKeyHint = streamOriginKeyHint,
+    dismissedAtMs = dismissedAtMs
 )
 
 private fun StremioPlaybackHistoryBackup.toEntity() = StremioPlaybackHistoryEntity(
@@ -6963,7 +6964,8 @@ private fun StremioPlaybackHistoryBackup.toEntity() = StremioPlaybackHistoryEnti
     isWatched = isWatched,
     lastWatchedAt = lastWatchedAt,
     catalogOriginKey = catalogOriginKey,
-    streamOriginKeyHint = streamOriginKeyHint
+    streamOriginKeyHint = streamOriginKeyHint,
+    dismissedAtMs = dismissedAtMs
 )
 private val FAVORITE_LIST_TYPE: Type = object : TypeToken<List<com.streamvault.domain.model.Favorite>>() {}.type
 private val VIRTUAL_GROUP_LIST_TYPE: Type = object : TypeToken<List<com.streamvault.domain.model.VirtualGroup>>() {}.type

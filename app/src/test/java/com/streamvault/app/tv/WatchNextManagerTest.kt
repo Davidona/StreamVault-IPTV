@@ -79,7 +79,11 @@ class WatchNextManagerTest {
         val manager = WatchNextManager(
             context = context,
             playbackHistoryRepository = mock<PlaybackHistoryRepository>(),
-            providerRepository = mock<ProviderRepository>()
+            providerRepository = mock<ProviderRepository>(),
+            stremioHistory = mock { whenever(it.observeHistory()).thenReturn(kotlinx.coroutines.flow.flowOf(emptyList())) },
+            stremioAddons = mock { whenever(it.observeAddons()).thenReturn(kotlinx.coroutines.flow.flowOf(emptyList())) },
+            preferences = mock { whenever(it.hideStremioAddons).thenReturn(kotlinx.coroutines.flow.flowOf(false)) },
+            parental = com.streamvault.feature.stremio.presentation.NoopStremioCatalogParentalAccess
         )
         val history = history(contentId = 10L, providerId = 5L, lastWatchedAt = 2_000L)
 
@@ -122,7 +126,11 @@ class WatchNextManagerTest {
         val manager = WatchNextManager(
             context = context,
             playbackHistoryRepository = mock<PlaybackHistoryRepository>(),
-            providerRepository = mock<ProviderRepository>()
+            providerRepository = mock<ProviderRepository>(),
+            stremioHistory = mock { whenever(it.observeHistory()).thenReturn(kotlinx.coroutines.flow.flowOf(emptyList())) },
+            stremioAddons = mock { whenever(it.observeAddons()).thenReturn(kotlinx.coroutines.flow.flowOf(emptyList())) },
+            preferences = mock { whenever(it.hideStremioAddons).thenReturn(kotlinx.coroutines.flow.flowOf(false)) },
+            parental = com.streamvault.feature.stremio.presentation.NoopStremioCatalogParentalAccess
         )
 
         repeat(240) { index ->

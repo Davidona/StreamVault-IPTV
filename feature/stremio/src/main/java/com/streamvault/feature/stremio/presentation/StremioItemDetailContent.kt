@@ -24,6 +24,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.foundation.background
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -34,6 +35,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.platform.LocalUriHandler
+import com.streamvault.domain.model.stremio.externalLaunchUrl
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -67,9 +70,11 @@ internal fun StremioItemDetailScreen(
     scaffold: StremioScaffoldContent,
     onPlay: (StremioPlayerHandoff) -> Unit,
     onBack: () -> Unit,
-    viewModel: StremioItemDetailViewModel = hiltViewModel()
+    viewModel: StremioItemDetailViewModel = hiltViewModel(),
+    serviceViewModel: StremioStreamingServiceViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val serviceState by serviceViewModel.state.collectAsStateWithLifecycle()
     scaffold(
         AppDestination.Addons,
         state.displayName,
@@ -89,16 +94,29 @@ internal fun StremioItemDetailScreen(
             Text(stringResource(R.string.stremio_browse), style = MaterialTheme.typography.titleSmall,
                 color = AppColors.TextSecondary)
         }
+        if (state.libraryFailed) Text(stringResource(R.string.stremio_error_generic))
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            TvButton(onClick = viewModel::toggleLibrary, enabled = !state.libraryBusy && !state.replayOriginUnavailable) {
+                Text(stringResource(if (state.inLibrary) R.string.stremio_library_remove else R.string.stremio_library_add))
+            }
+            val watched = com.streamvault.domain.model.stremio.stremioWatchedKey(state.preview.type,
+                state.requestedVideoId ?: state.preview.id) in state.watchedKeys
+            TvButton(onClick = viewModel::toggleWatched, enabled = !state.libraryBusy && !state.replayOriginUnavailable && (state.videos.isEmpty() || state.requestedVideoId != null)) {
+                Text(stringResource(if (watched) R.string.stremio_unwatched else R.string.stremio_watched))
+            }
+        }
         StremioItemDetailContent(
             state = state,
-            onLoadMovieStreams = { viewModel.loadStreams(state.preview.id) },
+            onLoadMovieStreams = { viewModel.loadStreams(if (state.preview.type == StremioMediaType.TV || state.metadata?.isLive == true) state.preview.id else state.metadata?.defaultVideoId ?: state.preview.id) },
             onLoadEpisodeStreams = viewModel::loadStreams,
             onClearSelectedEpisode = viewModel::clearSelectedEpisode,
             onRetryAllStreams = { videoId -> viewModel.loadStreams(videoId) },
             onRetryMetadata = viewModel::retryMetadata,
+            onSetSeasonWatched = viewModel::setSeasonWatched,
             onRetryAddon = viewModel::retryStreamsForAddon,
             onDownload = viewModel::enqueueDownload,
-            onPlay = onPlay
+            onPlay = onPlay,
+            prepareStream = { serviceState; serviceViewModel.prepare(it) }
         )
     }
 }
@@ -111,10 +129,14 @@ private fun StremioItemDetailContent(
     onClearSelectedEpisode: () -> Unit,
     onRetryAllStreams: (String) -> Unit,
     onRetryMetadata: () -> Unit,
+    onSetSeasonWatched: (Int?, Boolean) -> Unit,
     onRetryAddon: (Long) -> Unit,
     onDownload: (com.streamvault.domain.model.stremio.StremioAddonSource, StremioStream, String) -> Unit,
-    onPlay: (StremioPlayerHandoff) -> Unit
+    onPlay: (StremioPlayerHandoff) -> Unit,
+    prepareStream: (StremioStream) -> StremioStream?
 ) {
+    val uriHandler = LocalUriHandler.current
+    var externalFailed by remember { mutableStateOf(false) }
     var selectedSeason by rememberSaveable(state.preview.id) { mutableStateOf<Int?>(null) }
     val seasons = state.videos.mapNotNull { it.season }.distinct().sorted()
     LaunchedEffect(seasons) {
@@ -125,6 +147,7 @@ private fun StremioItemDetailContent(
         verticalArrangement = Arrangement.spacedBy(14.dp),
         contentPadding = androidx.compose.foundation.layout.PaddingValues(bottom = 24.dp)
     ) {
+        if (externalFailed) item { StremioDetailMessage(stringResource(R.string.stremio_error_generic), error = true) }
         if (state.replayOriginUnavailable) {
             item(key = "history-origin-unavailable") {
                 StremioDetailMessage(
@@ -179,17 +202,25 @@ private fun StremioItemDetailContent(
             }
         }
 
-        if (state.preview.type == StremioMediaType.MOVIE ||
-            (state.preview.type == StremioMediaType.SERIES && state.videos.isEmpty())
-        ) {
+        if (state.preview.type == StremioMediaType.TV || state.metadata?.isLive == true || state.videos.isEmpty()) {
             item(key = "movie-streams") {
                 TvPrimaryButton(onClick = onLoadMovieStreams, enabled = !state.replayOriginUnavailable) {
                     Text(stringResource(R.string.stremio_item_find_streams))
                 }
             }
-        } else if (state.preview.type == StremioMediaType.SERIES) {
+        } else {
+            if (state.preview.type == StremioMediaType.SERIES && state.videos.isNotEmpty()) {
+                item(key = "bulk-watched") {
+                    LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        item { TvButton(onClick = { onSetSeasonWatched(selectedSeason, true) }, enabled = !state.libraryBusy) { Text(stringResource(R.string.stremio_season_watched)) } }
+                        item { TvButton(onClick = { onSetSeasonWatched(selectedSeason, false) }, enabled = !state.libraryBusy) { Text(stringResource(R.string.stremio_season_unwatched)) } }
+                        item { TvButton(onClick = { onSetSeasonWatched(null, true) }, enabled = !state.libraryBusy) { Text(stringResource(R.string.stremio_series_watched)) } }
+                        item { TvButton(onClick = { onSetSeasonWatched(null, false) }, enabled = !state.libraryBusy) { Text(stringResource(R.string.stremio_series_unwatched)) } }
+                    }
+                }
+            }
             item(key = "episodes-header") {
-                AppSectionHeader(title = stringResource(R.string.stremio_item_episodes))
+                AppSectionHeader(title = stringResource(if (state.preview.type == StremioMediaType.SERIES) R.string.stremio_item_episodes else R.string.stremio_item_videos))
             }
             if (state.metadataLoading) {
                 item(key = "episodes-loading") {
@@ -209,7 +240,7 @@ private fun StremioItemDetailContent(
             } else if (state.requestedVideoId == null ||
                 (state.requestedVideoId == state.preview.id && state.selectedVideo == null)
             ) {
-                if (seasons.size > 1) {
+                if (state.preview.type == StremioMediaType.SERIES && seasons.size > 1) {
                     item(key = "season-picker") {
                         LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             items(seasons, key = { "season:$it" }) { season ->
@@ -224,7 +255,7 @@ private fun StremioItemDetailContent(
                     }
                 }
                 items(
-                    state.videos.filter { selectedSeason == null || it.season == selectedSeason },
+                    state.videos.filter { state.preview.type != StremioMediaType.SERIES || selectedSeason == null || it.season == selectedSeason },
                     key = { "episode:${it.id}" }
                 ) { video ->
                     TvClickableSurface(
@@ -246,6 +277,8 @@ private fun StremioItemDetailContent(
                         ) {
                             Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                                 Text(episodeLabel(video), style = MaterialTheme.typography.titleMedium)
+                                if (com.streamvault.domain.model.stremio.stremioWatchedKey(state.preview.type, video.id) in state.watchedKeys)
+                                    Text(stringResource(R.string.stremio_status_watched))
                                 video.overview?.takeIf(String::isNotBlank)?.let { overview ->
                                     Text(
                                         overview,
@@ -279,7 +312,7 @@ private fun StremioItemDetailContent(
                         TvButton(onClick = {
                             selectedSeason = state.selectedVideo?.season ?: selectedSeason
                             onClearSelectedEpisode()
-                        }) { Text(stringResource(R.string.stremio_item_change_episode)) }
+                        }) { Text(stringResource(if (state.preview.type == StremioMediaType.SERIES) R.string.stremio_item_change_episode else R.string.stremio_item_videos)) }
                     }
                 }
             }
@@ -360,19 +393,24 @@ private fun StremioItemDetailContent(
                 key = { index, item -> "stream:${item.source.addonId}:$index" }
             ) { _, attributed ->
                 val stream = attributed.resource
+                val preparedStream = prepareStream(stream)
                 val streamKindLabel = stringResource(stream.kind.labelResource())
-                val mediaHeaders = stream.url?.let {
-                    stremioMediaRequestHeaders(it, stream.behaviorHints?.proxyHeaders?.request)
+                val mediaHeaders = preparedStream?.url?.let {
+                    stremioMediaRequestHeaders(it, preparedStream.behaviorHints?.proxyHeaders?.request)
                 }
-                val isHttpUrl = stream.url?.let {
+                val isHttpUrl = preparedStream?.url?.let {
                     it.startsWith("http://", ignoreCase = true) || it.startsWith("https://", ignoreCase = true)
                 } == true
-                val canPlay = when (stream.kind) {
+                val externalUrl = stream.externalLaunchUrl(
+                    androidx.compose.ui.platform.LocalConfiguration.current.uiMode and android.content.res.Configuration.UI_MODE_TYPE_MASK == android.content.res.Configuration.UI_MODE_TYPE_TELEVISION
+                )
+                val canPlay = when (preparedStream?.kind) {
                     StremioStreamKind.DIRECT -> mediaHeaders != null && isHttpUrl
                     StremioStreamKind.TORRENT -> stream.toMagnetUri() != null
                     else -> false
                 }
-                val canDownload = canPlay && stream.canDownloadAsSingleFile()
+                val supportsDownload = state.preview.type != StremioMediaType.TV && state.metadata?.isLive != true
+                val canDownload = supportsDownload && canPlay && stream.canDownloadAsSingleFile()
                 Column(
                     modifier = Modifier.fillMaxWidth().browsePanel(BrowseShapes.Panel).padding(16.dp),
                     verticalArrangement = Arrangement.spacedBy(10.dp)
@@ -398,7 +436,7 @@ private fun StremioItemDetailContent(
                                     overflow = TextOverflow.Ellipsis
                                 )
                             }
-                            if (!canPlay) {
+                            if (!canPlay && externalUrl == null) {
                                 Text(
                                     unsupportedStreamLabel(stream),
                                     style = MaterialTheme.typography.bodySmall,
@@ -406,11 +444,16 @@ private fun StremioItemDetailContent(
                                 )
                             }
                         }
+                        if (!canPlay && externalUrl != null) {
+                            TvButton(onClick = {
+                                externalFailed = runCatching { uriHandler.openUri(externalUrl) }.isFailure
+                            }) { Text(stringResource(R.string.stremio_open_external)) }
+                        }
                         if (canPlay) {
                             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                 TvPrimaryButton(
                                     onClick = {
-                                        buildHandoff(state, attributed.source.installFingerprint, stream, requestedVideoId)
+                                        buildHandoff(state, attributed.source.installFingerprint, preparedStream ?: stream, requestedVideoId)
                                             ?.let(onPlay)
                                     },
                                     enabled = state.catalogOriginKey != null && requestedVideoId.isNotBlank()
@@ -466,6 +509,8 @@ private fun StremioMetadataContent(
     onRetryMetadata: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val uriHandler = LocalUriHandler.current
+    var linkFailed by remember { mutableStateOf(false) }
     val titleLabel = androidx.compose.runtime.remember(state.displayName) { stremioTitleLabel(state.displayName) }
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(10.dp)) {
         Text(
@@ -491,6 +536,16 @@ private fun StremioMetadataContent(
                 overflow = TextOverflow.Ellipsis,
                 color = AppColors.TextPrimary
             )
+        }
+        if (linkFailed) Text(stringResource(R.string.stremio_error_generic))
+        state.metadata?.links?.takeIf { it.isNotEmpty() }?.let { links ->
+            LazyRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                items(links, key = { it.url + it.name }) { link ->
+                    TvButton(onClick = { linkFailed = runCatching { uriHandler.openUri(link.url) }.isFailure }) {
+                        Text(link.name)
+                    }
+                }
+            }
         }
         state.metaOrigin?.let { origin ->
             StatusPill(
@@ -562,6 +617,7 @@ private fun episodeLabel(video: com.streamvault.domain.model.stremio.StremioVide
 @Composable
 private fun unsupportedStreamLabel(stream: StremioStream): String {
     val stringRes = when {
+    stream.kind == StremioStreamKind.ARCHIVE || stream.kind == StremioStreamKind.USENET -> R.string.stremio_service_required
     stream.kind == StremioStreamKind.DIRECT && stream.url?.let {
         stremioMediaRequestHeaders(it, stream.behaviorHints?.proxyHeaders?.request)
     } == null -> R.string.stremio_item_headers_unavailable
@@ -593,10 +649,11 @@ internal fun buildHandoff(
         else -> return null
     }
     val catalogOriginKey = state.catalogOriginKey ?: return null
-    val contentType = when (state.preview.type) {
+    val contentType = if (state.metadata?.isLive == true) "LIVE" else when (state.preview.type) {
         StremioMediaType.MOVIE -> "MOVIE"
         StremioMediaType.SERIES -> "SERIES_EPISODE"
-        else -> return null
+        StremioMediaType.TV -> "LIVE"
+        else -> if (state.metadata?.isLive == true) "LIVE" else "MOVIE"
     }
     return StremioPlayerHandoff(
         streamUrl = url,
@@ -607,19 +664,22 @@ internal fun buildHandoff(
         reference = StremioPlaybackReference(
             mediaType = state.preview.type.typeName,
             exactVideoId = exactVideoId,
-            parentSeriesId = state.preview.id.takeIf { state.preview.type == StremioMediaType.SERIES },
+            parentSeriesId = state.preview.id.takeIf { state.preview.type == StremioMediaType.SERIES || state.videos.isNotEmpty() },
             catalogOriginKey = catalogOriginKey,
             metaOriginKey = state.metaOrigin?.installFingerprint,
             streamOriginKey = streamOriginKey,
             videoHash = stream.behaviorHints?.videoHash,
             videoSize = stream.behaviorHints?.videoSize,
-            filename = stream.behaviorHints?.filename
+            filename = stream.behaviorHints?.filename,
+            bingeGroup = stream.behaviorHints?.bingeGroup,
+            itemTitle = state.displayName
         ),
         inlineSubtitles = stream.subtitles.map { subtitle ->
             StremioSubtitlePlaybackSource(
                 url = subtitle.url,
                 language = subtitle.lang,
-                id = subtitle.id
+                id = subtitle.id,
+                label = subtitle.label
             )
         }
     )
@@ -631,4 +691,6 @@ private fun StremioStreamKind.labelResource(): Int = when (this) {
     StremioStreamKind.YOUTUBE -> R.string.stremio_stream_kind_youtube
     StremioStreamKind.EXTERNAL -> R.string.stremio_stream_kind_external
     StremioStreamKind.UNKNOWN -> R.string.stremio_stream_kind_unknown
+    StremioStreamKind.ARCHIVE -> R.string.stremio_stream_kind_archive
+    StremioStreamKind.USENET -> R.string.stremio_stream_kind_usenet
 }

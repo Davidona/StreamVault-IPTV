@@ -53,6 +53,29 @@ class StremioAddonRepositoryImplTest {
     }
 
     @Test
+    fun activityEventsRequireExplicitOptInAndRespectResourceFilters() = runTest {
+        server.enqueue(MockResponse().setBody("""
+            {"id":"tracking","name":"Tracking","version":"1","types":["movie"],
+            "resources":["player","library"],"idPrefixes":["tt"],"catalogs":[]}
+        """.trimIndent()))
+        val addon = repository.installAddon(baseUrl()).getOrNull()!!
+        server.takeRequest()
+        repository.reportActivity("player", StremioMediaType.MOVIE, "tt123",
+            listOf("action" to "start", "currentTime" to "100", "duration" to "1000"))
+        assertThat(server.requestCount).isEqualTo(1)
+        repository.setCatalogEnabled(addon.id, "__activity_events", true)
+        server.enqueue(MockResponse().setResponseCode(204))
+        repository.reportActivity("player", StremioMediaType.MOVIE, "tt123",
+            listOf("action" to "pause", "currentTime" to "200", "duration" to "1000"))
+        assertThat(server.takeRequest().path).isEqualTo("/player/movie/tt123/action=pause&currentTime=200&duration=1000.json")
+        repository.reportActivity("player", StremioMediaType.MOVIE, "custom:1", listOf("action" to "stop"))
+        assertThat(server.requestCount).isEqualTo(2)
+        server.enqueue(MockResponse().setBody(""))
+        repository.reportActivity("library", StremioMediaType.MOVIE, "tt123", listOf("action" to "libraryAdd"))
+        assertThat(server.takeRequest().path).isEqualTo("/library/movie/tt123/action=libraryAdd.json")
+    }
+
+    @Test
     fun `install stores the normalized manifest snapshot`() = runTest {
         server.enqueue(manifestResponse("com.linvo.cinemeta", "Cinemeta"))
         val baseUrl = "${baseUrl()}/addon-a"
@@ -296,7 +319,7 @@ class StremioAddonRepositoryImplTest {
     }
 
     @Test
-    fun `catalog fetch rejects unsupported required extras before network request`() = runTest {
+    fun `custom required extras validate input and then reach the addon`() = runTest {
         server.enqueue(
             MockResponse().setBody(
                 """
@@ -314,8 +337,13 @@ class StremioAddonRepositoryImplTest {
         val result = repository.fetchCatalog(addon.id, catalog, StremioCatalogQuery())
 
         assertThat(result.isError).isTrue()
-        assertThat(result.errorMessageOrNull()).contains("unsupported 'date'")
+        assertThat(result.errorMessageOrNull()).contains("filter value")
         assertThat(server.requestCount).isEqualTo(1)
+        server.takeRequest()
+        server.enqueue(MockResponse().setBody("""{"metas":[]}"""))
+        val loaded = repository.fetchCatalog(addon.id, catalog, StremioCatalogQuery(extraValues = mapOf("date" to "2026-11-01")))
+        assertThat(loaded.isSuccess).isTrue()
+        assertThat(server.takeRequest().path).isEqualTo("/date/catalog/movie/date/date=2026-11-01.json")
     }
 
     @Test

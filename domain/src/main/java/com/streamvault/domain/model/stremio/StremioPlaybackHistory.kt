@@ -13,7 +13,8 @@ data class StremioPlaybackHistory(
     val watched: Boolean = false,
     val lastWatchedAt: Long = System.currentTimeMillis(),
     val catalogOriginKey: String,
-    val streamOriginKeyHint: String? = null
+    val streamOriginKeyHint: String? = null,
+    val dismissedAtMs: Long = 0L
 )
 
 /**
@@ -31,7 +32,8 @@ fun stremioPlaybackContentKey(
     val typeKey = when (mediaType.lowercase()) {
         "movie" -> "movie"
         "series" -> "series-episode"
-        else -> return null
+        "tv", "unknown" -> return null
+        else -> mediaType.trim().takeIf { it.matches(Regex("[A-Za-z0-9_-]{1,64}")) }?.lowercase() ?: return null
     }
     val imdbId = Regex("tt[0-9]+")
     val isGlobal = when (typeKey) {

@@ -291,4 +291,6 @@
     <string name="torrent_storage_check_failed">Volné úložiště se nepodařilo zkontrolovat. Přehrávání torrentu nemůže bezpečně pokračovat.</string>
     <string name="nav_extensions">Rozšíření</string>
     <string name="nav_sports">Sport</string>
+    <string name="stremio_new_episode_channel">Oznámení o nových dílech</string>
+    <string name="stremio_new_episode_count">Nové díly: %1$d</string>
 </resources>

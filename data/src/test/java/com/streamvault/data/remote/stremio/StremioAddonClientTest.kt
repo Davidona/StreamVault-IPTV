@@ -44,6 +44,110 @@ class StremioAddonClientTest {
     }
 
     @Test
+    fun nativeGuideResponsePreservesDetailedSchedulesAndInfersMissingMediaTypes() = runTest {
+        server.enqueue(MockResponse().setBody("""
+            {"metas":[],"metasDetailed":[{"id":"news","name":"News","posterShape":"square",
+            "behaviorHints":{"hasScheduledVideos":true},
+            "videos":[{"id":"programme:1","title":"Morning News",
+            "startTime":"2026-11-01T10:00:00Z","endTime":"2026-11-01T11:00:00Z"}]}]}
+        """.trimIndent()))
+        val page = client.fetchCatalog(baseUrl(), StremioMediaType.TV, "guide",
+            StremioCatalogQuery(extraValues = mapOf("date" to "2026-11-01"))).getOrNull()!!
+        assertThat(page.rawItemCount).isEqualTo(1)
+        assertThat(page.metas.single().type).isEqualTo(StremioMediaType.TV)
+        assertThat(page.metas.single().posterShape).isEqualTo("square")
+        assertThat(page.detailedMetas.single().isLive).isTrue()
+        assertThat(page.detailedMetas.single().videos.single().startTime).isEqualTo("2026-11-01T10:00:00Z")
+    }
+
+    @Test
+    fun directoryEntriesValidateTransportAndRetainConfigurationHints() = runTest {
+        server.enqueue(MockResponse().setBody("""
+            {"addons":[
+            {"transportName":"http","transportUrl":"https://addon.example/config/manifest.json",
+             "manifest":{"id":"one","name":"One","version":"1","behaviorHints":{"configurationRequired":true}}},
+            {"transportName":"http","transportUrl":"javascript:bad","manifest":{"id":"bad"}},
+            {"transportName":"ipfs","transportUrl":"ipfs://unsupported","manifest":{"id":"ipfs"}}]}
+        """.trimIndent()))
+        val entries = client.fetchDirectory(baseUrl(),
+            com.streamvault.domain.model.stremio.StremioCatalogRef(StremioMediaType.fromTypeName("all"), "official")).getOrNull()!!
+        assertThat(entries).hasSize(1)
+        assertThat(entries.single().manifest.behaviorHints.configurationRequired).isTrue()
+        assertThat(server.takeRequest().path).isEqualTo("/addon_catalog/all/official.json")
+    }
+
+    @Test
+    fun customTypesArtworkLinksAndSubtitleLabelsSurviveParsing() = runTest {
+        val manifest = client.parseManifest("""
+            {"id":"custom","types":["anime"],"resources":["catalog","meta","player","library","addon_catalog"],
+            "catalogs":[{"type":"anime","id":"top"}],"addonCatalogs":[{"type":"all","id":"community"}],
+            "behaviorHints":{"epgProvider":true}}
+        """.trimIndent())!!
+        assertThat(manifest.catalogs.single().type.typeName).isEqualTo("anime")
+        assertThat(manifest.addonCatalogs.single().type.typeName).isEqualTo("all")
+        assertThat(manifest.resources.map { it.kind.resourceName }).containsAtLeast("player", "library", "addon_catalog")
+        server.enqueue(MockResponse().setBody("""
+            {"meta":{"id":"anime:1","type":"anime","name":"Example","logo":"https://images.example/logo.png",
+            "links":[{"name":"Actor","category":"actor","url":"https://example.test/actor"},
+            {"name":"Bad","url":"javascript:alert(1)"}],
+            "videos":[{"id":"video:1","streams":[{"androidTvUrl":"netflix://movie/1",
+            "subtitles":[{"url":"https://subs.example/en.srt","lang":"eng","label":"English CC"}]}]}]}}
+        """.trimIndent()))
+        val meta = client.fetchMeta(baseUrl(), manifest.catalogs.single().type, "anime:1").getOrNull()!!
+        assertThat(meta.links.single().name).isEqualTo("Actor")
+        assertThat(meta.poster).isEqualTo("https://images.example/logo.png")
+        val stream = meta.videos.single().streams!!.single()
+        assertThat(stream.kind).isEqualTo(StremioStreamKind.EXTERNAL)
+        assertThat(stream.subtitles.single().label).isEqualTo("English CC")
+    }
+
+    @Test
+    fun `custom extras serialize safely and preserve multi selection limit`() = runTest {
+        val manifest = requireNotNull(client.parseManifest("""
+            {"id":"custom","catalogs":[{"type":"movie","id":"top",
+            "extra":[{"name":"region","options":["US","GB"],"optionsLimit":2}]}]}
+        """.trimIndent()))
+        assertThat(manifest.catalogs.single().extras.single().optionsLimit).isEqualTo(2)
+        server.enqueue(MockResponse().setBody("""{"metas":[]}"""))
+        client.fetchCatalog(baseUrl(), StremioMediaType.MOVIE, "top",
+            StremioCatalogQuery(extraValues = mapOf("region" to "US,GB", "sort&admin" to "new/old")))
+        val path = server.takeRequest().path!!
+        assertThat(path).contains("region=US%2CGB")
+        assertThat(path).contains("sort%26admin=new%2Fold")
+    }
+
+    @Test
+    fun `legacy catalog extras preserve required input and genre options`() {
+        val manifest = requireNotNull(client.parseManifest("""
+            {"id":"legacy","catalogs":[{"type":"movie","id":"search",
+            "genres":["Drama"],"extraSupported":["search","genre","skip"],
+            "extraRequired":["search"]}]}
+        """.trimIndent()))
+        val catalog = manifest.catalogs.single()
+        assertThat(catalog.supportsSearch).isTrue()
+        assertThat(catalog.supportsSkip).isTrue()
+        assertThat(catalog.extras.single { it.name == "search" }.isRequired).isTrue()
+        assertThat(catalog.extras.single { it.name == "genre" }.options).containsExactly("Drama")
+    }
+
+    @Test
+    fun `metadata preserves default video and distinguishes omitted from empty embedded streams`() = runTest {
+        server.enqueue(MockResponse().setBody("""
+            {"meta":{"id":"movie:1","type":"movie","name":"Example",
+            "behaviorHints":{"defaultVideoId":"video:1"},
+            "videos":[
+            {"id":"video:1","streams":[{"url":"https://media.example/video.mp4"}]},
+            {"id":"video:2","streams":[]},
+            {"id":"video:3"}]}}
+        """.trimIndent()))
+        val meta = requireNotNull(client.fetchMeta(baseUrl(), StremioMediaType.MOVIE, "movie:1").getOrNull())
+        assertThat(meta.defaultVideoId).isEqualTo("video:1")
+        assertThat(meta.videos[0].streams!!.single().url).isEqualTo("https://media.example/video.mp4")
+        assertThat(meta.videos[1].streams).isEmpty()
+        assertThat(meta.videos[2].streams).isNull()
+    }
+
+    @Test
     fun `manifest parses resources catalogs and behavior hints`() = runTest {
         server.enqueue(MockResponse().setBody(fixture("stremio/fixtures/cinemeta_manifest.json")))
 

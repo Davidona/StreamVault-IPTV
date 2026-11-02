@@ -19,6 +19,16 @@ class ExternalNavigationRequestParser @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
     fun parse(intent: Intent): ExternalNavigationRequest? {
+        intent.getStringExtra("com.streamvault.app.extra.STREMIO_ITEM")?.let { route ->
+            val path = route.substringBefore('?').split('/')
+            if (route.length <= 16000 && route.startsWith("addons/item/") &&
+                !route.any(Char::isISOControl) && path.size == 5 &&
+                path[2].toLongOrNull()?.let { it > 0 } == true &&
+                path[3].matches(Regex("[A-Za-z0-9_-]{1,64}")) && path[4].isNotBlank()) {
+                return ExternalNavigationRequest.StremioItem(route)
+            }
+            return ExternalNavigationRequest.Destination(AppDestination.Home)
+        }
         readPlayerRequestExtra(intent)?.let { return ExternalNavigationRequest.Player(it) }
         readExternalDestinationExtra(intent)?.let { return ExternalNavigationRequest.Destination(it) }
 

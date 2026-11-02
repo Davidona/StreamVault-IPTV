@@ -291,4 +291,6 @@
     <string name="torrent_storage_check_failed">Kullanılabilir depolama alanı denetlenemedi. Torrent oynatma güvenli biçimde sürdürülemez.</string>
     <string name="nav_extensions">Eklentiler</string>
     <string name="nav_sports">Spor</string>
+    <string name="stremio_new_episode_channel">Yeni bölüm bildirimleri</string>
+    <string name="stremio_new_episode_count">Yeni bölümler: %1$d</string>
 </resources>

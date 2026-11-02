@@ -291,4 +291,6 @@
     <string name="torrent_storage_check_failed">Penyimpanan yang tersedia tidak dapat diperiksa. Pemutaran torrent tidak dapat dilanjutkan dengan aman.</string>
     <string name="nav_extensions">Ekstensi</string>
     <string name="nav_sports">Olahraga</string>
+    <string name="stremio_new_episode_channel">Notifikasi episode baru</string>
+    <string name="stremio_new_episode_count">Episode baru: %1$d</string>
 </resources>

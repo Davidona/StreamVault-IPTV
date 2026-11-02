@@ -22,10 +22,13 @@ import javax.inject.Inject
  */
 class StartupWorkRegistry @Inject constructor(
     @param:ApplicationContext private val context: Context,
-    private val automaticSyncIdleObserver: com.streamvault.data.sync.AutomaticSyncIdleObserver
+    private val automaticSyncIdleObserver: com.streamvault.data.sync.AutomaticSyncIdleObserver,
+    private val stremioAccount: com.streamvault.domain.model.stremio.StremioAccount
 ) {
     fun register() {
         AppUpdateCheckWorker.enqueue(context)
+        stremioAccount.start()
+        com.streamvault.app.stremio.StremioBackgroundWorker.enqueue(context)
 
         val dataMaintenance = PeriodicWorkRequestBuilder<SyncWorker>(24, TimeUnit.HOURS)
             .setConstraints(dataMaintenanceConstraints())

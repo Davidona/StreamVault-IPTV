@@ -291,4 +291,6 @@
     <string name="torrent_storage_check_failed">Không thể kiểm tra dung lượng lưu trữ còn trống. Không thể tiếp tục phát torrent một cách an toàn.</string>
     <string name="nav_extensions">Tiện ích mở rộng</string>
     <string name="nav_sports">Thể thao</string>
+    <string name="stremio_new_episode_channel">Thông báo tập mới</string>
+    <string name="stremio_new_episode_count">Tập mới: %1$d</string>
 </resources>

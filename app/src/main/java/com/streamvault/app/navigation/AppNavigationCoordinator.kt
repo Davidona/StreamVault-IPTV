@@ -259,6 +259,7 @@ class AppNavigationCoordinator @Inject constructor(
 }
 
 internal fun ExternalNavigationRequest.toNavigationCommand(): NavigationCommand = when (this) {
+    is ExternalNavigationRequest.StremioItem -> NavigationCommand.StremioItem(route)
     is ExternalNavigationRequest.Search -> NavigationCommand.Navigate(
         destination = AppDestination.Search(query),
         options = NavigationOptions(launchSingleTop = true)

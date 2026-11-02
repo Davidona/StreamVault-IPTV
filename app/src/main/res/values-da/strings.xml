@@ -291,4 +291,6 @@
     <string name="torrent_storage_check_failed">Den ledige lagerplads kunne ikke kontrolleres. Torrentafspilningen kan ikke fortsætte sikkert.</string>
     <string name="nav_extensions">Udvidelser</string>
     <string name="nav_sports">Sport</string>
+    <string name="stremio_new_episode_channel">Notifikationer om nye afsnit</string>
+    <string name="stremio_new_episode_count">Nye afsnit: %1$d</string>
 </resources>

@@ -291,4 +291,6 @@
     <string name="torrent_storage_check_failed">Não foi possível verificar o armazenamento disponível. A reprodução do torrent não pode continuar com segurança.</string>
     <string name="nav_extensions">Extensões</string>
     <string name="nav_sports">Desporto</string>
+    <string name="stremio_new_episode_channel">Notificações de novos episódios</string>
+    <string name="stremio_new_episode_count">Novos episódios: %1$d</string>
 </resources>

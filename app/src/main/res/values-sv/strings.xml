@@ -292,4 +292,6 @@
     <string name="torrent_storage_check_failed">Det gick inte att kontrollera tillgängligt lagringsutrymme. Torrentuppspelningen kan inte fortsätta på ett säkert sätt.</string>
     <string name="nav_extensions">Tillägg</string>
     <string name="nav_sports">Sport</string>
+    <string name="stremio_new_episode_channel">Aviseringar om nya avsnitt</string>
+    <string name="stremio_new_episode_count">Nya avsnitt: %1$d</string>
 </resources>

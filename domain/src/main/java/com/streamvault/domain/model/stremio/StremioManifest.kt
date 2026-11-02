@@ -1,16 +1,19 @@
 package com.streamvault.domain.model.stremio
 
-enum class StremioMediaType(val typeName: String) {
-    MOVIE("movie"),
-    SERIES("series"),
-    CHANNEL("channel"),
-    TV("tv"),
-    UNKNOWN("unknown");
-
+data class StremioMediaType private constructor(val typeName: String) {
     companion object {
+        val MOVIE = StremioMediaType("movie")
+        val SERIES = StremioMediaType("series")
+        val CHANNEL = StremioMediaType("channel")
+        val TV = StremioMediaType("tv")
+        val UNKNOWN = StremioMediaType("unknown")
+        val entries = listOf(MOVIE, SERIES, CHANNEL, TV, UNKNOWN)
+
         fun fromTypeName(value: String?): StremioMediaType {
             val normalized = value?.trim().orEmpty()
-            return entries.firstOrNull { it.typeName.equals(normalized, ignoreCase = true) } ?: UNKNOWN
+            if (normalized.isEmpty() || normalized.length > 128 || normalized.any(Char::isISOControl)) return UNKNOWN
+            return entries.firstOrNull { it.typeName.equals(normalized, ignoreCase = true) }
+                ?: StremioMediaType(normalized)
         }
     }
 }
@@ -20,6 +23,9 @@ enum class StremioResourceKind(val resourceName: String) {
     META("meta"),
     STREAM("stream"),
     SUBTITLES("subtitles"),
+    ADDON_CATALOG("addon_catalog"),
+    PLAYER("player"),
+    LIBRARY("library"),
     UNKNOWN("unknown");
 
     companion object {
@@ -43,7 +49,8 @@ data class StremioManifestResource(
 data class StremioCatalogExtraDef(
     val name: String,
     val isRequired: Boolean = false,
-    val options: List<String> = emptyList()
+    val options: List<String> = emptyList(),
+    val optionsLimit: Int = 1
 )
 
 data class StremioCatalogRef(
@@ -61,7 +68,8 @@ data class StremioCatalogRef(
 
 data class StremioManifestBehaviorHints(
     val configurable: Boolean = false,
-    val configurationRequired: Boolean = false
+    val configurationRequired: Boolean = false,
+    val epgProvider: Boolean = false
 )
 
 data class StremioManifest(
@@ -77,7 +85,8 @@ data class StremioManifest(
     val catalogs: List<StremioCatalogRef> = emptyList(),
     /** `null` means omitted; an empty list is an explicit match-none filter. */
     val idPrefixes: List<String>? = null,
-    val behaviorHints: StremioManifestBehaviorHints = StremioManifestBehaviorHints()
+    val behaviorHints: StremioManifestBehaviorHints = StremioManifestBehaviorHints(),
+    val addonCatalogs: List<StremioCatalogRef> = emptyList()
 ) {
     fun supportsResource(
         kind: StremioResourceKind,

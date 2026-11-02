@@ -291,4 +291,6 @@
     <string name="torrent_storage_check_failed">사용 가능한 저장 공간을 확인할 수 없어 토렌트 재생을 안전하게 계속할 수 없습니다.</string>
     <string name="nav_extensions">확장 기능</string>
     <string name="nav_sports">스포츠</string>
+    <string name="stremio_new_episode_channel">새 에피소드 알림</string>
+    <string name="stremio_new_episode_count">새 에피소드: %1$d</string>
 </resources>

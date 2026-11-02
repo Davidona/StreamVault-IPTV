@@ -18,15 +18,31 @@ class StremioPlaybackHistoryRepositoryImpl @Inject constructor(
         dao.observeContinueWatching(limit.coerceIn(1, MAX_CONTINUE_WATCHING_ITEMS))
             .map { rows -> rows.map { it.toDomain() } }
 
+    override fun observeHistory(): Flow<List<StremioPlaybackHistory>> =
+        dao.observeHistory().map { rows -> rows.map { it.toDomain() } }
+
+    override suspend fun dismiss(contentKey: String): Result<Unit> = try {
+        dao.dismiss(contentKey, System.currentTimeMillis())
+        Result.success(Unit)
+    } catch (cancel: kotlinx.coroutines.CancellationException) { throw cancel
+    } catch (_: Exception) { Result.error("History update failed") }
+
     override suspend fun get(contentKey: String): StremioPlaybackHistory? =
         dao.get(contentKey)?.toDomain()
 
     override suspend fun save(history: StremioPlaybackHistory): Result<Unit> = runCatching {
-        dao.upsert(history.toEntity())
+        val completed = com.streamvault.domain.util.isPlaybackComplete(history.resumePositionMs, history.totalDurationMs)
+        dao.upsert(history.copy(watched = history.watched || completed).toEntity())
     }.fold(
         onSuccess = { Result.success(Unit) },
         onFailure = { Result.error("Stremio playback progress could not be saved", it) }
     )
+
+    override suspend fun saveAll(history: List<StremioPlaybackHistory>): Result<Unit> = try {
+        dao.upsertAll(history.map { it.toEntity() })
+        Result.success(Unit)
+    } catch (cancel: kotlinx.coroutines.CancellationException) { throw cancel
+    } catch (_: Exception) { Result.error("History update failed") }
 
     override suspend fun delete(contentKey: String): Result<Unit> = runCatching {
         dao.delete(contentKey)
@@ -47,7 +63,8 @@ class StremioPlaybackHistoryRepositoryImpl @Inject constructor(
         watched = isWatched,
         lastWatchedAt = lastWatchedAt,
         catalogOriginKey = catalogOriginKey,
-        streamOriginKeyHint = streamOriginKeyHint
+        streamOriginKeyHint = streamOriginKeyHint,
+        dismissedAtMs = dismissedAtMs
     )
 
     private fun StremioPlaybackHistory.toEntity() = StremioPlaybackHistoryEntity(
@@ -62,7 +79,8 @@ class StremioPlaybackHistoryRepositoryImpl @Inject constructor(
         isWatched = watched,
         lastWatchedAt = lastWatchedAt,
         catalogOriginKey = catalogOriginKey,
-        streamOriginKeyHint = streamOriginKeyHint
+        streamOriginKeyHint = streamOriginKeyHint,
+        dismissedAtMs = dismissedAtMs
     )
 
     private companion object {

@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
@@ -95,9 +96,20 @@ internal fun StremioCatalogBrowseContent(
     onManageAddons: () -> Unit = {},
     onContinueWatching: (() -> Unit)? = null
 ) {
+    var showLibrary by remember { mutableStateOf(false) }
+    if (showLibrary) {
+        StremioLibraryContent(onBack = { showLibrary = false }, onOpenItem = onOpenItem)
+        return
+    }
+    var showGuide by remember { mutableStateOf(false) }
+    if (showGuide) {
+        StremioGuideContent(onBack = { showGuide = false }, onOpenItem = onOpenItem)
+        return
+    }
     val state = viewModel.state.collectAsStateWithLifecycle().value
     val selected = state.rows.firstOrNull { it.key == state.selectedCatalogKey }
     val incorrectParentalPinMessage = stringResource(R.string.movies_incorrect_pin)
+    var editingExtra by remember { mutableStateOf<String?>(null) }
     var showSearch by remember { mutableStateOf(false) }
     var showGenrePicker by remember { mutableStateOf(false) }
     var showParentalPin by remember { mutableStateOf(false) }
@@ -125,6 +137,7 @@ internal fun StremioCatalogBrowseContent(
             }
             Text(stringResource(message), style = MaterialTheme.typography.bodyLarge, color = AppColors.TextSecondary)
             Spacer(Modifier.height(12.dp))
+            TvButton(onClick = { showLibrary = true }) { Text(stringResource(R.string.stremio_library)) }
             TvButton(onClick = onManageAddons) { Text(stringResource(R.string.stremio_manage_addons)) }
         }
         return
@@ -142,7 +155,7 @@ internal fun StremioCatalogBrowseContent(
         }
         return
     }
-    val gridQueryKey = "${selected.key.addonId}:${selected.key.catalogKey}:${selected.search.trim()}:${selected.genre.trim()}"
+    val gridQueryKey = "${selected.key.addonId}:${selected.key.catalogKey}:${selected.search.trim()}:${selected.genre.trim()}:${selected.extraValues.toSortedMap()}"
     LaunchedEffect(gridQueryKey) {
         if (lastGridQueryKey != null && lastGridQueryKey != gridQueryKey) {
             lastFocusedMetaId = null
@@ -219,6 +232,8 @@ internal fun StremioCatalogBrowseContent(
                         style = MaterialTheme.typography.bodySmall, maxLines = 1)
                 }
             }
+            TvButton(onClick = { showLibrary = true }) { Text(stringResource(R.string.stremio_library)) }
+            TvButton(onClick = { showGuide = true }) { Text(stringResource(R.string.stremio_guide)) }
             onContinueWatching?.let { action ->
                 TvIconButton(onClick = action, modifier = Modifier.size(32.dp)) {
                     Icon(Icons.Default.History, stringResource(R.string.stremio_continue_watching))
@@ -230,6 +245,22 @@ internal fun StremioCatalogBrowseContent(
                 modifier = Modifier.size(32.dp)
             ) {
                 Icon(Icons.Default.Refresh, stringResource(R.string.stremio_refresh))
+            }
+        }
+        if (selected.customExtras.isNotEmpty()) {
+            LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                itemsIndexed(selected.customExtras, key = { _, extra -> extra.name }) { _, extra ->
+                    TvButton(
+                        onClick = { editingExtra = extra.name },
+                        enabled = !selected.isLocked && !selected.selectedGenreLocked
+                    ) {
+                        Text(
+                            listOf(extra.name, selected.extraValues[extra.name].orEmpty().joinToString(", "))
+                                .filter(String::isNotBlank).joinToString(": "),
+                            maxLines = 1, overflow = TextOverflow.Ellipsis
+                        )
+                    }
+                }
             }
         }
         LazyRow(
@@ -295,7 +326,7 @@ internal fun StremioCatalogBrowseContent(
             }
         }
         val showingPreviousResults = selected.metas.isNotEmpty() &&
-            (selected.loadedSearch != selected.search.trim() || selected.loadedGenre != selected.genre.trim())
+            (selected.loadedSearch != selected.search.trim() || selected.loadedGenre != selected.genre.trim() || selected.loadedExtraValues != selected.extraValues)
         if (showingPreviousResults) {
             CatalogMessage(
                 message = stringResource(
@@ -330,7 +361,11 @@ internal fun StremioCatalogBrowseContent(
             }
         } else {
             LazyVerticalGrid(
-                columns = GridCells.Adaptive(minSize = 132.dp),
+                columns = GridCells.Adaptive(minSize = when {
+                    selected.metas.any { it.posterShape == "landscape" } -> 260.dp
+                    selected.metas.any { it.posterShape == "square" } -> 180.dp
+                    else -> 132.dp
+                }),
                 state = gridState,
                 modifier = Modifier.weight(1f).fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(10.dp),
@@ -362,6 +397,19 @@ internal fun StremioCatalogBrowseContent(
                     }
                 }
             }
+        }
+    }
+    editingExtra?.let { name ->
+        selected.customExtras.firstOrNull { it.name == name }?.let { extra ->
+            CustomExtraDialog(
+                extra = extra,
+                initialValues = selected.extraValues[name].orEmpty(),
+                onSubmit = { values ->
+                    viewModel.setExtraValues(selected.key, name, values)
+                    editingExtra = null
+                },
+                onDismiss = { editingExtra = null }
+            )
         }
     }
     if (showSearch) {
@@ -396,7 +444,28 @@ internal fun StremioCatalogBrowseContent(
         )
     }
     if (showGenrePicker) {
-        GenrePickerDialog(
+        if (selected.genreLimit > 1 && selected.genreOptions.isNotEmpty()) {
+            CustomExtraDialog(
+                extra = com.streamvault.domain.model.stremio.StremioCatalogExtraDef(
+                    name = stringResource(R.string.stremio_filter_genre),
+                    options = selected.genreOptions.filterNot { it in selected.hiddenGenreOptions },
+                    optionsLimit = selected.genreLimit
+                ),
+                initialValues = selected.genreValues(),
+                onSubmit = { values ->
+                    val genre = values.joinToString(",")
+                    viewModel.setGenre(selected.key, genre)
+                    if (viewModel.state.value.rows.firstOrNull { it.key == selected.key }?.selectedGenreLocked == true) {
+                        pendingLockedCatalogKey = selected.key
+                        pendingLockedGenre = genre
+                        parentalPinError = null
+                        showParentalPin = true
+                    }
+                    showGenrePicker = false
+                },
+                onDismiss = { showGenrePicker = false }
+            )
+        } else GenrePickerDialog(
             row = selected,
             onSelect = { genre ->
                 viewModel.setGenre(selected.key, genre)
@@ -458,12 +527,18 @@ internal fun StremioCatalogBrowseContent(
 
 @Composable
 private fun catalogLabel(row: StremioCatalogRowState, showAddon: Boolean): String {
-    val type = stringResource(if (row.catalog.type == StremioMediaType.SERIES)
-        R.string.stremio_media_series else R.string.stremio_media_movies)
+    val type = if (row.catalog.type !in setOf(StremioMediaType.MOVIE, StremioMediaType.SERIES, StremioMediaType.TV))
+        row.catalog.type.typeName else stringResource(
+        when (row.catalog.type) {
+            StremioMediaType.SERIES -> R.string.stremio_media_series
+            StremioMediaType.TV -> R.string.stremio_media_tv
+            else -> R.string.stremio_media_movies
+        }
+    )
     val readableId = row.catalog.id.takeIf { id -> id.all { it.isLetter() || it.isWhitespace() } }
     val name = row.catalog.name?.takeIf(String::isNotBlank) ?: when {
         readableId == null -> listOf(type, stringResource(R.string.stremio_all_genres)).joinToString(" \u00b7 ")
-        readableId.lowercase() in setOf("movie", "movies", "series", "tv shows", "tvshows") -> type
+        readableId.lowercase() in setOf("movie", "movies", "series", "tv", "tv shows", "tvshows", "television") -> type
         else -> readableId
     }
     return if (showAddon) "$name \u00b7 ${row.addonName}" else name
@@ -543,7 +618,7 @@ private fun CatalogMetaCard(
         shape = ClickableSurfaceDefaults.shape(BrowseShapes.Artwork)
     ) {
         Box(
-            modifier = Modifier.fillMaxWidth().aspectRatio(2f / 3f)
+            modifier = Modifier.fillMaxWidth().aspectRatio(when (meta.posterShape) { "square" -> 1f; "landscape" -> 16f / 9f; else -> 2f / 3f })
                 .clip(BrowseShapes.Artwork).background(AppColors.SurfaceEmphasis)
         ) {
             Text(
@@ -600,4 +675,64 @@ private fun CatalogMessage(message: String, error: Boolean = false) {
             style = MaterialTheme.typography.bodySmall
         )
     }
+}
+
+@Composable
+private fun CustomExtraDialog(
+    extra: com.streamvault.domain.model.stremio.StremioCatalogExtraDef,
+    initialValues: List<String>,
+    onSubmit: (List<String>) -> Unit,
+    onDismiss: () -> Unit
+) {
+    var draft by remember(extra.name, initialValues) { mutableStateOf(initialValues) }
+    PremiumDialog(
+        title = extra.name,
+        onDismissRequest = onDismiss,
+        heightFraction = null,
+        content = {
+            if (extra.options.isEmpty()) {
+                SearchInput(
+                    value = draft.firstOrNull().orEmpty(),
+                    onValueChange = { draft = listOf(it) },
+                    placeholder = extra.name,
+                    onSearch = { onSubmit(draft) },
+                    modifier = Modifier.fillMaxWidth()
+                )
+            } else {
+                LazyColumn(
+                    modifier = Modifier.fillMaxWidth().heightIn(max = 400.dp),
+                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    itemsIndexed(extra.options) { _, option ->
+                        val chosen = option in draft
+                        TvButton(
+                            onClick = {
+                                draft = when {
+                                    chosen -> draft - option
+                                    extra.optionsLimit == 1 -> listOf(option)
+                                    draft.size < extra.optionsLimit -> draft + option
+                                    else -> draft
+                                }
+                            },
+                            enabled = chosen || extra.optionsLimit == 1 || draft.size < extra.optionsLimit,
+                            modifier = Modifier.fillMaxWidth().semantics { selected = chosen; role = Role.Checkbox }
+                        ) {
+                            Text(option, color = if (chosen) AppColors.BrandStrong else AppColors.TextPrimary)
+                        }
+                    }
+                }
+            }
+        },
+        footer = {
+            PremiumDialogFooterButton(
+                label = stringResource(R.string.stremio_cancel),
+                onClick = onDismiss
+            )
+            PremiumDialogFooterButton(
+                label = stringResource(R.string.stremio_browse),
+                onClick = { onSubmit(draft) },
+                emphasized = true
+            )
+        }
+    )
 }

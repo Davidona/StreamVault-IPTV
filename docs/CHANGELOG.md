@@ -2,6 +2,28 @@
 
 All notable product changes are recorded in this document.
 
+## [1.2.4]
+
+### Added
+- Expanded Stremio catalog support for live TV and custom media types, configurable catalog filters, add-on discovery, and an in-app programme guide.
+- Added Stremio account device linking, encrypted local credentials, linked add-on imports, and two-way library and viewing-progress sync, including watched episode state.
+- Added Home Continue Watching, Recently Watched and Up Next, Android TV Watch Next integration, resume/start-over/dismiss actions, library sorting, and season/show watched controls. Dismissed progress is preserved in backups.
+- Added per-series release tracking, an upcoming episode calendar, and periodic background notifications for new episodes.
+- Added support for Stremio stream metadata, inline and add-on subtitles, activity events, torrent handoff, external playback, and IPFS/IPNS HTTP gateway URLs.
+- Added an optional Stremio Service connection for archive, FTP and Usenet streams. The service runs separately from the Android app.
+- Added Stremio item deep links and localized new account, viewing and notification content in all 38 advertised locales.
+
+### Changed
+- Stremio library and playback history now retain add-on identity and exact video IDs across navigation, resume, backups and Android TV Watch Next.
+- Stremio live TV catalogs and programme guides are available under Extensions; they do not become IPTV provider channels in the main Live TV tab.
+
+### Fixed
+- Fixed archive seeks through Stremio Service by preventing an extra response byte from corrupting later requests on a reused connection.
+- Fixed VOD player controls disappearing while navigating with the remote; the idle timer now restarts after each key press.
+- Raised XMLTV ingestion limits for very large feeds to 2 GiB downloaded and 4 GiB decompressed while keeping parsing streamed.
+- Fixed torrent playback on Android devices with 16 KiB memory pages by updating bundled native libraries.
+- Fixed SMB recording playback by avoiding provider-stream resolution for app-private recording URIs.
+
 ## [1.2.3]
 
 ### Added
@@ -237,7 +259,6 @@ All notable product changes are recorded in this document.
 - Fixed Xtream series showing an empty episode list after re-entering: a hydrated series whose local episodes went missing is now re-fetched, and re-hydration no longer replaces a larger cached episode set with a smaller, partially re-scraped provider response.
 - Fixed adaptive M3U metadata being dropped between playlist parsing, import staging, catalog synchronization, and channel or movie playback reconstruction.
 - Fixed Xtream Codes and Xtream M3U URL setup crashing on devices with a broken hardware-backed Keystore (such as some budget Android TV boxes): credential encryption now falls back to a software key instead of aborting when the device cannot generate a hardware key.
-- Fixed large full-country XMLTV guides (such as iptv-epg.org's epg-us.xml.gz) failing to import with an "EPG decompressed XML bytes exceeded safety limit" error by raising the raw-download, decompressed-XML, and programme ingestion ceilings, since the parser streams to the database rather than buffering the whole document in memory.
 - Fixed a freshly-added EPG source resolving to no matches after assignment by downloading it once on assignment before re-resolving the provider's guide mappings, so the source has programme data available when it is first used.
 
 ### Changed

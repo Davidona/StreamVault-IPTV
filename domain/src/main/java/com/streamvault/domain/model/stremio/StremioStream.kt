@@ -9,7 +9,9 @@ enum class StremioStreamKind {
     TORRENT,
     YOUTUBE,
     EXTERNAL,
-    UNKNOWN
+    UNKNOWN,
+    ARCHIVE,
+    USENET
 }
 
 data class StremioProxyHeaders(
@@ -35,19 +37,26 @@ data class StremioStream(
     val infoHash: String? = null,
     val fileIdx: Int? = null,
     val externalUrl: String? = null,
+    val androidTvUrl: String? = null,
     val sources: List<String> = emptyList(),
     val subtitles: List<StremioSubtitle> = emptyList(),
-    val behaviorHints: StremioStreamBehaviorHints? = null
+    val behaviorHints: StremioStreamBehaviorHints? = null,
+    val archive:StremioArchiveSource?=null,
+    val nzbUrls:List<String> = emptyList(),
+    val servers:List<String> = emptyList()
 ) {
     val kind: StremioStreamKind
         get() = when {
             !infoHash.isNullOrBlank() -> StremioStreamKind.TORRENT
             url?.let(::isMagnetScheme) == true -> StremioStreamKind.TORRENT
             !url.isNullOrBlank() -> StremioStreamKind.DIRECT
+            archive?.urls?.isNotEmpty()==true -> StremioStreamKind.ARCHIVE
+            nzbUrls.isNotEmpty() -> StremioStreamKind.USENET
             !ytId.isNullOrBlank() -> StremioStreamKind.YOUTUBE
-            !externalUrl.isNullOrBlank() -> StremioStreamKind.EXTERNAL
+            !externalUrl.isNullOrBlank() || !androidTvUrl.isNullOrBlank() -> StremioStreamKind.EXTERNAL
             else -> StremioStreamKind.UNKNOWN
         }
+    override fun toString()="StremioStream(kind=$kind)"
 }
 
 /** Builds the URL passed to a scheme-owning playback plugin for this torrent stream. */
@@ -124,3 +133,20 @@ private const val MAX_MAGNET_DISPLAY_NAME_LENGTH = 512
 private const val MAX_MAGNET_TRACKERS = 8
 private const val MAX_TRACKER_URL_LENGTH = 512
 private const val MAX_MAGNET_URI_LENGTH = 16_384
+
+/** Opens only known media/web schemes; addon values never become executable intents. */
+fun StremioStream.externalLaunchUrl(preferAndroidTv: Boolean = false): String? {
+    val candidate = when {
+        preferAndroidTv && !androidTvUrl.isNullOrBlank() -> androidTvUrl
+        !externalUrl.isNullOrBlank() -> externalUrl
+        !androidTvUrl.isNullOrBlank() -> androidTvUrl
+        !ytId.isNullOrBlank() && ytId.matches(Regex("[A-Za-z0-9_-]{11}")) -> "https://www.youtube.com/watch?v=$ytId"
+        url != null && !url.startsWith("http://", true) && !url.startsWith("https://", true) -> url
+        else -> null
+    } ?: return null
+    val uri = runCatching { URI(candidate) }.getOrNull() ?: return null
+    return candidate.takeIf {
+        uri.scheme?.lowercase() in setOf("http", "https", "stremio", "rtsp", "rtmp", "ftp", "ftps", "netflix", "nflx", "youtube", "vnd.youtube", "primevideo", "disneyplus", "vlc", "mpv") &&
+            (!uri.host.isNullOrBlank() || uri.isOpaque && !uri.rawSchemeSpecificPart.isNullOrBlank() || uri.scheme.equals("stremio", true))
+    }
+}

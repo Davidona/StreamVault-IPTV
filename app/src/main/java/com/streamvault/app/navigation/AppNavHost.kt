@@ -96,6 +96,11 @@ internal fun AppNavHost(
             platformHost = catalogPlatformHost,
             scaffold = appCatalogScaffold(onTopLevelDestinationRequested),
             dashboardShelfCustomizationContent = appDashboardShelfCustomizationContent(),
+            stremioContent = {
+                com.streamvault.feature.stremio.presentation.StremioHomeShelf(
+                    onOpen = { addonId, history -> navController.navigate(com.streamvault.feature.stremio.navigation.StremioRoutePatterns.historyRoute(addonId, history)) },
+                    onDetails = { addonId, preview -> navController.navigate(com.streamvault.feature.stremio.navigation.StremioRoutePatterns.itemRoute(addonId, preview)) })
+            },
             onTopLevelDestinationRequested = onTopLevelDestinationRequested,
             onOpenMovieDetail = catalogDetailActions::openMovieDetail,
             onOpenSeriesDetail = catalogDetailActions::openSeriesDetail,

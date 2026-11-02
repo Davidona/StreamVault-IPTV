@@ -293,4 +293,6 @@
     <string name="torrent_storage_check_failed">تعذر التحقق من مساحة التخزين المتاحة، ولا يمكن متابعة تشغيل التورنت بأمان.</string>
     <string name="nav_extensions">التمديدات</string>
     <string name="nav_sports">الرياضة</string>
+    <string name="stremio_new_episode_channel">إشعارات الحلقات الجديدة</string>
+    <string name="stremio_new_episode_count">الحلقات الجديدة: %1$d</string>
 </resources>

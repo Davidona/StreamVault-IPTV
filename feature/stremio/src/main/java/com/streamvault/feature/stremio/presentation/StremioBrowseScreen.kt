@@ -37,6 +37,10 @@ internal fun StremioBrowseScreen(
 ) {
     val addonsState = addonsViewModel.state.collectAsStateWithLifecycle().value
     var showContinueWatchingDialog by rememberSaveable { mutableStateOf(false) }
+    if (showContinueWatchingDialog) {
+        StremioViewingContent(onBack = { showContinueWatchingDialog = false }, onOpen = { addonId, history -> onOpenHistory(history, addonId) }, onDetails = onOpenItem)
+        return
+    }
     scaffold(
         AppDestination.Addons,
         stringResource(R.string.stremio_browse_title),
@@ -49,44 +53,10 @@ internal fun StremioBrowseScreen(
             viewModel = browseViewModel,
             onOpenItem = onOpenItem,
             onManageAddons = onManageAddons,
-            onContinueWatching = if (showContinueWatching && addonsState.continueWatching.isNotEmpty()) {
+            onContinueWatching = if (showContinueWatching) {
                 { showContinueWatchingDialog = true }
             } else null
         )
     }
 
-    if (showContinueWatchingDialog && addonsState.continueWatching.isNotEmpty()) {
-        PremiumDialog(
-            title = stringResource(R.string.stremio_continue_watching),
-            onDismissRequest = { showContinueWatchingDialog = false },
-            heightFraction = null,
-            content = {
-                LazyColumn(
-                    modifier = Modifier.fillMaxWidth().heightIn(max = 460.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    items(addonsState.continueWatching, key = { it.contentKey }) { item ->
-                        val originAddonId = addonsState.addons.firstOrNull {
-                            it.addon.installFingerprint() == item.catalogOriginKey
-                        }?.addon?.id ?: 0L
-                        TvButton(
-                            onClick = {
-                                showContinueWatchingDialog = false
-                                onOpenHistory(item, originAddonId)
-                            },
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Text(item.title, maxLines = 1)
-                        }
-                    }
-                }
-            },
-            footer = {
-                PremiumDialogFooterButton(
-                    label = stringResource(R.string.stremio_cancel),
-                    onClick = { showContinueWatchingDialog = false }
-                )
-            }
-        )
-    }
 }

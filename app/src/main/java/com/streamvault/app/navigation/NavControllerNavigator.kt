@@ -19,6 +19,9 @@ internal class NavControllerNavigator(
 ) : NavigationActions, CatalogDetailNavigationActions, AppNavigationPayloads {
 
     fun execute(command: NavigationCommand): Boolean = when (command) {
+        is NavigationCommand.StremioItem -> if (isResumed()) {
+            navController.navigate(command.route) { launchSingleTop = true }; true
+        } else false
         is NavigationCommand.Navigate -> navigateIfResumed(command.destination, command.options)
         is NavigationCommand.OpenPlayer -> openPlayerIfResumed(command.request)
         NavigationCommand.Back -> back()

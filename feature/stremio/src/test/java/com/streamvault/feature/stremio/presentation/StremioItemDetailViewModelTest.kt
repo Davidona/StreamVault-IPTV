@@ -41,6 +41,9 @@ import org.junit.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
+import org.mockito.kotlin.argumentCaptor
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.times
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class StremioItemDetailViewModelTest {
@@ -56,6 +59,147 @@ class StremioItemDetailViewModelTest {
     @After
     fun tearDown() {
         Dispatchers.resetMain()
+    }
+
+    @Test fun seasonWatchedSavesOneBatchAndExcludesFutureEpisodes() = runTest(dispatcher) {
+        val repository = ItemRepositoryFake(addon(11L)).apply {
+            meta = StremioMetaDetail("series", StremioMediaType.SERIES, "Series", videos = listOf(
+                StremioVideo("one", season=1, episode=1),
+                StremioVideo("two", season=1, episode=2, released="2999-01-01T00:00:00Z"),
+                StremioVideo("other", season=2, episode=1)))
+        }
+        val histories = mock<com.streamvault.domain.repository.StremioPlaybackHistoryRepository>()
+        whenever(histories.observeHistory()).thenReturn(MutableStateFlow(emptyList()))
+        whenever(histories.saveAll(any())).thenReturn(Result.success(Unit))
+        val vm = viewModel(repository,"series","series",playbackHistoryRepository=histories)
+        advanceUntilIdle()
+        vm.setSeasonWatched(1,true); advanceUntilIdle()
+        val saved = argumentCaptor<List<com.streamvault.domain.model.stremio.StremioPlaybackHistory>>()
+        verify(histories).saveAll(saved.capture())
+        assertThat(saved.firstValue.map { it.exactVideoId }).containsExactly("one")
+        assertThat(saved.firstValue.single().watched).isTrue()
+        vm.setSeasonWatched(1,false); advanceUntilIdle()
+        verify(histories,times(2)).saveAll(saved.capture())
+        assertThat(saved.lastValue.map { it.exactVideoId }).containsExactly("one","two")
+        assertThat(saved.lastValue.all { !it.watched && it.lastWatchedAt == 0L }).isTrue()
+    }
+
+    @Test fun unplayedItemCanBeMarkedWatchedAndAutomaticHistoryUpdatesTheButton() = runTest(dispatcher) {
+        val repository = ItemRepositoryFake(addon(11L))
+        val historyRepository = mock<com.streamvault.domain.repository.StremioPlaybackHistoryRepository>()
+        val records = MutableStateFlow<List<com.streamvault.domain.model.stremio.StremioPlaybackHistory>>(emptyList())
+        whenever(historyRepository.observeHistory()).thenReturn(records)
+        whenever(historyRepository.save(any())).thenReturn(Result.success(Unit))
+        val vm = viewModel(repository,"movie","tt123",playbackHistoryRepository=historyRepository)
+        advanceUntilIdle()
+        vm.toggleWatched();advanceUntilIdle()
+        val saved=argumentCaptor<com.streamvault.domain.model.stremio.StremioPlaybackHistory>()
+        verify(historyRepository).save(saved.capture())
+        assertThat(saved.firstValue.watched).isTrue()
+        assertThat(saved.firstValue.resumePositionMs).isEqualTo(0L)
+        records.value=listOf(saved.firstValue.copy(watched=false));advanceUntilIdle()
+        assertThat(vm.state.value.watchedKeys).doesNotContain(com.streamvault.domain.model.stremio.stremioWatchedKey(StremioMediaType.MOVIE,"tt123"))
+        records.value=listOf(saved.firstValue);advanceUntilIdle()
+        assertThat(vm.state.value.watchedKeys).contains(com.streamvault.domain.model.stremio.stremioWatchedKey(StremioMediaType.MOVIE,"tt123"))
+    }
+
+    @Test
+    fun explicitWatchedActionsUpdateResumeHistoryAndUnwatchResetsProgress() = runTest(dispatcher) {
+        val repository = ItemRepositoryFake(addon(11L))
+        val historyRepository = mock<com.streamvault.domain.repository.StremioPlaybackHistoryRepository>()
+        val history = com.streamvault.domain.model.stremio.StremioPlaybackHistory(
+            contentKey = "stremio:global:movie:tt123", mediaType = "movie", exactVideoId = "tt123",
+            title = "Movie", resumePositionMs = 5000, totalDurationMs = 10000,
+            catalogOriginKey = addon(11L).installFingerprint()
+        )
+        whenever(historyRepository.observeHistory()).thenReturn(kotlinx.coroutines.flow.flowOf(emptyList()))
+        whenever(historyRepository.get(any())).thenReturn(history)
+        whenever(historyRepository.save(any())).thenReturn(Result.success(Unit))
+        val viewModel = viewModel(repository, "movie", "tt123", playbackHistoryRepository = historyRepository)
+        advanceUntilIdle()
+        viewModel.toggleWatched()
+        advanceUntilIdle()
+        viewModel.toggleWatched()
+        advanceUntilIdle()
+        val saved = argumentCaptor<com.streamvault.domain.model.stremio.StremioPlaybackHistory>()
+        verify(historyRepository, times(2)).save(saved.capture())
+        assertThat(saved.allValues[0].watched).isTrue()
+        assertThat(saved.allValues[1].watched).isFalse()
+        assertThat(saved.allValues[1].resumePositionMs).isEqualTo(0)
+    }
+
+    @Test
+    fun channelFeedsSelectRealVideoIdsAndKeepInlineStreamProvenance() = runTest(dispatcher) {
+        val repository = ItemRepositoryFake(addon(11L)).apply {
+            meta = StremioMetaDetail("channel:1", StremioMediaType.CHANNEL, "Channel",
+                videos = listOf(StremioVideo("upload:one", title = "First upload",
+                    streams = listOf(StremioStream(url = "https://media.example/upload.mp4")))))
+        }
+        val viewModel = viewModel(repository, "channel", "channel:1")
+        advanceUntilIdle()
+        viewModel.loadStreams("upload:one")
+        advanceUntilIdle()
+        assertThat(viewModel.state.value.selectedVideo?.id).isEqualTo("upload:one")
+        assertThat(viewModel.state.value.streams.single().source.addonId).isEqualTo(31L)
+        assertThat(repository.streamCalls).isEmpty()
+        viewModel.loadStreams("invented")
+        assertThat(viewModel.state.value.requestedVideoId).isEqualTo("upload:one")
+    }
+
+    @Test
+    fun libraryAndWatchedActionsPersistIndependently() = runTest(dispatcher) {
+        val repository = ItemRepositoryFake(addon(11L))
+        val viewModel = viewModel(repository, "movie", "tt123")
+        advanceUntilIdle()
+        viewModel.toggleLibrary()
+        advanceUntilIdle()
+        assertThat(viewModel.state.value.inLibrary).isTrue()
+        viewModel.toggleWatched()
+        advanceUntilIdle()
+        assertThat(viewModel.state.value.watchedKeys).contains(
+            com.streamvault.domain.model.stremio.stremioWatchedKey(StremioMediaType.MOVIE, "tt123"))
+        viewModel.toggleLibrary()
+        advanceUntilIdle()
+        assertThat(viewModel.state.value.inLibrary).isFalse()
+        assertThat(viewModel.state.value.watchedKeys).isNotEmpty()
+        assertThat(viewModel.state.value.libraryBusy).isFalse()
+    }
+
+    @Test
+    fun `default video loads embedded streams with metadata provenance without querying stream addons`() = runTest(dispatcher) {
+        val repository = ItemRepositoryFake(addon(11L)).apply {
+            meta = StremioMetaDetail(
+                id = "movie:1", type = StremioMediaType.MOVIE, name = "Movie",
+                defaultVideoId = "video:1",
+                videos = listOf(StremioVideo("video:1", streams = listOf(
+                    StremioStream(url = "https://media.example/embedded.mp4")
+                )))
+            )
+        }
+        val viewModel = viewModel(repository, "movie", "movie:1")
+        advanceUntilIdle()
+        assertThat(repository.streamCalls).isEmpty()
+        assertThat(viewModel.state.value.requestedVideoId).isEqualTo("video:1")
+        assertThat(viewModel.state.value.streams.single().source.addonId).isEqualTo(31L)
+        assertThat(viewModel.state.value.streamsLoading).isFalse()
+    }
+
+    @Test
+    fun `explicit empty embedded streams do not fall back to unrelated stream addons`() = runTest(dispatcher) {
+        val repository = ItemRepositoryFake(addon(11L)).apply {
+            meta = StremioMetaDetail(
+                id = "series:1", type = StremioMediaType.SERIES, name = "Series",
+                videos = listOf(StremioVideo("episode:1", streams = emptyList()))
+            )
+        }
+        val viewModel = viewModel(repository, "series", "series:1")
+        advanceUntilIdle()
+        viewModel.loadStreams("episode:1")
+        advanceUntilIdle()
+        assertThat(repository.streamCalls).isEmpty()
+        assertThat(viewModel.state.value.streams).isEmpty()
+        assertThat(viewModel.state.value.streamCandidateCount).isEqualTo(1)
+        assertThat(viewModel.state.value.streamsLoading).isFalse()
     }
 
     @Test
@@ -424,7 +568,8 @@ class StremioItemDetailViewModelTest {
         type: String,
         exactId: String,
         name: String = "Preview",
-        contentAccess: StremioContentAccess = FakeStremioContentAccess()
+        contentAccess: StremioContentAccess = FakeStremioContentAccess(),
+        playbackHistoryRepository: com.streamvault.domain.repository.StremioPlaybackHistoryRepository? = null
     ) = StremioItemDetailViewModel(
         savedStateHandle = SavedStateHandle(
             mapOf(
@@ -439,7 +584,8 @@ class StremioItemDetailViewModelTest {
         contentAccess = contentAccess,
         downloadManager = mock<DownloadManager>(),
         downloadStarter = StremioDownloadStarter { },
-            context = contextWithResourceIds()
+            context = contextWithResourceIds(),
+        playbackHistoryRepository = playbackHistoryRepository
     )
 
     private fun contextWithResourceIds(): Context = mock<Context>().also { context ->
