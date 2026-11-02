@@ -962,4 +962,8 @@
     <string name="trakt_browser_sign_in">Bejelentkezés böngészővel</string>
     <string name="trakt_phone_sign_in">Jóváhagyás másik eszközön</string>
     <string name="trakt_device_instructions">Olvassa be a QR-kódot, vagy nyissa meg a %1$s címet a telefonján. Adja meg az alábbi kódot, és engedélyezze a hozzáférést. Ez a képernyő automatikusan csatlakozik. Ha a kód lejár, szakítsa meg, és próbálja újra.</string>
+    <string name="settings_text_size">Szövegméret</string>
+    <string name="settings_text_size_default">Alapértelmezett (100%)</string>
+    <string name="settings_text_size_system">Eszközbeállítás követése</string>
+    <string name="settings_text_size_custom">Egyéni</string>
 </resources>

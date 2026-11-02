@@ -968,4 +968,8 @@
     <string name="trakt_browser_sign_in">Přihlásit se v prohlížeči</string>
     <string name="trakt_phone_sign_in">Schválit na jiném zařízení</string>
     <string name="trakt_device_instructions">Naskenujte QR kód nebo otevřete %1$s v telefonu. Zadejte kód níže a povolte přístup. Tato obrazovka se připojí automaticky. Pokud kód vyprší, zrušte pokus a zkuste to znovu.</string>
+    <string name="settings_text_size">Velikost textu</string>
+    <string name="settings_text_size_default">Výchozí (100%)</string>
+    <string name="settings_text_size_system">Podle zařízení</string>
+    <string name="settings_text_size_custom">Vlastní</string>
 </resources>

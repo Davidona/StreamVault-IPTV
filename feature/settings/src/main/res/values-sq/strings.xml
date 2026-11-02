@@ -960,4 +960,8 @@
     <string name="trakt_browser_sign_in">Hyr përmes shfletuesit</string>
     <string name="trakt_phone_sign_in">Mirato në një pajisje tjetër</string>
     <string name="trakt_device_instructions">Skanoni kodin QR ose hapni %1$s në telefon. Futni kodin më poshtë dhe miratoni qasjen. Ky ekran lidhet automatikisht. Nëse kodi skadon, anuloni dhe provoni përsëri.</string>
+    <string name="settings_text_size">Madhësia e tekstit</string>
+    <string name="settings_text_size_default">Parazgjedhja (100%)</string>
+    <string name="settings_text_size_system">Sipas pajisjes</string>
+    <string name="settings_text_size_custom">E personalizuar</string>
 </resources>

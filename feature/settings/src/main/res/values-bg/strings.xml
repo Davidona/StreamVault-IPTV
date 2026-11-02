@@ -960,4 +960,8 @@
     <string name="trakt_browser_sign_in">Вход чрез браузър</string>
     <string name="trakt_phone_sign_in">Одобряване на друго устройство</string>
     <string name="trakt_device_instructions">Сканирайте QR кода или отворете %1$s на телефона. Въведете кода по-долу и одобрете достъпа. Този екран се свързва автоматично. Ако кодът изтече, отменете и опитайте отново.</string>
+    <string name="settings_text_size">Размер на текста</string>
+    <string name="settings_text_size_default">По подразбиране (100%)</string>
+    <string name="settings_text_size_system">Според устройството</string>
+    <string name="settings_text_size_custom">По избор</string>
 </resources>

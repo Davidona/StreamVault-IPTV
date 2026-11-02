@@ -5,6 +5,7 @@ All notable product changes are recorded in this document.
 ## [1.2.4]
 
 ### Added
+- Added app-wide text sizing controls, defaulting to 100%, with options to follow the device setting or choose a custom size from 80% to 150%.
 - Added Trakt sign-in choices for browser authorization or device-code approval from a phone, with a QR code and encrypted recovery of pending approvals.
 - Expanded Stremio catalog support for live TV and custom media types, configurable catalog filters, add-on discovery, and an in-app programme guide.
 - Added Stremio account device linking, encrypted local credentials, linked add-on imports, and two-way library and viewing-progress sync, including watched episode state.
@@ -26,6 +27,7 @@ All notable product changes are recorded in this document.
 - Raised XMLTV ingestion limits for very large feeds to 2 GiB downloaded and 4 GiB decompressed while keeping parsing streamed.
 - Fixed torrent playback on Android devices with 16 KiB memory pages by updating bundled native libraries.
 - Fixed SMB recording playback by avoiding provider-stream resolution for app-private recording URIs.
+- Fixed the EPG phone pairing panel title and explanatory text rendering black in dark mode; its text now follows the active theme colors.
 
 ## [1.2.3]
 

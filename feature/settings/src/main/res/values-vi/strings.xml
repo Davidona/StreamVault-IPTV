@@ -959,4 +959,8 @@
     <string name="trakt_browser_sign_in">Đăng nhập bằng trình duyệt</string>
     <string name="trakt_phone_sign_in">Phê duyệt trên thiết bị khác</string>
     <string name="trakt_device_instructions">Quét mã QR hoặc mở %1$s trên điện thoại. Nhập mã bên dưới và phê duyệt quyền truy cập. Màn hình này sẽ tự động kết nối. Nếu mã hết hạn, hãy hủy và thử lại.</string>
+    <string name="settings_text_size">Cỡ chữ</string>
+    <string name="settings_text_size_default">Mặc định (100%)</string>
+    <string name="settings_text_size_system">Theo thiết bị</string>
+    <string name="settings_text_size_custom">Tùy chỉnh</string>
 </resources>

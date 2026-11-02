@@ -958,4 +958,8 @@
     <string name="trakt_browser_sign_in">Entrar pelo navegador</string>
     <string name="trakt_phone_sign_in">Autorizar noutro dispositivo</string>
     <string name="trakt_device_instructions">Leia o código QR ou abra %1$s no telemóvel. Introduza o código abaixo e autorize o acesso. Este ecrã liga-se automaticamente. Se o código expirar, cancele e tente novamente.</string>
+    <string name="settings_text_size">Tamanho do texto</string>
+    <string name="settings_text_size_default">Padrão (100%)</string>
+    <string name="settings_text_size_system">Seguir o dispositivo</string>
+    <string name="settings_text_size_custom">Personalizado</string>
 </resources>

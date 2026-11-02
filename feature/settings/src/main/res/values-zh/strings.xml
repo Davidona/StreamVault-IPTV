@@ -958,4 +958,8 @@
     <string name="trakt_browser_sign_in">使用浏览器登录</string>
     <string name="trakt_phone_sign_in">在其他设备上批准</string>
     <string name="trakt_device_instructions">扫描二维码或在手机上打开 %1$s。输入下方代码并批准访问，此页面将自动连接。如果代码过期，请取消并重试。</string>
+    <string name="settings_text_size">文字大小</string>
+    <string name="settings_text_size_default">默认（100%）</string>
+    <string name="settings_text_size_system">跟随设备</string>
+    <string name="settings_text_size_custom">自定义</string>
 </resources>

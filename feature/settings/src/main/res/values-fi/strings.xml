@@ -962,4 +962,8 @@
     <string name="trakt_browser_sign_in">Kirjaudu selaimella</string>
     <string name="trakt_phone_sign_in">Hyväksy toisella laitteella</string>
     <string name="trakt_device_instructions">Skannaa QR-koodi tai avaa %1$s puhelimellasi. Kirjoita alla oleva koodi ja hyväksy käyttöoikeus. Tämä näkymä yhdistyy automaattisesti. Jos koodi vanhenee, peruuta ja yritä uudelleen.</string>
+    <string name="settings_text_size">Tekstin koko</string>
+    <string name="settings_text_size_default">Oletus (100%)</string>
+    <string name="settings_text_size_system">Laitteen asetuksen mukaan</string>
+    <string name="settings_text_size_custom">Mukautettu</string>
 </resources>

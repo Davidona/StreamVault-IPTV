@@ -957,4 +957,8 @@
     <string name="trakt_browser_sign_in">使用瀏覽器登入</string>
     <string name="trakt_phone_sign_in">在其他裝置上核准</string>
     <string name="trakt_device_instructions">掃描 QR 碼或在手機上開啟 %1$s。輸入下方代碼並核准存取，此畫面會自動連線。如果代碼過期，請取消並重試。</string>
+    <string name="settings_text_size">文字大小</string>
+    <string name="settings_text_size_default">預設（100%）</string>
+    <string name="settings_text_size_system">依照裝置設定</string>
+    <string name="settings_text_size_custom">自訂</string>
 </resources>

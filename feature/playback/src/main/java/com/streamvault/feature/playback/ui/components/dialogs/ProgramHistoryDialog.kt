@@ -42,7 +42,7 @@ import com.streamvault.core.ui.device.rememberIsTelevisionDevice
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
+import com.streamvault.core.ui.components.dialogs.AppDialog as Dialog
 import com.streamvault.core.ui.time.LocalUiTimeFormat
 import com.streamvault.core.ui.time.createTimeFormatter
 import com.streamvault.feature.playback.R

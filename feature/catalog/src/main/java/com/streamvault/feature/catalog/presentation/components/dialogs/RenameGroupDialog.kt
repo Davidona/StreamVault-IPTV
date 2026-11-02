@@ -30,7 +30,7 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
+import com.streamvault.core.ui.components.dialogs.AppDialog as Dialog
 import androidx.compose.ui.window.DialogProperties
 import kotlinx.coroutines.delay
 import androidx.compose.foundation.BorderStroke

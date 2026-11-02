@@ -962,4 +962,8 @@
     <string name="trakt_browser_sign_in">Logga in via webbläsare</string>
     <string name="trakt_phone_sign_in">Godkänn på en annan enhet</string>
     <string name="trakt_device_instructions">Skanna QR-koden eller öppna %1$s på telefonen. Ange koden nedan och godkänn åtkomst. Den här skärmen ansluts automatiskt. Om koden går ut, avbryt och försök igen.</string>
+    <string name="settings_text_size">Textstorlek</string>
+    <string name="settings_text_size_default">Standard (100%)</string>
+    <string name="settings_text_size_system">Följ enheten</string>
+    <string name="settings_text_size_custom">Anpassad</string>
 </resources>

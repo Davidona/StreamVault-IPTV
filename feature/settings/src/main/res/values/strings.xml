@@ -1037,4 +1037,8 @@
     <string name="trakt_browser_sign_in">Sign in using browser</string>
     <string name="trakt_phone_sign_in">Approve on another device</string>
     <string name="trakt_device_instructions">Scan the QR code or open %1$s on your phone. Enter the code below and approve access. This screen connects automatically. If the code expires, cancel and try again.</string>
+    <string name="settings_text_size">Text size</string>
+    <string name="settings_text_size_default">Default (100%)</string>
+    <string name="settings_text_size_system">Follow device</string>
+    <string name="settings_text_size_custom">Custom</string>
 </resources>

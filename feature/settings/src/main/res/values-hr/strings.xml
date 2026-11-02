@@ -963,4 +963,8 @@
     <string name="trakt_browser_sign_in">Prijava putem preglednika</string>
     <string name="trakt_phone_sign_in">Odobri na drugom uređaju</string>
     <string name="trakt_device_instructions">Skenirajte QR kod ili otvorite %1$s na telefonu. Unesite kod u nastavku i odobrite pristup. Ovaj se zaslon automatski povezuje. Ako kod istekne, odustanite i pokušajte ponovno.</string>
+    <string name="settings_text_size">Veličina teksta</string>
+    <string name="settings_text_size_default">Zadano (100%)</string>
+    <string name="settings_text_size_system">Prema uređaju</string>
+    <string name="settings_text_size_custom">Prilagođeno</string>
 </resources>

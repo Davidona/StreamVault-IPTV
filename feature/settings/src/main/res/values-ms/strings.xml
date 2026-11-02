@@ -957,4 +957,8 @@
     <string name="trakt_browser_sign_in">Log masuk melalui pelayar</string>
     <string name="trakt_phone_sign_in">Luluskan pada peranti lain</string>
     <string name="trakt_device_instructions">Imbas kod QR atau buka %1$s pada telefon. Masukkan kod di bawah dan luluskan akses. Skrin ini akan bersambung secara automatik. Jika kod tamat tempoh, batalkan dan cuba lagi.</string>
+    <string name="settings_text_size">Saiz teks</string>
+    <string name="settings_text_size_default">Lalai (100%)</string>
+    <string name="settings_text_size_system">Ikut peranti</string>
+    <string name="settings_text_size_custom">Tersuai</string>
 </resources>

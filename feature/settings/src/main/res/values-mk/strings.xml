@@ -960,4 +960,8 @@
     <string name="trakt_browser_sign_in">Најави се преку прелистувач</string>
     <string name="trakt_phone_sign_in">Одобри на друг уред</string>
     <string name="trakt_device_instructions">Скенирајте го QR-кодот или отворете %1$s на телефонот. Внесете го кодот подолу и одобрете пристап. Овој екран автоматски се поврзува. Ако кодот истече, откажете и обидете се повторно.</string>
+    <string name="settings_text_size">Големина на текстот</string>
+    <string name="settings_text_size_default">Стандардно (100%)</string>
+    <string name="settings_text_size_system">Според уредот</string>
+    <string name="settings_text_size_custom">Приспособено</string>
 </resources>

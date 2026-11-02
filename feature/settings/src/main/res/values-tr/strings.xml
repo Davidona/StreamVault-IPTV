@@ -962,4 +962,8 @@
     <string name="trakt_browser_sign_in">Tarayıcıyla oturum aç</string>
     <string name="trakt_phone_sign_in">Başka bir cihazda onayla</string>
     <string name="trakt_device_instructions">QR kodunu tarayın veya telefonunuzda %1$s adresini açın. Aşağıdaki kodu girin ve erişimi onaylayın. Bu ekran otomatik olarak bağlanır. Kodun süresi dolarsa iptal edip yeniden deneyin.</string>
+    <string name="settings_text_size">Metin boyutu</string>
+    <string name="settings_text_size_default">Varsayılan (100%)</string>
+    <string name="settings_text_size_system">Cihaz ayarını kullan</string>
+    <string name="settings_text_size_custom">Özel</string>
 </resources>

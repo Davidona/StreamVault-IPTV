@@ -1,5 +1,6 @@
 package com.streamvault.feature.settings.presentation
 
+import com.streamvault.domain.model.AppTextSize
 import android.content.Context
 import android.content.Intent
 import androidx.activity.result.ActivityResultLauncher
@@ -156,6 +157,14 @@ class SettingsViewModel @Inject constructor(
 
     private val _uiState = MutableStateFlow(SettingsUiState())
     val uiState: StateFlow<SettingsUiState> = _uiState.asStateFlow()
+    val appTextSize = preferencesRepository.appTextSize.stateIn(
+        viewModelScope, SharingStarted.WhileSubscribed(5_000), AppTextSize()
+    )
+
+    fun setAppTextSize(value: AppTextSize) {
+        viewModelScope.launch { preferencesRepository.setAppTextSize(value) }
+    }
+
     private val availabilityChecksInFlight = mutableSetOf<Long>()
     val playerLiveStreamFormatMode: StateFlow<LiveStreamFormatMode> =
         preferencesRepository.playerLiveStreamFormatMode.stateIn(

@@ -1,5 +1,6 @@
 package com.streamvault.domain.settings
 
+import com.streamvault.domain.model.AppTextSize
 import com.streamvault.domain.model.GroupedChannelLabelMode
 import com.streamvault.domain.model.AudioOutputPreference
 import com.streamvault.domain.model.ChannelNumberingMode
@@ -370,6 +371,11 @@ interface SettingsPreferences {
     val appTimeFormat: Flow<AppTimeFormat>
 
     suspend fun setAppTimeFormat(format: AppTimeFormat)
+
+    val appTextSize: Flow<AppTextSize>
+        get() = kotlinx.coroutines.flow.flowOf(AppTextSize())
+
+    suspend fun setAppTextSize(value: AppTextSize) {}
 
     val appTheme: Flow<AppTheme>
 

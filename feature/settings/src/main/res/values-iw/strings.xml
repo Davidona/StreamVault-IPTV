@@ -965,4 +965,8 @@
     <string name="trakt_browser_sign_in">כניסה באמצעות הדפדפן</string>
     <string name="trakt_phone_sign_in">אישור במכשיר אחר</string>
     <string name="trakt_device_instructions">סרקו את קוד ה־QR או פתחו את %1$s בטלפון. הזינו את הקוד שלמטה ואשרו גישה. המסך הזה יתחבר אוטומטית. אם תוקף הקוד פג, בטלו ונסו שוב.</string>
+    <string name="settings_text_size">גודל טקסט</string>
+    <string name="settings_text_size_default">ברירת מחדל (100%)</string>
+    <string name="settings_text_size_system">לפי הגדרות המכשיר</string>
+    <string name="settings_text_size_custom">מותאם אישית</string>
 </resources>

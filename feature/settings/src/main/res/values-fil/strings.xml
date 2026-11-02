@@ -960,4 +960,8 @@
     <string name="trakt_browser_sign_in">Mag-sign in gamit ang browser</string>
     <string name="trakt_phone_sign_in">Aprubahan sa ibang device</string>
     <string name="trakt_device_instructions">I-scan ang QR code o buksan ang %1$s sa telepono. Ilagay ang code sa ibaba at aprubahan ang access. Awtomatikong kokonekta ang screen na ito. Kung mag-expire ang code, kanselahin at subukang muli.</string>
+    <string name="settings_text_size">Laki ng teksto</string>
+    <string name="settings_text_size_default">Karaniwan (100%)</string>
+    <string name="settings_text_size_system">Sundin ang mga setting ng aparato</string>
+    <string name="settings_text_size_custom">Pasadya</string>
 </resources>

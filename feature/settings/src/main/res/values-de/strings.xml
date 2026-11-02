@@ -958,4 +958,8 @@
     <string name="trakt_browser_sign_in">Im Browser anmelden</string>
     <string name="trakt_phone_sign_in">Auf einem anderen Gerät bestätigen</string>
     <string name="trakt_device_instructions">Scanne den QR-Code oder öffne %1$s auf deinem Smartphone. Gib den unten angezeigten Code ein und erlaube den Zugriff. Diese Ansicht wird automatisch verbunden. Wenn der Code abläuft, brich ab und versuche es erneut.</string>
+    <string name="settings_text_size">Textgröße</string>
+    <string name="settings_text_size_default">Standard (100%)</string>
+    <string name="settings_text_size_system">Geräteeinstellung verwenden</string>
+    <string name="settings_text_size_custom">Benutzerdefiniert</string>
 </resources>
