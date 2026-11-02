@@ -15,13 +15,15 @@ internal data class StremioManifestDto(
     val resources: List<JsonElement>? = null,
     val catalogs: List<StremioCatalogDto>? = null,
     val idPrefixes: List<String>? = null,
-    val behaviorHints: StremioManifestBehaviorHintsDto? = null
+    val behaviorHints: StremioManifestBehaviorHintsDto? = null,
+    val addonCatalogs: List<StremioCatalogDto>? = null
 )
 
 @Serializable
 internal data class StremioManifestBehaviorHintsDto(
     val configurable: Boolean? = null,
-    val configurationRequired: Boolean? = null
+    val configurationRequired: Boolean? = null,
+    val epgProvider: Boolean? = null
 )
 
 @Serializable
@@ -30,13 +32,16 @@ internal data class StremioCatalogDto(
     val id: String? = null,
     val name: String? = null,
     val genres: List<String>? = null,
-    val extra: JsonElement? = null
+    val extra: JsonElement? = null,
+    val extraSupported: List<String>? = null,
+    val extraRequired: List<String>? = null
 )
 
 @Serializable
 internal data class StremioCatalogResponseDto(
     val metas: List<StremioMetaPreviewDto>? = null,
-    val hasMore: Boolean? = null
+    val hasMore: Boolean? = null,
+    val metasDetailed: List<StremioMetaDto>? = null
 )
 
 @Serializable
@@ -45,6 +50,7 @@ internal data class StremioMetaPreviewDto(
     val type: String? = null,
     val name: String? = null,
     val poster: String? = null,
+    val posterShape: String? = null,
     val background: String? = null,
     val logo: String? = null,
     val description: String? = null,
@@ -65,6 +71,7 @@ internal data class StremioMetaDto(
     val type: String? = null,
     val name: String? = null,
     val poster: String? = null,
+    val posterShape: String? = null,
     val background: String? = null,
     val logo: String? = null,
     val description: String? = null,
@@ -74,7 +81,16 @@ internal data class StremioMetaDto(
     val runtime: String? = null,
     val cast: List<String>? = null,
     val director: JsonElement? = null,
-    val videos: List<StremioVideoDto>? = null
+    val links: List<StremioMetaLinkDto>? = null,
+    val videos: List<StremioVideoDto>? = null,
+    val behaviorHints: StremioMetaBehaviorHintsDto? = null
+)
+
+@Serializable
+internal data class StremioMetaBehaviorHintsDto(
+    val defaultVideoId: String? = null,
+    val isLive: Boolean? = null,
+    val hasScheduledVideos: Boolean? = null
 )
 
 @Serializable
@@ -87,7 +103,10 @@ internal data class StremioVideoDto(
     val number: Int? = null,
     val released: String? = null,
     val thumbnail: String? = null,
-    val overview: String? = null
+    val overview: String? = null,
+    val streams: List<StremioStreamDto>? = null,
+    val startTime: String? = null,
+    val endTime: String? = null
 )
 
 @Serializable
@@ -104,7 +123,18 @@ internal data class StremioStreamDto(
     val ytId: String? = null,
     val infoHash: String? = null,
     val fileIdx: Int? = null,
+    val rarUrls: kotlinx.serialization.json.JsonElement? = null,
+    val zipUrls: kotlinx.serialization.json.JsonElement? = null,
+    @kotlinx.serialization.SerialName("7zipUrls") val zip7Urls: kotlinx.serialization.json.JsonElement? = null,
+    val tarUrls: kotlinx.serialization.json.JsonElement? = null,
+    val tgzUrls: kotlinx.serialization.json.JsonElement? = null,
+    val fileMustInclude:kotlinx.serialization.json.JsonElement? = null,
+    val nzbUrl:String? = null,
+    val nzbUrls:List<String>? = null,
+    val servers:List<String>? = null,
     val externalUrl: String? = null,
+    val androidTvUrl: String? = null,
+    val playerFrameUrl: String? = null,
     val sources: List<String>? = null,
     val subtitles: List<StremioSubtitleDto>? = null,
     val behaviorHints: StremioStreamBehaviorHintsDto? = null
@@ -135,5 +165,18 @@ internal data class StremioSubtitleResponseDto(
 internal data class StremioSubtitleDto(
     val id: String? = null,
     val url: String? = null,
-    val lang: String? = null
+    val lang: String? = null,
+    val label: String? = null
 )
+
+@Serializable
+internal data class StremioDirectoryResponseDto(val addons: List<StremioDirectoryEntryDto> = emptyList())
+@Serializable
+internal data class StremioDirectoryEntryDto(
+    val transportName: String? = null,
+    val transportUrl: String? = null,
+    val manifest: StremioManifestDto? = null
+)
+
+@Serializable
+internal data class StremioMetaLinkDto(val name: String? = null, val category: String? = null, val url: String? = null)

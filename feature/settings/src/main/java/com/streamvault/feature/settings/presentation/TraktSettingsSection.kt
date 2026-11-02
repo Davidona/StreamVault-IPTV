@@ -43,6 +43,15 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import androidx.compose.runtime.remember
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.size
+import androidx.compose.ui.graphics.asImageBitmap
+import android.graphics.Bitmap
+import com.google.zxing.qrcode.QRCodeWriter
+import com.google.zxing.BarcodeFormat
 import javax.inject.Inject
 
 @HiltViewModel
@@ -63,7 +72,11 @@ class TraktSettingsViewModel @Inject constructor(private val account: TraktAccou
     val syncResult = mutableSyncResult.asStateFlow()
     private val mutableFavoriteImportResult = MutableStateFlow<TraktFavoriteImportResult?>(null)
     val favoriteImportResult = mutableFavoriteImportResult.asStateFlow()
-    init { perform { account.load() } }
+    private var deviceJob: Job? = null
+    init { perform {
+        account.load()
+        account.state.value.deviceAuthorization?.let(::startDevicePolling)
+    } }
     fun connect(openBrowser: (String) -> Unit) = perform {
         mutableSyncResult.value = null
         mutableFavoriteImportResult.value = null
@@ -74,7 +87,32 @@ class TraktSettingsViewModel @Inject constructor(private val account: TraktAccou
             else throw failure
         }
     }
-    fun cancel() = perform { account.cancelSignIn() }
+    fun connectDevice() = perform {
+        mutableSyncResult.value = null
+        mutableFavoriteImportResult.value = null
+        startDevicePolling(account.beginDeviceSignIn())
+    }
+    private fun startDevicePolling(approval: com.streamvault.domain.trakt.TraktDeviceAuthorization) {
+        deviceJob?.cancel()
+        deviceJob = viewModelScope.launch {
+            try {
+                do { delay(approval.intervalSeconds * 1000) } while (!account.pollDeviceSignIn())
+            } catch (failure: Exception) {
+                if (failure is CancellationException) throw failure
+                account.cancelSignIn()
+                mutableFailed.value = true
+            }
+        }
+    }
+    fun cancel() {
+        deviceJob?.cancel()
+        perform { account.cancelSignIn() }
+    }
+    fun browserMissing() { mutableBrowserUnavailable.value = true }
+    override fun onCleared() {
+        deviceJob?.cancel()
+        super.onCleared()
+    }
     fun disconnect() = perform {
         mutableSyncResult.value = null
         mutableFavoriteImportResult.value = null
@@ -178,7 +216,32 @@ internal fun TraktSettingsSection(modifier: Modifier = Modifier, viewModel: Trak
                 )
             } else {
                 if (state.connecting) {
-                    Text(stringResource(R.string.trakt_complete_browser), color = colors.secondaryText)
+                    val approval = state.deviceAuthorization
+                    if (approval == null) {
+                        Text(stringResource(R.string.trakt_complete_browser), color = colors.secondaryText)
+                    } else {
+                        val instructions = stringResource(R.string.trakt_device_instructions, approval.verificationUrl)
+                        Text(instructions, color = colors.secondaryText)
+                        Text(approval.userCode, style = MaterialTheme.typography.headlineMedium, color = colors.primaryText)
+                        val qr = remember(approval.verificationUrl) {
+                            val matrix = QRCodeWriter().encode(approval.verificationUrl, BarcodeFormat.QR_CODE, 384, 384)
+                            Bitmap.createBitmap(384, 384, Bitmap.Config.ARGB_8888).apply {
+                                val pixels = IntArray(384 * 384) { index ->
+                                    if (matrix[index % 384, index / 384]) android.graphics.Color.BLACK else android.graphics.Color.WHITE
+                                }
+                                setPixels(pixels, 0, 384, 0, 0, 384, 384)
+                            }.asImageBitmap()
+                        }
+                        Image(qr, contentDescription = instructions, modifier = Modifier.size(192.dp))
+                        TraktSettingsAction(
+                            label = stringResource(R.string.trakt_browser_sign_in),
+                            onClick = {
+                                try { context.startActivity(Intent(Intent.ACTION_VIEW, approval.verificationUrl.toUri())) }
+                                catch (_: ActivityNotFoundException) { viewModel.browserMissing() }
+                            },
+                            enabled = !busy,
+                        )
+                    }
                     TraktSettingsAction(
                         label = stringResource(R.string.trakt_cancel),
                         onClick = viewModel::cancel,
@@ -187,7 +250,7 @@ internal fun TraktSettingsSection(modifier: Modifier = Modifier, viewModel: Trak
                     )
                 } else {
                     TraktSettingsAction(
-                        label = stringResource(R.string.trakt_connect),
+                        label = stringResource(R.string.trakt_browser_sign_in),
                         onClick = {
                             viewModel.connect { url ->
                                 context.startActivity(
@@ -199,6 +262,11 @@ internal fun TraktSettingsSection(modifier: Modifier = Modifier, viewModel: Trak
                         enabled = state.configured && !busy,
                         modifier = if (state.configured) modifier else modifier.focusable(),
                         emphasized = true,
+                    )
+                    TraktSettingsAction(
+                        label = stringResource(R.string.trakt_phone_sign_in),
+                        onClick = viewModel::connectDevice,
+                        enabled = state.configured && !busy,
                     )
                 }
             }

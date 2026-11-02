@@ -4,6 +4,10 @@ import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 
 class PlaybackLogSanitizerTest {
+    @Test fun `compressed engine parameters are redacted from errors`() {
+        assertThat(PlaybackLogSanitizer.sanitizeMessage("HTTP error http://service/nzb/create?lz=secret&token=private"))
+            .isEqualTo("HTTP error http://service/nzb/create?lz=<redacted>&token=<redacted>")
+    }
     @Test
     fun `subtitle origin logging removes private path and query`() {
         val sanitized = PlaybackLogSanitizer.sanitizeOrigin(

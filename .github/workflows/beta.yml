@@ -83,6 +83,9 @@ jobs:
           OPENSUBTITLES_API_KEY: ${{ secrets.OPENSUBTITLES_API_KEY }}
         run: ./gradlew --console=plain :app:assembleBeta
 
+      - name: Verify native 16 KiB page alignment
+        run: python3 tools/check-native-page-alignment.py app/build/outputs/apk/beta/*.apk
+
       - name: Prepare beta artifact
         shell: bash
         run: |

@@ -50,4 +50,21 @@ class EncryptedTraktTokenStoreTest {
         assertFalse(file.exists())
         assertNull(store.read().tokens)
     }
+
+    @Test fun `device approval persists privately and clears on cancellation`() {
+        val context: Context = RuntimeEnvironment.getApplication()
+        val crypto = Crypto()
+        val store = EncryptedTraktTokenStore(context, crypto)
+        store.write(TraktStoredSession(device = TraktPendingDevice(
+            TraktDeviceCode("private-device-code", "USER1234", "https://trakt.tv/activate", 600, 5),
+            2000600, 2000005, 5)))
+        val file = File(context.noBackupFilesDir, "trakt_session")
+        assertTrue(file.exists())
+        assertFalse(file.readText().contains("private-device-code"))
+        val restored = EncryptedTraktTokenStore(context, crypto).read().device!!
+        assertEquals("private-device-code", restored.code.deviceCode)
+        assertEquals(2000600L, restored.expiresAt)
+        store.write(TraktStoredSession())
+        assertFalse(file.exists())
+    }
 }

@@ -954,4 +954,11 @@
     <string name="settings_m3u_catchup_query_format">รูปแบบคำขอรับชมย้อนหลัง</string>
     <string name="settings_m3u_catchup_query_format_subtitle">ใช้กับช่อง M3U ที่ไม่มีแหล่งรับชมย้อนหลังของตนเอง เว้นว่างไว้เพื่อปิดรูปแบบสำรองนี้ ตัวอย่าง: ?utc={utc}</string>
     <string name="settings_m3u_catchup_query_format_disabled">ปิดใช้งาน</string>
+    <string name="trakt_browser_sign_in">ลงชื่อเข้าใช้ผ่านเบราว์เซอร์</string>
+    <string name="trakt_phone_sign_in">อนุมัติบนอุปกรณ์อื่น</string>
+    <string name="trakt_device_instructions">สแกนรหัส QR หรือเปิด %1$s บนโทรศัพท์ ป้อนรหัสด้านล่างและอนุมัติการเข้าถึง หน้าจอนี้จะเชื่อมต่อโดยอัตโนมัติ หากรหัสหมดอายุ ให้ยกเลิกแล้วลองอีกครั้ง</string>
+    <string name="settings_text_size">ขนาดข้อความ</string>
+    <string name="settings_text_size_default">ค่าเริ่มต้น (100%)</string>
+    <string name="settings_text_size_system">ตามการตั้งค่าอุปกรณ์</string>
+    <string name="settings_text_size_custom">กำหนดเอง</string>
 </resources>

@@ -22,6 +22,21 @@ class ExternalNavigationRequestParserTest {
     private val parser = ExternalNavigationRequestParser(context)
 
     @Test
+    fun stremioWatchNextIntentPreservesExactRoute() {
+        val route = "addons/item/7/series/series%3A1?videoId=series%3A1%3A2"
+        assertThat(parser.parse(Intent().putExtra("com.streamvault.app.extra.STREMIO_ITEM", route)))
+            .isEqualTo(ExternalNavigationRequest.StremioItem(route))
+    }
+
+    @Test
+    fun malformedStremioWatchNextIntentFallsBackHome() {
+        listOf("player/1", "addons/item/bad/series/id", "addons/item/0/series/id", "addons/item/7/series/").forEach { route ->
+            assertThat(parser.parse(Intent().putExtra("com.streamvault.app.extra.STREMIO_ITEM", route)))
+                .isEqualTo(ExternalNavigationRequest.Destination(AppDestination.Home))
+        }
+    }
+
+    @Test
     fun searchIntentBecomesTypedSearchRequest() {
         val intent = Intent(Intent.ACTION_SEARCH)
             .putExtra(SearchManager.QUERY, " sports ")

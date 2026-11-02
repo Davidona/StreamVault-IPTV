@@ -49,7 +49,7 @@ androidx-test-ext-junit = "1.2.1"
 espresso = "3.6.1"
 androidx-test-runner = "1.6.2"
 jcifs-ng = "2.1.10"
-libtorrent = "2.0.6-26"
+libtorrent = "2.1.0-38"
 
 [libraries]
 kotlin-stdlib = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib", version.ref = "kotlin" }

@@ -29,6 +29,17 @@ class TraktAuthServiceTest {
         override fun write(session: TraktStoredSession) { this.session = session; writes += session }
     }
     private inner class Api : TraktApi, TraktFavoritesApi, TraktRatingsApi {
+        var devicePolls = 0
+        var devicePending = true
+        var deviceFailure: TraktApiException? = null
+        override suspend fun deviceCode() = TraktDeviceCode("private-device-code", "USER1234", "https://trakt.tv/activate", 60, 5)
+        override suspend fun deviceToken(code: String): TraktTokens {
+            assertEquals("private-device-code", code)
+            devicePolls++
+            deviceFailure?.let { throw it }
+            if (devicePending) throw TraktApiException(400)
+            return tokens()
+        }
         var exchanges = 0
         var refreshes = 0
         var refreshFailure: Exception? = null
@@ -74,6 +85,81 @@ class TraktAuthServiceTest {
         pair[0] to URLDecoder.decode(pair[1], "UTF-8")
     }
     private fun callback(state: String) = "${config.redirectUri}?code=authorization-code&state=$state"
+
+    @Test fun `device approval waits for interval and stores approved tokens`() = runBlocking {
+        val store = Store(); val api = Api(); var clock = now
+        val service = TraktAuthService(config, store, api) { clock }
+        val approval = service.beginDeviceSignIn()
+        assertEquals("USER1234", approval.userCode)
+        assertTrue(service.state.value.connecting)
+        service.load()
+        assertEquals(approval, service.state.value.deviceAuthorization)
+        assertFalse(service.pollDeviceSignIn())
+        assertEquals(0, api.devicePolls)
+        clock += 5
+        assertFalse(service.pollDeviceSignIn())
+        assertEquals(1, api.devicePolls)
+        api.devicePending = false
+        clock += 5
+        assertTrue(service.pollDeviceSignIn())
+        assertTrue(service.state.value.connected)
+        assertNull(service.state.value.deviceAuthorization)
+        assertEquals("access", store.session.tokens!!.accessToken)
+    }
+
+    @Test fun `cancelled device approval cannot reconnect`() = runBlocking {
+        val store = Store(); val api = Api(); var clock = now
+        val service = TraktAuthService(config, store, api) { clock }
+        service.beginDeviceSignIn()
+        service.cancelSignIn()
+        clock += 5
+        api.devicePending = false
+        assertTrue(service.pollDeviceSignIn())
+        assertEquals(0, api.devicePolls)
+        assertFalse(service.state.value.connecting)
+        assertNull(store.session.tokens)
+    }
+
+    @Test fun `device approval survives service recreation`() = runBlocking {
+        val store = Store(); val api = Api(); var clock = now
+        TraktAuthService(config, store, api) { clock }.beginDeviceSignIn()
+        val recreated = TraktAuthService(config, store, api) { clock }
+        recreated.load()
+        assertEquals("USER1234", recreated.state.value.deviceAuthorization!!.userCode)
+        api.devicePending = false
+        clock += 5
+        assertTrue(recreated.pollDeviceSignIn())
+        assertTrue(recreated.state.value.connected)
+        assertNull(store.session.device)
+    }
+
+    @Test fun `device polling respects throttling and terminates on denial`() = runBlocking {
+        val store = Store(); val api = Api(); var clock = now
+        val service = TraktAuthService(config, store, api) { clock }
+        service.beginDeviceSignIn()
+        clock += 5
+        api.deviceFailure = TraktApiException(429, retryAfterSeconds = 20)
+        assertFalse(service.pollDeviceSignIn())
+        clock += 10
+        assertFalse(service.pollDeviceSignIn())
+        assertEquals(1, api.devicePolls)
+        clock += 10
+        api.deviceFailure = TraktApiException(418)
+        assertTrue(service.pollDeviceSignIn())
+        assertFalse(service.state.value.connecting)
+        assertNull(store.session.tokens)
+    }
+
+    @Test fun `expired device approval stops without polling`() = runBlocking {
+        val store = Store(); val api = Api(); var clock = now
+        val service = TraktAuthService(config, store, api) { clock }
+        service.beginDeviceSignIn()
+        clock += 60
+        assertTrue(service.pollDeviceSignIn())
+        assertEquals(0, api.devicePolls)
+        assertFalse(service.state.value.connecting)
+        assertEquals(TraktMessage.SIGN_IN_FAILED, service.state.value.message)
+    }
 
     @Test fun `favorites source uses the connected account token`() = runBlocking {
         val store = Store().apply { session = TraktStoredSession(tokens()) }

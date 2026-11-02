@@ -1,5 +1,6 @@
 package com.streamvault.data.preferences
 
+import com.streamvault.domain.model.AppTextSize
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Build
@@ -445,6 +446,7 @@ class PreferencesRepository @Inject constructor(
         val APP_TOP_LEVEL_DESTINATIONS = stringPreferencesKey("app_top_level_destinations")
         val APP_HOME_DASHBOARD_SHELVES = stringPreferencesKey("app_home_dashboard_shelves")
         val APP_TIME_FORMAT = stringPreferencesKey("app_time_format")
+        val APP_TEXT_SIZE = stringPreferencesKey("app_text_size")
         val APP_THEME = stringPreferencesKey("app_theme")
         val SPORTS_EVENT_SOURCE_MODE = stringPreferencesKey("sports_event_source_mode")
         val SPORTS_EVENT_SOURCE_INSTANCE_ID = stringPreferencesKey("sports_event_source_instance_id")
@@ -2161,6 +2163,14 @@ class PreferencesRepository @Inject constructor(
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.APP_TIME_FORMAT] = format.storageValue
         }
+    }
+
+    override val appTextSize: Flow<AppTextSize> = context.dataStore.data.map {
+        AppTextSize.fromStorage(it[PreferencesKeys.APP_TEXT_SIZE])
+    }
+
+    override suspend fun setAppTextSize(value: AppTextSize) {
+        context.dataStore.edit { it[PreferencesKeys.APP_TEXT_SIZE] = value.toStorage() }
     }
 
     override val appTheme: Flow<AppTheme> = context.dataStore.data.map { preferences ->

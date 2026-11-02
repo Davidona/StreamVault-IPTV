@@ -7,16 +7,16 @@ import com.streamvault.domain.settings.SettingsOperations
 import com.streamvault.domain.settings.SettingsSyncSection
 import com.streamvault.domain.model.Result
 import com.streamvault.domain.model.ProviderType
-import com.streamvault.domain.settings.SettingsXtreamIndexJob
 import com.streamvault.domain.model.LegacyProvider as Provider
 import com.streamvault.domain.sync.ProviderSectionSyncResult
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.CancellationException
+import com.streamvault.domain.settings.SettingsXtreamIndexJob
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
@@ -128,7 +128,6 @@ internal class SettingsSyncActions(
         try {
             val failures = mutableListOf<String>()
             val completed = mutableListOf<String>()
-            val queuedCatalogSections = mutableSetOf<ProviderSyncSelection>()
             val combinedPlaylist = uiState.value.providers.firstOrNull { it.id == providerId }?.type == ProviderType.M3U &&
                 ProviderSyncSelection.TV in selections && ProviderSyncSelection.MOVIES in selections
             if (queueEpg) {
@@ -178,9 +177,6 @@ internal class SettingsSyncActions(
                     is Result.Success -> {
                         val receipt = result.data
                         hasQueuedWork = hasQueuedWork || receipt.queued
-                        if (receipt.queued && selection in setOf(ProviderSyncSelection.MOVIES, ProviderSyncSelection.SERIES)) {
-                            queuedCatalogSections += selection
-                        }
                         if (section == SettingsSyncSection.LIVE && receipt.catalogChanged) {
                             // Refresh TV integration immediately, even if a later section is cancelled.
                             surfaceRefreshPort.enqueueTvInputCatalogRefresh()
@@ -210,35 +206,6 @@ internal class SettingsSyncActions(
                             }
                         }
                     }
-                }
-            }
-            if (queuedCatalogSections.isNotEmpty()) {
-                val sections = queuedCatalogSections.associateBy {
-                    if (it == ProviderSyncSelection.MOVIES) "MOVIE" else "SERIES"
-                }
-                val jobs = awaitSettingsCatalogIndex(settingsOperations, providerId, sections.keys) { job ->
-                    val selection = sections.getValue(job.section)
-                    val stage = if (job.state in setOf("QUEUED", "STALE", "RETRY_WAIT")) R.string.settings_sync_section_queued
-                        else R.string.settings_syncing_section
-                    uiState.update { it.copy(
-                        syncSectionLabel = selection.label(appContext),
-                        syncProgress = appContext.getString(R.string.settings_sync_index_progress,
-                            appContext.getString(stage, selection.label(appContext)),
-                            java.text.NumberFormat.getIntegerInstance().format(job.indexedRows))
-                    ) }
-                }
-                sections.forEach { (key, selection) ->
-                    completed.remove(appContext.getString(R.string.settings_sync_section_queued, selection.label(appContext)))
-                    if (jobs.any { it.section == key && it.state in setOf("SUCCESS", "COMPLETE") }) {
-                        completed += selection.label(appContext)
-                        uiState.update { state ->
-                            val warnings = state.syncWarningsByProvider[providerId].orEmpty().filterNot {
-                                it.startsWith("${selection.label(appContext)}:") || it.startsWith("${selection.label(appContext)} ·")
-                            }
-                            state.copy(syncWarningsByProvider = if (warnings.isEmpty()) state.syncWarningsByProvider - providerId
-                                else state.syncWarningsByProvider + (providerId to warnings))
-                        }
-                    } else failures += appContext.getString(R.string.settings_sync_incomplete)
                 }
             }
             uiState.update {
@@ -273,6 +240,7 @@ internal class SettingsSyncActions(
         }
     }
 }
+
 
 /** Foreground ownership lasts until durable indexing terminates; cancelling only stops waiting. */
 internal suspend fun awaitSettingsCatalogIndex(

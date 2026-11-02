@@ -971,4 +971,11 @@
     <string name="settings_m3u_catchup_query_format">تنسيق استعلام الإعادة</string>
     <string name="settings_m3u_catchup_query_format_subtitle">يُستخدم لقنوات M3U التي لا تحتوي على مصدر إعادة خاص بها. اتركه فارغًا لتعطيل هذا البديل. مثال: ?utc={utc}</string>
     <string name="settings_m3u_catchup_query_format_disabled">معطّل</string>
+    <string name="trakt_browser_sign_in">تسجيل الدخول عبر المتصفح</string>
+    <string name="trakt_phone_sign_in">الموافقة على جهاز آخر</string>
+    <string name="trakt_device_instructions">امسح رمز QR أو افتح %1$s على هاتفك. أدخل الرمز أدناه ووافق على الوصول. تتصل هذه الشاشة تلقائيًا. إذا انتهت صلاحية الرمز، فألغِ المحاولة وأعدها.</string>
+    <string name="settings_text_size">حجم النص</string>
+    <string name="settings_text_size_default">الافتراضي (100%)</string>
+    <string name="settings_text_size_system">اتباع إعدادات الجهاز</string>
+    <string name="settings_text_size_custom">مخصص</string>
 </resources>

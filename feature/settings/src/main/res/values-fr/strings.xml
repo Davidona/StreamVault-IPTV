@@ -959,4 +959,11 @@
     <string name="settings_m3u_catchup_query_format">Format de requête de rattrapage</string>
     <string name="settings_m3u_catchup_query_format_subtitle">Utilisé pour les chaînes M3U sans source de rattrapage propre. Laissez le champ vide pour désactiver ce format de secours. Exemple : ?utc={utc}</string>
     <string name="settings_m3u_catchup_query_format_disabled">Désactivé</string>
+    <string name="trakt_browser_sign_in">Se connecter dans le navigateur</string>
+    <string name="trakt_phone_sign_in">Autoriser sur un autre appareil</string>
+    <string name="trakt_device_instructions">Scannez le code QR ou ouvrez %1$s sur votre téléphone. Saisissez le code ci-dessous et autorisez l’accès. Cet écran se connecte automatiquement. Si le code expire, annulez et réessayez.</string>
+    <string name="settings_text_size">Taille du texte</string>
+    <string name="settings_text_size_default">Par défaut (100%)</string>
+    <string name="settings_text_size_system">Suivre les réglages de l’appareil</string>
+    <string name="settings_text_size_custom">Personnalisée</string>
 </resources>

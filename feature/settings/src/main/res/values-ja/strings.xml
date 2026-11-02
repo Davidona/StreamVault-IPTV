@@ -957,4 +957,11 @@
     <string name="settings_m3u_catchup_query_format">キャッチアップクエリ形式</string>
     <string name="settings_m3u_catchup_query_format_subtitle">専用のキャッチアップソースがないM3Uチャンネルに使用します。この代替形式を無効にするには空欄にします。例: ?utc={utc}</string>
     <string name="settings_m3u_catchup_query_format_disabled">無効</string>
+    <string name="trakt_browser_sign_in">ブラウザーでログイン</string>
+    <string name="trakt_phone_sign_in">別の端末で承認</string>
+    <string name="trakt_device_instructions">QRコードをスキャンするか、スマートフォンで %1$s を開いてください。下のコードを入力し、アクセスを承認すると、この画面は自動的に接続されます。コードの有効期限が切れた場合は、キャンセルして再試行してください。</string>
+    <string name="settings_text_size">文字サイズ</string>
+    <string name="settings_text_size_default">標準（100%）</string>
+    <string name="settings_text_size_system">端末の設定に従う</string>
+    <string name="settings_text_size_custom">カスタム</string>
 </resources>

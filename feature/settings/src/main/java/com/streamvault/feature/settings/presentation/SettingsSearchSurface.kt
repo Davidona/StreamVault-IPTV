@@ -294,6 +294,7 @@ private fun resolvedSettingsCatalog(
         setting("vod.auto_next_episode", SettingsCategory.MOVIES, SettingsPage.VOD_PLAYBACK, R.string.settings_auto_play_next_episode),
         setting("vod.http_protocol", SettingsCategory.MOVIES, SettingsPage.VOD_PLAYBACK, R.string.settings_vod_http_protocol_mode),
         setting("appearance.theme", SettingsCategory.APP, SettingsPage.APPEARANCE, R.string.settings_theme, "color", "light", "purple", "blue"),
+        setting("appearance.text_size", SettingsCategory.APP, SettingsPage.APPEARANCE, R.string.settings_text_size, "font", "scale"),
         setting("appearance.language", SettingsCategory.APP, SettingsPage.APPEARANCE, R.string.settings_app_language),
         setting("appearance.time_format", SettingsCategory.APP, SettingsPage.APPEARANCE, R.string.settings_time_format, "clock"),
         setting("appearance.top_navigation", SettingsCategory.APP, SettingsPage.HOME, R.string.settings_top_navigation, "menu"),

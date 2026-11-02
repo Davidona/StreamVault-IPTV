@@ -20,7 +20,7 @@ object StremioAddonUrl {
     private const val MANIFEST_SUFFIX = "/manifest.json"
 
     fun parse(raw: String): StremioAddonLocation? {
-        val trimmed = raw.trimPastedUrlBoundaryCharacters()
+        val trimmed = com.streamvault.domain.model.stremio.stremioGatewayUrl(raw.trimPastedUrlBoundaryCharacters()) ?: return null
         if (trimmed.isEmpty()) return null
         val upgraded = if (trimmed.startsWith("stremio://", ignoreCase = true)) {
             "https://" + trimmed.substring("stremio://".length)
@@ -67,6 +67,9 @@ object StremioAddonUrl {
         extras: List<Pair<String, String>>
     ): String = "/subtitles/${encodeSegment(type.typeName)}/${encodeSegment(id)}${extrasPath(extras)}.json"
 
+    fun resourcePath(resource: String, type: StremioMediaType, id: String, extras: List<Pair<String, String>> = emptyList()): String =
+        "/${encodeSegment(resource)}/${encodeSegment(type.typeName)}/${encodeSegment(id)}${extrasPath(extras)}.json"
+
     private fun normalizedBasePath(path: String): String {
         val trimmed = path.trimEnd('/')
         return when {
@@ -81,7 +84,7 @@ object StremioAddonUrl {
             ""
         } else {
             extras.joinToString(prefix = "/", separator = "&") { (key, value) ->
-                "$key=${encodeSegment(value)}"
+                "${encodeSegment(key)}=${encodeSegment(value)}"
             }
         }
 

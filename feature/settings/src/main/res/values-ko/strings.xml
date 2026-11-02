@@ -955,4 +955,11 @@
     <string name="settings_m3u_catchup_query_format">캐치업 쿼리 형식</string>
     <string name="settings_m3u_catchup_query_format_subtitle">전용 캐치업 소스가 없는 M3U 채널에 사용됩니다. 이 대체 형식을 끄려면 비워 두세요. 예: ?utc={utc}</string>
     <string name="settings_m3u_catchup_query_format_disabled">사용 안 함</string>
+    <string name="trakt_browser_sign_in">브라우저로 로그인</string>
+    <string name="trakt_phone_sign_in">다른 기기에서 승인</string>
+    <string name="trakt_device_instructions">QR 코드를 스캔하거나 휴대전화에서 %1$s을(를) 여세요. 아래 코드를 입력하고 접근을 승인하세요. 이 화면은 자동으로 연결됩니다. 코드가 만료되면 취소하고 다시 시도하세요.</string>
+    <string name="settings_text_size">텍스트 크기</string>
+    <string name="settings_text_size_default">기본값(100%)</string>
+    <string name="settings_text_size_system">기기 설정 따르기</string>
+    <string name="settings_text_size_custom">사용자 지정</string>
 </resources>

@@ -37,6 +37,7 @@ data class StremioCatalogParentalState(
     val hiddenMovieCategoryIds: Set<Long> = emptySet(),
     val hiddenSeriesCategoryIds: Set<Long> = emptySet(),
     val hiddenVodCategoryIds: Set<Long> = emptySet(),
+    val hiddenLiveCategoryIds: Set<Long> = emptySet(),
     val parentalControlLevel: Int = 1,
     val unlockedCategoryIds: Set<Long> = emptySet()
 ) {
@@ -50,18 +51,20 @@ data class StremioCatalogParentalState(
         val contentType = when (type) {
             StremioMediaType.MOVIE -> ContentType.MOVIE
             StremioMediaType.SERIES -> ContentType.SERIES
-            else -> return StremioCatalogCategoryAccess()
+            StremioMediaType.TV -> ContentType.LIVE
+            else -> ContentType.MOVIE
         }
         val categoryNames = names.map(::normalizeCategoryName)
             .filter(String::isNotBlank)
             .toSet()
         val matches = categories.filter { category ->
-            (category.type == contentType || category.type == ContentType.VOD) &&
+            (category.type == contentType || (contentType != ContentType.LIVE && category.type == ContentType.VOD)) &&
                 normalizeCategoryName(category.name) in categoryNames
         }
         val hiddenIds = when (contentType) {
             ContentType.MOVIE -> hiddenMovieCategoryIds + hiddenVodCategoryIds
             ContentType.SERIES -> hiddenSeriesCategoryIds + hiddenVodCategoryIds
+            ContentType.LIVE -> hiddenLiveCategoryIds
             else -> emptySet()
         }
         val hiddenBySettings = matches.any { it.id in hiddenIds }
@@ -137,9 +140,10 @@ class StremioCatalogParentalAccessManager @Inject constructor(
                         val hiddenCategoryIds = combine(
                             preferences.getHiddenCategoryIds(provider.id, ContentType.MOVIE),
                             preferences.getHiddenCategoryIds(provider.id, ContentType.SERIES),
-                            preferences.getHiddenCategoryIds(provider.id, ContentType.VOD)
-                        ) { hiddenMovies, hiddenSeries, hiddenVod ->
-                            Triple(hiddenMovies, hiddenSeries, hiddenVod)
+                            preferences.getHiddenCategoryIds(provider.id, ContentType.VOD),
+                            preferences.getHiddenCategoryIds(provider.id, ContentType.LIVE)
+                        ) { hiddenMovies, hiddenSeries, hiddenVod, hiddenLive ->
+                            listOf(hiddenMovies, hiddenSeries, hiddenVod, hiddenLive)
                         }
                         emitAll(
                             combine(
@@ -152,9 +156,10 @@ class StremioCatalogParentalAccessManager @Inject constructor(
                                     isReady = true,
                                     providerId = provider.id,
                                     categories = categories,
-                                    hiddenMovieCategoryIds = hidden.first,
-                                    hiddenSeriesCategoryIds = hidden.second,
-                                    hiddenVodCategoryIds = hidden.third,
+                                    hiddenMovieCategoryIds = hidden[0],
+                                    hiddenSeriesCategoryIds = hidden[1],
+                                    hiddenVodCategoryIds = hidden[2],
+                                    hiddenLiveCategoryIds = hidden[3],
                                     parentalControlLevel = level,
                                     unlockedCategoryIds = unlocked
                                 )

@@ -345,4 +345,6 @@
 
     <string name="nav_extensions">Sambungan</string>
     <string name="nav_sports">Sukan</string>
+    <string name="stremio_new_episode_channel">Pemberitahuan episod baharu</string>
+    <string name="stremio_new_episode_count">Episod baharu: %1$d</string>
 </resources>

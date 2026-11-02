@@ -344,4 +344,6 @@
     <string name="torrent_storage_check_failed">Није могуће проверити доступан простор. Репродукција торента не може безбедно да се настави.</string>
     <string name="nav_extensions">Проширења</string>
     <string name="nav_sports">Спорт</string>
+    <string name="stremio_new_episode_channel">Обавештења о новим епизодама</string>
+    <string name="stremio_new_episode_count">Нове епизоде: %1$d</string>
 </resources>

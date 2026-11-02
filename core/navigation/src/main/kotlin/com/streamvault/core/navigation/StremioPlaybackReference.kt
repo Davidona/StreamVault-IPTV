@@ -12,14 +12,17 @@ data class StremioPlaybackReference(
     val streamOriginKey: String,
     val videoHash: String? = null,
     val videoSize: Long? = null,
-    val filename: String? = null
+    val filename: String? = null,
+    val bingeGroup: String? = null,
+    val itemTitle: String? = null
 ) : Serializable
 
 /** Ephemeral subtitle source passed into the player; never stored in Stremio history. */
 data class StremioSubtitlePlaybackSource(
     val url: String,
     val language: String,
-    val id: String? = null
+    val id: String? = null,
+    val label: String? = null
 ) : Serializable
 
 data class StremioPlayerHandoff(

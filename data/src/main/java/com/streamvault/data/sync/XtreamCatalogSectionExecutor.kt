@@ -1,6 +1,7 @@
 package com.streamvault.data.sync
 
 import android.util.Log
+import com.streamvault.data.util.runSuspendCatching
 import com.streamvault.data.mapper.toEntity
 import com.streamvault.data.preferences.PreferencesRepository
 import com.streamvault.data.remote.xtream.XtreamProvider
@@ -33,7 +34,7 @@ internal class XtreamCatalogSectionExecutor(
         label: String,
         now: Long,
         onProgress: ((String) -> Unit)?
-    ): kotlin.Result<Int> = runCatching {
+    ): kotlin.Result<Int> = runSuspendCatching {
         progress(provider.id, onProgress, "Loading $label categories...")
         markIndexRunning(provider.id, contentType, now)
         val categories = when (contentType) {
@@ -41,7 +42,7 @@ internal class XtreamCatalogSectionExecutor(
             ContentType.SERIES -> requireResult(api.getSeriesCategories(), "Failed to load series categories")
             else -> throw IllegalArgumentException("Unsupported Xtream category shell: $contentType")
         }
-        syncCatalogStore.upsertCategories(
+        syncCatalogStore.replaceCategories(
             providerId = provider.id,
             type = contentType.name,
             categories = categories.map { category -> category.toEntity(provider.id) }

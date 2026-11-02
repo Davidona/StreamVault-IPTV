@@ -36,16 +36,18 @@ License text: FFmpeg-LGPL-2.1.txt and GPL-2.0.txt.
 Corresponding source: https://github.com/FFmpeg/FFmpeg/tree/ba69be84a1ceabfb39127831ad8da0fd7cb471f3
 The Media3 decoder README at the source revision above describes building the FFmpeg libraries and decoder AAR. Build provenance is recorded at https://github.com/Davidona/StreamVault-IPTV/blob/master/player/libs/media3-decoder-ffmpeg-1.11.0.properties.
 
-libtorrent4j 2.0.6-26
+libtorrent4j 2.1.0-38
 License: MIT.
 License text: libtorrent4j-MIT.txt.
-Corresponding source: https://github.com/aldenml/libtorrent4j/tree/v2.0.6-26
+Corresponding source: https://github.com/aldenml/libtorrent4j/tree/v2.1.0-38
 
 libtorrent native library
 License: BSD-3-Clause.
 License and bundled component notices: libtorrent-BSD-3-Clause.txt.
-Corresponding source: https://github.com/arvidn/libtorrent/tree/ed88357b4cdf7ae9d4b35aa77e654afbe2b7b11c
+Corresponding source: https://github.com/arvidn/libtorrent/tree/a01469c8d1f88dd83bed458ffccffab2727b9d2a
 
 The libtorrent notice bundle includes an Apple route.h notice under the Apple Public Source License 2.0. The license text is provided as APSL-2.0.txt.
 
 The source for StreamVault is published at https://github.com/Davidona/StreamVault-IPTV. For detailed source references and rebuild notes, see https://github.com/Davidona/StreamVault-IPTV/blob/master/docs/THIRD-PARTY-LICENSES.md.
+
+Native dependencies of libtorrent4j (OpenSSL 3.5.2, Boost 1.89.0 and WebTorrent dependencies): see libtorrent4j-native-NOTICES.txt and the referenced packaged license texts.

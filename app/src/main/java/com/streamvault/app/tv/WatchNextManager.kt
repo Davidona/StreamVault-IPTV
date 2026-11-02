@@ -26,18 +26,41 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.*
+import com.streamvault.domain.model.stremio.*
+import com.streamvault.domain.repository.StremioPlaybackHistoryRepository
+import com.streamvault.domain.repository.StremioAddonRepository
+import com.streamvault.domain.settings.SettingsPreferences
+import com.streamvault.feature.stremio.navigation.StremioRoutePatterns
 
 @Singleton
 class WatchNextManager @Inject constructor(
     @ApplicationContext private val context: Context,
     private val playbackHistoryRepository: PlaybackHistoryRepository,
-    private val providerRepository: ProviderRepository
+    private val providerRepository: ProviderRepository,
+    private val stremioHistory: StremioPlaybackHistoryRepository,
+    private val stremioAddons: StremioAddonRepository,
+    private val preferences: SettingsPreferences,
+    private val parental: com.streamvault.feature.stremio.presentation.StremioCatalogParentalAccess
 ) {
     private val updateMutex = Mutex()
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    @OptIn(FlowPreview::class)
+    private val historyRefresh: Job by lazy { scope.launch {
+        if (context.isTelevisionDevice()) combine(stremioHistory.observeHistory(),
+            stremioAddons.observeAddons(), preferences.hideStremioAddons, parental.state) { _, _, _, _ -> Unit }
+            .debounce(500).collectLatest {
+                try { refreshWatchNext()
+                } catch (cancel: CancellationException) { throw cancel
+                } catch (error: Exception) { Log.w(TAG, "Watch Next history refresh failed", error) }
+            }
+    } }
 
     suspend fun refreshWatchNext() = withContext(Dispatchers.IO) {
         if (!context.isTelevisionDevice()) return@withContext
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return@withContext
+        historyRefresh.start()
         updateMutex.withLock {
             val activeProviderId = providerRepository.getActiveProvider().first()?.id
             val historyEntries = selectWatchNextHistoryEntries(
@@ -50,15 +73,32 @@ class WatchNextManager @Inject constructor(
                 }
             )
 
+            val addonByOrigin = stremioAddons.observeAddons().first().filter { it.enabled }.associateBy { it.installFingerprint() }
+            val parent = parental.state.value
+            val stremio = if (preferences.hideStremioAddons.first() || !parent.isReady) emptyList() else
+                latestStremioItems(stremioHistory.observeHistory().first()).filter { h ->
+                    h.catalogOriginKey in addonByOrigin && !h.watched && h.dismissedAtMs == 0L &&
+                        h.resumePositionMs > 0 && h.totalDurationMs > 0 &&
+                        !com.streamvault.domain.util.AdultContentNameClassifier.isAdultCategoryName(h.title) &&
+                        parent.accessFor(StremioCatalogRef(StremioMediaType.fromTypeName(h.mediaType), h.parentSeriesId ?: h.exactVideoId, h.title)).let { !it.hidden && !it.locked }
+                }.take(10)
             runCatching {
                 val existingEntries = loadExistingEntries()
                 val targetKeys = historyEntries.mapTo(mutableSetOf(), ::watchNextKey)
+                targetKeys += stremio.map { "stremio:${it.contentKey}" }
 
                 existingEntries
                     .filterKeys { it !in targetKeys }
                     .values
                     .forEach { entry -> deleteWatchNextEntry(entry.id) }
 
+                stremio.forEach { history ->
+                    val addon = addonByOrigin[history.catalogOriginKey] ?: return@forEach
+                    val values = buildStremioWatchNextValues(addon.id, history)
+                    val existingId = existingEntries["stremio:${history.contentKey}"]?.id
+                    if (existingId == null) context.contentResolver.insert(watchNextProgramsUri, values)
+                    else updateWatchNextEntry(existingId, values)
+                }
                 historyEntries.forEach { history ->
                     val values = buildWatchNextValues(history)
                     val existingId = existingEntries[watchNextKey(history)]?.id
@@ -161,6 +201,24 @@ class WatchNextManager @Inject constructor(
             null,
             null
         )
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun buildStremioWatchNextValues(addonId: Long, history: StremioPlaybackHistory): ContentValues {
+        val intent = Intent(context, MainActivity::class.java).setAction(Intent.ACTION_VIEW)
+            .putExtra("com.streamvault.app.extra.STREMIO_ITEM", StremioRoutePatterns.historyRoute(addonId, history))
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        return ContentValues().apply {
+            put(COLUMN_INTERNAL_PROVIDER_ID, "stremio:${history.contentKey}")
+            put(COLUMN_TYPE, if (history.mediaType == "series") TvContract.PreviewPrograms.TYPE_TV_EPISODE else TvContract.PreviewPrograms.TYPE_MOVIE)
+            put(COLUMN_TITLE, history.title)
+            put(COLUMN_POSTER_ART_URI, history.posterUrl ?: "android.resource://${context.packageName}/${R.mipmap.ic_launcher}")
+            put(COLUMN_INTENT_URI, intent.toUri(Intent.URI_INTENT_SCHEME))
+            put(COLUMN_LAST_PLAYBACK_POSITION_MILLIS, history.resumePositionMs)
+            put(COLUMN_DURATION_MILLIS, history.totalDurationMs)
+            put(COLUMN_LAST_ENGAGEMENT_TIME_UTC_MILLIS, history.lastWatchedAt)
+            put(COLUMN_WATCH_NEXT_TYPE, TvContract.WatchNextPrograms.WATCH_NEXT_TYPE_CONTINUE)
+        }
     }
 
     @RequiresApi(Build.VERSION_CODES.O)

@@ -18,7 +18,7 @@ class EncryptedTraktTokenStore(context: Context, private val crypto: CredentialC
     }
 
     @Synchronized override fun write(session: TraktStoredSession) {
-        if (session.tokens == null && session.pending == null) {
+        if (session.tokens == null && session.pending == null && session.device == null) {
             file.delete()
             return
         }

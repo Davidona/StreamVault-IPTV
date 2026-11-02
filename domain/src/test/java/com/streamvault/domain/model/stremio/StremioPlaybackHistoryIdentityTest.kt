@@ -35,7 +35,8 @@ class StremioPlaybackHistoryIdentityTest {
     fun `invalid IMDb shaped and unsupported media IDs stay namespaced or unavailable`() {
         assertThat(stremioPlaybackContentKey("movie", "tt12abc", null, originA))
             .isEqualTo("stremio:addon:${originA}:movie:tt12abc")
-        assertThat(stremioPlaybackContentKey("channel", "tt12345", null, originA)).isNull()
+        assertThat(stremioPlaybackContentKey("channel", "tt12345", null, originA))
+            .isEqualTo("stremio:addon:${originA}:channel:tt12345")
         assertThat(stremioPlaybackContentKey("movie", "tt12345", null, "bad-origin")).isNull()
     }
 

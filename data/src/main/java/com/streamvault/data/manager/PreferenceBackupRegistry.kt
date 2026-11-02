@@ -18,7 +18,7 @@ internal object PreferenceBackupRegistry {
         "sports_score_source_mode", "sports_score_source_instance_id",
         "sports_standings_source_mode", "sports_standings_source_instance_id",
         "sports_metadata_source_mode", "sports_metadata_source_instance_id",
-        "app_home_dashboard_shelves", "app_time_format", "app_theme", "live_tv_channel_mode", "live_tv_auto_hide_categories",
+        "app_text_size", "app_home_dashboard_shelves", "app_time_format", "app_theme", "live_tv_channel_mode", "live_tv_auto_hide_categories",
         "show_live_source_switcher", "show_favorites_category", "show_all_channels_category",
         "show_recent_channels_category", "live_tv_category_filters", "live_tv_quick_filter_visibility",
         "hide_decorative_live_rows", "live_channel_numbering_mode", "live_channel_grouping_mode",

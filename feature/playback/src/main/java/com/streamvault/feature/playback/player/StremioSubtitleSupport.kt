@@ -31,6 +31,7 @@ internal fun buildStremioPlayerSubtitleOptions(
                     url = subtitle.url,
                     language = subtitle.language,
                     id = subtitle.id,
+                    displayLabel = subtitle.label,
                     sourceKey = "inline",
                     sourceLabel = "Stream",
                     index = index
@@ -43,6 +44,7 @@ internal fun buildStremioPlayerSubtitleOptions(
                     url = attributed.resource.url,
                     language = attributed.resource.lang,
                     id = attributed.resource.id,
+                    displayLabel = attributed.resource.label,
                     sourceKey = attributed.source.installFingerprint,
                     sourceLabel = attributed.source.addonName,
                     index = 0
@@ -84,6 +86,7 @@ private fun subtitleOption(
     url: String,
     language: String,
     id: String?,
+    displayLabel: String? = null,
     sourceKey: String,
     sourceLabel: String,
     index: Int
@@ -98,7 +101,7 @@ private fun subtitleOption(
         key = "$sourceKey:${id ?: index}:$languageTag",
         url = canonicalUrl,
         languageTag = languageTag,
-        label = "$languageName · $sourceLabel"
+        label = "${displayLabel?.takeIf(String::isNotBlank) ?: languageName} · $sourceLabel"
     )
 }
 

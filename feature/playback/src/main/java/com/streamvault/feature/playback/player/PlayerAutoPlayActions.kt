@@ -42,6 +42,12 @@ internal fun PlayerViewModel.handlePlaybackEnded() {
     val requestVersion = prepareRequestVersion
     playbackSessionScope(requestVersion)?.launch {
         persistPlaybackCompletion()
+        if (currentStremioPlaybackReference != null && autoPlayNextEpisodeEnabled) {
+            try {
+                if (tryNextStremioEpisode()) return@launch
+            } catch (cancel: kotlinx.coroutines.CancellationException) { throw cancel
+            } catch (_: Exception) {}
+        }
         if (currentContentType == ContentType.SERIES_EPISODE) {
             val position = playerEngine.currentPosition.value
             val duration = playerEngine.duration.value

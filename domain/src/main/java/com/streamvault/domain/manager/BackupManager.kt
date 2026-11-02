@@ -116,7 +116,8 @@ data class StremioPlaybackHistoryBackup(
     val isWatched: Boolean,
     val lastWatchedAt: Long,
     val catalogOriginKey: String,
-    val streamOriginKeyHint: String?
+    val streamOriginKeyHint: String?,
+    val dismissedAtMs: Long = 0L
 )
 
 data class ProviderBackupSnapshot(

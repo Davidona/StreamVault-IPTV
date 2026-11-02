@@ -344,4 +344,6 @@
     <string name="torrent_storage_check_failed">Nuk mund të kontrollohej hapësira e disponueshme. Luajtja e torrentit nuk mund të vazhdojë në mënyrë të sigurt.</string>
     <string name="nav_extensions">Zgjerimet</string>
     <string name="nav_sports">Sport</string>
+    <string name="stremio_new_episode_channel">Njoftime për episode të reja</string>
+    <string name="stremio_new_episode_count">Episode të reja: %1$d</string>
 </resources>

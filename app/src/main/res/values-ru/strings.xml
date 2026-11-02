@@ -291,4 +291,6 @@
     <string name="torrent_storage_check_failed">Не удалось проверить доступное место. Воспроизведение торрента нельзя безопасно продолжить.</string>
     <string name="nav_extensions">Расширения</string>
     <string name="nav_sports">Спорт</string>
+    <string name="stremio_new_episode_channel">Уведомления о новых сериях</string>
+    <string name="stremio_new_episode_count">Новые серии: %1$d</string>
 </resources>

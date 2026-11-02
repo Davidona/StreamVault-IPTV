@@ -1,5 +1,6 @@
 package com.streamvault.app
 
+import com.streamvault.domain.model.AppTextSize
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
@@ -198,13 +199,24 @@ class MainActivity : ComponentActivity(), CatalogPlatformHost {
             val databaseStartupState by databaseStartupCoordinator.state.collectAsState()
             val currentContext = LocalContext.current
             
+            val appTextSize by preferencesRepository.appTextSize.collectAsState(
+                initial = AppTextSize()
+            )
+            val systemDensity = androidx.compose.ui.platform.LocalDensity.current
+            val textDensity = remember(systemDensity, appTextSize) {
+                androidx.compose.ui.unit.Density(
+                    systemDensity.density,
+                    appTextSize.resolvedScale(systemDensity.fontScale)
+                )
+            }
             val deviceConfiguration = LocalConfiguration.current
-            val configuration = remember(appLanguage, deviceConfiguration) {
+            val configuration = remember(appLanguage, deviceConfiguration, appTextSize, systemDensity) {
                 val locale = resolveAppLocale(
                     preferredLanguageTag = appLanguage,
                     baseConfiguration = deviceConfiguration
                 )
                 val conf = Configuration(deviceConfiguration)
+                conf.fontScale = appTextSize.resolvedScale(systemDensity.fontScale)
                 Locale.setDefault(locale)
                 conf.setLocale(locale)
                 conf.setLayoutDirection(locale)
@@ -234,6 +246,7 @@ class MainActivity : ComponentActivity(), CatalogPlatformHost {
             }
 
             CompositionLocalProvider(
+                androidx.compose.ui.platform.LocalDensity provides textDensity,
                 LocalContext provides localizedContext,
                 LocalConfiguration provides configuration,
                 LocalLayoutDirection provides layoutDirection,

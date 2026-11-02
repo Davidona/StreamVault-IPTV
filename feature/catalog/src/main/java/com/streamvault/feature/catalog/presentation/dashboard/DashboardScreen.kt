@@ -3,6 +3,8 @@ package com.streamvault.feature.catalog.presentation.dashboard
 import com.streamvault.core.ui.layout.isPortraitLayout
 
 import com.streamvault.core.ui.design.BrowseShapes
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -105,6 +107,7 @@ fun DashboardScreen(
     onPlaybackHistoryClick: (PlaybackHistory) -> Unit,
     scaffold: CatalogScaffoldContent,
     dashboardShelfCustomizationContent: CatalogDashboardShelfCustomizationContent,
+    stremioContent: @Composable () -> Boolean = { false },
     viewModel: DashboardViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -133,10 +136,13 @@ fun DashboardScreen(
             false
         ) {
             if (provider == null) {
-                EmptyDashboard(
-                    onAddProvider = onAddProvider,
-                    onOpenSettings = { onDestinationRequested(AppDestination.Settings()) }
-                )
+                Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
+                    val hasStremio = stremioContent()
+                    if (!hasStremio) Box(Modifier.fillMaxWidth().height(380.dp)) {
+                        EmptyDashboard(onAddProvider = onAddProvider,
+                            onOpenSettings = { onDestinationRequested(AppDestination.Settings()) })
+                    }
+                }
                 return@scaffold
             }
             val orderedSections = rememberDashboardSections(uiState)
@@ -163,6 +169,7 @@ fun DashboardScreen(
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(bottom = 28.dp)
             ) {
+                item(key = "stremio_viewing") { stremioContent() }
                 if (uiState.isLoading && orderedSections.isEmpty()) {
                     item(key = "dashboard_loading") {
                         Box(

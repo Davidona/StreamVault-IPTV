@@ -26,7 +26,7 @@ object StremioRoutePatterns {
 
     fun historyRoute(originAddonId: Long, history: com.streamvault.domain.model.stremio.StremioPlaybackHistory): String {
         val type = com.streamvault.domain.model.stremio.StremioMediaType.fromTypeName(history.mediaType)
-        val itemId = if (type == com.streamvault.domain.model.stremio.StremioMediaType.SERIES) {
+        val itemId = if (history.parentSeriesId != null) {
             history.parentSeriesId ?: history.exactVideoId
         } else history.exactVideoId
         val preview = StremioMetaPreview(

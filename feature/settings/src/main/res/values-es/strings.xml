@@ -955,4 +955,11 @@
     <string name="settings_m3u_catchup_query_format">Formato de consulta de reproducción diferida</string>
     <string name="settings_m3u_catchup_query_format_subtitle">Se usa en canales M3U sin una fuente propia de reproducción diferida. Déjalo vacío para desactivar este formato alternativo. Ejemplo: ?utc={utc}</string>
     <string name="settings_m3u_catchup_query_format_disabled">Desactivado</string>
+    <string name="trakt_browser_sign_in">Iniciar sesión en el navegador</string>
+    <string name="trakt_phone_sign_in">Autorizar en otro dispositivo</string>
+    <string name="trakt_device_instructions">Escanea el código QR o abre %1$s en tu teléfono. Introduce el código de abajo y autoriza el acceso. Esta pantalla se conecta automáticamente. Si el código caduca, cancela e inténtalo de nuevo.</string>
+    <string name="settings_text_size">Tamaño del texto</string>
+    <string name="settings_text_size_default">Predeterminado (100%)</string>
+    <string name="settings_text_size_system">Seguir el dispositivo</string>
+    <string name="settings_text_size_custom">Personalizado</string>
 </resources>

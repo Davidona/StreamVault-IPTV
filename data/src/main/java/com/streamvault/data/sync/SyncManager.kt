@@ -411,6 +411,18 @@ class SyncManager @Inject constructor(
         XtreamIncrementalIndexExecutor(
             operations = CallbackXtreamIncrementalIndexOperations(
                 XtreamIncrementalIndexCallbacks(
+                    beginSnapshot = { providerId, type ->
+                        transactionRunner.inTransaction {
+                            providerWorkflowCommitFence.assertCanCommit(providerId)
+                            xtreamContentIndexDao.beginSnapshot(providerId, type.name)
+                        }
+                    },
+                    finishSnapshot = { providerId, type ->
+                        transactionRunner.inTransaction {
+                            providerWorkflowCommitFence.assertCanCommit(providerId)
+                            xtreamContentIndexDao.pruneCompletedSnapshot(providerId, type.name)
+                        }
+                    },
                     getCategories = { providerId, contentType ->
                         categoryDao.getByProviderAndTypeSync(providerId, contentType.name)
                     },
@@ -2164,7 +2176,7 @@ class SyncManager @Inject constructor(
             val localId = existingByStreamId[movie.streamId]?.id ?: movie.id
             val row = movie.toXtreamIndexRow(providerId, localId, indexedAt)
             val existing = indexRowsBefore[row.remoteId]
-            existing == null || existing.copy(indexedAt = row.indexedAt) != row
+            existing == null || existing.indexedAt == 0L || existing.copy(indexedAt = row.indexedAt) != row
         }
         if (updatedMovies.isNotEmpty() || movieIndexChanged) {
             transactionRunner.inTransaction {
@@ -2186,7 +2198,7 @@ class SyncManager @Inject constructor(
                 }
                 val indexUpdates = indexRows.filter { row ->
                     val existing = indexRowsBefore[row.remoteId]
-                    existing == null || existing.copy(indexedAt = row.indexedAt) != row
+                    existing == null || existing.indexedAt == 0L || existing.copy(indexedAt = row.indexedAt) != row
                 }
                 if (indexUpdates.isNotEmpty()) xtreamContentIndexDao.upsertAll(indexUpdates)
             }
@@ -2225,7 +2237,7 @@ class SyncManager @Inject constructor(
             val localId = existingBySeriesId[item.seriesId]?.id ?: item.id
             val row = item.toXtreamIndexRow(providerId, localId, indexedAt)
             val existing = indexRowsBefore[row.remoteId]
-            existing == null || existing.copy(indexedAt = row.indexedAt) != row
+            existing == null || existing.indexedAt == 0L || existing.copy(indexedAt = row.indexedAt) != row
         }
         if (updatedSeries.isNotEmpty() || seriesIndexChanged) {
             transactionRunner.inTransaction {
@@ -2247,7 +2259,7 @@ class SyncManager @Inject constructor(
                 }
                 val indexUpdates = indexRows.filter { row ->
                     val existing = indexRowsBefore[row.remoteId]
-                    existing == null || existing.copy(indexedAt = row.indexedAt) != row
+                    existing == null || existing.indexedAt == 0L || existing.copy(indexedAt = row.indexedAt) != row
                 }
                 if (indexUpdates.isNotEmpty()) xtreamContentIndexDao.upsertAll(indexUpdates)
             }

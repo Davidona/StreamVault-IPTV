@@ -40,7 +40,7 @@ internal object PlaybackLogSanitizer {
         }
     }
 
-    private val credentialQueryRegex = Regex("""([?&](?:username|password|token|auth)=)[^&#\s]+""", RegexOption.IGNORE_CASE)
+    private val credentialQueryRegex = Regex("""([?&](?:username|password|token|auth|lz)=)[^&#\s]+""", RegexOption.IGNORE_CASE)
     private val credentialPathRegex =
         Regex("""(/)(live|movie|series|timeshift|timeshifts)/[^/\s]+/[^/\s]+([^?\s#]*)""", RegexOption.IGNORE_CASE)
     private val opaqueSegmentPathRegex =

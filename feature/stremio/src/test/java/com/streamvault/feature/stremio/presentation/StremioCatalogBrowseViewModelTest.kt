@@ -52,6 +52,73 @@ class StremioCatalogBrowseViewModelTest {
     }
 
     @Test
+    fun multiGenreSelectionRespectsManifestLimitAndReachesQuery() = runTest(dispatcher) {
+        val catalog = catalogWithSkip(extras = listOf(
+            StremioCatalogExtraDef("genre", options = listOf("Drama", "Comedy", "Action"), optionsLimit = 2),
+            StremioCatalogExtraDef("skip")
+        ))
+        val repository = CatalogRepositoryFake(catalog)
+        repository.fetchResponder = { Result.success(StremioCatalogPage(emptyList())) }
+        val viewModel = StremioCatalogBrowseViewModel(repository, FakeStremioContentAccess(), context = contextWithResourceIds())
+        advanceUntilIdle()
+        viewModel.setGenre(viewModel.state.value.rows.single().key, "Drama,Comedy,Action")
+        advanceUntilIdle()
+        assertThat(repository.calls.last().query.genre).isEqualTo("Drama,Comedy")
+    }
+
+    @Test
+    fun `required custom extra waits and respects declared options and selection limit`() = runTest(dispatcher) {
+        val catalog = catalogWithSkip(extras = listOf(
+            StremioCatalogExtraDef("region", isRequired = true, options = listOf("US", "GB", "IL"), optionsLimit = 2),
+            StremioCatalogExtraDef("skip")
+        ))
+        val repository = CatalogRepositoryFake(catalog)
+        repository.pages += StremioCatalogPage(listOf(preview("result")), rawItemCount = 1)
+        val viewModel = StremioCatalogBrowseViewModel(repository, FakeStremioContentAccess(), context = contextWithResourceIds())
+        advanceUntilIdle()
+        val row = viewModel.state.value.rows.single()
+        assertThat(row.blockedReason).isNull()
+        assertThat(row.waitingForInput).isEqualTo("region")
+        assertThat(repository.calls).isEmpty()
+        viewModel.setExtraValues(row.key, "region", listOf("US", "invalid", "GB", "IL"))
+        advanceUntilIdle()
+        assertThat(repository.calls.single().query.extraValues).containsExactly("region", "US,GB")
+        assertThat(viewModel.state.value.rows.single().waitingForInput).isNull()
+        viewModel.setExtraValues(row.key, "region", emptyList())
+        advanceUntilIdle()
+        assertThat(repository.calls).hasSize(1)
+        assertThat(viewModel.state.value.rows.single().metas).isEmpty()
+    }
+
+    @Test
+    fun `custom filter changes reset pagination and isolate cached results`() = runTest(dispatcher) {
+        val catalog = catalogWithSkip(extras = listOf(StremioCatalogExtraDef("sort"), StremioCatalogExtraDef("skip")))
+        val repository = CatalogRepositoryFake(catalog)
+        repository.fetchResponder = { call ->
+            Result.success(StremioCatalogPage(
+                listOf(preview(call.query.extraValues["sort"] ?: "default")), rawItemCount = 100
+            ))
+        }
+        val viewModel = StremioCatalogBrowseViewModel(repository, FakeStremioContentAccess(), context = contextWithResourceIds())
+        advanceUntilIdle()
+        val key = viewModel.state.value.rows.single().key
+        viewModel.setExtraValues(key, "sort", listOf("rating"))
+        advanceUntilIdle()
+        viewModel.loadMore(key)
+        advanceUntilIdle()
+        assertThat(repository.calls.last().query.skip).isEqualTo(100)
+        assertThat(repository.calls.last().query.extraValues).containsExactly("sort", "rating")
+        viewModel.setExtraValues(key, "sort", listOf("recent"))
+        advanceUntilIdle()
+        assertThat(repository.calls.last().query.skip).isEqualTo(0)
+        assertThat(viewModel.state.value.rows.single().metas.single().id).isEqualTo("recent")
+        viewModel.setExtraValues(key, "sort", listOf("rating"))
+        advanceUntilIdle()
+        assertThat(repository.calls).hasSize(4)
+        assertThat(viewModel.state.value.rows.single().metas.single().id).isEqualTo("rating")
+    }
+
+    @Test
     fun `full page without hasMore loads next page using raw offset`() = runTest(dispatcher) {
         val repository = CatalogRepositoryFake(catalogWithSkip())
         repository.pages += StremioCatalogPage((0 until 100).map { preview("tt$it") }, rawItemCount = 100)

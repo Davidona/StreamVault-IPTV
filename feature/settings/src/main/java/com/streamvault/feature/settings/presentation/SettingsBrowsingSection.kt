@@ -213,6 +213,10 @@ public fun LazyListScope.settingsBrowsingSection(
                     modifier = if (targetItemId == "live.sort") targetFocusModifier else Modifier,)
             }
             if (page == null || page == SettingsPage.APPEARANCE) {
+                AppTextSizeSetting(
+                    viewModel,
+                    modifier = if (targetItemId == "appearance.text_size") targetFocusModifier else Modifier,
+                )
                 ClickableSettingsRow(
                     label = stringResource(R.string.settings_time_format),
                     value = timeFormatLabel,

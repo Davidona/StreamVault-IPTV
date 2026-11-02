@@ -347,4 +347,6 @@
     <string name="torrent_storage_check_failed">Свободното място не можа да бъде проверено. Възпроизвеждането на торент не може да продължи безопасно.</string>
     <string name="nav_extensions">Разширения</string>
     <string name="nav_sports">Спорт</string>
+    <string name="stremio_new_episode_channel">Известия за нови епизоди</string>
+    <string name="stremio_new_episode_count">Нови епизоди: %1$d</string>
 </resources>

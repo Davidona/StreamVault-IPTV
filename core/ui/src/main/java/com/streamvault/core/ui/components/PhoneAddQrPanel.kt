@@ -18,6 +18,8 @@ import androidx.compose.ui.unit.dp
 import androidx.tv.material3.Text
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.qrcode.QRCodeWriter
+import com.streamvault.core.ui.theme.OnSurface
+import com.streamvault.core.ui.theme.OnSurfaceDim
 import com.streamvault.core.ui.interaction.TvButton
 
 @Composable
@@ -44,16 +46,16 @@ fun PhoneAddQrPanel(
         }
     }
     Column(modifier = Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        Text(title)
-        Text(description)
-        if (status != null) Text(status)
+        Text(title, color = OnSurface)
+        Text(description, color = OnSurfaceDim)
+        if (status != null) Text(status, color = OnSurfaceDim)
         if (bitmap != null) {
             Image(
                 bitmap = bitmap.asImageBitmap(),
                 contentDescription = title,
                 modifier = Modifier.size(168.dp).background(androidx.compose.ui.graphics.Color.White).padding(8.dp),
             )
-            Text(url.orEmpty())
+            Text(url.orEmpty(), color = OnSurfaceDim)
         }
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             TvButton(onClick = onStart) { Text(startLabel) }

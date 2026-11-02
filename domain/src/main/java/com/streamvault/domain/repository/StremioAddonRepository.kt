@@ -47,6 +47,12 @@ interface StremioAddonRepository {
         addonIds: Set<Long>? = null
     ): StremioResourceResolution<StremioSubtitle>
 
+    suspend fun inspectAddon(url: String): Result<StremioManifest> = Result.error("Addon request failed")
+    suspend fun fetchAddonDirectory(url: String, catalog: StremioCatalogRef):
+        Result<List<com.streamvault.domain.model.stremio.StremioDirectoryEntry>> = Result.error("Addon request failed")
+    suspend fun reportActivity(resource: String, type: StremioMediaType, id: String,
+        extras: List<Pair<String, String>>) {}
+
     suspend fun installAddon(installUrl: String): Result<StremioAddon>
 
     suspend fun refreshAddon(id: Long): Result<StremioAddon> =

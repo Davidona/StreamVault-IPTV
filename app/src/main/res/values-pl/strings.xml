@@ -291,4 +291,6 @@
     <string name="torrent_storage_check_failed">Nie można sprawdzić dostępnego miejsca. Odtwarzanie torrenta nie może być bezpiecznie kontynuowane.</string>
     <string name="nav_extensions">Rozszerzenia</string>
     <string name="nav_sports">Sport</string>
+    <string name="stremio_new_episode_channel">Powiadomienia o nowych odcinkach</string>
+    <string name="stremio_new_episode_count">Nowe odcinki: %1$d</string>
 </resources>

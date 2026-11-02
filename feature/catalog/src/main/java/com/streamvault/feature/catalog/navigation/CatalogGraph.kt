@@ -43,6 +43,7 @@ fun NavGraphBuilder.registerCatalogGraph(
     onPlayHistory: (PlaybackHistory, AppDestination) -> Unit,
     consumeMoviePresentationHint: (NavBackStackEntry) -> Unit,
     consumeSeriesPresentationHint: (NavBackStackEntry) -> Unit,
+    stremioContent: @androidx.compose.runtime.Composable () -> Boolean = { false },
     decodeDestination: (String) -> AppDestination? = ::decodeCatalogReturnDestination,
 ) {
     composable(CatalogRoutePatterns.HOME) {
@@ -78,6 +79,7 @@ fun NavGraphBuilder.registerCatalogGraph(
             onPlaybackHistoryClick = { history -> onPlayHistory(history, AppDestination.Home) },
             scaffold = scaffold,
             dashboardShelfCustomizationContent = dashboardShelfCustomizationContent,
+            stremioContent = stremioContent,
         )
     }
 

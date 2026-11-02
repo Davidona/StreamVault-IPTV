@@ -29,8 +29,11 @@ internal fun SettingsRecordingBrowserDialog(
                     SettingsRecordingPlaybackRequest(
                         streamUrl = playbackUrl,
                         title = item.programTitle ?: item.channelName,
-                        internalId = item.id.hashCode().toLong().and(0x7FFFFFFFL),
-                        providerId = item.providerId,
+                        // Recording URLs are already playable (including the app-private
+                        // content URI used for SMB files). Passing the source provider here
+                        // makes the player try to resolve that URI as a provider stream.
+                        internalId = null,
+                        providerId = null,
                         contentType = "MOVIE",
                     )
                 )

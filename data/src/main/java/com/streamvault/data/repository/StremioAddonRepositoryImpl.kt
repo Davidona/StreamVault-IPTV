@@ -53,27 +53,20 @@ class StremioAddonRepositoryImpl @Inject constructor(
             ?: return Result.error("Addon manifest could not be read")
         val currentCatalog = manifest.catalogs.firstOrNull { it.settingsKey == catalogKey }
             ?: return Result.error("This catalog is no longer available")
-        val supportedExtras = setOf("search", "genre", "skip")
-        val unsupportedRequired = currentCatalog.extras.firstOrNull {
-            it.isRequired && it.name.lowercase() !in supportedExtras
-        }
-        if (unsupportedRequired != null) {
-            return Result.error("This catalog requires an unsupported '${unsupportedRequired.name}' filter")
-        }
         val missingRequired = currentCatalog.extras.firstOrNull { extra ->
             if (!extra.isRequired) return@firstOrNull false
             when (extra.name.lowercase()) {
                 "search" -> query.search.isNullOrBlank()
                 "genre" -> query.genre.isNullOrBlank()
                 "skip" -> query.skip == null
-                else -> false
+                else -> query.extraValues[extra.name].isNullOrBlank()
             }
         }
         if (missingRequired != null) {
             val instruction = when (missingRequired.name.lowercase()) {
                 "search" -> "Enter a search before loading this catalog"
                 "genre" -> "Choose a genre before loading this catalog"
-                else -> "This catalog requires pagination support"
+                else -> "This catalog requires a filter value"
             }
             return Result.error(instruction)
         }
@@ -156,6 +149,26 @@ class StremioAddonRepositoryImpl @Inject constructor(
             StremioInstalledAddon(entity.toDomain(), manifest)
         }
         .toList()
+
+    override suspend fun inspectAddon(url: String) = client.fetchManifest(url)
+
+    override suspend fun fetchAddonDirectory(url: String, catalog: StremioCatalogRef) =
+        client.fetchDirectory(url, catalog)
+
+    override suspend fun reportActivity(resource: String, type: StremioMediaType, id: String,
+        extras: List<Pair<String, String>>) {
+        val kind = StremioResourceKind.fromResourceName(resource)
+        if (kind !in setOf(StremioResourceKind.PLAYER, StremioResourceKind.LIBRARY)) return
+        val candidates = resourceResolver.candidates(resourceCandidates(), kind, type, id)
+            .filter { it.addon.catalogSettings["__activity_events"] == true }
+        resourceResolver.resolveMany<Unit>(candidates, request = { addon ->
+            when (val result = client.sendActivity(addon.installUrl, resource, type, id, extras)) {
+                is Result.Success -> Result.success(listOf(Unit))
+                is Result.Error -> result
+                Result.Loading -> Result.Loading
+            }
+        })
+    }
 
     override suspend fun installAddon(installUrl: String): Result<StremioAddon> {
         val snapshotResult = client.fetchManifestSnapshot(installUrl)

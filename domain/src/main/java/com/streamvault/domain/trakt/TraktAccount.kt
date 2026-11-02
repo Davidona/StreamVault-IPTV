@@ -9,7 +9,11 @@ data class TraktAccountState(
     val connecting: Boolean = false,
     val message: TraktMessage? = null,
     val profile: TraktUserProfile? = null,
+    val deviceAuthorization: TraktDeviceAuthorization? = null,
 )
+
+/** Public approval details only; the private device code stays in the data layer. */
+data class TraktDeviceAuthorization(val userCode: String, val verificationUrl: String, val intervalSeconds: Long)
 
 data class TraktUserProfile(
     val username: String,
@@ -29,6 +33,9 @@ interface TraktAccount {
     val state: StateFlow<TraktAccountState>
     suspend fun load()
     suspend fun beginSignIn(): String
+    suspend fun beginDeviceSignIn(): TraktDeviceAuthorization = error("Device authorization unavailable")
+    /** True when approval has completed or the attempt has ended. */
+    suspend fun pollDeviceSignIn(): Boolean = true
     suspend fun completeSignIn(callback: String)
     suspend fun cancelSignIn()
     suspend fun disconnect()

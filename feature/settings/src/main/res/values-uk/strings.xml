@@ -965,4 +965,11 @@
     <string name="settings_m3u_catchup_query_format">Формат запиту для відтворення архіву</string>
     <string name="settings_m3u_catchup_query_format_subtitle">Використовується для каналів M3U без власного джерела архіву. Залиште поле порожнім, щоб вимкнути цей резервний формат. Приклад: ?utc={utc}</string>
     <string name="settings_m3u_catchup_query_format_disabled">Вимкнено</string>
+    <string name="trakt_browser_sign_in">Увійти через браузер</string>
+    <string name="trakt_phone_sign_in">Підтвердити на іншому пристрої</string>
+    <string name="trakt_device_instructions">Відскануйте QR-код або відкрийте %1$s на телефоні. Введіть код нижче та дозвольте доступ. Цей екран підключиться автоматично. Якщо термін дії коду мине, скасуйте спробу та повторіть її.</string>
+    <string name="settings_text_size">Розмір тексту</string>
+    <string name="settings_text_size_default">Типовий (100%)</string>
+    <string name="settings_text_size_system">Як на пристрої</string>
+    <string name="settings_text_size_custom">Власний розмір</string>
 </resources>

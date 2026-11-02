@@ -91,7 +91,8 @@ class StreamVaultDatabaseMigrationTest {
             databaseName,
             90,
             true,
-            StreamVaultDatabase.MIGRATION_89_90
+            StreamVaultDatabase.MIGRATION_89_90,
+            StreamVaultDatabase.MIGRATION_90_91
         )
 
         migrated.query("SELECT name FROM providers WHERE id = 901").use { cursor ->

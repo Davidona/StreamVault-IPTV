@@ -960,4 +960,11 @@
     <string name="settings_m3u_catchup_query_format">Формат упита за репродукцију архиве</string>
     <string name="settings_m3u_catchup_query_format_subtitle">Користи се за M3U канале без сопственог извора за репродукцију архиве. Оставите празно да бисте искључили овај резервни формат. Пример: ?utc={utc}</string>
     <string name="settings_m3u_catchup_query_format_disabled">Искључено</string>
+    <string name="trakt_browser_sign_in">Пријави се преко прегледача</string>
+    <string name="trakt_phone_sign_in">Одобри на другом уређају</string>
+    <string name="trakt_device_instructions">Скенирајте QR код или отворите %1$s на телефону. Унесите код испод и одобрите приступ. Овај екран се аутоматски повезује. Ако код истекне, откажите и покушајте поново.</string>
+    <string name="settings_text_size">Величина текста</string>
+    <string name="settings_text_size_default">Подразумевано (100%)</string>
+    <string name="settings_text_size_system">Према уређају</string>
+    <string name="settings_text_size_custom">Прилагођено</string>
 </resources>

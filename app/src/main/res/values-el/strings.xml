@@ -291,4 +291,6 @@
     <string name="torrent_storage_check_failed">Δεν ήταν δυνατός ο έλεγχος του διαθέσιμου χώρου. Η αναπαραγωγή torrent δεν μπορεί να συνεχιστεί με ασφάλεια.</string>
     <string name="nav_extensions">Επεκτάσεις</string>
     <string name="nav_sports">Αθλητικά</string>
+    <string name="stremio_new_episode_channel">Ειδοποιήσεις νέων επεισοδίων</string>
+    <string name="stremio_new_episode_count">Νέα επεισόδια: %1$d</string>
 </resources>

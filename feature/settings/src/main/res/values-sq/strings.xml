@@ -957,4 +957,11 @@
     <string name="settings_m3u_catchup_query_format">Formati i kërkesës së riluajtjes nga arkivi</string>
     <string name="settings_m3u_catchup_query_format_subtitle">Përdoret për kanalet M3U pa burimin e tyre të riluajtjes nga arkivi. Lëreni bosh për ta çaktivizuar këtë format rezervë. Shembull: ?utc={utc}</string>
     <string name="settings_m3u_catchup_query_format_disabled">Joaktiv</string>
+    <string name="trakt_browser_sign_in">Hyr përmes shfletuesit</string>
+    <string name="trakt_phone_sign_in">Mirato në një pajisje tjetër</string>
+    <string name="trakt_device_instructions">Skanoni kodin QR ose hapni %1$s në telefon. Futni kodin më poshtë dhe miratoni qasjen. Ky ekran lidhet automatikisht. Nëse kodi skadon, anuloni dhe provoni përsëri.</string>
+    <string name="settings_text_size">Madhësia e tekstit</string>
+    <string name="settings_text_size_default">Parazgjedhja (100%)</string>
+    <string name="settings_text_size_system">Sipas pajisjes</string>
+    <string name="settings_text_size_custom">E personalizuar</string>
 </resources>

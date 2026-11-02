@@ -291,4 +291,6 @@
     <string name="torrent_storage_check_failed">Не вдалося перевірити доступне сховище. Відтворення торрента не можна безпечно продовжити.</string>
     <string name="nav_extensions">Розширення</string>
     <string name="nav_sports">Спорт</string>
+    <string name="stremio_new_episode_channel">Сповіщення про нові серії</string>
+    <string name="stremio_new_episode_count">Нові серії: %1$d</string>
 </resources>

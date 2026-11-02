@@ -44,7 +44,10 @@ class TraktPendingLogin(
 class TraktStoredSession(
     @SerializedName("tokens") val tokens: TraktTokens? = null,
     @SerializedName("pending") val pending: TraktPendingLogin? = null,
+    @SerializedName("device") val device: TraktPendingDevice? = null,
 )
+
+class TraktPendingDevice(val code: TraktDeviceCode, val expiresAt: Long, val nextPollAt: Long, val interval: Long)
 
 interface TraktTokenStore {
     fun read(): TraktStoredSession
@@ -55,7 +58,17 @@ interface TraktTokenStore {
 class TraktApiException(val status: Int, val oauthError: String? = null, val retryAfterSeconds: Long? = null) :
     Exception("Trakt request failed (HTTP $status)")
 
+class TraktDeviceCode(
+    @SerializedName("device_code") val deviceCode: String,
+    @SerializedName("user_code") val userCode: String,
+    @SerializedName("verification_url") val verificationUrl: String,
+    @SerializedName("expires_in") val expiresIn: Long,
+    @SerializedName("interval") val interval: Long,
+)
+
 interface TraktApi {
+    suspend fun deviceCode(): TraktDeviceCode = error("Device authorization unavailable")
+    suspend fun deviceToken(code: String): TraktTokens = error("Device authorization unavailable")
     suspend fun exchange(code: String, verifier: String): TraktTokens
     suspend fun refresh(refreshToken: String): TraktTokens
     suspend fun username(accessToken: String): String

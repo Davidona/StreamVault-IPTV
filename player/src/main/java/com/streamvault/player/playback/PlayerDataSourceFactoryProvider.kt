@@ -90,7 +90,8 @@ class PlayerDataSourceFactoryProvider(
                 buildClient(streamInfo, profile, forceHttp1, port, emptyMap())
             }
         }
-        val upstreamFactory = OkHttpDataSource.Factory(client).apply {
+        val serviceClient=StremioServiceConnectionPolicy.apply(client,streamInfo.url,streamInfo.requestHeadersOrigin!=null)
+        val upstreamFactory = OkHttpDataSource.Factory(serviceClient).apply {
             if (headers.isNotEmpty() && streamInfo.requestHeadersOrigin == null) {
                 setDefaultRequestProperties(headers)
             }

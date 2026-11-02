@@ -291,4 +291,6 @@
     <string name="torrent_storage_check_failed">Vapaata tallennustilaa ei voitu tarkistaa. Torrentin toistoa ei voida jatkaa turvallisesti.</string>
     <string name="nav_extensions">Laajennukset</string>
     <string name="nav_sports">Urheilu</string>
+    <string name="stremio_new_episode_channel">Uusien jaksojen ilmoitukset</string>
+    <string name="stremio_new_episode_count">Uudet jaksot: %1$d</string>
 </resources>

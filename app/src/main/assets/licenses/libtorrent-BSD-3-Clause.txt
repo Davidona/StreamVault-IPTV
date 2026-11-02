@@ -107,7 +107,7 @@ applications, and to alter it and redistribute it freely, subject to the followi
 
 ------------------------------------------------------------------------------
 
-src/sha1.cpp include/libtorrent/sha1.hpp
+src/sha1.cpp include/libtorrent/aux_/sha1.hpp
 
 SHA-1 in C
 By Steve Reid <sreid@sea-to-sky.net>

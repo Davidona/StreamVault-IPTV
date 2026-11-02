@@ -291,4 +291,6 @@
     <string name="torrent_storage_check_failed">Spațiul disponibil nu a putut fi verificat. Redarea torrentului nu poate continua în siguranță.</string>
     <string name="nav_extensions">Extensii</string>
     <string name="nav_sports">Sport</string>
+    <string name="stremio_new_episode_channel">Notificări pentru episoade noi</string>
+    <string name="stremio_new_episode_count">Episoade noi: %1$d</string>
 </resources>

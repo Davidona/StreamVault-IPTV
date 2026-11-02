@@ -347,4 +347,6 @@
     <string name="torrent_storage_check_failed">بررسی فضای ذخیره‌سازی ممکن نشد و پخش تورنت نمی‌تواند با اطمینان ادامه یابد.</string>
     <string name="nav_extensions">افزونه‌ها</string>
     <string name="nav_sports">ورزش</string>
+    <string name="stremio_new_episode_channel">اعلان قسمت‌های جدید</string>
+    <string name="stremio_new_episode_count">قسمت‌های جدید: %1$d</string>
 </resources>

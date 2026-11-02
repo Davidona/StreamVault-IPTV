@@ -11,7 +11,8 @@ data class StremioMetaPreview(
     val releaseInfo: String? = null,
     val imdbRating: String? = null,
     val genres: List<String> = emptyList(),
-    val runtime: String? = null
+    val runtime: String? = null,
+    val posterShape: String = "poster"
 )
 
 data class StremioCatalogPage(
@@ -19,17 +20,24 @@ data class StremioCatalogPage(
     /** `null` means the addon omitted the optional protocol field. */
     val hasMore: Boolean? = null,
     /** Count from the unfiltered JSON array, used for stable remote skip offsets. */
-    val rawItemCount: Int = metas.size
+    val rawItemCount: Int = metas.size,
+    val detailedMetas: List<StremioMetaDetail> = emptyList()
 )
 
 data class StremioCatalogQuery(
     val search: String? = null,
     val genre: String? = null,
-    val skip: Int? = null
+    val skip: Int? = null,
+    val extraValues: Map<String, String> = emptyMap()
 ) {
     fun toExtras(): List<Pair<String, String>> = buildList {
         search?.trim()?.takeIf { it.isNotEmpty() }?.let { add("search" to it) }
         genre?.trim()?.takeIf { it.isNotEmpty() }?.let { add("genre" to it) }
         skip?.takeIf { it >= 0 }?.let { add("skip" to it.toString()) }
+        extraValues.toSortedMap().forEach { (name, value) ->
+            if (name.isNotBlank() && name.lowercase() !in setOf("search", "genre", "skip") && value.isNotBlank()) {
+                add(name to value.trim())
+            }
+        }
     }
 }

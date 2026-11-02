@@ -91,6 +91,9 @@ jobs:
           OPENSUBTITLES_API_KEY: ${{ secrets.OPENSUBTITLES_API_KEY }}
         run: ./gradlew --console=plain :app:assembleRelease
 
+      - name: Verify native 16 KiB page alignment
+        run: python3 tools/check-native-page-alignment.py app/build/outputs/apk/release/*.apk
+
       - name: Prepare release artifact
         if: github.event_name == 'workflow_dispatch'
         shell: bash

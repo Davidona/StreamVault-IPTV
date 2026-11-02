@@ -77,6 +77,14 @@ run_compatibility_suite() {
 
 run_compatibility_suite
 
+PLATFORM_SMOKE_ACTIVE_SUITE="com.streamvault.torrent.TorrentNativeCompatibilityTest"
+export PLATFORM_SMOKE_ACTIVE_SUITE
+run_gradle --console=plain \
+  :app:connectedDebugAndroidTest \
+  "-PcompatAbi=${compat_abi}" \
+  -Pandroid.testInstrumentationRunnerArguments.class=com.streamvault.torrent.TorrentNativeCompatibilityTest \
+  --no-daemon
+
 if [ "$api_level" = "35" ] || [ "$api_level" = "36" ]; then
   PLATFORM_SMOKE_ACTIVE_SUITE="com.streamvault.app.service.DownloadForegroundServiceInstrumentationTest"
   export PLATFORM_SMOKE_ACTIVE_SUITE

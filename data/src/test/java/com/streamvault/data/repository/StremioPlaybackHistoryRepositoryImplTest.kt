@@ -33,6 +33,26 @@ class StremioPlaybackHistoryRepositoryImplTest {
         assertThat(dao.row?.exactVideoId).isEqualTo("tt12345:1:2")
         assertThat(dao.row?.resumePositionMs).isEqualTo(45_000L)
     }
+    @Test fun dismissalPreservesProgressAndHistoryAndPlaybackCanRestoreIt() = runTest {
+        val repo = StremioPlaybackHistoryRepositoryImpl(FakeStremioPlaybackHistoryDao())
+        val record = StremioPlaybackHistory("key","movie","tt1",title="Movie",resumePositionMs=5000,
+            totalDurationMs=10000,catalogOriginKey="a".repeat(64))
+        repo.save(record); repo.dismiss(record.contentKey)
+        val dismissed = repo.get(record.contentKey)!!
+        assertThat(dismissed.resumePositionMs).isEqualTo(5000L)
+        assertThat(dismissed.dismissedAtMs).isGreaterThan(0L)
+        repo.save(record.copy(resumePositionMs=6000))
+        assertThat(repo.get(record.contentKey)?.dismissedAtMs).isEqualTo(0L)
+    }
+    @Test fun lifecycleWriteAtCompletionDoesNotMakeCompletedVideoUnwatched() = runTest {
+        val repo = StremioPlaybackHistoryRepositoryImpl(FakeStremioPlaybackHistoryDao())
+        val record = StremioPlaybackHistory("key","movie","tt1",title="Movie",resumePositionMs=10000,
+            totalDurationMs=10000,catalogOriginKey="a".repeat(64))
+        repo.save(record)
+        assertThat(repo.get("key")?.watched).isTrue()
+        repo.save(record.copy(resumePositionMs=0,watched=false))
+        assertThat(repo.get("key")?.watched).isFalse()
+    }
 }
 
 private class FakeStremioPlaybackHistoryDao : StremioPlaybackHistoryDao {
@@ -41,6 +61,11 @@ private class FakeStremioPlaybackHistoryDao : StremioPlaybackHistoryDao {
 
     override fun observeContinueWatching(limit: Int): Flow<List<StremioPlaybackHistoryEntity>> =
         rows.asStateFlow()
+
+    override fun observeHistory(): Flow<List<StremioPlaybackHistoryEntity>> = rows.asStateFlow()
+    override suspend fun dismiss(key: String, at: Long) {
+        rows.value = rows.value.map { if (it.contentKey == key) it.copy(dismissedAtMs = at) else it }
+    }
 
     override suspend fun get(contentKey: String): StremioPlaybackHistoryEntity? =
         rows.value.firstOrNull { it.contentKey == contentKey }
@@ -51,6 +76,8 @@ private class FakeStremioPlaybackHistoryDao : StremioPlaybackHistoryDao {
     override suspend fun upsert(entity: StremioPlaybackHistoryEntity) {
         rows.value = rows.value.filterNot { it.contentKey == entity.contentKey } + entity
     }
+
+    override suspend fun upsertAll(entities: List<StremioPlaybackHistoryEntity>) { entities.forEach { upsert(it) } }
 
     override suspend fun delete(contentKey: String) {
         rows.value = rows.value.filterNot { it.contentKey == contentKey }

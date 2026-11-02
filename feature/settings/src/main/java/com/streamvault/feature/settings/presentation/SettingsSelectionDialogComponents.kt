@@ -41,6 +41,7 @@ internal fun SettingsSingleChoiceDialog(
     onDismiss: () -> Unit,
     widthFraction: Float = 0.52f,
     bodyHeightFraction: Float = 0.62f,
+    closeLabel: String? = null,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     PremiumDialog(
@@ -59,7 +60,7 @@ internal fun SettingsSingleChoiceDialog(
         },
         footer = {
             PremiumDialogFooterButton(
-                label = androidx.compose.ui.res.stringResource(R.string.settings_cancel),
+                label = closeLabel ?: androidx.compose.ui.res.stringResource(R.string.settings_cancel),
                 onClick = onDismiss,
             )
         },

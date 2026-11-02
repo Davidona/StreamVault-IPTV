@@ -122,8 +122,8 @@ class XtreamIncrementalIndexExecutorTest {
 
         assertThat(operations.fetchedCategoryIds).containsExactly(1L, 2L).inOrder()
         assertThat(operations.updates.last().nextCategoryIndex).isEqualTo(1)
-        assertThat(operations.updates.last().state).isEqualTo("QUEUED")
-        assertThat(operations.scheduled).containsExactly(ContentType.MOVIE)
+        assertThat(operations.updates.last().state).isEqualTo("PARTIAL")
+        assertThat(operations.scheduled).isEmpty()
     }
 
     @Test
@@ -246,6 +246,43 @@ class XtreamIncrementalIndexExecutorTest {
         assertThat(operations.scheduled).containsExactly(ContentType.MOVIE)
     }
 
+    @Test fun `retryable checkpoint resumes category cursor instead of restarting bulk`() = runTest {
+        val operations = FakeOperations(listOf(category(1L), category(2L), category(3L)),
+            job = XtreamIndexJobEntity(providerId = 1L, section = "MOVIE", state = "FAILED_RETRYABLE",
+                nextCategoryIndex = 2, completedCategories = 2, indexedRows = 20))
+        XtreamIncrementalIndexExecutor(operations).processSummary(provider(), mock(), ContentType.MOVIE, 4, onProgress = null)
+        assertThat(operations.fetchedCategoryIds).containsExactly(3L)
+        assertThat(operations.updates.last().indexedRows).isEqualTo(20)
+    }
+
+    @Test fun `failed bulk without categories cannot publish success or prune cached rows`() = runTest {
+        val failure = IOException("timeout")
+        val operations = FakeOperations(emptyList(), streamMovieResult = Result.error("timeout", failure))
+        try {
+            XtreamIncrementalIndexExecutor(operations).processSummary(provider(), mock(), ContentType.MOVIE, 4, onProgress = null)
+            error("Expected failure")
+        } catch (error: IOException) { assertThat(error).isSameInstanceAs(failure) }
+        assertThat(operations.updates.none { it.state == "SUCCESS" }).isTrue()
+        assertThat(operations.snapshots).doesNotContain("finish")
+    }
+
+    @Test fun `failed category preserves cache and does not schedule another failing pass`() = runTest {
+        val operations = FakeOperations(listOf(category(1L), category(2L)),
+            streamMovieResult = Result.error("unavailable"), failureCategoryId = 1L)
+        XtreamIncrementalIndexExecutor(operations).processSummary(provider(), mock(), ContentType.MOVIE, 4, onProgress = null)
+        assertThat(operations.updates.last().state).isEqualTo("PARTIAL")
+        assertThat(operations.updates.last().nextCategoryIndex).isEqualTo(0)
+        assertThat(operations.scheduled).isEmpty()
+        assertThat(operations.snapshots).doesNotContain("finish")
+    }
+
+    @Test fun `successful bulk reconciles deleted rows before publishing success`() = runTest {
+        val operations = FakeOperations(listOf(category(1L)), streamMovieResult = Result.success(7))
+        XtreamIncrementalIndexExecutor(operations).processSummary(provider(), mock(), ContentType.MOVIE, 4, onProgress = null)
+        assertThat(operations.snapshots).containsExactly("begin", "finish").inOrder()
+        assertThat(operations.updates.last().state).isEqualTo("SUCCESS")
+    }
+
     private class FakeOperations(
         private val categories: List<CategoryEntity>,
         private val job: XtreamIndexJobEntity? = null,
@@ -260,6 +297,9 @@ class XtreamIncrementalIndexExecutorTest {
         val fetchedCategoryIds = mutableListOf<Long>()
         val metadataUpdates = mutableListOf<Any>()
         val scheduled = mutableListOf<ContentType>()
+        val snapshots = mutableListOf<String>()
+        override suspend fun beginSnapshot(providerId: Long, contentType: ContentType) { snapshots += "begin" }
+        override suspend fun finishSnapshot(providerId: Long, contentType: ContentType) { snapshots += "finish" }
         private var elapsedRealtimeMillis = 0L
 
         override fun monotonicTimeMillis() = elapsedRealtimeMillis

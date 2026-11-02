@@ -94,7 +94,8 @@ class PlayerViewModel @Inject constructor(
     internal val playerPlaybackContextCoordinator: PlayerPlaybackContextCoordinator,
     internal val playerRecoveryCoordinator: PlayerRecoveryCoordinator,
     internal val playerRecoveryExecutionCoordinator: PlayerRecoveryExecutionCoordinator,
-    private val stremioAddonRepository: StremioAddonRepository,
+    internal val stremioAddonRepository: StremioAddonRepository,
+    internal val stremioStreamingService: com.streamvault.domain.model.stremio.StremioStreamingService = com.streamvault.domain.model.stremio.DisabledStremioStreamingService,
     internal val playerTraktCoordinator: PlayerTraktCoordinator,
     internal val searchExternalSubtitlesUseCase: SearchExternalSubtitles,
     internal val downloadExternalSubtitleUseCase: DownloadExternalSubtitle,
@@ -569,10 +570,18 @@ class PlayerViewModel @Inject constructor(
         )
     }
 
+    private val stremioEventDispatcher = StremioPlaybackEventDispatcher(stremioAddonRepository)
     init {
         observeCastPlaybackEvents()
         viewModelScope.launch {
             while (true) {
+                stremioEventDispatcher.update(
+                    currentStremioPlaybackReference, playerEngine.currentPosition.value,
+                    playerEngine.duration.value, playerEngine.isPlaying.value,
+                    playerEngine.playbackState.value == PlaybackState.READY,
+                    playerEngine.playbackState.value in setOf(PlaybackState.ENDED, PlaybackState.ERROR),
+                    SystemClock.elapsedRealtime(), playerEngine.playbackSpeed.value
+                )
                 reportTraktPlayback()
                 delay(500)
             }
@@ -2055,6 +2064,7 @@ class PlayerViewModel @Inject constructor(
     )?.url
 
     override fun onCleared() {
+        stremioEventDispatcher.close()
         playerTraktCoordinator.close()
         playbackSessionCoordinator.invalidate()
         playerPreparationCoordinator.stopPlayback(currentResolvedStreamInfo)

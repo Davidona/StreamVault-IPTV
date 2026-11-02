@@ -8,6 +8,7 @@ import com.streamvault.domain.model.DownloadContentType
 import com.streamvault.domain.model.DownloadRequest
 import com.streamvault.domain.model.DownloadSourceType
 import com.streamvault.domain.model.Result
+import com.streamvault.domain.model.stremio.*
 import com.streamvault.domain.model.stremio.StremioAddonResourceFailure
 import com.streamvault.domain.model.stremio.StremioAddonSource
 import com.streamvault.domain.model.stremio.StremioMediaType
@@ -17,6 +18,8 @@ import com.streamvault.domain.model.stremio.StremioStream
 import com.streamvault.domain.model.stremio.StremioStreamKind
 import com.streamvault.domain.model.stremio.StremioSubtitle
 import com.streamvault.domain.model.stremio.StremioVideo
+import com.streamvault.domain.model.stremio.stremioLibraryKey
+import com.streamvault.domain.model.stremio.stremioWatchedKey
 import com.streamvault.domain.model.stremio.installFingerprint
 import com.streamvault.domain.model.stremio.stremioMediaRequestHeaders
 import com.streamvault.domain.model.stremio.toMagnetUri
@@ -46,6 +49,10 @@ data class StremioItemDetailState(
     val replayOriginUnavailable: Boolean = false,
     val metadata: StremioMetaDetail? = null,
     val metaOrigin: StremioAddonSource? = null,
+    val inLibrary: Boolean = false,
+    val watchedKeys: Set<String> = emptySet(),
+    val libraryBusy: Boolean = false,
+    val libraryFailed: Boolean = false,
     val metadataLoading: Boolean = true,
     val metadataFailures: List<StremioAddonResourceFailure> = emptyList(),
     val metadataError: String? = null,
@@ -76,7 +83,8 @@ class StremioItemDetailViewModel @Inject constructor(
     private val contentAccess: StremioContentAccess,
     private val downloadManager: DownloadManager,
     private val downloadStarter: StremioDownloadStarter,
-    @param:ApplicationContext private val context: Context
+    @param:ApplicationContext private val context: Context,
+    private val playbackHistoryRepository: com.streamvault.domain.repository.StremioPlaybackHistoryRepository? = null
 ) : ViewModel() {
 
     private val originAddonId = savedStateHandle.get<Long>(ARG_ORIGIN_ADDON_ID) ?: -1L
@@ -103,33 +111,144 @@ class StremioItemDetailViewModel @Inject constructor(
     )
     val state: StateFlow<StremioItemDetailState> = _state.asStateFlow()
 
+    private var viewingHistory = emptyList<com.streamvault.domain.model.stremio.StremioPlaybackHistory>()
     private var metadataJob: Job? = null
     private var streamJob: Job? = null
     private var streamGeneration = 0L
 
     init {
         loadMetadata()
+        playbackHistoryRepository?.let { history ->
+            viewModelScope.launch {
+                history.observeHistory().collect { records ->
+                    viewingHistory = records
+                    reconcileWatched()
+                }
+            }
+        }
     }
 
     fun retryMetadata() = loadMetadata()
+
+    private fun reconcileWatched() {
+        val origin = state.value.catalogOriginKey ?: return
+        val ids = state.value.videos.map { it.id }.ifEmpty { listOf(exactId) }
+        _state.update { current ->
+            val keys = current.watchedKeys.toMutableSet()
+            for (id in ids) {
+                val key = stremioPlaybackContentKey(type.typeName, id, exactId.takeIf { current.videos.isNotEmpty() }, origin)
+                val record = viewingHistory.firstOrNull { it.contentKey == key } ?: continue
+                val marker = stremioWatchedKey(type, id)
+                if (record.watched) keys.add(marker) else keys.remove(marker)
+            }
+            current.copy(watchedKeys = keys)
+        }
+    }
+
+    fun setSeasonWatched(season: Int?, watched: Boolean) {
+        val current = state.value
+        if (current.libraryBusy || !contentAccess.canAccessContentNow()) return
+        val videos = current.videos.filter { (season == null || it.season == season) &&
+            (!watched || it.releaseInstant()?.let { release -> release <= java.time.Instant.now() } != false) }
+        val origin = current.catalogOriginKey ?: return
+        viewModelScope.launch {
+            _state.update { it.copy(libraryBusy = true, libraryFailed = false) }
+            try {
+                val records = videos.mapNotNull { video ->
+                    val key = stremioPlaybackContentKey(type.typeName, video.id, exactId, origin) ?: return@mapNotNull null
+                    val previous = viewingHistory.firstOrNull { it.contentKey == key }
+                    val record = previous ?: StremioPlaybackHistory(key, type.typeName, video.id, exactId,
+                        "${current.displayName} · ${video.title ?: video.id}", current.displayPoster, catalogOriginKey = origin)
+                    record.copy(watched = watched, resumePositionMs = if (watched) record.totalDurationMs else 0L,
+                        lastWatchedAt = if (previous == null && !watched) 0L else record.lastWatchedAt)
+                }
+                if (playbackHistoryRepository?.saveAll(records)?.isError == true) error("history update failed")
+                val markers = videos.map { stremioWatchedKey(type,it.id) }.toSet()
+                _state.update { it.copy(watchedKeys = if (watched) it.watchedKeys + markers else it.watchedKeys - markers) }
+                viewModelScope.launch {
+                    try {
+                        videos.chunked(100).forEach { batch -> repository.reportActivity("library", type, exactId,
+                            listOf("action" to if (watched) "watched" else "unwatched", "videoId" to batch.joinToString(",") { it.id })) }
+                    } catch (cancel: CancellationException) { throw cancel
+                    } catch (_: Exception) { /* Local watched state remains saved when an optional event fails. */ }
+                }
+            } catch (cancel: CancellationException) { throw cancel
+            } catch (_: Exception) { _state.update { it.copy(libraryFailed = true) }
+            } finally { _state.update { it.copy(libraryBusy = false) } }
+        }
+    }
+
+    private val libraryEventMutex = kotlinx.coroutines.sync.Mutex()
+    fun toggleLibrary() = updateLibrary(watched = false)
+    fun toggleWatched() = updateLibrary(watched = true)
+    private fun updateLibrary(watched: Boolean) {
+        val current = _state.value
+        if (!contentAccess.canAccessContentNow() || current.libraryBusy || current.replayOriginUnavailable) return
+        val videoId = current.requestedVideoId ?: exactId
+        val key = if (watched) stremioWatchedKey(type, videoId) else stremioLibraryKey(type, exactId)
+        val enabled = if (watched) key !in current.watchedKeys else !current.inLibrary
+        _state.update { it.copy(libraryBusy = true, libraryFailed = false) }
+        viewModelScope.launch {
+            try {
+                val result = repository.setCatalogEnabled(originAddonId, key, enabled)
+                if (result.getOrNull() != null) {
+                    _state.update {
+                        if (watched) it.copy(watchedKeys = if (enabled) it.watchedKeys + key else it.watchedKeys - key)
+                        else it.copy(inLibrary = enabled)
+                    }
+                    val action = if (watched) { if (enabled) "watched" else "unwatched" }
+                        else if (enabled) "libraryAdd" else "libraryRemove"
+                    val extras = buildList {
+                        add("action" to action)
+                        if (watched && videoId != exactId) add("videoId" to videoId)
+                    }
+                    if (watched) {
+                        val originKey = current.catalogOriginKey
+                        val contentKey = originKey?.let {
+                            stremioPlaybackContentKey(type.typeName, videoId,
+                                exactId.takeIf { current.videos.isNotEmpty() }, it)
+                        }
+                        if (contentKey != null && originKey != null) {
+                            val history = playbackHistoryRepository?.get(contentKey) ?: StremioPlaybackHistory(
+                                contentKey, type.typeName, videoId, exactId.takeIf { current.videos.isNotEmpty() },
+                                current.displayName, current.displayPoster, catalogOriginKey = originKey,
+                                lastWatchedAt = if (enabled) System.currentTimeMillis() else 0L)
+                            val saved = playbackHistoryRepository?.save(history.copy(watched = enabled,
+                                resumePositionMs = if (enabled) history.resumePositionMs else 0L))
+                            if (saved?.isError == true) _state.update { it.copy(libraryFailed = true) }
+                        }
+                    } else if (enabled) {
+                        repository.setCatalogEnabled(originAddonId, stremioFollowedKey(type, exactId, System.currentTimeMillis()), true)
+                    }
+                    viewModelScope.launch {
+                        libraryEventMutex.lock()
+                        try { repository.reportActivity("library", type, exactId, extras)
+                        } catch (cancel: CancellationException) { throw cancel
+                        } catch (_: Exception) {
+                        } finally { libraryEventMutex.unlock() }
+                    }
+                } else _state.update { it.copy(libraryFailed = true) }
+            } catch (cancel: CancellationException) { throw cancel
+            } catch (_: Exception) {
+                _state.update { it.copy(libraryFailed = true) }
+            } finally { _state.update { it.copy(libraryBusy = false) } }
+        }
+    }
 
     fun loadStreams(videoId: String) {
         if (!contentAccess.canAccessContentNow() || videoId.isBlank() ||
             type == StremioMediaType.UNKNOWN || _state.value.replayOriginUnavailable
         ) return
         val current = _state.value
-        val selectedVideo = when (type) {
-            StremioMediaType.MOVIE -> {
-                if (videoId != exactId) return
+        val selectedVideo = if (type == StremioMediaType.TV || current.metadata?.isLive == true) {
+            if (videoId != exactId) return
+            null
+        } else {
+            current.videos.firstOrNull { it.id == videoId } ?: run {
+                if (videoId != exactId && videoId != replayVideoId && videoId != current.metadata?.defaultVideoId) return
+                if (type == StremioMediaType.SERIES && current.videos.isNotEmpty() && videoId != replayVideoId) return
                 null
             }
-            StremioMediaType.SERIES -> current.metadata?.videos?.firstOrNull { it.id == videoId }
-                ?: if (videoId == replayVideoId || (videoId == exactId && current.videos.isEmpty())) {
-                    // Some add-ons expose a single playable item as a series. Try its known
-                    // catalog ID independently of metadata; never invent an episode ID.
-                    null
-                } else return
-            else -> return
         }
         streamJob?.cancel()
         val generation = ++streamGeneration
@@ -147,6 +266,21 @@ class StremioItemDetailViewModel @Inject constructor(
                 subtitleFailures = emptyList(),
                 downloadMessage = null
             )
+        }
+        val embeddedStreams = selectedVideo?.streams
+        val embeddedOrigin = current.metaOrigin
+        if (embeddedStreams != null && embeddedOrigin != null) {
+            _state.update {
+                it.copy(
+                    streamsLoading = false,
+                    streams = embeddedStreams.map { stream ->
+                        com.streamvault.domain.model.stremio.StremioAttributedResource(embeddedOrigin, stream)
+                    },
+                    streamCandidateCount = 1,
+                    streamProviderOrder = listOf(embeddedOrigin.addonId)
+                )
+            }
+            return
         }
         streamJob = viewModelScope.launch {
             try {
@@ -298,7 +432,7 @@ class StremioItemDetailViewModel @Inject constructor(
         val contentType = when (current.preview.type) {
             StremioMediaType.MOVIE -> DownloadContentType.MOVIE
             StremioMediaType.SERIES -> DownloadContentType.SERIES_EPISODE
-            else -> return
+            else -> DownloadContentType.MOVIE
         }
         val selectedVideo = current.selectedVideo?.takeIf { it.id == videoId }
         val request = DownloadRequest(
@@ -354,6 +488,10 @@ class StremioItemDetailViewModel @Inject constructor(
             try {
                 val origin = repository.getAddon(originAddonId)
                 val originKey = origin?.installFingerprint()
+                _state.update { current ->
+                    current.copy(inLibrary = origin?.catalogSettings?.get(stremioLibraryKey(type, exactId)) == true,
+                        watchedKeys = origin?.catalogSettings.orEmpty().filter { it.value && it.key.startsWith("__watched:") }.keys)
+                }
                 if (replayRequiresOrigin && (origin == null || !origin.enabled || originKey != replayOriginKey)) {
                     _state.update {
                         it.copy(
@@ -376,6 +514,17 @@ class StremioItemDetailViewModel @Inject constructor(
                         metaOrigin = result.result?.source ?: it.metaOrigin,
                         metadataFailures = result.failures
                     )
+                }
+                reconcileWatched()
+                val resolvedMeta = result.result?.resource
+                val requestedId = _state.value.requestedVideoId
+                if (requestedId == null && type != StremioMediaType.TV && resolvedMeta?.isLive != true) {
+                    resolvedMeta?.defaultVideoId?.let(::loadStreams)
+                } else if (requestedId == replayVideoId && requestedId != null &&
+                    resolvedMeta?.videos?.any { it.id == requestedId && it.streams != null } == true
+                ) {
+                    // Replay may start before metadata arrives. Inline streams remain authoritative.
+                    loadStreams(requestedId)
                 }
             } catch (cancellation: CancellationException) {
                 throw cancellation
