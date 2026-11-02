@@ -1,5 +1,6 @@
 package com.streamvault.app.plugins
 
+import android.annotation.SuppressLint
 import android.content.ActivityNotFoundException
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -1141,6 +1142,8 @@ class StreamVaultPluginManager @Inject constructor(
     private fun pendingMutationKey(owner: StreamVaultPluginOwner): String =
         "pending.${owner.packageName}|${owner.serviceClassName}|${owner.manifestId}"
 
+    // This checkpoint must be durable, and its write failure must stop the remote mutation.
+    @SuppressLint("ApplySharedPref")
     private fun recordPendingMutation(owner: StreamVaultPluginOwner, enabled: Boolean): Boolean =
         prefs.edit().putBoolean(pendingMutationKey(owner), enabled).commit()
 

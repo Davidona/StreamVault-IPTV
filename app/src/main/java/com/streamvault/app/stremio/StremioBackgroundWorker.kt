@@ -1,6 +1,7 @@
 package com.streamvault.app.stremio
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -40,6 +41,8 @@ class StremioBackgroundWorker @AssistedInject constructor(
     private val preferences:SettingsPreferences,
     private val parental:StremioCatalogParentalAccess
 ):CoroutineWorker(context,parameters) {
+    // Keep ledger writes durable before WorkManager receives a successful result.
+    @SuppressLint("ApplySharedPref")
     override suspend fun doWork():Result = withContext(Dispatchers.IO) {
         try {
             val synchronized=account.sync()
