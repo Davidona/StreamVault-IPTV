@@ -105,6 +105,16 @@ fun LiveGuideContent(
 
             LiveGuideContentMode.MESSAGE -> {
                 val message = requireNotNull(contentMessage)
+                LiveGuideToolbarRow(
+                    selectedCategoryName = selectedCategoryName,
+                    labels = labels.toolbar,
+                    onOpenCategoryPicker = onOpenCategoryPicker,
+                    onJumpToNow = onJumpToNow,
+                    onOpenSearch = onOpenSearch,
+                    onOpenOptions = onOpenOptions,
+                    onGuideInteract = onGuideInteract,
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 14.dp)
+                )
                 LiveGuideMessageState(
                     modifier = Modifier.weight(1f),
                     title = message.title,

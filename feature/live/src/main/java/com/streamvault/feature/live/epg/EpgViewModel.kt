@@ -38,12 +38,10 @@ import com.streamvault.domain.usecase.ScheduleRecording
 import com.streamvault.domain.usecase.ScheduleRecordingCommand
 import com.streamvault.data.preferences.PreferencesRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -203,7 +201,6 @@ private data class GuideBaseSnapshot(
     val guideWindowStart: Long,
     val guideWindowEnd: Long,
     val hiddenCategoryIds: Set<Long> = emptySet(),
-    val nextRawChannelOffset: Int = 0,
     val hasMoreChannels: Boolean = false,
     val guideSourcePolicy: GuideSourcePolicy? = null
 )
@@ -221,12 +218,6 @@ private data class GuideBaseComputation(
     val now: Long,
     val channelsWithSchedule: Int,
     val hasUpcomingData: Boolean
-)
-
-private data class GuidePrefetchedPage(
-    val channels: List<Channel>,
-    val programs: GuideProgramsResult,
-    val nextRawOffset: Int
 )
 
 private data class GuideSelectionRequest(
@@ -319,7 +310,6 @@ class EpgViewModel @Inject constructor(
     private var guideFallbackContext: GuideFallbackContext? = null
     private val sessionEmptyGuideKeys = mutableSetOf<GuideCacheKey>()
     private val persistedEmptyGuideKeys = mutableMapOf<Long, Map<String, Long>>()
-    private var prefetchJob: Deferred<GuidePrefetchedPage?>? = null
     private var loadMoreJob: Job? = null
     private var combinedCategoriesById: Map<Long, CombinedCategory> = emptyMap()
     private var previewPlayerEngine: PlayerEngine? = null
@@ -579,56 +569,32 @@ class EpgViewModel @Inject constructor(
         val snapshot = baseGuideSnapshot.value ?: return
         if (!snapshot.hasMoreChannels) return
         if (loadMoreJob?.isActive == true) return
-        val deferred = prefetchJob
-        if (deferred == null) {
-            val nextChannels = snapshot.allChannels
-                .drop(snapshot.visibleChannels.size)
-                .take(MAX_CHANNELS)
-            if (nextChannels.isEmpty()) {
-                baseGuideSnapshot.update { it?.copy(hasMoreChannels = false) }
-                return
-            }
-            loadMoreJob = viewModelScope.launch {
-                val programs = loadGuideProgramsForSnapshot(snapshot, nextChannels)
-                val current = baseGuideSnapshot.value ?: return@launch
-                if (current.selectedCategoryId != snapshot.selectedCategoryId ||
-                    current.providerId != snapshot.providerId
-                ) return@launch
-                val newVisible = current.visibleChannels + nextChannels
-                baseGuideSnapshot.update { s ->
-                    s?.copy(
-                        visibleChannels = newVisible,
-                        baseProgramsByChannel = s.baseProgramsByChannel + programs.programsByChannel,
-                        hasMoreChannels = newVisible.size < s.allChannels.size
-                    )
-                }
-                baseGuideSnapshot.value?.let(::enrichGuideSnapshot)
-            }
+        val nextChannels = snapshot.allChannels
+            .drop(snapshot.visibleChannels.size)
+            .take(MAX_CHANNELS)
+        if (nextChannels.isEmpty()) {
+            baseGuideSnapshot.update { it?.copy(hasMoreChannels = false) }
             return
         }
-        if (deferred.isCancelled) return
-        prefetchJob = null
         loadMoreJob = viewModelScope.launch {
-            val page = deferred.await() ?: run {
-                baseGuideSnapshot.update { it?.copy(hasMoreChannels = false) }
-                return@launch
-            }
+            val programs = loadGuideProgramsForSnapshot(snapshot, nextChannels)
             val current = baseGuideSnapshot.value ?: return@launch
-            // Guard: category must not have changed while prefetch was running
-            if (current.selectedCategoryId != snapshot.selectedCategoryId ||
-                current.providerId != snapshot.providerId
+            // Discard a page if the underlying guide changed while it was loading.
+            if (current.providerId != snapshot.providerId ||
+                current.selectedCategoryId != snapshot.selectedCategoryId ||
+                current.guideWindowStart != snapshot.guideWindowStart ||
+                current.guideWindowEnd != snapshot.guideWindowEnd ||
+                current.allChannels != snapshot.allChannels ||
+                current.visibleChannels != snapshot.visibleChannels
             ) return@launch
-            val newVisible = current.visibleChannels + page.channels
+            val newVisible = current.visibleChannels + nextChannels
             baseGuideSnapshot.update { s ->
                 s?.copy(
                     visibleChannels = newVisible,
-                    allChannels = newVisible,
-                    baseProgramsByChannel = s.baseProgramsByChannel + page.programs.programsByChannel,
-                    nextRawChannelOffset = page.nextRawOffset,
-                    hasMoreChannels = page.channels.size >= MAX_CHANNELS
+                    baseProgramsByChannel = s.baseProgramsByChannel + programs.programsByChannel,
+                    hasMoreChannels = newVisible.size < s.allChannels.size
                 )
             }
-            baseGuideSnapshot.value?.let { schedulePrefetchNextPage(it) }
             baseGuideSnapshot.value?.let(::enrichGuideSnapshot)
         }
     }
@@ -651,53 +617,6 @@ class EpgViewModel @Inject constructor(
                 windowEnd = snapshot.guideWindowEnd
             )
         }
-
-    private fun schedulePrefetchNextPage(snapshot: GuideBaseSnapshot) {
-        if (!snapshot.hasMoreChannels) return
-        prefetchJob = viewModelScope.async<GuidePrefetchedPage?> {
-            val channels = fetchGuideChannelPage(
-                providerId = snapshot.providerId,
-                categoryId = snapshot.selectedCategoryId,
-                offset = snapshot.nextRawChannelOffset,
-                hiddenCategoryIds = snapshot.hiddenCategoryIds,
-                favoritesOnly = snapshot.showFavoritesOnly,
-                favoriteChannelIds = snapshot.favoriteChannelIds
-            )
-            if (channels.isEmpty()) return@async null
-            val programs = loadGuidePrograms(
-                providerId = snapshot.providerId,
-                channels = channels,
-                windowStart = snapshot.guideWindowStart,
-                windowEnd = snapshot.guideWindowEnd
-            )
-            GuidePrefetchedPage(
-                channels = channels,
-                programs = programs,
-                nextRawOffset = snapshot.nextRawChannelOffset + MAX_CHANNELS
-            )
-        }
-    }
-
-    private suspend fun fetchGuideChannelPage(
-        providerId: Long,
-        categoryId: Long,
-        offset: Int,
-        hiddenCategoryIds: Set<Long>,
-        favoritesOnly: Boolean,
-        favoriteChannelIds: Set<Long>
-    ): List<Channel> {
-        if (providerId <= 0L) return emptyList()
-        if (
-            categoryId != ChannelRepository.ALL_CHANNELS_ID &&
-            (categoryId == VirtualCategoryIds.FAVORITES || categoryId < 0L)
-        ) return emptyList()
-        val withoutErrors = channelRepository.getChannelsWithoutErrorsPageOffset(providerId, categoryId, MAX_CHANNELS, offset)
-        val raw = withoutErrors.ifEmpty {
-            channelRepository.getChannelsByCategoryPageOffset(providerId, categoryId, MAX_CHANNELS, offset)
-        }
-        val filtered = if (hiddenCategoryIds.isEmpty()) raw else raw.filterNot { it.categoryId in hiddenCategoryIds }
-        return if (favoritesOnly) filtered.filter { it.id in favoriteChannelIds } else filtered
-    }
 
     fun openEpgOverride(channel: Channel) {
         _overrideUiState.value = EpgOverrideUiState(
@@ -1198,7 +1117,6 @@ class EpgViewModel @Inject constructor(
                         guideResult = guideResult
                     )
                     baseGuideSnapshot.value?.let(::enrichGuideSnapshot)
-                    baseGuideSnapshot.value?.let { schedulePrefetchNextPage(it) }
                     finalizeStartupCategory(request.resolvedCategoryId)
                 }
             }
@@ -1366,12 +1284,7 @@ class EpgViewModel @Inject constructor(
         channelSelection: GuideChannelSelection,
         guideResult: GuideProgramsResult
     ) {
-        prefetchJob?.cancel()
-        prefetchJob = null
         val visibleChannels = channelSelection.channels.take(MAX_CHANNELS)
-        val supportsOffsetPaging = providerId > 0L &&
-            (request.resolvedCategoryId == ChannelRepository.ALL_CHANNELS_ID ||
-                (request.resolvedCategoryId != VirtualCategoryIds.FAVORITES && request.resolvedCategoryId >= 0L))
         val computedNow = System.currentTimeMillis()
         // Room/preferences can emit again while on-demand enrichment is still running.
         // Keep usable schedules for this exact window instead of flashing empty rows.
@@ -1426,12 +1339,7 @@ class EpgViewModel @Inject constructor(
             guideWindowEnd = request.windowEnd,
             guideSourcePolicy = request.guideSourcePolicy,
             hiddenCategoryIds = request.hiddenCategoryIds,
-            nextRawChannelOffset = MAX_CHANNELS,
-            hasMoreChannels = if (supportsOffsetPaging) {
-                channelSelection.channels.size >= MAX_CHANNELS
-            } else {
-                channelSelection.channels.size > visibleChannels.size
-            }
+            hasMoreChannels = channelSelection.channels.size > visibleChannels.size
         )
     }
 
@@ -1624,7 +1532,7 @@ class EpgViewModel @Inject constructor(
         providerId: Long,
         request: GuideBaseRequest
     ) = when (request.resolvedCategoryId) {
-        ChannelRepository.ALL_CHANNELS_ID -> loadPreferredGuideChannelsPage(
+        ChannelRepository.ALL_CHANNELS_ID -> loadPreferredGuideChannels(
             providerId = providerId,
             categoryId = request.resolvedCategoryId,
             favoritesOnly = request.favoritesOnly
@@ -1638,14 +1546,14 @@ class EpgViewModel @Inject constructor(
             .map { favorites -> favorites.sortedBy { it.position }.map { it.contentId } }
             .flatMapLatest { ids -> loadGuideChannelsByOrderedIds(ids, providerId) }
 
-        else -> loadPreferredGuideChannelsPage(
+        else -> loadPreferredGuideChannels(
             providerId = providerId,
             categoryId = request.resolvedCategoryId,
             favoritesOnly = request.favoritesOnly
         )
     }
 
-    private fun loadPreferredGuideChannelsPage(
+    private fun loadPreferredGuideChannels(
         providerId: Long,
         categoryId: Long,
         favoritesOnly: Boolean
@@ -1668,8 +1576,8 @@ class EpgViewModel @Inject constructor(
             }
     } else {
         combine(
-            channelRepository.getChannelsByCategoryPage(providerId, categoryId, MAX_CHANNELS),
-            channelRepository.getChannelsWithoutErrorsPage(providerId, categoryId, MAX_CHANNELS),
+            channelRepository.getChannelsByCategory(providerId, categoryId),
+            channelRepository.getChannelsWithoutErrors(providerId, categoryId),
             favoriteRepository.getFavorites(providerId, ContentType.LIVE)
         ) { channelsByNumber, healthyChannels, _ ->
             healthyChannels.ifEmpty { channelsByNumber }

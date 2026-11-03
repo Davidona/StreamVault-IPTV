@@ -102,8 +102,8 @@ class EpgViewModelTest {
         whenever(favoriteRepository.getGroups(any<List<Long>>(), eq(ContentType.LIVE))).thenReturn(flowOf(emptyList()))
         whenever(favoriteRepository.getFavorites(any<Long>(), eq(ContentType.LIVE))).thenReturn(flowOf(emptyList()))
         whenever(favoriteRepository.getFavorites(any<List<Long>>(), eq(ContentType.LIVE))).thenReturn(flowOf(emptyList()))
-        whenever(channelRepository.getChannelsByCategoryPage(any(), any(), any())).thenReturn(flowOf(emptyList()))
-        whenever(channelRepository.getChannelsWithoutErrorsPage(any(), any(), any())).thenReturn(flowOf(emptyList()))
+        whenever(channelRepository.getChannelsByCategory(any(), any())).thenReturn(flowOf(emptyList()))
+        whenever(channelRepository.getChannelsWithoutErrors(any(), any())).thenReturn(flowOf(emptyList()))
         whenever(recordingManager.observeRecordingItems()).thenReturn(flowOf(emptyList()))
         whenever(programReminderManager.observeUpcomingReminders()).thenReturn(flowOf(emptyList()))
     }
@@ -161,8 +161,8 @@ class EpgViewModelTest {
         whenever(preferencesRepository.getHiddenCategoryIds(provider.id, ContentType.LIVE)).thenReturn(flowOf(emptySet()))
         whenever(preferencesRepository.getCategorySortMode(provider.id, ContentType.LIVE)).thenReturn(flowOf(CategorySortMode.DEFAULT))
         whenever(parentalControlManager.unlockedCategoriesForProvider(provider.id)).thenReturn(flowOf(emptySet()))
-        whenever(channelRepository.getChannelsByCategoryPage(provider.id, ChannelRepository.ALL_CHANNELS_ID, EpgViewModel.MAX_CHANNELS)).thenReturn(flowOf(channels))
-        whenever(channelRepository.getChannelsWithoutErrorsPage(provider.id, ChannelRepository.ALL_CHANNELS_ID, EpgViewModel.MAX_CHANNELS)).thenReturn(flowOf(channels))
+        whenever(channelRepository.getChannelsByCategory(provider.id, ChannelRepository.ALL_CHANNELS_ID)).thenReturn(flowOf(channels))
+        whenever(channelRepository.getChannelsWithoutErrors(provider.id, ChannelRepository.ALL_CHANNELS_ID)).thenReturn(flowOf(channels))
         whenever(preferencesRepository.guideDensity).thenReturn(flowOf(null))
         whenever(preferencesRepository.guideChannelMode).thenReturn(flowOf(null))
         whenever(preferencesRepository.guideDefaultCategoryId).thenReturn(flowOf(ChannelRepository.ALL_CHANNELS_ID))
@@ -177,8 +177,8 @@ class EpgViewModelTest {
         val channel = Channel(id = 1L, name = "One", providerId = provider.id, streamId = 101L, epgChannelId = "one")
         configureGuide(provider, listOf(channel))
         val emissions = MutableStateFlow(listOf(channel))
-        whenever(channelRepository.getChannelsByCategoryPage(provider.id, ChannelRepository.ALL_CHANNELS_ID, EpgViewModel.MAX_CHANNELS)).thenReturn(emissions)
-        whenever(channelRepository.getChannelsWithoutErrorsPage(provider.id, ChannelRepository.ALL_CHANNELS_ID, EpgViewModel.MAX_CHANNELS)).thenReturn(emissions)
+        whenever(channelRepository.getChannelsByCategory(provider.id, ChannelRepository.ALL_CHANNELS_ID)).thenReturn(emissions)
+        whenever(channelRepository.getChannelsWithoutErrors(provider.id, ChannelRepository.ALL_CHANNELS_ID)).thenReturn(emissions)
         val program = Program(id = 1L, channelId = "one", title = "Headline", startTime = System.currentTimeMillis() - 60_000L,
             endTime = System.currentTimeMillis() + 60_000L, providerId = provider.id)
         whenever(epgRepository.getResolvedProgramsForChannels(eq(provider.id), any(), any(), any()))
@@ -219,13 +219,51 @@ class EpgViewModelTest {
     }
 
     @Test
+    fun `guide pages through visible channels even when hidden categories span pages`() = runTest {
+        val provider = Provider(id = 1L, name = "Provider", type = ProviderType.M3U, serverUrl = "https://provider.example.com")
+        val channels = (1L..200L).map {
+            Channel(id = it, name = "Channel $it", providerId = provider.id, streamId = it,
+                categoryId = if (it <= 65 || it in 90L..155L) 10L else 20L)
+        }
+        configureGuide(provider, channels)
+        whenever(preferencesRepository.getHiddenCategoryIds(provider.id, ContentType.LIVE)).thenReturn(flowOf(setOf(10L)))
+        val viewModel = createViewModel()
+
+        waitForUiState { viewModel.uiState.value.channels.size == 60 }
+        assertThat(viewModel.uiState.value.channels.map { it.id }).containsExactlyElementsIn(
+            channels.filter { it.categoryId == 20L }.take(60).map { it.id }
+        ).inOrder()
+        assertThat(viewModel.uiState.value.hasMoreChannels).isTrue()
+
+        viewModel.requestMoreChannels()
+        waitForUiState { !viewModel.uiState.value.hasMoreChannels }
+        assertThat(viewModel.uiState.value.channels.map { it.id }).containsExactlyElementsIn(
+            channels.filter { it.categoryId == 20L }.map { it.id }
+        ).inOrder()
+    }
+
+    @Test
+    fun `guide is empty when all channel categories are hidden`() = runTest {
+        val provider = Provider(id = 1L, name = "Provider", type = ProviderType.M3U, serverUrl = "https://provider.example.com")
+        val channels = (1L..120L).map {
+            Channel(id = it, name = "Channel $it", providerId = provider.id, streamId = it, categoryId = 10L)
+        }
+        configureGuide(provider, channels)
+        whenever(preferencesRepository.getHiddenCategoryIds(provider.id, ContentType.LIVE)).thenReturn(flowOf(setOf(10L)))
+        val viewModel = createViewModel()
+
+        waitForUiState { !viewModel.uiState.value.isInitialLoading }
+        assertThat(viewModel.uiState.value.channels).isEmpty()
+        assertThat(viewModel.uiState.value.hasMoreChannels).isFalse()
+    }
+
+    @Test
     fun `guide enriches schedules for channels loaded after the first page`() = runTest {
         val provider = Provider(id = 1L, name = "Provider", type = ProviderType.XTREAM_CODES, serverUrl = "https://provider.example.com")
         val channels = (1L..61L).map { Channel(id = it, name = "Channel $it", providerId = provider.id, streamId = it, epgChannelId = "epg.$it") }
-        configureGuide(provider, channels.take(EpgViewModel.MAX_CHANNELS))
+        configureGuide(provider, channels)
         whenever(providerRepository.getProvider(provider.id)).thenReturn(provider)
         whenever(preferencesRepository.getEmptyGuideKeys(provider.id)).thenReturn(emptyMap())
-        whenever(channelRepository.getChannelsWithoutErrorsPageOffset(provider.id, ChannelRepository.ALL_CHANNELS_ID, EpgViewModel.MAX_CHANNELS, EpgViewModel.MAX_CHANNELS)).thenReturn(channels.drop(EpgViewModel.MAX_CHANNELS))
         whenever(providerRepository.getProgramsForLiveStreams(eq(provider.id), any(), any())).thenAnswer { invocation ->
             val requests: List<LiveStreamProgramRequest> = invocation.getArgument(1)
             requests.associateWith { request ->
@@ -260,8 +298,8 @@ class EpgViewModelTest {
         whenever(parentalControlManager.unlockedCategoriesForProvider(provider.id)).thenReturn(flowOf(emptySet()))
         whenever(channelRepository.getCategories(provider.id)).thenReturn(flowOf(listOf(Category(id = 10L, name = "News"))))
         whenever(channelRepository.getChannels(provider.id)).thenReturn(flowOf(channels))
-        whenever(channelRepository.getChannelsByCategoryPage(provider.id, ChannelRepository.ALL_CHANNELS_ID, EpgViewModel.MAX_CHANNELS)).thenReturn(flowOf(channels))
-        whenever(channelRepository.getChannelsWithoutErrorsPage(provider.id, ChannelRepository.ALL_CHANNELS_ID, EpgViewModel.MAX_CHANNELS)).thenReturn(flowOf(channels))
+        whenever(channelRepository.getChannelsByCategory(provider.id, ChannelRepository.ALL_CHANNELS_ID)).thenReturn(flowOf(channels))
+        whenever(channelRepository.getChannelsWithoutErrors(provider.id, ChannelRepository.ALL_CHANNELS_ID)).thenReturn(flowOf(channels))
         whenever(favoriteRepository.getFavorites(provider.id, ContentType.LIVE)).thenReturn(flowOf(emptyList()))
         whenever(preferencesRepository.guideDensity).thenReturn(flowOf(null))
         whenever(preferencesRepository.guideChannelMode).thenReturn(flowOf(null))
@@ -315,8 +353,8 @@ class EpgViewModelTest {
         whenever(parentalControlManager.unlockedCategoriesForProvider(provider.id)).thenReturn(flowOf(emptySet()))
         whenever(channelRepository.getCategories(provider.id)).thenReturn(flowOf(listOf(Category(id = 10L, name = "News"))))
         whenever(channelRepository.getChannels(provider.id)).thenReturn(flowOf(channels))
-        whenever(channelRepository.getChannelsByCategoryPage(provider.id, ChannelRepository.ALL_CHANNELS_ID, EpgViewModel.MAX_CHANNELS)).thenReturn(flowOf(channels))
-        whenever(channelRepository.getChannelsWithoutErrorsPage(provider.id, ChannelRepository.ALL_CHANNELS_ID, EpgViewModel.MAX_CHANNELS)).thenReturn(flowOf(channels))
+        whenever(channelRepository.getChannelsByCategory(provider.id, ChannelRepository.ALL_CHANNELS_ID)).thenReturn(flowOf(channels))
+        whenever(channelRepository.getChannelsWithoutErrors(provider.id, ChannelRepository.ALL_CHANNELS_ID)).thenReturn(flowOf(channels))
         whenever(favoriteRepository.getFavorites(provider.id, ContentType.LIVE)).thenReturn(flowOf(emptyList()))
         whenever(preferencesRepository.guideDensity).thenReturn(flowOf(null))
         whenever(preferencesRepository.guideChannelMode).thenReturn(flowOf(null))
@@ -364,8 +402,8 @@ class EpgViewModelTest {
         whenever(preferencesRepository.getCategorySortMode(originalProvider.id, ContentType.LIVE)).thenReturn(flowOf(CategorySortMode.DEFAULT))
         whenever(parentalControlManager.unlockedCategoriesForProvider(originalProvider.id)).thenReturn(flowOf(emptySet()))
         whenever(channelRepository.getCategories(originalProvider.id)).thenReturn(flowOf(listOf(Category(id = 10L, name = "News"))))
-        whenever(channelRepository.getChannelsByCategoryPage(originalProvider.id, ChannelRepository.ALL_CHANNELS_ID, EpgViewModel.MAX_CHANNELS)).thenReturn(flowOf(emptyList()))
-        whenever(channelRepository.getChannelsWithoutErrorsPage(originalProvider.id, ChannelRepository.ALL_CHANNELS_ID, EpgViewModel.MAX_CHANNELS)).thenReturn(flowOf(emptyList()))
+        whenever(channelRepository.getChannelsByCategory(originalProvider.id, ChannelRepository.ALL_CHANNELS_ID)).thenReturn(flowOf(emptyList()))
+        whenever(channelRepository.getChannelsWithoutErrors(originalProvider.id, ChannelRepository.ALL_CHANNELS_ID)).thenReturn(flowOf(emptyList()))
         whenever(favoriteRepository.getFavorites(originalProvider.id, ContentType.LIVE)).thenReturn(flowOf(emptyList()))
         whenever(preferencesRepository.guideDensity).thenReturn(flowOf(null))
         whenever(preferencesRepository.guideChannelMode).thenReturn(flowOf(null))
@@ -404,10 +442,9 @@ class EpgViewModelTest {
         whenever(channelRepository.getCategories(provider.id)).thenReturn(flowOf(listOf(Category(id = 10L, name = "News"))))
         whenever(channelRepository.getChannels(provider.id)).thenReturn(flowOf(channels))
         whenever(channelRepository.getChannelsByCategory(provider.id, 10L)).thenReturn(flowOf(channels))
-        whenever(channelRepository.getChannelsByCategoryPage(provider.id, ChannelRepository.ALL_CHANNELS_ID, EpgViewModel.MAX_CHANNELS)).thenReturn(flowOf(listOf(loadedChannel)))
-        whenever(channelRepository.getChannelsByCategoryPage(provider.id, 10L, EpgViewModel.MAX_CHANNELS)).thenReturn(flowOf(listOf(loadedChannel)))
-        whenever(channelRepository.getChannelsWithoutErrorsPage(provider.id, ChannelRepository.ALL_CHANNELS_ID, EpgViewModel.MAX_CHANNELS)).thenReturn(flowOf(listOf(loadedChannel)))
-        whenever(channelRepository.getChannelsWithoutErrorsPage(provider.id, 10L, EpgViewModel.MAX_CHANNELS)).thenReturn(flowOf(listOf(loadedChannel)))
+        whenever(channelRepository.getChannelsByCategory(provider.id, ChannelRepository.ALL_CHANNELS_ID)).thenReturn(flowOf(listOf(loadedChannel)))
+        whenever(channelRepository.getChannelsWithoutErrors(provider.id, ChannelRepository.ALL_CHANNELS_ID)).thenReturn(flowOf(listOf(loadedChannel)))
+        whenever(channelRepository.getChannelsWithoutErrors(provider.id, 10L)).thenReturn(flowOf(listOf(loadedChannel)))
         whenever(favoriteRepository.getFavorites(provider.id, ContentType.LIVE)).thenReturn(flowOf(emptyList()))
         whenever(preferencesRepository.guideDensity).thenReturn(flowOf(null))
         whenever(preferencesRepository.guideChannelMode).thenReturn(flowOf(null))
@@ -494,10 +531,10 @@ class EpgViewModelTest {
         whenever(channelRepository.getCategories(provider.id)).thenReturn(flowOf(listOf(Category(id = 10L, name = "News"))))
         whenever(channelRepository.getChannels(provider.id)).thenReturn(flowOf(channels))
         whenever(channelRepository.getChannelsByCategory(provider.id, 10L)).thenReturn(flowOf(channels))
-        whenever(channelRepository.getChannelsByCategoryPage(provider.id, ChannelRepository.ALL_CHANNELS_ID, EpgViewModel.MAX_CHANNELS)).thenReturn(flowOf(channels))
-        whenever(channelRepository.getChannelsByCategoryPage(provider.id, 10L, EpgViewModel.MAX_CHANNELS)).thenReturn(flowOf(channels))
-        whenever(channelRepository.getChannelsWithoutErrorsPage(provider.id, ChannelRepository.ALL_CHANNELS_ID, EpgViewModel.MAX_CHANNELS)).thenReturn(flowOf(channels))
-        whenever(channelRepository.getChannelsWithoutErrorsPage(provider.id, 10L, EpgViewModel.MAX_CHANNELS)).thenReturn(flowOf(channels))
+        whenever(channelRepository.getChannelsByCategory(provider.id, ChannelRepository.ALL_CHANNELS_ID)).thenReturn(flowOf(channels))
+        whenever(channelRepository.getChannelsByCategory(provider.id, 10L)).thenReturn(flowOf(channels))
+        whenever(channelRepository.getChannelsWithoutErrors(provider.id, ChannelRepository.ALL_CHANNELS_ID)).thenReturn(flowOf(channels))
+        whenever(channelRepository.getChannelsWithoutErrors(provider.id, 10L)).thenReturn(flowOf(channels))
         whenever(favoriteRepository.getFavorites(provider.id, ContentType.LIVE)).thenReturn(flowOf(emptyList()))
         whenever(preferencesRepository.guideDensity).thenReturn(flowOf(null))
         whenever(preferencesRepository.guideChannelMode).thenReturn(flowOf(null))
@@ -599,16 +636,16 @@ class EpgViewModelTest {
         whenever(preferencesRepository.getCategorySortMode(provider.id, ContentType.LIVE)).thenReturn(flowOf(CategorySortMode.DEFAULT))
         whenever(parentalControlManager.unlockedCategoriesForProvider(provider.id)).thenReturn(flowOf(emptySet()))
         whenever(channelRepository.getCategories(provider.id)).thenReturn(flowOf(listOf(Category(id = 10L, name = "News"))))
-        whenever(channelRepository.getChannelsByCategoryPage(provider.id, ChannelRepository.ALL_CHANNELS_ID, EpgViewModel.MAX_CHANNELS)).thenReturn(
+        whenever(channelRepository.getChannelsByCategory(provider.id, ChannelRepository.ALL_CHANNELS_ID)).thenReturn(
             flowOf(listOf(healthyChannel, unhealthyFavorite))
         )
-        whenever(channelRepository.getChannelsWithoutErrorsPage(provider.id, ChannelRepository.ALL_CHANNELS_ID, EpgViewModel.MAX_CHANNELS)).thenReturn(
+        whenever(channelRepository.getChannelsWithoutErrors(provider.id, ChannelRepository.ALL_CHANNELS_ID)).thenReturn(
             flowOf(listOf(healthyChannel))
         )
-        whenever(channelRepository.getChannelsByCategoryPage(provider.id, 10L, EpgViewModel.MAX_CHANNELS)).thenReturn(
+        whenever(channelRepository.getChannelsByCategory(provider.id, 10L)).thenReturn(
             flowOf(listOf(healthyChannel, unhealthyFavorite))
         )
-        whenever(channelRepository.getChannelsWithoutErrorsPage(provider.id, 10L, EpgViewModel.MAX_CHANNELS)).thenReturn(
+        whenever(channelRepository.getChannelsWithoutErrors(provider.id, 10L)).thenReturn(
             flowOf(listOf(healthyChannel))
         )
         whenever(channelRepository.getChannelsByIds(listOf(unhealthyFavorite.id))).thenReturn(
@@ -665,16 +702,16 @@ class EpgViewModelTest {
         whenever(preferencesRepository.getCategorySortMode(provider.id, ContentType.LIVE)).thenReturn(flowOf(CategorySortMode.DEFAULT))
         whenever(parentalControlManager.unlockedCategoriesForProvider(provider.id)).thenReturn(flowOf(emptySet()))
         whenever(channelRepository.getCategories(provider.id)).thenReturn(flowOf(listOf(Category(id = 10L, name = "News"))))
-        whenever(channelRepository.getChannelsByCategoryPage(provider.id, ChannelRepository.ALL_CHANNELS_ID, EpgViewModel.MAX_CHANNELS)).thenReturn(
+        whenever(channelRepository.getChannelsByCategory(provider.id, ChannelRepository.ALL_CHANNELS_ID)).thenReturn(
             flowOf(listOf(firstPageChannel))
         )
-        whenever(channelRepository.getChannelsWithoutErrorsPage(provider.id, ChannelRepository.ALL_CHANNELS_ID, EpgViewModel.MAX_CHANNELS)).thenReturn(
+        whenever(channelRepository.getChannelsWithoutErrors(provider.id, ChannelRepository.ALL_CHANNELS_ID)).thenReturn(
             flowOf(listOf(firstPageChannel))
         )
-        whenever(channelRepository.getChannelsByCategoryPage(provider.id, 10L, EpgViewModel.MAX_CHANNELS)).thenReturn(
+        whenever(channelRepository.getChannelsByCategory(provider.id, 10L)).thenReturn(
             flowOf(listOf(firstPageChannel))
         )
-        whenever(channelRepository.getChannelsWithoutErrorsPage(provider.id, 10L, EpgViewModel.MAX_CHANNELS)).thenReturn(
+        whenever(channelRepository.getChannelsWithoutErrors(provider.id, 10L)).thenReturn(
             flowOf(listOf(firstPageChannel))
         )
         whenever(channelRepository.getChannelsByCategory(provider.id, 10L)).thenReturn(
@@ -737,8 +774,8 @@ class EpgViewModelTest {
         whenever(preferencesRepository.getCategorySortMode(provider.id, ContentType.LIVE)).thenReturn(flowOf(CategorySortMode.DEFAULT))
         whenever(parentalControlManager.unlockedCategoriesForProvider(provider.id)).thenReturn(flowOf(emptySet()))
         whenever(channelRepository.getCategories(provider.id)).thenReturn(flowOf(listOf(Category(id = 10L, name = "News", count = 1))))
-        whenever(channelRepository.getChannelsByCategoryPage(provider.id, ChannelRepository.ALL_CHANNELS_ID, EpgViewModel.MAX_CHANNELS)).thenReturn(flowOf(channels))
-        whenever(channelRepository.getChannelsWithoutErrorsPage(provider.id, ChannelRepository.ALL_CHANNELS_ID, EpgViewModel.MAX_CHANNELS)).thenReturn(flowOf(channels))
+        whenever(channelRepository.getChannelsByCategory(provider.id, ChannelRepository.ALL_CHANNELS_ID)).thenReturn(flowOf(channels))
+        whenever(channelRepository.getChannelsWithoutErrors(provider.id, ChannelRepository.ALL_CHANNELS_ID)).thenReturn(flowOf(channels))
         whenever(favoriteRepository.getFavorites(provider.id, ContentType.LIVE)).thenReturn(flowOf(emptyList()))
         whenever(preferencesRepository.guideDensity).thenReturn(flowOf(null))
         whenever(preferencesRepository.guideChannelMode).thenReturn(flowOf(null))
