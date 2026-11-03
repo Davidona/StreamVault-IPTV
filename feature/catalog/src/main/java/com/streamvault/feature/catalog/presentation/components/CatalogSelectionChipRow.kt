@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -62,7 +63,8 @@ fun ChipRowSection(
     chipHorizontalPadding: Int = 16,
     supportingTextStyle: TextStyle = MaterialTheme.typography.bodySmall,
     supportingTextMaxLines: Int = Int.MAX_VALUE,
-    focusedContainerBoostWhenSelected: Boolean = false
+    focusedContainerBoostWhenSelected: Boolean = false,
+    firstItemFocusRequester: FocusRequester? = null
 ) {
     if (chips.isEmpty()) return
     val sounds = rememberTvInteractionSounds()
@@ -93,11 +95,11 @@ fun ChipRowSection(
             contentPadding = contentPadding,
             horizontalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            items(
+            itemsIndexed(
                 items = chips,
-                key = { it.key },
-                contentType = { "selection_chip" }
-            ) { chip ->
+                key = { _, chip -> chip.key },
+                contentType = { _, _ -> "selection_chip" }
+            ) { index, chip ->
                 val isSelected = chip.key == selectedKey
                 var wasFocused by remember(chip.key) { mutableStateOf(false) }
                 val focusRequester = remember(chip.key) { FocusRequester() }
@@ -107,6 +109,13 @@ fun ChipRowSection(
                         chip.onClick()
                     },
                     modifier = Modifier
+                        .then(
+                            if (index == 0 && firstItemFocusRequester != null) {
+                                Modifier.focusRequester(firstItemFocusRequester)
+                            } else {
+                                Modifier
+                            }
+                        )
                         .focusRequester(focusRequester)
                         .mouseClickable(
                             focusRequester = focusRequester,

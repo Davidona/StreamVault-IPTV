@@ -15,7 +15,10 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.unit.dp
@@ -47,6 +50,8 @@ fun LiveGuideGrid(
     labels: LiveGuideGridLabels,
     transparentOverlay: Boolean = false,
     initialFocusedChannelId: Long? = null,
+    hasMoreChannels: Boolean = false,
+    focusReady: Boolean = true,
     onChannelClick: (Channel) -> Unit,
     onChannelLongClick: ((Channel, Program?) -> Unit)? = null,
     onProgramClick: (Channel, Program) -> Unit,
@@ -64,17 +69,22 @@ fun LiveGuideGrid(
     }
     val horizontalScrollState = rememberScrollState()
     val verticalListState = rememberLazyListState()
-    val resolvedInitialChannelId = initialFocusedChannelId ?: channels.firstOrNull()?.id
-    val initialFocusRequester = remember(resolvedInitialChannelId) { FocusRequester() }
-    val initialFocusIndex = remember(channels, resolvedInitialChannelId) {
-        liveGuideInitialFocusIndex(channels, resolvedInitialChannelId)
-    }
+    val requestedChannelId = remember { initialFocusedChannelId }
+    var initialFocusApplied by remember { mutableStateOf(false) }
+    val initialFocusIndex = liveGuideInitialFocusIndex(channels, requestedChannelId)
+    val resolvedInitialChannelId = channels.getOrNull(initialFocusIndex)?.id
+    val initialFocusRequester = remember { FocusRequester() }
 
-    LaunchedEffect(channels.size, resolvedInitialChannelId) {
-        if (channels.isEmpty()) return@LaunchedEffect
+    LaunchedEffect(channels, hasMoreChannels, focusReady, initialFocusApplied) {
+        if (initialFocusApplied || !focusReady || channels.isEmpty()) return@LaunchedEffect
+        if (requestedChannelId != null && channels.none { it.id == requestedChannelId } && hasMoreChannels) {
+            onRequestMoreChannels()
+            return@LaunchedEffect
+        }
         verticalListState.scrollToItem((initialFocusIndex - 2).coerceAtLeast(0))
         delay(140)
         initialFocusRequester.requestFocus()
+        initialFocusApplied = true
     }
 
     BoxWithConstraints(

@@ -24,6 +24,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -152,7 +154,8 @@ fun VodClassicContentHeader(
     subtitle: String,
     actions: List<VodActionChip>,
     selectedActionKey: String? = null,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    firstActionFocusRequester: FocusRequester? = null
 ) {
     Row(
         modifier = modifier.fillMaxWidth(),
@@ -185,10 +188,15 @@ fun VodClassicContentHeader(
             horizontalArrangement = Arrangement.spacedBy(10.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            actions.forEach { action ->
+            actions.forEachIndexed { index, action ->
                 VodClassicHeaderActionButton(
                     action = action,
-                    isSelected = action.key == selectedActionKey
+                    isSelected = action.key == selectedActionKey,
+                    modifier = if (index == 0 && firstActionFocusRequester != null) {
+                        Modifier.focusRequester(firstActionFocusRequester)
+                    } else {
+                        Modifier
+                    }
                 )
             }
         }

@@ -128,6 +128,7 @@ data class EpgUiState(
     val isPreviewLoading: Boolean = false,
     val previewErrorMessage: String? = null,
     val previewChannelId: Long? = null,
+    val focusRestoreGeneration: Int = 0,
 ) {
     companion object {
         private val DEFAULT_NOW = System.currentTimeMillis()
@@ -508,6 +509,7 @@ class EpgViewModel @Inject constructor(
         _uiState.update {
             it.copy(
                 previewChannelId = session.channelId,
+                focusRestoreGeneration = it.focusRestoreGeneration + 1,
                 previewPlayerEngine = engine,
                 isPreviewLoading = false,
                 previewErrorMessage = null

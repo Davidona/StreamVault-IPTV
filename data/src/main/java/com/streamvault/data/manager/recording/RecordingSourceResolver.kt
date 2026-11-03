@@ -18,6 +18,7 @@ import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.CancellationException
+import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import okhttp3.OkHttpClient
 import okhttp3.Request
 
@@ -92,7 +93,10 @@ class RecordingSourceResolver @Inject constructor(
             userAgent = playbackInfo.userAgent
         )
         val client = recordingHttpClientFactory.create(networkProfile)
-        val inferred = playbackInfo.streamType.toRecordingSourceType() ?: sniffSourceType(recordingResolved, client)
+        val inferred = sourceTypeFromUrl(recordingResolved.url)
+            ?: probeAdaptiveType(recordingResolved, client).takeIf { it != RecordingSourceType.UNKNOWN }
+            ?: playbackInfo.streamType.toRecordingSourceType()
+            ?: RecordingSourceType.UNKNOWN
         return ResolvedRecordingSource(
             url = resolved.url,
             sourceType = inferred,
@@ -109,25 +113,17 @@ class RecordingSourceResolver @Inject constructor(
         )
     }
 
-    private suspend fun sniffSourceType(resolved: ResolvedStreamUrl, client: OkHttpClient): RecordingSourceType {
-        // Prefer the container extension reported by the URL resolver (e.g. from the
-        // Xtream internal token) — this avoids a network probe that many IPTV servers
-        // reject with 404/416 when a Range header is present.
-        resolved.containerExtension?.lowercase(Locale.ROOT)?.let { ext ->
-            return when (ext) {
-                "m3u8" -> RecordingSourceType.HLS
-                "ts" -> RecordingSourceType.TS
-                "mpd" -> RecordingSourceType.DASH
-                else -> RecordingSourceType.TS
-            }
-        }
-        val url = resolved.url.lowercase(Locale.ROOT)
-        return when {
-            url.contains(".mpd") || url.contains("ext=mpd") -> RecordingSourceType.DASH
-            url.endsWith(".ts") || url.contains(".ts?") || url.contains("ext=ts") -> RecordingSourceType.TS
-            url.endsWith(".m3u8") || url.contains(".m3u8?") || url.contains("ext=m3u8") -> RecordingSourceType.HLS
-            else -> probeAdaptiveType(resolved, client)
-        }
+    private fun sourceTypeFromUrl(url: String): RecordingSourceType? {
+        val parsedUrl = url.toHttpUrlOrNull() ?: return null
+        val pathExtension = parsedUrl.encodedPath
+            .substringAfterLast('/')
+            .substringAfterLast('.', missingDelimiterValue = "")
+        sourceTypeFromContainerExtension(pathExtension)?.let { return it }
+
+        return sequenceOf("output", "ext", "format")
+            .flatMap { name -> parsedUrl.queryParameterValues(name).asSequence() }
+            .mapNotNull(::sourceTypeFromContainerExtension)
+            .firstOrNull()
     }
 
     private suspend fun probeAdaptiveType(resolved: ResolvedStreamUrl, client: OkHttpClient): RecordingSourceType {
@@ -151,7 +147,8 @@ class RecordingSourceResolver @Inject constructor(
         }
         if (headResult != null) return headResult
 
-        // Fall back to a small GET to inspect the body prefix.
+        // Fall back to a bounded GET to inspect the body prefix. Live stream URLs
+        // can be unbounded, so never read the entire response body for detection.
         val request = buildRequest(resolved, isHead = false)
 
         val bodyPrefix = try {
@@ -162,7 +159,11 @@ class RecordingSourceResolver @Inject constructor(
                     "application/vnd.apple.mpegurl" in contentType || "application/x-mpegurl" in contentType -> return RecordingSourceType.HLS
                     "application/dash+xml" in contentType -> return RecordingSourceType.DASH
                 }
-                response.body?.string().orEmpty().take(1024)
+                response.body?.byteStream()?.use { input ->
+                    val buffer = ByteArray(1024)
+                    val count = input.read(buffer)
+                    if (count <= 0) "" else String(buffer, 0, count, Charsets.UTF_8)
+                }.orEmpty()
             }
         } catch (e: CancellationException) {
             throw e
@@ -194,6 +195,14 @@ class RecordingSourceResolver @Inject constructor(
             .build()
     }
 }
+
+private fun sourceTypeFromContainerExtension(extension: String?): RecordingSourceType? =
+    when (extension?.trim()?.removePrefix(".")?.lowercase(Locale.ROOT)) {
+        "ts", "mpegts", "mpeg-ts", "m2ts" -> RecordingSourceType.TS
+        "m3u8" -> RecordingSourceType.HLS
+        "mpd" -> RecordingSourceType.DASH
+        else -> null
+    }
 
 private fun StreamType.toRecordingSourceType(): RecordingSourceType? = when (this) {
     StreamType.HLS -> RecordingSourceType.HLS

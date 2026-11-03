@@ -108,6 +108,19 @@ fun SeriesScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
     val initialContentFocusRequester = remember { FocusRequester() }
+    LaunchedEffect(
+        uiState.selectedCategory,
+        uiState.isLoadingSelectedCategory,
+        uiState.selectedCategoryItems.size
+    ) {
+        if (uiState.selectedCategory != null) {
+            delay(100)
+            initialContentFocusRequester.requestFocusSafely(
+                tag = "SeriesScreen",
+                target = "Selected category content"
+            )
+        }
+    }
     var showPinDialog by remember { mutableStateOf(false) }
     var pinError by remember { mutableStateOf<String?>(null) }
     var pendingSeries by remember { mutableStateOf<Series?>(null) }
@@ -960,7 +973,10 @@ private fun SeriesVodContent(
                         }
                     },
                     selectedKey = if (hasActiveFilterSort) "browse_options" else null,
-                    modifier = Modifier.padding(top = 2.dp, bottom = 2.dp)
+                    modifier = Modifier.padding(top = 2.dp, bottom = 2.dp),
+                    firstActionFocusRequester = if (
+                        !showSearchBar && (uiState.isLoadingSelectedCategory || initialGridSeriesId == null)
+                    ) initialFocusRequester else null
                 )
             }
 
@@ -1400,7 +1416,10 @@ private fun SeriesVodClassicContent(
                         )
                     )
                 },
-                selectedActionKey = if (hasActiveFilterSortClassic) "browse_options" else null
+                selectedActionKey = if (hasActiveFilterSortClassic) "browse_options" else null,
+                firstActionFocusRequester = if (
+                    !showSearchBar && (uiState.isLoadingSelectedCategory || initialGridSeriesId == null)
+                ) initialFocusRequester else null
             )
 
             if (showSearchBar) {

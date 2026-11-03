@@ -20,15 +20,28 @@ import com.streamvault.domain.settings.PlaybackQualityPreferences
 import com.streamvault.domain.settings.ScopedPlaybackQualityPreference
 import com.streamvault.domain.settings.ResolvedPlaybackQualityPolicy
 import com.streamvault.domain.settings.evaluate
+import com.streamvault.player.DEVICE_SUBTITLE_TRACK_ID
+import com.streamvault.player.ONLINE_SUBTITLE_TRACK_ID
 import com.streamvault.player.PLAYER_TRACK_AUTO_ID
 import com.streamvault.player.PlayerTrack
 import com.streamvault.player.SubtitleTrackSource
+import com.streamvault.player.STREMIO_SUBTITLE_TRACK_ID
 import com.streamvault.player.TrackType
 import java.util.Locale
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+
+private val MERGED_ID_PREFIX = Regex("^(?:\\d+:)*")
+
+internal fun externalSubtitleSourceOf(formatId: String?): SubtitleTrackSource? =
+    when (formatId?.replace(MERGED_ID_PREFIX, "")) {
+        ONLINE_SUBTITLE_TRACK_ID -> SubtitleTrackSource.ONLINE
+        DEVICE_SUBTITLE_TRACK_ID -> SubtitleTrackSource.DEVICE
+        STREMIO_SUBTITLE_TRACK_ID -> SubtitleTrackSource.STREMIO
+        else -> null
+    }
 
 class PlayerTrackController(
     private val context: Context
@@ -376,12 +389,8 @@ class PlayerTrackController(
                             else -> TrackType.VIDEO
                         },
                         isSelected = if (isVideo) selectedVideoTrackId == id else group.isTrackSelected(index),
-                        subtitleSource = when (format.id) {
-                            com.streamvault.player.ONLINE_SUBTITLE_TRACK_ID -> com.streamvault.player.SubtitleTrackSource.ONLINE
-                            com.streamvault.player.DEVICE_SUBTITLE_TRACK_ID -> com.streamvault.player.SubtitleTrackSource.DEVICE
-                            com.streamvault.player.STREMIO_SUBTITLE_TRACK_ID -> com.streamvault.player.SubtitleTrackSource.STREMIO
-                            else -> com.streamvault.player.SubtitleTrackSource.PROVIDER
-                        },
+                        subtitleSource = externalSubtitleSourceOf(format.id)
+                            ?: SubtitleTrackSource.PROVIDER,
                         videoHeight = format.height.takeIf { isVideo && it > 0 },
                         videoBitrateBps = format.bitrate.takeIf { isVideo && it > 0 }?.toLong(),
                     )
