@@ -76,7 +76,7 @@ class DownloadManagerImpl @Inject constructor(
     private val pendingLeftoverOutputBasenames = ConcurrentHashMap.newKeySet<String>()
     private val schedulerMutex = Mutex()
     private val recoveryMutex = Mutex()
-    private val transferStateMachine = DownloadTransferStateMachine()
+    private val transferStateMachine = DownloadTransferStateMachine(maxRetries = MAX_RETRIES)
     private val transferCopier = DownloadTransferCopier()
     private val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
     private val ownerId = UUID.randomUUID().toString()
@@ -261,8 +261,7 @@ class DownloadManagerImpl @Inject constructor(
             val next = downloadDao.getQueuedOnce()
                 .firstOrNull {
                     !activeJobs.containsKey(it.id) &&
-                        (it.status == DownloadStatus.PENDING || it.retryCount == 0) &&
-                        it.retryCount < MAX_RETRIES
+                        transferStateMachine.canStartQueued(it.status, it.retryCount)
                 }
                 ?: return
             startDownloadJob(next)

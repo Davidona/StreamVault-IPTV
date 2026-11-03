@@ -5,7 +5,9 @@ All notable product changes are recorded in this document.
 ## [1.2.5]
 
 ### Fixed
+- Fixed downloads remaining pending indefinitely after repeated temporary failures; the final retry can now run and report a failure if it does not succeed.
 - Fixed the TV Guide showing no channels or stopping early when hidden categories occur before visible channels; guide controls now remain available in the empty state.
+- Fixed TV D-pad navigation getting trapped in Search, Guide category filter, and Category Controls fields; arrow keys now move the cursor within text and move focus to adjacent controls at text boundaries.
 - Fixed TV Guide focus returning to the first channel after leaving full-screen playback or loading more channels; the guide now restores the playing channel and keeps focus while paging.
 - Fixed Xtream live recordings being classified from stale container metadata instead of the resolved stream URL, which could select the HLS recorder for an MPEG-TS stream and leave a zero-byte recording.
 - Fixed downloaded external subtitles not being recognized or auto-selected when Media3 prefixes their track IDs during source merging.

@@ -218,10 +218,6 @@ fun SearchInput(
                         .focusRequester(inputFocusRequester)
                         .focusProperties {
                             canFocus = enabled && acceptsInput
-                            if (isTelevisionDevice && acceptsInput) {
-                                left = FocusRequester.Cancel
-                                right = FocusRequester.Cancel
-                            }
                         }
                         .onFocusChanged {
                             hasInputFocus = enabled && it.hasFocus
@@ -233,22 +229,14 @@ fun SearchInput(
                             }
                         }
                         .onPreviewKeyEvent { event ->
-                            if (!isTelevisionDevice || !acceptsInput || event.nativeKeyEvent.action != android.view.KeyEvent.ACTION_DOWN) {
+                            if (!isTelevisionDevice || !acceptsInput) {
                                 return@onPreviewKeyEvent false
                             }
-                            val cursor = textFieldValue.selection.end
-                            when (event.nativeKeyEvent.keyCode) {
-                                android.view.KeyEvent.KEYCODE_DPAD_LEFT -> {
-                                    val nextCursor = (cursor - 1).coerceAtLeast(0)
-                                    textFieldValue = textFieldValue.copy(selection = TextRange(nextCursor))
-                                    true
-                                }
-                                android.view.KeyEvent.KEYCODE_DPAD_RIGHT -> {
-                                    val nextCursor = (cursor + 1).coerceAtMost(textFieldValue.text.length)
-                                    textFieldValue = textFieldValue.copy(selection = TextRange(nextCursor))
-                                    true
-                                }
-                                else -> false
+                            handleTvSearchKey(event, textFieldValue, { textFieldValue = it },
+                                focusManager::moveFocus) {
+                                pendingInputActivation = false
+                                acceptsInput = false
+                                keyboardController?.hide()
                             }
                         },
                     textStyle = MaterialTheme.typography.bodySmall.copy(color = OnSurface),
