@@ -88,6 +88,7 @@ import com.streamvault.domain.model.VodViewMode
 import com.streamvault.feature.catalog.presentation.vod.HandleVodUserMessage
 import com.streamvault.feature.catalog.presentation.vod.ProtectedVodPinDialog
 import com.streamvault.feature.catalog.presentation.vod.VodBrowseDefaults
+import com.streamvault.feature.catalog.presentation.vod.VodSelectedCategoryFocus
 import com.streamvault.feature.catalog.presentation.vod.VodReorderMoveDirection
 import com.streamvault.feature.catalog.presentation.vod.shouldShowVodPreview
 import com.streamvault.feature.catalog.presentation.vod.vodActiveFilterSortDetail
@@ -108,19 +109,11 @@ fun SeriesScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
     val initialContentFocusRequester = remember { FocusRequester() }
-    LaunchedEffect(
-        uiState.selectedCategory,
-        uiState.isLoadingSelectedCategory,
-        uiState.selectedCategoryItems.size
-    ) {
-        if (uiState.selectedCategory != null) {
-            delay(100)
-            initialContentFocusRequester.requestFocusSafely(
-                tag = "SeriesScreen",
-                target = "Selected category content"
-            )
-        }
-    }
+    VodSelectedCategoryFocus(
+        category = uiState.selectedCategory,
+        contentReady = !uiState.isLoading && !uiState.isLoadingSelectedCategory && uiState.errorMessage == null,
+        focusRequester = initialContentFocusRequester
+    )
     var showPinDialog by remember { mutableStateOf(false) }
     var pinError by remember { mutableStateOf<String?>(null) }
     var pendingSeries by remember { mutableStateOf<Series?>(null) }

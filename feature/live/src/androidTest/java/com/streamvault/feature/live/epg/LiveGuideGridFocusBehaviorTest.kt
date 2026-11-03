@@ -2,6 +2,7 @@ package com.streamvault.feature.live.epg
 
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.key
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
@@ -16,6 +17,8 @@ import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @RunWith(AndroidJUnit4::class)
 class LiveGuideGridFocusBehaviorTest {
@@ -67,16 +70,47 @@ class LiveGuideGridFocusBehaviorTest {
         composeRule.waitUntil(5_000) { focusedId == 11L }
     }
 
+    @Test fun restoresChannelPastPageWithNoDisplayedRows() {
+        val channels = mutableStateOf(allChannels.take(60))
+        val loadedCount = mutableStateOf(60)
+        val loading = mutableStateOf(false)
+        var requests = 0
+        var focusedId: Long? = null
+        composeRule.setContent {
+            val scope = rememberCoroutineScope()
+            StreamVaultTheme {
+                grid(channels.value, initialId = 125L, hasMore = loadedCount.value < 180,
+                    loadedCount = loadedCount.value, loading = loading.value, onFocus = { focusedId = it },
+                    onMore = {
+                        requests++
+                        loading.value = true
+                        scope.launch {
+                            delay(60)
+                            loadedCount.value += 60
+                            if (loadedCount.value == 180) {
+                                channels.value += Channel(id = 125L, name = "Channel 125")
+                            }
+                            loading.value = false
+                        }
+                    })
+            }
+        }
+        composeRule.waitUntil(5_000) { focusedId == 125L }
+        composeRule.runOnIdle { assertEquals(2, requests) }
+    }
+
     @androidx.compose.runtime.Composable
     private fun grid(
         channels: List<Channel>, initialId: Long?, hasMore: Boolean,
-        onFocus: (Long) -> Unit, onMore: () -> Unit = {}
+        onFocus: (Long) -> Unit, onMore: () -> Unit = {},
+        loadedCount: Int = channels.size, loading: Boolean = false
     ) {
         LiveGuideGrid(
             channels = channels, favoriteChannelIds = emptySet(), programsByChannel = emptyMap(),
             guideWindowStart = 0L, guideWindowEnd = 3_600_000L, density = GuideDensity.COMPACT,
             labels = LiveGuideGridLabels("No schedule", "Archive", "Favorite"),
             initialFocusedChannelId = initialId, hasMoreChannels = hasMore,
+            loadedChannelCount = loadedCount, isLoadingMoreChannels = loading,
             onChannelClick = {}, onProgramClick = { _, _ -> },
             onChannelFocused = { channel, _, _ -> onFocus(channel.id) },
             onProgramFocused = { channel, _, _ -> onFocus(channel.id) },

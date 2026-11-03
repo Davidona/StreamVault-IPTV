@@ -243,6 +243,38 @@ class EpgViewModelTest {
     }
 
     @Test
+    fun `guide exposes paging progress when a page has no scheduled rows`() = runTest {
+        val provider = Provider(id = 1L, name = "Provider", type = ProviderType.M3U, serverUrl = "https://provider.example.com")
+        val channels = (1L..180L).map {
+            Channel(id = it, name = "Channel $it", providerId = provider.id, streamId = it)
+        }
+        configureGuide(provider, channels)
+        whenever(preferencesRepository.guideScheduledOnly).thenReturn(flowOf(true))
+        whenever(epgRepository.getResolvedProgramsForChannels(eq(provider.id), any(), any(), any()))
+            .thenAnswer { invocation ->
+                val ids: List<Long> = invocation.getArgument(1)
+                ids.filter { it <= 60L || it > 120L }.associate { id ->
+                    id.toString() to listOf(Program(id = id, channelId = id.toString(), title = "Program $id",
+                        startTime = System.currentTimeMillis() - 60_000L,
+                        endTime = System.currentTimeMillis() + 60_000L, providerId = provider.id))
+                }
+            }
+        val viewModel = createViewModel()
+        waitForUiState { viewModel.uiState.value.loadedChannelCount == 60 }
+        assertThat(viewModel.uiState.value.channels).hasSize(60)
+
+        viewModel.requestMoreChannels()
+        waitForUiState { viewModel.uiState.value.loadedChannelCount == 120 && !viewModel.uiState.value.isLoadingMoreChannels }
+        assertThat(viewModel.uiState.value.channels).hasSize(60)
+        assertThat(viewModel.uiState.value.hasMoreChannels).isTrue()
+
+        viewModel.requestMoreChannels()
+        waitForUiState { viewModel.uiState.value.loadedChannelCount == 180 && !viewModel.uiState.value.isLoadingMoreChannels }
+        assertThat(viewModel.uiState.value.channels).hasSize(120)
+        assertThat(viewModel.uiState.value.hasMoreChannels).isFalse()
+    }
+
+    @Test
     fun `guide is empty when all channel categories are hidden`() = runTest {
         val provider = Provider(id = 1L, name = "Provider", type = ProviderType.M3U, serverUrl = "https://provider.example.com")
         val channels = (1L..120L).map {

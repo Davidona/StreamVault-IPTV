@@ -122,6 +122,9 @@ data class EpgUiState(
     val reminderMessage: String? = null,
     val pendingRecordingConflict: RecordingConflictInfo? = null,
     val hasMoreChannels: Boolean = false,
+    // Counts loaded rows before schedule/search filters, so a filtered page still advances paging.
+    val loadedChannelCount: Int = 0,
+    val isLoadingMoreChannels: Boolean = false,
     val previewPlayerEngine: PlayerEngine? = null,
     val isPreviewLoading: Boolean = false,
     val previewErrorMessage: String? = null,
@@ -576,26 +579,32 @@ class EpgViewModel @Inject constructor(
             baseGuideSnapshot.update { it?.copy(hasMoreChannels = false) }
             return
         }
+        _uiState.update { it.copy(isLoadingMoreChannels = true) }
         loadMoreJob = viewModelScope.launch {
-            val programs = loadGuideProgramsForSnapshot(snapshot, nextChannels)
-            val current = baseGuideSnapshot.value ?: return@launch
-            // Discard a page if the underlying guide changed while it was loading.
-            if (current.providerId != snapshot.providerId ||
-                current.selectedCategoryId != snapshot.selectedCategoryId ||
-                current.guideWindowStart != snapshot.guideWindowStart ||
-                current.guideWindowEnd != snapshot.guideWindowEnd ||
-                current.allChannels != snapshot.allChannels ||
-                current.visibleChannels != snapshot.visibleChannels
-            ) return@launch
-            val newVisible = current.visibleChannels + nextChannels
-            baseGuideSnapshot.update { s ->
-                s?.copy(
-                    visibleChannels = newVisible,
-                    baseProgramsByChannel = s.baseProgramsByChannel + programs.programsByChannel,
-                    hasMoreChannels = newVisible.size < s.allChannels.size
-                )
+            try {
+                val programs = loadGuideProgramsForSnapshot(snapshot, nextChannels)
+                val current = baseGuideSnapshot.value ?: return@launch
+                // Discard a page if the underlying guide changed while it was loading.
+                if (current.providerId != snapshot.providerId ||
+                    current.selectedCategoryId != snapshot.selectedCategoryId ||
+                    current.guideWindowStart != snapshot.guideWindowStart ||
+                    current.guideWindowEnd != snapshot.guideWindowEnd ||
+                    current.allChannels != snapshot.allChannels ||
+                    current.visibleChannels != snapshot.visibleChannels
+                ) return@launch
+                val newVisible = current.visibleChannels + nextChannels
+                baseGuideSnapshot.update { s ->
+                    s?.copy(
+                        visibleChannels = newVisible,
+                        baseProgramsByChannel = s.baseProgramsByChannel + programs.programsByChannel,
+                        hasMoreChannels = newVisible.size < s.allChannels.size
+                    )
+                }
+                baseGuideSnapshot.value?.let(::enrichGuideSnapshot)
+            } finally {
+                loadMoreJob = null
+                _uiState.update { it.copy(isLoadingMoreChannels = false) }
             }
-            baseGuideSnapshot.value?.let(::enrichGuideSnapshot)
         }
     }
 
@@ -1432,7 +1441,8 @@ class EpgViewModel @Inject constructor(
                         guideAnchorTime = baseSnapshot.guideAnchorTime,
                         guideWindowStart = baseSnapshot.guideWindowStart,
                         guideWindowEnd = baseSnapshot.guideWindowEnd,
-                        hasMoreChannels = baseSnapshot.hasMoreChannels
+                        hasMoreChannels = baseSnapshot.hasMoreChannels,
+                        loadedChannelCount = baseSnapshot.visibleChannels.size
                     )
                 }
             }

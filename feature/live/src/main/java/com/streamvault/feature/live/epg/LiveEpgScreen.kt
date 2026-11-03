@@ -437,6 +437,8 @@ fun LiveEpgScreen(
             initialFocusedChannelId = if (pendingFocusRestore) uiState.previewChannelId else
                 savedFocusedChannelId.takeIf { savedFocusCategoryId == uiState.selectedCategoryId },
             hasMoreChannels = uiState.hasMoreChannels,
+            loadedChannelCount = uiState.loadedChannelCount,
+            isLoadingMoreChannels = uiState.isLoadingMoreChannels,
             labels = LiveGuideContentLabels(
                 loading = stringResource(R.string.epg_loading),
                 preview = LiveGuidePreviewLabels(

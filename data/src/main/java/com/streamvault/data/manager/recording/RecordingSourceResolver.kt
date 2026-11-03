@@ -161,8 +161,14 @@ class RecordingSourceResolver @Inject constructor(
                 }
                 response.body?.byteStream()?.use { input ->
                     val buffer = ByteArray(1024)
-                    val count = input.read(buffer)
-                    if (count <= 0) "" else String(buffer, 0, count, Charsets.UTF_8)
+                    var count = 0
+                    // A socket read can end in the middle of an HLS or DASH signature.
+                    while (count < buffer.size) {
+                        val read = input.read(buffer, count, buffer.size - count)
+                        if (read <= 0) break
+                        count += read
+                    }
+                    String(buffer, 0, count, Charsets.UTF_8)
                 }.orEmpty()
             }
         } catch (e: CancellationException) {

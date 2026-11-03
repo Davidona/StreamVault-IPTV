@@ -236,6 +236,10 @@ fun PlayerTransparentGuideOverlay(
                             ),
                             transparentOverlay = true,
                             initialFocusedChannelId = currentPlayerChannelId.takeIf { it > 0L },
+                            hasMoreChannels = uiState.hasMoreChannels,
+                            loadedChannelCount = uiState.loadedChannelCount,
+                            isLoadingMoreChannels = uiState.isLoadingMoreChannels,
+                            focusReady = !uiState.isRefreshing,
                             onChannelClick = { channel ->
                                 onWatchChannel(channel)
                                 onDismiss()
