@@ -40,6 +40,10 @@ internal object PlaybackBufferPolicies {
     private const val COMPAT_LIVE_MAX_BUFFER_MS = 45_000
     private const val VOD_MIN_BUFFER_MS = 90_000
     private const val VOD_MAX_BUFFER_MS = 240_000
+    private const val MEDIUM_VOD_MIN_BUFFER_MS = 45_000
+    private const val MEDIUM_VOD_MAX_BUFFER_MS = 90_000
+    private const val MEDIUM_VOD_PLAYBACK_BUFFER_MS = 30_000
+    private const val MEDIUM_VOD_REBUFFER_MS = 6_000
     private const val PLAYBACK_BUFFER_MS = 1_500
     private const val REBUFFER_MS = 5_000
     private const val VOD_PLAYBACK_BUFFER_MS = 8_000
@@ -103,6 +107,33 @@ internal object PlaybackBufferPolicies {
     ): PlaybackBufferPolicy {
         val kind = streamInfo?.playbackContentKind ?: PlaybackContentKind.UNKNOWN
         val isLive = isLivePlayback(kind, resolvedStreamType)
+        // A user-selected MEDIUM/LARGE buffer preference overrides the low-memory VOD policy.
+        // Live routes already honor MEDIUM/LARGE above; VOD previously stayed capped regardless
+        // of the preference, leaving low-memory-marked devices with ~3 s VOD buffers.
+        if (bufferMode == PlaybackBufferMode.MEDIUM && !isLive) {
+            return PlaybackBufferPolicy(
+                label = "medium-vod",
+                minBufferMs = MEDIUM_VOD_MIN_BUFFER_MS,
+                maxBufferMs = MEDIUM_VOD_MAX_BUFFER_MS,
+                playbackBufferMs = MEDIUM_VOD_PLAYBACK_BUFFER_MS,
+                rebufferMs = MEDIUM_VOD_REBUFFER_MS,
+                targetBufferBytes = DEFAULT_TARGET_BUFFER_BYTES,
+                prioritizeTimeOverSizeThresholds = false,
+                qualityReason = "user-medium"
+            )
+        }
+        if (bufferMode == PlaybackBufferMode.LARGE && !isLive) {
+            return PlaybackBufferPolicy(
+                label = "large-vod",
+                minBufferMs = VOD_MIN_BUFFER_MS,
+                maxBufferMs = VOD_MAX_BUFFER_MS,
+                playbackBufferMs = VOD_PLAYBACK_BUFFER_MS,
+                rebufferMs = VOD_REBUFFER_MS,
+                targetBufferBytes = DEFAULT_TARGET_BUFFER_BYTES,
+                prioritizeTimeOverSizeThresholds = false,
+                qualityReason = "user-large"
+            )
+        }
         if (bufferMode == PlaybackBufferMode.MEDIUM && isLive) {
             return mediumLivePolicy(label = "medium-live", qualityReason = "user-medium")
                 .withRawTsLoadingWindow(resolvedStreamType)
