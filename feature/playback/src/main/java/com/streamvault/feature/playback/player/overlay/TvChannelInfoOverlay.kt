@@ -1,7 +1,7 @@
 package com.streamvault.feature.playback.player.overlay
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -69,13 +69,13 @@ import androidx.compose.material.icons.filled.SwapHoriz
 import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material.icons.filled.Today
 import androidx.compose.material.icons.filled.VideoLibrary
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -90,9 +90,15 @@ import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.drawOutline
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -113,7 +119,6 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.tv.material3.Icon
-import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.streamvault.core.ui.design.AppColors
@@ -129,6 +134,7 @@ import java.util.Date
 import java.util.Locale
 import kotlin.math.abs
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 private val SafeHorizontal = 48.dp
 private val SafeVertical = 27.dp
@@ -779,8 +785,10 @@ private fun TrayAnchoredLayout(
 /**
  * Focus surface for the action row. The TV Material surface animates colour, scale and border
  * through state read during composition, which recomposed the whole button every frame of a focus
- * move. Here focus flips one state (one recomposition) and the scale animation is read only in a
- * graphicsLayer block, so the animation frames cost draw time, not composition time.
+ * move. Here focus is a state read only in the draw phase (background, border) and in the
+ * [content] colour producer, and the scale is an [Animatable] driven from the focus callback and
+ * read in a graphicsLayer block. A focus move therefore recomposes nothing in this surface; the
+ * animation frames cost draw time, not composition time.
  */
 @Composable
 private fun TvFocusSurface(
@@ -793,25 +801,29 @@ private fun TvFocusSurface(
     focusedScale: Float,
     modifier: Modifier = Modifier,
     focusedBorder: BorderStroke? = null,
-    content: @Composable BoxScope.() -> Unit
+    content: @Composable BoxScope.(contentColor: () -> Color) -> Unit
 ) {
     var isFocused by remember { mutableStateOf(false) }
-    val scale = animateFloatAsState(
-        targetValue = if (isFocused) focusedScale else 1f,
-        animationSpec = tween(FocusScaleMillis),
-        label = "focusScale"
-    )
+    val scale = remember { Animatable(1f) }
+    val scope = rememberCoroutineScope()
     Box(
         modifier = modifier
             .graphicsLayer {
                 scaleX = scale.value
                 scaleY = scale.value
             }
-            .background(if (isFocused) focusedContainerColor else containerColor, shape)
-            .then(
-                if (isFocused && focusedBorder != null) Modifier.border(focusedBorder, shape) else Modifier
-            )
-            .onFocusChanged { isFocused = it.isFocused }
+            .drawBehind {
+                drawFocusSurface(
+                    shape = shape,
+                    fill = if (isFocused) focusedContainerColor else containerColor,
+                    border = if (isFocused) focusedBorder else null
+                )
+            }
+            .onFocusChanged {
+                isFocused = it.isFocused
+                val target = if (it.isFocused) focusedScale else 1f
+                scope.launch { scale.animateTo(target, tween(FocusScaleMillis)) }
+            }
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null,
@@ -819,11 +831,41 @@ private fun TvFocusSurface(
                 onClick = onClick
             )
     ) {
-        CompositionLocalProvider(
-            LocalContentColor provides if (isFocused) focusedContentColor else contentColor,
-            content = { content() }
-        )
+        content { if (isFocused) focusedContentColor else contentColor }
     }
+}
+
+/** Matches Modifier.background plus Modifier.border: the stroke sits inside the bounds. */
+private fun DrawScope.drawFocusSurface(shape: Shape, fill: Color, border: BorderStroke?) {
+    if (fill.alpha > 0f) {
+        drawOutline(shape.createOutline(size, layoutDirection, this), fill)
+    }
+    if (border != null) {
+        val strokeWidth = border.width.toPx()
+        val inset = strokeWidth / 2f
+        translate(inset, inset) {
+            val outline = shape.createOutline(
+                Size(size.width - strokeWidth, size.height - strokeWidth),
+                layoutDirection,
+                this
+            )
+            drawOutline(outline, border.brush, style = Stroke(strokeWidth))
+        }
+    }
+}
+
+/**
+ * Icon tinted by a colour producer read in the draw phase, so a focus colour change redraws the icon
+ * without recomposing it (androidx.tv Icon takes a plain Color, which needs a composition read).
+ */
+@Composable
+private fun TvTintedIcon(imageVector: ImageVector, tint: () -> Color, modifier: Modifier = Modifier) {
+    val painter = rememberVectorPainter(imageVector)
+    Spacer(
+        modifier.drawBehind {
+            with(painter) { draw(size, colorFilter = ColorFilter.tint(tint())) }
+        }
+    )
 }
 
 @Composable
@@ -851,10 +893,10 @@ private fun TvPlayPauseButton(
             .size(56.dp)
             .semantics { contentDescription = label }
             .onFocusChanged { if (it.isFocused) onInteraction() }
-    ) {
-        Icon(
+    ) { contentColor ->
+        TvTintedIcon(
             imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
-            contentDescription = null,
+            tint = contentColor,
             modifier = Modifier
                 .align(Alignment.Center)
                 .size(30.dp)
@@ -863,7 +905,7 @@ private fun TvPlayPauseButton(
 }
 
 /**
- * Icon button in the glass pill; its label slides out only while focused. [onInteraction] runs on
+ * Icon button in the glass pill; its label shows only while focused. [onInteraction] runs on
  * focus and on click so the overlay's auto-hide timer restarts either way.
  */
 @Composable
@@ -896,20 +938,23 @@ private fun TvPillButton(
                     isFocused = it.isFocused
                     if (it.isFocused) onInteraction()
                 }
-        ) {
-            Icon(
+        ) { contentColor ->
+            TvTintedIcon(
                 imageVector = icon,
-                contentDescription = null,
-                tint = iconTint ?: LocalContentColor.current,
+                tint = { iconTint ?: contentColor() },
                 modifier = Modifier
                     .align(Alignment.Center)
                     .size(22.dp)
             )
         }
+        // Always composed and shown through alpha in the draw phase: adding and removing the label on
+        // every focus move cost a text layout, a node insert and accessibility structure events.
         // The owner's tray opens in the same spot above the pill, so the label steps aside for it.
-        if (isFocused && !isOwner) {
-            Box(Modifier.matchParentSize()) { TvPillLabel(label) }
-        }
+        Box(
+            Modifier
+                .matchParentSize()
+                .graphicsLayer { alpha = if (isFocused && !isOwner) 1f else 0f }
+        ) { TvPillLabel(label) }
     }
 }
 
@@ -1135,7 +1180,7 @@ private fun TvTrayButton(
                 isFocused = it.isFocused
                 if (it.isFocused) onInteraction()
             }
-    ) {
+    ) { contentColor ->
         Row(
             modifier = Modifier
                 .align(Alignment.Center)
@@ -1143,14 +1188,14 @@ private fun TvTrayButton(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(
+            TvTintedIcon(
                 imageVector = entry.icon,
-                contentDescription = null,
-                tint = entry.iconTint ?: LocalContentColor.current,
+                tint = { entry.iconTint ?: contentColor() },
                 modifier = Modifier.size(20.dp)
             )
             Text(
                 text = entry.label,
+                color = contentColor(),
                 style = MaterialTheme.typography.labelLarge.copy(fontSize = 14.sp),
                 fontWeight = FontWeight.SemiBold,
                 maxLines = 1
@@ -1634,7 +1679,7 @@ private fun TvMoreRow(
                 isFocused = it.isFocused
                 if (it.isFocused) onInteraction()
             }
-    ) {
+    ) { contentColor ->
         val secondary = if (isFocused) AppColors.SurfaceAccent else AppColors.TextSecondary
         Row(
             modifier = Modifier
@@ -1646,6 +1691,7 @@ private fun TvMoreRow(
             Icon(imageVector = icon, contentDescription = null, tint = secondary, modifier = Modifier.size(21.dp))
             Text(
                 text = label,
+                color = contentColor(),
                 style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.5.sp),
                 fontWeight = FontWeight.SemiBold,
                 maxLines = 1,
