@@ -112,7 +112,7 @@ data class SettingsUiState(
     val centerTwoSlotMultiviewLayout: Boolean = false,
     val multiViewRespectProviderConnectionLimit: Boolean = true,
     val playerControlsTimeoutSeconds: Int = 5,
-    val playerLiveOverlayTimeoutSeconds: Int = 4,
+    val playerLiveOverlayTimeoutSeconds: Int = 6,
     val playerLiveClockEnabled: Boolean = false,
     val playerLiveClockPosition: LiveClockPosition = LiveClockPosition.TOP_END,
     val playerLiveClockSize: LiveClockSize = LiveClockSize.MEDIUM,
