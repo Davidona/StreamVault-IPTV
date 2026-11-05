@@ -191,6 +191,7 @@
     <string name="player_more_controls">Још контрола</string>
     <string name="player_multiview_short">Мултиприказ</string>
     <string name="player_mute">Искључи звук</string>
+    <string name="player_more">Још</string>
     <string name="player_muted_badge">Без звука</string>
     <string name="player_next_label">Следеће:</string>
     <string name="player_no_guide_data">Нема података водича</string>

@@ -189,6 +189,7 @@
     <string name="player_more_controls">ตัวควบคุมเพิ่มเติม</string>
     <string name="player_multiview_short">มุมมองหลายจอ</string>
     <string name="player_mute">ปิดเสียง</string>
+    <string name="player_more">เพิ่มเติม</string>
     <string name="player_muted_badge">ปิดเสียงอยู่</string>
     <string name="player_next_label">ถัดไป:</string>
     <string name="player_no_guide_data">ไม่มีข้อมูลผังรายการ</string>

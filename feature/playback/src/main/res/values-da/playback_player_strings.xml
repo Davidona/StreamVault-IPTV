@@ -133,6 +133,7 @@
     <string name="player_more_controls">Flere kontroller</string>
     <string name="player_multiview_short">Multivisning</string>
     <string name="player_mute">Lyd fra</string>
+    <string name="player_more">Mere</string>
     <string name="player_muted_badge">Slået fra</string>
     <string name="player_next_label">Næste:</string>
     <string name="player_no_guide_data">Ingen guidedata</string>

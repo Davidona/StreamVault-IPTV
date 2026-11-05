@@ -105,4 +105,23 @@ class PlayerBackNavigationPolicyTest {
 
         assertThat(playerBackAction(state)).isEqualTo(PlayerBackAction.CANCEL_CLOSE_PLAYBACK)
     }
+
+    @Test
+    fun `channel info panel closes before the channel info overlay`() {
+        val state = PlayerBackNavigationState(
+            showChannelInfoOverlay = true,
+            channelInfoSubPanelOpen = true
+        )
+
+        assertThat(playerBackAction(state)).isEqualTo(PlayerBackAction.CLOSE_CHANNEL_INFO_PANEL)
+        assertThat(playerBackAction(state.copy(channelInfoSubPanelOpen = false)))
+            .isEqualTo(PlayerBackAction.CLOSE_CHANNEL_INFO)
+    }
+
+    @Test
+    fun `a stale panel flag without the overlay does not swallow back`() {
+        val state = PlayerBackNavigationState(channelInfoSubPanelOpen = true)
+
+        assertThat(playerBackAction(state)).isEqualTo(PlayerBackAction.NAVIGATE_BACK)
+    }
 }

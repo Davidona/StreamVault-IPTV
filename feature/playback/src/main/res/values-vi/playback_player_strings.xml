@@ -133,6 +133,7 @@
     <string name="player_more_controls">Thêm điều khiển</string>
     <string name="player_multiview_short">Đa màn hình</string>
     <string name="player_mute">Tắt tiếng</string>
+    <string name="player_more">Thêm</string>
     <string name="player_muted_badge">Đã tắt tiếng</string>
     <string name="player_next_label">Tiếp theo:</string>
     <string name="player_no_guide_data">Không có dữ liệu hướng dẫn</string>

@@ -133,6 +133,7 @@
     <string name="player_more_controls">その他の操作</string>
     <string name="player_multiview_short">マルチビュー</string>
     <string name="player_mute">ミュート</string>
+    <string name="player_more">その他</string>
     <string name="player_muted_badge">ミュート中</string>
     <string name="player_next_label">次:</string>
     <string name="player_no_guide_data">番組表データがありません</string>
