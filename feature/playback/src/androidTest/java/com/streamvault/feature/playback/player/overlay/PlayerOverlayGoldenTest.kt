@@ -21,6 +21,7 @@ import com.streamvault.core.ui.theme.StreamVaultTheme
 import com.streamvault.domain.model.Channel
 import com.streamvault.player.PlayerError
 import com.streamvault.player.TrackType
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import org.junit.Rule
 import org.junit.Test
@@ -87,6 +88,15 @@ class PlayerOverlayGoldenTest {
 
     @Test
     fun channelInfoOverlay_placesBackButtonAtTopLeft() {
+        assertChannelInfoBackButtonPlacement(isTelevision = false, expectedTop = 24.dp, expectedStart = 24.dp)
+    }
+
+    @Test
+    fun channelInfoOverlay_placesBackButtonInTvSafeArea() {
+        assertChannelInfoBackButtonPlacement(isTelevision = true, expectedTop = 27.dp, expectedStart = 48.dp)
+    }
+
+    private fun assertChannelInfoBackButtonPlacement(isTelevision: Boolean, expectedTop: Dp, expectedStart: Dp) {
         var backButtonClicks = 0
         composeRule.setContent {
             StreamVaultTheme {
@@ -119,7 +129,8 @@ class PlayerOverlayGoldenTest {
                     currentAspectRatio = "Original",
                     isDiagnosticsEnabled = false,
                     showBackButton = true,
-                    onBackToMenu = { backButtonClicks++ }
+                    onBackToMenu = { backButtonClicks++ },
+                    isTelevision = isTelevision
                 )
             }
         }
@@ -127,8 +138,8 @@ class PlayerOverlayGoldenTest {
         composeRule.onNodeWithContentDescription("Back to menu")
             .assertIsDisplayed()
             .assertHasClickAction()
-            .assertTopPositionInRootIsEqualTo(24.dp)
-            .assertLeftPositionInRootIsEqualTo(24.dp)
+            .assertTopPositionInRootIsEqualTo(expectedTop)
+            .assertLeftPositionInRootIsEqualTo(expectedStart)
             .performSemanticsAction(SemanticsActions.OnClick)
         assertThat(backButtonClicks).isEqualTo(1)
     }

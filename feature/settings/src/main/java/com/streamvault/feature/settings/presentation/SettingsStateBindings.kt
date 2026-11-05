@@ -72,7 +72,7 @@ fun observeSettingsPreferenceSnapshot(
             centerTwoSlotMultiviewLayout = false,
             multiViewRespectProviderConnectionLimit = true,
             playerControlsTimeoutSeconds = 5,
-            playerLiveOverlayTimeoutSeconds = 4,
+            playerLiveOverlayTimeoutSeconds = 6,
             playerLiveClockEnabled = false,
             playerLiveClockPosition = com.streamvault.domain.model.LiveClockPosition.TOP_END,
             playerLiveClockSize = com.streamvault.domain.model.LiveClockSize.MEDIUM,

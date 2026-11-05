@@ -133,6 +133,7 @@
     <string name="player_more_controls">Lisää säätimiä</string>
     <string name="player_multiview_short">Moninäkymä</string>
     <string name="player_mute">Mykistä</string>
+    <string name="player_more">Lisää</string>
     <string name="player_muted_badge">Mykistetty</string>
     <string name="player_next_label">Seuraavaksi:</string>
     <string name="player_no_guide_data">Ei ohjetietoja</string>
