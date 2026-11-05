@@ -133,6 +133,7 @@
     <string name="player_more_controls">Περισσότερα στοιχεία ελέγχου</string>
     <string name="player_multiview_short">Πολλαπλή προβολή</string>
     <string name="player_mute">Σίγαση</string>
+    <string name="player_more">Περισσότερα</string>
     <string name="player_muted_badge">Σε σίγαση</string>
     <string name="player_next_label">Επόμενο:</string>
     <string name="player_no_guide_data">Δεν υπάρχουν δεδομένα οδηγού</string>

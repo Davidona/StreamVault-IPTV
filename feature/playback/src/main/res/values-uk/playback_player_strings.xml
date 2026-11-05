@@ -135,6 +135,7 @@
     <string name="player_more_controls">Більше керування</string>
     <string name="player_multiview_short">Мультиперегляд</string>
     <string name="player_mute">Вимкнути звук</string>
+    <string name="player_more">Ще</string>
     <string name="player_muted_badge">Звук вимкнено</string>
     <string name="player_next_label">Далі:</string>
     <string name="player_no_guide_data">Немає даних програми</string>

@@ -79,7 +79,8 @@ internal fun BoxScope.PlayerLiveOverlayHost(
     onRunRecordingAction: (() -> Unit) -> Unit,
     onOpenCastRouteChooser: () -> Unit,
     onTransientPanelVisibilityChanged: (Boolean) -> Unit,
-    onScheduleByTime: () -> Unit = {}
+    onScheduleByTime: () -> Unit = {},
+    channelInfoPanelCloseRequests: Int = 0
 ) {
     val availableCategories by viewModel.availableCategories.collectAsStateWithLifecycle()
     val parentalControlLevel by viewModel.parentalControlLevel.collectAsStateWithLifecycle()
@@ -238,6 +239,7 @@ internal fun BoxScope.PlayerLiveOverlayHost(
                 onStopCasting = viewModel::stopCasting,
                 timeshiftUiState = timeshiftUiState,
                 onTransientPanelVisibilityChanged = onTransientPanelVisibilityChanged,
+                panelCloseRequests = channelInfoPanelCloseRequests,
                 resolutionLabel = buildChannelInfoResolutionLabel(videoFormat),
                 showBackButton = showBackButton,
                 onBackToMenu = onBackToMenu

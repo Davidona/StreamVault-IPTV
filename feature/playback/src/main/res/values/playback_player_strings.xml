@@ -190,6 +190,7 @@
     <string name="player_more_controls">More controls</string>
     <string name="player_multiview_short">Multiview</string>
     <string name="player_mute">Mute</string>
+    <string name="player_more">More</string>
     <string name="player_muted_badge">Muted</string>
     <string name="player_next_label">Next:</string>
     <string name="player_no_guide_data">No guide data</string>
