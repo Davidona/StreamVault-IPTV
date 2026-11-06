@@ -350,8 +350,11 @@ class ChannelInfoOverlayActionsTest {
     }
 
     @Test
-    fun `audio sheet with no tracks has no rows`() {
-        assertThat(tvTrackSheetRows(ChannelInfoPanel.AUDIO, emptyList(), false, false)).isEmpty()
+    fun `audio sheet with no tracks shows one disabled empty row`() {
+        val rows = tvTrackSheetRows(ChannelInfoPanel.AUDIO, emptyList(), false, false)
+        assertThat(rows).hasSize(1)
+        assertThat(rows.single().kind).isEqualTo(TvTrackSheetRowKind.EMPTY)
+        assertThat(rows.single().isEnabled).isFalse()
     }
 
     @Test

@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="player_error_live_startup_timeout">Playback could not start. Try another stream.</string>
+    <string name="player_track_closed_captions">Closed Captions</string>
+    <string name="player_track_closed_captions_numbered">Closed Captions %1$d</string>
 </resources>

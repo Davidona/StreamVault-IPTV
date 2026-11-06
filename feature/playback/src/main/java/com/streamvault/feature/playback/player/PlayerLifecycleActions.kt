@@ -267,6 +267,7 @@ fun PlayerViewModel.onPlayerScreenDisposed(): Job? {
     playerPlaybackContextCoordinator.clearSelectedCatchUpProgram()
     playerEngine.stopLiveTimeshift()
     stopLiveTranslationSession()
+    liveOverlayAutoHidePaused = false
     clearPlaybackTimers()
     // The screen is gone, even when navigation kept the ViewModelStore alive. Cancel any
     // in-flight preparation before it can finish and start playback in the background, and

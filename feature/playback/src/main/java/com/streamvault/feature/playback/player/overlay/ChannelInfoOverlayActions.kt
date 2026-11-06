@@ -106,7 +106,7 @@ internal fun channelInfoMoreItems(inputs: ChannelInfoActionInputs): List<Channel
     add(ChannelInfoMoreItem.STATS)
 }
 
-internal enum class TvTrackSheetRowKind { OFF, TRACK, LIVE_TRANSLATION, DIVIDER, SUBTITLE_DELAY, LOAD_FROM_DEVICE, DELAY_EARLIER, DELAY_LATER, DELAY_RESET }
+internal enum class TvTrackSheetRowKind { OFF, TRACK, LIVE_TRANSLATION, DIVIDER, SUBTITLE_DELAY, LOAD_FROM_DEVICE, DELAY_EARLIER, DELAY_LATER, DELAY_RESET, EMPTY }
 
 /** One row of the subtitles or audio side sheet. [key] is stable across track refreshes so focus survives them. */
 internal data class TvTrackSheetRow(
@@ -152,6 +152,9 @@ internal fun tvTrackSheetRows(
                 isSelected = tracks.none { it.isSelected } && !liveTranslationActive
             )
         )
+    }
+    if (!isSubtitles && tracks.isEmpty()) {
+        add(TvTrackSheetRow(key = "empty", kind = TvTrackSheetRowKind.EMPTY, isEnabled = false))
     }
     tracks.forEach { track ->
         add(

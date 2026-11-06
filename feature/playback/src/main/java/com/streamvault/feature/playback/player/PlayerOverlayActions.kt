@@ -130,6 +130,7 @@ fun PlayerViewModel.openChannelInfoOverlay() {
 fun PlayerViewModel.closeChannelInfoOverlay() {
     channelInfoHideJob?.cancel()
     showChannelInfoOverlayFlow.value = false
+    liveOverlayAutoHidePaused = false
     if (!hasVisibleTransientLiveOverlay()) clearLiveOverlayAutoHide()
 }
 
@@ -141,6 +142,7 @@ fun PlayerViewModel.closeOverlays() {
     showFullGuideOverlayFlow.value = false
     showChannelInfoOverlayFlow.value = false
     showDiagnosticsFlow.value = false
+    liveOverlayAutoHidePaused = false
     channelInfoHideJob?.cancel()
     clearLiveOverlayAutoHide()
     clearDiagnosticsAutoHide()

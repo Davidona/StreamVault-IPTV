@@ -9,25 +9,29 @@ class ClosedCaptionNameTest {
     private fun format(mime: String) = Format.Builder().setSampleMimeType(mime).build()
 
     @Test
-    fun `single cea-608 track is named Closed Captions`() {
-        assertThat(closedCaptionName(format(MimeTypes.APPLICATION_CEA608), 0, 1))
-            .isEqualTo("Closed Captions")
-    }
-
-    @Test
-    fun `single cea-708 track is named Closed Captions`() {
-        assertThat(closedCaptionName(format(MimeTypes.APPLICATION_CEA708), 0, 1))
-            .isEqualTo("Closed Captions")
-    }
-
-    @Test
-    fun `multiple caption tracks are numbered from one`() {
-        assertThat(closedCaptionName(format(MimeTypes.APPLICATION_CEA608), 1, 2))
-            .isEqualTo("Closed Captions 2")
+    fun `cea-608 and cea-708 formats are closed captions`() {
+        assertThat(isClosedCaptionFormat(format(MimeTypes.APPLICATION_CEA608))).isTrue()
+        assertThat(isClosedCaptionFormat(format(MimeTypes.APPLICATION_CEA708))).isTrue()
     }
 
     @Test
     fun `non caption subtitle formats are not renamed`() {
-        assertThat(closedCaptionName(format(MimeTypes.APPLICATION_SUBRIP), 0, 1)).isNull()
+        assertThat(isClosedCaptionFormat(format(MimeTypes.APPLICATION_SUBRIP))).isFalse()
+    }
+
+    @Test
+    fun `a single caption track is not numbered`() {
+        assertThat(closedCaptionNumber(captionIndex = 0, captionCount = 1)).isNull()
+    }
+
+    @Test
+    fun `multiple caption tracks are numbered by caption position`() {
+        assertThat(closedCaptionNumber(captionIndex = 0, captionCount = 2)).isEqualTo(1)
+        assertThat(closedCaptionNumber(captionIndex = 1, captionCount = 2)).isEqualTo(2)
+    }
+
+    @Test
+    fun `a non-caption position is not numbered`() {
+        assertThat(closedCaptionNumber(captionIndex = -1, captionCount = 2)).isNull()
     }
 }

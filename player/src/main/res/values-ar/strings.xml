@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="player_error_live_startup_timeout">تعذر بدء التشغيل. جرّب بثًا آخر.</string>
+    <string name="player_track_closed_captions">التسميات التوضيحية</string>
+    <string name="player_track_closed_captions_numbered">التسميات التوضيحية %1$d</string>
 </resources>
