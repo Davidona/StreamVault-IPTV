@@ -25,6 +25,7 @@ import com.streamvault.feature.playback.player.overlay.ChannelListOverlay
 import com.streamvault.feature.playback.player.overlay.CategoryListOverlay
 import com.streamvault.feature.playback.player.overlay.EpgOverlay
 import com.streamvault.feature.playback.player.overlay.PlayerNumericInputOverlay
+import com.streamvault.feature.playback.player.overlay.TvTrackSheetInputs
 import com.streamvault.domain.model.Channel
 import com.streamvault.domain.model.Program
 import com.streamvault.domain.model.VideoFormat
@@ -75,6 +76,7 @@ internal fun BoxScope.PlayerLiveOverlayHost(
     showDiagnostics: Boolean,
     videoFormat: VideoFormat,
     onOpenModal: (PlayerModal) -> Unit,
+    onPickLocalSubtitle: () -> Unit,
     onEnterPictureInPicture: () -> Unit,
     onRunRecordingAction: (() -> Unit) -> Unit,
     onOpenCastRouteChooser: () -> Unit,
@@ -178,6 +180,8 @@ internal fun BoxScope.PlayerLiveOverlayHost(
             val availableSubtitleTracks by viewModel.availableSubtitleTracks.collectAsStateWithLifecycle()
             val availableVideoQualities by viewModel.availableVideoQualities.collectAsStateWithLifecycle()
             val liveTranslationAvailable by viewModel.liveTranslationAvailable.collectAsStateWithLifecycle()
+            val liveTranslationActive by viewModel.liveTranslationActive.collectAsStateWithLifecycle()
+            val subtitleOffsetMs by viewModel.subtitleOffsetMs.collectAsStateWithLifecycle()
             val currentChannelRecording by viewModel.currentChannelRecording.collectAsStateWithLifecycle()
             val isMuted by viewModel.isMuted.collectAsStateWithLifecycle()
             val audioVideoSyncEnabled by viewModel.audioVideoSyncEnabled.collectAsStateWithLifecycle()
@@ -230,6 +234,25 @@ internal fun BoxScope.PlayerLiveOverlayHost(
                 onOpenSubtitleTracks = { onOpenModal(PlayerModal.TrackSelection(TrackType.TEXT)) },
                 onOpenAudioTracks = { onOpenModal(PlayerModal.TrackSelection(TrackType.AUDIO)) },
                 onOpenVideoTracks = { onOpenModal(PlayerModal.TrackSelection(TrackType.VIDEO)) },
+                trackSheetInputs = TvTrackSheetInputs(
+                    subtitleTracks = availableSubtitleTracks,
+                    audioTracks = availableAudioTracks,
+                    liveTranslationAvailable = liveTranslationAvailable,
+                    liveTranslationActive = liveTranslationActive,
+                    subtitleOffsetMs = subtitleOffsetMs,
+                    onSelectSubtitle = { trackId ->
+                        viewModel.deactivateLiveTranslation()
+                        viewModel.selectSubtitleTrack(trackId)
+                    },
+                    onSelectAudio = viewModel::selectAudioTrack,
+                    onSelectLiveTranslation = {
+                        viewModel.selectSubtitleTrack(null)
+                        viewModel.activateLiveTranslation()
+                    },
+                    onAdjustSubtitleOffset = viewModel::adjustSubtitleOffset,
+                    onResetSubtitleOffset = viewModel::resetSubtitleOffset,
+                    onLoadLocalSubtitle = onPickLocalSubtitle
+                ),
                 onOpenVariants = { onOpenModal(PlayerModal.VariantSelection) },
                 onOpenAudioVideoSync = { onOpenModal(PlayerModal.AudioVideoOffset) },
                 audioVideoSyncEnabled = audioVideoSyncEnabled,
@@ -239,6 +262,7 @@ internal fun BoxScope.PlayerLiveOverlayHost(
                 onStopCasting = viewModel::stopCasting,
                 timeshiftUiState = timeshiftUiState,
                 onTransientPanelVisibilityChanged = onTransientPanelVisibilityChanged,
+                onSideSheetVisibilityChanged = viewModel::setLiveOverlayAutoHidePaused,
                 panelCloseRequests = channelInfoPanelCloseRequests,
                 resolutionLabel = buildChannelInfoResolutionLabel(videoFormat),
                 showBackButton = showBackButton,

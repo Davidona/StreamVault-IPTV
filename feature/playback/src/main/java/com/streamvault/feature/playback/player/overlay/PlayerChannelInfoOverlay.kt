@@ -110,6 +110,7 @@ fun ChannelInfoOverlay(
     onToggleMute: () -> Unit = {},
     onOpenSubtitleTracks: () -> Unit = {},
     onOpenAudioTracks: () -> Unit = {},
+    trackSheetInputs: TvTrackSheetInputs = TvTrackSheetInputs(),
     onOpenVideoTracks: () -> Unit = {},
     onOpenVariants: () -> Unit = {},
     onOpenStreamFormats: () -> Unit = {},
@@ -121,6 +122,7 @@ fun ChannelInfoOverlay(
     onStopCasting: () -> Unit = {},
     timeshiftUiState: PlayerTimeshiftUiState = PlayerTimeshiftUiState(),
     onTransientPanelVisibilityChanged: (Boolean) -> Unit = {},
+    onSideSheetVisibilityChanged: (Boolean) -> Unit = {},
     panelCloseRequests: Int = 0,
     resolutionLabel: String? = null,
     showBackButton: Boolean = false,
@@ -188,8 +190,16 @@ fun ChannelInfoOverlay(
         if (panelCloseRequests > 0) expandedPanel = null
     }
 
+    val sideSheetOpen = expandedPanel?.isSideSheet == true
+    LaunchedEffect(sideSheetOpen) {
+        onSideSheetVisibilityChanged(sideSheetOpen)
+    }
+
     androidx.compose.runtime.DisposableEffect(Unit) {
-        onDispose { onTransientPanelVisibilityChanged(false) }
+        onDispose {
+            onTransientPanelVisibilityChanged(false)
+            onSideSheetVisibilityChanged(false)
+        }
     }
 
     BackHandler {
@@ -222,6 +232,7 @@ fun ChannelInfoOverlay(
                 ?.takeIf { it.isNotBlank() },
             timeshiftUiState = timeshiftUiState,
             showBackButton = showBackButton,
+            trackSheetInputs = trackSheetInputs,
             callbacks = TvChannelInfoCallbacks(
                 onDismiss = onDismiss,
                 onOverlayInteracted = onOverlayInteracted,
@@ -244,8 +255,6 @@ fun ChannelInfoOverlay(
                 onSeekToLiveEdge = onSeekToLiveEdge,
                 onOpenSplitScreen = onOpenSplitScreen,
                 onToggleMute = onToggleMute,
-                onOpenSubtitleTracks = onOpenSubtitleTracks,
-                onOpenAudioTracks = onOpenAudioTracks,
                 onOpenVideoTracks = onOpenVideoTracks,
                 onOpenVariants = onOpenVariants,
                 onOpenStreamFormats = onOpenStreamFormats,
@@ -785,8 +794,12 @@ fun ChannelInfoOverlay(
                     )
                 }
 
+                // Side sheets and the DVR tray only exist on TV.
                 ChannelInfoPanel.LIVE_DVR,
                 ChannelInfoPanel.MORE,
+                ChannelInfoPanel.SUBTITLES,
+                ChannelInfoPanel.AUDIO,
+                ChannelInfoPanel.SUBTITLE_DELAY,
                 null -> Unit
             }
         }

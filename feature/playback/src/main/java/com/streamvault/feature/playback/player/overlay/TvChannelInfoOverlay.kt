@@ -2,6 +2,7 @@ package com.streamvault.feature.playback.player.overlay
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -34,9 +35,11 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicText
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.EventNote
 import androidx.compose.material.icons.automirrored.filled.PlaylistPlay
@@ -81,6 +84,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -94,6 +98,7 @@ import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorProducer
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.drawOutline
@@ -125,6 +130,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.annotation.StringRes
 import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
@@ -138,6 +144,8 @@ import com.streamvault.domain.model.Program
 import com.streamvault.domain.model.RecordingStatus
 import com.streamvault.feature.playback.R
 import com.streamvault.feature.playback.player.PlayerTimeshiftUiState
+import com.streamvault.player.PlayerTrack
+import com.streamvault.player.SUBTITLE_OFFSET_STEP_MS
 import java.util.Date
 import java.util.Locale
 import kotlin.math.abs
@@ -158,6 +166,8 @@ private val PillLabelGap = 8.dp
 private val PillLabelMaxWidth = 120.dp
 
 private const val FocusScaleMillis = 60
+private const val SheetScrimAlpha = 0.2f
+private const val PanelFadeMillis = 200
 private val InfoToActionsGap = 28.dp
 
 /**
@@ -195,8 +205,6 @@ internal data class TvChannelInfoCallbacks(
     val onSeekToLiveEdge: () -> Unit,
     val onOpenSplitScreen: () -> Unit,
     val onToggleMute: () -> Unit,
-    val onOpenSubtitleTracks: () -> Unit,
-    val onOpenAudioTracks: () -> Unit,
     val onOpenVideoTracks: () -> Unit,
     val onOpenVariants: () -> Unit,
     val onOpenStreamFormats: () -> Unit,
@@ -204,6 +212,21 @@ internal data class TvChannelInfoCallbacks(
     val onEnterPictureInPicture: () -> Unit,
     val onCast: () -> Unit,
     val onStopCasting: () -> Unit
+)
+
+/** Data and actions for the subtitles and audio side sheet; collected by the host, read only while the sheet is open. */
+data class TvTrackSheetInputs(
+    val subtitleTracks: List<PlayerTrack> = emptyList(),
+    val audioTracks: List<PlayerTrack> = emptyList(),
+    val liveTranslationAvailable: Boolean = false,
+    val liveTranslationActive: Boolean = false,
+    val subtitleOffsetMs: Int = 0,
+    val onSelectSubtitle: (String?) -> Unit = {},
+    val onSelectAudio: (String) -> Unit = {},
+    val onSelectLiveTranslation: () -> Unit = {},
+    val onAdjustSubtitleOffset: (Int) -> Unit = {},
+    val onResetSubtitleOffset: () -> Unit = {},
+    val onLoadLocalSubtitle: () -> Unit = {}
 )
 
 /**
@@ -228,11 +251,14 @@ internal fun TvChannelInfoOverlay(
     variantLabel: String?,
     timeshiftUiState: PlayerTimeshiftUiState,
     showBackButton: Boolean,
+    trackSheetInputs: TvTrackSheetInputs,
     callbacks: TvChannelInfoCallbacks
 ) {
     val moreButtonFocusRequester = remember { FocusRequester() }
     val recordButtonFocusRequester = remember { FocusRequester() }
     val catchUpButtonFocusRequester = remember { FocusRequester() }
+    val subtitlesButtonFocusRequester = remember { FocusRequester() }
+    val audioButtonFocusRequester = remember { FocusRequester() }
     var previousPanel by remember { mutableStateOf<ChannelInfoPanel?>(null) }
     var overlayDismissing by remember { mutableStateOf(false) }
     var skipPanelFocusRestore by remember { mutableStateOf(false) }
@@ -258,6 +284,15 @@ internal fun TvChannelInfoOverlay(
                 tag = "TvChannelInfoOverlay",
                 target = "More button"
             )
+            ChannelInfoPanel.SUBTITLES, ChannelInfoPanel.SUBTITLE_DELAY ->
+                subtitlesButtonFocusRequester.requestFocusSafely(
+                    tag = "TvChannelInfoOverlay",
+                    target = "Subtitles button"
+                )
+            ChannelInfoPanel.AUDIO -> audioButtonFocusRequester.requestFocusSafely(
+                tag = "TvChannelInfoOverlay",
+                target = "Audio button"
+            )
         }
         if (!restored) {
             playPauseFocusRequester.requestFocusSafely(
@@ -267,8 +302,8 @@ internal fun TvChannelInfoOverlay(
         }
     }
 
-    // Back/Info, an item action, or an auto-collapse hands focus back to the tray owner.
-    // A focus move to another control closes the tray too, but then the new control keeps focus.
+    // Back/Info, an item action, or an auto-collapse hands focus back to the tray or side-sheet owner.
+    // A focus move to another control closes the panel too, but then the new control keeps focus.
     LaunchedEffect(expandedPanel) {
         val closedPanel = previousPanel
         if (expandedPanel == null && closedPanel != null && !overlayDismissing && !skipPanelFocusRestore) {
@@ -296,6 +331,16 @@ internal fun TvChannelInfoOverlay(
         onExpandedPanelChange(null)
         callbacks.onDismiss()
     }
+
+    // The bottom panel steps aside while a side sheet is open. It stays composed (so the pill that opened
+    // the sheet can take focus back) and fades in the layer block: no composition work, and a fully
+    // transparent layer is not drawn, so the open sheet also costs less GPU fill.
+    val sheetOpen = expandedPanel?.isSideSheet == true
+    val panelAlpha by animateFloatAsState(
+        targetValue = if (sheetOpen) 0f else 1f,
+        animationSpec = tween(PanelFadeMillis),
+        label = "bottomPanelAlpha"
+    )
 
     Box(modifier = Modifier.fillMaxSize()) {
         Row(
@@ -329,6 +374,7 @@ internal fun TvChannelInfoOverlay(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .fillMaxWidth()
+                .graphicsLayer { alpha = panelAlpha }
                 .padding(start = SafeHorizontal, end = SafeHorizontal, bottom = SafeVertical)
                 .background(PanelColor, PanelShape)
                 .padding(horizontal = PanelPaddingHorizontal, vertical = PanelPaddingVertical),
@@ -356,6 +402,8 @@ internal fun TvChannelInfoOverlay(
                     moreButtonFocusRequester = moreButtonFocusRequester,
                     recordButtonFocusRequester = recordButtonFocusRequester,
                     catchUpButtonFocusRequester = catchUpButtonFocusRequester,
+                    subtitlesButtonFocusRequester = subtitlesButtonFocusRequester,
+                    audioButtonFocusRequester = audioButtonFocusRequester,
                     isPlaying = isPlaying,
                     timeshiftUiState = timeshiftUiState,
                     callbacks = callbacks,
@@ -373,52 +421,101 @@ internal fun TvChannelInfoOverlay(
             )
         }
 
-        TvMoreSheet(
-            visible = expandedPanel == ChannelInfoPanel.MORE,
-            displayChannelNumber = displayChannelNumber,
-            channelName = currentChannel?.name,
-            items = moreItems,
-            isMuted = isMuted,
-            isCastConnected = actionInputs.isCastConnected,
-            isDiagnosticsEnabled = isDiagnosticsEnabled,
-            currentAspectRatio = currentAspectRatio,
-            resolutionLabel = resolutionLabel,
-            variantLabel = variantLabel,
-            lastGroupName = actionInputs.lastVisitedCategoryName,
-            onInteraction = callbacks.onOverlayInteracted,
-            onDismiss = { onExpandedPanelChange(null) },
-            onItemClick = { item ->
-                // Mute and aspect ratio apply in place; pickers and toggles close More first.
-                fun closeMoreThen(action: () -> Unit) {
-                    onExpandedPanelChange(null)
-                    action()
-                }
-                when (item) {
-                    ChannelInfoMoreItem.MUTE -> callbacks.onToggleMute()
-                    ChannelInfoMoreItem.ASPECT_RATIO -> callbacks.onToggleAspectRatio()
-                    ChannelInfoMoreItem.QUALITY -> closeMoreThen(callbacks.onOpenVideoTracks)
-                    ChannelInfoMoreItem.VARIANTS -> closeMoreThen(callbacks.onOpenVariants)
-                    ChannelInfoMoreItem.FORMAT -> closeMoreThen(callbacks.onOpenStreamFormats)
-                    ChannelInfoMoreItem.AV_SYNC -> closeMoreThen(callbacks.onOpenAudioVideoSync)
-                    ChannelInfoMoreItem.PICTURE_IN_PICTURE -> closeMoreThen(callbacks.onEnterPictureInPicture)
-                    ChannelInfoMoreItem.CAST -> closeMoreThen(
-                        if (actionInputs.isCastConnected) callbacks.onStopCasting else callbacks.onCast
+        // One container for every side sheet; the latched panel keeps title and rows alive through the exit animation.
+        val sheetPanel = rememberLatchedSheetPanel(expandedPanel)
+        TvSideSheet(
+            visible = expandedPanel?.isSideSheet == true,
+            contentKey = sheetPanel,
+            titleRes = when (sheetPanel) {
+                ChannelInfoPanel.SUBTITLES -> R.string.player_track_subs
+                ChannelInfoPanel.AUDIO -> R.string.player_track_audio
+                ChannelInfoPanel.SUBTITLE_DELAY -> R.string.player_subtitle_delay_title
+                else -> R.string.player_more
+            },
+            subtitle = {
+                if (sheetPanel == ChannelInfoPanel.SUBTITLE_DELAY) {
+                    Text(
+                        text = stringResource(
+                            R.string.player_subtitle_delay_current,
+                            trackSheetInputs.subtitleOffsetMs
+                        ),
+                        style = MaterialTheme.typography.labelLarge.copy(fontSize = 13.sp),
+                        color = AppColors.TextTertiary,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
-                    ChannelInfoMoreItem.STATS -> closeMoreThen(callbacks.onToggleDiagnostics)
-                    ChannelInfoMoreItem.MULTIVIEW -> {
-                        dismissOverlay()
-                        callbacks.onOpenSplitScreen()
-                    }
-                    ChannelInfoMoreItem.LAST_GROUP -> {
-                        // The host closes the overlay as part of opening the group.
-                        overlayDismissing = true
-                        onExpandedPanelChange(null)
-                        callbacks.onOpenLastGroup()
-                    }
+                } else {
+                    TvChannelLine(
+                        displayChannelNumber = displayChannelNumber,
+                        channelName = currentChannel?.name,
+                        modifier = Modifier.fillMaxWidth(),
+                        color = AppColors.TextTertiary,
+                        marquee = false,
+                        overflow = TextOverflow.Ellipsis
+                    )
                 }
+            },
+            onInteraction = callbacks.onOverlayInteracted,
+            onDismiss = { onExpandedPanelChange(null) }
+        ) {
+            when (sheetPanel) {
+                ChannelInfoPanel.SUBTITLES, ChannelInfoPanel.AUDIO, ChannelInfoPanel.SUBTITLE_DELAY -> rememberTvTrackRows(
+                    panel = sheetPanel,
+                    inputs = trackSheetInputs,
+                    onInteraction = callbacks.onOverlayInteracted,
+                    onClosePanel = { onExpandedPanelChange(null) },
+                    onOpenDelayPanel = { onExpandedPanelChange(ChannelInfoPanel.SUBTITLE_DELAY) }
+                )
+                else -> rememberTvMoreRows(
+                    actionInputs = actionInputs,
+                    isMuted = isMuted,
+                    isDiagnosticsEnabled = isDiagnosticsEnabled,
+                    currentAspectRatio = currentAspectRatio,
+                    resolutionLabel = resolutionLabel,
+                    variantLabel = variantLabel,
+                    onInteraction = callbacks.onOverlayInteracted,
+                    onItemClick = { item ->
+                        // Mute and aspect ratio apply in place; pickers and toggles close More first.
+                        fun closeMoreThen(action: () -> Unit) {
+                            onExpandedPanelChange(null)
+                            action()
+                        }
+                        when (item) {
+                            ChannelInfoMoreItem.MUTE -> callbacks.onToggleMute()
+                            ChannelInfoMoreItem.ASPECT_RATIO -> callbacks.onToggleAspectRatio()
+                            ChannelInfoMoreItem.QUALITY -> closeMoreThen(callbacks.onOpenVideoTracks)
+                            ChannelInfoMoreItem.VARIANTS -> closeMoreThen(callbacks.onOpenVariants)
+                            ChannelInfoMoreItem.FORMAT -> closeMoreThen(callbacks.onOpenStreamFormats)
+                            ChannelInfoMoreItem.AV_SYNC -> closeMoreThen(callbacks.onOpenAudioVideoSync)
+                            ChannelInfoMoreItem.PICTURE_IN_PICTURE -> closeMoreThen(callbacks.onEnterPictureInPicture)
+                            ChannelInfoMoreItem.CAST -> closeMoreThen(
+                                if (actionInputs.isCastConnected) callbacks.onStopCasting else callbacks.onCast
+                            )
+                            ChannelInfoMoreItem.STATS -> closeMoreThen(callbacks.onToggleDiagnostics)
+                            ChannelInfoMoreItem.MULTIVIEW -> {
+                                dismissOverlay()
+                                callbacks.onOpenSplitScreen()
+                            }
+                            ChannelInfoMoreItem.LAST_GROUP -> {
+                                // The host closes the overlay as part of opening the group.
+                                overlayDismissing = true
+                                onExpandedPanelChange(null)
+                                callbacks.onOpenLastGroup()
+                            }
+                        }
+                    }
+                )
             }
-        )
+        }
     }
+}
+
+/** Keeps the last side-sheet panel so the sheet's title and rows survive its own exit animation. */
+@Composable
+private fun rememberLatchedSheetPanel(expandedPanel: ChannelInfoPanel?): ChannelInfoPanel {
+    val latched = remember { arrayOf(ChannelInfoPanel.MORE) }
+    expandedPanel?.takeIf { it.isSideSheet }?.let { latched[0] = it }
+    return latched[0]
 }
 
 @Composable
@@ -705,6 +802,8 @@ private fun TvActionRow(
     moreButtonFocusRequester: FocusRequester,
     recordButtonFocusRequester: FocusRequester,
     catchUpButtonFocusRequester: FocusRequester,
+    subtitlesButtonFocusRequester: FocusRequester,
+    audioButtonFocusRequester: FocusRequester,
     isPlaying: Boolean,
     timeshiftUiState: PlayerTimeshiftUiState,
     callbacks: TvChannelInfoCallbacks,
@@ -733,7 +832,8 @@ private fun TvActionRow(
         ChannelInfoPanel.LIVE_DVR -> playPauseFocusRequester
         ChannelInfoPanel.RECORD -> recordButtonFocusRequester
         ChannelInfoPanel.CATCH_UP -> catchUpButtonFocusRequester
-        ChannelInfoPanel.MORE, null -> null
+        ChannelInfoPanel.MORE, ChannelInfoPanel.SUBTITLES, ChannelInfoPanel.AUDIO,
+        ChannelInfoPanel.SUBTITLE_DELAY, null -> null
     }
 
     TrayAnchoredLayout(
@@ -787,20 +887,25 @@ private fun TvActionRow(
                             ChannelInfoRowAction.SUBTITLES -> TvPillButton(
                                 icon = Icons.Default.ClosedCaption,
                                 label = stringResource(R.string.player_subs),
-                                onClick = callbacks.onOpenSubtitleTracks,
+                                isOwner = expandedPanel == ChannelInfoPanel.SUBTITLES ||
+                                    expandedPanel == ChannelInfoPanel.SUBTITLE_DELAY,
+                                onClick = { togglePanel(ChannelInfoPanel.SUBTITLES) },
                                 onInteraction = {
                                     onFocusedRowActionChange(action)
-                                    handleMainActionFocus(null)
-                                }
+                                    handleMainActionFocus(ChannelInfoPanel.SUBTITLES)
+                                },
+                                modifier = Modifier.focusRequester(subtitlesButtonFocusRequester)
                             )
                             ChannelInfoRowAction.AUDIO -> TvPillButton(
                                 icon = Icons.Default.Audiotrack,
                                 label = stringResource(R.string.player_audio),
-                                onClick = callbacks.onOpenAudioTracks,
+                                isOwner = expandedPanel == ChannelInfoPanel.AUDIO,
+                                onClick = { togglePanel(ChannelInfoPanel.AUDIO) },
                                 onInteraction = {
                                     onFocusedRowActionChange(action)
-                                    handleMainActionFocus(null)
-                                }
+                                    handleMainActionFocus(ChannelInfoPanel.AUDIO)
+                                },
+                                modifier = Modifier.focusRequester(audioButtonFocusRequester)
                             )
                             ChannelInfoRowAction.GUIDE -> TvPillButton(
                                 icon = Icons.AutoMirrored.Filled.EventNote,
@@ -1154,7 +1259,8 @@ private fun TvActionTray(
                 ownerFocusRequester = ownerFocusRequester,
                 callbacks = callbacks
             )
-            ChannelInfoPanel.MORE, null -> Unit
+            ChannelInfoPanel.MORE, ChannelInfoPanel.SUBTITLES, ChannelInfoPanel.AUDIO,
+            ChannelInfoPanel.SUBTITLE_DELAY, null -> Unit
         }
     }
 }
@@ -1607,22 +1713,19 @@ private fun TvLiveTag(isBehindLive: Boolean, text: String, clock: String?) {
     }
 }
 
+/**
+ * End-edge side sheet shared by More, Subtitles and Audio. Nothing inside [AnimatedVisibility] is
+ * composed while [visible] is false. [contentKey] restarts the sheet's focus when the panel changes.
+ */
 @Composable
-private fun TvMoreSheet(
+private fun TvSideSheet(
     visible: Boolean,
-    displayChannelNumber: Int,
-    channelName: String?,
-    items: List<ChannelInfoMoreItem>,
-    isMuted: Boolean,
-    isCastConnected: Boolean,
-    isDiagnosticsEnabled: Boolean,
-    currentAspectRatio: String,
-    resolutionLabel: String?,
-    variantLabel: String?,
-    lastGroupName: String?,
+    contentKey: Any,
+    @StringRes titleRes: Int,
+    subtitle: @Composable () -> Unit,
     onInteraction: () -> Unit,
     onDismiss: () -> Unit,
-    onItemClick: (ChannelInfoMoreItem) -> Unit
+    rows: @Composable () -> (LazyListScope.(firstItemFocus: FocusRequester) -> Unit)
 ) {
     // slideInHorizontally works in absolute pixels, so the sign flips to keep the sheet entering from the end edge.
     val fromEnd = if (LocalLayoutDirection.current == LayoutDirection.Rtl) -1 else 1
@@ -1633,7 +1736,7 @@ private fun TvMoreSheet(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(AppColors.Canvas.copy(alpha = 0.5f))
+                    .background(AppColors.Canvas.copy(alpha = SheetScrimAlpha))
                     .pointerInput(Unit) {
                         detectTapGestures {
                             interaction()
@@ -1650,60 +1753,33 @@ private fun TvMoreSheet(
                 .align(Alignment.CenterEnd)
                 .fillMaxHeight()
         ) {
-            TvMoreSheetContent(
-                trapFocus = visible,
-                displayChannelNumber = displayChannelNumber,
-                channelName = channelName,
-                items = items,
-                isMuted = isMuted,
-                isCastConnected = isCastConnected,
-                isDiagnosticsEnabled = isDiagnosticsEnabled,
-                currentAspectRatio = currentAspectRatio,
-                resolutionLabel = resolutionLabel,
-                variantLabel = variantLabel,
-                lastGroupName = lastGroupName,
-                onInteraction = onInteraction,
-                onItemClick = onItemClick
-            )
+            key(contentKey) {
+                TvSideSheetContent(
+                    trapFocus = visible,
+                    titleRes = titleRes,
+                    subtitle = subtitle,
+                    rows = rows
+                )
+            }
         }
     }
 }
 
 @Composable
-private fun TvMoreSheetContent(
+private fun TvSideSheetContent(
     trapFocus: Boolean,
-    displayChannelNumber: Int,
-    channelName: String?,
-    items: List<ChannelInfoMoreItem>,
-    isMuted: Boolean,
-    isCastConnected: Boolean,
-    isDiagnosticsEnabled: Boolean,
-    currentAspectRatio: String,
-    resolutionLabel: String?,
-    variantLabel: String?,
-    lastGroupName: String?,
-    onInteraction: () -> Unit,
-    onItemClick: (ChannelInfoMoreItem) -> Unit
+    @StringRes titleRes: Int,
+    subtitle: @Composable () -> Unit,
+    rows: @Composable () -> (LazyListScope.(firstItemFocus: FocusRequester) -> Unit)
 ) {
+    val buildRows = rows()
     val firstItemFocusRequester = remember { FocusRequester() }
-    var focusedItem by remember { mutableStateOf<ChannelInfoMoreItem?>(null) }
-    // Keyed on visibility so a sheet reopened during its exit animation still takes focus.
+    // Reopening while the exit animation still runs keeps this composition alive, so the request keys on trapFocus.
+    // The rows are laid out after composition; a track list can also be empty, so the request must not throw.
     LaunchedEffect(trapFocus) {
-        if (trapFocus) {
-            firstItemFocusRequester.requestFocusSafely(tag = "TvMoreSheet", target = "First item")
-        }
-    }
-    // Buffering can remove rows mid-navigation; keep focus only when the focused row survives.
-    LaunchedEffect(items) {
         if (!trapFocus) return@LaunchedEffect
-        val focused = focusedItem ?: return@LaunchedEffect
-        if (focused !in items) {
-            firstItemFocusRequester.requestFocusSafely(
-                tag = "TvMoreSheet",
-                target = "First item after list change"
-            )
-            focusedItem = items.firstOrNull()
-        }
+        withFrameNanos { }
+        firstItemFocusRequester.requestFocusSafely(tag = "TvSideSheet", target = "First sheet row")
     }
 
     Row(
@@ -1731,48 +1807,179 @@ private fun TvMoreSheetContent(
                 verticalArrangement = Arrangement.spacedBy(2.dp)
             ) {
                 Text(
-                    text = stringResource(R.string.player_more),
+                    text = stringResource(titleRes),
                     style = MaterialTheme.typography.headlineMedium.copy(fontSize = 20.sp),
                     fontWeight = FontWeight.Bold,
                     color = AppColors.TextPrimary
                 )
-                TvChannelLine(
-                    displayChannelNumber = displayChannelNumber,
-                    channelName = channelName,
-                    modifier = Modifier.fillMaxWidth(),
-                    color = AppColors.TextTertiary,
-                    marquee = false,
-                    overflow = TextOverflow.Ellipsis
-                )
+                subtitle()
             }
             LazyColumn(
                 modifier = Modifier
                     .fillMaxWidth()
                     .focusGroup()
                     // Keep D-pad focus inside the open sheet; Back is the only way out. Once it is
-                    // closing, focus must be free to return to the More button.
+                    // closing, focus must be free to return to the pill that opened it.
                     .focusProperties { onExit = { if (trapFocus) cancelFocusChange() } },
                 verticalArrangement = Arrangement.spacedBy(1.dp)
             ) {
-                itemsIndexed(items, key = { _, item -> item.name }) { index, item ->
-                    TvMoreRow(
-                        item = item,
-                        isMuted = isMuted,
-                        isCastConnected = isCastConnected,
-                        isDiagnosticsEnabled = isDiagnosticsEnabled,
-                        currentAspectRatio = currentAspectRatio,
-                        resolutionLabel = resolutionLabel,
-                        variantLabel = variantLabel,
-                        lastGroupName = lastGroupName,
-                        onInteraction = onInteraction,
-                        onFocused = { focusedItem = item },
-                        onClick = { onItemClick(item) },
-                        modifier = if (index == 0) Modifier.focusRequester(firstItemFocusRequester) else Modifier
-                    )
-                }
+                buildRows(firstItemFocusRequester)
             }
         }
     }
+}
+
+private fun Modifier.firstRowFocus(index: Int, requester: FocusRequester): Modifier =
+    if (index == 0) focusRequester(requester) else this
+
+@Composable
+private fun rememberTvMoreRows(
+    actionInputs: ChannelInfoActionInputs,
+    isMuted: Boolean,
+    isDiagnosticsEnabled: Boolean,
+    currentAspectRatio: String,
+    resolutionLabel: String?,
+    variantLabel: String?,
+    onInteraction: () -> Unit,
+    onItemClick: (ChannelInfoMoreItem) -> Unit
+): LazyListScope.(FocusRequester) -> Unit {
+    val items = remember(actionInputs) { channelInfoMoreItems(actionInputs) }
+    return { firstItemFocus ->
+        itemsIndexed(items, key = { _, item -> item.name }) { index, item ->
+            TvMoreRow(
+                item = item,
+                isMuted = isMuted,
+                isCastConnected = actionInputs.isCastConnected,
+                isDiagnosticsEnabled = isDiagnosticsEnabled,
+                currentAspectRatio = currentAspectRatio,
+                resolutionLabel = resolutionLabel,
+                variantLabel = variantLabel,
+                lastGroupName = actionInputs.lastVisitedCategoryName,
+                onInteraction = onInteraction,
+                onClick = { onItemClick(item) },
+                modifier = Modifier.firstRowFocus(index, firstItemFocus)
+            )
+        }
+    }
+}
+
+/**
+ * Subtitle and audio rows, built once per open from the track data. Picking a track applies it and
+ * closes the sheet; the subtitle actions close it before they open their own UI.
+ */
+@Composable
+private fun rememberTvTrackRows(
+    panel: ChannelInfoPanel,
+    inputs: TvTrackSheetInputs,
+    onInteraction: () -> Unit,
+    onClosePanel: () -> Unit,
+    onOpenDelayPanel: () -> Unit
+): LazyListScope.(FocusRequester) -> Unit {
+    val tracks = if (panel == ChannelInfoPanel.AUDIO) inputs.audioTracks else inputs.subtitleTracks
+    val rows = remember(panel, tracks, inputs.liveTranslationAvailable, inputs.liveTranslationActive, inputs.subtitleOffsetMs) {
+        if (panel == ChannelInfoPanel.SUBTITLE_DELAY) {
+            tvSubtitleDelayRows(inputs.subtitleOffsetMs)
+        } else {
+            tvTrackSheetRows(panel, tracks, inputs.liveTranslationAvailable, inputs.liveTranslationActive)
+        }
+    }
+    return { firstItemFocus ->
+        itemsIndexed(rows, key = { _, row -> row.key }) { index, row ->
+            if (row.kind == TvTrackSheetRowKind.DIVIDER) {
+                TvSheetDivider()
+                return@itemsIndexed
+            }
+            TvTrackRow(
+                row = row,
+                subtitleOffsetMs = inputs.subtitleOffsetMs,
+                onInteraction = onInteraction,
+                onClick = onClick@{
+                    if (!row.isEnabled) return@onClick
+                    when (row.kind) {
+                        // The delay controls stay open so the offset can be stepped repeatedly.
+                        TvTrackSheetRowKind.DELAY_EARLIER -> inputs.onAdjustSubtitleOffset(-SUBTITLE_OFFSET_STEP_MS)
+                        TvTrackSheetRowKind.DELAY_LATER -> inputs.onAdjustSubtitleOffset(SUBTITLE_OFFSET_STEP_MS)
+                        TvTrackSheetRowKind.DELAY_RESET -> inputs.onResetSubtitleOffset()
+                        TvTrackSheetRowKind.SUBTITLE_DELAY -> onOpenDelayPanel()
+                        else -> {
+                            onClosePanel()
+                            runTrackRowAction(row, panel, inputs)
+                        }
+                    }
+                },
+                modifier = Modifier.firstRowFocus(index, firstItemFocus)
+            )
+        }
+    }
+}
+
+private fun runTrackRowAction(row: TvTrackSheetRow, panel: ChannelInfoPanel, inputs: TvTrackSheetInputs) {
+    when (row.kind) {
+        TvTrackSheetRowKind.OFF -> inputs.onSelectSubtitle(null)
+        TvTrackSheetRowKind.TRACK -> row.trackId?.let { id ->
+            if (panel == ChannelInfoPanel.SUBTITLES) inputs.onSelectSubtitle(id) else inputs.onSelectAudio(id)
+        }
+        TvTrackSheetRowKind.LIVE_TRANSLATION -> inputs.onSelectLiveTranslation()
+        TvTrackSheetRowKind.LOAD_FROM_DEVICE -> inputs.onLoadLocalSubtitle()
+        // Handled by the caller: dividers do nothing and the delay rows and entry keep the sheet open.
+        TvTrackSheetRowKind.DIVIDER,
+        TvTrackSheetRowKind.SUBTITLE_DELAY,
+        TvTrackSheetRowKind.DELAY_EARLIER,
+        TvTrackSheetRowKind.DELAY_LATER,
+        TvTrackSheetRowKind.DELAY_RESET -> Unit
+    }
+}
+
+@Composable
+private fun TvTrackRow(
+    row: TvTrackSheetRow,
+    subtitleOffsetMs: Int,
+    onInteraction: () -> Unit,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val label = when (row.kind) {
+        TvTrackSheetRowKind.OFF -> stringResource(R.string.player_track_off)
+        TvTrackSheetRowKind.TRACK -> row.name.orEmpty()
+        TvTrackSheetRowKind.LIVE_TRANSLATION -> stringResource(R.string.player_track_live_translation)
+        TvTrackSheetRowKind.SUBTITLE_DELAY -> stringResource(R.string.player_subtitle_delay_action, subtitleOffsetMs)
+        TvTrackSheetRowKind.DIVIDER -> return
+        TvTrackSheetRowKind.LOAD_FROM_DEVICE -> stringResource(R.string.player_subtitle_load_from_device)
+        TvTrackSheetRowKind.DELAY_EARLIER ->
+            stringResource(R.string.player_subtitle_delay_earlier, SUBTITLE_OFFSET_STEP_MS)
+        TvTrackSheetRowKind.DELAY_LATER ->
+            stringResource(R.string.player_subtitle_delay_later, SUBTITLE_OFFSET_STEP_MS)
+        TvTrackSheetRowKind.DELAY_RESET -> stringResource(R.string.player_subtitle_delay_reset)
+    }
+    val selectionState = when (row.kind) {
+        TvTrackSheetRowKind.OFF,
+        TvTrackSheetRowKind.TRACK,
+        TvTrackSheetRowKind.LIVE_TRANSLATION ->
+            if (row.isSelected) ToggleableState.On else ToggleableState.Off
+        else -> null
+    }
+    TvSheetRow(
+        label = label,
+        onInteraction = onInteraction,
+        onClick = onClick,
+        showCheck = row.isSelected,
+        // Stays focusable when unavailable, like the DVR tray: focus must not fall through to a channel change.
+        enabled = row.isEnabled,
+        toggleState = selectionState,
+        modifier = if (row.isEnabled) modifier else modifier.alpha(0.38f)
+    )
+}
+
+/** Not focusable, so D-pad moves skip it. */
+@Composable
+private fun TvSheetDivider() {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 12.dp, vertical = 8.dp)
+            .height(1.dp)
+            .background(GlassLine)
+    )
 }
 
 @Composable
@@ -1786,7 +1993,6 @@ private fun TvMoreRow(
     variantLabel: String?,
     lastGroupName: String?,
     onInteraction: () -> Unit,
-    onFocused: () -> Unit,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -1817,7 +2023,41 @@ private fun TvMoreRow(
         ChannelInfoMoreItem.LAST_GROUP -> Triple(Icons.AutoMirrored.Filled.PlaylistPlay, lastGroupName.orEmpty(), null)
         ChannelInfoMoreItem.STATS -> Triple(Icons.Default.Insights, stringResource(R.string.player_stats), null)
     }
+    TvSheetRow(
+        label = label,
+        onInteraction = onInteraction,
+        onClick = onClick,
+        icon = icon,
+        value = value,
+        showCheck = item == ChannelInfoMoreItem.STATS && isDiagnosticsEnabled,
+        toggleState = toggleState,
+        modifier = modifier
+    )
+}
+
+/**
+ * Row shared by every side sheet. Like [TvFocusSurface], focus is read only in the draw phase (fill,
+ * icon tint and text colour producers), so a focus move recomposes no row.
+ */
+@Composable
+private fun TvSheetRow(
+    label: String,
+    onInteraction: () -> Unit,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    icon: ImageVector? = null,
+    value: String? = null,
+    showCheck: Boolean = false,
+    enabled: Boolean = true,
+    toggleState: ToggleableState? = null
+) {
     var isFocused by remember { mutableStateOf(false) }
+    val focusedSecondary = AppColors.SurfaceAccent
+    val secondary = AppColors.TextSecondary
+    val tertiary = AppColors.TextTertiary
+    val brand = AppColors.Brand
+    val labelStyle = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.5.sp, fontWeight = FontWeight.SemiBold)
+    val valueStyle = MaterialTheme.typography.labelLarge.copy(fontSize = 13.sp, fontWeight = FontWeight.Medium)
     TvFocusSurface(
         onClick = {
             onInteraction()
@@ -1829,19 +2069,16 @@ private fun TvMoreRow(
         contentColor = AppColors.TextPrimary,
         focusedContentColor = AppColors.Canvas,
         focusedScale = 1f,
+        enabled = enabled,
         modifier = modifier
             .fillMaxWidth()
             .height(40.dp)
             .semantics { toggleState?.let { toggleableState = it } }
             .onFocusChanged {
                 isFocused = it.isFocused
-                if (it.isFocused) {
-                    onFocused()
-                    onInteraction()
-                }
+                if (it.isFocused) onInteraction()
             }
     ) { contentColor ->
-        val secondary = if (isFocused) AppColors.SurfaceAccent else AppColors.TextSecondary
         Row(
             modifier = Modifier
                 .fillMaxSize()
@@ -1849,28 +2086,31 @@ private fun TvMoreRow(
             horizontalArrangement = Arrangement.spacedBy(14.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(imageVector = icon, contentDescription = null, tint = secondary, modifier = Modifier.size(21.dp))
-            Text(
+            if (icon != null) {
+                TvTintedIcon(
+                    imageVector = icon,
+                    tint = { if (isFocused) focusedSecondary else secondary },
+                    modifier = Modifier.size(21.dp)
+                )
+            }
+            BasicText(
                 text = label,
-                color = contentColor(),
-                style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.5.sp),
-                fontWeight = FontWeight.SemiBold,
+                style = labelStyle,
+                color = ColorProducer { contentColor() },
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.weight(1f)
             )
             when {
-                item == ChannelInfoMoreItem.STATS && isDiagnosticsEnabled -> Icon(
+                showCheck -> TvTintedIcon(
                     imageVector = Icons.Default.Check,
-                    contentDescription = null,
-                    tint = if (isFocused) secondary else AppColors.Brand,
+                    tint = { if (isFocused) focusedSecondary else brand },
                     modifier = Modifier.size(20.dp)
                 )
-                value != null -> Text(
+                value != null -> BasicText(
                     text = value,
-                    style = MaterialTheme.typography.labelLarge.copy(fontSize = 13.sp),
-                    fontWeight = FontWeight.Medium,
-                    color = if (isFocused) secondary else AppColors.TextTertiary,
+                    style = valueStyle,
+                    color = ColorProducer { if (isFocused) focusedSecondary else tertiary },
                     maxLines = 1
                 )
             }

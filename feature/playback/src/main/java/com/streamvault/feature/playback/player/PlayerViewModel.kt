@@ -243,6 +243,8 @@ class PlayerViewModel @Inject constructor(
 
     internal var channelInfoHideJob: Job? = null
     internal var liveOverlayHideJob: Job? = null
+    /** True while a live overlay side sheet (More, Subs, Audio, Delay) is open: it closes only by hand, never by the idle timer. */
+    internal var liveOverlayAutoHidePaused = false
     internal var diagnosticsHideJob: Job? = null
     internal var numericInputCommitJob: Job? = null
     internal var numericInputFeedbackJob: Job? = null
