@@ -262,6 +262,7 @@ internal fun BoxScope.PlayerLiveOverlayHost(
                 onStopCasting = viewModel::stopCasting,
                 timeshiftUiState = timeshiftUiState,
                 onTransientPanelVisibilityChanged = onTransientPanelVisibilityChanged,
+                onSideSheetVisibilityChanged = viewModel::setLiveOverlayAutoHidePaused,
                 panelCloseRequests = channelInfoPanelCloseRequests,
                 resolutionLabel = buildChannelInfoResolutionLabel(videoFormat),
                 showBackButton = showBackButton,
