@@ -2,13 +2,22 @@ package com.streamvault.feature.playback.player.overlay
 
 import com.streamvault.domain.model.RecordingStatus
 import com.streamvault.feature.playback.player.PlayerTimeshiftUiState
+import com.streamvault.player.PlayerTrack
+import com.streamvault.player.SUBTITLE_OFFSET_MAX_MS
+import com.streamvault.player.SUBTITLE_OFFSET_MIN_MS
 import com.streamvault.player.timeshift.LiveTimeshiftStatus
 
 internal enum class ChannelInfoPanel {
     LIVE_DVR,
     RECORD,
     CATCH_UP,
-    MORE
+    MORE,
+    SUBTITLES,
+    AUDIO,
+    SUBTITLE_DELAY;
+
+    /** Panels shown in the end-edge side sheet rather than in a tray above the action row. */
+    val isSideSheet: Boolean get() = this == MORE || this == SUBTITLES || this == AUDIO || this == SUBTITLE_DELAY
 }
 
 /** Everything that decides which live overlay actions exist; kept free of Compose so it can be unit tested. */
@@ -95,6 +104,81 @@ internal fun channelInfoMoreItems(inputs: ChannelInfoActionInputs): List<Channel
     add(ChannelInfoMoreItem.CAST)
     if (!inputs.lastVisitedCategoryName.isNullOrBlank()) add(ChannelInfoMoreItem.LAST_GROUP)
     add(ChannelInfoMoreItem.STATS)
+}
+
+internal enum class TvTrackSheetRowKind { OFF, TRACK, LIVE_TRANSLATION, DIVIDER, SUBTITLE_DELAY, LOAD_FROM_DEVICE, DELAY_EARLIER, DELAY_LATER, DELAY_RESET }
+
+/** One row of the subtitles or audio side sheet. [key] is stable across track refreshes so focus survives them. */
+internal data class TvTrackSheetRow(
+    val key: String,
+    val kind: TvTrackSheetRowKind,
+    val trackId: String? = null,
+    val name: String? = null,
+    val isSelected: Boolean = false,
+    val isEnabled: Boolean = true
+)
+
+/** Rows for the subtitle delay panel; a step is disabled once the offset reaches its limit. */
+internal fun tvSubtitleDelayRows(offsetMs: Int): List<TvTrackSheetRow> = listOf(
+    TvTrackSheetRow(
+        key = "earlier",
+        kind = TvTrackSheetRowKind.DELAY_EARLIER,
+        isEnabled = offsetMs > SUBTITLE_OFFSET_MIN_MS
+    ),
+    TvTrackSheetRow(
+        key = "later",
+        kind = TvTrackSheetRowKind.DELAY_LATER,
+        isEnabled = offsetMs < SUBTITLE_OFFSET_MAX_MS
+    ),
+    TvTrackSheetRow(key = "reset", kind = TvTrackSheetRowKind.DELAY_RESET, isSelected = offsetMs == 0)
+)
+
+/**
+ * Rows for the live TV subtitles or audio side sheet, in the order the former dialog listed them.
+ * Only [ChannelInfoPanel.SUBTITLES] gets the Off row and the subtitle actions; audio is the track list alone.
+ */
+internal fun tvTrackSheetRows(
+    panel: ChannelInfoPanel,
+    tracks: List<PlayerTrack>,
+    liveTranslationAvailable: Boolean,
+    liveTranslationActive: Boolean
+): List<TvTrackSheetRow> = buildList {
+    val isSubtitles = panel == ChannelInfoPanel.SUBTITLES
+    if (isSubtitles) {
+        add(
+            TvTrackSheetRow(
+                key = "off",
+                kind = TvTrackSheetRowKind.OFF,
+                isSelected = tracks.none { it.isSelected } && !liveTranslationActive
+            )
+        )
+    }
+    tracks.forEach { track ->
+        add(
+            TvTrackSheetRow(
+                key = "track:${track.id}",
+                kind = TvTrackSheetRowKind.TRACK,
+                trackId = track.id,
+                name = track.name,
+                isSelected = track.isSelected && !(isSubtitles && liveTranslationActive)
+            )
+        )
+    }
+    if (isSubtitles) {
+        if (liveTranslationAvailable) {
+            add(
+                TvTrackSheetRow(
+                    key = "translation",
+                    kind = TvTrackSheetRowKind.LIVE_TRANSLATION,
+                    isSelected = liveTranslationActive
+                )
+            )
+        }
+        // Separates the choices above from the actions below so the actions don't read as tracks.
+        add(TvTrackSheetRow(key = "divider", kind = TvTrackSheetRowKind.DIVIDER))
+        add(TvTrackSheetRow(key = "delay", kind = TvTrackSheetRowKind.SUBTITLE_DELAY))
+        add(TvTrackSheetRow(key = "device", kind = TvTrackSheetRowKind.LOAD_FROM_DEVICE))
+    }
 }
 
 internal fun channelInfoRecordItems(recordingStatus: RecordingStatus?): List<ChannelInfoRecordItem> = buildList {

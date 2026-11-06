@@ -110,6 +110,7 @@ fun ChannelInfoOverlay(
     onToggleMute: () -> Unit = {},
     onOpenSubtitleTracks: () -> Unit = {},
     onOpenAudioTracks: () -> Unit = {},
+    trackSheetInputs: TvTrackSheetInputs = TvTrackSheetInputs(),
     onOpenVideoTracks: () -> Unit = {},
     onOpenVariants: () -> Unit = {},
     onOpenStreamFormats: () -> Unit = {},
@@ -219,6 +220,7 @@ fun ChannelInfoOverlay(
                 ?.takeIf { it.isNotBlank() },
             timeshiftUiState = timeshiftUiState,
             showBackButton = showBackButton,
+            trackSheetInputs = trackSheetInputs,
             callbacks = TvChannelInfoCallbacks(
                 onDismiss = onDismiss,
                 onOverlayInteracted = onOverlayInteracted,
@@ -241,8 +243,6 @@ fun ChannelInfoOverlay(
                 onSeekToLiveEdge = onSeekToLiveEdge,
                 onOpenSplitScreen = onOpenSplitScreen,
                 onToggleMute = onToggleMute,
-                onOpenSubtitleTracks = onOpenSubtitleTracks,
-                onOpenAudioTracks = onOpenAudioTracks,
                 onOpenVideoTracks = onOpenVideoTracks,
                 onOpenVariants = onOpenVariants,
                 onOpenStreamFormats = onOpenStreamFormats,
@@ -782,8 +782,12 @@ fun ChannelInfoOverlay(
                     )
                 }
 
+                // Side sheets and the DVR tray only exist on TV.
                 ChannelInfoPanel.LIVE_DVR,
                 ChannelInfoPanel.MORE,
+                ChannelInfoPanel.SUBTITLES,
+                ChannelInfoPanel.AUDIO,
+                ChannelInfoPanel.SUBTITLE_DELAY,
                 null -> Unit
             }
         }

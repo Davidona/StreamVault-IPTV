@@ -3,6 +3,10 @@ package com.streamvault.feature.playback.player.overlay
 import com.google.common.truth.Truth.assertThat
 import com.streamvault.domain.model.RecordingStatus
 import com.streamvault.feature.playback.player.PlayerTimeshiftUiState
+import com.streamvault.player.PlayerTrack
+import com.streamvault.player.SUBTITLE_OFFSET_MAX_MS
+import com.streamvault.player.SUBTITLE_OFFSET_MIN_MS
+import com.streamvault.player.TrackType
 import com.streamvault.player.timeshift.LiveTimeshiftState
 import com.streamvault.player.timeshift.LiveTimeshiftStatus
 import org.junit.Test
@@ -261,5 +265,89 @@ class ChannelInfoOverlayActionsTest {
             playheadFraction = 0.9f, gap = 10, minEndWidth = 100
         )
         assertThat(offset).isEqualTo(310)
+    }
+
+    // Track side sheet
+
+    private fun track(id: String, type: TrackType, selected: Boolean = false) =
+        PlayerTrack(id = id, name = "Track $id", language = null, type = type, isSelected = selected)
+
+    @Test
+    fun `subtitle sheet lists off, tracks, then the subtitle actions`() {
+        val rows = tvTrackSheetRows(
+            ChannelInfoPanel.SUBTITLES,
+            listOf(track("a", TrackType.TEXT), track("b", TrackType.TEXT)),
+            liveTranslationAvailable = false,
+            liveTranslationActive = false
+        )
+        assertThat(rows.map { it.key }).containsExactly("off", "track:a", "track:b", "divider", "delay", "device").inOrder()
+    }
+
+    @Test
+    fun `subtitle sheet shows off as current only when no track and no translation is active`() {
+        val none = tvTrackSheetRows(ChannelInfoPanel.SUBTITLES, listOf(track("a", TrackType.TEXT)), false, false)
+        assertThat(none.first { it.kind == TvTrackSheetRowKind.OFF }.isSelected).isTrue()
+
+        val withTrack = tvTrackSheetRows(
+            ChannelInfoPanel.SUBTITLES, listOf(track("a", TrackType.TEXT, selected = true)), false, false
+        )
+        assertThat(withTrack.first { it.kind == TvTrackSheetRowKind.OFF }.isSelected).isFalse()
+
+        val translating = tvTrackSheetRows(ChannelInfoPanel.SUBTITLES, listOf(track("a", TrackType.TEXT)), true, true)
+        assertThat(translating.first { it.kind == TvTrackSheetRowKind.OFF }.isSelected).isFalse()
+    }
+
+    @Test
+    fun `live translation row sits after the tracks and replaces the selected track as current`() {
+        val rows = tvTrackSheetRows(
+            ChannelInfoPanel.SUBTITLES, listOf(track("a", TrackType.TEXT, selected = true)),
+            liveTranslationAvailable = true, liveTranslationActive = true
+        )
+        assertThat(rows.map { it.key }).containsExactly("off", "track:a", "translation", "divider", "delay", "device").inOrder()
+        assertThat(rows.first { it.kind == TvTrackSheetRowKind.TRACK }.isSelected).isFalse()
+        assertThat(rows.first { it.kind == TvTrackSheetRowKind.LIVE_TRANSLATION }.isSelected).isTrue()
+    }
+
+    @Test
+    fun `audio sheet is the track list alone and keeps the selection`() {
+        val rows = tvTrackSheetRows(
+            ChannelInfoPanel.AUDIO,
+            listOf(track("1", TrackType.AUDIO, selected = true), track("2", TrackType.AUDIO)),
+            liveTranslationAvailable = true,
+            liveTranslationActive = true
+        )
+        assertThat(rows.map { it.key }).containsExactly("track:1", "track:2").inOrder()
+        assertThat(rows.map { it.isSelected }).containsExactly(true, false).inOrder()
+    }
+
+    @Test
+    fun `audio sheet with no tracks has no rows`() {
+        assertThat(tvTrackSheetRows(ChannelInfoPanel.AUDIO, emptyList(), false, false)).isEmpty()
+    }
+
+    @Test
+    fun `only more, subtitles, audio and subtitle delay are side sheets`() {
+        assertThat(ChannelInfoPanel.entries.filter { it.isSideSheet }).containsExactly(
+            ChannelInfoPanel.MORE,
+            ChannelInfoPanel.SUBTITLES,
+            ChannelInfoPanel.AUDIO,
+            ChannelInfoPanel.SUBTITLE_DELAY
+        )
+    }
+
+    @Test
+    fun `delay rows enable both steps inside the limits and mark reset current at zero`() {
+        val rows = tvSubtitleDelayRows(0)
+        assertThat(rows.map { it.key }).containsExactly("earlier", "later", "reset").inOrder()
+        assertThat(rows.map { it.isEnabled }).containsExactly(true, true, true).inOrder()
+        assertThat(rows.first { it.key == "reset" }.isSelected).isTrue()
+        assertThat(tvSubtitleDelayRows(300).first { it.key == "reset" }.isSelected).isFalse()
+    }
+
+    @Test
+    fun `delay steps disable at the minimum and maximum offset`() {
+        assertThat(tvSubtitleDelayRows(SUBTITLE_OFFSET_MIN_MS).first { it.key == "earlier" }.isEnabled).isFalse()
+        assertThat(tvSubtitleDelayRows(SUBTITLE_OFFSET_MIN_MS).first { it.key == "later" }.isEnabled).isTrue()
+        assertThat(tvSubtitleDelayRows(SUBTITLE_OFFSET_MAX_MS).first { it.key == "later" }.isEnabled).isFalse()
     }
 }

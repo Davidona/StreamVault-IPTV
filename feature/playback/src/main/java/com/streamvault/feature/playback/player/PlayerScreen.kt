@@ -1118,6 +1118,7 @@ fun PlayerScreen(
                 showDiagnostics = showDiagnostics,
                 videoFormat = videoFormat,
                 onOpenModal = { modal -> modalState = modalState.open(modal) },
+                onPickLocalSubtitle = pickLocalSubtitle,
                 onEnterPictureInPicture = enterPictureInPicture,
                 onRunRecordingAction = notificationPermissionGate::runRecordingAction,
                 onOpenCastRouteChooser = { playbackPlatformHost?.openCastRouteChooser() },
