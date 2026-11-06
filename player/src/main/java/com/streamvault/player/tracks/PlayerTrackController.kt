@@ -5,6 +5,7 @@ import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import androidx.media3.common.C
 import androidx.media3.common.Format
+import androidx.media3.common.MimeTypes
 import androidx.media3.common.TrackSelectionOverride
 import androidx.media3.common.Tracks
 import androidx.media3.exoplayer.ExoPlayer
@@ -368,7 +369,7 @@ class PlayerTrackController(
                     val id = playerTrackId(format, type, group.mediaTrackGroup.hashCode(), index)
                     val track = PlayerTrack(
                         id = id,
-                        name = buildTrackName(format, type, index),
+                        name = buildTrackName(format, type, index, group.length),
                         language = format.language,
                         type = when {
                             isAudio -> TrackType.AUDIO
@@ -725,7 +726,7 @@ class PlayerTrackController(
         if (!evaluation.isEligible) selectVideoTrack(player, PLAYER_TRACK_AUTO_ID)
     }
 
-    private fun buildTrackName(format: Format, trackType: Int, index: Int): String {
+    private fun buildTrackName(format: Format, trackType: Int, index: Int, groupSize: Int): String {
         if (trackType == C.TRACK_TYPE_VIDEO) return buildVideoTrackName(format, index)
 
         val explicitLabel = format.label
@@ -757,7 +758,7 @@ class PlayerTrackController(
         if (parts.isNotEmpty()) return parts.joinToString(" ")
         return when (trackType) {
             C.TRACK_TYPE_AUDIO -> "Audio ${index + 1}"
-            C.TRACK_TYPE_TEXT -> "Subtitle ${index + 1}"
+            C.TRACK_TYPE_TEXT -> closedCaptionName(format, index, groupSize) ?: "Subtitle ${index + 1}"
             else -> "Track ${index + 1}"
         }
     }
@@ -780,6 +781,17 @@ class PlayerTrackController(
         return parts.firstOrNull()?.takeIf { parts.size == 1 }
             ?: parts.joinToString(" · ").ifBlank { "Quality ${index + 1}" }
     }
+}
+
+/**
+ * In-band CEA-608/708 captions are declared without a label or language, so the MIME type is the
+ * only signal that distinguishes them from an unnamed subtitle track.
+ */
+internal fun closedCaptionName(format: Format, index: Int, groupSize: Int): String? {
+    val isClosedCaption = format.sampleMimeType == MimeTypes.APPLICATION_CEA608 ||
+        format.sampleMimeType == MimeTypes.APPLICATION_CEA708
+    if (!isClosedCaption) return null
+    return if (groupSize > 1) "Closed Captions ${index + 1}" else "Closed Captions"
 }
 
 internal fun normalizeSelectedVideoTrackId(
