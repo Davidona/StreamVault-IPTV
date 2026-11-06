@@ -262,4 +262,33 @@ class ChannelInfoOverlayActionsTest {
         )
         assertThat(offset).isEqualTo(310)
     }
+
+    @Test
+    fun `live tag never overflows a row narrower than the tag`() {
+        val offset = liveTagStartOffset(
+            rowWidth = 50, tagWidth = 100, startTextWidth = 20,
+            playheadFraction = 0.5f, gap = 10, minEndWidth = 100
+        )
+        assertThat(offset).isEqualTo(30)
+    }
+
+    @Test
+    fun `live tag clamps playhead fractions outside the programme`() {
+        val before = liveTagStartOffset(
+            rowWidth = 1_000, tagWidth = 100, startTextWidth = 200,
+            playheadFraction = -1f, gap = 10, minEndWidth = 100
+        )
+        val after = liveTagStartOffset(
+            rowWidth = 1_000, tagWidth = 100, startTextWidth = 200,
+            playheadFraction = 2f, gap = 10, minEndWidth = 100
+        )
+        assertThat(before).isEqualTo(210)
+        assertThat(after).isEqualTo(790)
+    }
+
+    @Test
+    fun `timeshift availability does not change the row action list`() {
+        assertThat(channelInfoRowActions(minimal.copy(showTimeshiftControls = true)))
+            .isEqualTo(channelInfoRowActions(minimal))
+    }
 }

@@ -705,6 +705,10 @@ fun PlayerScreen(
                         viewModel.openChannelInfoOverlay()
                         true
                     }
+                    PlayerInputAction.CloseChannelInfoPanel -> {
+                        channelInfoPanelCloseRequests++
+                        true
+                    }
                     PlayerInputAction.CloseChannelInfo -> {
                         viewModel.closeChannelInfoOverlay()
                         true

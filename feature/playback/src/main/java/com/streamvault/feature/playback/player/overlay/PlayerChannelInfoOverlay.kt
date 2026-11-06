@@ -136,6 +136,24 @@ fun ChannelInfoOverlay(
         currentProgram != null &&
         currentChannel.isArchivePlayable(currentProgram)
     val hasCatchUpOptions = canBrowseArchive || canRestartProgram
+    val actionInputs = ChannelInfoActionInputs(
+        showTimeshiftControls = showTimeshiftControls,
+        subtitleTrackCount = subtitleTrackCount,
+        liveTranslationAvailable = liveTranslationAvailable,
+        localSubtitleLoadingAvailable = localSubtitleLoadingAvailable,
+        audioTrackCount = audioTrackCount,
+        videoQualityCount = videoQualityCount,
+        channelVariantCount = channelVariantCount,
+        qualityOptionCount = qualityOptionCount,
+        audioVideoSyncEnabled = audioVideoSyncEnabled,
+        isCastConnected = isCastConnected,
+        lastVisitedCategoryName = lastVisitedCategoryName,
+        recordingStatus = currentRecordingStatus,
+        canRestartProgram = canRestartProgram,
+        canBrowseArchive = canBrowseArchive
+    )
+    val rowActions = channelInfoRowActions(actionInputs)
+    val moreItems = channelInfoMoreItems(actionInputs)
     var expandedPanel by remember { mutableStateOf<ChannelInfoPanel?>(null) }
     val recordButtonFocusRequester = remember { FocusRequester() }
     val catchUpButtonFocusRequester = remember { FocusRequester() }
@@ -188,22 +206,7 @@ fun ChannelInfoOverlay(
             displayChannelNumber = displayChannelNumber,
             currentProgram = currentProgram,
             nextProgram = nextProgram,
-            actionInputs = ChannelInfoActionInputs(
-                showTimeshiftControls = showTimeshiftControls,
-                subtitleTrackCount = subtitleTrackCount,
-                liveTranslationAvailable = liveTranslationAvailable,
-                localSubtitleLoadingAvailable = localSubtitleLoadingAvailable,
-                audioTrackCount = audioTrackCount,
-                videoQualityCount = videoQualityCount,
-                channelVariantCount = channelVariantCount,
-                qualityOptionCount = qualityOptionCount,
-                audioVideoSyncEnabled = audioVideoSyncEnabled,
-                isCastConnected = isCastConnected,
-                lastVisitedCategoryName = lastVisitedCategoryName,
-                recordingStatus = currentRecordingStatus,
-                canRestartProgram = canRestartProgram,
-                canBrowseArchive = canBrowseArchive
-            ),
+            actionInputs = actionInputs,
             expandedPanel = expandedPanel,
             onExpandedPanelChange = { expandedPanel = it },
             playPauseFocusRequester = focusRequester,
@@ -517,7 +520,7 @@ fun ChannelInfoOverlay(
                         onInteraction = { handleMainActionFocus(null) }
                     )
                 }
-                if (subtitleTrackCount > 0 || liveTranslationAvailable || localSubtitleLoadingAvailable) {
+                if (ChannelInfoRowAction.SUBTITLES in rowActions) {
                     item {
                         QuickActionButton(
                             icon = stringResource(R.string.player_subs),
@@ -527,7 +530,7 @@ fun ChannelInfoOverlay(
                         )
                     }
                 }
-                if (videoQualityCount > 0) {
+                if (ChannelInfoMoreItem.QUALITY in moreItems) {
                     item {
                         QuickActionButton(
                             icon = stringResource(R.string.player_action_quality),
@@ -537,7 +540,7 @@ fun ChannelInfoOverlay(
                         )
                     }
                 }
-                if (channelVariantCount > 1) {
+                if (ChannelInfoMoreItem.VARIANTS in moreItems) {
                     item {
                         QuickActionButton(
                             icon = stringResource(R.string.player_action_variants),
@@ -547,7 +550,7 @@ fun ChannelInfoOverlay(
                         )
                     }
                 }
-                if (qualityOptionCount > 1) {
+                if (ChannelInfoMoreItem.FORMAT in moreItems) {
                     item {
                         QuickActionButton(
                             icon = stringResource(R.string.player_action_format),
@@ -557,7 +560,7 @@ fun ChannelInfoOverlay(
                         )
                     }
                 }
-                if (audioTrackCount > 0) {
+                if (ChannelInfoRowAction.AUDIO in rowActions) {
                     item {
                         QuickActionButton(
                             icon = stringResource(R.string.player_audio),
@@ -567,7 +570,7 @@ fun ChannelInfoOverlay(
                         )
                     }
                 }
-                if (audioVideoSyncEnabled && !isCastConnected) {
+                if (ChannelInfoMoreItem.AV_SYNC in moreItems) {
                     item {
                         QuickActionButton(
                             icon = "A/V",
@@ -615,11 +618,11 @@ fun ChannelInfoOverlay(
                         onInteraction = { handleMainActionFocus(null) }
                     )
                 }
-                if (!lastVisitedCategoryName.isNullOrBlank()) {
+                if (ChannelInfoMoreItem.LAST_GROUP in moreItems) {
                     item {
                         QuickActionButton(
                             icon = stringResource(R.string.player_action_group),
-                            label = lastVisitedCategoryName,
+                            label = lastVisitedCategoryName.orEmpty(),
                             onClick = {
                                 expandedPanel = null
                                 onOpenLastGroup()
@@ -647,7 +650,7 @@ fun ChannelInfoOverlay(
                             }
                     )
                 }
-                if (hasCatchUpOptions) {
+                if (ChannelInfoRowAction.CATCH_UP in rowActions) {
                     item {
                         QuickActionButton(
                             icon = "C-UP",
