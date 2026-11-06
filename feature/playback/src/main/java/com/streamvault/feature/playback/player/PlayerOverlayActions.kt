@@ -155,6 +155,17 @@ fun PlayerViewModel.toggleDiagnostics() {
     }
 }
 
+/** Holds the live overlay open while a side sheet is showing; closing the sheet restarts the idle countdown. */
+fun PlayerViewModel.setLiveOverlayAutoHidePaused(paused: Boolean) {
+    if (liveOverlayAutoHidePaused == paused) return
+    liveOverlayAutoHidePaused = paused
+    if (paused) {
+        clearLiveOverlayAutoHide()
+    } else if (hasVisibleTransientLiveOverlay()) {
+        scheduleLiveOverlayAutoHide()
+    }
+}
+
 fun PlayerViewModel.onLiveOverlayInteraction() {
     if (hasVisibleTransientLiveOverlay()) {
         scheduleLiveOverlayAutoHide()
@@ -212,6 +223,8 @@ internal fun PlayerViewModel.scheduleLiveOverlayAutoHide() {
         return
     }
     liveOverlayHideJob?.cancel()
+    liveOverlayHideJob = null
+    if (liveOverlayAutoHidePaused) return
     liveOverlayHideJob = viewModelScope.launch {
         delay(liveOverlayTimeoutMs)
         showChannelInfoOverlayFlow.value = false

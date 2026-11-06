@@ -133,6 +133,7 @@
     <string name="player_more_controls">Fler kontroller</string>
     <string name="player_multiview_short">Multivy</string>
     <string name="player_mute">Ljud av</string>
+    <string name="player_more">Mer</string>
     <string name="player_muted_badge">Dämpad</string>
     <string name="player_next_label">Nästa:</string>
     <string name="player_no_guide_data">Inga guidedata</string>

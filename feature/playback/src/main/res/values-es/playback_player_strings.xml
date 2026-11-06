@@ -133,6 +133,7 @@
     <string name="player_more_controls">Más controles</string>
     <string name="player_multiview_short">Vista múltiple</string>
     <string name="player_mute">Silenciar</string>
+    <string name="player_more">Más</string>
     <string name="player_muted_badge">silenciado</string>
     <string name="player_next_label">Siguiente:</string>
     <string name="player_no_guide_data">Sin datos de guía</string>

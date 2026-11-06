@@ -208,6 +208,8 @@ fun PlayerScreen(
 
     var modalState by remember { mutableStateOf(PlayerModalState()) }
     var channelInfoSubPanelOpen by remember { mutableStateOf(false) }
+    // Remote Back is consumed here before the overlay's BackHandler sees it, so panel closes are signalled down.
+    var channelInfoPanelCloseRequests by remember { mutableIntStateOf(0) }
     var showClosePlaybackConfirmation by rememberSaveable { mutableStateOf(false) }
     var showScheduleByTimeDialog by remember { mutableStateOf(false) }
     var closePlaybackConfirmationOpenedAtMs by remember { mutableStateOf(0L) }
@@ -517,6 +519,7 @@ fun PlayerScreen(
                     showVariantSelection = modalState.showVariantSelection,
                     showDiagnostics = showDiagnostics,
                     showChannelInfoOverlay = showChannelInfoOverlay,
+                    channelInfoSubPanelOpen = channelInfoSubPanelOpen,
                     showChannelListOverlay = showChannelListOverlay,
                     showCategoryListOverlay = showCategoryListOverlay,
                     showEpgOverlay = showEpgOverlay,
@@ -546,6 +549,7 @@ fun PlayerScreen(
                     modalState = modalState.dismiss()
                 }
                 PlayerBackAction.TOGGLE_DIAGNOSTICS -> viewModel.toggleDiagnostics()
+                PlayerBackAction.CLOSE_CHANNEL_INFO_PANEL -> channelInfoPanelCloseRequests++
                 PlayerBackAction.CLOSE_CHANNEL_INFO -> viewModel.closeChannelInfoOverlay()
                 PlayerBackAction.CLOSE_LIVE_OVERLAYS -> viewModel.closeOverlays()
                 PlayerBackAction.TOGGLE_CONTROLS -> viewModel.toggleControls()
@@ -1114,11 +1118,13 @@ fun PlayerScreen(
                 showDiagnostics = showDiagnostics,
                 videoFormat = videoFormat,
                 onOpenModal = { modal -> modalState = modalState.open(modal) },
+                onPickLocalSubtitle = pickLocalSubtitle,
                 onEnterPictureInPicture = enterPictureInPicture,
                 onRunRecordingAction = notificationPermissionGate::runRecordingAction,
                 onOpenCastRouteChooser = { playbackPlatformHost?.openCastRouteChooser() },
                 onScheduleByTime = { showScheduleByTimeDialog = true },
-                onTransientPanelVisibilityChanged = { channelInfoSubPanelOpen = it }
+                onTransientPanelVisibilityChanged = { channelInfoSubPanelOpen = it },
+                channelInfoPanelCloseRequests = channelInfoPanelCloseRequests
             )
         }
         playbackQualityGate?.let { gate ->

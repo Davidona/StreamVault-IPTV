@@ -133,6 +133,7 @@
     <string name="player_more_controls">추가 컨트롤</string>
     <string name="player_multiview_short">멀티뷰</string>
     <string name="player_mute">음소거</string>
+    <string name="player_more">더보기</string>
     <string name="player_muted_badge">음소거됨</string>
     <string name="player_next_label">다음:</string>
     <string name="player_no_guide_data">가이드 데이터 없음</string>

@@ -133,6 +133,7 @@
     <string name="player_more_controls">更多控制</string>
     <string name="player_multiview_short">多视图</string>
     <string name="player_mute">静音</string>
+    <string name="player_more">更多</string>
     <string name="player_muted_badge">已静音</string>
     <string name="player_next_label">下一个：</string>
     <string name="player_no_guide_data">没有节目指南数据</string>

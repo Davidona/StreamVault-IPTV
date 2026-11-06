@@ -900,7 +900,7 @@ class PreferencesRepository @Inject constructor(
     }
 
     override val playerLiveOverlayTimeoutSeconds: Flow<Int> = context.dataStore.data.map { preferences ->
-        (preferences[PreferencesKeys.PLAYER_LIVE_OVERLAY_TIMEOUT_SECONDS] ?: 4).coerceIn(2, 60)
+        (preferences[PreferencesKeys.PLAYER_LIVE_OVERLAY_TIMEOUT_SECONDS] ?: 6).coerceIn(2, 60)
     }
 
     override val playerLiveClockEnabled: Flow<Boolean> = context.dataStore.data.map { preferences ->
