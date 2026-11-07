@@ -964,4 +964,12 @@
     <string name="settings_text_size_system">Theo thiết bị</string>
     <string name="settings_text_size_custom">Tùy chỉnh</string>
     <string name="settings_privacy_policy">Chính sách quyền riêng tư</string>
+    <string name="settings_category_reorder_channels">Sắp xếp lại kênh</string>
+    <string name="settings_category_sort_manual">Thủ công</string>
+    <string name="settings_category_reorder_categories">Sắp xếp lại danh mục</string>
+    <string name="settings_default_live_channel_order">Thứ tự kênh mặc định</string>
+    <string name="settings_live_order_save_failed">Không thể lưu thứ tự kênh. Hãy thử lại.</string>
+    <string name="settings_live_order_recent">Đã xem gần đây</string>
+    <string name="settings_live_order_most">Xem nhiều nhất</string>
+    <string name="settings_live_order_usage_help">Lượt xem được ghi nhận sau 10 giây phát. Xem nhiều nhất cộng thời gian phát trong 30 ngày qua.</string>
 </resources>

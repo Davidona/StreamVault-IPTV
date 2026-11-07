@@ -5,6 +5,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import java.util.UUID
 
 @Entity(
     tableName = "combined_m3u_profiles"
@@ -12,6 +13,8 @@ import androidx.room.PrimaryKey
 data class CombinedM3uProfileEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
+    @ColumnInfo(name = "identity_key", defaultValue = "''")
+    val identityKey: String = UUID.randomUUID().toString(),
     val name: String,
     val enabled: Boolean = true,
     @ColumnInfo(name = "created_at") val createdAt: Long = System.currentTimeMillis(),

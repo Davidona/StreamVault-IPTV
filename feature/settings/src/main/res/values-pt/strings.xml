@@ -963,4 +963,12 @@
     <string name="settings_text_size_system">Seguir o dispositivo</string>
     <string name="settings_text_size_custom">Personalizado</string>
     <string name="settings_privacy_policy">Política de Privacidade</string>
+    <string name="settings_category_reorder_channels">Reordenar canais</string>
+    <string name="settings_category_sort_manual">Manual</string>
+    <string name="settings_category_reorder_categories">Reordenar categorias</string>
+    <string name="settings_default_live_channel_order">Ordem predefinida dos canais</string>
+    <string name="settings_live_order_save_failed">Não foi possível guardar a ordem dos canais. Tente novamente.</string>
+    <string name="settings_live_order_recent">Vistos recentemente</string>
+    <string name="settings_live_order_most">Mais vistos</string>
+    <string name="settings_live_order_usage_help">As visualizações contam após 10 segundos de reprodução. Mais vistos soma o tempo de reprodução dos últimos 30 dias.</string>
 </resources>

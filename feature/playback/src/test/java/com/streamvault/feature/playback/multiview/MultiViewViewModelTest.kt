@@ -56,6 +56,9 @@ class MultiViewViewModelTest {
         whenever(activityManager.memoryClass).thenReturn(128)
         whenever(activityManager.isLowRamDevice).thenReturn(true)
         whenever(playerEngineProvider.get()).thenReturn(playerEngine)
+        whenever(playerEngine.isPlaying).thenReturn(kotlinx.coroutines.flow.MutableStateFlow(false))
+        whenever(playerEngine.playbackState).thenReturn(kotlinx.coroutines.flow.MutableStateFlow(com.streamvault.player.PlaybackState.IDLE))
+        whenever(playerEngine.error).thenReturn(flowOf(null))
         whenever(preferences.playerAudioVideoSyncEnabled).thenReturn(flowOf(false))
         whenever(preferences.playerAudioVideoOffsetMs).thenReturn(flowOf(0))
         whenever(preferences.getMultiViewPreset(any())).thenReturn(flowOf(emptyList()))
@@ -143,6 +146,42 @@ class MultiViewViewModelTest {
 
         verify(firstEngine).setVolume(0f)
         verify(secondEngine).setVolume(1f)
+        clear(viewModel)
+    }
+
+    @Test fun `usage follows pinned audio then focus and stops when players leave the foreground`() {
+        whenever(preferences.multiViewPerformanceMode).thenReturn(flowOf(MultiViewPerformanceMode.MAXIMUM.name))
+        manager.setSlots(listOf(channel(1).copy(providerId = 7, streamId = 101),
+            channel(2).copy(providerId = 7, streamId = 102), null, null))
+        val viewModel = createViewModel()
+        dispatcher.scheduler.runCurrent()
+        viewModel.initSlots()
+        val first: PlayerEngine = mock()
+        val second: PlayerEngine = mock()
+        listOf(first, second).forEach { engine ->
+            whenever(engine.isPlaying).thenReturn(kotlinx.coroutines.flow.MutableStateFlow(true))
+            whenever(engine.playbackState).thenReturn(kotlinx.coroutines.flow.MutableStateFlow(com.streamvault.player.PlaybackState.READY))
+        }
+        attachEngine(viewModel, 0, first)
+        attachEngine(viewModel, 1, second)
+        viewModel.setFocus(1)
+        viewModel.pinAudioToFocusedSlot()
+        clearInvocations(history)
+        viewModel.setFocus(0)
+        val pinned = org.mockito.kotlin.argumentCaptor<com.streamvault.domain.model.LiveWatchSample>()
+        verify(history, org.mockito.kotlin.atLeastOnce()).sampleLiveUsage(pinned.capture())
+        assertThat(pinned.allValues.map { it.target?.streamId }.distinct()).containsExactly(102L)
+        assertThat(pinned.allValues.all { it.isPlaying }).isTrue()
+        clearInvocations(history)
+        viewModel.clearPinnedAudio()
+        val focused = org.mockito.kotlin.argumentCaptor<com.streamvault.domain.model.LiveWatchSample>()
+        verify(history, org.mockito.kotlin.atLeastOnce()).sampleLiveUsage(focused.capture())
+        assertThat(focused.lastValue.target?.streamId).isEqualTo(101L)
+        clearInvocations(history)
+        viewModel.releasePlayersForBackground()
+        val stopped = org.mockito.kotlin.argumentCaptor<com.streamvault.domain.model.LiveWatchSample>()
+        verify(history, org.mockito.kotlin.atLeastOnce()).sampleLiveUsage(stopped.capture())
+        assertThat(stopped.allValues.all { it.target == null && !it.isPlaying }).isTrue()
         clear(viewModel)
     }
 

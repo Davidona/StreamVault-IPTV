@@ -962,4 +962,12 @@
     <string name="settings_text_size_system">Ikut peranti</string>
     <string name="settings_text_size_custom">Tersuai</string>
     <string name="settings_privacy_policy">Dasar Privasi</string>
+    <string name="settings_category_reorder_channels">Susun Semula Saluran</string>
+    <string name="settings_category_sort_manual">Manual</string>
+    <string name="settings_category_reorder_categories">Susun semula kategori</string>
+    <string name="settings_default_live_channel_order">Susunan saluran lalai</string>
+    <string name="settings_live_order_save_failed">Tidak dapat menyimpan susunan saluran. Cuba lagi.</string>
+    <string name="settings_live_order_recent">Terbaharu ditonton</string>
+    <string name="settings_live_order_most">Paling banyak ditonton</string>
+    <string name="settings_live_order_usage_help">Tontonan dikira selepas 10 saat main balik. Paling banyak ditonton menjumlahkan masa main balik sepanjang 30 hari lalu.</string>
 </resources>

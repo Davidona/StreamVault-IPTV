@@ -973,4 +973,12 @@
     <string name="settings_text_size_system">Zgodnie z urządzeniem</string>
     <string name="settings_text_size_custom">Niestandardowy</string>
     <string name="settings_privacy_policy">Polityka prywatności</string>
+    <string name="settings_category_reorder_channels">Zmień kolejność kanałów</string>
+    <string name="settings_category_sort_manual">Ręcznie</string>
+    <string name="settings_category_reorder_categories">Zmień kolejność kategorii</string>
+    <string name="settings_default_live_channel_order">Domyślna kolejność kanałów</string>
+    <string name="settings_live_order_save_failed">Nie udało się zapisać kolejności kanałów. Spróbuj ponownie.</string>
+    <string name="settings_live_order_recent">Ostatnio oglądane</string>
+    <string name="settings_live_order_most">Najczęściej oglądane</string>
+    <string name="settings_live_order_usage_help">Oglądanie liczy się po 10 sekundach odtwarzania. Najczęściej oglądane sumuje czas odtwarzania z ostatnich 30 dni.</string>
 </resources>

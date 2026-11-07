@@ -1,5 +1,6 @@
 package com.streamvault.feature.settings.presentation
 
+import com.streamvault.domain.policy.applyLiveCategorySections
 import com.streamvault.domain.policy.applyProviderCategoryDisplayPreferences
 import com.streamvault.domain.settings.SettingsPreferences
 import com.streamvault.domain.model.ActiveLiveSource
@@ -49,17 +50,18 @@ fun observeGuideDefaultCategoryOptions(
                     channelRepository.getCategories(activeSource.providerId),
                     getCustomCategories(activeSource.providerId, ContentType.LIVE),
                     preferencesRepository.getHiddenCategoryIds(activeSource.providerId, ContentType.LIVE),
-                    preferencesRepository.getCategorySortMode(activeSource.providerId, ContentType.LIVE)
-                ) { categories, customCategories, hiddenCategoryIds, sortMode ->
+                    preferencesRepository.getLiveCategoryOrder(activeSource.providerId)
+                ) { categories, customCategories, hiddenCategoryIds, categoryOrder ->
                     val visibleProviderCategories = applyProviderCategoryDisplayPreferences(
                         categories = categories.filter { it.id != ChannelRepository.ALL_CHANNELS_ID },
                         hiddenCategoryIds = hiddenCategoryIds,
-                        sortMode = sortMode
+                        sortMode = categoryOrder.sortMode,
+                        manualCategoryIds = categoryOrder.normalIds
                     )
-                    buildGuideDefaultCategoryOptions(
+                    applyLiveCategorySections(buildGuideDefaultCategoryOptions(
                         physicalCategories = visibleProviderCategories,
                         customCategories = customCategories
-                    )
+                    ), categoryOrder.pinnedCategoryIds, categoryOrder)
                 }
             }
 

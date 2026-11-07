@@ -967,4 +967,12 @@
     <string name="settings_text_size_system">Σύμφωνα με τη συσκευή</string>
     <string name="settings_text_size_custom">Προσαρμοσμένο</string>
     <string name="settings_privacy_policy">Πολιτική απορρήτου</string>
+    <string name="settings_category_reorder_channels">Αναδιάταξη καναλιών</string>
+    <string name="settings_category_sort_manual">Χειροκίνητα</string>
+    <string name="settings_category_reorder_categories">Αναδιάταξη κατηγοριών</string>
+    <string name="settings_default_live_channel_order">Προεπιλεγμένη σειρά καναλιών</string>
+    <string name="settings_live_order_save_failed">Δεν ήταν δυνατή η αποθήκευση της σειράς καναλιών. Δοκιμάστε ξανά.</string>
+    <string name="settings_live_order_recent">Πρόσφατη παρακολούθηση</string>
+    <string name="settings_live_order_most">Μεγαλύτερος χρόνος θέασης</string>
+    <string name="settings_live_order_usage_help">Η προβολή μετρά μετά από 10 δευτερόλεπτα αναπαραγωγής. Η κατάταξη βασίζεται στον χρόνο αναπαραγωγής των τελευταίων 30 ημερών.</string>
 </resources>

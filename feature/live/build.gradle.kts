@@ -182,6 +182,7 @@ dependencies {
     implementation(libs.okhttp)
     implementation(libs.okhttp.logging)
     implementation(libs.zxing.core)
+    implementation(libs.gson)
 
     testImplementation(libs.junit)
     testImplementation(libs.truth)

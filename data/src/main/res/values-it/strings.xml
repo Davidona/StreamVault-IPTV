@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="backup_live_order_restore_issue">Non è stato possibile ripristinare alcune impostazioni di ordinamento dei canali TV in diretta.</string>
+</resources>

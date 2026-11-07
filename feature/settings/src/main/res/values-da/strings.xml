@@ -967,4 +967,12 @@
     <string name="settings_text_size_system">Følg enheden</string>
     <string name="settings_text_size_custom">Brugerdefineret</string>
     <string name="settings_privacy_policy">Privatlivspolitik</string>
+    <string name="settings_category_reorder_channels">Omarranger kanaler</string>
+    <string name="settings_category_sort_manual">Manuel</string>
+    <string name="settings_category_reorder_categories">Omarranger kategorier</string>
+    <string name="settings_default_live_channel_order">Standardrækkefølge for kanaler</string>
+    <string name="settings_live_order_save_failed">Kanalrækkefølgen kunne ikke gemmes. Prøv igen.</string>
+    <string name="settings_live_order_recent">Senest sete</string>
+    <string name="settings_live_order_most">Mest sete</string>
+    <string name="settings_live_order_usage_help">Visninger tæller efter 10 sekunders afspilning. Mest sete summerer afspilningstiden for de seneste 30 dage.</string>
 </resources>

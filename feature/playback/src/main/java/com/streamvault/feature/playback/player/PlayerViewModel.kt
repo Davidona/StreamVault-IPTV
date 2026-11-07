@@ -467,6 +467,8 @@ class PlayerViewModel @Inject constructor(
     internal var zapAutoRevertEnabled: Boolean = true
     internal var autoPlayNextEpisodeEnabled: Boolean = true
     internal var isAppInForeground: Boolean = true
+    internal var isLiveUsageScreenActive: Boolean = false
+    internal val liveUsageOwner = "primary:${java.util.UUID.randomUUID()}"
     internal var shouldResumeAfterForeground: Boolean = false
     internal var seekPreviewRequestVersion: Long = 0L
     internal var lastMuteToggleAtMs: Long = 0L
@@ -583,11 +585,15 @@ class PlayerViewModel @Inject constructor(
                     SystemClock.elapsedRealtime(), playerEngine.playbackSpeed.value
                 )
                 reportTraktPlayback()
+                reportLiveUsage()
                 delay(500)
             }
         }
         viewModelScope.launch {
-            currentChannelFlow.collect { refreshCurrentPlaybackQualityPreferenceScope() }
+            currentChannelFlow.collect {
+                refreshCurrentPlaybackQualityPreferenceScope()
+                reportLiveUsage()
+            }
         }
         viewModelScope.launch {
             _currentSeries.collect { refreshCurrentPlaybackQualityPreferenceScope() }
@@ -635,7 +641,11 @@ class PlayerViewModel @Inject constructor(
             }
         }
         viewModelScope.launch {
+            activePlayerEngineFlow.flatMapLatest { it.isPlaying }.collect { reportLiveUsage() }
+        }
+        viewModelScope.launch {
             activePlayerEngineFlow.flatMapLatest { it.playbackState }.collect { state ->
+                reportLiveUsage()
                 _playerDiagnostics.update { it.copy(playbackStateLabel = state.name.replace('_', ' ')) }
                 if (state == PlaybackState.ENDED && lastObservedPlaybackState != PlaybackState.ENDED) {
                     reportTraktPlayback(state)
@@ -647,6 +657,7 @@ class PlayerViewModel @Inject constructor(
                     dismissRecoveredNoticeIfPresent()
                     if (currentContentType == ContentType.LIVE && !isCatchUpPlayback()) {
                         livePlaybackReadyForCurrentSession = true
+                        reportLiveUsage()
                         recordActiveLivePlayback()
                         currentChannelFlow.value?.sanitizedForPlayer()?.let { channel ->
                             if (channel.errorCount > 0) {
@@ -2064,6 +2075,7 @@ class PlayerViewModel @Inject constructor(
     )?.url
 
     override fun onCleared() {
+        reportLiveUsage(stop = true)
         stremioEventDispatcher.close()
         playerTraktCoordinator.close()
         playbackSessionCoordinator.invalidate()

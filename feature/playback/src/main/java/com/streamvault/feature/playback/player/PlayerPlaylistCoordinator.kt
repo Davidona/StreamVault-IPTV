@@ -40,8 +40,14 @@ class PlayerPlaylistCoordinator @Inject constructor(
     internal fun getChannelsByNumber(providerId: Long, categoryId: Long): Flow<List<Channel>> =
         channelCoordinator.getChannelsByNumber(providerId, categoryId)
 
+    internal fun orderVirtual(providerId: Long, profileId: Long?, categoryId: Long, membership: Flow<List<Channel>>): Flow<List<Channel>> =
+        channelCoordinator.orderVirtual(providerId, profileId, categoryId, membership)
+
     internal fun getCombinedCategories(profileId: Long): Flow<List<CombinedCategory>> =
         combinedM3uRepository.getCombinedCategories(profileId)
+
+    internal fun getCombinedAllChannels(profileId: Long): Flow<List<Channel>> =
+        combinedM3uRepository.getCombinedAllChannels(profileId)
 
     internal fun getCombinedChannels(
         profileId: Long,

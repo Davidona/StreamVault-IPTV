@@ -14,6 +14,7 @@ import com.streamvault.data.local.dao.*
 import com.streamvault.data.local.entity.ProviderEntity
 import com.streamvault.data.local.entity.ProviderConfigEntity
 import com.streamvault.data.local.entity.ProviderAccountRuntimeEntity
+import com.streamvault.data.local.entity.ChannelEntity
 import com.streamvault.data.local.entity.StalkerDiscoveryStageEntity
 import com.streamvault.data.local.entity.StalkerPortalStateEntity
 import com.streamvault.data.local.entity.StalkerIndexJobEntity
@@ -60,6 +61,9 @@ import com.streamvault.data.util.UrlSecurityPolicy
 import com.streamvault.domain.manager.ProviderCredentials
 import com.streamvault.domain.model.*
 import com.streamvault.domain.model.LegacyProvider as Provider
+import com.streamvault.domain.policy.liveChannelOrderScope
+import com.streamvault.domain.repository.LiveChannelOrderRepository
+import com.streamvault.domain.repository.ChannelRepository
 import com.streamvault.domain.repository.LiveStreamProgramRequest
 import com.streamvault.domain.repository.ProviderDeleteOutcome
 import com.streamvault.domain.repository.ProviderDeleteProgress
@@ -126,6 +130,9 @@ class ProviderRepositoryImpl @Inject constructor(
     private val providerWorkflowCommitFence: ProviderWorkflowCommitFence,
     private val providerCapabilityResolver: ProviderCapabilityResolver,
     private val typedProviderClientFactory: TypedProviderClientFactory,
+    private val liveChannelOrderRepository: LiveChannelOrderRepository,
+    private val combinedProfileDao: CombinedM3uProfileDao? = null,
+    private val combinedMemberDao: CombinedM3uProfileMemberDao? = null,
     @param:ApplicationContext private val appContext: Context
 ) : ProviderRepository {
     private companion object {
@@ -347,7 +354,8 @@ class ProviderRepositoryImpl @Inject constructor(
             providerDeletionCleanupDao.insertAll(
                 recordingRunIds.map { ProviderDeletionCleanupEntity(id = 0, providerId = id, action = ProviderDeletionCleanupWorker.RECORDING_ALARM, targetId = it) } +
                     reminderIds.map { ProviderDeletionCleanupEntity(id = 0, providerId = id, action = ProviderDeletionCleanupWorker.REMINDER_ALARM, targetId = it.toString()) } +
-                    ProviderDeletionCleanupEntity(id = 0, providerId = id, action = ProviderDeletionCleanupWorker.SYNC_RUNTIME)
+                    ProviderDeletionCleanupEntity(id = 0, providerId = id, action = ProviderDeletionCleanupWorker.SYNC_RUNTIME) +
+                    ProviderDeletionCleanupEntity(id = 0, providerId = id, action = ProviderDeletionCleanupWorker.LIVE_USAGE)
             )
             // ProgramEntity still has no provider FK, so it requires explicit cleanup.
             if (programCount > 0) reportProgress("Removing $programCount guide entries...")
@@ -1758,9 +1766,80 @@ class ProviderRepositoryImpl @Inject constructor(
         }
 
         return when (terminalResult) {
-            is Result.Success -> terminalResult
+            is Result.Success -> {
+                if (disposition == ProviderWorkflowDisposition.SUCCEEDED &&
+                    syncManager.currentSyncState(providerId) !is SyncState.Partial
+                ) {
+                    runCatching { reconcileLiveChannelOrders(providerId) }
+                        .onFailure { error ->
+                            logger.warning("Live ordering refresh reconciliation failed for provider $providerId: ${error::class.java.simpleName}")
+                        }
+                }
+                terminalResult
+            }
             is Result.Error -> terminalResult
             is Result.Loading -> Result.error("Unexpected loading state")
+        }
+    }
+
+    /**
+     * Reconcile only after the full sync committed and reported no partial sections. Read the raw
+     * Room catalog so categories and channels hidden by parental controls keep their saved slots.
+     */
+    override suspend fun reconcileLiveOrderingAfterRefresh(providerId: Long) = reconcileLiveChannelOrders(providerId)
+
+    private suspend fun reconcileLiveChannelOrders(providerId: Long) {
+        val provider = loadLegacyProvider(providerId) ?: return
+        val categories = categoryDao.getByProviderAndTypeSync(providerId, ContentType.LIVE.name)
+        val channels = channelDao.getByProviderSync(providerId)
+        fun keys(rows: List<ChannelEntity>): List<String> = rows.asSequence()
+            .mapNotNull { row -> row.streamId.takeIf { it != 0L }?.let { "stream:$it" } }
+            .distinct()
+            .toList()
+
+        val allCategory = Category(id = ChannelRepository.ALL_CHANNELS_ID, name = "", type = ContentType.LIVE)
+        val sourceKey = liveChannelOrderScope(provider, allCategory).sourceKey
+        val completeMembership = linkedMapOf(
+            liveChannelOrderScope(provider, allCategory).categoryKey to keys(channels)
+        )
+        categories.forEach { category ->
+            val orderCategory = Category(id = category.categoryId, name = category.name, type = ContentType.LIVE)
+            completeMembership[liveChannelOrderScope(provider, orderCategory).categoryKey] =
+                keys(channels.filter { it.categoryId == category.categoryId })
+        }
+        liveChannelOrderRepository.reconcileCompleteCatalog(sourceKey, completeMembership)
+        reconcileCombinedLiveChannelOrders(providerId)
+    }
+
+    /** Combined scopes are reconciled from raw member catalogs, retaining hidden categories. */
+    private suspend fun reconcileCombinedLiveChannelOrders(changedProviderId: Long) {
+        val profiles = combinedProfileDao ?: return
+        val membersDao = combinedMemberDao ?: return
+        profiles.getAll().first().forEach { profile ->
+            val members = membersDao.getForProfileSync(profile.id).filter { it.enabled }
+            if (members.none { it.providerId == changedProviderId } || members.any { member ->
+                    member.providerId != changedProviderId && when (syncManager.currentSyncState(member.providerId)) {
+                        is SyncState.Syncing, is SyncState.Partial, is SyncState.Error -> true
+                        else -> false
+                    }
+                }) return@forEach
+            val membership = linkedMapOf<String, MutableList<String>>()
+            val all = membership.getOrPut("live:all") { mutableListOf() }
+            for (member in members) {
+                val provider = loadLegacyProvider(member.providerId) ?: return@forEach
+                val identity = com.streamvault.domain.policy.liveProviderOrderIdentity(provider)
+                val rows = channelDao.getByProviderSync(member.providerId)
+                fun keys(channels: List<ChannelEntity>) = channels.mapNotNull { channel ->
+                    channel.streamId.takeIf { it != 0L }?.let { "$identity|stream:$it" }
+                }
+                all += keys(rows)
+                categoryDao.getByProviderAndTypeSync(member.providerId, ContentType.LIVE.name).forEach { category ->
+                    val key = "live:category:${CombinedCategoryIdentity.keyForName(category.name)}"
+                    membership.getOrPut(key) { mutableListOf() } += keys(rows.filter { it.categoryId == category.categoryId })
+                }
+            }
+            liveChannelOrderRepository.reconcileCompleteCatalog("combined:${profile.identityKey}",
+                membership.mapValues { it.value.distinct() })
         }
     }
 

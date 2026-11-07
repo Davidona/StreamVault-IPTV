@@ -18,6 +18,8 @@ class PlayerHistoryCoordinator @Inject constructor(
     private val playbackSurfaceRefreshPort: PlaybackSurfaceRefreshPort,
     private val markAsWatched: MarkAsWatched
 ) {
+    internal fun sampleLiveUsage(sample: com.streamvault.domain.model.LiveWatchSample) = repository.sampleLiveUsage(sample)
+
     internal fun recentlyWatchedByProvider(providerId: Long, limit: Int): Flow<List<PlaybackHistory>> =
         repository.getRecentlyWatchedByProvider(providerId, limit)
 

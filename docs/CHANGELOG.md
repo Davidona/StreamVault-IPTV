@@ -4,6 +4,11 @@ All notable product changes are recorded in this document.
 
 ## [1.2.5]
 
+### Added
+- Added per-provider and combined-profile Live TV category and channel ordering, including manual arrangements, alphabetical sorting, and recently or most watched channels.
+- Added phone-assisted channel ordering with a QR code, plus multi-select, position controls, undo and redo.
+- Added backup and restore support for category and channel order, including safe migration of existing combined profiles.
+
 ### Fixed
 - Fixed downloads remaining pending indefinitely after repeated temporary failures; the final retry can now run and report a failure if it does not succeed.
 - Fixed the TV Guide showing no channels or stopping early when hidden categories occur before visible channels; guide controls now remain available in the empty state.

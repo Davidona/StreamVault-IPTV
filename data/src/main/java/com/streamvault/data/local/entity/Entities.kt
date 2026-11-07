@@ -876,7 +876,9 @@ data class VirtualGroupEntity(
     @ColumnInfo(name = "icon_emoji") val iconEmoji: String? = null,
     val position: Int = 0,
     @ColumnInfo(name = "created_at") val createdAt: Long = System.currentTimeMillis(),
-    @ColumnInfo(name = "content_type") val contentType: ContentType = ContentType.LIVE
+    @ColumnInfo(name = "content_type") val contentType: ContentType = ContentType.LIVE,
+    @ColumnInfo(name = "identity_key", defaultValue = "''")
+    val identityKey: String = java.util.UUID.randomUUID().toString()
 )
 
 data class CategoryCount(

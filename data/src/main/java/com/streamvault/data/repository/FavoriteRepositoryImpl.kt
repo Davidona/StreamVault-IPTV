@@ -9,6 +9,7 @@ import com.streamvault.data.mapper.toEntity
 import com.streamvault.domain.model.*
 import kotlinx.coroutines.flow.first
 import com.streamvault.domain.repository.FavoriteRepository
+import com.streamvault.domain.repository.FavoriteOrderSaveResult
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
@@ -193,6 +194,28 @@ class FavoriteRepositoryImpl @Inject constructor(
         Result.error("Failed to reorder favorites: ${e.message}", e)
     }
 
+    override suspend fun reorderFavoritesIfUnchanged(providerId: Long, contentType: ContentType, groupId: Long?,
+        expected: List<Favorite>, orderedIds: List<Long>): FavoriteOrderSaveResult {
+        if (providerId <= 0 || groupId != null && groupId <= 0 ||
+            expected.any { it.providerId != providerId || it.contentType != contentType || it.groupId != groupId } ||
+            expected.map { it.id }.distinct().size != expected.size ||
+            orderedIds.size != expected.size || orderedIds.distinct().size != orderedIds.size ||
+            orderedIds.toSet() != expected.map { it.id }.toSet()) return FavoriteOrderSaveResult.Invalid
+        return transactionRunner.inTransaction {
+            val current = favoriteDao.getPartitionSnapshot(providerId, contentType.name, groupId).map { it.toDomain() }
+            // Remote backup identities are not stored in this table and are irrelevant to ordering.
+            fun signature(items: List<Favorite>) = items.map { listOf(it.id, it.providerId, it.contentId, it.position.toLong(), it.groupId, it.addedAt) }
+            if (signature(current) != signature(expected.sortedWith(compareBy(Favorite::position, Favorite::id)))) {
+                FavoriteOrderSaveResult.Conflict
+            } else {
+                val byId = current.associateBy { it.id }
+                val updates = buildReorderUpdates(orderedIds.map(byId::getValue))
+                if (updates.isNotEmpty()) favoriteDao.updateAll(updates.map(Favorite::toEntity))
+                FavoriteOrderSaveResult.Saved
+            }
+        }
+    }
+
     // Checks if content is in Global Favorites (groupId = null)
     override suspend fun isFavorite(providerId: Long, contentId: Long, contentType: ContentType): Boolean =
         favoriteDao.get(providerId, contentId, contentType.name, null) != null
@@ -202,13 +225,15 @@ class FavoriteRepositoryImpl @Inject constructor(
 
     override suspend fun createGroup(providerId: Long, name: String, iconEmoji: String?, contentType: ContentType): Result<VirtualGroup> = try {
         val position = (virtualGroupDao.getMaxPosition(providerId, contentType.name) ?: -POSITION_STEP) + POSITION_STEP
+        val identityKey = java.util.UUID.randomUUID().toString()
         val id = virtualGroupDao.insert(
             com.streamvault.data.local.entity.VirtualGroupEntity(
                 providerId = providerId,
                 name = name,
                 iconEmoji = iconEmoji,
                 position = position,
-                contentType = contentType
+                contentType = contentType,
+                identityKey = identityKey
             )
         )
         Result.success(
@@ -218,7 +243,8 @@ class FavoriteRepositoryImpl @Inject constructor(
                 name = name,
                 iconEmoji = iconEmoji,
                 position = position,
-                contentType = contentType
+                contentType = contentType,
+                identityKey = identityKey
             )
         )
     } catch (e: Exception) {

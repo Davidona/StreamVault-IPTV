@@ -2889,6 +2889,7 @@ class PreferencesRepository @Inject constructor(
                 ?.mapNotNull { token -> token.toLongOrNull() }
                 ?.toMutableSet()
                 ?: mutableSetOf()
+            if (type == ContentType.LIVE && (categoryId in current) != pinned) LiveCategoryOrderStore.bumpRevision(preferences, providerId)
             if (pinned) {
                 current += categoryId
             } else {
@@ -2955,6 +2956,7 @@ class PreferencesRepository @Inject constructor(
     ) {
         val key = stringPreferencesKey(pinnedCategoriesKey(providerId, type))
         context.dataStore.edit { preferences ->
+            if (type == ContentType.LIVE) LiveCategoryOrderStore.bumpRevision(preferences, providerId)
             if (categoryIds.isEmpty()) {
                 preferences.remove(key)
             } else {
@@ -2962,6 +2964,43 @@ class PreferencesRepository @Inject constructor(
             }
         }
     }
+
+    private val liveCategoryOrderStore by lazy { LiveCategoryOrderStore(preferencesDataStore) }
+
+    internal suspend fun prepareDuplicateCombinedIdentityMigration(oldIdentity: String, profileId: Long): String =
+        liveCategoryOrderStore.prepareDuplicateCombinedIdentityMigration(oldIdentity, profileId)
+
+    internal suspend fun prepareCombinedIdentityMigration(oldIdentity: String): String =
+        liveCategoryOrderStore.prepareCombinedIdentityMigration(oldIdentity)
+
+    override val defaultLiveChannelOrder: Flow<com.streamvault.domain.model.LiveChannelOrderMode> =
+        preferencesDataStore.data.map { values ->
+            val mode = runCatching { com.streamvault.domain.model.LiveChannelOrderMode.valueOf(
+                values[stringPreferencesKey("default_live_channel_order")] ?: "PROVIDER") }.getOrNull()
+            mode?.takeIf { it in com.streamvault.domain.policy.liveChannelPresetModes }
+                ?: com.streamvault.domain.model.LiveChannelOrderMode.PROVIDER
+        }.distinctUntilChanged()
+
+    override suspend fun setDefaultLiveChannelOrder(mode: com.streamvault.domain.model.LiveChannelOrderMode) {
+        require(mode in com.streamvault.domain.policy.liveChannelPresetModes)
+        preferencesDataStore.edit { it[stringPreferencesKey("default_live_channel_order")] = mode.name }
+    }
+
+    override fun getLiveCategoryOrder(providerId: Long) = liveCategoryOrderStore.observe(providerId)
+
+    override suspend fun saveLiveCategoryOrder(providerId: Long, expectedRevision: Long, order: com.streamvault.domain.model.LiveCategoryOrder) =
+        liveCategoryOrderStore.save(providerId, expectedRevision, order)
+
+    override suspend fun saveLiveCategoryOrderWithPins(providerId: Long, expectedRevision: Long, order: com.streamvault.domain.model.LiveCategoryOrder) =
+        liveCategoryOrderStore.save(providerId, expectedRevision, order, includePins = true)
+
+    override fun getCombinedLiveCategoryOrder(profileIdentity: String) = liveCategoryOrderStore.observeCombined(profileIdentity)
+
+    override suspend fun saveCombinedLiveCategoryOrder(
+        profileIdentity: String,
+        expectedRevision: Long,
+        order: com.streamvault.domain.model.LiveCategoryOrder
+    ) = liveCategoryOrderStore.saveCombined(profileIdentity, expectedRevision, order)
 
     override fun getCategorySortMode(providerId: Long, type: ContentType): Flow<CategorySortMode> {
         val key = stringPreferencesKey(categorySortModeKey(providerId, type))
@@ -2975,6 +3014,7 @@ class PreferencesRepository @Inject constructor(
     override suspend fun setCategorySortMode(providerId: Long, type: ContentType, mode: CategorySortMode) {
         val key = stringPreferencesKey(categorySortModeKey(providerId, type))
         context.dataStore.edit { preferences ->
+            if (type == ContentType.LIVE && preferences[key] != mode.name) LiveCategoryOrderStore.bumpRevision(preferences, providerId)
             preferences[key] = mode.name
         }
     }

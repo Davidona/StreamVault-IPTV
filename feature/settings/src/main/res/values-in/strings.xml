@@ -967,4 +967,12 @@
     <string name="settings_text_size_system">Ikuti perangkat</string>
     <string name="settings_text_size_custom">Kustom</string>
     <string name="settings_privacy_policy">Kebijakan Privasi</string>
+    <string name="settings_category_reorder_channels">Susun Ulang Saluran</string>
+    <string name="settings_category_sort_manual">Manual</string>
+    <string name="settings_category_reorder_categories">Atur ulang kategori</string>
+    <string name="settings_default_live_channel_order">Urutan saluran bawaan</string>
+    <string name="settings_live_order_save_failed">Tidak dapat menyimpan urutan saluran. Coba lagi.</string>
+    <string name="settings_live_order_recent">Terakhir ditonton</string>
+    <string name="settings_live_order_most">Paling sering ditonton</string>
+    <string name="settings_live_order_usage_help">Tontonan dihitung setelah 10 detik pemutaran. Paling sering ditonton menjumlahkan waktu pemutaran selama 30 hari terakhir.</string>
 </resources>

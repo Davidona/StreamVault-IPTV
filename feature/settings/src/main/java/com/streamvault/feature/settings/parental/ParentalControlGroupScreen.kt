@@ -3,6 +3,8 @@ package com.streamvault.feature.settings.parental
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -56,6 +58,7 @@ import com.streamvault.core.ui.components.SearchInput
 import com.streamvault.core.ui.components.dialogs.PinDialog
 import com.streamvault.core.ui.components.shell.UiDestination
 import com.streamvault.domain.model.ContentType
+import com.streamvault.domain.model.Category
 import com.streamvault.core.ui.interaction.TvClickableSurface
 import com.streamvault.core.ui.interaction.TvIconButton
 import kotlinx.coroutines.launch
@@ -66,7 +69,8 @@ import com.streamvault.core.ui.design.AppColors
 
 private enum class CategoryControlsMode {
     PROTECTION,
-    VISIBILITY
+    VISIBILITY,
+    CHANNEL_ORDER
 }
 
 private enum class CategoryPinAction {
@@ -80,7 +84,10 @@ fun ParentalControlGroupScreen(
     onNavigate: (String) -> Unit,
     onBack: () -> Unit,
     navigationDestinations: List<UiDestination> = emptyList(),
-    viewModel: ParentalControlGroupViewModel = hiltViewModel()
+    viewModel: ParentalControlGroupViewModel = hiltViewModel(),
+    channelOrderContent: (@Composable (Long, Category, Boolean, () -> Unit) -> Unit)? = null,
+    channelOrderSummaryContent: (@Composable (Long, Category, () -> Unit, () -> Unit) -> Unit)? = null,
+    categoryOrderContent: (@Composable (Long, () -> Unit) -> Unit)? = null
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
@@ -98,6 +105,9 @@ fun ParentalControlGroupScreen(
     val scope = rememberCoroutineScope()
     var currentMode by rememberSaveable { mutableStateOf(CategoryControlsMode.PROTECTION) }
     var selectedType by rememberSaveable { mutableStateOf(ContentType.LIVE) }
+    var categoryToReorder by remember { mutableStateOf<Category?>(null) }
+    var openModePickerOnStart by remember { mutableStateOf(false) }
+    var showCategoryOrder by remember { mutableStateOf(false) }
     var showPinDialog by rememberSaveable { mutableStateOf(false) }
     var pinAction by rememberSaveable { mutableStateOf<CategoryPinAction?>(null) }
     var pinError by rememberSaveable { mutableStateOf<String?>(null) }
@@ -179,6 +189,9 @@ fun ParentalControlGroupScreen(
                 ) {
                 item {
                     ModeSelectorRow(
+                        showChannelOrder = selectedType == ContentType.LIVE && channelOrderContent != null,
+                        showCategoryOrder = selectedType == ContentType.LIVE && categoryOrderContent != null,
+                        onReorderCategories = { showCategoryOrder = true },
                         selectedMode = currentMode,
                         onModeSelected = { currentMode = it },
                         firstFocusModifier = Modifier
@@ -191,7 +204,10 @@ fun ParentalControlGroupScreen(
                 item {
                     ContentTypeSelectorRow(
                         selectedType = selectedType,
-                        onTypeSelected = { selectedType = it }
+                        onTypeSelected = {
+                            selectedType = it
+                            if (it != ContentType.LIVE && currentMode == CategoryControlsMode.CHANNEL_ORDER) currentMode = CategoryControlsMode.PROTECTION
+                        }
                     )
                 }
 
@@ -220,6 +236,7 @@ fun ParentalControlGroupScreen(
                             onHideAll = { viewModel.hideAllCategories(selectedType) },
                             onUnhideAll = { viewModel.unhideAllCategories(selectedType) }
                         )
+                        CategoryControlsMode.CHANNEL_ORDER -> Unit
                     }
                 }
 
@@ -238,6 +255,32 @@ fun ParentalControlGroupScreen(
                                 item = item,
                                 onToggleHidden = { viewModel.toggleCategoryHidden(item) }
                             )
+                            CategoryControlsMode.CHANNEL_ORDER -> {
+                                if (channelOrderSummaryContent != null) {
+                                    channelOrderSummaryContent.invoke(
+                                        uiState.providerId,
+                                        item.category,
+                                        {
+                                            categoryToReorder = item.category
+                                            openModePickerOnStart = true
+                                        },
+                                        {
+                                            categoryToReorder = item.category
+                                            openModePickerOnStart = false
+                                        }
+                                    )
+                                } else {
+                                    CategoryModeChip(
+                                        label = item.category.name,
+                                        selected = false,
+                                        modifier = Modifier.fillMaxWidth(),
+                                        onClick = {
+                                            categoryToReorder = item.category
+                                            openModePickerOnStart = false
+                                        }
+                                    )
+                                }
+                            }
                         }
                     }
                 }
@@ -250,6 +293,14 @@ fun ParentalControlGroupScreen(
             modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = SettingsDesignTokens.space16),
         )
     }
+
+    categoryToReorder?.let { category ->
+        channelOrderContent?.invoke(uiState.providerId, category, openModePickerOnStart) {
+            categoryToReorder = null
+            openModePickerOnStart = false
+        }
+    }
+    if (showCategoryOrder) categoryOrderContent?.invoke(uiState.providerId) { showCategoryOrder = false }
 
     if (showPinDialog && pinAction != null) {
         PinDialog(
@@ -323,8 +374,11 @@ private fun ModeSelectorRow(
     selectedMode: CategoryControlsMode,
     onModeSelected: (CategoryControlsMode) -> Unit,
     firstFocusModifier: Modifier = Modifier,
+    showChannelOrder: Boolean = false,
+    showCategoryOrder: Boolean = false,
+    onReorderCategories: () -> Unit = {},
 ) {
-    Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+    Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
         CategoryModeChip(
             label = stringResource(R.string.settings_category_mode_protection),
             selected = selectedMode == CategoryControlsMode.PROTECTION,
@@ -335,6 +389,15 @@ private fun ModeSelectorRow(
             label = stringResource(R.string.settings_category_mode_visibility),
             selected = selectedMode == CategoryControlsMode.VISIBILITY,
             onClick = { onModeSelected(CategoryControlsMode.VISIBILITY) }
+        )
+        if (showChannelOrder) CategoryModeChip(
+            label = stringResource(R.string.settings_category_reorder_channels),
+            selected = selectedMode == CategoryControlsMode.CHANNEL_ORDER,
+            onClick = { onModeSelected(CategoryControlsMode.CHANNEL_ORDER) }
+        )
+        if (showCategoryOrder) CategoryModeChip(
+            label = stringResource(R.string.settings_category_reorder_categories),
+            selected = false, onClick = onReorderCategories
         )
     }
 }

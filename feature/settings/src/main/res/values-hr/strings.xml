@@ -968,4 +968,12 @@
     <string name="settings_text_size_system">Prema uređaju</string>
     <string name="settings_text_size_custom">Prilagođeno</string>
     <string name="settings_privacy_policy">Pravila privatnosti</string>
+    <string name="settings_category_reorder_channels">Promijeni redoslijed kanala</string>
+    <string name="settings_category_sort_manual">Ručno</string>
+    <string name="settings_category_reorder_categories">Promijeni redoslijed kategorija</string>
+    <string name="settings_default_live_channel_order">Zadani redoslijed kanala</string>
+    <string name="settings_live_order_save_failed">Redoslijed kanala nije moguće spremiti. Pokušajte ponovno.</string>
+    <string name="settings_live_order_recent">Nedavno gledani</string>
+    <string name="settings_live_order_most">Najgledaniji</string>
+    <string name="settings_live_order_usage_help">Gledanje se računa nakon 10 sekundi reprodukcije. Najgledaniji zbraja vrijeme reprodukcije u posljednjih 30 dana.</string>
 </resources>

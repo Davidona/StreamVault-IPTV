@@ -967,4 +967,12 @@
     <string name="settings_text_size_system">Suivre les réglages de l’appareil</string>
     <string name="settings_text_size_custom">Personnalisée</string>
     <string name="settings_privacy_policy">Politique de confidentialité</string>
+    <string name="settings_category_reorder_channels">Réorganiser les chaînes</string>
+    <string name="settings_category_sort_manual">Manuel</string>
+    <string name="settings_category_reorder_categories">Réorganiser les catégories</string>
+    <string name="settings_default_live_channel_order">Ordre des chaînes par défaut</string>
+    <string name="settings_live_order_save_failed">Impossible d’enregistrer l’ordre des chaînes. Réessayez.</string>
+    <string name="settings_live_order_recent">Vues récemment</string>
+    <string name="settings_live_order_most">Les plus regardées</string>
+    <string name="settings_live_order_usage_help">Les vues comptent après 10 secondes de lecture. Les plus regardées cumule le temps de lecture des 30 derniers jours.</string>
 </resources>

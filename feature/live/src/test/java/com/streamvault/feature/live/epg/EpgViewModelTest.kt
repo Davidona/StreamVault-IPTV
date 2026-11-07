@@ -63,6 +63,7 @@ class EpgViewModelTest {
 
     private val providerRepository: ProviderRepository = mock()
     private val combinedM3uRepository: CombinedM3uRepository = mock()
+    private val liveChannelOrderRepository: com.streamvault.domain.repository.LiveChannelOrderRepository = mock()
     private val channelRepository: ChannelRepository = mock()
     private val epgRepository: EpgRepository = mock()
     private val epgSourceRepository: EpgSourceRepository = mock()
@@ -85,6 +86,16 @@ class EpgViewModelTest {
     @Before
     fun setup() {
         Dispatchers.setMain(testDispatcher)
+        whenever(liveChannelOrderRepository.observe(any())).thenReturn(flowOf(com.streamvault.domain.model.LiveChannelOrder()))
+        whenever(preferencesRepository.defaultLiveChannelOrder).thenReturn(flowOf(com.streamvault.domain.model.LiveChannelOrderMode.PROVIDER))
+        whenever(preferencesRepository.getLiveCategoryOrder(any())).thenAnswer { call ->
+            val id = call.getArgument<Long>(0)
+            kotlinx.coroutines.flow.combine(preferencesRepository.getCategorySortMode(id, ContentType.LIVE), preferencesRepository.getPinnedCategoryIds(id, ContentType.LIVE)) { mode, pins ->
+                com.streamvault.domain.model.LiveCategoryOrder(sortMode = mode, pinnedCategoryIds = pins)
+            }
+        }
+        whenever(preferencesRepository.getCategorySortMode(any(), any())).thenReturn(flowOf(com.streamvault.domain.model.CategorySortMode.DEFAULT))
+        whenever(preferencesRepository.getPinnedCategoryIds(any(), any())).thenReturn(flowOf(emptySet()))
         whenever(playerEngineProvider.get()).thenReturn(playerEngine)
         whenever(providerRepository.getActiveProvider()).thenReturn(flowOf(null))
         whenever(preferencesRepository.parentalControlLevel).thenReturn(flowOf(0))
@@ -129,6 +140,7 @@ class EpgViewModelTest {
 
     private fun createViewModel(providerRepository: ProviderRepository = this.providerRepository): EpgViewModel =
         EpgViewModel(
+            liveChannelOrderRepository = liveChannelOrderRepository,
             providerRepository = providerRepository,
             combinedM3uRepository = combinedM3uRepository,
             channelRepository = channelRepository,
@@ -169,6 +181,61 @@ class EpgViewModelTest {
         whenever(preferencesRepository.guideFavoritesOnly).thenReturn(flowOf(false))
         whenever(preferencesRepository.guideScheduledOnly).thenReturn(flowOf(false))
         whenever(preferencesRepository.guideAnchorTime).thenReturn(flowOf(null))
+    }
+
+    @Test fun `guide sorts complete membership before paging and follows saved overrides`() = runTest {
+        val provider = Provider(id = 71L, name = "Provider", type = ProviderType.M3U, serverUrl = "https://example.test", createdAt = 123)
+        val channels = (1L..200L).map { Channel(id = it, name = "Channel $it", providerId = provider.id, streamId = it) }
+        configureGuide(provider, channels)
+        whenever(providerRepository.getProvider(provider.id)).thenReturn(provider)
+        whenever(preferencesRepository.defaultLiveChannelOrder).thenReturn(flowOf(com.streamvault.domain.model.LiveChannelOrderMode.TITLE_DESC))
+        val saved = MutableStateFlow(com.streamvault.domain.model.LiveChannelOrder())
+        whenever(liveChannelOrderRepository.observe(any())).thenReturn(saved)
+        val viewModel = createViewModel()
+        waitForUiState { viewModel.uiState.value.channels.size == 60 }
+        assertThat(viewModel.uiState.value.channels.first().id).isEqualTo(99L)
+        saved.value = com.streamvault.domain.model.LiveChannelOrder(com.streamvault.domain.model.LiveChannelOrderMode.MANUAL, listOf("stream:200"))
+        waitForUiState { viewModel.uiState.value.channels.firstOrNull()?.id == 200L }
+        assertThat(viewModel.uiState.value.channels).hasSize(60)
+    }
+
+    @Test fun `guide Favorites use the shared manual scope and update with saved order`() = runTest {
+        val provider = Provider(id = 72L, name = "Provider", type = ProviderType.M3U,
+            serverUrl = "https://example.test", createdAt = 123)
+        val rows = listOf(
+            Channel(id = 101L, providerId = provider.id, streamId = 101L, name = "Zulu"),
+            Channel(id = 102L, providerId = provider.id, streamId = 102L, name = "Alpha")
+        )
+        val favorites = listOf(
+            Favorite(id = 1L, providerId = provider.id, contentId = 101L, contentType = ContentType.LIVE, position = 0, addedAt = 1),
+            Favorite(id = 2L, providerId = provider.id, contentId = 102L, contentType = ContentType.LIVE, position = 1024, addedAt = 2)
+        )
+        configureGuide(provider, rows)
+        whenever(providerRepository.getProvider(provider.id)).thenReturn(provider)
+        whenever(preferencesRepository.guideDefaultCategoryId).thenReturn(flowOf(com.streamvault.domain.model.VirtualCategoryIds.FAVORITES))
+        whenever(favoriteRepository.getFavorites(provider.id, ContentType.LIVE)).thenReturn(flowOf(favorites))
+        whenever(favoriteRepository.getAllFavorites(any<List<Long>>(), eq(ContentType.LIVE))).thenReturn(flowOf(favorites))
+        whenever(channelRepository.getChannelsByIds(listOf(101L, 102L))).thenReturn(flowOf(rows))
+        val saved = MutableStateFlow(com.streamvault.domain.model.LiveChannelOrder())
+        whenever(liveChannelOrderRepository.observe(any())).thenReturn(saved)
+        whenever(liveChannelOrderRepository.hasSavedOrder(any())).thenReturn(false)
+        whenever(liveChannelOrderRepository.initializeIfAbsent(any(), any())).thenAnswer {
+            val requested = it.getArgument<com.streamvault.domain.model.LiveChannelOrder>(1)
+            saved.value = requested
+            requested
+        }
+        val viewModel = createViewModel()
+
+        waitForUiState { viewModel.uiState.value.selectedCategoryId == com.streamvault.domain.model.VirtualCategoryIds.FAVORITES &&
+            viewModel.uiState.value.channels.size == 2 }
+        assertThat(viewModel.uiState.value.channels.map { it.id }).containsExactly(101L, 102L).inOrder()
+        saved.value = com.streamvault.domain.model.LiveChannelOrder(
+            com.streamvault.domain.model.LiveChannelOrderMode.MANUAL,
+            listOf("stream:102", "stream:101"),
+            revision = 1L
+        )
+        waitForUiState { viewModel.uiState.value.channels.firstOrNull()?.id == 102L }
+        assertThat(viewModel.uiState.value.channels.map { it.id }).containsExactly(102L, 101L).inOrder()
     }
 
     @Test
@@ -857,6 +924,12 @@ class EpgViewModelTest {
             flowOf(ActiveLiveSource.CombinedM3uSource(profile.id))
         )
         whenever(combinedM3uRepository.getProfile(profile.id)).thenReturn(profile)
+        whenever(preferencesRepository.getCombinedLiveCategoryOrder(profile.identityKey)).thenReturn(
+            flowOf(com.streamvault.domain.model.LiveCategoryOrder())
+        )
+        whenever(combinedM3uRepository.getCombinedAllChannels(profile.id)).thenReturn(
+            flowOf(listOf(providerOneChannel, providerTwoChannel))
+        )
         whenever(combinedM3uRepository.getCombinedCategories(profile.id)).thenReturn(
             flowOf(
                 listOf(

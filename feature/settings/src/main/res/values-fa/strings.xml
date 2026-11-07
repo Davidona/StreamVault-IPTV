@@ -965,4 +965,12 @@
     <string name="settings_text_size_system">پیروی از تنظیمات دستگاه</string>
     <string name="settings_text_size_custom">سفارشی</string>
     <string name="settings_privacy_policy">سیاست حفظ حریم خصوصی</string>
+    <string name="settings_category_reorder_channels">بازچینش کانال‌ها</string>
+    <string name="settings_category_sort_manual">دستی</string>
+    <string name="settings_category_reorder_categories">مرتب‌سازی دسته‌ها</string>
+    <string name="settings_default_live_channel_order">ترتیب پیش‌فرض کانال‌ها</string>
+    <string name="settings_live_order_save_failed">ذخیره ترتیب کانال‌ها ممکن نشد. دوباره تلاش کنید.</string>
+    <string name="settings_live_order_recent">اخیراً تماشا شده</string>
+    <string name="settings_live_order_most">بیشترین تماشا</string>
+    <string name="settings_live_order_usage_help">تماشا پس از ۱۰ ثانیه پخش محاسبه می‌شود. بیشترین تماشا مجموع زمان پخش در ۳۰ روز گذشته است.</string>
 </resources>

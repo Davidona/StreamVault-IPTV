@@ -965,4 +965,12 @@
     <string name="settings_text_size_system">端末の設定に従う</string>
     <string name="settings_text_size_custom">カスタム</string>
     <string name="settings_privacy_policy">プライバシーポリシー</string>
+    <string name="settings_category_reorder_channels">チャンネルの並べ替え</string>
+    <string name="settings_category_sort_manual">手動</string>
+    <string name="settings_category_reorder_categories">カテゴリの並べ替え</string>
+    <string name="settings_default_live_channel_order">チャンネルの既定の並び順</string>
+    <string name="settings_live_order_save_failed">チャンネルの順序を保存できませんでした。もう一度お試しください。</string>
+    <string name="settings_live_order_recent">最近視聴した順</string>
+    <string name="settings_live_order_most">視聴時間が長い順</string>
+    <string name="settings_live_order_usage_help">10秒間再生すると視聴として記録されます。視聴時間が長い順では、過去30日間の再生時間を合計します。</string>
 </resources>

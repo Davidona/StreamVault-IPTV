@@ -10,6 +10,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotEquals
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -55,6 +56,60 @@ class StreamVaultDatabaseMigrationTest {
                 throw AssertionError("Migration failed from exported schema v$startVersion", error)
             }
         }
+    }
+
+    @Test
+    fun migrate91To92_assignsStableCombinedProfileIdentities() {
+        val databaseName = "streamvault-migrate-91-92-profile-identity"
+        val database = migrationTestHelper.createDatabase(databaseName, 91)
+        database.execSQL(
+            "INSERT INTO combined_m3u_profiles (id, name, enabled, created_at, updated_at) " +
+                "VALUES (9101, 'Family', 1, 10, 20)"
+        )
+        database.close()
+
+        val migrated = migrationTestHelper.runMigrationsAndValidate(
+            databaseName,
+            92,
+            true,
+            StreamVaultDatabase.MIGRATION_91_92
+        )
+        migrated.query("SELECT identity_key FROM combined_m3u_profiles WHERE id = 9101").use { cursor ->
+            assertEquals(true, cursor.moveToFirst())
+            assertTrue(cursor.getString(0).matches(Regex("combined-[0-9a-f]{32}")))
+            assertEquals(false, cursor.moveToNext())
+        }
+        migrated.close()
+    }
+
+    @Test
+    fun migrate92To93_assignsStableVirtualGroupIdentities() {
+        val databaseName = "streamvault-migrate-92-93-group-identity"
+        val database = migrationTestHelper.createDatabase(databaseName, 92)
+        database.execSQL(
+            "INSERT INTO providers (id, name, type, is_active, status, last_synced_at, created_at) " +
+                "VALUES (9301, 'Migration Provider', 'M3U', 1, 'ACTIVE', 0, 0)"
+        )
+        database.execSQL(
+            "INSERT INTO virtual_groups (id, provider_id, name, icon_emoji, position, created_at, content_type) " +
+                "VALUES (9302, 9301, 'News', NULL, 0, 10, 'LIVE')"
+        )
+        database.close()
+
+        val migrated = migrationTestHelper.runMigrationsAndValidate(
+            databaseName,
+            93,
+            true,
+            StreamVaultDatabaseMigrationRegistry.v92To93.single()
+        )
+        migrated.query("SELECT identity_key FROM virtual_groups WHERE id = 9302").use { cursor ->
+            assertEquals(true, cursor.moveToFirst())
+            val identity = cursor.getString(0)
+            assertEquals(true, identity.startsWith("group-"))
+            assertEquals(38, identity.length)
+            assertEquals(false, cursor.moveToNext())
+        }
+        migrated.close()
     }
 
     @Test

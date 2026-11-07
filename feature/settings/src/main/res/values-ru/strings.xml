@@ -973,4 +973,12 @@
     <string name="settings_text_size_system">Как на устройстве</string>
     <string name="settings_text_size_custom">Свой размер</string>
     <string name="settings_privacy_policy">Политика конфиденциальности</string>
+    <string name="settings_category_reorder_channels">Изменить порядок каналов</string>
+    <string name="settings_category_sort_manual">Вручную</string>
+    <string name="settings_category_reorder_categories">Изменить порядок категорий</string>
+    <string name="settings_default_live_channel_order">Порядок каналов по умолчанию</string>
+    <string name="settings_live_order_save_failed">Не удалось сохранить порядок каналов. Повторите попытку.</string>
+    <string name="settings_live_order_recent">Недавно просмотренные</string>
+    <string name="settings_live_order_most">Самые просматриваемые</string>
+    <string name="settings_live_order_usage_help">Просмотр учитывается после 10 секунд воспроизведения. Время воспроизведения за последние 30 дней определяет самые просматриваемые каналы.</string>
 </resources>

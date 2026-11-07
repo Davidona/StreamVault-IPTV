@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="backup_live_order_restore_issue">일부 실시간 TV 정렬 설정을 복원하지 못했습니다.</string>
+</resources>
