@@ -8,6 +8,8 @@ import kotlinx.coroutines.flow.first
 interface LiveChannelOrderRepository {
     /** Atomically copy and redirect a legacy source; safe to retry. */
     suspend fun migrateSourceIdentity(oldSource: String, newSource: String): Unit = throw UnsupportedOperationException()
+    /** Copy a shared legacy source once without redirecting other profiles. */
+    suspend fun copySourceIdentity(oldSource: String, newSource: String): Unit = throw UnsupportedOperationException()
     fun observe(scope: LiveChannelOrderScope): Flow<LiveChannelOrder>
     /** Distinguishes an absent legacy scope from an explicit Use default override. */
     suspend fun hasSavedOrder(scope: LiveChannelOrderScope): Boolean = false

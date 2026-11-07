@@ -48,6 +48,30 @@ internal class LiveCategoryOrderStore(private val store: DataStore<Preferences>)
         return checkNotNull(result)
     }
 
+    /** Copy shared legacy settings once for one profile without redirecting the shared identity. */
+    suspend fun prepareDuplicateCombinedIdentityMigration(oldIdentity: String, profileId: Long): String {
+        require(oldIdentity.isNotBlank() && profileId > 0)
+        val marker = stringPreferencesKey("combinedLiveCategoryDuplicate_${oldIdentity}_$profileId")
+        var result: String? = null
+        store.edit { values ->
+            values[marker]?.let { result = it; return@edit }
+            val source = combinedKeys(values[redirectKey(oldIdentity)] ?: oldIdentity)
+            val replacement = java.util.UUID.randomUUID().toString()
+            val target = combinedKeys(replacement)
+            listOf(source.mode to target.mode, source.normal to target.normal,
+                source.pinned to target.pinned, source.personal to target.personal,
+                source.pins to target.pins).forEach { (from, to) ->
+                require(values[to] == null) { "Destination category order already exists" }
+                values[from]?.let { values[to] = it }
+            }
+            require(values[target.revision] == null) { "Destination category revision already exists" }
+            values[source.revision]?.let { values[target.revision] = it }
+            values[marker] = replacement
+            result = replacement
+        }
+        return checkNotNull(result)
+    }
+
     suspend fun save(providerId: Long, revision: Long, requested: LiveCategoryOrder, includePins: Boolean = false): SaveLiveCategoryOrderResult {
         require(providerId > 0 && revision >= 0)
         return save(providerKeys(providerId), revision, requested, includePins)

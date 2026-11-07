@@ -43,6 +43,21 @@ class LiveChannelOrderRepositoryImplTest {
         assertThat(repository.observe(target).first().manualKeys).containsExactly("stream:1", "stream:2").inOrder()
     }
 
+    @Test fun `duplicate source copy preserves scopes and retry does not overwrite edits`() = runTest {
+        val store = PreferenceDataStoreFactory.create(scope = backgroundScope) { File(folder.root, "duplicate-source.preferences_pb") }
+        val repository = LiveChannelOrderRepositoryImpl(store)
+        val old = LiveChannelOrderScope("combined:legacy-combined-1", "live:all")
+        val target = old.copy(sourceKey = "combined:copy")
+        repository.initializeIfAbsent(old, LiveChannelOrder(LiveChannelOrderMode.MANUAL, listOf("a", "b")))
+        repository.copySourceIdentity(old.sourceKey, target.sourceKey)
+        val copied = repository.observe(target).first()
+        assertThat(copied).isEqualTo(repository.observe(old).first())
+        repository.save(target, copied.revision, copied.copy(manualKeys = listOf("b", "a")))
+        repository.copySourceIdentity(old.sourceKey, target.sourceKey)
+        assertThat(repository.observe(target).first().manualKeys).containsExactly("b", "a").inOrder()
+        assertThat(repository.observe(old).first().manualKeys).containsExactly("a", "b").inOrder()
+    }
+
     @Test fun `identity migration refuses to overwrite a destination order`() = runTest {
         val store = PreferenceDataStoreFactory.create(scope = backgroundScope) { File(folder.root, "identity-conflict.preferences_pb") }
         val repository = LiveChannelOrderRepositoryImpl(store)

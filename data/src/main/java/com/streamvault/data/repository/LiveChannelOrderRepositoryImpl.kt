@@ -52,6 +52,31 @@ class LiveChannelOrderRepositoryImpl(
             preferences[redirect] = newSource
         }
     }
+    override suspend fun copySourceIdentity(oldSource: String, newSource: String) {
+        require(oldSource.isNotBlank() && newSource.isNotBlank() && oldSource != newSource)
+        store.edit { preferences ->
+            val marker = stringPreferencesKey("liveChannelOrderCopied_" + Base64.getUrlEncoder().withoutPadding().encodeToString(newSource.toByteArray(Charsets.UTF_8)))
+            preferences[marker]?.let { existing ->
+                require(existing == oldSource) { "Destination copied from a different source" }
+                return@edit
+            }
+            val actualSource = preferences[sourceRedirectKey(oldSource)] ?: oldSource
+            val categories = readList(preferences[sourceScopesKey(actualSource)])
+            val newIndex = sourceScopesKey(newSource)
+            require(preferences[newIndex] == null) { "Destination ordering source already exists" }
+            categories.forEach { category ->
+                val oldScope = LiveChannelOrderScope(actualSource, category)
+                val newScope = LiveChannelOrderScope(newSource, category)
+                require(preferences[key(newScope)] == null && preferences[catalogRevisionKey(newScope)] == null) {
+                    "Destination order already exists"
+                }
+                preferences[key(oldScope)]?.let { preferences[key(newScope)] = it }
+                preferences[catalogRevisionKey(oldScope)]?.let { preferences[catalogRevisionKey(newScope)] = it }
+            }
+            if (categories.isNotEmpty()) preferences[newIndex] = encodeList(categories)
+            preferences[marker] = oldSource
+        }
+    }
     override fun observe(scope: LiveChannelOrderScope): Flow<LiveChannelOrder> = store.data
         .map { values -> val actual = resolvedScope(values, scope); decode(values[key(actual)]).copy(catalogRevision = values[catalogRevisionKey(actual)]) }
         .distinctUntilChanged()

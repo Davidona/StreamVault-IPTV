@@ -2967,6 +2967,9 @@ class PreferencesRepository @Inject constructor(
 
     private val liveCategoryOrderStore by lazy { LiveCategoryOrderStore(preferencesDataStore) }
 
+    internal suspend fun prepareDuplicateCombinedIdentityMigration(oldIdentity: String, profileId: Long): String =
+        liveCategoryOrderStore.prepareDuplicateCombinedIdentityMigration(oldIdentity, profileId)
+
     internal suspend fun prepareCombinedIdentityMigration(oldIdentity: String): String =
         liveCategoryOrderStore.prepareCombinedIdentityMigration(oldIdentity)
 

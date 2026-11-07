@@ -34,6 +34,20 @@ class LiveCategoryOrderStoreTest {
         assertThat(store.observeCombined(newIdentity).first().normalIds).containsExactly(2L, 4L).inOrder()
     }
 
+    @Test fun `duplicate category copy preserves shared data and stays independent on retry`() = runTest {
+        val data = PreferenceDataStoreFactory.create(scope = backgroundScope) { File(folder.root, "duplicate-category.preferences_pb") }
+        val store = LiveCategoryOrderStore(data)
+        val original = LiveCategoryOrder(normalIds = listOf(2, 1), pinnedCategoryIds = setOf(2))
+        store.saveCombined("legacy-combined-1", 0, original)
+        val copy = store.prepareDuplicateCombinedIdentityMigration("legacy-combined-1", 1)
+        val saved = store.observeCombined(copy).first()
+        assertThat(saved).isEqualTo(store.observeCombined("legacy-combined-1").first())
+        store.saveCombined(copy, saved.revision, saved.copy(normalIds = listOf(1, 2)))
+        assertThat(store.prepareDuplicateCombinedIdentityMigration("legacy-combined-1", 1)).isEqualTo(copy)
+        assertThat(store.observeCombined(copy).first().normalIds).containsExactly(1L, 2L).inOrder()
+        assertThat(store.observeCombined("legacy-combined-1").first().normalIds).containsExactly(2L, 1L).inOrder()
+    }
+
     @Test fun `order commits with existing category sort and reads existing pin membership`() = runTest {
         val data = PreferenceDataStoreFactory.create(scope = backgroundScope) { File(folder.root, "category.preferences_pb") }
         data.edit { it[stringPreferencesKey("pinned_categories_7_LIVE")] = "2,3" }
