@@ -966,4 +966,5 @@
     <string name="settings_text_size_default">Alapértelmezett (100%)</string>
     <string name="settings_text_size_system">Eszközbeállítás követése</string>
     <string name="settings_text_size_custom">Egyéni</string>
+    <string name="settings_privacy_policy">Adatvédelmi irányelvek</string>
 </resources>

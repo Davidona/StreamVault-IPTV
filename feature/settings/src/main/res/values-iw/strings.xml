@@ -969,4 +969,5 @@
     <string name="settings_text_size_default">ברירת מחדל (100%)</string>
     <string name="settings_text_size_system">לפי הגדרות המכשיר</string>
     <string name="settings_text_size_custom">מותאם אישית</string>
+    <string name="settings_privacy_policy">מדיניות פרטיות</string>
 </resources>

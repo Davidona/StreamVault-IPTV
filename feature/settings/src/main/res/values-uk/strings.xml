@@ -972,4 +972,5 @@
     <string name="settings_text_size_default">Типовий (100%)</string>
     <string name="settings_text_size_system">Як на пристрої</string>
     <string name="settings_text_size_custom">Власний розмір</string>
+    <string name="settings_privacy_policy">Політика конфіденційності</string>
 </resources>

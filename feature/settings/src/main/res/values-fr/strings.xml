@@ -966,4 +966,5 @@
     <string name="settings_text_size_default">Par défaut (100%)</string>
     <string name="settings_text_size_system">Suivre les réglages de l’appareil</string>
     <string name="settings_text_size_custom">Personnalisée</string>
+    <string name="settings_privacy_policy">Politique de confidentialité</string>
 </resources>

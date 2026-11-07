@@ -964,4 +964,5 @@
     <string name="settings_text_size_default">Karaniwan (100%)</string>
     <string name="settings_text_size_system">Sundin ang mga setting ng aparato</string>
     <string name="settings_text_size_custom">Pasadya</string>
+    <string name="settings_privacy_policy">Patakaran sa Privacy</string>
 </resources>

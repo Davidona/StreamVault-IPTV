@@ -969,4 +969,5 @@
     <string name="settings_text_size_default">Implicită (100%)</string>
     <string name="settings_text_size_system">Conform dispozitivului</string>
     <string name="settings_text_size_custom">Personalizată</string>
+    <string name="settings_privacy_policy">Politica de confidențialitate</string>
 </resources>

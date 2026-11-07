@@ -966,4 +966,5 @@
     <string name="settings_text_size_default">Standard (100%)</string>
     <string name="settings_text_size_system">Följ enheten</string>
     <string name="settings_text_size_custom">Anpassad</string>
+    <string name="settings_privacy_policy">Integritetspolicy</string>
 </resources>

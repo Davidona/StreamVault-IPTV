@@ -962,4 +962,5 @@
     <string name="settings_text_size_default">Padrão (100%)</string>
     <string name="settings_text_size_system">Seguir o dispositivo</string>
     <string name="settings_text_size_custom">Personalizado</string>
+    <string name="settings_privacy_policy">Política de Privacidade</string>
 </resources>

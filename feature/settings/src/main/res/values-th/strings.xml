@@ -961,4 +961,5 @@
     <string name="settings_text_size_default">ค่าเริ่มต้น (100%)</string>
     <string name="settings_text_size_system">ตามการตั้งค่าอุปกรณ์</string>
     <string name="settings_text_size_custom">กำหนดเอง</string>
+    <string name="settings_privacy_policy">นโยบายความเป็นส่วนตัว</string>
 </resources>

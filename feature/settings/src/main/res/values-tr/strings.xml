@@ -966,4 +966,5 @@
     <string name="settings_text_size_default">Varsayılan (100%)</string>
     <string name="settings_text_size_system">Cihaz ayarını kullan</string>
     <string name="settings_text_size_custom">Özel</string>
+    <string name="settings_privacy_policy">Gizlilik Politikası</string>
 </resources>

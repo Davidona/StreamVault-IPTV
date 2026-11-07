@@ -970,4 +970,5 @@
     <string name="settings_text_size_default">Predvolená (100%)</string>
     <string name="settings_text_size_system">Podľa zariadenia</string>
     <string name="settings_text_size_custom">Vlastná</string>
+    <string name="settings_privacy_policy">Zásady ochrany osobných údajov</string>
 </resources>

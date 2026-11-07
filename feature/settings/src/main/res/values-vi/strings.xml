@@ -963,4 +963,5 @@
     <string name="settings_text_size_default">Mặc định (100%)</string>
     <string name="settings_text_size_system">Theo thiết bị</string>
     <string name="settings_text_size_custom">Tùy chỉnh</string>
+    <string name="settings_privacy_policy">Chính sách quyền riêng tư</string>
 </resources>

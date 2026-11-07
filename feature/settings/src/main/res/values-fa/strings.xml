@@ -964,4 +964,5 @@
     <string name="settings_text_size_default">پیش‌فرض (100%)</string>
     <string name="settings_text_size_system">پیروی از تنظیمات دستگاه</string>
     <string name="settings_text_size_custom">سفارشی</string>
+    <string name="settings_privacy_policy">سیاست حفظ حریم خصوصی</string>
 </resources>

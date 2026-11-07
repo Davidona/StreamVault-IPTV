@@ -964,4 +964,5 @@
     <string name="settings_text_size_default">По подразбиране (100%)</string>
     <string name="settings_text_size_system">Според устройството</string>
     <string name="settings_text_size_custom">По избор</string>
+    <string name="settings_privacy_policy">Политика за поверителност</string>
 </resources>

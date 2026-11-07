@@ -967,4 +967,5 @@
     <string name="settings_text_size_default">Zadano (100%)</string>
     <string name="settings_text_size_system">Prema uređaju</string>
     <string name="settings_text_size_custom">Prilagođeno</string>
+    <string name="settings_privacy_policy">Pravila privatnosti</string>
 </resources>

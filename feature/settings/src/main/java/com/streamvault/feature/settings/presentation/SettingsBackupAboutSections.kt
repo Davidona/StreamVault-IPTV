@@ -562,6 +562,12 @@ public fun LazyListScope.settingsAboutSection(
             SettingsRow(label = stringResource(R.string.settings_build_verification), value = buildVerificationLabel)
             SettingsRow(label = stringResource(R.string.settings_developed_by), value = stringResource(R.string.settings_developer_name))
             ClickableSettingsRow(
+                label = stringResource(R.string.settings_privacy_policy),
+                value = "",
+                onClick = { onOpenUri(PRIVACY_POLICY_URL) },
+                modifier = if (targetItemId == "about.privacy_policy") targetFocusModifier else Modifier,
+            )
+            ClickableSettingsRow(
                 label = stringResource(R.string.settings_github),
                 value = stringResource(R.string.settings_github_url),
                 onClick = { onOpenUri(context.getString(R.string.settings_github_url)) }
@@ -588,3 +594,5 @@ public fun LazyListScope.settingsAboutSection(
         }
     }
 }
+
+private const val PRIVACY_POLICY_URL = "https://davidona.github.io/privacy/"

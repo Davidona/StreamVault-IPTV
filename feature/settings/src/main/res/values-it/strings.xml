@@ -962,4 +962,5 @@
     <string name="settings_text_size_default">Predefinita (100%)</string>
     <string name="settings_text_size_system">Segui le impostazioni del dispositivo</string>
     <string name="settings_text_size_custom">Personalizzata</string>
+    <string name="settings_privacy_policy">Informativa sulla privacy</string>
 </resources>

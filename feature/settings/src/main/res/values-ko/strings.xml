@@ -962,4 +962,5 @@
     <string name="settings_text_size_default">기본값(100%)</string>
     <string name="settings_text_size_system">기기 설정 따르기</string>
     <string name="settings_text_size_custom">사용자 지정</string>
+    <string name="settings_privacy_policy">개인정보 처리방침</string>
 </resources>

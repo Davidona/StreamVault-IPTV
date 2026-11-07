@@ -972,4 +972,5 @@
     <string name="settings_text_size_default">Domyślny (100%)</string>
     <string name="settings_text_size_system">Zgodnie z urządzeniem</string>
     <string name="settings_text_size_custom">Niestandardowy</string>
+    <string name="settings_privacy_policy">Polityka prywatności</string>
 </resources>

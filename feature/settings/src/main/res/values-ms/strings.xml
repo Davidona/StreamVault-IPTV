@@ -961,4 +961,5 @@
     <string name="settings_text_size_default">Lalai (100%)</string>
     <string name="settings_text_size_system">Ikut peranti</string>
     <string name="settings_text_size_custom">Tersuai</string>
+    <string name="settings_privacy_policy">Dasar Privasi</string>
 </resources>

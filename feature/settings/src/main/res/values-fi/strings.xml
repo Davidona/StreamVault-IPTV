@@ -966,4 +966,5 @@
     <string name="settings_text_size_default">Oletus (100%)</string>
     <string name="settings_text_size_system">Laitteen asetuksen mukaan</string>
     <string name="settings_text_size_custom">Mukautettu</string>
+    <string name="settings_privacy_policy">Tietosuojakäytäntö</string>
 </resources>

@@ -964,4 +964,5 @@
     <string name="settings_text_size_default">標準（100%）</string>
     <string name="settings_text_size_system">端末の設定に従う</string>
     <string name="settings_text_size_custom">カスタム</string>
+    <string name="settings_privacy_policy">プライバシーポリシー</string>
 </resources>

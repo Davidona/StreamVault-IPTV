@@ -966,4 +966,5 @@
     <string name="settings_text_size_default">Προεπιλογή (100%)</string>
     <string name="settings_text_size_system">Σύμφωνα με τη συσκευή</string>
     <string name="settings_text_size_custom">Προσαρμοσμένο</string>
+    <string name="settings_privacy_policy">Πολιτική απορρήτου</string>
 </resources>

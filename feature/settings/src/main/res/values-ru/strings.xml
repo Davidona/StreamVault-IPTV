@@ -972,4 +972,5 @@
     <string name="settings_text_size_default">По умолчанию (100%)</string>
     <string name="settings_text_size_system">Как на устройстве</string>
     <string name="settings_text_size_custom">Свой размер</string>
+    <string name="settings_privacy_policy">Политика конфиденциальности</string>
 </resources>

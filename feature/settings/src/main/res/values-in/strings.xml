@@ -966,4 +966,5 @@
     <string name="settings_text_size_default">Bawaan (100%)</string>
     <string name="settings_text_size_system">Ikuti perangkat</string>
     <string name="settings_text_size_custom">Kustom</string>
+    <string name="settings_privacy_policy">Kebijakan Privasi</string>
 </resources>

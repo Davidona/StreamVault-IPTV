@@ -961,4 +961,5 @@
     <string name="settings_text_size_default">預設（100%）</string>
     <string name="settings_text_size_system">依照裝置設定</string>
     <string name="settings_text_size_custom">自訂</string>
+    <string name="settings_privacy_policy">隱私權政策</string>
 </resources>

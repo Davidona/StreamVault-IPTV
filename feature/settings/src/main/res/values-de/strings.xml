@@ -962,4 +962,5 @@
     <string name="settings_text_size_default">Standard (100%)</string>
     <string name="settings_text_size_system">Geräteeinstellung verwenden</string>
     <string name="settings_text_size_custom">Benutzerdefiniert</string>
+    <string name="settings_privacy_policy">Datenschutzerklärung</string>
 </resources>
