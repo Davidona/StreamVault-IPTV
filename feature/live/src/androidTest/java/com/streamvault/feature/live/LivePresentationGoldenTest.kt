@@ -162,6 +162,7 @@ class LivePresentationGoldenTest {
         capture("live_reorder_top_bar") {
             LiveReorderTopBar(
                 categoryName = "Sports",
+                saveLabel = "Save order",
                 subtitle = "D-pad moves the selected channel. Save the order when you are done.",
                 onSave = {},
                 onCancel = {}

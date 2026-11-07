@@ -966,4 +966,12 @@
     <string name="settings_text_size_default">Standard (100%)</string>
     <string name="settings_text_size_system">Följ enheten</string>
     <string name="settings_text_size_custom">Anpassad</string>
+    <string name="settings_category_reorder_channels">Ordna om kanaler</string>
+    <string name="settings_category_sort_manual">Manuell</string>
+    <string name="settings_category_reorder_categories">Ändra kategoriordning</string>
+    <string name="settings_default_live_channel_order">Standardordning för kanaler</string>
+    <string name="settings_live_order_save_failed">Det gick inte att spara kanalordningen. Försök igen.</string>
+    <string name="settings_live_order_recent">Senast sedda</string>
+    <string name="settings_live_order_most">Mest sedda</string>
+    <string name="settings_live_order_usage_help">Visningar räknas efter 10 sekunders uppspelning. Mest sedda summerar uppspelningstiden för de senaste 30 dagarna.</string>
 </resources>

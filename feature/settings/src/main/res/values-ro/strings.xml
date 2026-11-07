@@ -969,4 +969,12 @@
     <string name="settings_text_size_default">Implicită (100%)</string>
     <string name="settings_text_size_system">Conform dispozitivului</string>
     <string name="settings_text_size_custom">Personalizată</string>
+    <string name="settings_category_reorder_channels">Reordonați canalele</string>
+    <string name="settings_category_sort_manual">Manual</string>
+    <string name="settings_category_reorder_categories">Reordonează categoriile</string>
+    <string name="settings_default_live_channel_order">Ordinea implicită a canalelor</string>
+    <string name="settings_live_order_save_failed">Ordinea canalelor nu a putut fi salvată. Încercați din nou.</string>
+    <string name="settings_live_order_recent">Vizionate recent</string>
+    <string name="settings_live_order_most">Cele mai vizionate</string>
+    <string name="settings_live_order_usage_help">Vizionările se înregistrează după 10 secunde de redare. Cele mai vizionate însumează timpul de redare din ultimele 30 de zile.</string>
 </resources>

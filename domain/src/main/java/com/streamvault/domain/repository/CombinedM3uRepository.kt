@@ -27,5 +27,6 @@ interface CombinedM3uRepository {
     suspend fun getActiveCombinedProfile(): CombinedM3uProfile?
     fun getCombinedCategories(profileId: Long): Flow<List<CombinedCategory>>
     fun getCombinedChannels(profileId: Long, category: CombinedCategory): Flow<List<Channel>>
+    fun getCombinedAllChannels(profileId: Long): Flow<List<Channel>>
     fun searchCombinedChannels(profileId: Long, category: CombinedCategory, query: String): Flow<List<Channel>>
 }

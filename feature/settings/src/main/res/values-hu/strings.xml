@@ -966,4 +966,12 @@
     <string name="settings_text_size_default">Alapértelmezett (100%)</string>
     <string name="settings_text_size_system">Eszközbeállítás követése</string>
     <string name="settings_text_size_custom">Egyéni</string>
+    <string name="settings_category_reorder_channels">Csatornák átrendezése</string>
+    <string name="settings_category_sort_manual">Kézi</string>
+    <string name="settings_category_reorder_categories">Kategóriák átrendezése</string>
+    <string name="settings_default_live_channel_order">Alapértelmezett csatornasorrend</string>
+    <string name="settings_live_order_save_failed">Nem sikerült menteni a csatornasorrendet. Próbálja újra.</string>
+    <string name="settings_live_order_recent">Legutóbb nézett</string>
+    <string name="settings_live_order_most">Legtöbbet nézett</string>
+    <string name="settings_live_order_usage_help">A megtekintés 10 másodperc lejátszás után számít. A legtöbbet nézett az elmúlt 30 nap lejátszási idejét összesíti.</string>
 </resources>

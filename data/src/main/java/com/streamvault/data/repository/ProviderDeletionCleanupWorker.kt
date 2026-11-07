@@ -10,6 +10,7 @@ import com.streamvault.data.local.dao.ProviderDeletionCleanupDao
 import com.streamvault.data.manager.recording.RecordingAlarmScheduler
 import com.streamvault.data.manager.reminder.ProgramReminderAlarmScheduler
 import com.streamvault.data.sync.ProviderSyncLifecycle
+import com.streamvault.domain.repository.PlaybackHistoryRepository
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.EntryPointAccessors
@@ -25,6 +26,7 @@ class ProviderDeletionCleanupWorker(appContext: Context, params: WorkerParameter
         fun recordingAlarmScheduler(): RecordingAlarmScheduler
         fun programReminderAlarmScheduler(): ProgramReminderAlarmScheduler
         fun syncLifecycle(): ProviderSyncLifecycle
+        fun playbackHistoryRepository(): PlaybackHistoryRepository
     }
 
     override suspend fun doWork(): Result {
@@ -34,7 +36,14 @@ class ProviderDeletionCleanupWorker(appContext: Context, params: WorkerParameter
                 dao = entry.providerDeletionCleanupDao(),
                 cancelRecordingAlarm = entry.recordingAlarmScheduler()::cancel,
                 cancelReminderAlarm = entry.programReminderAlarmScheduler()::cancel,
-                cleanupSyncRuntime = entry.syncLifecycle()::onProviderDeleted
+                cleanupSyncRuntime = entry.syncLifecycle()::onProviderDeleted,
+                cleanupLiveUsage = { providerId ->
+                    when (val result = entry.playbackHistoryRepository().clearHistoryForProvider(providerId)) {
+                        is com.streamvault.domain.model.Result.Success -> Unit
+                        is com.streamvault.domain.model.Result.Error -> throw result.exception ?: IllegalStateException(result.message)
+                        com.streamvault.domain.model.Result.Loading -> throw IllegalStateException()
+                    }
+                }
             )
         ) {
             ProviderDeletionDrainOutcome.COMPLETE -> Result.success()
@@ -46,6 +55,7 @@ class ProviderDeletionCleanupWorker(appContext: Context, params: WorkerParameter
         const val RECORDING_ALARM = "RECORDING_ALARM"
         const val REMINDER_ALARM = "REMINDER_ALARM"
         const val SYNC_RUNTIME = "SYNC_RUNTIME"
+        const val LIVE_USAGE = "LIVE_USAGE"
         private const val WORK_NAME = "ProviderDeletionCleanup"
         fun enqueue(context: Context) = WorkManager.getInstance(context).enqueueUniqueWork(
             WORK_NAME,
@@ -72,7 +82,8 @@ internal suspend fun drainProviderDeletionCleanup(
     dao: ProviderDeletionCleanupDao,
     cancelRecordingAlarm: (String) -> Unit,
     cancelReminderAlarm: (Long) -> Unit,
-    cleanupSyncRuntime: suspend (Long) -> Unit
+    cleanupSyncRuntime: suspend (Long) -> Unit,
+    cleanupLiveUsage: suspend (Long) -> Unit = { throw IllegalStateException() }
 ): ProviderDeletionDrainOutcome {
     while (true) {
         val items = try {
@@ -91,6 +102,7 @@ internal suspend fun drainProviderDeletionCleanup(
                     ProviderDeletionCleanupWorker.RECORDING_ALARM -> cancelRecordingAlarm(item.targetId)
                     ProviderDeletionCleanupWorker.REMINDER_ALARM -> cancelReminderAlarm(item.targetId.toLong())
                     ProviderDeletionCleanupWorker.SYNC_RUNTIME -> cleanupSyncRuntime(item.providerId)
+                    ProviderDeletionCleanupWorker.LIVE_USAGE -> cleanupLiveUsage(item.providerId)
                     else -> error("Unknown provider cleanup action '${item.action}'")
                 }
                 dao.delete(item.id)

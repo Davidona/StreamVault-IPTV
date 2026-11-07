@@ -966,4 +966,12 @@
     <string name="settings_text_size_default">Oletus (100%)</string>
     <string name="settings_text_size_system">Laitteen asetuksen mukaan</string>
     <string name="settings_text_size_custom">Mukautettu</string>
+    <string name="settings_category_reorder_channels">Järjestä kanavat uudelleen</string>
+    <string name="settings_category_sort_manual">Manuaalinen</string>
+    <string name="settings_category_reorder_categories">Järjestä kategoriat</string>
+    <string name="settings_default_live_channel_order">Kanavien oletusjärjestys</string>
+    <string name="settings_live_order_save_failed">Kanavajärjestystä ei voitu tallentaa. Yritä uudelleen.</string>
+    <string name="settings_live_order_recent">Viimeksi katsotut</string>
+    <string name="settings_live_order_most">Katsotuimmat</string>
+    <string name="settings_live_order_usage_help">Katselu lasketaan 10 sekunnin toiston jälkeen. Katsotuimmat laskee yhteen viimeisten 30 päivän toistoajan.</string>
 </resources>

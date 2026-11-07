@@ -2,12 +2,15 @@ package com.streamvault.feature.live.home
 
 import com.streamvault.core.ui.design.BrowseShapes
 import androidx.compose.foundation.background
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -49,6 +52,9 @@ data class LiveCategoryOptionsDialogLabels(
     val hideFromLiveTv: String,
     val clearRecent: String,
     val reorder: String,
+    val useDefaultChannelOrder: String,
+    val reorderCategories: String,
+    val manageOnPhone: String,
     val organizeM3u: String,
     val lock: String,
     val unlock: String,
@@ -71,7 +77,10 @@ fun LiveCategoryOptionsDialog(
     onToggleLock: (() -> Unit)? = null,
     onDelete: (() -> Unit)? = null,
     onReorderChannels: (() -> Unit)? = null,
-    onOrganizeM3u: (() -> Unit)? = null
+    onManageOnPhone: (() -> Unit)? = null,
+    onOrganizeM3u: (() -> Unit)? = null,
+    onUseDefaultChannelOrder: (() -> Unit)? = null,
+    onReorderCategories: (() -> Unit)? = null
 ) {
     var canInteract by remember { mutableStateOf(false) }
     val blockOpenGesture = rememberDialogOpenGestureBlocker(canInteract)
@@ -94,6 +103,7 @@ fun LiveCategoryOptionsDialog(
             modifier = Modifier.fillMaxWidth(),
             contentAlignment = Alignment.Center
         ) {
+            val dialogMaxHeight = (maxHeight - 32.dp).coerceAtLeast(120.dp)
             val dialogWidth = when {
                 maxWidth < 700.dp -> 0.9f
                 maxWidth < 1280.dp -> 0.56f
@@ -108,6 +118,8 @@ fun LiveCategoryOptionsDialog(
             ) {
                 Column(
                     modifier = Modifier
+                        .heightIn(max = dialogMaxHeight)
+                        .verticalScroll(rememberScrollState())
                         .background(
                             Brush.verticalGradient(
                                 listOf(
@@ -188,6 +200,29 @@ fun LiveCategoryOptionsDialog(
                                 }
                             }
                         )
+                    }
+
+                    if (onManageOnPhone != null) {
+                        LiveCategoryOptionsAction(
+                            label = labels.manageOnPhone,
+                            onClick = {
+                                if (canInteract) {
+                                    onManageOnPhone()
+                                    onDismissRequest()
+                                }
+                            }
+                        )
+                    }
+
+                    if (onUseDefaultChannelOrder != null) {
+                        LiveCategoryOptionsAction(label = labels.useDefaultChannelOrder, onClick = {
+                            if (canInteract) { onUseDefaultChannelOrder(); onDismissRequest() }
+                        })
+                    }
+                    if (onReorderCategories != null) {
+                        LiveCategoryOptionsAction(label = labels.reorderCategories, onClick = {
+                            if (canInteract) { onReorderCategories(); onDismissRequest() }
+                        })
                     }
 
                     if (onOrganizeM3u != null) {

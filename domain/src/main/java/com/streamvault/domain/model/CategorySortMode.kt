@@ -5,5 +5,6 @@ enum class CategorySortMode {
     TITLE_ASC,
     TITLE_DESC,
     COUNT_DESC,
-    COUNT_ASC
+    COUNT_ASC,
+    MANUAL
 }

@@ -53,6 +53,7 @@ import org.mockito.kotlin.whenever
 class EpgPreviewPortTest {
     private val providerRepository: ProviderRepository = mock()
     private val combinedM3uRepository: CombinedM3uRepository = mock()
+    private val liveChannelOrderRepository: com.streamvault.domain.repository.LiveChannelOrderRepository = mock()
     private val channelRepository: ChannelRepository = mock()
     private val epgRepository: EpgRepository = mock()
     private val epgSourceRepository: EpgSourceRepository = mock()
@@ -73,6 +74,16 @@ class EpgPreviewPortTest {
     @Before
     fun setUp() {
         Dispatchers.setMain(dispatcher)
+        whenever(liveChannelOrderRepository.observe(any())).thenReturn(flowOf(com.streamvault.domain.model.LiveChannelOrder()))
+        whenever(preferencesRepository.defaultLiveChannelOrder).thenReturn(flowOf(com.streamvault.domain.model.LiveChannelOrderMode.PROVIDER))
+        whenever(preferencesRepository.getLiveCategoryOrder(any())).thenAnswer { call ->
+            val id = call.getArgument<Long>(0)
+            kotlinx.coroutines.flow.combine(preferencesRepository.getCategorySortMode(id, ContentType.LIVE), preferencesRepository.getPinnedCategoryIds(id, ContentType.LIVE)) { mode, pins ->
+                com.streamvault.domain.model.LiveCategoryOrder(sortMode = mode, pinnedCategoryIds = pins)
+            }
+        }
+        whenever(preferencesRepository.getCategorySortMode(any(), any())).thenReturn(flowOf(com.streamvault.domain.model.CategorySortMode.DEFAULT))
+        whenever(preferencesRepository.getPinnedCategoryIds(any(), any())).thenReturn(flowOf(emptySet()))
         whenever(playerEngineProvider.get()).thenReturn(playerEngine)
         whenever(playerEngine.playbackState).thenReturn(MutableStateFlow(PlaybackState.IDLE))
         whenever(playerEngine.error).thenReturn(flowOf(null))
@@ -168,6 +179,7 @@ class EpgPreviewPortTest {
     }
 
     private fun createViewModel(): EpgViewModel = EpgViewModel(
+            liveChannelOrderRepository = liveChannelOrderRepository,
         providerRepository = providerRepository,
         combinedM3uRepository = combinedM3uRepository,
         channelRepository = channelRepository,

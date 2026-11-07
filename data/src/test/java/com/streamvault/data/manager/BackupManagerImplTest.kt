@@ -33,6 +33,7 @@ import com.streamvault.data.local.entity.RecordingScheduleEntity
 import com.streamvault.data.local.entity.SeriesEntity
 import com.streamvault.data.local.entity.VirtualGroupEntity
 import com.streamvault.data.mapper.toEntity
+import com.streamvault.data.mapper.toDomain
 import com.streamvault.data.provider.toProviderSnapshot
 import com.streamvault.data.preferences.PreferencesRepository
 import com.streamvault.data.security.CredentialCrypto
@@ -44,6 +45,10 @@ import com.streamvault.domain.manager.BackupRestoreOutcome
 import com.streamvault.domain.manager.BackupProviderReference
 import com.streamvault.domain.manager.PortableCategoryReference
 import com.streamvault.domain.manager.PortableCategorySortReference
+import com.streamvault.domain.manager.PortableLiveChannelOrderBackup
+import com.streamvault.domain.manager.PortableLiveChannelIdentity
+import com.streamvault.domain.manager.PortableCombinedLiveChannelOrderBackup
+import com.streamvault.domain.manager.PortableCombinedCategoryOrderBackup
 import com.streamvault.domain.manager.PortableChannelReference
 import com.streamvault.domain.manager.PortableContentReference
 import com.streamvault.domain.manager.PortableFavoriteBackup
@@ -72,6 +77,9 @@ import com.streamvault.domain.model.AppHomeDashboardShelf
 import com.streamvault.domain.model.AppTopLevelDestination
 import com.streamvault.domain.model.ContentType
 import com.streamvault.domain.model.Category
+import com.streamvault.domain.model.LiveChannelOrder
+import com.streamvault.domain.model.LiveChannelOrderMode
+import com.streamvault.domain.model.LiveCategoryOrder
 import com.streamvault.domain.model.DecoderMode
 import com.streamvault.domain.model.Favorite
 import com.streamvault.domain.model.EpgSource
@@ -89,6 +97,8 @@ import com.streamvault.domain.model.StalkerConfig
 import com.streamvault.domain.repository.ProviderSnapshotRepository
 import com.streamvault.domain.model.XmltvTimezonePolicy
 import com.streamvault.domain.repository.CategoryRepository
+import com.streamvault.domain.repository.LiveChannelOrderRepository
+import com.streamvault.domain.repository.LiveChannelOrderSaveResult
 import java.io.ByteArrayInputStream
 import java.io.File
 import java.io.FileOutputStream
@@ -102,6 +112,7 @@ import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.anyOrNull
+import org.mockito.kotlin.argumentCaptor
 import org.mockito.kotlin.argThat
 import org.mockito.kotlin.doAnswer
 import org.mockito.kotlin.doThrow
@@ -2238,6 +2249,7 @@ class BackupManagerImplTest {
         val categoryRepository: CategoryRepository = mock()
         val virtualGroupDao: VirtualGroupDao = mock()
         val channelDao: ChannelDao = mock()
+        val orderRepository: LiveChannelOrderRepository = mock()
         val provider = Provider(
             id = 2L,
             name = "Source",
@@ -2271,14 +2283,15 @@ class BackupManagerImplTest {
         whenever(preferencesRepository.vodVariantSelections)
             .thenReturn(flowOf(mapOf("${provider.id}|movie" to 401L)))
         whenever(categoryRepository.getCategories(provider.id)).thenReturn(flowOf(listOf(category)))
-        whenever(virtualGroupDao.getById(60L)).thenReturn(
-            VirtualGroupEntity(
-                id = 60L,
-                providerId = provider.id,
-                name = "My News",
-                contentType = ContentType.LIVE
-            )
+        val portableGroup = VirtualGroupEntity(
+            id = 60L,
+            providerId = provider.id,
+            name = "My News",
+            contentType = ContentType.LIVE,
+            identityKey = "portable-group-key"
         )
+        whenever(virtualGroupDao.getById(60L)).thenReturn(portableGroup)
+        whenever(virtualGroupDao.getByType(provider.id, ContentType.LIVE.name)).thenReturn(flowOf(listOf(portableGroup)))
         whenever(channelDao.getById(40L)).thenReturn(
             ChannelEntity(
                 id = 40L,
@@ -2297,6 +2310,18 @@ class BackupManagerImplTest {
                 providerId = provider.id
             )
         )
+        whenever(channelDao.getByProviderSync(provider.id)).thenReturn(listOf(
+            ChannelEntity(id = 40L, streamId = 900L, name = "Preferred News", streamUrl = "https://example.com/live/900", providerId = provider.id),
+            ChannelEntity(id = 41L, streamId = 801L, name = "Other News", streamUrl = "https://example.com/live/801", providerId = provider.id)
+        ))
+        whenever(orderRepository.observe(any())).thenAnswer { invocation ->
+            val scope = invocation.getArgument<com.streamvault.domain.model.LiveChannelOrderScope>(0)
+            flowOf(when (scope.categoryKey) {
+                "live:favorites" -> LiveChannelOrder(LiveChannelOrderMode.MANUAL, listOf("stream:900"))
+                "live:group:portable-group-key" -> LiveChannelOrder(LiveChannelOrderMode.MANUAL, listOf("stream:801"))
+                else -> LiveChannelOrder()
+            })
+        }
         val movieDao: MovieDao = mock()
         whenever(movieDao.getById(401L)).thenReturn(
             MovieEntity(
@@ -2313,7 +2338,8 @@ class BackupManagerImplTest {
             categoryRepository = categoryRepository,
             virtualGroupDao = virtualGroupDao,
             channelDao = channelDao,
-            movieDao = movieDao
+            movieDao = movieDao,
+            liveChannelOrderRepository = orderRepository
         ).buildPortableProviderPreferences(listOf(provider))
 
         val providerReference = BackupProviderReference(
@@ -2335,6 +2361,12 @@ class BackupManagerImplTest {
         assertThat(portable.epgTimeShiftsSpecified).isTrue()
         assertThat(portable.liveVariantSelections.single().logicalGroupId).isEqualTo("news")
         assertThat(portable.vodVariantSelections.single().rawItemId).isEqualTo(401L)
+        assertThat(portable.liveChannelOrders.filter { it.isFavorites }.single().manualChannels)
+            .containsExactly(PortableLiveChannelIdentity(BackupProviderReference(
+                provider.serverUrl, provider.username, providerType = provider.type
+            ), 900L))
+        assertThat(portable.liveChannelOrders.single { it.group != null }.group?.identityKey).isEqualTo("portable-group-key")
+        assertThat(portable.liveChannelOrders.single { it.group != null }.manualChannels.single().streamId).isEqualTo(801L)
         assertThat(portable.unresolvedReferences).isEmpty()
     }
 
@@ -2384,6 +2416,626 @@ class BackupManagerImplTest {
     }
 
     @Test
+    fun `portable live channel order remaps remote identities onto target local rows`(): Unit = runBlocking {
+        val context: Context = mock()
+        val contentResolver: ContentResolver = mock()
+        val providerDao: ProviderDao = mock()
+        val preferencesRepository: PreferencesRepository = mock()
+        val categoryRepository: CategoryRepository = mock()
+        val categoryDao: CategoryDao = mock()
+        val channelDao: ChannelDao = mock()
+        val orders: LiveChannelOrderRepository = mock()
+        val sourceProvider = Provider(
+            id = 2L,
+            name = "Source",
+            type = ProviderType.XTREAM_CODES,
+            serverUrl = "https://example.com",
+            username = "viewer"
+        )
+        val targetProvider = sourceProvider.copy(id = 9L, name = "Target")
+        val providerReference = BackupProviderReference(
+            sourceProvider.serverUrl,
+            sourceProvider.username,
+            providerType = sourceProvider.type
+        )
+        val category = CategoryEntity(
+            id = 500L,
+            categoryId = 51L,
+            name = "News",
+            type = ContentType.LIVE,
+            providerId = targetProvider.id
+        )
+        val targetChannels = listOf(
+            ChannelEntity(id = 801L, streamId = 800L, name = "Eight Hundred", categoryId = 51L, providerId = targetProvider.id),
+            ChannelEntity(id = 902L, streamId = 900L, name = "Nine Hundred", categoryId = 51L, providerId = targetProvider.id),
+            ChannelEntity(id = 1003L, streamId = 1000L, name = "New Channel", categoryId = 51L, providerId = targetProvider.id)
+        )
+        val backup = BackupData(
+            portableProviderPreferences = PortableProviderPreferencesBackup(
+                providers = listOf(providerReference),
+                liveChannelOrdersSpecified = true,
+                liveChannelOrders = listOf(
+                    PortableLiveChannelOrderBackup(
+                        provider = providerReference,
+                        category = PortableCategoryReference(providerReference, "News", ContentType.LIVE, 51L),
+                        mode = LiveChannelOrderMode.MANUAL.name,
+                        manualChannels = listOf(
+                            PortableLiveChannelIdentity(providerReference, 900L),
+                            PortableLiveChannelIdentity(providerReference, 800L)
+                        )
+                    )
+                )
+            )
+        )
+
+        whenever(context.contentResolver).thenReturn(contentResolver)
+        whenever(providerDao.getAllSync()).thenReturn(listOf(targetProvider.toEntity()))
+        whenever(categoryRepository.getCategories(targetProvider.id)).thenReturn(
+            flowOf(listOf(Category(id = 51L, name = "News", type = ContentType.LIVE)))
+        )
+        whenever(categoryDao.getByProviderAndTypeSync(targetProvider.id, ContentType.LIVE.name)).thenReturn(listOf(category))
+        whenever(channelDao.getByProviderSync(targetProvider.id)).thenReturn(targetChannels)
+        whenever(orders.observe(any())).thenReturn(flowOf(LiveChannelOrder(catalogRevision = "catalog-token")))
+        whenever(orders.save(any(), any(), any())).thenAnswer { invocation ->
+            LiveChannelOrderSaveResult.Saved(invocation.getArgument<LiveChannelOrder>(2))
+        }
+        whenever(contentResolver.openInputStream(Uri.parse("content://portable-live-order"))).thenReturn(
+            ByteArrayInputStream(Gson().toJson(backup).toByteArray())
+        )
+
+        val result = backupManagerForValidation(
+            context = context,
+            preferencesRepository = preferencesRepository,
+            providerDao = providerDao,
+            channelDao = channelDao,
+            categoryRepository = categoryRepository,
+            storedProviders = listOf(targetProvider),
+            categoryDao = categoryDao,
+            liveChannelOrderRepository = orders
+        ).importConfig("content://portable-live-order", preferencesOnlyPlan())
+
+        assertThat(result).isInstanceOf(Result.Success::class.java)
+        val categoryScope = com.streamvault.domain.policy.liveChannelOrderScope(
+            targetProvider,
+            Category(id = 51L, name = "News", type = ContentType.LIVE)
+        )
+        verify(orders).save(
+            eq(categoryScope),
+            eq(0L),
+            argThat { mode == LiveChannelOrderMode.MANUAL &&
+                manualKeys == listOf("stream:900", "stream:800", "stream:1000") &&
+                catalogRevision == "catalog-token" }
+        )
+    }
+
+    @Test
+    fun `portable favorites and custom group orders restore by stable provider and group identity`(): Unit = runBlocking {
+        val context: Context = mock()
+        val contentResolver: ContentResolver = mock()
+        val providerDao: ProviderDao = mock()
+        val preferencesRepository: PreferencesRepository = mock()
+        val categoryRepository: CategoryRepository = mock()
+        val channelDao: ChannelDao = mock()
+        val favoriteDao: FavoriteDao = mock()
+        val virtualGroupDao: VirtualGroupDao = mock()
+        val orders: LiveChannelOrderRepository = mock()
+        val sourceProvider = Provider(
+            id = 2L, name = "Source", type = ProviderType.XTREAM_CODES,
+            serverUrl = "https://example.com", username = "viewer"
+        )
+        val targetProvider = sourceProvider.copy(id = 9L, name = "Target")
+        val providerReference = BackupProviderReference(
+            sourceProvider.serverUrl, sourceProvider.username, providerType = sourceProvider.type
+        )
+        val targetRows = listOf(
+            ChannelEntity(id = 801L, streamId = 800L, name = "Family", providerId = targetProvider.id),
+            ChannelEntity(id = 902L, streamId = 900L, name = "Favorite", providerId = targetProvider.id)
+        )
+        val targetGroup = VirtualGroupEntity(
+            id = 404L, providerId = targetProvider.id, name = "Renamed Family",
+            contentType = ContentType.LIVE, identityKey = "opaque-family-key"
+        )
+        val portable = BackupData(
+            portableProviderPreferences = PortableProviderPreferencesBackup(
+                providers = listOf(providerReference),
+                liveChannelOrdersSpecified = true,
+                liveChannelOrders = listOf(
+                    PortableLiveChannelOrderBackup(
+                        provider = providerReference,
+                        mode = LiveChannelOrderMode.MANUAL.name,
+                        isFavorites = true,
+                        manualChannels = listOf(PortableLiveChannelIdentity(providerReference, 900L))
+                    ),
+                    PortableLiveChannelOrderBackup(
+                        provider = providerReference,
+                        mode = LiveChannelOrderMode.MANUAL.name,
+                        group = PortableVirtualGroupReference(
+                            providerReference, "Original Family", ContentType.LIVE, "opaque-family-key"
+                        ),
+                        manualChannels = listOf(PortableLiveChannelIdentity(providerReference, 800L))
+                    )
+                )
+            )
+        )
+        whenever(context.contentResolver).thenReturn(contentResolver)
+        whenever(providerDao.getAllSync()).thenReturn(listOf(targetProvider.toEntity()))
+        whenever(categoryRepository.getCategories(targetProvider.id)).thenReturn(flowOf(emptyList()))
+        whenever(channelDao.getByProviderSync(targetProvider.id)).thenReturn(targetRows)
+        whenever(favoriteDao.getAllByType(targetProvider.id, ContentType.LIVE.name)).thenReturn(flowOf(listOf(
+            com.streamvault.data.local.entity.FavoriteEntity(
+                id = 11L, providerId = targetProvider.id, contentId = 902L,
+                contentType = ContentType.LIVE, position = 0
+            ),
+            com.streamvault.data.local.entity.FavoriteEntity(
+                id = 12L, providerId = targetProvider.id, contentId = 801L,
+                contentType = ContentType.LIVE, position = 0, groupId = targetGroup.id
+            )
+        )))
+        whenever(virtualGroupDao.getByType(targetProvider.id, ContentType.LIVE.name)).thenReturn(flowOf(listOf(targetGroup)))
+        whenever(orders.observe(any())).thenReturn(flowOf(LiveChannelOrder(revision = 2L, catalogRevision = "catalog-token")))
+        whenever(orders.save(any(), any(), any())).thenAnswer { invocation ->
+            LiveChannelOrderSaveResult.Saved(invocation.getArgument<LiveChannelOrder>(2))
+        }
+        whenever(contentResolver.openInputStream(Uri.parse("content://portable-virtual-orders"))).thenReturn(
+            ByteArrayInputStream(Gson().toJson(portable).toByteArray())
+        )
+
+        val result = backupManagerForValidation(
+            context = context,
+            preferencesRepository = preferencesRepository,
+            providerDao = providerDao,
+            channelDao = channelDao,
+            favoriteDao = favoriteDao,
+            virtualGroupDao = virtualGroupDao,
+            categoryRepository = categoryRepository,
+            storedProviders = listOf(targetProvider),
+            liveChannelOrderRepository = orders
+        ).importConfig("content://portable-virtual-orders", preferencesOnlyPlan())
+
+        assertThat(result).isInstanceOf(Result.Success::class.java)
+        assertThat((result as Result.Success).data.unresolvedReferences).isEmpty()
+        val providerIdentity = com.streamvault.domain.policy.liveProviderOrderIdentity(targetProvider)
+        verify(orders).save(
+            eq(com.streamvault.domain.policy.liveFavoritesOrderScope(providerIdentity)),
+            eq(2L),
+            argThat { mode == LiveChannelOrderMode.MANUAL && manualKeys == listOf("stream:900") }
+        )
+        verify(orders).save(
+            eq(com.streamvault.domain.policy.liveCustomGroupOrderScope(targetProvider, targetGroup.toDomain())),
+            eq(2L),
+            argThat { mode == LiveChannelOrderMode.MANUAL && manualKeys == listOf("stream:800") }
+        )
+    }
+
+    @Test
+    fun `portable combined order remaps profile and stream identities without room ids`(): Unit = runBlocking {
+        val context: Context = mock()
+        val contentResolver: ContentResolver = mock()
+        val providerDao: ProviderDao = mock()
+        val preferencesRepository: PreferencesRepository = mock()
+        val categoryRepository: CategoryRepository = mock()
+        val profileDao: com.streamvault.data.local.dao.CombinedM3uProfileDao = mock()
+        val memberDao: com.streamvault.data.local.dao.CombinedM3uProfileMemberDao = mock()
+        val channelDao: ChannelDao = mock()
+        val orders: LiveChannelOrderRepository = mock()
+        val sourceProvider = Provider(
+            id = 2L,
+            name = "Source playlist",
+            type = ProviderType.M3U,
+            serverUrl = "https://playlist.example.test/list.m3u"
+        )
+        val targetProvider = sourceProvider.copy(id = 91L, name = "Restored playlist")
+        val providerReference = BackupProviderReference(
+            sourceProvider.serverUrl,
+            sourceProvider.username,
+            providerType = sourceProvider.type
+        )
+        val profileIdentity = "combined-profile-portable-key"
+        val portable = PortableProviderPreferencesBackup(
+            providers = listOf(providerReference),
+            combinedLiveChannelOrdersSpecified = true,
+            combinedLiveChannelOrders = listOf(
+                PortableCombinedLiveChannelOrderBackup(
+                    profileIdentityKey = profileIdentity,
+                    categoryKey = "live:all",
+                    mode = LiveChannelOrderMode.MANUAL.name,
+                    manualChannels = listOf(PortableLiveChannelIdentity(providerReference, 7401L))
+                )
+            )
+        )
+        val profile = com.streamvault.data.local.entity.CombinedM3uProfileEntity(
+            id = 44L,
+            identityKey = profileIdentity,
+            name = "Family",
+            createdAt = 1L,
+            updatedAt = 2L
+        )
+        whenever(memberDao.getForProfileSync(profile.id)).thenReturn(listOf(
+            com.streamvault.data.local.entity.CombinedM3uProfileMemberWithProvider(
+                id = 1L,
+                profileId = profile.id,
+                providerId = targetProvider.id,
+                priority = 0,
+                enabled = true,
+                providerName = targetProvider.name
+            )
+        ))
+        whenever(channelDao.getByProviderSync(targetProvider.id)).thenReturn(listOf(
+            ChannelEntity(id = 405L, streamId = 7401L, name = "One", providerId = targetProvider.id)
+        ))
+        whenever(context.contentResolver).thenReturn(contentResolver)
+        whenever(providerDao.getAllSync()).thenReturn(listOf(targetProvider.toEntity()))
+        whenever(profileDao.getAll()).thenReturn(flowOf(listOf(profile)))
+        whenever(categoryRepository.getCategories(targetProvider.id)).thenReturn(flowOf(emptyList()))
+        whenever(orders.observe(any())).thenReturn(flowOf(LiveChannelOrder(revision = 3L)))
+        whenever(orders.save(any(), any(), any())).thenAnswer { invocation ->
+            LiveChannelOrderSaveResult.Saved(invocation.getArgument<LiveChannelOrder>(2))
+        }
+        whenever(contentResolver.openInputStream(Uri.parse("content://portable-combined-order"))).thenReturn(
+            ByteArrayInputStream(Gson().toJson(BackupData(portableProviderPreferences = portable)).toByteArray())
+        )
+
+        val result = backupManagerForValidation(
+            context = context,
+            preferencesRepository = preferencesRepository,
+            providerDao = providerDao,
+            channelDao = channelDao,
+            categoryRepository = categoryRepository,
+            storedProviders = listOf(targetProvider),
+            combinedM3uProfileDao = profileDao,
+            combinedM3uProfileMemberDao = memberDao,
+            liveChannelOrderRepository = orders
+        ).importConfig("content://portable-combined-order", preferencesOnlyPlan())
+
+        assertThat(result).isInstanceOf(Result.Success::class.java)
+        val restored = (result as Result.Success).data
+        assertThat(restored.unresolvedReferences).isEmpty()
+        assertThat(restored.importedSections).contains("Preferences")
+        verify(profileDao).getAll()
+        val expectedScope = com.streamvault.domain.model.LiveChannelOrderScope(
+            "combined:$profileIdentity",
+            "live:all"
+        )
+        verify(orders).save(
+            eq(expectedScope),
+            eq(3L),
+            argThat {
+                mode == LiveChannelOrderMode.MANUAL &&
+                    manualKeys.singleOrNull()?.matches(Regex("provider:[0-9a-f]{64}\\|stream:7401")) == true
+            }
+        )
+    }
+
+    @Test
+    fun `legacy combined backup maps orders only to matching provider membership`() = runBlocking {
+        val profiles: com.streamvault.data.local.dao.CombinedM3uProfileDao = mock()
+        val members: com.streamvault.data.local.dao.CombinedM3uProfileMemberDao = mock()
+        val provider = Provider(id = 7, name = "Provider", type = ProviderType.M3U, serverUrl = "https://example.test/list")
+        val other = provider.copy(id = 8, serverUrl = "https://other.test/list")
+        val reference = BackupProviderReference(provider.serverUrl, provider.username, providerType = provider.type)
+        val source = com.streamvault.domain.manager.CombinedM3uProfileBackup(name = "Family", identityKey = "legacy-combined-1",
+            members = listOf(com.streamvault.domain.manager.CombinedM3uProfileMemberBackup(reference, priority = 0)))
+        val portable = PortableProviderPreferencesBackup(combinedLiveChannelOrders = listOf(
+            com.streamvault.domain.manager.PortableCombinedLiveChannelOrderBackup("legacy-combined-1", "live:all", mode = "MANUAL")))
+        whenever(profiles.getAll()).thenReturn(flowOf(listOf(
+            com.streamvault.data.local.entity.CombinedM3uProfileEntity(id = 10, identityKey = "wrong", name = "Family"),
+            com.streamvault.data.local.entity.CombinedM3uProfileEntity(id = 11, identityKey = "correct", name = "Family"))))
+        whenever(members.getForProfileSync(10)).thenReturn(listOf(
+            com.streamvault.data.local.entity.CombinedM3uProfileMemberWithProvider(1, 10, 8, 0, true, "Other")))
+        whenever(members.getForProfileSync(11)).thenReturn(listOf(
+            com.streamvault.data.local.entity.CombinedM3uProfileMemberWithProvider(2, 11, 7, 0, true, "Provider")))
+        val manager = backupManagerForValidation(context = mock(), combinedM3uProfileDao = profiles,
+            combinedM3uProfileMemberDao = members)
+        val remapped = manager.remapLegacyCombinedOrderReferences(BackupData(combinedM3uProfiles = listOf(source)), portable, listOf(provider, other))
+        assertThat(remapped.combinedLiveChannelOrders.single().profileIdentityKey).isEqualTo("correct")
+        val unresolved = manager.remapLegacyCombinedOrderReferences(BackupData(), portable, listOf(provider, other))
+        assertThat(unresolved.combinedLiveChannelOrders.single().profileIdentityKey).startsWith("unresolved-legacy:")
+    }
+
+    @Test
+    fun `portable provider category order preserves group identity and section positions`() = runBlocking {
+        val preferences: PreferencesRepository = mock()
+        val categoryRepository: CategoryRepository = mock()
+        val groups: VirtualGroupDao = mock()
+        val provider = Provider(id = 29L, name = "Playlist", type = ProviderType.M3U, serverUrl = "https://playlist.example.test/list.m3u")
+        val group = com.streamvault.data.local.entity.VirtualGroupEntity(id = 42, providerId = provider.id,
+            name = "Family", identityKey = "stable-family")
+        stubGuidePreferenceExport(preferences, 0L)
+        whenever(categoryRepository.getCategories(provider.id)).thenReturn(flowOf(listOf(
+            Category(id = 81, name = "News", type = ContentType.LIVE),
+            Category(id = 82, name = "Sports", type = ContentType.LIVE)
+        )))
+        whenever(groups.getByType(provider.id, ContentType.LIVE.name)).thenReturn(flowOf(listOf(group)))
+        whenever(preferences.getLiveCategoryOrder(provider.id)).thenReturn(flowOf(LiveCategoryOrder(
+            normalIds = listOf(82, 81), pinnedIds = listOf(81),
+            personalIds = listOf(-42, com.streamvault.domain.model.VirtualCategoryIds.FAVORITES)
+        )))
+        val portable = backupManagerForValidation(context = mock(), preferencesRepository = preferences,
+            categoryRepository = categoryRepository, virtualGroupDao = groups).buildPortableProviderPreferences(listOf(provider))
+        val order = portable.providerLiveCategoryOrders!!.single()
+        assertThat(order.normalCategoryIds).containsExactly(82L, 81L).inOrder()
+        assertThat(order.pinnedOrderCategoryIds).containsExactly(81L).inOrder()
+        assertThat(order.personalKeys).containsExactly("group:stable-family", "favorites").inOrder()
+    }
+
+    @Test
+    fun `portable provider category order restores group after local id remapping`() = runBlocking {
+        val context: Context = mock()
+        val resolver: ContentResolver = mock()
+        val providerDao: ProviderDao = mock()
+        val preferences: PreferencesRepository = mock()
+        val categoryRepository: CategoryRepository = mock()
+        val groups: VirtualGroupDao = mock()
+        val provider = Provider(id = 91L, name = "Restored", type = ProviderType.M3U, serverUrl = "https://playlist.example.test/list.m3u")
+        val reference = BackupProviderReference(provider.serverUrl, provider.username, providerType = provider.type)
+        val portable = PortableProviderPreferencesBackup(providers = listOf(reference), providerLiveCategoryOrders = listOf(
+            com.streamvault.domain.manager.PortableProviderLiveCategoryOrderBackup(reference,
+                normalCategoryIds = listOf(82, 81), pinnedOrderCategoryIds = listOf(81),
+                personalKeys = listOf("group:stable-family", "favorites"))
+        ))
+        whenever(context.contentResolver).thenReturn(resolver)
+        whenever(providerDao.getAllSync()).thenReturn(listOf(provider.toEntity()))
+        whenever(categoryRepository.getCategories(provider.id)).thenReturn(flowOf(listOf(
+            Category(id = 81, name = "News", type = ContentType.LIVE), Category(id = 82, name = "Sports", type = ContentType.LIVE))))
+        whenever(groups.getByType(provider.id, ContentType.LIVE.name)).thenReturn(flowOf(listOf(
+            com.streamvault.data.local.entity.VirtualGroupEntity(id = 909, providerId = provider.id, name = "Renamed", identityKey = "stable-family"))))
+        whenever(preferences.getLiveCategoryOrder(provider.id)).thenReturn(flowOf(LiveCategoryOrder(revision = 6)))
+        whenever(preferences.saveLiveCategoryOrder(any(), any(), any())).thenAnswer {
+            com.streamvault.domain.model.SaveLiveCategoryOrderResult.Saved(it.getArgument(2))
+        }
+        whenever(resolver.openInputStream(Uri.parse("content://provider-category-order"))).thenReturn(
+            ByteArrayInputStream(Gson().toJson(BackupData(portableProviderPreferences = portable)).toByteArray()))
+        val result = backupManagerForValidation(context = context, preferencesRepository = preferences,
+            providerDao = providerDao, categoryRepository = categoryRepository, virtualGroupDao = groups,
+            storedProviders = listOf(provider)).importConfig("content://provider-category-order", preferencesOnlyPlan())
+        assertThat(result).isInstanceOf(Result.Success::class.java)
+        val saved = argumentCaptor<LiveCategoryOrder>()
+        verify(preferences).saveLiveCategoryOrder(eq(provider.id), eq(6L), saved.capture())
+        assertThat(saved.firstValue.normalIds).containsExactly(82L, 81L).inOrder()
+        assertThat(saved.firstValue.pinnedIds).containsExactly(81L)
+        assertThat(saved.firstValue.personalIds).containsExactly(-909L, com.streamvault.domain.model.VirtualCategoryIds.FAVORITES).inOrder()
+    }
+
+    @Test
+    fun `portable combined category order exports stable profile and normalized category keys`() = runBlocking {
+        val preferencesRepository: PreferencesRepository = mock()
+        val categoryRepository: CategoryRepository = mock()
+        val profileDao: com.streamvault.data.local.dao.CombinedM3uProfileDao = mock()
+        val memberDao: com.streamvault.data.local.dao.CombinedM3uProfileMemberDao = mock()
+        val provider = Provider(
+            id = 29L,
+            name = "Playlist",
+            type = ProviderType.M3U,
+            serverUrl = "https://playlist.example.test/list.m3u"
+        )
+        val profile = com.streamvault.data.local.entity.CombinedM3uProfileEntity(
+            id = 70L, identityKey = "portable-category-profile", name = "Family", createdAt = 1L, updatedAt = 2L
+        )
+        val news = Category(id = 81L, name = " News ", type = ContentType.LIVE)
+        val sports = Category(id = 82L, name = "Sports", type = ContentType.LIVE)
+        val newsId = com.streamvault.domain.model.CombinedCategoryIdentity.idForName(news.name)
+        val sportsId = com.streamvault.domain.model.CombinedCategoryIdentity.idForName(sports.name)
+        stubGuidePreferenceExport(preferencesRepository, 0L)
+        whenever(categoryRepository.getCategories(provider.id)).thenReturn(flowOf(listOf(news, sports)))
+        whenever(profileDao.getAll()).thenReturn(flowOf(listOf(profile)))
+        whenever(memberDao.getForProfileSync(profile.id)).thenReturn(listOf(
+            com.streamvault.data.local.entity.CombinedM3uProfileMemberWithProvider(
+                id = 1L, profileId = profile.id, providerId = provider.id, priority = 0,
+                enabled = true, providerName = provider.name
+            )
+        ))
+        whenever(preferencesRepository.getCombinedLiveCategoryOrder(profile.identityKey)).thenReturn(flowOf(
+            LiveCategoryOrder(
+                sortMode = com.streamvault.domain.model.CategorySortMode.MANUAL,
+                normalIds = listOf(newsId, sportsId),
+                pinnedIds = listOf(sportsId),
+                pinnedCategoryIds = setOf(sportsId)
+            )
+        ))
+
+        val portable = backupManagerForValidation(
+            context = mock(),
+            preferencesRepository = preferencesRepository,
+            categoryRepository = categoryRepository,
+            combinedM3uProfileDao = profileDao,
+            combinedM3uProfileMemberDao = memberDao
+        ).buildPortableProviderPreferences(listOf(provider))
+
+        val order = portable.combinedLiveCategoryOrders.single()
+        assertThat(portable.combinedLiveCategoryOrdersSpecified).isTrue()
+        assertThat(order.profileIdentityKey).isEqualTo(profile.identityKey)
+        assertThat(order.sortMode).isEqualTo("MANUAL")
+        assertThat(order.normalCategoryKeys).containsExactly("news", "sports").inOrder()
+        assertThat(order.pinnedOrderCategoryKeys).containsExactly("sports")
+        assertThat(order.pinnedCategoryKeys).containsExactly("sports")
+        assertThat(portable.unresolvedReferences).isEmpty()
+    }
+
+    @Test
+    fun `portable combined category order resolves normalized keys after local id remapping`() = runBlocking {
+        val context: Context = mock()
+        val contentResolver: ContentResolver = mock()
+        val providerDao: ProviderDao = mock()
+        val preferencesRepository: PreferencesRepository = mock()
+        val categoryRepository: CategoryRepository = mock()
+        val profileDao: com.streamvault.data.local.dao.CombinedM3uProfileDao = mock()
+        val memberDao: com.streamvault.data.local.dao.CombinedM3uProfileMemberDao = mock()
+        val sourceProvider = Provider(
+            id = 2L,
+            name = "Source playlist",
+            type = ProviderType.M3U,
+            serverUrl = "https://playlist.example.test/list.m3u"
+        )
+        val targetProvider = sourceProvider.copy(id = 91L, name = "Restored playlist")
+        val providerReference = BackupProviderReference(
+            sourceProvider.serverUrl,
+            sourceProvider.username,
+            providerType = sourceProvider.type
+        )
+        val profileIdentity = "combined-category-portable-key"
+        val profile = com.streamvault.data.local.entity.CombinedM3uProfileEntity(
+            id = 47L, identityKey = profileIdentity, name = "Family", createdAt = 1L, updatedAt = 2L
+        )
+        val news = Category(id = 901L, name = "News", type = ContentType.LIVE)
+        val sports = Category(id = 902L, name = "Sports", type = ContentType.LIVE)
+        val portable = PortableProviderPreferencesBackup(
+            providers = listOf(providerReference),
+            combinedLiveCategoryOrdersSpecified = true,
+            combinedLiveCategoryOrders = listOf(
+                PortableCombinedCategoryOrderBackup(
+                    profileIdentityKey = profileIdentity,
+                    sortMode = "MANUAL",
+                    normalCategoryKeys = listOf("sports", "news"),
+                    pinnedOrderCategoryKeys = listOf("news"),
+                    pinnedCategoryKeys = listOf("news")
+                )
+            )
+        )
+        whenever(context.contentResolver).thenReturn(contentResolver)
+        whenever(providerDao.getAllSync()).thenReturn(listOf(targetProvider.toEntity()))
+        whenever(profileDao.getAll()).thenReturn(flowOf(listOf(profile)))
+        whenever(memberDao.getForProfileSync(profile.id)).thenReturn(listOf(
+            com.streamvault.data.local.entity.CombinedM3uProfileMemberWithProvider(
+                id = 1L, profileId = profile.id, providerId = targetProvider.id, priority = 0,
+                enabled = true, providerName = targetProvider.name
+            )
+        ))
+        whenever(categoryRepository.getCategories(targetProvider.id)).thenReturn(flowOf(listOf(news, sports)))
+        whenever(preferencesRepository.getCombinedLiveCategoryOrder(profileIdentity)).thenReturn(
+            flowOf(LiveCategoryOrder(revision = 6L))
+        )
+        whenever(preferencesRepository.saveCombinedLiveCategoryOrder(any(), any(), any())).thenReturn(
+            com.streamvault.domain.model.SaveLiveCategoryOrderResult.Saved(LiveCategoryOrder(revision = 7L))
+        )
+        whenever(contentResolver.openInputStream(Uri.parse("content://portable-combined-category-order"))).thenReturn(
+            ByteArrayInputStream(Gson().toJson(BackupData(portableProviderPreferences = portable)).toByteArray())
+        )
+
+        val result = backupManagerForValidation(
+            context = context,
+            preferencesRepository = preferencesRepository,
+            providerDao = providerDao,
+            categoryRepository = categoryRepository,
+            storedProviders = listOf(targetProvider),
+            combinedM3uProfileDao = profileDao,
+            combinedM3uProfileMemberDao = memberDao
+        ).importConfig("content://portable-combined-category-order", preferencesOnlyPlan())
+
+        assertThat(result).isInstanceOf(Result.Success::class.java)
+        assertThat((result as Result.Success).data.unresolvedReferences).isEmpty()
+        val capture = argumentCaptor<LiveCategoryOrder>()
+        verify(preferencesRepository).saveCombinedLiveCategoryOrder(eq(profileIdentity), eq(6L), capture.capture())
+        val restored = capture.firstValue
+        assertThat(restored.sortMode).isEqualTo(com.streamvault.domain.model.CategorySortMode.MANUAL)
+        assertThat(restored.normalIds).containsExactly(
+            com.streamvault.domain.model.CombinedCategoryIdentity.idForName("Sports"),
+            com.streamvault.domain.model.CombinedCategoryIdentity.idForName("News")
+        ).inOrder()
+        assertThat(restored.pinnedIds).containsExactly(com.streamvault.domain.model.CombinedCategoryIdentity.idForName("News"))
+        assertThat(restored.pinnedCategoryIds)
+            .containsExactly(com.streamvault.domain.model.CombinedCategoryIdentity.idForName("News"))
+        Unit
+    }
+
+    @Test
+    fun `portable combined favorites order resolves only current profile members and favorite rows`(): Unit = runBlocking {
+        val context: Context = mock()
+        val contentResolver: ContentResolver = mock()
+        val providerDao: ProviderDao = mock()
+        val favoriteDao: FavoriteDao = mock()
+        val channelDao: ChannelDao = mock()
+        val preferencesRepository: PreferencesRepository = mock()
+        val categoryRepository: CategoryRepository = mock()
+        val profileDao: com.streamvault.data.local.dao.CombinedM3uProfileDao = mock()
+        val memberDao: com.streamvault.data.local.dao.CombinedM3uProfileMemberDao = mock()
+        val orders: LiveChannelOrderRepository = mock()
+        val sourceProvider = Provider(
+            id = 2L,
+            name = "Source playlist",
+            type = ProviderType.M3U,
+            serverUrl = "https://playlist.example.test/list.m3u"
+        )
+        val targetProvider = sourceProvider.copy(id = 91L, name = "Restored playlist")
+        val providerReference = BackupProviderReference(
+            sourceProvider.serverUrl,
+            sourceProvider.username,
+            providerType = sourceProvider.type
+        )
+        val profileIdentity = "combined-favorites-portable-key"
+        val profile = com.streamvault.data.local.entity.CombinedM3uProfileEntity(
+            id = 45L, identityKey = profileIdentity, name = "Family", createdAt = 1L, updatedAt = 2L
+        )
+        val portable = PortableProviderPreferencesBackup(
+            providers = listOf(providerReference),
+            combinedLiveChannelOrdersSpecified = true,
+            combinedLiveChannelOrders = listOf(
+                PortableCombinedLiveChannelOrderBackup(
+                    profileIdentityKey = profileIdentity,
+                    categoryKey = "live:favorites",
+                    mode = LiveChannelOrderMode.MANUAL.name,
+                    manualChannels = listOf(PortableLiveChannelIdentity(providerReference, 7401L))
+                )
+            )
+        )
+        whenever(context.contentResolver).thenReturn(contentResolver)
+        whenever(providerDao.getAllSync()).thenReturn(listOf(targetProvider.toEntity()))
+        whenever(profileDao.getAll()).thenReturn(flowOf(listOf(profile)))
+        whenever(memberDao.getForProfileSync(profile.id)).thenReturn(listOf(
+            com.streamvault.data.local.entity.CombinedM3uProfileMemberWithProvider(
+                id = 1L, profileId = profile.id, providerId = targetProvider.id, priority = 0,
+                enabled = true, providerName = targetProvider.name
+            )
+        ))
+        whenever(categoryRepository.getCategories(targetProvider.id)).thenReturn(flowOf(emptyList()))
+        whenever(channelDao.getByProviderSync(targetProvider.id)).thenReturn(listOf(
+            ChannelEntity(id = 405L, streamId = 7401L, name = "One", providerId = targetProvider.id)
+        ))
+        whenever(favoriteDao.getAllByTypeForProviders(listOf(targetProvider.id), ContentType.LIVE.name)).thenReturn(
+            flowOf(listOf(com.streamvault.data.local.entity.FavoriteEntity(
+                id = 1L, providerId = targetProvider.id, contentId = 405L,
+                contentType = ContentType.LIVE, position = 0
+            )))
+        )
+        whenever(orders.observe(any())).thenReturn(flowOf(LiveChannelOrder(revision = 3L)))
+        whenever(orders.save(any(), any(), any())).thenAnswer { invocation ->
+            LiveChannelOrderSaveResult.Saved(invocation.getArgument<LiveChannelOrder>(2))
+        }
+        whenever(contentResolver.openInputStream(Uri.parse("content://portable-combined-favorites-order"))).thenReturn(
+            ByteArrayInputStream(Gson().toJson(BackupData(portableProviderPreferences = portable)).toByteArray())
+        )
+
+        val result = backupManagerForValidation(
+            context = context,
+            preferencesRepository = preferencesRepository,
+            providerDao = providerDao,
+            favoriteDao = favoriteDao,
+            channelDao = channelDao,
+            categoryRepository = categoryRepository,
+            storedProviders = listOf(targetProvider),
+            combinedM3uProfileDao = profileDao,
+            combinedM3uProfileMemberDao = memberDao,
+            liveChannelOrderRepository = orders
+        ).importConfig("content://portable-combined-favorites-order", preferencesOnlyPlan())
+
+        assertThat(result).isInstanceOf(Result.Success::class.java)
+        assertThat((result as Result.Success).data.unresolvedReferences).isEmpty()
+        val orderCaptor = argumentCaptor<LiveChannelOrder>()
+        verify(orders).save(
+            eq(com.streamvault.domain.model.LiveChannelOrderScope("combined:$profileIdentity", "live:favorites")),
+            eq(3L),
+            orderCaptor.capture()
+        )
+        assertThat(orderCaptor.firstValue.mode).isEqualTo(LiveChannelOrderMode.MANUAL)
+        assertThat(orderCaptor.firstValue.manualKeys).hasSize(1)
+        assertThat(orderCaptor.firstValue.manualKeys.single().substringBefore("|stream:"))
+            // M3U's typed snapshot projects playlistUrl into both legacy endpoint fields.
+            .isEqualTo(com.streamvault.domain.policy.liveProviderOrderIdentity(
+                targetProvider.copy(m3uUrl = targetProvider.serverUrl)
+            ))
+        assertThat(orderCaptor.firstValue.manualKeys.single()).endsWith("|stream:7401")
+    }
+
+    @Test
     fun `portable guide favorite group remaps its local id on import`() = runBlocking {
         val context: Context = mock()
         val contentResolver: ContentResolver = mock()
@@ -2402,7 +3054,8 @@ class BackupManagerImplTest {
             id = 24L,
             providerId = sourceProvider.id,
             name = "My Guide Group",
-            contentType = ContentType.LIVE
+            contentType = ContentType.LIVE,
+            identityKey = "portable-guide-group"
         )
         stubGuidePreferenceExport(preferencesRepository, -sourceGroup.id)
         whenever(virtualGroupDao.getById(sourceGroup.id)).thenReturn(sourceGroup)
@@ -2423,7 +3076,8 @@ class BackupManagerImplTest {
                     providerType = sourceProvider.type
                 ),
                 sourceGroup.name,
-                ContentType.LIVE
+                ContentType.LIVE,
+                "portable-guide-group"
             )
         )
         assertThat(portable.unresolvedReferences).isEmpty()
@@ -4067,8 +4721,11 @@ class BackupManagerImplTest {
         credentialCrypto: CredentialCrypto = mock(),
         epgSourceDao: EpgSourceDao? = null,
         combinedM3uProfileMemberDao: com.streamvault.data.local.dao.CombinedM3uProfileMemberDao? = null,
+        combinedM3uProfileDao: com.streamvault.data.local.dao.CombinedM3uProfileDao? = null,
         recordingManager: RecordingManager = mock(),
         storedProviders: List<Provider> = emptyList(),
+        categoryDao: CategoryDao? = null,
+        liveChannelOrderRepository: LiveChannelOrderRepository? = null,
     ): BackupManagerImpl {
         whenever(preferencesRepository.defaultCategoryId).thenReturn(flowOf(null))
         whenever(preferencesRepository.hideStremioAddons).thenReturn(flowOf(false))
@@ -4112,8 +4769,11 @@ class BackupManagerImplTest {
             backupRestoreLedgerDao = restoreLedgerDao,
             channelDao = channelDao,
             seriesDao = mock(),
+            categoryDao = categoryDao,
             epgSourceDao = epgSourceDao,
-            combinedM3uProfileMemberDao = combinedM3uProfileMemberDao
+            combinedM3uProfileDao = combinedM3uProfileDao,
+            combinedM3uProfileMemberDao = combinedM3uProfileMemberDao,
+            liveChannelOrderRepository = liveChannelOrderRepository
         )
     }
 

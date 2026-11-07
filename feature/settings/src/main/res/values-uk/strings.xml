@@ -972,4 +972,12 @@
     <string name="settings_text_size_default">Типовий (100%)</string>
     <string name="settings_text_size_system">Як на пристрої</string>
     <string name="settings_text_size_custom">Власний розмір</string>
+    <string name="settings_category_reorder_channels">Сортувати канали</string>
+    <string name="settings_category_sort_manual">Вручну</string>
+    <string name="settings_category_reorder_categories">Змінити порядок категорій</string>
+    <string name="settings_default_live_channel_order">Типовий порядок каналів</string>
+    <string name="settings_live_order_save_failed">Не вдалося зберегти порядок каналів. Спробуйте ще раз.</string>
+    <string name="settings_live_order_recent">Нещодавно переглянуті</string>
+    <string name="settings_live_order_most">Найчастіше переглянуті</string>
+    <string name="settings_live_order_usage_help">Перегляд враховується після 10 секунд відтворення. Найчастіше переглянуті підсумовує час відтворення за останні 30 днів.</string>
 </resources>

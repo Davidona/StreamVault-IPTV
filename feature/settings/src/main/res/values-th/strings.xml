@@ -961,4 +961,12 @@
     <string name="settings_text_size_default">ค่าเริ่มต้น (100%)</string>
     <string name="settings_text_size_system">ตามการตั้งค่าอุปกรณ์</string>
     <string name="settings_text_size_custom">กำหนดเอง</string>
+    <string name="settings_category_reorder_channels">จัดลำดับช่องใหม่</string>
+    <string name="settings_category_sort_manual">ด้วยตนเอง</string>
+    <string name="settings_category_reorder_categories">จัดลำดับหมวดหมู่ใหม่</string>
+    <string name="settings_default_live_channel_order">ลำดับช่องเริ่มต้น</string>
+    <string name="settings_live_order_save_failed">ไม่สามารถบันทึกลำดับช่องได้ โปรดลองอีกครั้ง</string>
+    <string name="settings_live_order_recent">ดูล่าสุด</string>
+    <string name="settings_live_order_most">ดูมากที่สุด</string>
+    <string name="settings_live_order_usage_help">การรับชมจะถูกนับหลังเล่นครบ 10 วินาที ดูมากที่สุดจะรวมเวลาเล่นในช่วง 30 วันที่ผ่านมา</string>
 </resources>

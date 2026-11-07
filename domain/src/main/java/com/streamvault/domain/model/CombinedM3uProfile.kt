@@ -2,6 +2,8 @@ package com.streamvault.domain.model
 
 data class CombinedM3uProfile(
     val id: Long = 0,
+    /** Portable identity used by combined-source ordering; never use the local Room id. */
+    val identityKey: String = java.util.UUID.randomUUID().toString(),
     val name: String,
     val enabled: Boolean = true,
     val members: List<CombinedM3uProfileMember> = emptyList(),
@@ -10,6 +12,7 @@ data class CombinedM3uProfile(
 ) {
     init {
         require(name.isNotBlank()) { "Combined profile name must not be blank" }
+        require(identityKey.isNotBlank()) { "Combined profile identity must not be blank" }
     }
 }
 

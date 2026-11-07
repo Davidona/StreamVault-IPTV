@@ -23,17 +23,7 @@ internal fun PlayerViewModel.observeCombinedLivePlaylist(
     categoryId: Long
 ): Flow<List<Channel>> = when {
     categoryId == ChannelRepository.ALL_CHANNELS_ID -> {
-        playerPlaylistCoordinator.getCombinedCategories(profileId).flatMapLatest { combinedCategories ->
-            combinedCategoriesById = combinedCategories.associateBy { it.category.id }
-            val flows = combinedCategories.map { playerPlaylistCoordinator.getCombinedChannels(profileId, it) }
-            if (flows.isEmpty()) {
-                flowOf(emptyList())
-            } else {
-                combine(flows) { arrays ->
-                    arrays.toList().flatMap { it }
-                }.map(::applyCombinedSourceProviderFilter)
-            }
-        }
+        playerPlaylistCoordinator.getCombinedAllChannels(profileId).map(::applyCombinedSourceProviderFilter)
     }
 
     categoryId == VirtualCategoryIds.RECENT -> {
@@ -240,7 +230,10 @@ internal fun PlayerViewModel.loadPlaylist(
             playerPlaylistCoordinator.getChannelsByNumber(providerId, categoryId)
         }
 
-        combine(flows, playerPreferencesCoordinator.liveChannelNumberingMode) { channels, numberingMode ->
+        val orderedFlows = if (isVirtual && categoryId != VirtualCategoryIds.RECENT) {
+            playerPlaylistCoordinator.orderVirtual(providerId, currentCombinedProfileId, categoryId, flows)
+        } else flows
+        combine(orderedFlows, playerPreferencesCoordinator.liveChannelNumberingMode) { channels, numberingMode ->
             val displayedChannels = when (numberingMode) {
                 ChannelNumberingMode.GROUP -> channels.mapIndexed { index, channel ->
                     channel.copy(number = index + 1)

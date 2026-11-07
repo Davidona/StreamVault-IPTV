@@ -8,6 +8,26 @@ import com.streamvault.feature.live.api.LivePreviewHandoffPort
 import com.streamvault.feature.live.api.LivePreviewOrigin
 import com.streamvault.feature.live.api.LivePreviewStreamPreparer
 import com.streamvault.feature.live.api.LiveSurfaceRefreshPort
+import com.streamvault.domain.model.LiveCategoryOrder
+import com.streamvault.domain.model.SaveLiveCategoryOrderResult
+import com.streamvault.domain.policy.applyLiveCategorySections
+import com.streamvault.domain.policy.LiveOrderDraft
+import com.streamvault.domain.policy.mergeLiveOrderVisibleKeys
+import com.streamvault.domain.policy.reconcileVisibleMembership
+import com.streamvault.domain.policy.mergeLiveCategoryPositions
+import com.streamvault.domain.policy.applyLiveChannelOrder
+import com.streamvault.domain.policy.orderLiveChannels
+import com.streamvault.domain.policy.effectiveMode
+import com.streamvault.domain.policy.liveChannelOrderScope
+import com.streamvault.domain.policy.combinedLiveChannelOrderScope
+import com.streamvault.domain.policy.liveFavoritesOrderScope
+import com.streamvault.domain.policy.liveCustomGroupOrderScope
+import com.streamvault.domain.policy.liveOrderKeys
+import com.streamvault.domain.model.LiveChannelOrder
+import com.streamvault.domain.model.LiveChannelOrderMode
+import com.streamvault.domain.model.LiveChannelOrderScope
+import com.streamvault.domain.repository.LiveChannelOrderRepository
+import com.streamvault.domain.repository.LiveChannelOrderSaveResult
 import com.streamvault.domain.policy.applyProviderCategoryDisplayPreferences
 import com.streamvault.domain.playback.orderedByRequestedRawIds
 import com.streamvault.feature.live.presentation.model.guideLookupKey
@@ -42,6 +62,7 @@ import com.streamvault.domain.repository.ChannelRepository
 import com.streamvault.domain.repository.CombinedM3uRepository
 import com.streamvault.domain.repository.EpgRepository
 import com.streamvault.domain.repository.FavoriteRepository
+import com.streamvault.domain.repository.FavoriteOrderSaveResult
 import com.streamvault.domain.repository.LiveStreamProgramRequest
 import com.streamvault.domain.repository.PlaybackHistoryRepository
 import com.streamvault.domain.repository.ProviderRepository
@@ -81,6 +102,7 @@ class HomeViewModel @Inject constructor(
     private val combinedM3uRepository: CombinedM3uRepository,
     private val channelRepository: ChannelRepository,
     private val categoryRepository: CategoryRepository,
+    private val liveChannelOrderRepository: LiveChannelOrderRepository,
     private val favoriteRepository: FavoriteRepository,
     private val preferencesRepository: PreferencesRepository,
     private val epgRepository: EpgRepository,
@@ -95,7 +117,8 @@ class HomeViewModel @Inject constructor(
     private val livePreviewHandoffManager: LivePreviewHandoffPort,
     private val pluginManager: LivePreviewStreamPreparer,
     @param:AuxiliaryPlayerEngine
-    private val playerEngineProvider: InjectProvider<PlayerEngine>
+    private val playerEngineProvider: InjectProvider<PlayerEngine>,
+    private val liveWatchUsageRepository: com.streamvault.domain.repository.LiveWatchUsageRepository? = null
 ) : ViewModel() {
     private companion object {
         const val MIN_CHANNEL_SEARCH_QUERY_LENGTH = 2
@@ -105,6 +128,8 @@ class HomeViewModel @Inject constructor(
         const val ADAPTIVE_PREVIEW_REPRIME_DELAY_MS = 2_500L
     }
 
+    private val channelOrdering = com.streamvault.domain.usecase.ObserveLiveChannelOrdering(
+        providerRepository, liveChannelOrderRepository, preferencesRepository, liveWatchUsageRepository)
     private val appContext = application
 
     private val _uiState = MutableStateFlow(HomeUiState())
@@ -122,6 +147,19 @@ class HomeViewModel @Inject constructor(
     private val _epgProgramMap = MutableStateFlow<Map<String, Program>>(emptyMap())
     private var epgJob: Job? = null
     private var loadChannelsJob: Job? = null
+    private var reorderLoadJob: Job? = null
+    private var reorderSession: ChannelReorderSession? = null
+    private data class ChannelReorderSession(
+        val source: ActiveLiveSource?, val category: Category,
+        val scope: LiveChannelOrderScope?, val saved: LiveChannelOrder,
+        val original: List<Channel>,
+        val baseKeys: List<String>,
+        val orderKeySelector: (Channel) -> List<String> = { it.liveOrderKeys() },
+        val favoriteSnapshot: List<Favorite>? = null,
+        val favoriteProviderId: Long? = null,
+        var draft: LiveOrderDraft = LiveOrderDraft.start(original.map { "${it.providerId}:${it.id}" }),
+        var pickupDraft: LiveOrderDraft? = null
+    )
     private var categoriesJob: Job? = null
     private var recentChannelsJob: Job? = null
     private var previewPlaybackJob: Job? = null
@@ -163,6 +201,9 @@ class HomeViewModel @Inject constructor(
             }.distinctUntilChanged { old, new ->
                 old.first == new.first && old.second?.id == new.second?.id
             }.collectLatest { (activeSource, activeProvider) ->
+                reorderLoadJob?.cancel()
+                reorderSession = null
+                _uiState.update { it.copy(isChannelReorderMode = false, reorderCategory = null, isSavingChannelOrder = false) }
                 when (activeSource) {
                     is ActiveLiveSource.CombinedM3uSource -> {
                         val profile = combinedM3uRepository.getProfile(activeSource.profileId)
@@ -471,19 +512,19 @@ class HomeViewModel @Inject constructor(
                     preferencesRepository.defaultCategoryId,
                     preferencesRepository.getLastLiveCategoryId(providerId),
                     preferencesRepository.getHiddenCategoryIds(providerId, ContentType.LIVE),
-                    preferencesRepository.getCategorySortMode(providerId, ContentType.LIVE),
-                    preferencesRepository.getPinnedCategoryIds(providerId, ContentType.LIVE)
+                    preferencesRepository.getLiveCategoryOrder(providerId)
                 ) { values ->
                     val providerCats = values[0] as List<Category>
                     val customCats = values[1] as List<Category>
                     val defaultId = values[2] as Long?
                     val lastVisitedCategoryId = values[3] as Long?
                     val hiddenCategoryIds = values[4] as Set<Long>
-                    val sortMode = values[5] as CategorySortMode
-                    val pinnedCategoryIds = values[6] as Set<Long>
+                    val categoryOrder = values[5] as LiveCategoryOrder
+                    val sortMode = categoryOrder.sortMode
+                    val pinnedCategoryIds = categoryOrder.pinnedCategoryIds
                     val recentCategory = Category(
                         id = VirtualCategoryIds.RECENT,
-                        name = "Recent",
+                        name = appContext.getString(R.string.live_category_order_recent),
                         type = ContentType.LIVE,
                         isVirtual = true,
                         count = _uiState.value.recentChannels.size
@@ -492,14 +533,15 @@ class HomeViewModel @Inject constructor(
                         ?.copy(count = providerCats.filter { it.id != ChannelRepository.ALL_CHANNELS_ID && it.id !in hiddenCategoryIds }.sumOf(Category::count))
                         ?: Category(
                             id = ChannelRepository.ALL_CHANNELS_ID,
-                            name = "All Channels",
+                            name = appContext.getString(R.string.home_all_channels),
                             type = ContentType.LIVE,
                             count = providerCats.filter { it.id != ChannelRepository.ALL_CHANNELS_ID && it.id !in hiddenCategoryIds }.sumOf(Category::count)
                         )
                     val visibleProviderCategories = applyProviderCategoryDisplayPreferences(
                         categories = providerCats.filter { it.id != ChannelRepository.ALL_CHANNELS_ID },
                         hiddenCategoryIds = hiddenCategoryIds,
-                        sortMode = sortMode
+                        sortMode = sortMode,
+                        manualCategoryIds = categoryOrder.normalIds
                     )
                     val pinnedProviderCategories = visibleProviderCategories.filter { it.id in pinnedCategoryIds }
                     val unpinnedProviderCategories = visibleProviderCategories.filterNot { it.id in pinnedCategoryIds }
@@ -520,7 +562,7 @@ class HomeViewModel @Inject constructor(
                         .filter { it.id != ChannelRepository.ALL_CHANNELS_ID && it.id in hiddenCategoryIds }
                         .sortedBy { it.name }
                     CategorySelectionContext(
-                        categories = orderedCategories,
+                        categories = applyLiveCategorySections(orderedCategories, pinnedCategoryIds, categoryOrder),
                         defaultCategoryId = defaultId,
                         lastVisitedCategoryId = lastVisitedCategoryId,
                         pinnedCategoryIds = pinnedCategoryIds,
@@ -609,36 +651,44 @@ class HomeViewModel @Inject constructor(
             try {
                 _uiState.update { it.copy(isCategoriesLoading = true, errorMessage = null, pinnedCategoryIds = emptySet()) }
                 val providerIds = currentCombinedProviderIds()
+                val profileIdentity = combinedM3uRepository.getProfile(profileId)?.identityKey
+                    ?: throw IllegalStateException("Combined profile is unavailable")
                 combine(
                     combinedM3uRepository.getCombinedCategories(profileId),
-                    getCustomCategories(providerIds, ContentType.LIVE)
-                ) { combinedCategories, customCats ->
+                    getCustomCategories(providerIds, ContentType.LIVE),
+                    preferencesRepository.getCombinedLiveCategoryOrder(profileIdentity)
+                ) { combinedCategories, customCats, categoryOrder ->
                     combinedCategoriesById = combinedCategories.associateBy { it.category.id }
                     val recentCategory = Category(
                         id = VirtualCategoryIds.RECENT,
-                        name = "Recent",
+                        name = appContext.getString(R.string.live_category_order_recent),
                         type = ContentType.LIVE,
                         isVirtual = true,
                         count = _uiState.value.recentChannels.size
                     )
                     val allChannelsCategory = Category(
                         id = ChannelRepository.ALL_CHANNELS_ID,
-                        name = "All Channels",
+                        name = appContext.getString(R.string.home_all_channels),
                         type = ContentType.LIVE,
                         count = combinedCategories.sumOf { it.category.count }
                     )
-                    CategorySelectionContext(
-                        categories = buildList {
+                    val orderedCategories = buildList {
                             val favoritesCategory = customCats.find { it.id == VirtualCategoryIds.FAVORITES }
                             if (favoritesCategory != null) add(favoritesCategory)
                             add(recentCategory)
                             addAll(customCats.filter { it.id != VirtualCategoryIds.FAVORITES })
                             add(allChannelsCategory)
                             addAll(combinedCategories.map { it.category })
-                        },
+                        }
+                    CategorySelectionContext(
+                        categories = applyLiveCategorySections(
+                            orderedCategories,
+                            categoryOrder.pinnedCategoryIds,
+                            categoryOrder
+                        ),
                         defaultCategoryId = null,
                         lastVisitedCategoryId = null,
-                        pinnedCategoryIds = emptySet(),
+                        pinnedCategoryIds = categoryOrder.pinnedCategoryIds,
                         hiddenLiveCategories = emptyList()
                     )
                 }.combine(preferencesRepository.showFavoritesCategory) { ctx, showFavorites ->
@@ -654,7 +704,7 @@ class HomeViewModel @Inject constructor(
                             categories = categories,
                             lastVisitedCategory = null,
                             isCategoriesLoading = false,
-                            pinnedCategoryIds = emptySet()
+                            pinnedCategoryIds = selectionContext.pinnedCategoryIds
                         )
                     }
 
@@ -681,6 +731,7 @@ class HomeViewModel @Inject constructor(
     }
 
     fun selectCategory(category: Category) {
+        if (_uiState.value.isChannelReorderMode || _uiState.value.isSavingChannelOrder) return
         if (_uiState.value.selectedCategory?.id == category.id) return
         if (!_uiState.value.isCombinedLiveSource) {
             _uiState.value.provider?.id?.let { providerId ->
@@ -751,11 +802,7 @@ class HomeViewModel @Inject constructor(
                     if (profileId == null) {
                         flowOf(emptyList())
                     } else if (category.id == ChannelRepository.ALL_CHANNELS_ID) {
-                        val allFlows = combinedCategoriesById.values.map { combinedCategory ->
-                            combinedM3uRepository.getCombinedChannels(profileId, combinedCategory)
-                        }
-                        if (allFlows.isEmpty()) flowOf(emptyList())
-                        else combine(allFlows) { arrays -> arrays.toList().flatMap { it } }
+                        combinedM3uRepository.getCombinedAllChannels(profileId)
                     } else if (category.isVirtual) {
                         val providerIds = currentLiveProviderIds()
                         when (category.id) {
@@ -763,17 +810,7 @@ class HomeViewModel @Inject constructor(
                                 observeRecentLiveIds(providerIds, limit = 24)
                                     .flatMapLatest(::loadChannelsByOrderedIds)
                             }
-                            VirtualCategoryIds.FAVORITES -> {
-                                observeLiveFavorites(providerIds)
-                                    .map { favorites -> favorites.sortedBy { it.position }.map { it.contentId } }
-                                    .flatMapLatest(::loadChannelsByOrderedIds)
-                            }
-                            else -> {
-                                val groupId = -category.id
-                                favoriteRepository.getFavoritesByGroup(groupId)
-                                    .map { favorites -> favorites.sortedBy { it.position }.map { it.contentId } }
-                                    .flatMapLatest(::loadChannelsByOrderedIds)
-                            }
+                            else -> observeOrderedVirtualLiveChannels(category, _uiState.value)
                         }
                     } else {
                         val combinedCategory = combinedCategoriesById[category.id]
@@ -798,15 +835,8 @@ class HomeViewModel @Inject constructor(
                         playbackHistoryRepository.getRecentlyWatchedByProvider(providerId, limit = 24)
                             .map { it.toRecentLiveContentIds() }
                             .flatMapLatest { ids -> loadChannelsByOrderedIds(ids) }
-                    } else if (category.id == VirtualCategoryIds.FAVORITES) {
-                        favoriteRepository.getFavorites(providerId, ContentType.LIVE)
-                            .map { favorites -> favorites.sortedBy { it.position }.map { it.contentId } }
-                            .flatMapLatest { ids -> loadChannelsByOrderedIds(ids) }
                     } else {
-                        val groupId = -category.id
-                        favoriteRepository.getFavoritesByGroup(groupId)
-                            .map { favorites -> favorites.sortedBy { it.position }.map { it.contentId } }
-                            .flatMapLatest { ids -> loadChannelsByOrderedIds(ids) }
+                        observeOrderedVirtualLiveChannels(category, _uiState.value)
                     }
 
                     combine(orderedFlow, queryFlow) { channels, query ->
@@ -821,17 +851,33 @@ class HomeViewModel @Inject constructor(
                     }
                 } else {
                     val providerId = _uiState.value.provider?.id ?: return@launch
-                    queryFlow.flatMapLatest { query ->
-                        val trimmedQuery = query.trim()
-                        if (trimmedQuery.isBlank()) {
-                            _channelBrowseLimit.flatMapLatest { limit ->
-                                channelRepository.getChannelsByCategoryPage(providerId, category.id, limit)
+                    val provider = _uiState.value.provider ?: return@launch
+                    channelOrdering.observeSettings(liveChannelOrderScope(provider, category), providerId)
+                        .flatMapLatest { snapshot ->
+                        if (snapshot.effectiveMode != LiveChannelOrderMode.PROVIDER) {
+                            combine(channelRepository.getChannelsByCategory(providerId, category.id), queryFlow, _channelBrowseLimit, _channelSearchLimit) { channels, query, browseLimit, searchLimit ->
+                                val sorted = snapshot.apply(channels)
+                                val trimmed = query.trim()
+                                when {
+                                    trimmed.isBlank() -> sorted.take(browseLimit)
+                                    trimmed.length < MIN_CHANNEL_SEARCH_QUERY_LENGTH -> emptyList()
+                                    else -> sorted.filter { it.name.contains(trimmed, ignoreCase = true) }.take(searchLimit)
+                                }
                             }
-                        } else if (trimmedQuery.length < MIN_CHANNEL_SEARCH_QUERY_LENGTH) {
-                            flowOf(emptyList())
                         } else {
-                            _channelSearchLimit.flatMapLatest { limit ->
-                                channelRepository.searchChannelsByCategoryPaged(providerId, category.id, trimmedQuery, limit)
+                            queryFlow.flatMapLatest { query ->
+                                val trimmedQuery = query.trim()
+                                if (trimmedQuery.isBlank()) {
+                                    _channelBrowseLimit.flatMapLatest { limit ->
+                                        channelRepository.getChannelsByCategoryPage(providerId, category.id, limit)
+                                    }
+                                } else if (trimmedQuery.length < MIN_CHANNEL_SEARCH_QUERY_LENGTH) {
+                                    flowOf(emptyList())
+                                } else {
+                                    _channelSearchLimit.flatMapLatest { limit ->
+                                        channelRepository.searchChannelsByCategoryPaged(providerId, category.id, trimmedQuery, limit)
+                                    }
+                                }
                             }
                         }
                     }
@@ -869,7 +915,7 @@ class HomeViewModel @Inject constructor(
                     }
                     _localChannels.value = displayedChannels
                     _uiState.update {
-                        it.copy(
+                        if (it.isChannelReorderMode) it else it.copy(
                             hasChannels = displayedChannels.isNotEmpty(),
                             isLoading = displayedChannels.isEmpty() && it.isSyncing,
                             errorMessage = null,
@@ -1007,6 +1053,7 @@ class HomeViewModel @Inject constructor(
     }
 
     fun loadMoreChannels() {
+        if (_uiState.value.isChannelReorderMode) return
         val currentQuery = _uiState.value.channelSearchQuery.trim()
         if (currentQuery.length < MIN_CHANNEL_SEARCH_QUERY_LENGTH) {
             _channelBrowseLimit.update { it + CHANNEL_PAGE_SIZE }
@@ -1934,17 +1981,50 @@ class HomeViewModel @Inject constructor(
     }
 
     fun toggleCategoryPinned(category: Category) {
-        if (_uiState.value.isCombinedLiveSource) return
         if (category.isVirtual || category.id == ChannelRepository.ALL_CHANNELS_ID) return
-        val providerId = _uiState.value.provider?.id ?: return
-        val shouldPin = category.id !in _uiState.value.pinnedCategoryIds
+        val currentState = _uiState.value
+        val combinedProfileId = (currentState.activeLiveSource as? ActiveLiveSource.CombinedM3uSource)?.profileId
+        val providerId = if (combinedProfileId == null) currentState.provider?.id ?: return else null
+        val shouldPin = category.id !in currentState.pinnedCategoryIds
         viewModelScope.launch {
-            preferencesRepository.setCategoryPinned(
-                providerId = providerId,
-                type = ContentType.LIVE,
-                categoryId = category.id,
-                pinned = shouldPin
-            )
+            val success = try {
+                if (combinedProfileId != null) {
+                    val profile = combinedM3uRepository.getProfile(combinedProfileId)
+                    if (profile == null) {
+                        _uiState.update { it.copy(userMessage = appContext.getString(R.string.live_order_save_failed)) }
+                        false
+                    } else {
+                        val saved = preferencesRepository.getCombinedLiveCategoryOrder(profile.identityKey).first()
+                        val pins = if (shouldPin) saved.pinnedCategoryIds + category.id else saved.pinnedCategoryIds - category.id
+                        when (preferencesRepository.saveCombinedLiveCategoryOrder(
+                            profile.identityKey,
+                            saved.revision,
+                            saved.copy(pinnedCategoryIds = pins)
+                        )) {
+                            is SaveLiveCategoryOrderResult.Saved -> true
+                            is SaveLiveCategoryOrderResult.Conflict -> {
+                                _uiState.update { it.copy(userMessage = appContext.getString(R.string.live_order_conflict)) }
+                                false
+                            }
+                        }
+                    }
+                } else {
+                    preferencesRepository.setCategoryPinned(
+                        providerId = checkNotNull(providerId),
+                        type = ContentType.LIVE,
+                        categoryId = category.id,
+                        pinned = shouldPin
+                    )
+                    true
+                }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (_: Exception) {
+                _uiState.update { it.copy(userMessage = appContext.getString(R.string.live_order_save_failed)) }
+                false
+            }
+            if (!success) return@launch
+            if (_uiState.value.activeLiveSource != currentState.activeLiveSource) return@launch
             dismissCategoryOptions()
             _uiState.update {
                 it.copy(
@@ -1957,89 +2037,275 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun enterChannelReorderMode(category: Category) {
-        dismissCategoryOptions()
+    fun useDefaultChannelOrder(category: Category) {
+        val state = _uiState.value
+        val provider = state.provider
+        if ((!state.isCombinedLiveSource && provider == null) || category.id == VirtualCategoryIds.RECENT || state.isChannelReorderMode || state.isSavingChannelOrder) return
+        if ((category.isAdult || category.isUserProtected) && state.parentalControlLevel in 1..2 && kotlin.math.abs(category.id) !in state.unlockedCategoryIds) return
         viewModelScope.launch {
-            val reorderChannels = loadReorderChannels(category)
-            _uiState.update {
-                it.copy(
-                    isChannelReorderMode = true,
-                    reorderCategory = category,
-                    filteredChannels = reorderChannels
-                )
+            try {
+                val combinedProfile = if (state.isCombinedLiveSource) {
+                    val profileId = (state.activeLiveSource as? ActiveLiveSource.CombinedM3uSource)?.profileId ?: return@launch
+                    combinedM3uRepository.getProfile(profileId) ?: return@launch
+                } else null
+                val group = if (category.isVirtual && category.id != VirtualCategoryIds.FAVORITES) {
+                    favoriteRepository.getGroups(currentLiveProviderIds(state), ContentType.LIVE).first()
+                        .singleOrNull { it.id == -category.id } ?: return@launch
+                } else null
+                val scope = when {
+                    category.id == VirtualCategoryIds.FAVORITES && combinedProfile != null ->
+                        LiveChannelOrderScope("combined:${combinedProfile.identityKey}", "live:favorites")
+                    category.id == VirtualCategoryIds.FAVORITES -> liveFavoritesOrderScope(
+                        com.streamvault.domain.policy.liveProviderOrderIdentity(checkNotNull(provider))
+                    )
+                    group != null -> liveCustomGroupOrderScope(
+                        checkNotNull(providerRepository.getProvider(group.providerId)), group
+                    )
+                    combinedProfile != null -> combinedLiveChannelOrderScope(combinedProfile, category)
+                    else -> liveChannelOrderScope(checkNotNull(provider), category)
+                }
+                val current = liveChannelOrderRepository.observe(scope).first()
+                val result = liveChannelOrderRepository.save(scope, current.revision, current.copy(mode = LiveChannelOrderMode.USE_DEFAULT))
+                if (_uiState.value.activeLiveSource == state.activeLiveSource) _uiState.update {
+                    it.copy(userMessage = appContext.getString(if (result is LiveChannelOrderSaveResult.Saved)
+                        R.string.live_order_saved else R.string.live_order_conflict))
+                }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                if (_uiState.value.activeLiveSource == state.activeLiveSource) _uiState.update {
+                    it.copy(userMessage = appContext.getString(R.string.live_order_save_failed))
+                }
+            }
+        }
+    }
+
+    fun enterChannelReorderMode(category: Category) {
+        if (category.id == VirtualCategoryIds.RECENT || _uiState.value.isSavingChannelOrder) return
+        val state = _uiState.value
+        if (!category.isVirtual && state.provider == null && !state.isCombinedLiveSource) return
+        if ((category.isAdult || category.isUserProtected) && state.parentalControlLevel in 1..2 && kotlin.math.abs(category.id) !in state.unlockedCategoryIds) return
+        dismissCategoryOptions()
+        reorderLoadJob?.cancel()
+        reorderLoadJob = viewModelScope.launch {
+            try {
+                val combinedProfile = if (state.isCombinedLiveSource) {
+                    val profileId = (state.activeLiveSource as? ActiveLiveSource.CombinedM3uSource)?.profileId
+                        ?: return@launch
+                    combinedM3uRepository.getProfile(profileId) ?: return@launch
+                } else null
+                val currentProviderIds = currentLiveProviderIds(state)
+                val group = if (category.isVirtual && category.id != VirtualCategoryIds.FAVORITES) {
+                    favoriteRepository.getGroups(currentProviderIds, ContentType.LIVE).first()
+                        .singleOrNull { it.id == -category.id } ?: return@launch
+                } else null
+                val scope = when {
+                    category.id == VirtualCategoryIds.FAVORITES && combinedProfile != null ->
+                        LiveChannelOrderScope("combined:${combinedProfile.identityKey}", "live:favorites")
+                    category.id == VirtualCategoryIds.FAVORITES -> state.provider?.let {
+                        liveFavoritesOrderScope(com.streamvault.domain.policy.liveProviderOrderIdentity(it))
+                    }
+                    group != null -> providerRepository.getProvider(group.providerId)?.let {
+                        liveCustomGroupOrderScope(it, group)
+                    }
+                    !category.isVirtual && combinedProfile != null -> combinedLiveChannelOrderScope(combinedProfile, category)
+                    !category.isVirtual -> state.provider?.let { liveChannelOrderScope(it, category) }
+                    else -> null
+                }
+                val combinedProviderIdentity = linkedMapOf<Long, String>()
+                if (combinedProfile != null) combinedProfile.members.filter { it.enabled }.forEach { member ->
+                    providerRepository.getProvider(member.providerId)?.let { provider ->
+                        combinedProviderIdentity[member.providerId] =
+                            com.streamvault.domain.policy.liveProviderOrderIdentity(provider)
+                    }
+                }
+                val orderKeySelector: (Channel) -> List<String> = if (
+                    combinedProfile != null && (category.id == VirtualCategoryIds.FAVORITES || !category.isVirtual)
+                ) {
+                    { channel -> channel.liveOrderKeys(checkNotNull(combinedProviderIdentity[channel.providerId])) }
+                } else {
+                    { channel -> channel.liveOrderKeys() }
+                }
+                val settingsProviderId = group?.providerId ?: state.provider?.id ?: currentProviderIds.singleOrNull()
+                val snapshot = when {
+                    scope == null -> null
+                    category.id == VirtualCategoryIds.FAVORITES && combinedProfile != null -> channelOrdering
+                        .observeSettings(scope, currentProviderIds, combinedProviderIdentity).first()
+                    settingsProviderId != null -> channelOrdering.observeSettings(scope, settingsProviderId).first()
+                    else -> null
+                }
+                var saved = snapshot?.order ?: scope?.let { liveChannelOrderRepository.observe(it).first() } ?: LiveChannelOrder()
+                val favoriteProvider = if (scope == null) currentProviderIds.singleOrNull() else null
+                val favoriteSnapshot = if (favoriteProvider != null) {
+                    val groupId = group?.id
+                    (if (groupId == null) favoriteRepository.getFavorites(favoriteProvider, ContentType.LIVE).first()
+                    else favoriteRepository.getFavoritesByGroup(groupId).first())
+                        .filter { it.providerId == favoriteProvider && it.contentType == ContentType.LIVE && it.groupId == groupId }
+                        .sortedWith(compareBy(Favorite::position, Favorite::id))
+                } else null
+                val complete = when {
+                    category.isVirtual -> observeOrderedVirtualLiveChannels(category, state).first()
+                    combinedProfile != null -> if (category.id == ChannelRepository.ALL_CHANNELS_ID) {
+                        combinedM3uRepository.getCombinedAllChannels(combinedProfile.id).first()
+                    } else {
+                        val combinedCategory = combinedCategoriesById[category.id] ?: return@launch
+                        combinedM3uRepository.getCombinedChannels(combinedProfile.id, combinedCategory).first()
+                    }
+                    else -> channelRepository.getChannelsByCategory(checkNotNull(state.provider).id, category.id).first()
+                }
+                if (scope != null && category.isVirtual) {
+                    saved = liveChannelOrderRepository.observe(scope).first()
+                }
+                val channels = if (snapshot != null && !category.isVirtual) snapshot.apply(complete) else complete
+                if (_uiState.value.activeLiveSource != state.activeLiveSource ||
+                    _uiState.value.selectedCategory?.id != state.selectedCategory?.id) return@launch
+                val visible = if (category.id == ChannelRepository.ALL_CHANNELS_ID) {
+                    AdultContentVisibilityPolicy.filterForAggregatedSurface(channels, state.parentalControlLevel) { isAdult || isUserProtected }
+                } else channels
+                val baseKeys = if (scope != null) (saved.manualKeys + channels.flatMap(orderKeySelector)).distinct() else emptyList()
+                reorderSession = ChannelReorderSession(state.activeLiveSource, category, scope, saved, visible, baseKeys,
+                    orderKeySelector, favoriteSnapshot, favoriteProvider)
+                _uiState.update {
+                    it.copy(isChannelReorderMode = true, reorderCategory = category,
+                        channelSearchQuery = "", filteredChannels = visible, hasChannels = visible.isNotEmpty(),
+                        isLoading = false, hasMoreChannels = false, canUndoChannelReorder = false, canRedoChannelReorder = false)
+                }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                _uiState.update { it.copy(userMessage = appContext.getString(R.string.home_error_load_failed)) }
             }
         }
     }
 
     fun exitChannelReorderMode() {
-        // Discard any unsaved sorting by restoring from the original local snapshot
-        _uiState.update { it.copy(
-            isChannelReorderMode = false, 
-            reorderCategory = null,
-            filteredChannels = _localChannels.value
-        ) }
+        if (_uiState.value.isSavingChannelOrder) return
+        reorderLoadJob?.cancel()
+        reorderSession = null
+        _uiState.update { it.copy(isChannelReorderMode = false, reorderCategory = null, filteredChannels = _localChannels.value) }
+        _uiState.value.selectedCategory?.let(::loadChannelsForCategory)
     }
 
-    fun moveChannelUp(channel: Channel) {
-        val state = _uiState.value
-        val list = state.filteredChannels.toMutableList()
-        val idx = list.indexOf(channel)
-        if (idx > 0) {
-            list.removeAt(idx)
-            list.add(idx - 1, channel)
-            _uiState.update { it.copy(filteredChannels = list) }
-        }
+    fun hasChannelOrderChanges(): Boolean = reorderSession?.draft?.hasChanges == true
+
+    fun moveChannelUp(channel: Channel) = moveReorderChannel(channel, -1)
+    fun moveChannelDown(channel: Channel) = moveReorderChannel(channel, 1)
+
+    fun beginChannelReorderMove() {
+        reorderSession?.let { it.pickupDraft = it.draft }
     }
 
-    fun moveChannelDown(channel: Channel) {
+    fun finishChannelReorderMove() {
+        reorderSession?.pickupDraft = null
+    }
+
+    fun cancelChannelReorderMove() {
+        val session = reorderSession ?: return
+        if (_uiState.value.isSavingChannelOrder) return
+        session.pickupDraft?.let { session.draft = it }
+        session.pickupDraft = null
+        publishReorderDraft(session)
+    }
+
+    private fun moveReorderChannel(channel: Channel, direction: Int) {
+        val index = _uiState.value.filteredChannels.indexOfFirst { it.id == channel.id && it.providerId == channel.providerId }
+        if (index >= 0) moveChannelToPosition(channel, index + direction + 1)
+    }
+
+    fun moveChannelToPosition(channel: Channel, position: Int) = moveChannelsToPosition(listOf(channel), position)
+
+    fun moveChannelsToPosition(channels: List<Channel>, position: Int) {
         val state = _uiState.value
-        val list = state.filteredChannels.toMutableList()
-        val idx = list.indexOf(channel)
-        if (idx >= 0 && idx < list.size - 1) {
-            list.removeAt(idx)
-            list.add(idx + 1, channel)
-            _uiState.update { it.copy(filteredChannels = list) }
-        }
+        val session = reorderSession ?: return
+        val keys = channels.map { "${it.providerId}:${it.id}" }.toSet()
+        if (!state.isChannelReorderMode || state.isSavingChannelOrder || keys.isEmpty() ||
+            !session.draft.keys.containsAll(keys) || position !in 1..(session.draft.keys.size - keys.size + 1)) return
+        session.draft = session.draft.moveToPosition(keys, position)
+        publishReorderDraft(session)
+    }
+
+    fun undoChannelReorder() {
+        val session = reorderSession ?: return
+        if (_uiState.value.isSavingChannelOrder) return
+        session.draft = session.draft.undo()
+        publishReorderDraft(session)
+    }
+
+    fun redoChannelReorder() {
+        val session = reorderSession ?: return
+        if (_uiState.value.isSavingChannelOrder) return
+        session.draft = session.draft.redo()
+        publishReorderDraft(session)
+    }
+
+    private fun publishReorderDraft(session: ChannelReorderSession) {
+        val byKey = session.original.associateBy { "${it.providerId}:${it.id}" }
+        _uiState.update { it.copy(filteredChannels = session.draft.keys.map { key -> byKey.getValue(key) },
+            canUndoChannelReorder = session.draft.canUndo, canRedoChannelReorder = session.draft.canRedo) }
     }
 
     fun saveChannelReorder() {
         val state = _uiState.value
-        val category = state.reorderCategory ?: return
-        if (category.id == VirtualCategoryIds.RECENT) return
-        val currentList = state.filteredChannels
-
-        // Exit reorder mode immediately for responsive UI
-        _uiState.update { it.copy(isChannelReorderMode = false, reorderCategory = null) }
-        
-        // Optimistically update local channels to match the new order before DB flow catches up
-        _localChannels.value = currentList
-
+        val session = reorderSession ?: return
+        if (!state.isChannelReorderMode || state.isSavingChannelOrder || session.source != state.activeLiveSource) return
+        val currentList = state.filteredChannels.toList()
+        if (currentList.map { it.providerId to it.id } == session.original.map { it.providerId to it.id }) {
+            exitChannelReorderMode()
+            return
+        }
+        _uiState.update { it.copy(isSavingChannelOrder = true) }
         viewModelScope.launch {
             try {
-                // Map the virtual category ID back to the Favorite Group ID
-                val groupId = if (category.id == VirtualCategoryIds.FAVORITES) null else -category.id
-
-                val favoritesFlow = if (groupId == null) {
-                    observeLiveFavorites(currentLiveProviderIds())
+                if (session.scope != null) {
+                    val requested = session.saved.copy(mode = LiveChannelOrderMode.MANUAL,
+                        manualKeys = mergeLiveOrderVisibleKeys(session.baseKeys, currentList.flatMap(session.orderKeySelector).distinct()))
+                    when (liveChannelOrderRepository.save(session.scope, session.saved.revision, requested)) {
+                        is LiveChannelOrderSaveResult.Conflict -> {
+                            if (reorderSession === session) _uiState.update {
+                                it.copy(isSavingChannelOrder = false, userMessage = appContext.getString(R.string.live_order_conflict))
+                            }
+                            return@launch
+                        }
+                        is LiveChannelOrderSaveResult.Saved -> Unit
+                    }
+                } else if (session.favoriteSnapshot != null && session.favoriteProviderId != null) {
+                    val favorites = session.favoriteSnapshot
+                    val visibleIds = currentList.flatMap { channel ->
+                        val rawIds = channel.allVariantRawIds()
+                        favorites.filter { it.contentId in rawIds }.map { it.id }
+                    }.distinct()
+                    val groupId = if (session.category.id == VirtualCategoryIds.FAVORITES) null else -session.category.id
+                    val ids = mergeLiveCategoryPositions(favorites.map { it.id }, visibleIds)
+                    when (favoriteRepository.reorderFavoritesIfUnchanged(session.favoriteProviderId, ContentType.LIVE, groupId, favorites, ids)) {
+                        FavoriteOrderSaveResult.Saved -> Unit
+                        FavoriteOrderSaveResult.Conflict -> {
+                            if (reorderSession === session) _uiState.update {
+                                it.copy(isSavingChannelOrder = false, userMessage = appContext.getString(R.string.live_order_conflict))
+                            }
+                            return@launch
+                        }
+                        FavoriteOrderSaveResult.Invalid -> error("Invalid favorite ordering")
+                    }
                 } else {
-                    favoriteRepository.getFavoritesByGroup(groupId)
+                    val category = session.category
+                    val groupId = if (category.id == VirtualCategoryIds.FAVORITES) null else -category.id
+                    val favorites = if (groupId == null) observeLiveFavorites(currentLiveProviderIds()).first()
+                        else favoriteRepository.getFavoritesByGroup(groupId).first()
+                    val byIdentity = favorites.associateBy { it.providerId to it.contentId }
+                    check(favoriteRepository.reorderFavorites(currentList.mapNotNull { byIdentity[it.providerId to it.id] }) is Result.Success)
                 }
-
-                // Get current favorites
-                val favorites = favoritesFlow.first()
-                val favoriteMap = favorites.associateBy { it.contentId }
-
-                // Map the sorted Channel list back to Favorite entities with new positions
-                val reorderedFavorites = currentList.mapNotNull { ch ->
-                    favoriteMap[ch.id]
+                if (reorderSession === session) {
+                    reorderSession = null
+                    _uiState.update { it.copy(isSavingChannelOrder = false, isChannelReorderMode = false,
+                        reorderCategory = null, userMessage = appContext.getString(R.string.live_order_saved)) }
+                    _uiState.value.selectedCategory?.let(::loadChannelsForCategory)
                 }
-
-                // Persist the new order in DB
-                favoriteRepository.reorderFavorites(reorderedFavorites)
-
-                _uiState.update { it.copy(userMessage = "Channel order saved") }
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
-                _uiState.update { it.copy(userMessage = "Failed to save channel order") }
+                if (reorderSession === session) _uiState.update {
+                    it.copy(isSavingChannelOrder = false, userMessage = appContext.getString(R.string.live_order_save_failed))
+                }
             }
         }
     }
@@ -2054,19 +2320,7 @@ class HomeViewModel @Inject constructor(
 
     private suspend fun loadReorderChannels(category: Category): List<Channel> {
         if (!category.isVirtual || category.id == VirtualCategoryIds.RECENT) return emptyList()
-
-        val groupId = if (category.id == VirtualCategoryIds.FAVORITES) null else -category.id
-        val favorites = if (groupId == null) {
-            observeLiveFavorites(currentLiveProviderIds()).first()
-        } else {
-            favoriteRepository.getFavoritesByGroup(groupId).first()
-        }
-
-        val orderedIds = favorites
-            .sortedBy { it.position }
-            .map { it.contentId }
-
-        return loadChannelsByOrderedIds(orderedIds).first()
+        return observeOrderedVirtualLiveChannels(category, _uiState.value).first()
     }
 
     private fun List<PlaybackHistory>.toRecentLiveContentIds(): List<Long> =
@@ -2099,6 +2353,96 @@ class HomeViewModel @Inject constructor(
         0 -> flowOf(emptyList())
         1 -> favoriteRepository.getFavorites(providerIds.first(), ContentType.LIVE)
         else -> favoriteRepository.getFavorites(providerIds, ContentType.LIVE)
+    }
+
+    /** Migrates legacy favorite positions once, then applies the shared scoped mode to full membership. */
+    private fun observeOrderedVirtualLiveChannels(category: Category, state: HomeUiState): Flow<List<Channel>> = flow {
+        val providerIds = currentLiveProviderIds(state).distinct()
+        val isFavorites = category.id == VirtualCategoryIds.FAVORITES
+        val group = if (isFavorites) null else favoriteRepository.getGroups(providerIds, ContentType.LIVE)
+            .first().singleOrNull { it.id == -category.id }
+        if (!isFavorites && group == null) {
+            emit(emptyList())
+            return@flow
+        }
+        val combinedProfile = (state.activeLiveSource as? ActiveLiveSource.CombinedM3uSource)
+            ?.let { combinedM3uRepository.getProfile(it.profileId) }
+        val ownerProvider = group?.let { providerRepository.getProvider(it.providerId) }
+        val favoriteScope = if (isFavorites) {
+            when {
+                combinedProfile != null -> LiveChannelOrderScope("combined:${combinedProfile.identityKey}", "live:favorites")
+                else -> {
+                    val providerId = providerIds.singleOrNull()
+                    val provider = providerId?.let { providerRepository.getProvider(it) }
+                    provider?.let { liveFavoritesOrderScope(com.streamvault.domain.policy.liveProviderOrderIdentity(it)) }
+                }
+            }
+        } else {
+            ownerProvider?.let { liveCustomGroupOrderScope(it, checkNotNull(group)) }
+        }
+        val orderScope = favoriteScope ?: run {
+            emit(emptyList())
+            return@flow
+        }
+        val identityById = if (isFavorites && combinedProfile != null) {
+            providerIds.mapNotNull { id ->
+                providerRepository.getProvider(id)?.let { id to com.streamvault.domain.policy.liveProviderOrderIdentity(it) }
+            }.toMap()
+        } else emptyMap()
+        val keySelector: (Channel) -> List<String> = if (isFavorites && combinedProfile != null) {
+            { channel -> channel.liveOrderKeys(checkNotNull(identityById[channel.providerId])) }
+        } else {
+            { channel -> channel.liveOrderKeys() }
+        }
+        val favoritesFlow = if (isFavorites) observeLiveFavorites(providerIds) else {
+            favoriteRepository.getFavoritesByGroup(checkNotNull(group).id)
+        }
+        val scopedUsageProviders = if (isFavorites) providerIds else listOf(checkNotNull(group).providerId)
+        emitAll(favoritesFlow.flatMapLatest { favorites ->
+            val orderedFavorites = favorites.asSequence()
+                .filter { it.contentType == ContentType.LIVE && it.groupId == group?.id && (group == null || it.providerId == group.providerId || isFavorites) }
+                .sortedWith(compareBy<Favorite> { it.position }.thenBy { it.providerId }.thenBy { it.id })
+                .toList()
+            val ids = orderedFavorites.map { it.contentId }
+            loadChannelsByOrderedIds(ids).flatMapLatest { completeRows ->
+                flow {
+                    if (completeRows.isEmpty()) {
+                        emit(emptyList())
+                        return@flow
+                    }
+                    val completeKeys = completeRows.flatMap(keySelector).distinct()
+                    var saved = if (liveChannelOrderRepository.hasSavedOrder(orderScope)) {
+                        liveChannelOrderRepository.observe(orderScope).first()
+                    } else {
+                        liveChannelOrderRepository.initializeIfAbsent(
+                            orderScope,
+                            LiveChannelOrder(
+                                mode = LiveChannelOrderMode.MANUAL,
+                                manualKeys = completeKeys
+                            )
+                        )
+                    }
+                    if (saved.manualKeys.isNotEmpty() || saved.mode == LiveChannelOrderMode.MANUAL) {
+                        val reconciled = saved.reconcileVisibleMembership(ids, completeRows, completeKeys)
+                        if (reconciled.manualKeys != saved.manualKeys) {
+                            saved = when (val result = liveChannelOrderRepository.save(
+                                orderScope,
+                                saved.revision,
+                                reconciled
+                            )) {
+                                is LiveChannelOrderSaveResult.Saved -> result.order
+                                is LiveChannelOrderSaveResult.Conflict -> result.current
+                            }
+                        }
+                    }
+                    emitAll(channelOrdering.observeSettings(
+                        orderScope,
+                        scopedUsageProviders,
+                        identityById
+                    ).map { snapshot -> snapshot.apply(completeRows, keySelector) })
+                }
+            }
+        })
     }
 
     private fun observeRecentLiveIds(providerIds: List<Long>, limit: Int): Flow<List<Long>> = when (providerIds.size) {

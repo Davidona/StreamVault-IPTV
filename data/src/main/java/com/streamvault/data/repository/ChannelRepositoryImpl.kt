@@ -912,6 +912,9 @@ class ChannelRepositoryImpl @Inject constructor(
             catchUpSource = catchUpSource,
             catchUpType = catchUpType,
             catchUpCorrectionSeconds = catchUpCorrectionSeconds,
+            categoryId = categoryId,
+            isAdult = isAdult,
+            isUserProtected = isUserProtected,
             attributes = classification.attributes,
             observedQuality = observedQuality ?: LiveChannelObservedQuality()
         )

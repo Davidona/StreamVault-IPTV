@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="backup_live_order_restore_issue">Det gick inte att återställa vissa inställningar för ordningen på direktsänd tv.</string>
+</resources>

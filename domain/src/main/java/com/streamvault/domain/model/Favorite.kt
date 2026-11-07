@@ -23,7 +23,9 @@ data class VirtualGroup(
     val iconEmoji: String? = null,
     val position: Int = 0,
     val createdAt: Long = System.currentTimeMillis(),
-    val contentType: ContentType = ContentType.LIVE
+    val contentType: ContentType = ContentType.LIVE,
+    /** Stable group identity used by shared ordering and portable backups. */
+    val identityKey: String = ""
 ) {
     init {
         require(name.isNotBlank()) { "VirtualGroup name must not be blank" }

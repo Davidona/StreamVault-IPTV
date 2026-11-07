@@ -106,7 +106,11 @@ data class LiveChannelVariant(
     val attributes: LiveChannelVariantAttributes = LiveChannelVariantAttributes(),
     val observedQuality: LiveChannelObservedQuality = LiveChannelObservedQuality(),
     val catchUpType: String? = null,
-    val catchUpCorrectionSeconds: Int = 0
+    val catchUpCorrectionSeconds: Int = 0,
+    /** Original catalog protection, retained even when the TV temporarily unlocks a category. */
+    val categoryId: Long? = null,
+    val isAdult: Boolean = false,
+    val isUserProtected: Boolean = false
 ) {
     init {
         require(number >= 0) { "number must be non-negative" }

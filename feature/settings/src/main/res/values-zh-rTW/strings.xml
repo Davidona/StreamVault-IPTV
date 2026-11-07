@@ -961,4 +961,12 @@
     <string name="settings_text_size_default">預設（100%）</string>
     <string name="settings_text_size_system">依照裝置設定</string>
     <string name="settings_text_size_custom">自訂</string>
+    <string name="settings_category_reorder_channels">重新排序頻道</string>
+    <string name="settings_category_sort_manual">手動</string>
+    <string name="settings_category_reorder_categories">重新排列分類</string>
+    <string name="settings_default_live_channel_order">預設頻道順序</string>
+    <string name="settings_live_order_save_failed">無法儲存頻道順序。請重試。</string>
+    <string name="settings_live_order_recent">最近觀看</string>
+    <string name="settings_live_order_most">觀看最多</string>
+    <string name="settings_live_order_usage_help">播放滿10秒後計入觀看紀錄。觀看最多會累計過去30天的播放時間。</string>
 </resources>

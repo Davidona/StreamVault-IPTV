@@ -962,4 +962,12 @@
     <string name="settings_text_size_default">默认（100%）</string>
     <string name="settings_text_size_system">跟随设备</string>
     <string name="settings_text_size_custom">自定义</string>
+    <string name="settings_category_reorder_channels">重新排序频道</string>
+    <string name="settings_category_sort_manual">手动</string>
+    <string name="settings_category_reorder_categories">重新排列分类</string>
+    <string name="settings_default_live_channel_order">默认频道顺序</string>
+    <string name="settings_live_order_save_failed">无法保存频道顺序。请重试。</string>
+    <string name="settings_live_order_recent">最近观看</string>
+    <string name="settings_live_order_most">观看最多</string>
+    <string name="settings_live_order_usage_help">播放满10秒后计入观看记录。观看最多会累计过去30天的播放时间。</string>
 </resources>

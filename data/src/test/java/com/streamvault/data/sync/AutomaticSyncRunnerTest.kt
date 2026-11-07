@@ -55,6 +55,26 @@ class AutomaticSyncRunnerTest {
         verify(commands, never()).refreshScheduledSection(any(), any())
     }
 
+    @Test fun `completed scheduled live refresh reconciles ordering`() = runTest {
+        val providers: com.streamvault.domain.repository.ProviderRepository = mock()
+        val runner = AutomaticSyncRunner(context, preferences, snapshots, metadata, commands, xtream, stalker, recordings, providers)
+        snapshot(M3uConfig("https://example.test/list"))
+        whenever(metadata.getMetadata(7L)).thenReturn(fresh.copy(lastLiveSuccess = 0, lastMovieSuccess = 0))
+        runner.check(7L)
+        verify(providers).reconcileLiveOrderingAfterRefresh(7L)
+    }
+
+    @Test fun `partial scheduled live refresh does not reconcile ordering`() = runTest {
+        val providers: com.streamvault.domain.repository.ProviderRepository = mock()
+        val runner = AutomaticSyncRunner(context, preferences, snapshots, metadata, commands, xtream, stalker, recordings, providers)
+        snapshot(M3uConfig("https://example.test/list"))
+        whenever(metadata.getMetadata(7L)).thenReturn(fresh.copy(lastLiveSuccess = 0, lastMovieSuccess = 0))
+        whenever(commands.refreshScheduledPlaylist(any(), any(), any())).thenReturn(
+            Result.success(ProviderSectionSyncResult(partial = true, catalogChanged = true)))
+        runner.check(7L)
+        verify(providers, never()).reconcileLiveOrderingAfterRefresh(any())
+    }
+
     @Test fun `fresh Jellyfin performs no catalog fetch`() = runTest {
         snapshot(JellyfinConfig("https://example.test", "user", "token"))
         runner.check(7L)

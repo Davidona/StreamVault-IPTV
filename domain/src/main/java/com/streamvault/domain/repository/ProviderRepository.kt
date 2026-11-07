@@ -50,6 +50,8 @@ data class ProviderDeleteOutcome(
 }
 
 interface ProviderRepository {
+    /** Reconcile saved Live ordering after a complete catalog refresh. */
+    suspend fun reconcileLiveOrderingAfterRefresh(providerId: Long) = Unit
     fun getProviders(): Flow<List<Provider>>
     fun getActiveProvider(): Flow<Provider?>
     suspend fun getProvider(id: Long): Provider?

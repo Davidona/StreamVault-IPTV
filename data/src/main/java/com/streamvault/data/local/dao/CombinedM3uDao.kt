@@ -19,6 +19,15 @@ interface CombinedM3uProfileDao {
     @Query("SELECT * FROM combined_m3u_profiles WHERE id = :profileId LIMIT 1")
     suspend fun getById(profileId: Long): CombinedM3uProfileEntity?
 
+    @Query("UPDATE combined_m3u_profiles SET identity_key = :newIdentity WHERE id = :profileId AND identity_key = :oldIdentity")
+    suspend fun replaceIdentityIfUnchanged(profileId: Long, oldIdentity: String, newIdentity: String): Int
+
+    @Query("UPDATE combined_m3u_profiles SET name = :name, updated_at = :updatedAt WHERE id = :profileId")
+    suspend fun rename(profileId: Long, name: String, updatedAt: Long)
+
+    @Query("UPDATE combined_m3u_profiles SET updated_at = :updatedAt WHERE id = :profileId")
+    suspend fun touch(profileId: Long, updatedAt: Long)
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(profile: CombinedM3uProfileEntity): Long
 

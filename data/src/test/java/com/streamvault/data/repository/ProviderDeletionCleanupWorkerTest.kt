@@ -11,6 +11,19 @@ import org.junit.Assert.assertThrows
 
 class ProviderDeletionCleanupWorkerTest {
 
+    @Test fun `live usage cleanup is durable across failure and retry`() = runTest {
+        val dao = FakeCleanupDao(listOf(cleanup(1, ProviderDeletionCleanupWorker.LIVE_USAGE)))
+        var attempts = 0
+        val cleanup: suspend (Long) -> Unit = {
+            attempts++
+            if (attempts == 1) error("temporary failure")
+        }
+        assertThat(drainProviderDeletionCleanup(dao, {}, {}, {}, cleanup)).isEqualTo(ProviderDeletionDrainOutcome.RETRY)
+        assertThat(dao.items).hasSize(1)
+        assertThat(drainProviderDeletionCleanup(dao, {}, {}, {}, cleanup)).isEqualTo(ProviderDeletionDrainOutcome.COMPLETE)
+        assertThat(dao.items).isEmpty()
+    }
+
     @Test
     fun `drain completes recording reminder and sync tombstones`() = runTest {
         val dao = FakeCleanupDao(

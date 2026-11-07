@@ -9,6 +9,8 @@ import com.streamvault.data.local.entity.FavoriteEntity
 import com.streamvault.data.local.entity.VirtualGroupEntity
 import com.streamvault.domain.model.Favorite
 import com.streamvault.domain.model.ContentType
+import com.streamvault.domain.repository.FavoriteOrderSaveResult
+import com.streamvault.data.mapper.toDomain
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.first
@@ -39,6 +41,29 @@ class FavoriteRepositoryImplTest {
         virtualGroupDao = virtualGroupDao,
         transactionRunner = transactionRunner
     )
+
+    @Test fun `conditional reorder checks full membership and positions inside transaction`() = runTest {
+        var inside = false
+        var checkedInside = false
+        var updatedInside = false
+        val first = FavoriteEntity(id = 1, providerId = 7, contentId = 101, contentType = ContentType.LIVE, position = 0, addedAt = 1)
+        val second = FavoriteEntity(id = 2, providerId = 7, contentId = 102, contentType = ContentType.LIVE, position = 1024, addedAt = 2)
+        whenever(favoriteDao.getPartitionSnapshot(7, "LIVE", null)).thenAnswer { checkedInside = inside; listOf(first, second) }
+        whenever(favoriteDao.updateAll(any())).thenAnswer { updatedInside = inside; Unit }
+        val runner = object : DatabaseTransactionRunner {
+            override suspend fun <T> inTransaction(block: suspend () -> T): T {
+                inside = true
+                return try { block() } finally { inside = false }
+            }
+        }
+        val repo = FavoriteRepositoryImpl(favoriteDao, virtualGroupDao, runner)
+        val expected = listOf(first.toDomain(), second.toDomain())
+        assertThat(repo.reorderFavoritesIfUnchanged(7, ContentType.LIVE, null, expected, listOf(2, 1))).isEqualTo(FavoriteOrderSaveResult.Saved)
+        assertThat(checkedInside).isTrue()
+        assertThat(updatedInside).isTrue()
+        assertThat(repo.reorderFavoritesIfUnchanged(7, ContentType.LIVE, null, expected.dropLast(1), listOf(1))).isEqualTo(FavoriteOrderSaveResult.Conflict)
+        assertThat(repo.reorderFavoritesIfUnchanged(7, ContentType.LIVE, null, expected, listOf(1, 1))).isEqualTo(FavoriteOrderSaveResult.Invalid)
+    }
 
     @Test
     fun `addFavorite runs max-position lookup and insert in one transaction`() = runTest {

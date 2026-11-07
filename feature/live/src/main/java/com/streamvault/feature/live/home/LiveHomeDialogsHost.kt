@@ -67,7 +67,10 @@ fun LiveHomeDialogsHost(
     addToGroupContent: LiveAddToGroupContent,
     isChannelQueuedForMultiView: (Long) -> Boolean,
     resolveProviderForChannel: (Channel) -> Provider?,
-    scope: CoroutineScope
+    scope: CoroutineScope,
+    onReorderProviderCategory: ((Category) -> Unit)? = null,
+    onReorderCategories: (() -> Unit)? = null,
+    onManageOnPhone: ((Category) -> Unit)? = null
 ) {
     val incorrectPinMessage = stringResource(R.string.home_incorrect_pin)
     var pendingM3uSeriesChannel by remember { mutableStateOf<Channel?>(null) }
@@ -146,7 +149,10 @@ fun LiveHomeDialogsHost(
         LiveCategoryOptionsDialog(
             category = category,
             labels = LiveCategoryOptionsDialogLabels(
-                hint = stringResource(R.string.library_saved_manage_hint),
+                hint = stringResource(
+                    if (category.id == VirtualCategoryIds.RECENT) R.string.home_recent_ordering_hint
+                    else R.string.library_saved_manage_hint
+                ),
                 setDefault = stringResource(R.string.category_options_set_default),
                 pin = stringResource(R.string.category_options_pin),
                 unpin = stringResource(R.string.category_options_unpin),
@@ -154,7 +160,10 @@ fun LiveHomeDialogsHost(
                 hide = stringResource(R.string.category_options_hide),
                 hideFromLiveTv = stringResource(R.string.category_options_hide_from_live_tv),
                 clearRecent = stringResource(R.string.category_options_clear_recent),
-                reorder = stringResource(R.string.category_options_reorder),
+                reorder = stringResource(R.string.home_reorder_channels),
+                useDefaultChannelOrder = stringResource(R.string.live_order_use_default),
+                reorderCategories = stringResource(R.string.live_category_order_title),
+                manageOnPhone = stringResource(R.string.live_phone_start),
                 organizeM3u = stringResource(R.string.m3u_organize_items),
                 lock = stringResource(R.string.category_options_lock),
                 unlock = stringResource(R.string.category_options_unlock),
@@ -202,8 +211,19 @@ fun LiveHomeDialogsHost(
             onDelete = if (!isCategoryLocked && category.isVirtual && category.id !in setOf(VirtualCategoryIds.FAVORITES, VirtualCategoryIds.RECENT)) {
                 { viewModel.requestDeleteGroup(category) }
             } else null,
-            onReorderChannels = if (!isCategoryLocked && category.isVirtual && category.id != VirtualCategoryIds.RECENT) {
-                { viewModel.enterChannelReorderMode(category) }
+            onReorderChannels = if (!isCategoryLocked && category.id != VirtualCategoryIds.RECENT) {
+                {
+                    if (!uiState.isCombinedLiveSource && onReorderProviderCategory != null) onReorderProviderCategory(category)
+                    else viewModel.enterChannelReorderMode(category)
+                }
+            } else null,
+            onReorderCategories = onReorderCategories,
+            onManageOnPhone = if (!isCategoryLocked && category.id != VirtualCategoryIds.RECENT &&
+                !uiState.isCombinedLiveSource && uiState.provider != null && onManageOnPhone != null) {
+                { onManageOnPhone?.invoke(category) }
+            } else null,
+            onUseDefaultChannelOrder = if (!isCategoryLocked && category.id != VirtualCategoryIds.RECENT) {
+                { viewModel.useDefaultChannelOrder(category) }
             } else null,
             onOrganizeM3u = if (
                 !isCategoryLocked &&

@@ -964,4 +964,12 @@
     <string name="settings_text_size_default">Karaniwan (100%)</string>
     <string name="settings_text_size_system">Sundin ang mga setting ng aparato</string>
     <string name="settings_text_size_custom">Pasadya</string>
+    <string name="settings_category_reorder_channels">Isaayos muli ang mga Channel</string>
+    <string name="settings_category_sort_manual">Manwal</string>
+    <string name="settings_category_reorder_categories">Ayusin ang mga kategorya</string>
+    <string name="settings_default_live_channel_order">Default na ayos ng mga channel</string>
+    <string name="settings_live_order_save_failed">Hindi ma-save ang pagkakasunod-sunod ng mga channel. Subukan muli.</string>
+    <string name="settings_live_order_recent">Kamakailang pinanood</string>
+    <string name="settings_live_order_most">Pinakapanood</string>
+    <string name="settings_live_order_usage_help">Binibilang ang panonood pagkatapos ng 10 segundong playback. Pinagsasama ng Pinakapanood ang oras ng playback sa huling 30 araw.</string>
 </resources>

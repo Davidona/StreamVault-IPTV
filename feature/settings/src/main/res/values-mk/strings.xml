@@ -964,4 +964,12 @@
     <string name="settings_text_size_default">Стандардно (100%)</string>
     <string name="settings_text_size_system">Според уредот</string>
     <string name="settings_text_size_custom">Приспособено</string>
+    <string name="settings_category_reorder_channels">Преуреди канали</string>
+    <string name="settings_category_sort_manual">Рачно</string>
+    <string name="settings_category_reorder_categories">Промени редослед на категории</string>
+    <string name="settings_default_live_channel_order">Стандарден редослед на каналите</string>
+    <string name="settings_live_order_save_failed">Редоследот на каналите не може да се зачува. Обидете се повторно.</string>
+    <string name="settings_live_order_recent">Неодамна гледани</string>
+    <string name="settings_live_order_most">Најгледани</string>
+    <string name="settings_live_order_usage_help">Гледањето се брои по 10 секунди репродукција. Најгледани го собира времето на репродукција во последните 30 дена.</string>
 </resources>

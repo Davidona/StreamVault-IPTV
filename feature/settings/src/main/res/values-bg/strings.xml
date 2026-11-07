@@ -964,4 +964,12 @@
     <string name="settings_text_size_default">По подразбиране (100%)</string>
     <string name="settings_text_size_system">Според устройството</string>
     <string name="settings_text_size_custom">По избор</string>
+    <string name="settings_category_reorder_channels">Пренареждане на канали</string>
+    <string name="settings_category_sort_manual">Ръчно</string>
+    <string name="settings_category_reorder_categories">Пренареждане на категориите</string>
+    <string name="settings_default_live_channel_order">Ред на каналите по подразбиране</string>
+    <string name="settings_live_order_save_failed">Редът на каналите не можа да се запази. Опитайте отново.</string>
+    <string name="settings_live_order_recent">Наскоро гледани</string>
+    <string name="settings_live_order_most">Най-гледани</string>
+    <string name="settings_live_order_usage_help">Гледането се отчита след 10 секунди възпроизвеждане. Най-гледани сумира времето за последните 30 дни.</string>
 </resources>

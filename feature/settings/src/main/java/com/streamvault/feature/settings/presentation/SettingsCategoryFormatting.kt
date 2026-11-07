@@ -9,6 +9,7 @@ public fun formatQualityCapLabel(maxHeight: Int?, autoLabel: String): String =
     maxHeight?.let { "${it}p" } ?: autoLabel
 
 public fun sortModeLabel(mode: CategorySortMode, context: Context): String = when (mode) {
+    CategorySortMode.MANUAL -> context.getString(R.string.settings_category_sort_manual)
     CategorySortMode.DEFAULT -> context.getString(R.string.settings_category_sort_default)
     CategorySortMode.TITLE_ASC -> context.getString(R.string.settings_category_sort_az)
     CategorySortMode.TITLE_DESC -> context.getString(R.string.settings_category_sort_za)

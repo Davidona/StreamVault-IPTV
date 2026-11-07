@@ -966,4 +966,12 @@
     <string name="settings_text_size_default">Standard (100%)</string>
     <string name="settings_text_size_system">Følg enheten</string>
     <string name="settings_text_size_custom">Egendefinert</string>
+    <string name="settings_category_reorder_channels">Omorganiser kanaler</string>
+    <string name="settings_category_sort_manual">Manuell</string>
+    <string name="settings_category_reorder_categories">Endre kategorirekkefølge</string>
+    <string name="settings_default_live_channel_order">Standard kanalrekkefølge</string>
+    <string name="settings_live_order_save_failed">Kunne ikke lagre kanalrekkefølgen. Prøv igjen.</string>
+    <string name="settings_live_order_recent">Sist sett</string>
+    <string name="settings_live_order_most">Mest sett</string>
+    <string name="settings_live_order_usage_help">Visninger teller etter 10 sekunders avspilling. Mest sett summerer avspillingstiden for de siste 30 dagene.</string>
 </resources>

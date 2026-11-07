@@ -966,4 +966,12 @@
     <string name="settings_text_size_default">Varsayılan (100%)</string>
     <string name="settings_text_size_system">Cihaz ayarını kullan</string>
     <string name="settings_text_size_custom">Özel</string>
+    <string name="settings_category_reorder_channels">Kanalları Yeniden Sırala</string>
+    <string name="settings_category_sort_manual">Elle</string>
+    <string name="settings_category_reorder_categories">Kategorileri yeniden sırala</string>
+    <string name="settings_default_live_channel_order">Varsayılan kanal sırası</string>
+    <string name="settings_live_order_save_failed">Kanal sırası kaydedilemedi. Tekrar deneyin.</string>
+    <string name="settings_live_order_recent">Son izlenenler</string>
+    <string name="settings_live_order_most">En çok izlenenler</string>
+    <string name="settings_live_order_usage_help">İzlemeler 10 saniye oynatıldıktan sonra sayılır. En çok izlenenler son 30 günün oynatma süresini toplar.</string>
 </resources>
