@@ -84,6 +84,29 @@ class M3uPlaybackMetadataBuilder {
         }
     }
 
+    fun applyHeader(name: String, value: String) {
+        val normalizedName = name.trim()
+        val normalizedValue = value.trim()
+        if (normalizedName.isEmpty() || normalizedValue.isEmpty()) return
+        if (normalizedName.length > MAX_HEADER_NAME_LENGTH || normalizedValue.length > MAX_HEADER_VALUE_LENGTH) return
+        if (normalizedName.any(Char::isISOControl) ||
+            normalizedValue.any { it == '\r' || it == '\n' || it == '\t' }
+        ) return
+        when {
+            normalizedName.equals("User-Agent", ignoreCase = true) ||
+                normalizedName.equals("http-user-agent", ignoreCase = true) ->
+                userAgent = normalizedValue.takeIf(String::isNotBlank)
+
+            normalizedName.equals("Referer", ignoreCase = true) ||
+                normalizedName.equals("Referrer", ignoreCase = true) ||
+                normalizedName.equals("http-referrer", ignoreCase = true) ||
+                normalizedName.equals("http-referer", ignoreCase = true) ->
+                referer = normalizedValue.takeIf(String::isNotBlank)
+
+            else -> putHeader("common", normalizedName, normalizedValue)
+        }
+    }
+
     fun build(): M3uPlaybackMetadata? {
         val remoteLicenseUrl = licenseKey
             ?.takeIf { it.startsWith("http://", ignoreCase = true) || it.startsWith("https://", ignoreCase = true) }

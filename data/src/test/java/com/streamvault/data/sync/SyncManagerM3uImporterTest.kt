@@ -169,6 +169,34 @@ class SyncManagerM3uImporterTest {
     }
 
     @Test
+    fun `pipe headers are staged as playback metadata`() = runTest {
+        val playlist = """
+            #EXTM3U
+            #EXTINF:-1 group-title="Notícias",CNN Brasil FHD
+            https://stream.example.com/cnnbrasil/index.m3u8|Referer=https://embed.example/&User-Agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64)
+        """.trimIndent().toByteArray()
+        val fixture = fixture(
+            body = playlist,
+            limits = CatalogSizeLimits(maxM3uDecompressedBytes = 4_096, maxM3uLineBytes = 1_024)
+        )
+        var stagedChannels = emptyList<com.streamvault.data.local.entity.ChannelEntity>()
+        doAnswer { invocation ->
+            @Suppress("UNCHECKED_CAST")
+            stagedChannels = (invocation.arguments[2] as List<com.streamvault.data.local.entity.ChannelEntity>).toList()
+            stagedChannels.size
+        }.whenever(fixture.store).stageM3uChannelBatch(any(), any(), any())
+
+        val stats = fixture.importer.importPlaylist(provider(), onProgress = null)
+
+        assertThat(stats.liveCount).isEqualTo(1)
+        val channel = stagedChannels.single()
+        assertThat(channel.streamUrl).isEqualTo("https://stream.example.com/cnnbrasil/index.m3u8")
+        val metadata = M3uPlaybackMetadataCodec.decode(channel.playbackMetadataJson)
+        assertThat(metadata?.referer).isEqualTo("https://embed.example/")
+        assertThat(metadata?.userAgent).isEqualTo("Mozilla/5.0 (Windows NT 10.0; Win64; x64)")
+    }
+
+    @Test
     fun `http content type charset is honored by the streaming importer`() = runTest {
         val iso88591 = Charsets.ISO_8859_1
         val playlist = "#EXTM3U\n#EXTINF:-1 tvg-id=\"café-tv\" group-title=\"Télévision\",Café\nhttps://stream.example.com/cafe.ts\n"

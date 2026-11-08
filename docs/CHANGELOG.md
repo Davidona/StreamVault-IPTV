@@ -11,6 +11,7 @@ All notable product changes are recorded in this document.
 - Added a redesigned Live TV overlay for Android TV with channel and programme information, a single D-pad action row, and on-screen DVR controls for rewind, play/pause, forward and jump to live.
 - Added Live TV subtitle and audio side sheets on Android TV, including subtitle tracks, real-time translation, subtitle delay and loading subtitles from the device.
 - Added localized "Closed Captions" naming for in-band CEA-608/708 caption tracks, numbered when a stream has more than one.
+- Added per-channel M3U request headers from Kodi/Xtream-style `url|Referer=...&User-Agent=...` suffixes, plus playlist-level and per-entry `user-agent` attributes, so channels that require a Referer or custom User-Agent can open.
 
 ### Changed
 - Live TV subtitle, audio and delay menus now open in the same end-edge side sheet as More, and the overlay idle timer pauses while a side sheet is open.
@@ -26,6 +27,7 @@ All notable product changes are recorded in this document.
 - Fixed Xtream live recordings being classified from stale container metadata instead of the resolved stream URL, which could select the HLS recorder for an MPEG-TS stream and leave a zero-byte recording.
 - Fixed downloaded external subtitles not being recognized or auto-selected when Media3 prefixes their track IDs during source merging.
 - Fixed TV focus jumping to Home when opening Downloads or switching Series and Movies to Saved/full-library browsing; focus now returns to screen content, with the active tab as a fallback.
+- Fixed M3U entries that pass request headers as Kodi/Xtream-style `url|Referer=...&User-Agent=...` suffixes being rejected during import instead of applied at playback.
 
 ## [1.2.4]
 
