@@ -333,7 +333,7 @@
     <string name="live_category_order_manual">Manualisht</string>
     <string name="live_category_order_personal">Kategori personale</string>
     <string name="live_category_order_pinned">Kategori të fiksuara</string>
-    <string name="live_category_order_other">Kategori të tjera</string>
+    <string name="live_category_order_other">Kategoritë e ofruesit</string>
     <string name="live_category_order_saved">Renditja e kategorive u ruajt</string>
     <string name="live_category_order_save_failed">Renditja e kategorive nuk mund të ruhej. Provoni përsëri.</string>
     <string name="live_category_order_favorites">Të preferuarat</string>

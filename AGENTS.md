@@ -1,3 +1,33 @@
+## UI / FE rules (mandatory)
+
+### Tokens
+1. Colors come from `AppColors`/`AppPalette`. No `Color(0x...)` outside `core/ui/design/`.
+2. `Color.White`/`Color.Black` only for content over video or artwork, on a scrim (rule 9). Elsewhere they break the `light` theme.
+3. No `Color.White.copy(alpha = ...)` for text or icons. Use `textPrimary`, `textSecondary`, `textTertiary`.
+4. Text sizes come from `MaterialTheme.typography`. No raw `fontSize = N.sp` in feature modules. Missing size: add a token to `AppTypography.kt` in its own commit.
+5. Spacing comes from `LocalAppSpacing`. No new magic `dp` for padding, gaps, or gutters.
+6. A new color role must be added to `AppPalette` for all nine themes in the same change.
+
+### Contrast (WCAG relative luminance ratio)
+7. Text under 18sp regular (or 14sp bold): at least 4.5:1. Larger text: at least 3:1. Meaningful non-text UI (icons, borders, progress vs track, toggle state, focus ring): at least 3:1.
+8. Measure against the real background in resting, focused, pressed, and selected states. Must hold in all nine themes: `classic_blue`, `m3_purple`, `light`, `forest`, `sunset`, `ocean`, `rose`, `amoled_black`, `vintage`.
+9. Text over video or artwork needs a scrim of black at 55% alpha or more, limited to the text region. No new full-width translucent layer over video without a measured GPU frame time on the TCL TV.
+10. Never convey state (live, error, selected, focused) by color alone. Add a label, icon, shape, or border.
+11. Compute ratios, don't judge by eye. Contrast-sensitive components get a unit test like `BrowsePaletteContrastTest`, iterating every palette id.
+
+### Focus and size
+12. Every focusable element has a focus state that differs by shape (border of 2dp or more, scale, or filled container), at least 3:1 against its surroundings. Use `AppColors.Focus`.
+13. D-pad order is defined, Back has a defined destination, no dead-end focus.
+14. Minimum text: 12sp everywhere, 14sp for anything read on TV. Phone touch targets: 48dp x 48dp or more.
+
+### Text robustness
+15. Strings follow `AGENTS.md`. Layouts must fit the longest translation without clipping. Text that can overflow sets `maxLines` and `overflow`. Use `start`/`end`, never `left`/`right`, and verify mirroring for each RTL locale in `locales_config.xml`.
+
+### Done means
+16. Screenshots on the emulator of every changed screen in `classic_blue`, `light`, and `amoled_black`, default and focused. State what was captured; anything else is "untested".
+17. Report computed ratios, with token names, for every new or changed text/surface pair.
+18. Not done if any ratio is below its threshold in any theme, or rules 1 to 5 were broken.
+
 ## Localization requirement (mandatory)
 
 - Every user-facing string is localized product content. This includes UI labels,

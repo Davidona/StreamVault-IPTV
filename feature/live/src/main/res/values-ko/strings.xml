@@ -333,7 +333,7 @@
     <string name="live_category_order_manual">수동</string>
     <string name="live_category_order_personal">개인 카테고리</string>
     <string name="live_category_order_pinned">고정된 카테고리</string>
-    <string name="live_category_order_other">기타 카테고리</string>
+    <string name="live_category_order_other">제공업체 카테고리</string>
     <string name="live_category_order_saved">카테고리 순서를 저장했습니다</string>
     <string name="live_category_order_save_failed">카테고리 순서를 저장할 수 없습니다. 다시 시도하세요.</string>
     <string name="live_category_order_favorites">즐겨찾기</string>

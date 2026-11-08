@@ -333,7 +333,7 @@
     <string name="live_category_order_manual">手动</string>
     <string name="live_category_order_personal">个人分类</string>
     <string name="live_category_order_pinned">已置顶分类</string>
-    <string name="live_category_order_other">其他分类</string>
+    <string name="live_category_order_other">提供商分类</string>
     <string name="live_category_order_saved">分类顺序已保存</string>
     <string name="live_category_order_save_failed">无法保存分类顺序。请重试。</string>
     <string name="live_category_order_favorites">收藏</string>

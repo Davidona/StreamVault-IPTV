@@ -333,7 +333,7 @@
     <string name="live_category_order_manual">Manuaalinen</string>
     <string name="live_category_order_personal">Omat kategoriat</string>
     <string name="live_category_order_pinned">Kiinnitetyt kategoriat</string>
-    <string name="live_category_order_other">Muut kategoriat</string>
+    <string name="live_category_order_other">Palveluntarjoajan kategoriat</string>
     <string name="live_category_order_saved">Kategorioiden järjestys tallennettu</string>
     <string name="live_category_order_save_failed">Kategorioiden järjestystä ei voitu tallentaa. Yritä uudelleen.</string>
     <string name="live_category_order_favorites">Suosikit</string>

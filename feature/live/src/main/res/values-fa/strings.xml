@@ -333,7 +333,7 @@
     <string name="live_category_order_manual">دستی</string>
     <string name="live_category_order_personal">دسته‌های شخصی</string>
     <string name="live_category_order_pinned">دسته‌های سنجاق‌شده</string>
-    <string name="live_category_order_other">سایر دسته‌ها</string>
+    <string name="live_category_order_other">دسته‌های ارائه‌دهنده</string>
     <string name="live_category_order_saved">ترتیب دسته‌ها ذخیره شد</string>
     <string name="live_category_order_save_failed">ذخیره ترتیب دسته‌ها ممکن نشد. دوباره تلاش کنید.</string>
     <string name="live_category_order_favorites">علاقه‌مندی‌ها</string>

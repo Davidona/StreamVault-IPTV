@@ -333,7 +333,7 @@
     <string name="live_category_order_manual">Kézi</string>
     <string name="live_category_order_personal">Személyes kategóriák</string>
     <string name="live_category_order_pinned">Rögzített kategóriák</string>
-    <string name="live_category_order_other">Egyéb kategóriák</string>
+    <string name="live_category_order_other">Szolgáltatói kategóriák</string>
     <string name="live_category_order_saved">Kategóriasorrend mentve</string>
     <string name="live_category_order_save_failed">Nem sikerült menteni a kategóriasorrendet. Próbálja újra.</string>
     <string name="live_category_order_favorites">Kedvencek</string>

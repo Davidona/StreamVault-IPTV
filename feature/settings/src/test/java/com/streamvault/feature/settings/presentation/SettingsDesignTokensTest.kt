@@ -7,6 +7,29 @@ import org.junit.Test
 
 class SettingsDesignTokensTest {
     @Test
+    fun `category controls text and focus contrast across palettes`() {
+        val themes = listOf("classic_blue", "m3_purple", "light", "forest", "sunset", "ocean", "rose", "amoled_black", "vintage")
+        themes.forEach { theme ->
+            val palette = AppPalette.forTheme(theme)
+            val pairs = listOf(
+                "textPrimary/surface" to settingsContrastRatio(palette.textPrimary, palette.surface),
+                "textPrimary/surfaceElevated" to settingsContrastRatio(palette.textPrimary, palette.surfaceElevated),
+                "textSecondary/surface" to settingsContrastRatio(palette.textSecondary, palette.surface),
+                "textPrimary/surfaceAccent" to settingsContrastRatio(palette.textPrimary, palette.surfaceAccent),
+                "textSecondary/surfaceAccent" to settingsContrastRatio(palette.textSecondary, palette.surfaceAccent),
+                "focus/surfaceAccent" to settingsContrastRatio(palette.focus, palette.surfaceAccent),
+                "focus/canvas" to settingsContrastRatio(palette.focus, palette.canvas),
+                "focus/surface" to settingsContrastRatio(palette.focus, palette.surface),
+                "focus/surfaceElevated" to settingsContrastRatio(palette.focus, palette.surfaceElevated),
+            )
+            pairs.forEach { (name, ratio) ->
+                println("$theme $name $ratio")
+                assertWithMessage("$theme $name").that(ratio).isAtLeast(if (name.startsWith("focus")) 3.0 else 4.5)
+            }
+        }
+    }
+
+    @Test
     fun `informative text and search content remain readable in every theme`() {
         listOf("classic_blue", "m3_purple", "light").forEach { themeId ->
             val colors = SettingsDesignTokens.colors(AppPalette.forTheme(themeId))

@@ -333,7 +333,7 @@
     <string name="live_category_order_manual">Elle</string>
     <string name="live_category_order_personal">Kişisel kategoriler</string>
     <string name="live_category_order_pinned">Sabitlenmiş kategoriler</string>
-    <string name="live_category_order_other">Diğer kategoriler</string>
+    <string name="live_category_order_other">Sağlayıcı kategorileri</string>
     <string name="live_category_order_saved">Kategori sırası kaydedildi</string>
     <string name="live_category_order_save_failed">Kategori sırası kaydedilemedi. Tekrar deneyin.</string>
     <string name="live_category_order_favorites">Favoriler</string>

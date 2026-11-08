@@ -333,7 +333,7 @@
     <string name="live_category_order_manual">يدوي</string>
     <string name="live_category_order_personal">الفئات الشخصية</string>
     <string name="live_category_order_pinned">الفئات المثبتة</string>
-    <string name="live_category_order_other">الفئات الأخرى</string>
+    <string name="live_category_order_other">فئات المزوّد</string>
     <string name="live_category_order_saved">تم حفظ ترتيب الفئات</string>
     <string name="live_category_order_save_failed">تعذر حفظ ترتيب الفئات. حاول مجددًا.</string>
     <string name="live_category_order_favorites">المفضلة</string>

@@ -333,7 +333,7 @@
     <string name="live_category_order_manual">Вручную</string>
     <string name="live_category_order_personal">Личные категории</string>
     <string name="live_category_order_pinned">Закреплённые категории</string>
-    <string name="live_category_order_other">Другие категории</string>
+    <string name="live_category_order_other">Категории провайдера</string>
     <string name="live_category_order_saved">Порядок категорий сохранён</string>
     <string name="live_category_order_save_failed">Не удалось сохранить порядок категорий. Повторите попытку.</string>
     <string name="live_category_order_favorites">Избранное</string>

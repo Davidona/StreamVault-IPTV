@@ -333,7 +333,7 @@
     <string name="live_category_order_manual">Χειροκίνητα</string>
     <string name="live_category_order_personal">Προσωπικές κατηγορίες</string>
     <string name="live_category_order_pinned">Καρφιτσωμένες κατηγορίες</string>
-    <string name="live_category_order_other">Άλλες κατηγορίες</string>
+    <string name="live_category_order_other">Κατηγορίες παρόχου</string>
     <string name="live_category_order_saved">Η σειρά κατηγοριών αποθηκεύτηκε</string>
     <string name="live_category_order_save_failed">Δεν ήταν δυνατή η αποθήκευση της σειράς κατηγοριών. Δοκιμάστε ξανά.</string>
     <string name="live_category_order_favorites">Αγαπημένα</string>

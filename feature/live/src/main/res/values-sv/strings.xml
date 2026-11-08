@@ -333,7 +333,7 @@
     <string name="live_category_order_manual">Manuell</string>
     <string name="live_category_order_personal">Personliga kategorier</string>
     <string name="live_category_order_pinned">Fästa kategorier</string>
-    <string name="live_category_order_other">Övriga kategorier</string>
+    <string name="live_category_order_other">Leverantörens kategorier</string>
     <string name="live_category_order_saved">Kategoriordningen har sparats</string>
     <string name="live_category_order_save_failed">Det gick inte att spara kategoriordningen. Försök igen.</string>
     <string name="live_category_order_favorites">Favoriter</string>

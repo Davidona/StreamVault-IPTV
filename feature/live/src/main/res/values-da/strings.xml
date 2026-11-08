@@ -333,7 +333,7 @@
     <string name="live_category_order_manual">Manuel</string>
     <string name="live_category_order_personal">Personlige kategorier</string>
     <string name="live_category_order_pinned">Fastgjorte kategorier</string>
-    <string name="live_category_order_other">Andre kategorier</string>
+    <string name="live_category_order_other">Udbyderens kategorier</string>
     <string name="live_category_order_saved">Kategorirækkefølgen er gemt</string>
     <string name="live_category_order_save_failed">Kategorirækkefølgen kunne ikke gemmes. Prøv igen.</string>
     <string name="live_category_order_favorites">Favoritter</string>

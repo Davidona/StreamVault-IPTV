@@ -333,7 +333,7 @@
     <string name="live_category_order_manual">Ručno</string>
     <string name="live_category_order_personal">Osobne kategorije</string>
     <string name="live_category_order_pinned">Prikvačene kategorije</string>
-    <string name="live_category_order_other">Ostale kategorije</string>
+    <string name="live_category_order_other">Kategorije pružatelja</string>
     <string name="live_category_order_saved">Redoslijed kategorija spremljen</string>
     <string name="live_category_order_save_failed">Redoslijed kategorija nije moguće spremiti. Pokušajte ponovno.</string>
     <string name="live_category_order_favorites">Favoriti</string>

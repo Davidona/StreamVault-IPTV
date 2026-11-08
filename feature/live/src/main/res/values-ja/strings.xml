@@ -333,7 +333,7 @@
     <string name="live_category_order_manual">手動</string>
     <string name="live_category_order_personal">個人用カテゴリ</string>
     <string name="live_category_order_pinned">固定したカテゴリ</string>
-    <string name="live_category_order_other">その他のカテゴリ</string>
+    <string name="live_category_order_other">プロバイダーのカテゴリ</string>
     <string name="live_category_order_saved">カテゴリの順序を保存しました</string>
     <string name="live_category_order_save_failed">カテゴリの順序を保存できませんでした。もう一度お試しください。</string>
     <string name="live_category_order_favorites">お気に入り</string>

@@ -333,7 +333,7 @@
     <string name="live_category_order_manual">Ručně</string>
     <string name="live_category_order_personal">Osobní kategorie</string>
     <string name="live_category_order_pinned">Připnuté kategorie</string>
-    <string name="live_category_order_other">Ostatní kategorie</string>
+    <string name="live_category_order_other">Kategorie poskytovatele</string>
     <string name="live_category_order_saved">Pořadí kategorií uloženo</string>
     <string name="live_category_order_save_failed">Pořadí kategorií se nepodařilo uložit. Zkuste to znovu.</string>
     <string name="live_category_order_favorites">Oblíbené</string>

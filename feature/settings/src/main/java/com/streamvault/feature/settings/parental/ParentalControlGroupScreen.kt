@@ -10,17 +10,15 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
@@ -41,15 +39,15 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.Icon
-import androidx.tv.material3.IconButton
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
@@ -60,12 +58,12 @@ import com.streamvault.core.ui.components.shell.UiDestination
 import com.streamvault.domain.model.ContentType
 import com.streamvault.domain.model.Category
 import com.streamvault.core.ui.interaction.TvClickableSurface
-import com.streamvault.core.ui.interaction.TvIconButton
 import kotlinx.coroutines.launch
 import com.streamvault.feature.settings.presentation.SettingsDesignTokens
 import com.streamvault.feature.settings.presentation.SettingsLocalHeader
 import com.streamvault.feature.settings.presentation.SettingsFocusCoordinator
 import com.streamvault.core.ui.design.AppColors
+import com.streamvault.core.ui.design.LocalAppSpacing
 
 private enum class CategoryControlsMode {
     PROTECTION,
@@ -100,7 +98,6 @@ fun ParentalControlGroupScreen(
     val headerBackFocusRequester = remember { FocusRequester() }
     val focusCoordinator = remember { SettingsFocusCoordinator() }
     var firstContentPlaced by remember { mutableStateOf(false) }
-    val focusManager = LocalFocusManager.current
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     var currentMode by rememberSaveable { mutableStateOf(CategoryControlsMode.PROTECTION) }
@@ -112,7 +109,6 @@ fun ParentalControlGroupScreen(
     var pinAction by rememberSaveable { mutableStateOf<CategoryPinAction?>(null) }
     var pinError by rememberSaveable { mutableStateOf<String?>(null) }
     val incorrectPinMessage = stringResource(R.string.home_incorrect_pin)
-    val selectedTypeLabel = contentTypeTabLabel(selectedType)
     val filteredCategories = uiState.categories.filter { item ->
         item.category.type == selectedType &&
             (uiState.searchQuery.isBlank() || item.category.name.contains(uiState.searchQuery, ignoreCase = true))
@@ -124,7 +120,7 @@ fun ParentalControlGroupScreen(
         item.category.type == selectedType && !item.isHidden
     }
 
-    BackHandler(onBack = onBack)
+    BackHandler(enabled = categoryToReorder == null && !showCategoryOrder && !showPinDialog, onBack = onBack)
 
     LaunchedEffect(uiState.isLoading, firstContentPlaced) {
         if (!uiState.isLoading && firstContentPlaced) {
@@ -165,56 +161,58 @@ fun ParentalControlGroupScreen(
                     .focusRequester(headerBackFocusRequester)
                     .focusProperties { down = firstContentFocusRequester },
             )
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End,
-            ) {
-                SearchInput(
-                    value = uiState.searchQuery,
-                    onValueChange = viewModel::onSearchQueryChange,
+            val typeSelector: @Composable () -> Unit = {
+                ContentTypeSelectorRow(selectedType = selectedType, onTypeSelected = {
+                    selectedType = it
+                    if (it != ContentType.LIVE && currentMode == CategoryControlsMode.CHANNEL_ORDER) {
+                        currentMode = CategoryControlsMode.PROTECTION
+                    }
+                })
+            }
+            val search: @Composable () -> Unit = {
+                SearchInput(value = uiState.searchQuery, onValueChange = viewModel::onSearchQueryChange,
                     placeholder = stringResource(R.string.settings_provider_category_controls_search),
-                    onSearch = {},
-                    modifier = Modifier.width(searchWidth)
-                )
+                    onSearch = {}, modifier = Modifier.width(searchWidth))
+            }
+            if (screenWidth >= 700.dp) {
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically) {
+                    typeSelector()
+                    search()
+                }
+            } else {
+                typeSelector()
+                search()
             }
             if (uiState.isLoading) {
                 Box(modifier = Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
-                androidx.compose.material3.CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+                    androidx.compose.material3.CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                 }
             } else {
-                LazyColumn(
-                    modifier = Modifier.weight(1f).fillMaxWidth(),
-                    contentPadding = PaddingValues(bottom = SettingsDesignTokens.space24),
-                    verticalArrangement = Arrangement.spacedBy(SettingsDesignTokens.space8),
-                ) {
-                item {
+                Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+                    horizontalArrangement = Arrangement.spacedBy(LocalAppSpacing.current.chipGap),
+                    verticalAlignment = Alignment.CenterVertically) {
                     ModeSelectorRow(
                         showChannelOrder = selectedType == ContentType.LIVE && channelOrderContent != null,
-                        showCategoryOrder = selectedType == ContentType.LIVE && categoryOrderContent != null,
-                        onReorderCategories = { showCategoryOrder = true },
                         selectedMode = currentMode,
                         onModeSelected = { currentMode = it },
-                        firstFocusModifier = Modifier
-                            .focusRequester(firstContentFocusRequester)
+                        firstFocusModifier = Modifier.focusRequester(firstContentFocusRequester)
                             .focusProperties { up = headerBackFocusRequester }
                             .onGloballyPositioned { firstContentPlaced = true },
                     )
+                    if (selectedType == ContentType.LIVE && categoryOrderContent != null) {
+                        SettingsActionButton(label = stringResource(R.string.settings_category_reorder_categories),
+                            enabled = true, emphasized = false, onClick = { showCategoryOrder = true })
+                    }
                 }
-
-                item {
-                    ContentTypeSelectorRow(
-                        selectedType = selectedType,
-                        onTypeSelected = {
-                            selectedType = it
-                            if (it != ContentType.LIVE && currentMode == CategoryControlsMode.CHANNEL_ORDER) currentMode = CategoryControlsMode.PROTECTION
-                        }
-                    )
-                }
-
+                LazyColumn(
+                    modifier = Modifier.weight(1f).fillMaxWidth(),
+                    contentPadding = PaddingValues(bottom = LocalAppSpacing.current.lg),
+                    verticalArrangement = Arrangement.spacedBy(LocalAppSpacing.current.xs),
+                ) {
                 item {
                     when (currentMode) {
                         CategoryControlsMode.PROTECTION -> ProtectionSummaryCard(
-                            selectedTypeLabel = selectedTypeLabel,
                             hasChanges = uiState.hasPendingProtectionChanges,
                             changeCount = uiState.pendingProtectionChangeCount,
                             hasParentalPin = uiState.hasParentalPin,
@@ -230,7 +228,6 @@ fun ParentalControlGroupScreen(
                             onReset = viewModel::resetProtectionChanges
                         )
                         CategoryControlsMode.VISIBILITY -> VisibilitySummaryCard(
-                            selectedTypeLabel = selectedTypeLabel,
                             hiddenCount = hiddenCount,
                             visibleCount = visibleCount,
                             onHideAll = { viewModel.hideAllCategories(selectedType) },
@@ -349,7 +346,8 @@ private fun ContentTypeSelectorRow(
     selectedType: ContentType,
     onTypeSelected: (ContentType) -> Unit
 ) {
-    Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+    val spacing = LocalAppSpacing.current
+    Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(spacing.chipGap)) {
         listOf(ContentType.LIVE, ContentType.MOVIE, ContentType.SERIES).forEach { type ->
             CategoryModeChip(
                 label = contentTypeTabLabel(type),
@@ -375,10 +373,9 @@ private fun ModeSelectorRow(
     onModeSelected: (CategoryControlsMode) -> Unit,
     firstFocusModifier: Modifier = Modifier,
     showChannelOrder: Boolean = false,
-    showCategoryOrder: Boolean = false,
-    onReorderCategories: () -> Unit = {},
 ) {
-    Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+    val spacing = LocalAppSpacing.current
+    Row(horizontalArrangement = Arrangement.spacedBy(spacing.chipGap)) {
         CategoryModeChip(
             label = stringResource(R.string.settings_category_mode_protection),
             selected = selectedMode == CategoryControlsMode.PROTECTION,
@@ -395,10 +392,7 @@ private fun ModeSelectorRow(
             selected = selectedMode == CategoryControlsMode.CHANNEL_ORDER,
             onClick = { onModeSelected(CategoryControlsMode.CHANNEL_ORDER) }
         )
-        if (showCategoryOrder) CategoryModeChip(
-            label = stringResource(R.string.settings_category_reorder_categories),
-            selected = false, onClick = onReorderCategories
-        )
+
     }
 }
 
@@ -410,133 +404,90 @@ private fun CategoryModeChip(
     modifier: Modifier = Modifier,
 ) {
     val colors = SettingsDesignTokens.colors(AppColors.current)
+    val spacing = LocalAppSpacing.current
+    var focused by remember { mutableStateOf(false) }
+    val chipShape = RoundedCornerShape(SettingsDesignTokens.groupRadius)
     TvClickableSurface(
         onClick = onClick,
-        modifier = modifier,
-        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(999.dp)),
+        modifier = modifier.semantics { this.selected = selected }.onFocusChanged { focused = it.isFocused }
+            .border(SettingsDesignTokens.focusStroke, if (focused) AppColors.Focus else Color.Transparent, chipShape),
+        shape = ClickableSurfaceDefaults.shape(chipShape),
         colors = ClickableSurfaceDefaults.colors(
-            containerColor = if (selected) colors.accent.copy(alpha = 0.18f) else colors.groupSurface,
+            containerColor = if (selected) colors.focusedSurface else colors.groupSurface,
             focusedContainerColor = colors.focusedSurface,
         ),
         border = ClickableSurfaceDefaults.border(),
         scale = ClickableSurfaceDefaults.scale(focusedScale = 1f)
     ) {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.labelLarge,
-            color = if (selected) colors.accent else colors.primaryText,
-            modifier = Modifier.padding(horizontal = SettingsDesignTokens.space16, vertical = SettingsDesignTokens.space8)
-        )
-    }
-}
-
-@Composable
-private fun ProtectionSummaryCard(
-    selectedTypeLabel: String,
-    hasChanges: Boolean,
-    changeCount: Int,
-    hasParentalPin: Boolean,
-    onSave: () -> Unit,
-    onReset: () -> Unit
-) {
-    val colors = SettingsDesignTokens.colors(AppColors.current)
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(colors.groupSurface, RoundedCornerShape(SettingsDesignTokens.groupRadius))
-            .padding(SettingsDesignTokens.space16),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        Text(
-            text = selectedTypeLabel,
-            style = MaterialTheme.typography.labelMedium,
-            color = colors.accent
-        )
-        Text(
-            text = stringResource(R.string.settings_category_protection_summary_title),
-            style = MaterialTheme.typography.titleMedium,
-            color = colors.primaryText
-        )
-        Text(
-            text = if (hasParentalPin) {
-                stringResource(R.string.settings_category_protection_summary_body)
-            } else {
-                stringResource(R.string.settings_category_protection_summary_body_no_pin)
-            },
-            style = MaterialTheme.typography.bodySmall,
-            color = colors.secondaryText
-        )
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(10.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            SettingsActionButton(
-                label = if (hasChanges) {
-                    stringResource(R.string.settings_category_protection_save, changeCount)
-                } else {
-                    stringResource(R.string.settings_category_protection_save_idle)
-                },
-                enabled = hasChanges,
-                emphasized = true,
-                onClick = onSave
-            )
-            SettingsActionButton(
-                label = stringResource(R.string.settings_category_protection_reset),
-                enabled = hasChanges,
-                emphasized = false,
-                onClick = onReset
-            )
+        Row(Modifier.padding(horizontal = spacing.md, vertical = spacing.sm),
+            verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(spacing.xs)) {
+            if (selected) Icon(Icons.Default.Check, contentDescription = null, tint = colors.primaryText)
+            Text(text = label, style = MaterialTheme.typography.labelLarge, color = colors.primaryText,
+                maxLines = 1, overflow = TextOverflow.Ellipsis)
         }
     }
 }
 
 @Composable
-private fun VisibilitySummaryCard(
-    selectedTypeLabel: String,
-    hiddenCount: Int,
-    visibleCount: Int,
-    onHideAll: () -> Unit,
-    onUnhideAll: () -> Unit
+private fun ProtectionSummaryCard(
+    hasChanges: Boolean, changeCount: Int, hasParentalPin: Boolean,
+    onSave: () -> Unit, onReset: () -> Unit
 ) {
+    val saveLabel = if (hasChanges) stringResource(R.string.settings_category_protection_save, changeCount)
+        else stringResource(R.string.settings_category_protection_save_idle)
+    CategorySummaryPanel(
+        title = stringResource(R.string.settings_category_protection_summary_title),
+        body = stringResource(if (hasParentalPin) R.string.settings_category_protection_summary_body
+            else R.string.settings_category_protection_summary_body_no_pin),
+        actions = {
+            SettingsActionButton(label = saveLabel, enabled = hasChanges, emphasized = true, onClick = onSave)
+            SettingsActionButton(label = stringResource(R.string.settings_category_protection_reset),
+                enabled = hasChanges, emphasized = false, onClick = onReset)
+        }
+    )
+}
+
+@Composable
+private fun VisibilitySummaryCard(
+    hiddenCount: Int, visibleCount: Int,
+    onHideAll: () -> Unit, onUnhideAll: () -> Unit
+) {
+    CategorySummaryPanel(
+        title = stringResource(R.string.settings_category_visibility_summary_title),
+        body = stringResource(R.string.settings_category_visibility_summary_body, hiddenCount),
+        actions = {
+            SettingsActionButton(label = stringResource(R.string.settings_hide_all_categories),
+                enabled = visibleCount > 0, emphasized = true, onClick = onHideAll)
+            SettingsActionButton(label = stringResource(R.string.settings_unhide_all_categories),
+                enabled = hiddenCount > 0, emphasized = false, onClick = onUnhideAll)
+        }
+    )
+}
+
+@Composable
+private fun CategorySummaryPanel(title: String, body: String, actions: @Composable () -> Unit) {
+    val spacing = LocalAppSpacing.current
     val colors = SettingsDesignTokens.colors(AppColors.current)
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(colors.groupSurface, RoundedCornerShape(SettingsDesignTokens.groupRadius))
-            .padding(SettingsDesignTokens.space16),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        Text(
-            text = selectedTypeLabel,
-            style = MaterialTheme.typography.labelMedium,
-            color = colors.accent
-        )
-        Text(
-            text = stringResource(R.string.settings_category_visibility_summary_title),
-            style = MaterialTheme.typography.titleMedium,
-            color = colors.primaryText
-        )
-        Text(
-            text = stringResource(R.string.settings_category_visibility_summary_body, hiddenCount),
-            style = MaterialTheme.typography.bodySmall,
-            color = colors.secondaryText
-        )
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(10.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            SettingsActionButton(
-                label = stringResource(R.string.settings_hide_all_categories),
-                enabled = visibleCount > 0,
-                emphasized = true,
-                onClick = onHideAll
-            )
-            SettingsActionButton(
-                label = stringResource(R.string.settings_unhide_all_categories),
-                enabled = hiddenCount > 0,
-                emphasized = false,
-                onClick = onUnhideAll
-            )
+    val wide = LocalConfiguration.current.screenWidthDp >= 900
+    Column(Modifier.fillMaxWidth().background(colors.groupSurface, RoundedCornerShape(SettingsDesignTokens.groupRadius))
+        .padding(spacing.md), verticalArrangement = Arrangement.spacedBy(spacing.sm)) {
+        if (wide) {
+            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(spacing.md)) {
+                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(spacing.xs)) {
+                    Text(title, style = MaterialTheme.typography.titleMedium, color = colors.primaryText,
+                        maxLines = 2, overflow = TextOverflow.Ellipsis)
+                    Text(body, style = MaterialTheme.typography.bodyMedium, color = colors.secondaryText,
+                        maxLines = 3, overflow = TextOverflow.Ellipsis)
+                }
+                Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(spacing.xs)) { actions() }
+            }
+        } else {
+            Text(title, style = MaterialTheme.typography.titleMedium, color = colors.primaryText,
+                maxLines = 2, overflow = TextOverflow.Ellipsis)
+            Text(body, style = MaterialTheme.typography.bodyMedium, color = colors.secondaryText,
+                maxLines = 3, overflow = TextOverflow.Ellipsis)
+            Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(spacing.xs)) { actions() }
         }
     }
 }
@@ -549,15 +500,19 @@ private fun SettingsActionButton(
     onClick: () -> Unit
 ) {
     val colors = SettingsDesignTokens.colors(AppColors.current)
+    var focused by remember { mutableStateOf(false) }
+    val shape = RoundedCornerShape(SettingsDesignTokens.groupRadius)
     TvClickableSurface(
         onClick = onClick,
         enabled = enabled,
-        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(SettingsDesignTokens.groupRadius)),
+        modifier = Modifier.onFocusChanged { focused = it.isFocused }
+            .border(SettingsDesignTokens.focusStroke, if (focused) AppColors.Focus else Color.Transparent, shape),
+        shape = ClickableSurfaceDefaults.shape(shape),
         colors = ClickableSurfaceDefaults.colors(
             containerColor = when {
                 !enabled -> colors.groupSurface.copy(alpha = 0.55f)
-                emphasized -> colors.accent.copy(alpha = 0.18f)
-                else -> colors.groupSurface
+                emphasized -> AppColors.SurfaceElevated
+                else -> AppColors.SurfaceElevated
             },
             focusedContainerColor = if (enabled) {
                 colors.focusedSurface
@@ -572,7 +527,7 @@ private fun SettingsActionButton(
             style = MaterialTheme.typography.labelLarge,
             color = when {
                 !enabled -> colors.disabledText
-                emphasized -> colors.accent
+                emphasized -> colors.primaryText
                 else -> colors.primaryText
             },
             modifier = Modifier.padding(horizontal = SettingsDesignTokens.space16, vertical = SettingsDesignTokens.space8)
@@ -616,21 +571,6 @@ private fun CategoryProtectionCard(
                     .padding(end = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(6.dp)
             ) {
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(10.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    TypeBadge(type = item.category.type)
-                    if (item.category.isAdult) {
-                        Text(
-                            text = stringResource(R.string.parental_group_auto_protected),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = colors.error,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    }
-                }
                 Text(
                     text = item.category.name,
                     style = MaterialTheme.typography.titleMedium,
@@ -647,11 +587,8 @@ private fun CategoryProtectionCard(
                     else -> stringResource(R.string.settings_category_status_unlocked)
                 },
                 style = MaterialTheme.typography.labelLarge,
-                color = when {
-                    item.category.isAdult -> colors.error
-                    item.isProtected -> colors.accent
-                    else -> colors.secondaryText
-                }
+                color = colors.primaryText,
+                maxLines = 2, overflow = TextOverflow.Ellipsis
             )
         }
     }
@@ -692,19 +629,6 @@ private fun CategoryVisibilityCard(
                     .padding(end = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(6.dp)
             ) {
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(10.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    TypeBadge(type = item.category.type)
-                    if (item.isHidden) {
-                        Text(
-                            text = stringResource(R.string.settings_category_status_hidden),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = colors.accent
-                        )
-                    }
-                }
                 Text(
                     text = item.category.name,
                     style = MaterialTheme.typography.titleMedium,
@@ -721,7 +645,8 @@ private fun CategoryVisibilityCard(
                     stringResource(R.string.settings_hide_category)
                 },
                 style = MaterialTheme.typography.labelLarge,
-                color = if (item.isHidden) colors.accent else colors.primaryText
+                color = colors.primaryText,
+                maxLines = 2, overflow = TextOverflow.Ellipsis
             )
         }
     }
@@ -740,28 +665,6 @@ private fun EmptyCategoryMessage() {
             text = stringResource(R.string.settings_category_controls_empty),
             style = MaterialTheme.typography.bodyMedium,
             color = colors.secondaryText
-        )
-    }
-}
-
-@Composable
-private fun TypeBadge(type: ContentType) {
-    val (label, background, contentColor) = when (type) {
-        ContentType.LIVE -> Triple("LIVE", MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.onPrimary)
-        ContentType.MOVIE -> Triple("MOVIE", MaterialTheme.colorScheme.secondary, MaterialTheme.colorScheme.onSecondary)
-        ContentType.VOD -> Triple("VOD", MaterialTheme.colorScheme.secondary, MaterialTheme.colorScheme.onSecondary)
-        ContentType.SERIES,
-        ContentType.SERIES_EPISODE -> Triple("SERIES", MaterialTheme.colorScheme.tertiary, MaterialTheme.colorScheme.onTertiary)
-    }
-
-    Box(
-        modifier = Modifier.background(background, RoundedCornerShape(8.dp))
-    ) {
-        Text(
-            text = label,
-            color = contentColor,
-            style = MaterialTheme.typography.labelSmall,
-            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
         )
     }
 }

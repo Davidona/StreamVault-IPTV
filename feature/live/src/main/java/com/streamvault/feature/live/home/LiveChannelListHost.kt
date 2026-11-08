@@ -52,12 +52,16 @@ fun LiveChannelListHost(
         val visibleItems = channelListState.layoutInfo.visibleItemsInfo
         val firstVisibleIndex = visibleItems.firstOrNull()?.index
         val lastVisibleIndex = visibleItems.lastOrNull()?.index
-        if (
-            firstVisibleIndex != null &&
-            lastVisibleIndex != null &&
-            (draggedIndex <= firstVisibleIndex || draggedIndex >= lastVisibleIndex)
-        ) {
-            channelListState.scrollToItem(draggedIndex)
+        if (firstVisibleIndex != null && lastVisibleIndex != null) {
+            // Keep a neighbour visible while moving, so the new position has context.
+            when {
+                draggedIndex <= firstVisibleIndex ->
+                    channelListState.scrollToItem((draggedIndex - 1).coerceAtLeast(0))
+                draggedIndex >= lastVisibleIndex -> {
+                    val visibleSpan = lastVisibleIndex - firstVisibleIndex
+                    channelListState.scrollToItem((draggedIndex - visibleSpan + 1).coerceAtLeast(0))
+                }
+            }
         }
 
         runCatching { channelFocusRequesters[draggingChannelId]?.requestFocus() }

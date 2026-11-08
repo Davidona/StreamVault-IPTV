@@ -333,7 +333,7 @@
     <string name="live_category_order_manual">Thủ công</string>
     <string name="live_category_order_personal">Danh mục cá nhân</string>
     <string name="live_category_order_pinned">Danh mục đã ghim</string>
-    <string name="live_category_order_other">Danh mục khác</string>
+    <string name="live_category_order_other">Danh mục của nhà cung cấp</string>
     <string name="live_category_order_saved">Đã lưu thứ tự danh mục</string>
     <string name="live_category_order_save_failed">Không thể lưu thứ tự danh mục. Hãy thử lại.</string>
     <string name="live_category_order_favorites">Yêu thích</string>

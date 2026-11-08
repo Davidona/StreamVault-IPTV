@@ -333,7 +333,7 @@
     <string name="live_category_order_manual">Manuale</string>
     <string name="live_category_order_personal">Categorie personali</string>
     <string name="live_category_order_pinned">Categorie fissate</string>
-    <string name="live_category_order_other">Altre categorie</string>
+    <string name="live_category_order_other">Categorie del fornitore</string>
     <string name="live_category_order_saved">Ordine delle categorie salvato</string>
     <string name="live_category_order_save_failed">Impossibile salvare l’ordine delle categorie. Riprova.</string>
     <string name="live_category_order_favorites">Preferiti</string>

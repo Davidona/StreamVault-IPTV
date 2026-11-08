@@ -333,7 +333,7 @@
     <string name="live_category_order_manual">Handmatig</string>
     <string name="live_category_order_personal">Persoonlijke categorieën</string>
     <string name="live_category_order_pinned">Vastgezette categorieën</string>
-    <string name="live_category_order_other">Overige categorieën</string>
+    <string name="live_category_order_other">Categorieën van de aanbieder</string>
     <string name="live_category_order_saved">Categorievolgorde opgeslagen</string>
     <string name="live_category_order_save_failed">Categorievolgorde kon niet worden opgeslagen. Probeer het opnieuw.</string>
     <string name="live_category_order_favorites">Favorieten</string>

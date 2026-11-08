@@ -216,7 +216,9 @@ fun LiveHomeScreen(
         uiState.showRenameGroupDialog || uiState.selectedCategoryForOptions != null ||
         isReorderMode
 
-    BackHandler(enabled = hasOverlay) {
+    val orderEditorOpen = providerToReorderCategories != null || combinedProfileToReorderCategories != null ||
+        providerCategoryToReorder != null
+    BackHandler(enabled = hasOverlay && !orderEditorOpen) {
         when {
             phoneOrderLaunch != null -> phoneOrderLaunch = null
             showAddQuickFilterDialog -> showAddQuickFilterDialog = false
@@ -238,11 +240,11 @@ fun LiveHomeScreen(
         }
     }
 
-    BackHandler(enabled = !portrait && isCategorySidebarHidden && !hasOverlay) {
+    BackHandler(enabled = !portrait && isCategorySidebarHidden && !hasOverlay && !orderEditorOpen) {
         revealCategorySidebar()
     }
 
-    BackHandler(enabled = portrait && !isCategorySidebarHidden && !hasOverlay) {
+    BackHandler(enabled = portrait && !isCategorySidebarHidden && !hasOverlay && !orderEditorOpen) {
         isCategorySidebarHidden = true
     }
 

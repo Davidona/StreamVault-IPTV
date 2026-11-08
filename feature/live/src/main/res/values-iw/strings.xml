@@ -333,7 +333,7 @@
     <string name="live_category_order_manual">ידני</string>
     <string name="live_category_order_personal">קטגוריות אישיות</string>
     <string name="live_category_order_pinned">קטגוריות מוצמדות</string>
-    <string name="live_category_order_other">קטגוריות אחרות</string>
+    <string name="live_category_order_other">קטגוריות הספק</string>
     <string name="live_category_order_saved">סדר הקטגוריות נשמר</string>
     <string name="live_category_order_save_failed">לא ניתן לשמור את סדר הקטגוריות. נסו שוב.</string>
     <string name="live_category_order_favorites">מועדפים</string>

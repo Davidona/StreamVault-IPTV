@@ -333,7 +333,7 @@
     <string name="live_category_order_manual">Manwal</string>
     <string name="live_category_order_personal">Mga personal na kategorya</string>
     <string name="live_category_order_pinned">Mga naka-pin na kategorya</string>
-    <string name="live_category_order_other">Iba pang kategorya</string>
+    <string name="live_category_order_other">Mga kategorya ng provider</string>
     <string name="live_category_order_saved">Na-save ang ayos ng mga kategorya</string>
     <string name="live_category_order_save_failed">Hindi ma-save ang ayos ng mga kategorya. Subukan muli.</string>
     <string name="live_category_order_favorites">Mga paborito</string>

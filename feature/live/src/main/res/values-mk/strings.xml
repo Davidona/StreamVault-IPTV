@@ -333,7 +333,7 @@
     <string name="live_category_order_manual">Рачно</string>
     <string name="live_category_order_personal">Лични категории</string>
     <string name="live_category_order_pinned">Закачени категории</string>
-    <string name="live_category_order_other">Други категории</string>
+    <string name="live_category_order_other">Категории на провајдерот</string>
     <string name="live_category_order_saved">Редоследот на категориите е зачуван</string>
     <string name="live_category_order_save_failed">Редоследот на категориите не може да се зачува. Обидете се повторно.</string>
     <string name="live_category_order_favorites">Омилени</string>

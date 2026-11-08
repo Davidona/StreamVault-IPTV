@@ -333,7 +333,7 @@
     <string name="live_category_order_manual">Manual</string>
     <string name="live_category_order_personal">Categorii personale</string>
     <string name="live_category_order_pinned">Categorii fixate</string>
-    <string name="live_category_order_other">Alte categorii</string>
+    <string name="live_category_order_other">Categorii ale furnizorului</string>
     <string name="live_category_order_saved">Ordinea categoriilor a fost salvată</string>
     <string name="live_category_order_save_failed">Ordinea categoriilor nu a putut fi salvată. Încercați din nou.</string>
     <string name="live_category_order_favorites">Favorite</string>

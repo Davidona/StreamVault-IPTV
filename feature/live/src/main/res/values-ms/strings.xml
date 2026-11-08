@@ -333,7 +333,7 @@
     <string name="live_category_order_manual">Manual</string>
     <string name="live_category_order_personal">Kategori peribadi</string>
     <string name="live_category_order_pinned">Kategori disemat</string>
-    <string name="live_category_order_other">Kategori lain</string>
+    <string name="live_category_order_other">Kategori penyedia</string>
     <string name="live_category_order_saved">Susunan kategori disimpan</string>
     <string name="live_category_order_save_failed">Tidak dapat menyimpan susunan kategori. Cuba lagi.</string>
     <string name="live_category_order_favorites">Kegemaran</string>

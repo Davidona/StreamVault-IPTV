@@ -333,7 +333,7 @@
     <string name="live_category_order_manual">ด้วยตนเอง</string>
     <string name="live_category_order_personal">หมวดหมู่ส่วนตัว</string>
     <string name="live_category_order_pinned">หมวดหมู่ที่ปักหมุด</string>
-    <string name="live_category_order_other">หมวดหมู่อื่น</string>
+    <string name="live_category_order_other">หมวดหมู่ของผู้ให้บริการ</string>
     <string name="live_category_order_saved">บันทึกลำดับหมวดหมู่แล้ว</string>
     <string name="live_category_order_save_failed">ไม่สามารถบันทึกลำดับหมวดหมู่ได้ โปรดลองอีกครั้ง</string>
     <string name="live_category_order_favorites">รายการโปรด</string>

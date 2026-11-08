@@ -1,30 +1,28 @@
 package com.streamvault.feature.live.home
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.getValue
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.tv.material3.ClickableSurfaceDefaults
+import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
-import androidx.tv.material3.Surface
-import androidx.tv.material3.SurfaceDefaults
 import androidx.tv.material3.Text
-import com.streamvault.core.ui.design.browse.OnSurface
-import com.streamvault.core.ui.design.browse.SurfaceElevated
-import com.streamvault.core.ui.interaction.TvButton
+import com.streamvault.core.ui.design.AppColors
+import com.streamvault.core.ui.design.LocalAppSpacing
+import com.streamvault.core.ui.interaction.TvClickableSurface
 import com.streamvault.domain.model.Category
-import com.streamvault.domain.model.LiveChannelOrderMode
 import com.streamvault.feature.live.R
 
 @Composable
@@ -38,46 +36,37 @@ fun ProviderCategoryChannelOrderControl(
     )
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
-    androidx.compose.runtime.LaunchedEffect(providerId, category.id) {
-        viewModel.observe(providerId, category)
-    }
+    LaunchedEffect(providerId, category.id) { viewModel.observe(providerId, category) }
     DisposableEffect(viewModel) { onDispose { viewModel.reset() } }
-
-    Surface(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
-        colors = SurfaceDefaults.colors(containerColor = SurfaceElevated)
+    val spacing = LocalAppSpacing.current
+    val shape = RoundedCornerShape(spacing.sm)
+    var focused by remember { mutableStateOf(false) }
+    TvClickableSurface(
+        onClick = onReorderChannels,
+        modifier = Modifier.fillMaxWidth().onFocusChanged { focused = it.isFocused }
+            .border(2.dp, if (focused) AppColors.Focus else Color.Transparent, shape),
+        shape = ClickableSurfaceDefaults.shape(shape),
+        colors = ClickableSurfaceDefaults.colors(
+            containerColor = AppColors.Surface,
+            focusedContainerColor = AppColors.SurfaceAccent
+        ),
+        scale = ClickableSurfaceDefaults.scale(focusedScale = 1f)
     ) {
-        Column(
-            modifier = Modifier.fillMaxWidth().padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            Text(category.name, style = MaterialTheme.typography.titleMedium, color = OnSurface)
-            when {
-                state.loading -> Text(stringResource(R.string.home_loading_channels), color = OnSurface)
-                state.message != null -> state.message?.let { message ->
-                    Text(stringResource(message), color = OnSurface)
+        Row(Modifier.fillMaxWidth().padding(horizontal = spacing.md, vertical = spacing.sm),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(spacing.md)) {
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(spacing.xs)) {
+                Text(category.name, style = MaterialTheme.typography.titleMedium, color = AppColors.TextPrimary,
+                    maxLines = 1, overflow = TextOverflow.Ellipsis)
+                val detail = when {
+                    state.loading -> stringResource(R.string.home_loading_channels)
+                    state.message != null -> stringResource(checkNotNull(state.message))
+                    else -> liveChannelOrderModeLabel(state.mode)
                 }
-                else -> Row {
-                    Text(stringResource(R.string.live_order_mode), color = OnSurface)
-                    Spacer(Modifier.width(8.dp))
-                    Text(liveChannelOrderModeLabel(state.mode), color = OnSurface)
-                    if (state.mode == LiveChannelOrderMode.USE_DEFAULT) {
-                        Spacer(Modifier.width(8.dp))
-                        Text("→", color = OnSurface)
-                        Spacer(Modifier.width(8.dp))
-                        Text(liveChannelOrderModeLabel(state.defaultMode), color = OnSurface)
-                    }
-                }
+                Text(detail, style = MaterialTheme.typography.bodyMedium, color = AppColors.TextSecondary,
+                    maxLines = 1, overflow = TextOverflow.Ellipsis)
             }
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                TvButton(onClick = onOpenChannelOrder) {
-                    Text(stringResource(R.string.live_order_mode))
-                }
-                TvButton(onClick = onReorderChannels) {
-                    Text(stringResource(R.string.home_reorder_channels))
-                }
-            }
+            Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = AppColors.TextPrimary)
         }
     }
 }
