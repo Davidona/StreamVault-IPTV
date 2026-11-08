@@ -139,6 +139,28 @@ class PlayerInputPolicyTest {
     }
 
     @Test
+    fun `center and info close the open channel info panel before the overlay`() {
+        val state = liveState(showChannelInfoOverlay = true, channelInfoSubPanelOpen = true)
+
+        assertThat(playerInputDecision(state, PlayerInputKey.DpadCenter).action)
+            .isEqualTo(PlayerInputAction.CloseChannelInfoPanel)
+        assertThat(playerInputDecision(state, PlayerInputKey.Enter).action)
+            .isEqualTo(PlayerInputAction.CloseChannelInfoPanel)
+        assertThat(playerInputDecision(state, PlayerInputKey.Info).action)
+            .isEqualTo(PlayerInputAction.CloseChannelInfoPanel)
+    }
+
+    @Test
+    fun `a stale subpanel flag does not swallow info or center`() {
+        val state = liveState(showChannelInfoOverlay = false, channelInfoSubPanelOpen = true)
+
+        assertThat(playerInputDecision(state, PlayerInputKey.Info).action)
+            .isEqualTo(PlayerInputAction.OpenChannelInfo)
+        assertThat(playerInputDecision(state, PlayerInputKey.DpadCenter).action)
+            .isEqualTo(PlayerInputAction.OpenChannelInfo)
+    }
+
+    @Test
     fun `numpad enter remains unhandled like the original root key branch`() {
         assertThat(playerInputDecision(liveState(), PlayerInputKey.NumpadEnter).action)
             .isEqualTo(PlayerInputAction.Pass)

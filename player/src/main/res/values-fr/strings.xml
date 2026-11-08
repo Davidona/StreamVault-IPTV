@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="player_error_live_startup_timeout">La lecture n’a pas pu démarrer. Essayez un autre flux.</string>
+    <string name="player_track_closed_captions">Sous-titres pour malentendants</string>
+    <string name="player_track_closed_captions_numbered">Sous-titres pour malentendants %1$d</string>
 </resources>

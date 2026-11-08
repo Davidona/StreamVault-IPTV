@@ -130,6 +130,7 @@ fun PlayerViewModel.openChannelInfoOverlay() {
 fun PlayerViewModel.closeChannelInfoOverlay() {
     channelInfoHideJob?.cancel()
     showChannelInfoOverlayFlow.value = false
+    liveOverlayAutoHidePaused = false
     if (!hasVisibleTransientLiveOverlay()) clearLiveOverlayAutoHide()
 }
 
@@ -141,6 +142,7 @@ fun PlayerViewModel.closeOverlays() {
     showFullGuideOverlayFlow.value = false
     showChannelInfoOverlayFlow.value = false
     showDiagnosticsFlow.value = false
+    liveOverlayAutoHidePaused = false
     channelInfoHideJob?.cancel()
     clearLiveOverlayAutoHide()
     clearDiagnosticsAutoHide()
@@ -152,6 +154,17 @@ fun PlayerViewModel.toggleDiagnostics() {
         scheduleDiagnosticsAutoHide()
     } else {
         clearDiagnosticsAutoHide()
+    }
+}
+
+/** Holds the live overlay open while a side sheet is showing; closing the sheet restarts the idle countdown. */
+fun PlayerViewModel.setLiveOverlayAutoHidePaused(paused: Boolean) {
+    if (liveOverlayAutoHidePaused == paused) return
+    liveOverlayAutoHidePaused = paused
+    if (paused) {
+        clearLiveOverlayAutoHide()
+    } else if (hasVisibleTransientLiveOverlay()) {
+        scheduleLiveOverlayAutoHide()
     }
 }
 
@@ -212,6 +225,8 @@ internal fun PlayerViewModel.scheduleLiveOverlayAutoHide() {
         return
     }
     liveOverlayHideJob?.cancel()
+    liveOverlayHideJob = null
+    if (liveOverlayAutoHidePaused) return
     liveOverlayHideJob = viewModelScope.launch {
         delay(liveOverlayTimeoutMs)
         showChannelInfoOverlayFlow.value = false

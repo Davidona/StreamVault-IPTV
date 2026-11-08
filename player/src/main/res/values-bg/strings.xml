@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="player_error_live_startup_timeout">Възпроизвеждането не можа да започне. Опитайте друг поток.</string>
+    <string name="player_track_closed_captions">Затворени субтитри</string>
+    <string name="player_track_closed_captions_numbered">Затворени субтитри %1$d</string>
 </resources>

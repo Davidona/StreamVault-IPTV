@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="player_error_live_startup_timeout">Redarea nu a putut începe. Încercați alt flux.</string>
+    <string name="player_track_closed_captions">Subtitrări închise</string>
+    <string name="player_track_closed_captions_numbered">Subtitrări închise %1$d</string>
 </resources>

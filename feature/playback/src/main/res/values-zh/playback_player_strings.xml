@@ -133,6 +133,7 @@
     <string name="player_more_controls">更多控制</string>
     <string name="player_multiview_short">多视图</string>
     <string name="player_mute">静音</string>
+    <string name="player_more">更多</string>
     <string name="player_muted_badge">已静音</string>
     <string name="player_next_label">下一个：</string>
     <string name="player_no_guide_data">没有节目指南数据</string>
@@ -307,4 +308,5 @@
 <string name="player_trakt_sent">已发送到 Trakt</string>
     <string name="player_trakt_badge">TRAKT</string>
     <string name="player_schedule_by_time">æŒ‰æ—¶é—´é¢„çº¦</string>     <string name="player_schedule_by_time_title">é¢„çº¦å½•åˆ¶</string>     <string name="player_schedule_by_time_start">å¼€å§‹</string>     <string name="player_schedule_by_time_duration">æ—¶é•¿</string>     <string name="player_schedule_by_time_repeat">é‡å¤</string>     <string name="player_schedule_by_time_once">ä¸€æ¬¡</string>     <string name="player_schedule_by_time_daily">æ¯å¤©</string>     <string name="player_schedule_by_time_weekly">æ¯å‘¨</string>     <string name="player_schedule_by_time_confirm">é¢„çº¦</string>     <string name="player_schedule_by_time_cancel">å–æ¶ˆ</string>     <string name="player_schedule_by_time_duration_hm">%1$d å°æ—¶ %2$d åˆ†é’Ÿ</string>     <string name="player_schedule_by_time_duration_h">%1$d å°æ—¶</string>     <string name="player_schedule_by_time_duration_m">%1$d åˆ†é’Ÿ</string>     <string name="player_recording_needs_live_channel">å½•åˆ¶éœ€è¦ç›´æ’­é¢‘é“ã€‚</string>     <string name="player_recording_started_notice">å·²å¼€å§‹ä¸º %1$s å½•åˆ¶ã€‚</string>     <string name="player_recording_scheduled_notice">å·²é¢„çº¦ %1$sã€‚</string>     <string name="player_recording_scheduled_daily_notice">å·²æ¯å¤©é¢„çº¦ %1$sã€‚</string>     <string name="player_recording_scheduled_weekly_notice">å·²æ¯å‘¨é¢„çº¦ %1$sã€‚</string>     <string name="player_recording_failed_notice">æ— æ³•é¢„çº¦å½•åˆ¶ã€‚</string>     <string name="player_recording_stopped_notice">å½•åˆ¶å·²åœæ­¢ã€‚</string>
+    <string name="player_track_no_audio_tracks">无音轨</string>
 </resources>

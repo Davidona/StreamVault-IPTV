@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="player_error_live_startup_timeout">Afspilningen kunne ikke starte. Prøv en anden stream.</string>
+    <string name="player_track_closed_captions">Lukkede undertekster</string>
+    <string name="player_track_closed_captions_numbered">Lukkede undertekster %1$d</string>
 </resources>

@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="player_error_live_startup_timeout">Oynatma başlatılamadı. Başka bir yayın deneyin.</string>
+    <string name="player_track_closed_captions">Kapalı altyazılar</string>
+    <string name="player_track_closed_captions_numbered">Kapalı altyazılar %1$d</string>
 </resources>

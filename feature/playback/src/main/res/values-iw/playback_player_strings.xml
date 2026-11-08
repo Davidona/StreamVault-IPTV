@@ -134,6 +134,7 @@
     <string name="player_more_controls">יותר בקרות</string>
     <string name="player_multiview_short">ריבוי צפיות</string>
     <string name="player_mute">השתק</string>
+    <string name="player_more">עוד</string>
     <string name="player_muted_badge">מושתק</string>
     <string name="player_next_label">הבא:</string>
     <string name="player_no_guide_data">אין נתוני מדריך</string>
@@ -308,4 +309,5 @@
 <string name="player_trakt_sent">נשלח אל Trakt</string>
     <string name="player_trakt_badge">TRAKT</string>
     <string name="player_schedule_by_time">×ª×–×ž×•×Ÿ ×œ×¤×™ ×©×¢×”</string>     <string name="player_schedule_by_time_title">×ª×–×ž×•×Ÿ ×”×§×œ×˜×”</string>     <string name="player_schedule_by_time_start">×”×ª×—×œ×”</string>     <string name="player_schedule_by_time_duration">×ž×©×š</string>     <string name="player_schedule_by_time_repeat">×—×–×¨×”</string>     <string name="player_schedule_by_time_once">×¤×¢× ××—×ª</string>     <string name="player_schedule_by_time_daily">×™×•×ž×™</string>     <string name="player_schedule_by_time_weekly">×©×‘×•×¢×™</string>     <string name="player_schedule_by_time_confirm">×ª×–×ž×•×Ÿ</string>     <string name="player_schedule_by_time_cancel">×‘×™×˜×•×œ</string>     <string name="player_schedule_by_time_duration_hm">%1$d ×© %2$d ×“</string>     <string name="player_schedule_by_time_duration_h">%1$d ×©</string>     <string name="player_schedule_by_time_duration_m">%1$d ×“</string>     <string name="player_recording_needs_live_channel">×”×”×§×œ×˜×” ×“×•×¨×©×ª ×¢×¨×•×¥ ×—×™.</string>     <string name="player_recording_started_notice">×”×”×§×œ×˜×” ×”×—×œ×” ×¢×‘×•×¨ %1$s.</string>     <string name="player_recording_scheduled_notice">%1$s ×ª×•×–×ž×Ÿ.</string>     <string name="player_recording_scheduled_daily_notice">%1$s ×ª×•×–×ž×Ÿ ×™×•×ž×™×ª.</string>     <string name="player_recording_scheduled_weekly_notice">%1$s ×ª×•×–×ž×Ÿ ×©×‘×•×¢×™×ª.</string>     <string name="player_recording_failed_notice">×œ× × ×™×ª×Ÿ ×œ×ª×–×ž×Ÿ ××ª ×”×”×§×œ×˜×”.</string>     <string name="player_recording_stopped_notice">×”×”×§×œ×˜×” ×”×•×¤×¡×§×”.</string>
+    <string name="player_track_no_audio_tracks">אין רצועות שמע</string>
 </resources>

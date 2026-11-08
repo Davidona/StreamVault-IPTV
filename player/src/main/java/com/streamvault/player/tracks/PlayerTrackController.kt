@@ -5,6 +5,7 @@ import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import androidx.media3.common.C
 import androidx.media3.common.Format
+import androidx.media3.common.MimeTypes
 import androidx.media3.common.TrackSelectionOverride
 import androidx.media3.common.Tracks
 import androidx.media3.exoplayer.ExoPlayer
@@ -24,6 +25,7 @@ import com.streamvault.player.DEVICE_SUBTITLE_TRACK_ID
 import com.streamvault.player.ONLINE_SUBTITLE_TRACK_ID
 import com.streamvault.player.PLAYER_TRACK_AUTO_ID
 import com.streamvault.player.PlayerTrack
+import com.streamvault.player.R
 import com.streamvault.player.SubtitleTrackSource
 import com.streamvault.player.STREMIO_SUBTITLE_TRACK_ID
 import com.streamvault.player.TrackType
@@ -376,12 +378,24 @@ class PlayerTrackController(
             val isVideo = type == C.TRACK_TYPE_VIDEO
 
             if (isAudio || isText || isVideo) {
+                val closedCaptionIndices = if (isText) {
+                    (0 until group.length).filter { index ->
+                        isClosedCaptionFormat(group.mediaTrackGroup.getFormat(index))
+                    }
+                } else {
+                    emptyList()
+                }
                 for (index in 0 until group.length) {
                     val format = group.mediaTrackGroup.getFormat(index)
                     val id = playerTrackId(format, type, group.mediaTrackGroup.hashCode(), index)
+                    val captionNumber = if (isText) {
+                        closedCaptionNumber(closedCaptionIndices.indexOf(index), closedCaptionIndices.size)
+                    } else {
+                        null
+                    }
                     val track = PlayerTrack(
                         id = id,
-                        name = buildTrackName(format, type, index),
+                        name = buildTrackName(format, type, index, captionNumber),
                         language = format.language,
                         type = when {
                             isAudio -> TrackType.AUDIO
@@ -734,7 +748,7 @@ class PlayerTrackController(
         if (!evaluation.isEligible) selectVideoTrack(player, PLAYER_TRACK_AUTO_ID)
     }
 
-    private fun buildTrackName(format: Format, trackType: Int, index: Int): String {
+    private fun buildTrackName(format: Format, trackType: Int, index: Int, captionNumber: Int?): String {
         if (trackType == C.TRACK_TYPE_VIDEO) return buildVideoTrackName(format, index)
 
         val explicitLabel = format.label
@@ -764,9 +778,15 @@ class PlayerTrackController(
         }
 
         if (parts.isNotEmpty()) return parts.joinToString(" ")
+        val closedCaption = isClosedCaptionFormat(format)
         return when (trackType) {
             C.TRACK_TYPE_AUDIO -> "Audio ${index + 1}"
-            C.TRACK_TYPE_TEXT -> "Subtitle ${index + 1}"
+            C.TRACK_TYPE_TEXT -> when {
+                closedCaption && captionNumber != null ->
+                    context.getString(R.string.player_track_closed_captions_numbered, captionNumber)
+                closedCaption -> context.getString(R.string.player_track_closed_captions)
+                else -> "Subtitle ${index + 1}"
+            }
             else -> "Track ${index + 1}"
         }
     }
@@ -790,6 +810,18 @@ class PlayerTrackController(
             ?: parts.joinToString(" · ").ifBlank { "Quality ${index + 1}" }
     }
 }
+
+/**
+ * In-band CEA-608/708 captions are declared without a label or language, so the MIME type is the
+ * only signal that distinguishes them from an unnamed subtitle track.
+ */
+internal fun isClosedCaptionFormat(format: Format): Boolean =
+    format.sampleMimeType == MimeTypes.APPLICATION_CEA608 ||
+        format.sampleMimeType == MimeTypes.APPLICATION_CEA708
+
+/** 1-based position among the group's closed captions, or null when there is only one. */
+internal fun closedCaptionNumber(captionIndex: Int, captionCount: Int): Int? =
+    if (captionCount > 1 && captionIndex in 0 until captionCount) captionIndex + 1 else null
 
 internal fun normalizeSelectedVideoTrackId(
     selectedTrackId: String,
