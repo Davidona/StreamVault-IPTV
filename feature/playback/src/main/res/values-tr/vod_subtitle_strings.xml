@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="vod_subtitle_sources">Kaynaklar</string>
     <string name="vod_subtitle_settings">Ayarlar</string>
@@ -12,7 +13,7 @@
     <string name="vod_subtitle_preview">Bu bir altyazıdır.</string>
     <string name="vod_subtitle_font_size">Yazı tipi boyutu</string>
     <string name="vod_subtitle_background">Arka plan opaklığı</string>
-    <string name="vod_subtitle_background_hint" formatted="false">0% şeffaf · 100% opak siyah</string>
+    <string name="vod_subtitle_background_hint" formatted="false">%0 şeffaf · %100 tam siyah</string>
     <string name="vod_subtitle_decrease_setting">%1$s azalt</string>
     <string name="vod_subtitle_increase_setting">%1$s artır</string>
 </resources>
