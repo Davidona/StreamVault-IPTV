@@ -14,6 +14,7 @@ class SettingsDesignTokensTest {
             val pairs = listOf(
                 "textPrimary/surface" to settingsContrastRatio(palette.textPrimary, palette.surface),
                 "textPrimary/surfaceElevated" to settingsContrastRatio(palette.textPrimary, palette.surfaceElevated),
+                "textPrimary/surfaceEmphasis" to settingsContrastRatio(palette.textPrimary, palette.surfaceEmphasis),
                 "textSecondary/surface" to settingsContrastRatio(palette.textSecondary, palette.surface),
                 "textPrimary/surfaceAccent" to settingsContrastRatio(palette.textPrimary, palette.surfaceAccent),
                 "textSecondary/surfaceAccent" to settingsContrastRatio(palette.textSecondary, palette.surfaceAccent),

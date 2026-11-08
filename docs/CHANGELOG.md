@@ -5,8 +5,8 @@ All notable product changes are recorded in this document.
 ## [1.2.5]
 
 ### Added
-- Added per-provider and combined-profile Live TV category and channel ordering, including manual arrangements, alphabetical sorting, and recently or most watched channels.
-- Added phone-assisted channel ordering with a QR code, plus multi-select, position controls, undo and redo.
+- Added Live TV category and channel ordering for individual providers and combined profiles, with manual arrangements, alphabetical sorting, and recently or most watched channels.
+- Added QR pairing to reorder and pin Live TV categories and arrange their channels from a phone, with multi-select, position controls, undo and redo.
 - Added backup and restore support for category and channel order, including safe migration of existing combined profiles.
 - Added a redesigned Live TV overlay for Android TV with channel and programme information, a single D-pad action row, and on-screen DVR controls for rewind, play/pause, forward and jump to live.
 - Added Live TV subtitle and audio side sheets on Android TV, including subtitle tracks, real-time translation, subtitle delay and loading subtitles from the device.

@@ -124,7 +124,7 @@ fun ProviderChannelOrderEditor(
                         onCancelMove = viewModel::cancelMove, onVisibleChannelWindowChanged = { _, _ -> }, onLoadMore = {},
                         jumpRequest = jumpRequest,
                         modifier = Modifier.weight(1f), itemContent = { channel, requester, pickedUp ->
-                                OrderEditorRow(name = channel.name,
+                                OrderEditorRow(name = channel.name, showLogo = true, logoUrl = channel.logoUrl,
                                     position = rowPositions[channel.id] ?: 0,
                                     badge = if (pickedUp) stringResource(R.string.badge_moving) else null,
                                     enabled = !state.saving, modifier = Modifier.focusRequester(requester)

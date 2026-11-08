@@ -13,6 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.disabled
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
@@ -25,10 +26,11 @@ import androidx.tv.material3.Text
 import com.streamvault.core.ui.design.AppColors
 import com.streamvault.core.ui.design.LocalAppSpacing
 import com.streamvault.core.ui.interaction.TvClickableSurface
+import com.streamvault.core.ui.image.ChannelLogoBadge
 
 @Composable
 internal fun OrderEditorRow(name: String, position: Int, badge: String?, enabled: Boolean,
-    modifier: Modifier = Modifier, onClick: () -> Unit) {
+    modifier: Modifier = Modifier, showLogo: Boolean = false, logoUrl: String? = null, onClick: () -> Unit) {
     val spacing = LocalAppSpacing.current
     val shape = RoundedCornerShape(spacing.xs)
     var focused by remember { mutableStateOf(false) }
@@ -39,11 +41,17 @@ internal fun OrderEditorRow(name: String, position: Int, badge: String?, enabled
         colors = ClickableSurfaceDefaults.colors(containerColor = AppColors.Surface,
             focusedContainerColor = AppColors.SurfaceAccent),
         scale = ClickableSurfaceDefaults.scale(focusedScale = 1f)) {
-        Row(Modifier.fillMaxWidth().padding(horizontal = spacing.md, vertical = spacing.sm),
+        Row(Modifier.fillMaxWidth().padding(horizontal = spacing.md, vertical = if (showLogo) spacing.xs else spacing.sm),
             verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(spacing.md)) {
             Text(position.toString(), Modifier.width(spacing.screenGutter), textAlign = TextAlign.End,
                 style = MaterialTheme.typography.bodyMedium, color = AppColors.TextSecondary,
                 maxLines = 1, overflow = TextOverflow.Ellipsis)
+            if (showLogo) {
+                ChannelLogoBadge(channelName = name, logoUrl = logoUrl,
+                    modifier = Modifier.size(spacing.xl).clearAndSetSemantics { },
+                    shape = RoundedCornerShape(spacing.xs), backgroundColor = AppColors.SurfaceEmphasis,
+                    textStyle = MaterialTheme.typography.labelLarge, textColor = AppColors.TextPrimary)
+            }
             Text(name, Modifier.weight(1f), style = MaterialTheme.typography.titleMedium,
                 color = AppColors.TextPrimary, maxLines = 1, overflow = TextOverflow.Ellipsis)
             if (badge != null) Text(badge, style = MaterialTheme.typography.labelLarge,
