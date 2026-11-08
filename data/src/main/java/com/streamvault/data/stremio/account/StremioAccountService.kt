@@ -9,12 +9,15 @@ import java.net.URI
 import java.security.MessageDigest
 import java.time.Instant
 import java.util.concurrent.atomic.AtomicBoolean
+import java.util.logging.Logger
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
 private class StremioSyncPrivacyException : Exception()
+private class MissingMetadataAddonException : Exception()
+private class StremioSyncTimeoutException : Exception()
 /** One account session; cloud metadata remains intact when a client does not understand a field. */
 class StremioAccountService(
     private val api: StremioAccountApi,
@@ -24,6 +27,7 @@ class StremioAccountService(
     private val now: () -> Long = System::currentTimeMillis,
     private val allowed: suspend () -> Boolean = { true }
 ) : StremioAccount {
+    private val logger = Logger.getLogger(StremioAccountService::class.java.name)
     private val mutableState = MutableStateFlow(StremioAccountState())
     override val state = mutableState.asStateFlow()
     private val mutex = Mutex()
@@ -125,10 +129,15 @@ class StremioAccountService(
             syncJob=currentCoroutineContext()[Job]
             mutableState.update { it.copy(busy=true,error=null) }
             try {
-                withTimeout(4*60_000L) { synchronize(token) }
+                withTimeoutOrNull(4*60_000L) { synchronize(token); true } ?: throw StremioSyncTimeoutException()
                 publish(); true
+            } catch (timeout: StremioSyncTimeoutException) {
+                logger.warning("Stremio sync timed out")
+                mutableState.update { it.copy(busy=false,error=StremioAccountError.SYNC) }
+                false
             } catch (cancel: CancellationException) { mutableState.update { it.copy(busy=false) }; throw cancel
             } catch (error: Exception) {
+                logger.warning("Stremio sync failed: ${error.javaClass.simpleName}")
                 val invalid=(error as? StremioAccountApiException)?.authentication==true
                 val privacy=error is StremioSyncPrivacyException
                 mutableState.update { it.copy(busy=false,error=when { privacy -> StremioAccountError.INCOGNITO; invalid -> StremioAccountError.SIGN_IN; else -> StremioAccountError.SYNC }) }
@@ -138,6 +147,7 @@ class StremioAccountService(
     }
 
     private suspend fun synchronize(token: String) {
+        logger.info("Stremio sync: fetching add-on collection")
         val collection=api.call("addonCollectionGet",jsonObject("type" to "AddonCollectionGet","authKey" to token,"update" to false)).asJsonObject
         val installed=addons.observeAddons().first().map { it.installUrl }.toSet()
         var unavailableAddon=false
@@ -148,7 +158,8 @@ class StremioAccountService(
                 if (addons.installAddon(url).isError) unavailableAddon=true
             }
         }
-        val remoteArray=api.call("datastoreGet",jsonObject("authKey" to token,"collection" to "libraryItem","ids" to JsonArray(),"all" to true)).asJsonArray
+        logger.info("Stremio sync: fetching library")
+        val remoteArray=api.call("datastoreGet",jsonObject("type" to "DatastoreGet","authKey" to token,"collection" to "libraryItem","ids" to JsonArray(),"all" to true)).asJsonArray
         require(remoteArray.size()<=5000)
         val remote=remoteArray.mapNotNull { it.takeIf { it.isJsonObject }?.asJsonObject }
             .filter { !it.text("_id").isNullOrBlank() }.associateBy { it.text("_id")!! }
@@ -170,6 +181,7 @@ class StremioAccountService(
             localWins+=id
         }
         // Keep unknown fields, watched bits and tombstones in the remote shadow, not an abbreviated DTO.
+        logger.info("Stremio sync: uploading local changes")
         for (batch in outgoing.chunked(100)) {
             if (!allowed()) throw StremioSyncPrivacyException()
             val result=api.call("datastorePut",jsonObject("authKey" to token,"collection" to "libraryItem",
@@ -179,19 +191,30 @@ class StremioAccountService(
         val incoming=remote.filter { (id,item) -> id !in localWins && (importing.has(id) || knownRemote.getAsJsonObject(id)!=item) }.entries.toList()
         incoming.forEach { importing.addProperty(it.key,true) }
         if(incoming.isNotEmpty()) store.write(session)
-        for ((index,entry) in incoming.withIndex()) {
-            val (id,item)=entry
-            try { import(item)
-            } catch(cancel:CancellationException) { throw cancel
-            } catch(_:Exception) { unavailableAddon=true; continue }
-            // A failed later import cannot turn an earlier cloud import into a local outgoing edit.
-            val imported=localItems()[id]
+        // Keep pending IDs marked until their imported signatures have been checkpointed.
+        // Rebuilding the complete local map per item makes a first sync quadratic.
+        logger.info("Stremio sync: importing library")
+        for (batch in incoming.chunked(100)) {
+            val completed=mutableListOf<Map.Entry<String, JsonObject>>()
+            for (entry in batch) {
+                try {
+                    import(entry.value)
+                    completed += entry
+                } catch(cancel:CancellationException) { throw cancel
+                } catch(error:Exception) {
+                    logger.warning("Stremio library import failed: ${error.javaClass.simpleName}")
+                    unavailableAddon=true
+                }
+            }
+            val imported=localItems()
             val base=session.getAsJsonObject("baseline") ?: JsonObject().also { session.add("baseline",it) }
-            if(imported!=null) base.addProperty(id,imported.signature())
-            knownRemote.add(id,item.deepCopy())
+            for ((id,item) in completed) {
+                imported[id]?.let { base.addProperty(id,it.signature()) }
+                knownRemote.add(id,item.deepCopy())
+                importing.remove(id)
+            }
             session.add("remote",knownRemote)
-            importing.remove(id)
-            if(index%100==99 || index==incoming.lastIndex) store.write(session)
+            store.write(session)
         }
         val shadow=JsonObject().apply {
             remote.forEach { (id,item) -> add(id,item.deepCopy()) }
@@ -199,11 +222,11 @@ class StremioAccountService(
         }
         session.add("remote",shadow)
         session.add("baseline",signatures(localItems().mapValues { it.value.signature() }))
-        session.addProperty("lastSyncAt",now())
         if(unavailableAddon) {
             store.write(session)
             error("Account addon unavailable")
         }
+        session.addProperty("lastSyncAt",now())
         store.write(session)
     }
 
@@ -291,7 +314,7 @@ class StremioAccountService(
             // select among multiple metadata providers without an established origin.
             addon=if(id.matches(Regex("tt[0-9]+"))) candidates.firstOrNull() else candidates.singleOrNull()
         }
-        addon ?: error("No metadata addon for cloud item")
+        addon ?: throw MissingMetadataAddonException()
         origins.addProperty(id,addon.installFingerprint())
         val progress=item.getAsJsonObject("state") ?: JsonObject()
         val saved=!item.flag("removed") && !item.flag("temp")

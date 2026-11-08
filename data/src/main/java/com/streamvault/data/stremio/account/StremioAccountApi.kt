@@ -41,9 +41,9 @@ class StremioAccountApi(
 
     suspend fun call(path: String, body: JsonObject): JsonElement = request(Request.Builder()
         .url(apiRoot + path).header("Accept", "application/json")
-        .post(body.toString().toRequestBody("application/json".toMediaType())).build())
+        .post(body.toString().toRequestBody("application/json".toMediaType())).build(), authenticated = body.has("authKey"))
 
-    private suspend fun request(request: Request, pendingLink: Boolean = false): JsonElement = withContext(Dispatchers.IO) {
+    private suspend fun request(request: Request, pendingLink: Boolean = false, authenticated: Boolean = false): JsonElement = withContext(Dispatchers.IO) {
         http.newCall(request).useCancellableResponse { response ->
             if (!response.isSuccessful) throw StremioAccountApiException(response.code == 401 || response.code == 403)
             val body = response.body ?: throw StremioAccountApiException()
@@ -63,7 +63,7 @@ class StremioAccountApi(
             if (envelope.has("error")) {
                 val code = envelope.getAsJsonObject("error").get("code")?.asInt
                 if (pendingLink && code == 101) return@withContext com.google.gson.JsonNull.INSTANCE
-                throw StremioAccountApiException(code == 101)
+                throw StremioAccountApiException(code == 101 || (code == 1 && authenticated))
             }
             envelope.get("result") ?: throw StremioAccountApiException()
         }

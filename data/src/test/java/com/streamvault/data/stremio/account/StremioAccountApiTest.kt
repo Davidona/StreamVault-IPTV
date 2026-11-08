@@ -16,6 +16,14 @@ class StremioAccountApiTest {
             assertEquals("/link/read?type=Read&code=pending",server.takeRequest().path)
         }
     }
+    @Test fun invalidSessionIsRecognizedOnAuthenticatedRequests()=runBlocking {
+        MockWebServer().use { server ->
+            server.enqueue(MockResponse().setBody("""{"error":{"code":1,"message":"Session does not exist"}}"""))
+            val api=StremioAccountApi(OkHttpClient(),server.url("/api/").toString())
+            try { api.call("datastoreGet",jsonObject("authKey" to "private")); fail("Expected failure") }
+            catch(error:StremioAccountApiException) { assertTrue(error.authentication) }
+        }
+    }
     @Test fun inheritedInterceptorsNeverSeeAccountCredentialsAndRedirectsAreNotFollowed()=runBlocking {
         MockWebServer().use { server ->
             var intercepted=false

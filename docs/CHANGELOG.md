@@ -18,6 +18,7 @@ All notable product changes are recorded in this document.
 - Raised the default Live TV overlay timeout from 4 to 6 seconds.
 
 ### Fixed
+- Improved Stremio account sync for large libraries by processing imports in batches, preserving partial progress for retries, and adding privacy-safe failure diagnostics. Failed syncs no longer update the last successful sync time.
 - Fixed Live TV overlay focus and Back handling on Android TV: Back and Info close an open tray before the overlay, focus returns to the pill that opened it, and focus no longer resets when buffering changes the track lists.
 - Fixed the Live TV side-sheet channel line reordering in right-to-left languages, and added a localized empty state when the audio sheet has no tracks.
 - Fixed downloads remaining pending indefinitely after repeated temporary failures; the final retry can now run and report a failure if it does not succeed.
