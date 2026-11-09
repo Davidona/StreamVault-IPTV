@@ -1,8 +1,8 @@
 package com.streamvault.feature.catalog.presentation.components.dialogs
 
+import com.streamvault.core.ui.design.focusRingButtonBorder
 import com.streamvault.core.ui.design.BrowseShapes
 import androidx.compose.foundation.background
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -23,7 +23,6 @@ import com.streamvault.core.ui.components.dialogs.AppDialog as Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.tv.material3.Button
 import androidx.tv.material3.ButtonDefaults
-import androidx.tv.material3.Border
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface
 import androidx.tv.material3.SurfaceDefaults
@@ -216,10 +215,7 @@ fun CategoryOptionsDialog(
                         contentColor = BrowseColors.TextPrimary,
                         focusedContentColor = BrowseColors.TextPrimary
                     ),
-                    border = ButtonDefaults.border(
-                        border = Border(BorderStroke(1.dp, BrowseColors.Outline)),
-                        focusedBorder = Border(BorderStroke(2.dp, BrowseColors.Focus))
-                    ),
+                    border = focusRingButtonBorder(BrowseShapes.Control),
                     scale = ButtonDefaults.scale(focusedScale = 1f)
                 ) {
                     Text(stringResource(R.string.category_options_cancel))
@@ -241,15 +237,12 @@ private fun PremiumDialogAction(
         modifier = Modifier.fillMaxWidth().mouseClickable(onClick = onClick),
         shape = ButtonDefaults.shape(BrowseShapes.Control),
         colors = ButtonDefaults.colors(
-            containerColor = if (destructive) MaterialTheme.colorScheme.errorContainer else BrowseColors.SurfaceAccent,
+            containerColor = if (destructive) MaterialTheme.colorScheme.errorContainer else BrowseColors.ControlContainer,
             focusedContainerColor = if (destructive) MaterialTheme.colorScheme.errorContainer else BrowseColors.SurfaceAccent,
             contentColor = if (destructive) MaterialTheme.colorScheme.onErrorContainer else BrowseColors.TextPrimary,
             focusedContentColor = if (destructive) MaterialTheme.colorScheme.onErrorContainer else BrowseColors.TextPrimary
         ),
-        border = ButtonDefaults.border(
-            border = Border(BorderStroke(1.dp, BrowseColors.Outline)),
-            focusedBorder = Border(BorderStroke(2.dp, BrowseColors.Focus))
-        ),
+        border = focusRingButtonBorder(BrowseShapes.Control),
         scale = ButtonDefaults.scale(focusedScale = 1f)
     ) {
         Text(label)

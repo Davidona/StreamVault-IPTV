@@ -2,6 +2,8 @@
 
 package com.streamvault.feature.catalog.presentation.search
 
+import com.streamvault.core.ui.design.focusRingButtonBorder
+import com.streamvault.core.ui.design.secondaryButtonColors
 import com.streamvault.core.ui.layout.AdaptiveRow
 
 import androidx.compose.foundation.layout.FlowRow
@@ -10,10 +12,11 @@ import com.streamvault.core.ui.layout.isPortraitLayout
 
 import android.widget.Toast
 import com.streamvault.core.ui.design.BrowseShapes
+import com.streamvault.core.ui.design.selectableFocusBorder
+import com.streamvault.core.ui.design.selectableSurfaceColors
 import androidx.annotation.StringRes
 import com.streamvault.core.ui.interaction.TvClickableSurface
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -1034,25 +1037,8 @@ private fun SearchPill(
         onClick = onClick,
         shape = ClickableSurfaceDefaults.shape(CircleShape),
         scale = ClickableSurfaceDefaults.scale(focusedScale = 1f),
-        colors = ClickableSurfaceDefaults.colors(
-            containerColor = if (selected) Primary.copy(alpha = 0.22f) else Surface.copy(alpha = 0.72f),
-            focusedContainerColor = if (selected) Primary.copy(alpha = 0.30f) else SurfaceHighlight,
-            contentColor = if (selected) TextPrimary else TextSecondary,
-            focusedContentColor = TextPrimary
-        ),
-        border = ClickableSurfaceDefaults.border(
-            border = Border(
-                border = BorderStroke(
-                    1.dp,
-                    if (selected) Primary.copy(alpha = 0.65f) else FocusBorder.copy(alpha = 0.28f)
-                ),
-                shape = CircleShape
-            ),
-            focusedBorder = Border(
-                border = BorderStroke(2.dp, FocusBorder),
-                shape = CircleShape
-            )
-        )
+        colors = selectableSurfaceColors(selected),
+        border = selectableFocusBorder(CircleShape)
     ) {
         Text(
             text = text,
@@ -1335,7 +1321,6 @@ private fun SearchItemActionsDialog(
                         icon = Icons.Default.Star,
                         label = if (isFavorite) stringResource(R.string.search_actions_remove_favorite)
                                 else stringResource(R.string.search_actions_add_favorite),
-                        isActive = isFavorite,
                         focusRequester = firstFocusRequester,
                         onClick = { if (canInteract) onToggleFavorite() }
                     )
@@ -1345,14 +1330,12 @@ private fun SearchItemActionsDialog(
                         SearchActionButton(
                             icon = Icons.Default.Close,
                             label = stringResource(R.string.search_actions_hide_category),
-                            isActive = false,
                             onClick = { if (canInteract) onHide() }
                         )
                     } else {
                         SearchActionButton(
                             icon = Icons.Default.Close,
                             label = stringResource(R.string.search_actions_hide_no_category),
-                            isActive = false,
                             enabled = false,
                             onClick = {}
                         )
@@ -1364,14 +1347,12 @@ private fun SearchItemActionsDialog(
                             icon = Icons.Default.Lock,
                             label = if (isProtected) stringResource(R.string.search_actions_unlock)
                                     else stringResource(R.string.search_actions_lock),
-                            isActive = isProtected,
                             onClick = { if (canInteract) onToggleLock() }
                         )
                     } else {
                         SearchActionButton(
                             icon = Icons.Default.Lock,
                             label = stringResource(R.string.search_actions_lock_no_category),
-                            isActive = false,
                             enabled = false,
                             onClick = {}
                         )
@@ -1387,7 +1368,6 @@ private fun SearchItemActionsDialog(
 private fun SearchActionButton(
     icon: ImageVector,
     label: String,
-    isActive: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     focusRequester: FocusRequester? = null,
@@ -1400,26 +1380,13 @@ private fun SearchActionButton(
         )
         .mouseClickable(onClick = onClick)
 
-    val actionColor = if (isActive) AppColors.Warning.copy(alpha = 0.18f)
-        else AppColors.SurfaceAccent
-
     Button(
         onClick = onClick,
         enabled = enabled,
         modifier = baseModifier,
-        colors = ButtonDefaults.colors(
-            containerColor = actionColor,
-            focusedContainerColor = actionColor,
-            contentColor = AppColors.TextPrimary,
-            focusedContentColor = AppColors.TextPrimary,
-            disabledContainerColor = AppColors.Surface.copy(alpha = 0.3f),
-            disabledContentColor = AppColors.TextSecondary
-        ),
+        colors = secondaryButtonColors(),
         shape = ButtonDefaults.shape(shape = BrowseShapes.Control),
-        border = ButtonDefaults.border(
-            border = Border(BorderStroke(1.dp, AppColors.Outline)),
-            focusedBorder = Border(BorderStroke(2.dp, AppColors.Focus))
-        ),
+        border = focusRingButtonBorder(BrowseShapes.Control),
         scale = ButtonDefaults.scale(focusedScale = 1f)
     ) {
         Icon(
