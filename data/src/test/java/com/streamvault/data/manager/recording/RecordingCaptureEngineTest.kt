@@ -74,16 +74,18 @@ class RecordingCaptureEngineTest {
             val engine = HlsLiveCaptureEngine(client)
             val outputFile = tempFolder.newFile("capture.ts")
 
-            engine.capture(
-                source = ResolvedRecordingSource(
-                    url = "https://example.com/live.m3u8",
-                    sourceType = RecordingSourceType.HLS
-                ),
-                outputTarget = RecordingOutputTarget.FileTarget(outputFile),
-                contentResolver = mock<ContentResolver>(),
-                scheduledEndMs = System.currentTimeMillis() + 60_000,
-                onProgress = {}
-            )
+            expectUnexpectedEnd {
+                engine.capture(
+                    source = ResolvedRecordingSource(
+                        url = "https://example.com/live.m3u8",
+                        sourceType = RecordingSourceType.HLS
+                    ),
+                    outputTarget = RecordingOutputTarget.FileTarget(outputFile),
+                    contentResolver = mock<ContentResolver>(),
+                    scheduledEndMs = System.currentTimeMillis() + 60_000,
+                    onProgress = {}
+                )
+            }
 
             assertThat(segmentAttempts.get()).isEqualTo(2)
             assertThat(outputFile.readText()).isEqualTo("segment-payload")
@@ -98,6 +100,11 @@ class RecordingCaptureEngineTest {
             .message("OK")
             .body(body.toResponseBody("application/vnd.apple.mpegurl".toMediaType()))
             .build()
+
+    private suspend fun expectUnexpectedEnd(block: suspend () -> Unit) {
+        val failure = runCatching { block() }.exceptionOrNull()
+        assertThat(failure).isInstanceOf(UnexpectedRecordingStreamEndException::class.java)
+    }
 
     @Test
     fun sharedRecordingStartsAtAvailableNewSegmentWithoutWaitingForOldPlaylistEntries() = runTest {
@@ -195,14 +202,16 @@ class RecordingCaptureEngineTest {
             )
             publish("second.ts", encrypt("B"))
         }
-        withTimeout(10_000) {
-            engine.capture(
-                source,
-                RecordingOutputTarget.FileTarget(secondOutput),
-                mock<ContentResolver>(),
-                System.currentTimeMillis() + 60_000,
-                onProgress = {}
-            )
+        expectUnexpectedEnd {
+            withTimeout(10_000) {
+                engine.capture(
+                    source,
+                    RecordingOutputTarget.FileTarget(secondOutput),
+                    mock<ContentResolver>(),
+                    System.currentTimeMillis() + 60_000,
+                    onProgress = {}
+                )
+            }
         }
         secondUpdater.join()
 
@@ -263,10 +272,12 @@ class RecordingCaptureEngineTest {
             }
             publish("index.m3u8", playlist + "#EXT-X-ENDLIST\n", true)
         }
-        HlsLiveCaptureEngine(RecordingHttpClientFactory { client }, tap).capture(
-            source, RecordingOutputTarget.FileTarget(outputFile), mock<ContentResolver>(),
-            System.currentTimeMillis() + 60_000, {}
-        )
+        expectUnexpectedEnd {
+            HlsLiveCaptureEngine(RecordingHttpClientFactory { client }, tap).capture(
+                source, RecordingOutputTarget.FileTarget(outputFile), mock<ContentResolver>(),
+                System.currentTimeMillis() + 60_000, {}
+            )
+        }
         assertThat(outputFile.readText()).isEqualTo(if (encrypted) "INITABC" else "ABC")
     }
 }
