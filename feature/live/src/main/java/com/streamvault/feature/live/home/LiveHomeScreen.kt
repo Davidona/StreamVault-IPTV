@@ -1280,7 +1280,11 @@ fun LiveHomeScreen(
                 onZap = ::zapInlinePreview,
                 onOpenFullPlayer = ::openFullPlayerFromInline,
                 onSelectSubtitle = viewModel::selectPreviewSubtitle,
-                modifier = Modifier.matchParentSize()
+                modifier = Modifier.matchParentSize(),
+                liveTranslationAvailable = previewUiState.liveTranslationAvailable,
+                liveTranslationActive = previewUiState.liveTranslationActive,
+                translationMessage = previewUiState.liveTranslationMessage,
+                onSelectTranslation = viewModel::selectPreviewTranslation
             )
         }
 

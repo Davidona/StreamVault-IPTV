@@ -8,6 +8,7 @@ import com.streamvault.domain.model.Program
 import com.streamvault.domain.model.Result
 import com.streamvault.domain.model.StreamInfo
 import com.streamvault.player.PlayerEngine
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 
 /** Presentation-owned origin values used when preview playback moves between Home and Guide. */
@@ -48,6 +49,27 @@ interface LivePreviewHandoffPort {
     fun consumeReverseHandoff(origin: LivePreviewOrigin): LivePreviewSession?
 
     fun clear(engine: PlayerEngine?)
+}
+
+/**
+ * Host seam for real-time translation of the inline Live TV preview. The host runs the same
+ * translation session the full player uses (audio tap -> endpoint -> injected captions) on the
+ * preview's own engine.
+ */
+interface LivePreviewTranslationPort {
+    /** Starts translating [engine]'s audio, replacing any running preview translation. */
+    fun start(
+        scope: CoroutineScope,
+        engine: PlayerEngine,
+        endpoint: String,
+        logicalUrl: String,
+        providerId: Long,
+        contentId: Long,
+        onError: (String) -> Unit,
+    )
+
+    /** Stops any running preview translation and clears its captions from [engine]. */
+    fun stop(engine: PlayerEngine?)
 }
 
 /** Feature seam for host-provided stream preparation and URL renewal policy. */

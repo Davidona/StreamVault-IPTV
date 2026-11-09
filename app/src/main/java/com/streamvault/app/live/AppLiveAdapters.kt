@@ -12,14 +12,19 @@ import com.streamvault.feature.live.api.LivePreviewHandoffPort
 import com.streamvault.feature.live.api.LivePreviewOrigin
 import com.streamvault.feature.live.api.LivePreviewSession
 import com.streamvault.feature.live.api.LivePreviewStreamPreparer
+import com.streamvault.feature.live.api.LivePreviewTranslationPort
 import com.streamvault.feature.live.api.LiveSurfaceRefreshPort
 import com.streamvault.feature.playback.multiview.MultiViewManager
 import com.streamvault.feature.playback.preview.LivePreviewHandoffManager
 import com.streamvault.feature.playback.preview.PreviewHandoffSource
+import com.streamvault.feature.playback.translation.LiveTranslationClient
+import com.streamvault.feature.playback.translation.LiveTranslationSession
 import com.streamvault.player.PlayerEngine
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
+import okhttp3.OkHttpClient
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 
@@ -146,4 +151,43 @@ internal fun LivePreviewOrigin.toPreviewHandoffSource(): PreviewHandoffSource = 
 internal fun PreviewHandoffSource.toLivePreviewOrigin(): LivePreviewOrigin = when (this) {
     PreviewHandoffSource.HOME -> LivePreviewOrigin.HOME
     PreviewHandoffSource.GUIDE -> LivePreviewOrigin.GUIDE
+}
+
+/**
+ * Runs the full player's real-time translation session on the inline preview engine, so the
+ * Live TV inline fullscreen can offer "Real-time translation" in its subtitle picker.
+ */
+@Singleton
+class AppLivePreviewTranslationAdapter @Inject constructor(
+    private val okHttpClient: OkHttpClient,
+) : LivePreviewTranslationPort {
+    private var session: LiveTranslationSession? = null
+
+    override fun start(
+        scope: CoroutineScope,
+        engine: PlayerEngine,
+        endpoint: String,
+        logicalUrl: String,
+        providerId: Long,
+        contentId: Long,
+        onError: (String) -> Unit,
+    ) {
+        stop(engine = null)
+        session = LiveTranslationSession(
+            scope = scope,
+            playerEngine = engine,
+            client = LiveTranslationClient(okHttpClient, endpoint),
+            logicalUrl = logicalUrl,
+            providerId = providerId,
+            contentId = contentId,
+            onSourceLanguageDetected = {},
+            onError = onError,
+        ).also { it.start() }
+    }
+
+    override fun stop(engine: PlayerEngine?) {
+        session?.stop()
+        session = null
+        engine?.setInjectedSubtitleText(null)
+    }
 }

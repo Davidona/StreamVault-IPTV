@@ -20,6 +20,7 @@ import androidx.compose.material.icons.filled.FastRewind
 import androidx.compose.material.icons.filled.Fullscreen
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Translate
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -76,6 +77,7 @@ internal const val INLINE_PREVIEW_FULLSCREEN_ENABLED = true
 
 private const val CHROME_TIMEOUT_MS = 5_000L
 private const val SEEK_FEEDBACK_MS = 900L
+private const val TRANSLATION_MESSAGE_MS = 4_000L
 private const val FOCUS_TAG = "InlinePreviewVideo"
 
 private const val CONTROL_REWIND = 0
@@ -112,7 +114,11 @@ internal fun InlinePreviewVideoLayer(
     onZap: (step: Int) -> Unit,
     onOpenFullPlayer: () -> Unit,
     onSelectSubtitle: (trackId: String?) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    liveTranslationAvailable: Boolean = false,
+    liveTranslationActive: Boolean = false,
+    translationMessage: String? = null,
+    onSelectTranslation: () -> Unit = {}
 ) {
     val renderSurfaceType by playerEngine.renderSurfaceType.collectAsStateWithLifecycle()
     val isPlaying by playerEngine.isPlaying.collectAsStateWithLifecycle()
@@ -120,8 +126,20 @@ internal fun InlinePreviewVideoLayer(
 
     val rootFocus = remember { FocusRequester() }
     val controlFocus = remember { List(CONTROL_COUNT) { FocusRequester() } }
-    // "Off" + one entry per subtitle track.
-    val subtitleFocus = remember(subtitleTracks.size) { List(subtitleTracks.size + 1) { FocusRequester() } }
+    // Options: "Off", then "Real-time translation" (when available), then one per subtitle track.
+    val translationOptions = if (liveTranslationAvailable) 1 else 0
+    val firstTrackOption = 1 + translationOptions
+    val subtitleFocus = remember(subtitleTracks.size, translationOptions) {
+        List(firstTrackOption + subtitleTracks.size) { FocusRequester() }
+    }
+    var visibleTranslationMessage by remember { mutableStateOf<String?>(null) }
+    LaunchedEffect(translationMessage) {
+        visibleTranslationMessage = translationMessage
+        if (translationMessage != null) {
+            delay(TRANSLATION_MESSAGE_MS)
+            visibleTranslationMessage = null
+        }
+    }
 
     var mode by remember { mutableStateOf(InlineFullscreenMode.WATCHING) }
     var chromeVisible by remember { mutableStateOf(false) }
@@ -152,7 +170,11 @@ internal fun InlinePreviewVideoLayer(
 
     fun openSubtitles() {
         val selected = subtitleTracks.indexOfFirst { it.isSelected }
-        subtitleIndex = if (selected >= 0) selected + 1 else 0
+        subtitleIndex = when {
+            liveTranslationActive && liveTranslationAvailable -> 1
+            selected >= 0 -> selected + firstTrackOption
+            else -> 0
+        }
         mode = InlineFullscreenMode.SUBTITLES
         showChrome()
     }
@@ -339,15 +361,31 @@ internal fun InlinePreviewVideoLayer(
                     )
                 }
             }
+            visibleTranslationMessage?.let { message ->
+                OverlayBadge(
+                    text = message,
+                    icon = Icons.Filled.Translate,
+                    modifier = Modifier.align(Alignment.TopCenter).padding(top = 32.dp)
+                )
+            }
             if (mode == InlineFullscreenMode.SUBTITLES) {
+                fun backToControls() {
+                    controlIndex = CONTROL_SUBTITLES
+                    mode = InlineFullscreenMode.CONTROLS
+                    showChrome()
+                }
                 InlineSubtitlePanel(
                     tracks = subtitleTracks,
                     focusRequesters = subtitleFocus,
+                    translationAvailable = liveTranslationAvailable,
+                    translationActive = liveTranslationActive,
+                    onSelectTranslation = {
+                        onSelectTranslation()
+                        backToControls()
+                    },
                     onSelect = { trackId ->
                         onSelectSubtitle(trackId)
-                        controlIndex = CONTROL_SUBTITLES
-                        mode = InlineFullscreenMode.CONTROLS
-                        showChrome()
+                        backToControls()
                     },
                     modifier = Modifier
                         .align(Alignment.CenterEnd)
@@ -412,10 +450,14 @@ private fun ControlButton(
 private fun InlineSubtitlePanel(
     tracks: List<PlayerTrack>,
     focusRequesters: List<FocusRequester>,
+    translationAvailable: Boolean,
+    translationActive: Boolean,
+    onSelectTranslation: () -> Unit,
     onSelect: (String?) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val noneSelected = tracks.none { it.isSelected }
+    val noneSelected = tracks.none { it.isSelected } && !translationActive
+    val firstTrackOption = if (translationAvailable) 2 else 1
     Column(
         modifier = modifier
             .width(320.dp)
@@ -434,6 +476,14 @@ private fun InlineSubtitlePanel(
             focusRequester = focusRequesters[0],
             onClick = { onSelect(null) }
         )
+        if (translationAvailable) {
+            SubtitleOption(
+                label = stringResource(R.string.live_inline_realtime_translation),
+                selected = translationActive,
+                focusRequester = focusRequesters[1],
+                onClick = onSelectTranslation
+            )
+        }
         if (tracks.isEmpty()) {
             Text(
                 text = stringResource(R.string.live_inline_no_subtitles),
@@ -444,8 +494,8 @@ private fun InlineSubtitlePanel(
         tracks.forEachIndexed { index, track ->
             SubtitleOption(
                 label = track.displayLabel(index),
-                selected = track.isSelected,
-                focusRequester = focusRequesters[index + 1],
+                selected = track.isSelected && !translationActive,
+                focusRequester = focusRequesters[index + firstTrackOption],
                 onClick = { onSelect(track.id) }
             )
         }

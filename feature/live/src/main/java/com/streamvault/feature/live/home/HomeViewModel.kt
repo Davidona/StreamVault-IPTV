@@ -7,6 +7,7 @@ import com.streamvault.feature.live.api.LiveMultiViewStatusPort
 import com.streamvault.feature.live.api.LivePreviewHandoffPort
 import com.streamvault.feature.live.api.LivePreviewOrigin
 import com.streamvault.feature.live.api.LivePreviewStreamPreparer
+import com.streamvault.feature.live.api.LivePreviewTranslationPort
 import com.streamvault.feature.live.api.LiveSurfaceRefreshPort
 import com.streamvault.domain.model.LiveCategoryOrder
 import com.streamvault.domain.model.SaveLiveCategoryOrderResult
@@ -117,6 +118,7 @@ class HomeViewModel @Inject constructor(
     private val multiViewStatusPort: LiveMultiViewStatusPort,
     private val livePreviewHandoffManager: LivePreviewHandoffPort,
     private val pluginManager: LivePreviewStreamPreparer,
+    private val livePreviewTranslationPort: LivePreviewTranslationPort,
     @param:AuxiliaryPlayerEngine
     private val playerEngineProvider: InjectProvider<PlayerEngine>,
     private val liveWatchUsageRepository: com.streamvault.domain.repository.LiveWatchUsageRepository? = null
@@ -166,6 +168,8 @@ class HomeViewModel @Inject constructor(
     private var previewPlaybackJob: Job? = null
     private var previewErrorJob: Job? = null
     private var previewPlayerEngine: PlayerEngine? = null
+    /** Channel the preview is currently playing (needed to (re)start real-time translation). */
+    private var currentPreviewChannel: Channel? = null
     private var previewSessionVersion: Long = 0L
     private var combinedCategoriesById: Map<Long, CombinedCategory> = emptyMap()
     private val sessionEmptyGuideKeys = mutableSetOf<GuideCacheKey>()
@@ -1075,6 +1079,10 @@ class HomeViewModel @Inject constructor(
         val engine = previewPlayerEngine ?: playerEngineProvider.get().also { previewPlayerEngine = it }
         previewPlaybackJob?.cancel()
         previewErrorJob?.cancel()
+        // A running translation is tied to the old channel's stream; it is restarted for the new
+        // channel once that one is playing (if the user still has translation selected).
+        livePreviewTranslationPort.stop(engine)
+        currentPreviewChannel = channel
 
         _previewUiState.update {
             it.copy(
@@ -1157,6 +1165,7 @@ class HomeViewModel @Inject constructor(
                     engine.prepare(preparedStreamInfo)
                     engine.setVolume(1f)
                     engine.play()
+                    refreshPreviewTranslation(channel, engine)
                     livePreviewHandoffManager.registerPreviewSession(
                         channel = channel,
                         streamInfo = preparedStreamInfo,
@@ -1208,7 +1217,67 @@ class HomeViewModel @Inject constructor(
      */
     fun selectPreviewSubtitle(trackId: String?) {
         val engine = previewPlayerEngine ?: return
+        // A regular track or "Off" replaces real-time translation, as in the full player.
+        stopPreviewTranslation(engine)
+        applyPreviewSubtitleChoice(engine, trackId)
+    }
+
+    private fun applyPreviewSubtitleChoice(engine: PlayerEngine, trackId: String?) {
         engine.selectSubtitleTrack(trackId)
+    }
+
+    /**
+     * "Real-time translation" picked from the inline fullscreen subtitle list. Mirrors the full
+     * player: subtitles go off, then the translation session starts on the preview engine.
+     */
+    fun selectPreviewTranslation() {
+        val engine = previewPlayerEngine ?: return
+        val channel = currentPreviewChannel ?: return
+        if (!_previewUiState.value.liveTranslationAvailable) return
+        applyPreviewSubtitleChoice(engine, null)
+        _previewUiState.update { it.copy(liveTranslationActive = true, liveTranslationMessage = null) }
+        viewModelScope.launch { startPreviewTranslation(channel, engine) }
+    }
+
+    /** Recomputes availability for [channel] and (re)starts translation if the user has it on. */
+    private suspend fun refreshPreviewTranslation(channel: Channel, engine: PlayerEngine) {
+        val available = isLiveTranslationAvailable(channel.providerId)
+        _previewUiState.update {
+            it.copy(
+                liveTranslationAvailable = available,
+                liveTranslationActive = it.liveTranslationActive && available
+            )
+        }
+        if (_previewUiState.value.liveTranslationActive) {
+            startPreviewTranslation(channel, engine)
+        }
+    }
+
+    private suspend fun startPreviewTranslation(channel: Channel, engine: PlayerEngine) {
+        val endpoint = preferencesRepository.playerLiveTranslationEndpoint.first()
+        livePreviewTranslationPort.start(
+            scope = viewModelScope,
+            engine = engine,
+            endpoint = endpoint,
+            logicalUrl = channel.streamUrl,
+            providerId = channel.providerId,
+            contentId = channel.id
+        ) { message ->
+            _previewUiState.update { it.copy(liveTranslationMessage = message) }
+        }
+    }
+
+    private fun stopPreviewTranslation(engine: PlayerEngine?) {
+        livePreviewTranslationPort.stop(engine)
+        _previewUiState.update { it.copy(liveTranslationActive = false, liveTranslationMessage = null) }
+    }
+
+    /** Same rule as the full player: setting on, live content, Xtream or M3U provider. */
+    private suspend fun isLiveTranslationAvailable(providerId: Long): Boolean {
+        if (!preferencesRepository.playerLiveTranslationEnabled.first()) return false
+        val type = _uiState.value.allProviders.firstOrNull { it.id == providerId }?.type
+            ?: providerRepository.getProvider(providerId)?.type
+        return type == ProviderType.XTREAM_CODES || type == ProviderType.M3U
     }
 
     private fun scheduleAdaptivePreviewReprime(
@@ -1241,6 +1310,10 @@ class HomeViewModel @Inject constructor(
         val engine = previewPlayerEngine ?: return false
         if (_previewUiState.value.previewChannelId != channel.id) return false
         if (!livePreviewHandoffManager.beginFullscreenHandoff(channel.id, engine)) return false
+        // The full player takes over this engine; it must not inherit the preview's translation
+        // audio tap or injected captions.
+        stopPreviewTranslation(engine)
+        currentPreviewChannel = null
 
         previewSessionVersion++
         previewPlaybackJob?.cancel()
@@ -1283,12 +1356,20 @@ class HomeViewModel @Inject constructor(
             engine = engine,
             origin = LivePreviewOrigin.HOME
         )
+        currentPreviewChannel = _uiState.value.filteredChannels.firstOrNull { it.id == session.channelId }
+        viewModelScope.launch {
+            val available = isLiveTranslationAvailable(session.providerId)
+            _previewUiState.update { it.copy(liveTranslationAvailable = available) }
+        }
         _previewUiState.update {
             it.copy(
                 previewChannelId = session.channelId,
                 previewPlayerEngine = engine,
                 isPreviewLoading = false,
-                previewErrorMessage = null
+                previewErrorMessage = null,
+                // Coming back from the full player: its translation state does not carry over.
+                liveTranslationActive = false,
+                liveTranslationMessage = null
             )
         }
         previewPlaybackJob = viewModelScope.launch {
@@ -1308,6 +1389,8 @@ class HomeViewModel @Inject constructor(
         previewErrorJob?.cancel()
         previewPlaybackJob = null
         previewErrorJob = null
+        stopPreviewTranslation(previewPlayerEngine)
+        currentPreviewChannel = null
         livePreviewHandoffManager.clear(previewPlayerEngine)
         previewPlayerEngine?.stop()
         previewPlayerEngine?.release()
