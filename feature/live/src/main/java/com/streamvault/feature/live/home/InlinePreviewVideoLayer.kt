@@ -48,10 +48,15 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.tv.material3.ButtonColors
+import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
+import com.streamvault.core.ui.design.BrowseColors
+import com.streamvault.core.ui.design.LocalBrowseVisuals
 import com.streamvault.core.ui.design.browse.Primary
+import com.streamvault.core.ui.design.contentOnColor
 import com.streamvault.core.ui.design.requestFocusSafely
 import com.streamvault.core.ui.interaction.TvButton
 import com.streamvault.domain.model.Channel
@@ -79,6 +84,9 @@ private const val CHROME_TIMEOUT_MS = 5_000L
 private const val SEEK_FEEDBACK_MS = 900L
 private const val TRANSLATION_MESSAGE_MS = 4_000L
 private const val FOCUS_TAG = "InlinePreviewVideo"
+
+/** Dark panel behind the info banner and control buttons, so both stay readable over bright video. */
+private val InlineChromeBackground = Color.Black.copy(alpha = 0.72f)
 
 private const val CONTROL_REWIND = 0
 private const val CONTROL_PLAY_PAUSE = 1
@@ -439,12 +447,33 @@ private fun ControlButton(
     TvButton(
         onClick = onClick,
         enabled = enabled,
+        colors = inlineControlColors(),
         modifier = Modifier.focusRequester(focusRequester)
     ) {
         Icon(imageVector = icon, contentDescription = null, modifier = Modifier.size(20.dp))
         Text(text = label, modifier = Modifier.padding(start = 8.dp), maxLines = 1)
     }
 }
+
+/**
+ * The info banner's dark panel and white text when unfocused (TvButton's default container is
+ * nearly transparent, which disappears over video); the usual TvButton highlight when focused.
+ */
+@Composable
+private fun inlineControlColors(): ButtonColors =
+    if (LocalBrowseVisuals.current) {
+        ButtonDefaults.colors(
+            containerColor = InlineChromeBackground,
+            contentColor = Color.White,
+            focusedContainerColor = BrowseColors.BrandStrong,
+            focusedContentColor = contentOnColor(BrowseColors.BrandStrong)
+        )
+    } else {
+        ButtonDefaults.colors(
+            containerColor = InlineChromeBackground,
+            contentColor = Color.White
+        )
+    }
 
 @Composable
 private fun InlineSubtitlePanel(
@@ -565,7 +594,7 @@ private fun InlineFullscreenInfoBanner(
     val timeFormat = remember(appTimeFormat) { appTimeFormat.createLiveTimeFormat() }
     Column(
         modifier = modifier
-            .background(Color.Black.copy(alpha = 0.72f), RoundedCornerShape(14.dp))
+            .background(InlineChromeBackground, RoundedCornerShape(14.dp))
             .padding(horizontal = 24.dp, vertical = 16.dp),
         verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {

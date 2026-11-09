@@ -1,25 +1,24 @@
 package com.streamvault.feature.live.home
 
-import android.app.Activity
-import android.view.WindowManager
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.LayoutCoordinates
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
+import com.streamvault.core.ui.device.KeepScreenOn
 import com.streamvault.domain.model.Channel
+import com.streamvault.player.PlaybackState
+import kotlinx.coroutines.flow.MutableStateFlow
 
 @Composable
 fun HomeLoadingPane(
@@ -56,20 +55,20 @@ fun HomePreviewHost(
     val previewChannel = remember(channels, previewUiState.previewChannelId) {
         channels.firstOrNull { it.id == previewUiState.previewChannelId }
     }
-    val hasActivePreview = previewUiState.previewPlayerEngine != null
-    val context = LocalContext.current
+    val previewEngine = previewUiState.previewPlayerEngine
+    val isPreviewPlaying by remember(previewEngine) { previewEngine?.isPlaying ?: MutableStateFlow(false) }
+        .collectAsStateWithLifecycle()
+    val previewPlaybackState by remember(previewEngine) {
+        previewEngine?.playbackState ?: MutableStateFlow(PlaybackState.IDLE)
+    }.collectAsStateWithLifecycle()
 
-    DisposableEffect(hasActivePreview) {
-        val window = (context as? Activity)?.window
-        if (hasActivePreview) {
-            window?.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-        }
-        onDispose {
-            if (hasActivePreview) {
-                window?.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-            }
-        }
-    }
+    // Keep the Fire TV screensaver away while the preview (incl. inline fullscreen) is playing,
+    // the same rule the full player uses. (The old `LocalContext as? Activity` lookup was always
+    // null because the host wraps LocalContext for in-app language, so the flag was never set.)
+    KeepScreenOn(
+        enabled = previewEngine != null &&
+            (isPreviewPlaying || previewPlaybackState == PlaybackState.BUFFERING)
+    )
 
     LivePreviewPane(
         channel = previewChannel,
