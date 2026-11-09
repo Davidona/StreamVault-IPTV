@@ -19,6 +19,7 @@ All notable product changes are recorded in this document.
 - Recording action labels now use higher-contrast text and TV-readable typography.
 
 ### Fixed
+- Fixed Xtream EPG indexing getting stuck after an interrupted sync by recovering orphaned workflow phases and persisting the result of forced EPG retries.
 - Improved Stremio account sync for large libraries by processing imports in batches, preserving partial progress for retries, and adding privacy-safe failure diagnostics. Failed syncs no longer update the last successful sync time.
 - Fixed Live TV overlay focus and Back handling on Android TV: Back and Info close an open tray before the overlay, focus returns to the pill that opened it, and focus no longer resets when buffering changes the track lists.
 - Fixed the Live TV side-sheet channel line reordering in right-to-left languages, and added a localized empty state when the audio sheet has no tracks.
