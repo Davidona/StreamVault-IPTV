@@ -277,7 +277,8 @@ class ProviderExecutionArchitectureTest {
         )
 
         val automaticSyncSource = repositoryRoot.resolve("data/src/main/java/com/streamvault/data/sync/AutomaticSyncRunner.kt").readText()
-        assertThat(constructorDependencyCount(automaticSyncSource, "AutomaticSyncRunner")).isAtMost(8)
+        // ProviderRepository handles live-order reconciliation after a successful scheduled refresh.
+        assertThat(constructorDependencyCount(automaticSyncSource, "AutomaticSyncRunner")).isAtMost(9)
 
         budgets.forEach { budget ->
             val source = repositoryRoot.resolve(budget.path).readText()
