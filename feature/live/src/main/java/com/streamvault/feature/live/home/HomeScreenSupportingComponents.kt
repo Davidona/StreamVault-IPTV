@@ -13,6 +13,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -47,7 +48,9 @@ fun HomeLoadingPane(
 fun HomePreviewHost(
     viewModel: HomeViewModel,
     channels: List<Channel>,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    hostsVideoExternally: Boolean = false,
+    onVideoSlotPositioned: ((LayoutCoordinates?) -> Unit)? = null
 ) {
     val previewUiState by viewModel.previewUiState.collectAsStateWithLifecycle()
     val previewChannel = remember(channels, previewUiState.previewChannelId) {
@@ -73,6 +76,8 @@ fun HomePreviewHost(
         playerEngine = previewUiState.previewPlayerEngine,
         isLoading = previewUiState.isPreviewLoading,
         errorMessage = previewUiState.previewErrorMessage,
-        modifier = modifier
+        modifier = modifier,
+        hostsVideoExternally = hostsVideoExternally,
+        onVideoSlotPositioned = onVideoSlotPositioned
     )
 }

@@ -238,6 +238,7 @@ class HomeViewModelTest {
             flowOf(com.streamvault.domain.model.PlaybackBufferMode.AUTO)
         )
         whenever(preferencesRepository.playerFastRetryOnTransientFailures).thenReturn(flowOf(false))
+        stubPreviewSubtitlePreferences()
         whenever(playerEngine.playbackState).thenReturn(
             MutableStateFlow(com.streamvault.player.PlaybackState.IDLE)
         )
@@ -279,6 +280,7 @@ class HomeViewModelTest {
             flowOf(com.streamvault.domain.model.PlaybackBufferMode.AUTO)
         )
         whenever(preferencesRepository.playerFastRetryOnTransientFailures).thenReturn(flowOf(false))
+        stubPreviewSubtitlePreferences()
         whenever(playerEngine.playbackState).thenReturn(
             MutableStateFlow(com.streamvault.player.PlaybackState.IDLE)
         )
@@ -320,6 +322,61 @@ class HomeViewModelTest {
             eq(LivePreviewOrigin.HOME)
         )
         assertThat(viewModel.previewUiState.value.previewChannelId).isEqualTo(channel.id)
+    }
+
+    @Test
+    fun `preview applies the subtitle setup before preparing the stream`() = runTest {
+        configurePreviewDependencies()
+        whenever(preferencesRepository.pinnedSubtitleLanguages).thenReturn(flowOf(listOf("en")))
+        val streamInfo = StreamInfo(url = "https://example.com/live.m3u8")
+        whenever(channelRepository.getStreamInfo(any(), any())).thenReturn(Result.Success(streamInfo))
+        whenever(pluginManager.prepare(any())).thenReturn(Result.Success(streamInfo))
+        viewModel = createViewModel()
+        advanceUntilIdle()
+
+        viewModel.previewChannel(Channel(id = 105L, name = "Subtitled", providerId = 7L))
+        advanceUntilIdle()
+
+        // Order matters: the engine only honours track preferences configured before prepare().
+        val inOrder = org.mockito.kotlin.inOrder(playerEngine)
+        inOrder.verify(playerEngine).setPinnedSubtitleLanguages(listOf("en"))
+        inOrder.verify(playerEngine).setVodTrackPreferences(null)
+        inOrder.verify(playerEngine).prepare(streamInfo)
+    }
+
+    @Test
+    fun `choosing a subtitle in inline fullscreen applies it to the preview`() = runTest {
+        configurePreviewDependencies()
+        val streamInfo = StreamInfo(url = "https://example.com/live.m3u8")
+        whenever(channelRepository.getStreamInfo(any(), any())).thenReturn(Result.Success(streamInfo))
+        whenever(pluginManager.prepare(any())).thenReturn(Result.Success(streamInfo))
+        whenever(playerEngine.availableSubtitleTracks).thenReturn(
+            MutableStateFlow(
+                listOf(
+                    com.streamvault.player.PlayerTrack(
+                        id = "text:0:1",
+                        name = "English",
+                        language = "en",
+                        type = com.streamvault.player.TrackType.TEXT,
+                        isSelected = false
+                    )
+                )
+            )
+        )
+        viewModel = createViewModel()
+        advanceUntilIdle()
+        viewModel.previewChannel(Channel(id = 106L, name = "Inline", providerId = 7L))
+        advanceUntilIdle()
+
+        viewModel.selectPreviewSubtitle("text:0:1")
+        advanceUntilIdle()
+
+        verify(playerEngine).selectSubtitleTrack("text:0:1")
+
+        viewModel.selectPreviewSubtitle(null)
+        advanceUntilIdle()
+
+        verify(playerEngine).selectSubtitleTrack(null)
     }
 
     @Test
@@ -470,10 +527,19 @@ class HomeViewModelTest {
             flowOf(com.streamvault.domain.model.PlaybackBufferMode.AUTO)
         )
         whenever(preferencesRepository.playerFastRetryOnTransientFailures).thenReturn(flowOf(false))
+        stubPreviewSubtitlePreferences()
         whenever(playerEngine.playbackState).thenReturn(MutableStateFlow(PlaybackState.IDLE))
         whenever(playerEngine.isPlaying).thenReturn(MutableStateFlow(false))
         whenever(playerEngine.playerStats).thenReturn(MutableStateFlow(com.streamvault.player.PlayerStats()))
         whenever(playerEngine.error).thenReturn(flowOf(null))
+    }
+
+    /** Subtitle settings the preview engine reads before prepare(). */
+    private fun stubPreviewSubtitlePreferences() {
+        whenever(preferencesRepository.pinnedSubtitleLanguages).thenReturn(flowOf(emptyList()))
+        whenever(preferencesRepository.playerSubtitleTextScale).thenReturn(flowOf(1f))
+        whenever(preferencesRepository.playerSubtitleTextColor).thenReturn(flowOf(0xFFFFFFFF.toInt()))
+        whenever(preferencesRepository.playerSubtitleBackgroundColor).thenReturn(flowOf(0x80000000.toInt()))
     }
 
     @Test

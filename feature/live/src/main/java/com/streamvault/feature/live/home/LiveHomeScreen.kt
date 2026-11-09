@@ -26,7 +26,15 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.foundation.focusGroup
 import androidx.compose.ui.input.key.*
 import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.layout.boundsInWindow
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInWindow
+import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.dp
+import kotlin.math.roundToInt
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.tv.material3.*
 import androidx.compose.material3.SnackbarHost
@@ -216,6 +224,86 @@ fun LiveHomeScreen(
         uiState.showRenameGroupDialog || uiState.selectedCategoryForOptions != null ||
         isReorderMode
 
+    // --- Inline fullscreen preview ------------------------------------------------------------
+    // The preview video is hosted once at the root of this screen (InlinePreviewVideoLayer) and is
+    // re-laid-out between the preview slot and fullscreen, so playback never stops or rebinds.
+    val previewUiState by viewModel.previewUiState.collectAsStateWithLifecycle()
+    val inlineFullscreenAvailable = INLINE_PREVIEW_FULLSCREEN_ENABLED && isProMode
+    var isPreviewFullscreen by remember { mutableStateOf(false) }
+    var inlineFullscreenExitNonce by remember { mutableIntStateOf(0) }
+    var rootOffsetInWindow by remember { mutableStateOf(Offset.Zero) }
+    var previewSlotInWindow by remember { mutableStateOf<Rect?>(null) }
+    // Must be stable: the preview pane keys a DisposableEffect on it.
+    val onPreviewSlotPositioned: (LayoutCoordinates?) -> Unit = remember {
+        { coordinates -> previewSlotInWindow = coordinates?.boundsInWindow() }
+    }
+    val previewSlotBounds: IntRect? = previewSlotInWindow?.let { slot ->
+        IntRect(
+            left = (slot.left - rootOffsetInWindow.x).roundToInt(),
+            top = (slot.top - rootOffsetInWindow.y).roundToInt(),
+            right = (slot.right - rootOffsetInWindow.x).roundToInt(),
+            bottom = (slot.bottom - rootOffsetInWindow.y).roundToInt()
+        )
+    }
+    val inlinePreviewChannel = remember(uiState.filteredChannels, previewUiState.previewChannelId) {
+        uiState.filteredChannels.firstOrNull { it.id == previewUiState.previewChannelId }
+    }
+
+    fun exitInlineFullscreen() {
+        if (!isPreviewFullscreen) return
+        isPreviewFullscreen = false
+        inlineFullscreenExitNonce++
+    }
+
+    fun zapInlinePreview(step: Int) {
+        val channels = uiState.filteredChannels
+        if (channels.isEmpty()) return
+        var index = channels.indexOfFirst { it.id == previewUiState.previewChannelId }.coerceAtLeast(0)
+        repeat(channels.size) {
+            index = (index + step).mod(channels.size)
+            val candidate = channels[index]
+            val locked = isLiveHomeChannelLocked(
+                channel = candidate,
+                categories = uiState.categories,
+                selectedCategory = uiState.selectedCategory,
+                parentalControlLevel = uiState.parentalControlLevel,
+                unlockedCategoryIds = uiState.unlockedCategoryIds
+            )
+            // Never auto-play a parental-locked channel; those still require the PIN flow.
+            if (!locked) {
+                viewModel.previewChannel(candidate)
+                return
+            }
+        }
+    }
+
+    fun openFullPlayerFromInline() {
+        val channel = inlinePreviewChannel ?: return
+        isPreviewFullscreen = false
+        if (!viewModel.beginPreviewHandoff(channel)) {
+            viewModel.clearPreview()
+        }
+        onChannelClick(
+            channel,
+            uiState.selectedCategory,
+            resolveProviderForChannel(channel),
+            (uiState.activeLiveSource as? ActiveLiveSource.CombinedM3uSource)?.profileId,
+            uiState.selectedCombinedSourceProviderId
+        )
+    }
+
+    val hasPreviewSlot = previewSlotInWindow != null
+    LaunchedEffect(inlineFullscreenAvailable, previewUiState.previewPlayerEngine, hasPreviewSlot) {
+        // Leave fullscreen if the preview (or the pane hosting its slot) goes away, e.g. the
+        // channel area is replaced by a loading state; otherwise the screen would be left unfocused.
+        if (isPreviewFullscreen &&
+            (!inlineFullscreenAvailable || previewUiState.previewPlayerEngine == null || !hasPreviewSlot)
+        ) {
+            exitInlineFullscreen()
+        }
+    }
+    // -------------------------------------------------------------------------------------------
+
     val orderEditorOpen = providerToReorderCategories != null || combinedProfileToReorderCategories != null ||
         providerCategoryToReorder != null
     BackHandler(enabled = hasOverlay && !orderEditorOpen) {
@@ -246,6 +334,12 @@ fun LiveHomeScreen(
 
     BackHandler(enabled = portrait && !isCategorySidebarHidden && !hasOverlay && !orderEditorOpen) {
         isCategorySidebarHidden = true
+    }
+
+    // Registered last so it wins while fullscreen. (The fullscreen layer also consumes the BACK key
+    // itself; this covers gesture/system back.)
+    BackHandler(enabled = isPreviewFullscreen) {
+        exitInlineFullscreen()
     }
 
     LaunchedEffect(uiState.liveTvAutoHideCategories, portrait) {
@@ -346,7 +440,11 @@ fun LiveHomeScreen(
             onDiscard = { showDiscardOrder = false; viewModel.exitChannelReorderMode() },
             onKeepEditing = { showDiscardOrder = false })
     }
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .onGloballyPositioned { rootOffsetInWindow = it.positionInWindow() }
+    ) {
         phoneOrderLaunch?.let { (providerId, categoryId) ->
             PhoneOrderingDialog(providerId, categoryId, onDismiss = { phoneOrderLaunch = null })
         }
@@ -475,6 +573,21 @@ fun LiveHomeScreen(
                 var pendingRestoreTarget by remember { mutableStateOf<FocusRestoreTarget?>(null) }
                 var focusRestoreNonce by rememberSaveable { mutableStateOf(0) }
                 var focusedRemoteShortcutTarget by remember { mutableStateOf<FocusedRemoteShortcutTarget?>(null) }
+                var channelRevealNonce by remember { mutableIntStateOf(0) }
+
+                // After leaving inline fullscreen, put focus back on the channel that is
+                // playing (which may differ from the one clicked if the user zapped).
+                LaunchedEffect(inlineFullscreenExitNonce) {
+                    if (inlineFullscreenExitNonce == 0) return@LaunchedEffect
+                    val targetChannelId = previewUiState.previewChannelId ?: lastFocusedChannelId
+                    if (targetChannelId != null) {
+                        lastFocusedChannelId = targetChannelId
+                        channelRevealNonce++
+                    }
+                    preferredRestoreTarget = FocusRestoreTarget.CHANNEL.name
+                    pendingRestoreTarget = FocusRestoreTarget.CHANNEL
+                    focusRestoreNonce++
+                }
 
                 fun requestChannelFocus(channelId: Long?): Boolean {
                     val resolvedChannelId = channelId ?: return false
@@ -1021,6 +1134,8 @@ fun LiveHomeScreen(
                                 onCancelMove = viewModel::cancelChannelReorderMove,
                                 onVisibleChannelWindowChanged = viewModel::updateVisibleChannelWindow,
                                 onLoadMore = viewModel::loadMoreChannels,
+                                revealChannelId = lastFocusedChannelId,
+                                revealNonce = channelRevealNonce,
                                 itemContent = { channel, channelFocusRequester, isDraggingThis ->
                                     val isLocked = isChannelLocked(channel)
                                     LiveChannelRowSurface(
@@ -1072,7 +1187,12 @@ fun LiveHomeScreen(
                                                     pendingUnlockChannel = channel
                                                     showPinDialog = true
                                                 } else if (isProMode) {
-                                                    if (viewModel.isPreviewing(channel.id)) {
+                                                    if (viewModel.isPreviewing(channel.id) &&
+                                                        inlineFullscreenAvailable && previewSlotBounds != null
+                                                    ) {
+                                                        // Expand in place; no handoff, no navigation.
+                                                        isPreviewFullscreen = true
+                                                    } else if (viewModel.isPreviewing(channel.id)) {
                                                         val handedOff = viewModel.beginPreviewHandoff(channel)
                                                         if (!handedOff) {
                                                             viewModel.clearPreview()
@@ -1131,7 +1251,9 @@ fun LiveHomeScreen(
                             channels = uiState.filteredChannels,
                             modifier = Modifier
                                 .weight(0.92f)
-                                .fillMaxHeight()
+                                .fillMaxHeight(),
+                            hostsVideoExternally = inlineFullscreenAvailable,
+                            onVideoSlotPositioned = if (inlineFullscreenAvailable) onPreviewSlotPositioned else null
                         )
                     }
                 }
@@ -1139,6 +1261,27 @@ fun LiveHomeScreen(
                 }
             }
         }
+        }
+
+        // The single, never-recreated preview video. Same composition slot in preview
+        // and fullscreen; only its placement changes.
+        val inlinePreviewEngine = previewUiState.previewPlayerEngine
+        if (inlineFullscreenAvailable && inlinePreviewEngine != null && previewSlotBounds != null &&
+            (previewUiState.previewErrorMessage == null || isPreviewFullscreen)
+        ) {
+            InlinePreviewVideoLayer(
+                playerEngine = inlinePreviewEngine,
+                slotBounds = previewSlotBounds,
+                isFullscreen = isPreviewFullscreen,
+                isLoading = previewUiState.isPreviewLoading,
+                errorMessage = previewUiState.previewErrorMessage,
+                channel = inlinePreviewChannel,
+                onExitFullscreen = ::exitInlineFullscreen,
+                onZap = ::zapInlinePreview,
+                onOpenFullPlayer = ::openFullPlayerFromInline,
+                onSelectSubtitle = viewModel::selectPreviewSubtitle,
+                modifier = Modifier.matchParentSize()
+            )
         }
 
         SnackbarHost(

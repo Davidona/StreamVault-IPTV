@@ -76,6 +76,7 @@ import com.streamvault.domain.usecase.UnlockParentalCategory
 import com.streamvault.domain.usecase.UnlockParentalCategoryCommand
 import com.streamvault.player.PlaybackState
 import com.streamvault.player.PlayerEngine
+import com.streamvault.player.PlayerSubtitleStyle
 import com.streamvault.feature.live.presentation.home.HomePreviewUiState
 import com.streamvault.feature.live.presentation.home.HomeUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -1152,6 +1153,7 @@ class HomeViewModel @Inject constructor(
                     engine.setFastRetryOnTransientFailures(
                         preferencesRepository.playerFastRetryOnTransientFailures.first()
                     )
+                    applyPreviewSubtitlePreferences(engine)
                     engine.prepare(preparedStreamInfo)
                     engine.setVolume(1f)
                     engine.play()
@@ -1180,6 +1182,33 @@ class HomeViewModel @Inject constructor(
                 Result.Loading -> Unit
             }
         }
+    }
+
+    /**
+     * Gives the preview engine the same subtitle setup the full player uses for live channels
+     * (pinned languages and caption style, no remembered track). Must run before prepare(): the
+     * engine consumes track preferences configured for the next prepare.
+     */
+    private suspend fun applyPreviewSubtitlePreferences(engine: PlayerEngine) {
+        engine.setPinnedSubtitleLanguages(preferencesRepository.pinnedSubtitleLanguages.first())
+        engine.setSubtitleStyle(
+            PlayerSubtitleStyle(
+                textScale = preferencesRepository.playerSubtitleTextScale.first(),
+                foregroundColorArgb = preferencesRepository.playerSubtitleTextColor.first(),
+                backgroundColorArgb = preferencesRepository.playerSubtitleBackgroundColor.first(),
+                useEmbeddedStyles = false
+            )
+        )
+        engine.setVodTrackPreferences(null)
+    }
+
+    /**
+     * Subtitle choice made from the inline fullscreen controls. Like a live subtitle choice in the
+     * full player, it applies to the current channel.
+     */
+    fun selectPreviewSubtitle(trackId: String?) {
+        val engine = previewPlayerEngine ?: return
+        engine.selectSubtitleTrack(trackId)
     }
 
     private fun scheduleAdaptivePreviewReprime(
