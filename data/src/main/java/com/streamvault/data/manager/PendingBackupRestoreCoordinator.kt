@@ -351,8 +351,11 @@ class PendingBackupRestoreCoordinator @Inject constructor(
         val resolvedMembers = backup.members.map { member ->
             member to (resolveContent(providerId, member.content) ?: return false)
         }
-        val matchingGroups = virtualGroupDao.getByType(providerId, backup.contentType.name).first()
-            .filter { it.name.normalized() == backup.name.normalized() }
+        val availableGroups = virtualGroupDao.getByType(providerId, backup.contentType.name).first()
+        val matchingGroups = backup.identityKey?.takeIf(String::isNotBlank)
+            ?.let { identity -> availableGroups.filter { it.identityKey == identity } }
+            ?.takeIf { it.isNotEmpty() }
+            ?: availableGroups.filter { it.name.normalized() == backup.name.normalized() }
         val groupId = when (matchingGroups.size) {
             0 -> virtualGroupDao.insert(
                 VirtualGroupEntity(
@@ -361,10 +364,17 @@ class PendingBackupRestoreCoordinator @Inject constructor(
                     iconEmoji = backup.icon,
                     position = backup.position,
                     createdAt = backup.createdAt,
-                    contentType = backup.contentType
+                    contentType = backup.contentType,
+                    identityKey = backup.identityKey?.takeIf(String::isNotBlank)
+                        ?: java.util.UUID.randomUUID().toString()
                 )
             )
-            1 -> matchingGroups.single().id
+            1 -> matchingGroups.single().let { group ->
+                backup.identityKey?.takeIf(String::isNotBlank)?.let { identity ->
+                    if (group.identityKey != identity) virtualGroupDao.updateIdentityKey(group.id, identity)
+                }
+                group.id
+            }
             else -> return false
         }
         resolvedMembers.forEach { (member, resolved) ->

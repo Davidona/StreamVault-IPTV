@@ -279,6 +279,25 @@ class ChannelRepositoryImplTest {
     }
 
     @Test
+    fun `unlocked presentation retains original category protection on variants`() = runTest {
+        whenever(channelDao.getByCategory(7L, 10L)).thenReturn(flowOf(listOf(
+            ChannelBrowseEntity(id = 1L, streamId = 101L, name = "News", categoryId = 10L,
+                streamUrl = "https://stream", providerId = 7L, isAdult = true, isUserProtected = true)
+        )))
+        whenever(preferencesRepository.parentalControlLevel).thenReturn(flowOf(1))
+        whenever(parentalControlManager.unlockedCategoriesForProvider(7L)).thenReturn(flowOf(setOf(10L)))
+
+        val channel = createRepository().getChannelsByCategory(7L, 10L).first().single()
+
+        assertThat(channel.isAdult).isFalse()
+        assertThat(channel.isUserProtected).isFalse()
+        assertThat(channel.variants).hasSize(1)
+        assertThat(channel.variants.single().categoryId).isEqualTo(10L)
+        assertThat(channel.variants.single().isAdult).isTrue()
+        assertThat(channel.variants.single().isUserProtected).isTrue()
+    }
+
+    @Test
     fun `getChannelsByCategory filters hash wrapped provider headers`() = runTest {
         whenever(channelDao.getByCategory(7L, 10L)).thenReturn(
             flowOf(

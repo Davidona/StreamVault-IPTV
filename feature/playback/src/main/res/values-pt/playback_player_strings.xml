@@ -133,6 +133,7 @@
     <string name="player_more_controls">Mais controles</string>
     <string name="player_multiview_short">Multivisualização</string>
     <string name="player_mute">Mudo</string>
+    <string name="player_more">Mais</string>
     <string name="player_muted_badge">Silenciado</string>
     <string name="player_next_label">Próximo:</string>
     <string name="player_no_guide_data">Sem dados de guia</string>
@@ -307,4 +308,9 @@
 <string name="player_trakt_sent">Enviado ao Trakt</string>
     <string name="player_trakt_badge">TRAKT</string>
     <string name="player_schedule_by_time">Programar por hora</string>     <string name="player_schedule_by_time_title">Programar gravaÃ§Ã£o</string>     <string name="player_schedule_by_time_start">InÃ­cio</string>     <string name="player_schedule_by_time_duration">DuraÃ§Ã£o</string>     <string name="player_schedule_by_time_repeat">Repetir</string>     <string name="player_schedule_by_time_once">Uma vez</string>     <string name="player_schedule_by_time_daily">Diariamente</string>     <string name="player_schedule_by_time_weekly">Semanalmente</string>     <string name="player_schedule_by_time_confirm">Programar</string>     <string name="player_schedule_by_time_cancel">Cancelar</string>     <string name="player_schedule_by_time_duration_hm">%1$d h %2$d min</string>     <string name="player_schedule_by_time_duration_h">%1$d h</string>     <string name="player_schedule_by_time_duration_m">%1$d min</string>     <string name="player_recording_needs_live_channel">A gravaÃ§Ã£o precisa de um canal em direto.</string>     <string name="player_recording_started_notice">GravaÃ§Ã£o iniciada para %1$s.</string>     <string name="player_recording_scheduled_notice">%1$s programado.</string>     <string name="player_recording_scheduled_daily_notice">%1$s programado diariamente.</string>     <string name="player_recording_scheduled_weekly_notice">%1$s programado semanalmente.</string>     <string name="player_recording_failed_notice">NÃ£o foi possÃ­vel programar a gravaÃ§Ã£o.</string>     <string name="player_recording_stopped_notice">GravaÃ§Ã£o parada.</string>
+    <string name="player_track_no_audio_tracks">Nenhuma faixa de áudio</string>
+    <string name="player_stremio_subtitles_heading">Legendas do Stremio</string>
+    <string name="player_stremio_subtitles_loading">Carregando legendas do complemento…</string>
+    <string name="player_stremio_subtitles_empty">Nenhuma legenda do complemento disponível</string>
+    <string name="player_stremio_subtitles_retry">Tentar carregar as legendas do complemento novamente</string>
 </resources>

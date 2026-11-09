@@ -18,6 +18,7 @@ import com.streamvault.domain.model.CategorySortMode
 import com.streamvault.domain.model.Channel
 import com.streamvault.domain.model.ChannelNumberingMode
 import com.streamvault.domain.model.ContentType
+import com.streamvault.domain.model.Favorite
 import com.streamvault.domain.model.PlaybackHistory
 import com.streamvault.domain.model.LegacyProvider as Provider
 import com.streamvault.domain.model.ProviderType
@@ -50,6 +51,7 @@ class HomeViewModelTest {
     private val providerRepository: ProviderRepository = mock()
     private val combinedM3uRepository: CombinedM3uRepository = mock()
     private val channelRepository: ChannelRepository = mock()
+    private val liveChannelOrderRepository: LiveChannelOrderRepository = mock()
     private val categoryRepository: CategoryRepository = mock()
     private val favoriteRepository: FavoriteRepository = mock()
     private val m3uClassificationRepository: M3uClassificationRepository = mock()
@@ -77,9 +79,16 @@ class HomeViewModelTest {
     @Before
     fun setup() {
         Dispatchers.setMain(testDispatcher)
+        whenever(preferencesRepository.getLiveCategoryOrder(any())).thenAnswer { call ->
+            val id = call.getArgument<Long>(0)
+            kotlinx.coroutines.flow.combine(preferencesRepository.getCategorySortMode(id, ContentType.LIVE), preferencesRepository.getPinnedCategoryIds(id, ContentType.LIVE)) { mode, pins ->
+                com.streamvault.domain.model.LiveCategoryOrder(sortMode = mode, pinnedCategoryIds = pins)
+            }
+        }
         whenever(application.getString(any())).thenReturn("test-message")
 
         // Mock default flows to prevent exceptions during init
+        whenever(liveChannelOrderRepository.observe(any())).thenReturn(flowOf(com.streamvault.domain.model.LiveChannelOrder()))
         whenever(providerRepository.getProviders()).thenReturn(flowOf(emptyList()))
         whenever(providerRepository.getActiveProvider()).thenReturn(flowOf(null))
         whenever(combinedM3uRepository.getActiveLiveSource()).thenReturn(flowOf(null))
@@ -87,6 +96,7 @@ class HomeViewModelTest {
         reverseHandoffOrigin = MutableStateFlow(null)
         whenever(livePreviewHandoffManager.reverseHandoffOrigin).thenReturn(reverseHandoffOrigin)
         whenever(multiViewStatusPort.status).thenReturn(flowOf(LiveMultiViewStatus()))
+        whenever(preferencesRepository.defaultLiveChannelOrder).thenReturn(flowOf(com.streamvault.domain.model.LiveChannelOrderMode.PROVIDER))
         whenever(preferencesRepository.parentalControlLevel).thenReturn(flowOf(0))
         whenever(favoriteRepository.getFavorites(any<Long>(), eq(ContentType.LIVE))).thenReturn(flowOf(emptyList()))
         whenever(favoriteRepository.getFavorites(any<List<Long>>(), eq(ContentType.LIVE))).thenReturn(flowOf(emptyList()))
@@ -135,13 +145,14 @@ class HomeViewModelTest {
         Dispatchers.resetMain()
     }
 
-    private fun createViewModel(): HomeViewModel =
+    private fun createViewModel(usage: com.streamvault.domain.repository.LiveWatchUsageRepository? = null): HomeViewModel =
         HomeViewModel(
             application = application,
             providerRepository = providerRepository,
             combinedM3uRepository = combinedM3uRepository,
             channelRepository = channelRepository,
             categoryRepository = categoryRepository,
+            liveChannelOrderRepository = liveChannelOrderRepository,
             favoriteRepository = favoriteRepository,
             m3uClassificationRepository = m3uClassificationRepository,
             preferencesRepository = preferencesRepository,
@@ -155,7 +166,8 @@ class HomeViewModelTest {
             multiViewStatusPort = multiViewStatusPort,
             livePreviewHandoffManager = livePreviewHandoffManager,
             pluginManager = pluginManager,
-            playerEngineProvider = playerEngineProvider
+            playerEngineProvider = playerEngineProvider,
+            liveWatchUsageRepository = usage
         ).also(createdViewModels::add)
 
     private fun clearViewModel(viewModel: HomeViewModel) {
@@ -493,6 +505,248 @@ class HomeViewModelTest {
         val state = viewModel.uiState.value
         assertThat(state.selectedCategory).isEqualTo(category)
         assertThat(state.isLoading).isFalse()
+    }
+
+    private suspend fun prepareProviderReorder(count: Int = 500): Pair<Category, List<Channel>> {
+        val provider = Provider(id = 71L, name = "Provider", type = ProviderType.M3U, serverUrl = "https://test", createdAt = 123)
+        val category = Category(id = 12L, name = "Sports")
+        val channels = (1..count).map { Channel(id = it.toLong(), providerId = provider.id, streamId = it.toLong(), name = "Channel $it") }
+        whenever(providerRepository.getActiveProvider()).thenReturn(flowOf(provider))
+        whenever(providerRepository.getProvider(provider.id)).thenReturn(provider)
+        whenever(channelRepository.getCategories(provider.id)).thenReturn(flowOf(listOf(category)))
+        whenever(preferencesRepository.defaultCategoryId).thenReturn(flowOf(category.id))
+        whenever(channelRepository.getChannelsByCategoryPage(eq(provider.id), eq(category.id), any())).thenReturn(flowOf(channels.take(200)))
+        whenever(channelRepository.getChannelsByCategory(provider.id, category.id)).thenReturn(flowOf(channels))
+        viewModel = createViewModel()
+        testDispatcher.scheduler.advanceUntilIdle()
+        return category to channels
+    }
+
+    @Test fun `combined live categories apply profile ordering and pinned sections`() = runTest {
+        val profile = com.streamvault.domain.model.CombinedM3uProfile(
+            id = 31L, identityKey = "combined-home-profile", name = "Family",
+            members = listOf(com.streamvault.domain.model.CombinedM3uProfileMember(
+                profileId = 31L, providerId = 7L, priority = 0
+            ))
+        )
+        val news = Category(id = com.streamvault.domain.model.CombinedCategoryIdentity.idForName("News"), name = "News")
+        val sports = Category(id = com.streamvault.domain.model.CombinedCategoryIdentity.idForName("Sports"), name = "Sports")
+        val saved = com.streamvault.domain.model.LiveCategoryOrder(
+            sortMode = CategorySortMode.MANUAL,
+            normalIds = listOf(news.id, sports.id),
+            pinnedIds = listOf(sports.id),
+            pinnedCategoryIds = setOf(sports.id)
+        )
+        whenever(combinedM3uRepository.getActiveLiveSource()).thenReturn(
+            flowOf(ActiveLiveSource.CombinedM3uSource(profile.id))
+        )
+        whenever(combinedM3uRepository.getProfile(profile.id)).thenReturn(profile)
+        whenever(combinedM3uRepository.getCombinedCategories(profile.id)).thenReturn(flowOf(listOf(
+            com.streamvault.domain.model.CombinedCategory(news, emptyList()),
+            com.streamvault.domain.model.CombinedCategory(sports, emptyList())
+        )))
+        whenever(preferencesRepository.getCombinedLiveCategoryOrder(profile.identityKey)).thenReturn(flowOf(saved))
+        whenever(favoriteRepository.getFavorites(listOf(7L), ContentType.LIVE)).thenReturn(flowOf(emptyList()))
+        viewModel = createViewModel()
+
+        advanceUntilIdle()
+
+        assertThat(viewModel.uiState.value.isCombinedLiveSource).isTrue()
+        assertThat(viewModel.uiState.value.pinnedCategoryIds).containsExactly(sports.id)
+        assertThat(viewModel.uiState.value.categories.map { it.id }.filter { it == news.id || it == sports.id })
+            .containsExactly(sports.id, news.id).inOrder()
+    }
+
+    @Test fun `provider reorder loads the entire category not the first browse page`() = runTest {
+        val (category, channels) = prepareProviderReorder()
+        assertThat(viewModel.uiState.value.filteredChannels).hasSize(200)
+        viewModel.enterChannelReorderMode(category)
+        advanceUntilIdle()
+        assertThat(viewModel.uiState.value.filteredChannels).hasSize(500)
+        viewModel.moveChannelUp(channels.last())
+        assertThat(viewModel.uiState.value.filteredChannels[498].id).isEqualTo(500L)
+        viewModel.exitChannelReorderMode()
+        advanceUntilIdle()
+        assertThat(viewModel.uiState.value.isChannelReorderMode).isFalse()
+        verify(liveChannelOrderRepository, never()).save(any(), any(), any())
+    }
+
+    @Test fun `unchanged provider reorder does not create a manual override`() = runTest {
+        val (category, _) = prepareProviderReorder()
+        viewModel.enterChannelReorderMode(category)
+        advanceUntilIdle()
+        viewModel.saveChannelReorder()
+        advanceUntilIdle()
+        verify(liveChannelOrderRepository, never()).save(any(), any(), any())
+        assertThat(viewModel.uiState.value.isChannelReorderMode).isFalse()
+    }
+
+    @Test fun `failed provider save keeps editable draft and original persistence`() = runTest {
+        val (category, channels) = prepareProviderReorder()
+        whenever(liveChannelOrderRepository.save(any(), any(), any())).thenThrow(IllegalStateException("disk unavailable"))
+        viewModel.enterChannelReorderMode(category)
+        advanceUntilIdle()
+        viewModel.moveChannelDown(channels.first())
+        viewModel.saveChannelReorder()
+        advanceUntilIdle()
+        assertThat(viewModel.uiState.value.isChannelReorderMode).isTrue()
+        assertThat(viewModel.uiState.value.isSavingChannelOrder).isFalse()
+        assertThat(viewModel.uiState.value.filteredChannels.first().id).isEqualTo(2L)
+    }
+
+    @Test fun `stale provider save reports conflict and does not close draft`() = runTest {
+        val (category, channels) = prepareProviderReorder()
+        whenever(liveChannelOrderRepository.save(any(), any(), any())).thenReturn(
+            LiveChannelOrderSaveResult.Conflict(com.streamvault.domain.model.LiveChannelOrder(revision = 2)))
+        viewModel.enterChannelReorderMode(category)
+        advanceUntilIdle()
+        viewModel.moveChannelDown(channels.first())
+        viewModel.saveChannelReorder()
+        advanceUntilIdle()
+        assertThat(viewModel.uiState.value.isChannelReorderMode).isTrue()
+        assertThat(viewModel.uiState.value.filteredChannels.first().id).isEqualTo(2L)
+        assertThat(viewModel.uiState.value.userMessage).isEqualTo("test-message")
+    }
+
+    @Test fun `direct position moves support large lists undo redo and canceled pickup`() = runTest {
+        val (category, channels) = prepareProviderReorder(2000)
+        viewModel.enterChannelReorderMode(category)
+        advanceUntilIdle()
+        viewModel.moveChannelToPosition(channels.last(), 1)
+        assertThat(viewModel.uiState.value.filteredChannels.first().id).isEqualTo(2000L)
+        viewModel.undoChannelReorder()
+        assertThat(viewModel.uiState.value.filteredChannels.first().id).isEqualTo(1L)
+        viewModel.redoChannelReorder()
+        assertThat(viewModel.uiState.value.filteredChannels.first().id).isEqualTo(2000L)
+        viewModel.beginChannelReorderMove()
+        viewModel.moveChannelDown(channels.last())
+        viewModel.cancelChannelReorderMove()
+        assertThat(viewModel.uiState.value.filteredChannels.first().id).isEqualTo(2000L)
+        assertThat(viewModel.uiState.value.canUndoChannelReorder).isTrue()
+    }
+
+    @Test fun `locked adult category cannot enter reorder through direct entry`() = runTest {
+        whenever(preferencesRepository.parentalControlLevel).thenReturn(flowOf(1))
+        val (category, _) = prepareProviderReorder()
+        viewModel.enterChannelReorderMode(category.copy(isAdult = true))
+        advanceUntilIdle()
+        assertThat(viewModel.uiState.value.isChannelReorderMode).isFalse()
+        verify(channelRepository, never()).getChannelsByCategory(any(), any())
+    }
+
+    @Test fun `successful provider save persists remote keys and reloads manual order`() = runTest {
+        val orders = MutableStateFlow(com.streamvault.domain.model.LiveChannelOrder())
+        whenever(liveChannelOrderRepository.observe(any())).thenReturn(orders)
+        whenever(liveChannelOrderRepository.save(any(), any(), any())).thenAnswer { invocation ->
+            val requested = invocation.getArgument<com.streamvault.domain.model.LiveChannelOrder>(2)
+            orders.value = requested.copy(revision = 1)
+            LiveChannelOrderSaveResult.Saved(orders.value)
+        }
+        val (category, channels) = prepareProviderReorder()
+        viewModel.enterChannelReorderMode(category)
+        advanceUntilIdle()
+        viewModel.moveChannelToPosition(channels.last(), 1)
+        viewModel.saveChannelReorder()
+        advanceUntilIdle()
+        assertThat(orders.value.manualKeys.first()).isEqualTo("stream:500")
+        assertThat(viewModel.uiState.value.isChannelReorderMode).isFalse()
+        assertThat(viewModel.uiState.value.filteredChannels.first().id).isEqualTo(500L)
+        verify(favoriteRepository, never()).reorderFavorites(any())
+    }
+
+    @Test fun `favorite reorder detects a concurrent phone save and retains the draft`() = runTest {
+        val (_, rows) = prepareProviderReorder(2)
+        val favorites = rows.mapIndexed { index, row -> Favorite(id = index + 1L, providerId = 71, contentId = row.id,
+            contentType = ContentType.LIVE, position = index * 1024, addedAt = index + 1L) }
+        val saved = com.streamvault.domain.model.LiveChannelOrder(revision = 4L)
+        whenever(liveChannelOrderRepository.observe(any())).thenReturn(flowOf(saved))
+        whenever(liveChannelOrderRepository.hasSavedOrder(any())).thenReturn(true)
+        whenever(liveChannelOrderRepository.save(any(), any(), any())).thenReturn(
+            LiveChannelOrderSaveResult.Conflict(saved.copy(revision = 5L))
+        )
+        whenever(favoriteRepository.getFavorites(71, ContentType.LIVE)).thenReturn(flowOf(favorites))
+        whenever(channelRepository.getChannelsByIds(listOf(1, 2))).thenReturn(flowOf(rows))
+        val category = Category(id = VirtualCategoryIds.FAVORITES, name = "Favorites", isVirtual = true)
+        viewModel.selectCategory(category)
+        advanceUntilIdle()
+        viewModel.enterChannelReorderMode(category)
+        advanceUntilIdle()
+        viewModel.moveChannelToPosition(rows.last(), 1)
+        viewModel.saveChannelReorder()
+        advanceUntilIdle()
+        assertThat(viewModel.uiState.value.isChannelReorderMode).isTrue()
+        assertThat(viewModel.uiState.value.filteredChannels.first().id).isEqualTo(2L)
+        assertThat(viewModel.uiState.value.userMessage).isEqualTo("test-message")
+        verify(liveChannelOrderRepository).save(any(), eq(4L), argThat {
+            mode == com.streamvault.domain.model.LiveChannelOrderMode.MANUAL &&
+                manualKeys.take(2) == listOf("stream:2", "stream:1")
+        })
+        verify(favoriteRepository, never()).reorderFavoritesIfUnchanged(any(), any(), anyOrNull(), any(), any())
+    }
+
+    @Test fun `use default keeps saved manual arrangement while restoring browse fallback`() = runTest {
+        val (category, _) = prepareProviderReorder()
+        val saved = com.streamvault.domain.model.LiveChannelOrder(com.streamvault.domain.model.LiveChannelOrderMode.MANUAL, listOf("stream:500"), revision = 3)
+        whenever(liveChannelOrderRepository.observe(any())).thenReturn(flowOf(saved))
+        whenever(liveChannelOrderRepository.save(any(), any(), any())).thenAnswer { invocation ->
+            LiveChannelOrderSaveResult.Saved(invocation.getArgument(2))
+        }
+        viewModel.useDefaultChannelOrder(category)
+        advanceUntilIdle()
+        val capture = argumentCaptor<com.streamvault.domain.model.LiveChannelOrder>()
+        verify(liveChannelOrderRepository).save(any(), eq(3), capture.capture())
+        assertThat(capture.firstValue.mode).isEqualTo(com.streamvault.domain.model.LiveChannelOrderMode.USE_DEFAULT)
+        assertThat(capture.firstValue.manualKeys).isEqualTo(saved.manualKeys)
+    }
+
+    @Test fun `inherited title sort is global before paging and explicit provider ignores default changes`() = runTest {
+        val defaultMode = MutableStateFlow(com.streamvault.domain.model.LiveChannelOrderMode.TITLE_DESC)
+        val order = MutableStateFlow(com.streamvault.domain.model.LiveChannelOrder())
+        whenever(preferencesRepository.defaultLiveChannelOrder).thenReturn(defaultMode)
+        whenever(liveChannelOrderRepository.observe(any())).thenReturn(order)
+        val (_, channels) = prepareProviderReorder(2000)
+        assertThat(viewModel.uiState.value.filteredChannels).hasSize(200)
+        assertThat(viewModel.uiState.value.filteredChannels.first().id).isEqualTo(999L)
+        defaultMode.value = com.streamvault.domain.model.LiveChannelOrderMode.TITLE_ASC
+        advanceUntilIdle()
+        assertThat(viewModel.uiState.value.filteredChannels.take(2).map { it.id }).containsExactly(1L, 10L).inOrder()
+        order.value = com.streamvault.domain.model.LiveChannelOrder(com.streamvault.domain.model.LiveChannelOrderMode.PROVIDER)
+        advanceUntilIdle()
+        assertThat(viewModel.uiState.value.filteredChannels).isEqualTo(channels.take(200))
+        defaultMode.value = com.streamvault.domain.model.LiveChannelOrderMode.TITLE_DESC
+        advanceUntilIdle()
+        assertThat(viewModel.uiState.value.filteredChannels).isEqualTo(channels.take(200))
+    }
+
+    @Test fun `usage sorting is global before paging and watch ticks do not move browsing rows`() = runTest {
+        val usage: com.streamvault.domain.repository.LiveWatchUsageRepository = mock()
+        val stats = MutableStateFlow(mapOf("stream:500" to com.streamvault.domain.model.LiveWatchUsage(100, 1000)))
+        val resets = MutableStateFlow(0L)
+        whenever(usage.observe(71)).thenReturn(stats)
+        whenever(usage.resetVersion).thenReturn(resets)
+        whenever(preferencesRepository.defaultLiveChannelOrder).thenReturn(flowOf(com.streamvault.domain.model.LiveChannelOrderMode.MOST_WATCHED))
+        prepareProviderReorder()
+        viewModel = createViewModel(usage)
+        advanceUntilIdle()
+        assertThat(viewModel.uiState.value.filteredChannels).hasSize(200)
+        assertThat(viewModel.uiState.value.filteredChannels.first().id).isEqualTo(500L)
+        stats.value = mapOf("stream:1" to com.streamvault.domain.model.LiveWatchUsage(200, 2000))
+        advanceUntilIdle()
+        assertThat(viewModel.uiState.value.filteredChannels.first().id).isEqualTo(500L)
+        resets.value++
+        advanceUntilIdle()
+        assertThat(viewModel.uiState.value.filteredChannels.first().id).isEqualTo(1L)
+    }
+
+    @Test fun `saved manual order is applied before browsing page limit`() = runTest {
+        val (_, channels) = prepareProviderReorder()
+        whenever(liveChannelOrderRepository.observe(any())).thenReturn(flowOf(
+            com.streamvault.domain.model.LiveChannelOrder(com.streamvault.domain.model.LiveChannelOrderMode.MANUAL,
+                listOf("stream:500") + channels.dropLast(1).map { "stream:${it.streamId}" }, revision = 1)))
+        viewModel = createViewModel()
+        advanceUntilIdle()
+        assertThat(viewModel.uiState.value.filteredChannels).hasSize(200)
+        assertThat(viewModel.uiState.value.filteredChannels.first().id).isEqualTo(500L)
     }
 
     @Test

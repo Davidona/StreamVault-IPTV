@@ -11,6 +11,8 @@ import com.streamvault.domain.playback.associateByAnyRawId
 import com.streamvault.domain.manager.ParentalControlManager
 import com.streamvault.domain.model.Category
 import com.streamvault.domain.model.Channel
+import com.streamvault.domain.model.LiveWatchSample
+import com.streamvault.domain.model.liveWatchTargetOrNull
 import com.streamvault.domain.model.Result
 import com.streamvault.domain.model.ProviderType
 import com.streamvault.domain.repository.ChannelRepository
@@ -69,6 +71,7 @@ class MultiViewViewModel @Inject constructor(
     private val slotErrorJobs = mutableMapOf<Int, kotlinx.coroutines.Job>()
     private val slotGenerations = mutableMapOf<Int, Long>()
     private var slotInitVersion: Long = 0L
+    private val liveUsageOwner = "multiview:${java.util.UUID.randomUUID()}"
     private var playbackSessionActive: Boolean = false
     private var currentProviderId: Long? = null
     private var lastPerformanceMode: MultiViewPerformanceMode? = null
@@ -181,6 +184,7 @@ class MultiViewViewModel @Inject constructor(
     }
 
     fun releasePlayersForBackground() {
+        reportLiveUsage(stop = true)
         playbackSessionActive = false
         telemetryJob?.cancel()
         telemetryJob = null
@@ -347,6 +351,7 @@ class MultiViewViewModel @Inject constructor(
 
     fun setFocus(slotIndex: Int) {
         if (_uiState.value.focusedSlotIndex != slotIndex) {
+            reportLiveUsage()
             _uiState.value = _uiState.value.copy(focusedSlotIndex = slotIndex)
             applyFocusAudio(slotIndex)
             showSelectionBorderTemporarily()
@@ -369,6 +374,7 @@ class MultiViewViewModel @Inject constructor(
         playerEngines.forEach { (index, engine) ->
             if (index == audibleIndex) engine.setVolume(1f) else engine.setVolume(0f)
         }
+        reportLiveUsage()
     }
 
     /** Assign a channel to a specific slot (0–3). Called from dialog or AddToGroupDialog. */
@@ -379,6 +385,7 @@ class MultiViewViewModel @Inject constructor(
 
     /** Clear a specific slot */
     fun clearSlot(slotIndex: Int) {
+        reportLiveUsage()
         slotStartupJobs.remove(slotIndex)?.cancel()
         slotErrorJobs.remove(slotIndex)?.cancel()
         slotGenerations[slotIndex] = (slotGenerations.getOrDefault(slotIndex, 0L) + 1L)
@@ -394,10 +401,12 @@ class MultiViewViewModel @Inject constructor(
             pinnedAudioSlotIndex = null
         }
         _uiState.value = _uiState.value.copy(pinnedAudioSlotIndex = pinnedAudioSlotIndex)
+        reportLiveUsage()
     }
 
     /** Clear all slots */
     fun clearAll() {
+        reportLiveUsage(stop = true)
         cancelSlotStartupJobs()
         multiViewManager.clearAll()
         pinnedAudioSlotIndex = null
@@ -418,6 +427,7 @@ class MultiViewViewModel @Inject constructor(
     fun pinAudioToFocusedSlot() {
         val focusedIndex = _uiState.value.focusedSlotIndex
         if (!playerEngines.containsKey(focusedIndex)) return  // Cannot pin audio to a slot without an active engine
+        reportLiveUsage()
         pinnedAudioSlotIndex = focusedIndex
         _uiState.value = _uiState.value.copy(
             pinnedAudioSlotIndex = pinnedAudioSlotIndex,
@@ -427,6 +437,7 @@ class MultiViewViewModel @Inject constructor(
     }
 
     fun clearPinnedAudio() {
+        reportLiveUsage()
         pinnedAudioSlotIndex = null
         _uiState.value = _uiState.value.copy(
             pinnedAudioSlotIndex = null,
@@ -503,6 +514,7 @@ class MultiViewViewModel @Inject constructor(
     }
 
     private fun releaseActivePlayers() {
+        reportLiveUsage(stop = true)
         cancelSlotStartupJobs()
         cancelSlotErrorJobs()
         playerEngines.values.forEach { engine ->
@@ -642,8 +654,9 @@ class MultiViewViewModel @Inject constructor(
     private fun observeSlotErrors(index: Int, engine: PlayerEngine, initVersion: Long) {
         slotErrorJobs.remove(index)?.cancel()
         slotErrorJobs[index] = viewModelScope.launch {
-            engine.error.collect { error ->
+            combine(engine.error, engine.isPlaying, engine.playbackState) { error, _, _ -> error }.collect { error ->
                 if (initVersion != slotInitVersion) return@collect
+                reportLiveUsage()
                 if (error != null) {
                     updateSlot(index) { current ->
                         current.copy(
@@ -723,10 +736,23 @@ class MultiViewViewModel @Inject constructor(
         )
     }
 
+    private fun reportLiveUsage(stop: Boolean = false) {
+        val state = _uiState.value
+        val index = pinnedAudioSlotIndex?.takeIf { it in playerEngines } ?: state.focusedSlotIndex
+        val engine = playerEngines[index]
+        val target = if (stop || !playbackSessionActive || engine == null) null
+            else state.slots.getOrNull(index)?.channel?.liveWatchTargetOrNull()
+        val playing = target != null && engine != null && engine.isPlaying.value &&
+            engine.playbackState.value == com.streamvault.player.PlaybackState.READY
+        playbackHistoryRepository.sampleLiveUsage(LiveWatchSample(liveUsageOwner, target, playing,
+            System.nanoTime() / 1_000_000, System.currentTimeMillis()))
+    }
+
     private fun startTelemetryMonitoring() {
         telemetryJob?.cancel()
         telemetryJob = viewModelScope.launch {
             while (isActive) {
+                reportLiveUsage()
                 evaluateTelemetry()
                 kotlinx.coroutines.delay(2_500)
             }

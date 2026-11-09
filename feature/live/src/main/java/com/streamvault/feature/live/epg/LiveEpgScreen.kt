@@ -179,6 +179,17 @@ fun LiveEpgScreen(
     var selectedProgram by remember { mutableStateOf<Pair<Channel, Program>?>(null) }
     var focusedChannel by remember { mutableStateOf<Channel?>(null) }
     var focusedProgram by remember { mutableStateOf<Program?>(null) }
+    var savedFocusedChannelId by rememberSaveable { mutableStateOf<Long?>(null) }
+    var savedFocusCategoryId by rememberSaveable { mutableStateOf<Long?>(null) }
+    var handledFocusRestoreGeneration by remember { mutableStateOf(0) }
+    val pendingFocusRestore = uiState.focusRestoreGeneration != handledFocusRestoreGeneration
+    LaunchedEffect(uiState.focusRestoreGeneration) {
+        if (uiState.focusRestoreGeneration != handledFocusRestoreGeneration) {
+            savedFocusedChannelId = uiState.previewChannelId
+            savedFocusCategoryId = uiState.selectedCategoryId
+            handledFocusRestoreGeneration = uiState.focusRestoreGeneration
+        }
+    }
     var topNavVisible by rememberSaveable { mutableStateOf(true) }
     var showCategoryPicker by rememberSaveable { mutableStateOf(false) }
     var showGuideOptions by rememberSaveable { mutableStateOf(false) }
@@ -421,6 +432,13 @@ fun LiveEpgScreen(
             isPreviewLoading = uiState.isPreviewLoading,
             focusedChannel = focusedChannel,
             focusedProgram = focusedProgram,
+            focusCategoryId = uiState.selectedCategoryId,
+            focusRestoreGeneration = uiState.focusRestoreGeneration,
+            initialFocusedChannelId = if (pendingFocusRestore) uiState.previewChannelId else
+                savedFocusedChannelId.takeIf { savedFocusCategoryId == uiState.selectedCategoryId },
+            hasMoreChannels = uiState.hasMoreChannels,
+            loadedChannelCount = uiState.loadedChannelCount,
+            isLoadingMoreChannels = uiState.isLoadingMoreChannels,
             labels = LiveGuideContentLabels(
                 loading = stringResource(R.string.epg_loading),
                 preview = LiveGuidePreviewLabels(
@@ -490,11 +508,15 @@ fun LiveEpgScreen(
             },
             onChannelFocused = { channel, currentProgram, isFirstRow ->
                 topNavVisible = isFirstRow
+                savedFocusedChannelId = channel.id
+                savedFocusCategoryId = uiState.selectedCategoryId
                 focusedChannel = channel
                 focusedProgram = currentProgram
             },
             onProgramFocused = { channel, program, isFirstRow ->
                 topNavVisible = isFirstRow
+                savedFocusedChannelId = channel.id
+                savedFocusCategoryId = uiState.selectedCategoryId
                 focusedChannel = channel
                 focusedProgram = program
             },

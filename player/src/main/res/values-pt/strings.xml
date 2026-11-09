@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="player_error_live_startup_timeout">Não foi possível iniciar a reprodução. Experimente outra transmissão.</string>
+    <string name="player_track_closed_captions">Legendas ocultas</string>
+    <string name="player_track_closed_captions_numbered">Legendas ocultas %1$d</string>
 </resources>

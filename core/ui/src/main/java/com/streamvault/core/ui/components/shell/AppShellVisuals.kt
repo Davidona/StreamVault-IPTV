@@ -8,6 +8,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -273,12 +274,14 @@ private fun TopNavigationBar(
     val focusRequesters = remember { mutableMapOf<String, FocusRequester>() }
 
     Surface(
-        modifier = modifier.focusProperties {
-            onEnter = {
-                val activeItem = findActiveDestination(destinations, currentDestinationId)
-                focusRequesters[activeItem?.id] ?: FocusRequester.Default
+        modifier = modifier
+            .focusProperties {
+                onEnter = {
+                    val activeItem = findActiveDestination(destinations, currentDestinationId)
+                    focusRequesters[activeItem?.id] ?: FocusRequester.Default
+                }
             }
-        },
+            .focusGroup(),
         shape = BrowseShapes.Panel,
         colors = SurfaceDefaults.colors(containerColor = BrowseColors.Surface.copy(alpha = 0.94f)),
         border = Border(BorderStroke(1.dp, BrowseColors.Outline), shape = BrowseShapes.Panel)

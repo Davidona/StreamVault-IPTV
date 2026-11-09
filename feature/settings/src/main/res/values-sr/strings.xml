@@ -967,4 +967,13 @@
     <string name="settings_text_size_default">Подразумевано (100%)</string>
     <string name="settings_text_size_system">Према уређају</string>
     <string name="settings_text_size_custom">Прилагођено</string>
+    <string name="settings_privacy_policy">Политика приватности</string>
+    <string name="settings_category_reorder_channels">Преуреди канале</string>
+    <string name="settings_category_sort_manual">Ручно</string>
+    <string name="settings_category_reorder_categories">Промени редослед категорија</string>
+    <string name="settings_default_live_channel_order">Подразумевани редослед канала</string>
+    <string name="settings_live_order_save_failed">Није могуће сачувати редослед канала. Покушајте поново.</string>
+    <string name="settings_live_order_recent">Недавно гледани</string>
+    <string name="settings_live_order_most">Најгледанији</string>
+    <string name="settings_live_order_usage_help">Гледање се рачуна после 10 секунди репродукције. Најгледанији сабира време репродукције у последњих 30 дана.</string>
 </resources>

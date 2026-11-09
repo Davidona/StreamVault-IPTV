@@ -62,6 +62,7 @@ internal class DatabaseStartupGate(
 @Singleton
 class DatabaseStartupCoordinator @Inject constructor(
     database: Lazy<StreamVaultDatabase>,
+    migrator: Lazy<com.streamvault.data.repository.LegacyCombinedIdentityMigrator>,
     @ApplicationContext context: Context
 ) {
     private val startupScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -69,6 +70,7 @@ class DatabaseStartupCoordinator @Inject constructor(
         openDatabase = {
             withContext(Dispatchers.IO) {
                 database.get().openHelper.writableDatabase
+                migrator.get().migrate()
             }
         },
         onFailure = { error ->

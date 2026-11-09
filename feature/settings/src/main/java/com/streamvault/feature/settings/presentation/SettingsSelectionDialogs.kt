@@ -67,7 +67,7 @@ public fun CategorySortModeDialog(
         subtitle = categoryTypeDescription(type, context),
         onDismiss = onDismiss,
     ) {
-        CategorySortMode.entries.forEach { mode ->
+        CategorySortMode.entries.filter { it != CategorySortMode.MANUAL || type == ContentType.LIVE }.forEach { mode ->
             SettingsChoiceOption(
                 label = formatCategorySortModeLabel(mode, context),
                 description = sortModeLabel(mode, context),

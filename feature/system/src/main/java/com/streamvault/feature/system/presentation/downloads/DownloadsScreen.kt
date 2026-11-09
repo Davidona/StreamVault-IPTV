@@ -145,6 +145,12 @@ internal fun DownloadsContent(
     val folderButtonFocus = remember { FocusRequester() }
     val gridState = rememberLazyListState()
     var deletingId by remember { mutableStateOf<String?>(null) }
+    LaunchedEffect(folderButtonFocus) {
+        folderButtonFocus.requestFocusSafely(
+            tag = "DownloadsScreen",
+            target = "Initial downloads content"
+        )
+    }
     LaunchedEffect(deletingId, uiState.downloads) {
         val id = deletingId ?: return@LaunchedEffect
         if (uiState.downloads.none { it.id == id }) {

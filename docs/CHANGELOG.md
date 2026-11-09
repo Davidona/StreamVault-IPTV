@@ -2,6 +2,43 @@
 
 All notable product changes are recorded in this document.
 
+## [1.2.5]
+
+### Added
+- Added Live TV category and channel ordering for individual providers and combined profiles, with manual arrangements, alphabetical sorting, and recently or most watched channels.
+- Added QR pairing to reorder and pin Live TV categories and arrange their channels from a phone, with multi-select, position controls, undo and redo.
+- Added backup and restore support for category and channel order, including safe migration of existing combined profiles.
+- Added a redesigned Live TV overlay for Android TV with channel and programme information, a single D-pad action row, and on-screen DVR controls for rewind, play/pause, forward and jump to live.
+- Added Live TV subtitle and audio side sheets on Android TV, including subtitle tracks, real-time translation, subtitle delay and loading subtitles from the device.
+- Added localized "Closed Captions" naming for in-band CEA-608/708 caption tracks, numbered when a stream has more than one.
+- Added per-channel M3U request headers from Kodi/Xtream-style `url|Referer=...&User-Agent=...` suffixes, plus playlist-level and per-entry `user-agent` attributes, so channels that require a Referer or custom User-Agent can open.
+- Added Stremio add-on subtitle and Cast request-header messages across all 38 advertised locales.
+
+### Changed
+- Automatic sync now runs during playback and recording by default; the existing setting can still defer it, and saved preferences are preserved.
+- Live TV subtitle, audio and delay menus now open in the same end-edge side sheet as More, and the overlay idle timer pauses while a side sheet is open.
+- Raised the default Live TV overlay timeout from 4 to 6 seconds.
+- Recording action labels now use higher-contrast text and TV-readable typography.
+- Refined Turkish localization for Android TV, including IPTV/EPG terminology, plural and percentage formatting, and shorter labels for TV layouts.
+
+### Fixed
+- Fixed low-memory VOD playback ignoring explicit MEDIUM or LARGE buffer duration preferences; AUTO keeps its conservative low-memory policy.
+- Fixed manual Stalker and Xtream movie and series sync resuming an unfinished scan without revisiting already scanned categories; manual refresh now starts a new scan and reloads categories.
+- Fixed Xtream EPG indexing getting stuck after an interrupted sync by recovering orphaned workflow phases and persisting the result of forced EPG retries.
+- Improved Stremio account sync for large libraries by processing imports in batches, preserving partial progress for retries, and adding privacy-safe failure diagnostics. Failed syncs no longer update the last successful sync time.
+- Fixed Live TV overlay focus and Back handling on Android TV: Back and Info close an open tray before the overlay, focus returns to the pill that opened it, and focus no longer resets when buffering changes the track lists.
+- Fixed the Live TV side-sheet channel line reordering in right-to-left languages, and added a localized empty state when the audio sheet has no tracks.
+- Fixed downloads remaining pending indefinitely after repeated temporary failures; the final retry can now run and report a failure if it does not succeed.
+- Fixed the TV Guide showing no channels or stopping early when hidden categories occur before visible channels; guide controls now remain available in the empty state.
+- Fixed TV D-pad navigation getting trapped in Search, Guide category filter, and Category Controls fields; arrow keys now move the cursor within text and move focus to adjacent controls at text boundaries.
+- Fixed TV Guide focus returning to the first channel after leaving full-screen playback or loading more channels; the guide now restores the playing channel and keeps focus while paging.
+- Fixed TS and HLS recordings ending before their scheduled stop being reported as complete; early stream ends are retried and failed captures retain non-empty partial output for playback.
+- Fixed recording stop and foreground-timeout races overwriting terminal status, and made saved partial recordings playable from the recording browser.
+- Fixed Xtream live recordings being classified from stale container metadata instead of the resolved stream URL, which could select the HLS recorder for an MPEG-TS stream and leave a zero-byte recording.
+- Fixed downloaded external subtitles not being recognized or auto-selected when Media3 prefixes their track IDs during source merging.
+- Fixed TV focus jumping to Home when opening Downloads or switching Series and Movies to Saved/full-library browsing; focus now returns to screen content, with the active tab as a fallback.
+- Fixed M3U entries that pass request headers as Kodi/Xtream-style `url|Referer=...&User-Agent=...` suffixes being rejected during import instead of applied at playback.
+
 ## [1.2.4]
 
 ### Added

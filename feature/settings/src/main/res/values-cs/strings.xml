@@ -972,4 +972,13 @@
     <string name="settings_text_size_default">Výchozí (100%)</string>
     <string name="settings_text_size_system">Podle zařízení</string>
     <string name="settings_text_size_custom">Vlastní</string>
+    <string name="settings_privacy_policy">Zásady ochrany osobních údajů</string>
+    <string name="settings_category_reorder_channels">Uspořádat kanály</string>
+    <string name="settings_category_sort_manual">Ručně</string>
+    <string name="settings_category_reorder_categories">Změnit pořadí kategorií</string>
+    <string name="settings_default_live_channel_order">Výchozí pořadí kanálů</string>
+    <string name="settings_live_order_save_failed">Pořadí kanálů se nepodařilo uložit. Zkuste to znovu.</string>
+    <string name="settings_live_order_recent">Nedávno sledované</string>
+    <string name="settings_live_order_most">Nejsledovanější</string>
+    <string name="settings_live_order_usage_help">Sledování se započítá po 10 sekundách přehrávání. Nejsledovanější sčítá dobu přehrávání za posledních 30 dní.</string>
 </resources>

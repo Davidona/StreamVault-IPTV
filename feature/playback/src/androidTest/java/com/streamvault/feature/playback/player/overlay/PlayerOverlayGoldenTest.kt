@@ -7,12 +7,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTopPositionInRootIsEqualTo
 import androidx.compose.ui.test.assertLeftPositionInRootIsEqualTo
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -21,6 +24,7 @@ import com.streamvault.core.ui.theme.StreamVaultTheme
 import com.streamvault.domain.model.Channel
 import com.streamvault.player.PlayerError
 import com.streamvault.player.TrackType
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import org.junit.Rule
 import org.junit.Test
@@ -87,6 +91,15 @@ class PlayerOverlayGoldenTest {
 
     @Test
     fun channelInfoOverlay_placesBackButtonAtTopLeft() {
+        assertChannelInfoBackButtonPlacement(isTelevision = false, expectedTop = 24.dp, expectedStart = 24.dp)
+    }
+
+    @Test
+    fun channelInfoOverlay_placesBackButtonInTvSafeArea() {
+        assertChannelInfoBackButtonPlacement(isTelevision = true, expectedTop = 27.dp, expectedStart = 48.dp)
+    }
+
+    private fun assertChannelInfoBackButtonPlacement(isTelevision: Boolean, expectedTop: Dp, expectedStart: Dp) {
         var backButtonClicks = 0
         composeRule.setContent {
             StreamVaultTheme {
@@ -119,7 +132,8 @@ class PlayerOverlayGoldenTest {
                     currentAspectRatio = "Original",
                     isDiagnosticsEnabled = false,
                     showBackButton = true,
-                    onBackToMenu = { backButtonClicks++ }
+                    onBackToMenu = { backButtonClicks++ },
+                    isTelevision = isTelevision
                 )
             }
         }
@@ -127,10 +141,55 @@ class PlayerOverlayGoldenTest {
         composeRule.onNodeWithContentDescription("Back to menu")
             .assertIsDisplayed()
             .assertHasClickAction()
-            .assertTopPositionInRootIsEqualTo(24.dp)
-            .assertLeftPositionInRootIsEqualTo(24.dp)
+            .assertTopPositionInRootIsEqualTo(expectedTop)
+            .assertLeftPositionInRootIsEqualTo(expectedStart)
             .performSemanticsAction(SemanticsActions.OnClick)
         assertThat(backButtonClicks).isEqualTo(1)
+    }
+
+    @Test
+    fun tvChannelInfoOverlay_moreSheetKeepsNumberAndNameAsSeparateNodes() {
+        val channelName = "News"
+        composeRule.setContent {
+            StreamVaultTheme {
+                ChannelInfoOverlay(
+                    currentChannel = Channel(id = 4L, name = channelName, number = 4),
+                    displayChannelNumber = 4,
+                    currentProgram = null,
+                    nextProgram = null,
+                    focusRequester = remember { FocusRequester() },
+                    lastVisitedCategoryName = null,
+                    onDismiss = {},
+                    onOverlayInteracted = {},
+                    onOpenFullEpg = {},
+                    onOpenLastGroup = {},
+                    currentRecordingStatus = null,
+                    onStartRecording = {},
+                    onStopRecording = {},
+                    onScheduleRecording = {},
+                    onScheduleDailyRecording = {},
+                    onScheduleWeeklyRecording = {},
+                    onRestartProgram = {},
+                    onOpenArchive = {},
+                    onToggleAspectRatio = {},
+                    onToggleDiagnostics = {},
+                    onTogglePlayPause = {},
+                    onSeekBackward = {},
+                    onSeekForward = {},
+                    onSeekToLiveEdge = {},
+                    isPlaying = true,
+                    currentAspectRatio = "Original",
+                    isDiagnosticsEnabled = false,
+                    isTelevision = true
+                )
+            }
+        }
+
+        composeRule.onNodeWithContentDescription("More").performClick()
+
+        // One node in the programme info, one in the More sheet header; a joined string would be one.
+        composeRule.onAllNodesWithText(channelName).assertCountEquals(2)
+        composeRule.onAllNodesWithText("4").assertCountEquals(2)
     }
 
     @Test

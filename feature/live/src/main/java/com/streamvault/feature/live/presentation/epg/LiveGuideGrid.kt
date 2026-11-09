@@ -15,7 +15,10 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.unit.dp
@@ -47,6 +50,10 @@ fun LiveGuideGrid(
     labels: LiveGuideGridLabels,
     transparentOverlay: Boolean = false,
     initialFocusedChannelId: Long? = null,
+    hasMoreChannels: Boolean = false,
+    loadedChannelCount: Int = channels.size,
+    isLoadingMoreChannels: Boolean = false,
+    focusReady: Boolean = true,
     onChannelClick: (Channel) -> Unit,
     onChannelLongClick: ((Channel, Program?) -> Unit)? = null,
     onProgramClick: (Channel, Program) -> Unit,
@@ -64,17 +71,22 @@ fun LiveGuideGrid(
     }
     val horizontalScrollState = rememberScrollState()
     val verticalListState = rememberLazyListState()
-    val resolvedInitialChannelId = initialFocusedChannelId ?: channels.firstOrNull()?.id
-    val initialFocusRequester = remember(resolvedInitialChannelId) { FocusRequester() }
-    val initialFocusIndex = remember(channels, resolvedInitialChannelId) {
-        liveGuideInitialFocusIndex(channels, resolvedInitialChannelId)
-    }
+    val requestedChannelId = remember { initialFocusedChannelId }
+    var initialFocusApplied by remember { mutableStateOf(false) }
+    val initialFocusIndex = liveGuideInitialFocusIndex(channels, requestedChannelId)
+    val resolvedInitialChannelId = channels.getOrNull(initialFocusIndex)?.id
+    val initialFocusRequester = remember { FocusRequester() }
 
-    LaunchedEffect(channels.size, resolvedInitialChannelId) {
-        if (channels.isEmpty()) return@LaunchedEffect
+    LaunchedEffect(channels, loadedChannelCount, hasMoreChannels, isLoadingMoreChannels, focusReady, initialFocusApplied) {
+        if (initialFocusApplied || !focusReady || isLoadingMoreChannels || channels.isEmpty()) return@LaunchedEffect
+        if (requestedChannelId != null && channels.none { it.id == requestedChannelId } && hasMoreChannels) {
+            onRequestMoreChannels()
+            return@LaunchedEffect
+        }
         verticalListState.scrollToItem((initialFocusIndex - 2).coerceAtLeast(0))
         delay(140)
         initialFocusRequester.requestFocus()
+        initialFocusApplied = true
     }
 
     BoxWithConstraints(
@@ -116,7 +128,9 @@ fun LiveGuideGrid(
                     contentType = { _, _ -> "epg_channel" }
                 ) { index, channel ->
                     if (index >= channels.size - 15) {
-                        LaunchedEffect(channels.size) { onRequestMoreChannels() }
+                        LaunchedEffect(channels.size, loadedChannelCount, isLoadingMoreChannels, hasMoreChannels) {
+                            if (hasMoreChannels && !isLoadingMoreChannels) onRequestMoreChannels()
+                        }
                     }
                     val programs = channel.guideLookupKey()?.let { lookupKey ->
                         programsByChannel[lookupKey].orEmpty()

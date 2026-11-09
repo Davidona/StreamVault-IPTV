@@ -133,6 +133,7 @@
     <string name="player_more_controls">Plus de contrôles</string>
     <string name="player_multiview_short">Multivue</string>
     <string name="player_mute">Muet</string>
+    <string name="player_more">Plus</string>
     <string name="player_muted_badge">En sourdine</string>
     <string name="player_next_label">Suivant :</string>
     <string name="player_no_guide_data">Aucune donnée de guidage</string>
@@ -307,4 +308,9 @@
 <string name="player_trakt_sent">Envoyé à Trakt</string>
     <string name="player_trakt_badge">TRAKT</string>
     <string name="player_schedule_by_time">Programmer par heure</string>     <string name="player_schedule_by_time_title">Programmer l\'enregistrement</string>     <string name="player_schedule_by_time_start">DÃ©but</string>     <string name="player_schedule_by_time_duration">DurÃ©e</string>     <string name="player_schedule_by_time_repeat">RÃ©pÃ©ter</string>     <string name="player_schedule_by_time_once">Une fois</string>     <string name="player_schedule_by_time_daily">Quotidien</string>     <string name="player_schedule_by_time_weekly">Hebdomadaire</string>     <string name="player_schedule_by_time_confirm">Programmer</string>     <string name="player_schedule_by_time_cancel">Annuler</string>     <string name="player_schedule_by_time_duration_hm">%1$d h %2$d min</string>     <string name="player_schedule_by_time_duration_h">%1$d h</string>     <string name="player_schedule_by_time_duration_m">%1$d min</string>     <string name="player_recording_needs_live_channel">L\'enregistrement nÃ©cessite une chaÃ®ne en direct.</string>     <string name="player_recording_started_notice">Enregistrement dÃ©marrÃ© pour %1$s.</string>     <string name="player_recording_scheduled_notice">%1$s programmÃ©.</string>     <string name="player_recording_scheduled_daily_notice">%1$s programmÃ© quotidiennement.</string>     <string name="player_recording_scheduled_weekly_notice">%1$s programmÃ© chaque semaine.</string>     <string name="player_recording_failed_notice">Impossible de programmer l\'enregistrement.</string>     <string name="player_recording_stopped_notice">Enregistrement arrÃªtÃ©.</string>
+    <string name="player_track_no_audio_tracks">Aucune piste audio</string>
+    <string name="player_stremio_subtitles_heading">Sous-titres Stremio</string>
+    <string name="player_stremio_subtitles_loading">Chargement des sous-titres du module complémentaire…</string>
+    <string name="player_stremio_subtitles_empty">Aucun sous-titre disponible pour le module complémentaire</string>
+    <string name="player_stremio_subtitles_retry">Réessayer les sous-titres du module complémentaire</string>
 </resources>

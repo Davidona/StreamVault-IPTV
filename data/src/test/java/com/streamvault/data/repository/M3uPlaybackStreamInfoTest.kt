@@ -1,6 +1,7 @@
 package com.streamvault.data.repository
 
 import com.google.common.truth.Truth.assertThat
+import com.streamvault.data.parser.M3uParser
 import com.streamvault.data.parser.M3uPlaybackMetadataBuilder
 import com.streamvault.data.parser.M3uPlaybackMetadataCodec
 import com.streamvault.domain.model.DrmScheme
@@ -9,6 +10,23 @@ import com.streamvault.domain.model.StreamType
 import org.junit.Test
 
 class M3uPlaybackStreamInfoTest {
+
+    @Test
+    fun `pipe headers on a parsed entry reach the resolved stream`() {
+        val playlist = """
+            #EXTM3U
+            #EXTINF:-1 group-title="News",CNN Brasil FHD
+            https://stream.example/cnn/index.m3u8|Referer=https://embed.example/&User-Agent=Mozilla/5.0 Chrome/126.0
+        """.trimIndent()
+
+        val entry = M3uParser().parse(playlist.byteInputStream()).entries.single()
+        val result = StreamInfo(url = entry.url)
+            .withM3uPlaybackMetadata(M3uPlaybackMetadataCodec.encode(entry.playbackMetadata!!))
+
+        assertThat(result.url).isEqualTo("https://stream.example/cnn/index.m3u8")
+        assertThat(result.headers["Referer"]).isEqualTo("https://embed.example/")
+        assertThat(result.userAgent).isEqualTo("Mozilla/5.0 Chrome/126.0")
+    }
 
     @Test
     fun `remote license metadata enriches resolved stream`() {

@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="player_error_live_startup_timeout">Reprodukcija se nije mogla pokrenuti. Pokušajte s drugim prijenosom.</string>
+    <string name="player_track_closed_captions">Skriveni titlovi</string>
+    <string name="player_track_closed_captions_numbered">Skriveni titlovi %1$d</string>
 </resources>

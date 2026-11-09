@@ -26,6 +26,10 @@ internal class DownloadTransferStateMachine(
         require(maxRetries >= 0) { "maxRetries must be non-negative" }
     }
 
+    fun canStartQueued(status: DownloadStatus, retryCount: Int): Boolean =
+        (status == DownloadStatus.PENDING || (status == DownloadStatus.PAUSED && retryCount == 0)) &&
+            retryCount <= maxRetries
+
     fun failure(
         currentRetryCount: Int,
         kind: DownloadFailureKind,

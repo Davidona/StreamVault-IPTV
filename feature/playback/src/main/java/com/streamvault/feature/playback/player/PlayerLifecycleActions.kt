@@ -243,6 +243,7 @@ internal fun PlayerViewModel.startTokenRenewalMonitoring(
 
 fun PlayerViewModel.onAppBackgrounded(): Job? {
     if (!isAppInForeground) return null
+    reportLiveUsage(stop = true)
     isAppInForeground = false
     shouldResumeAfterForeground = playerEngine.isPlaying.value
     if (shouldResumeAfterForeground) {
@@ -252,6 +253,7 @@ fun PlayerViewModel.onAppBackgrounded(): Job? {
 }
 
 fun PlayerViewModel.onAppForegrounded() {
+    isLiveUsageScreenActive = true
     if (isAppInForeground) return
     isAppInForeground = true
     if (shouldResumeAfterForeground && !resumePrompt.value.show) {
@@ -261,12 +263,15 @@ fun PlayerViewModel.onAppForegrounded() {
 }
 
 fun PlayerViewModel.onPlayerScreenDisposed(): Job? {
+    reportLiveUsage(stop = true)
+    isLiveUsageScreenActive = false
     val progressFlush = queueForcedProgressFlush()
     episodeSourceState.reset(prepareRequestVersion)
     clearPreloadWindow()
     playerPlaybackContextCoordinator.clearSelectedCatchUpProgram()
     playerEngine.stopLiveTimeshift()
     stopLiveTranslationSession()
+    liveOverlayAutoHidePaused = false
     clearPlaybackTimers()
     // The screen is gone, even when navigation kept the ViewModelStore alive. Cancel any
     // in-flight preparation before it can finish and start playback in the background, and

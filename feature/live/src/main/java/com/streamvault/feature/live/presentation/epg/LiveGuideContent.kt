@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.key
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -68,6 +69,12 @@ fun LiveGuideContent(
     isPreviewLoading: Boolean,
     focusedChannel: Channel?,
     focusedProgram: Program?,
+    focusCategoryId: Long,
+    focusRestoreGeneration: Int,
+    initialFocusedChannelId: Long?,
+    hasMoreChannels: Boolean,
+    loadedChannelCount: Int,
+    isLoadingMoreChannels: Boolean,
     labels: LiveGuideContentLabels,
     onOpenCategoryPicker: () -> Unit,
     onJumpToNow: () -> Unit,
@@ -100,6 +107,16 @@ fun LiveGuideContent(
 
             LiveGuideContentMode.MESSAGE -> {
                 val message = requireNotNull(contentMessage)
+                LiveGuideToolbarRow(
+                    selectedCategoryName = selectedCategoryName,
+                    labels = labels.toolbar,
+                    onOpenCategoryPicker = onOpenCategoryPicker,
+                    onJumpToNow = onJumpToNow,
+                    onOpenSearch = onOpenSearch,
+                    onOpenOptions = onOpenOptions,
+                    onGuideInteract = onGuideInteract,
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 14.dp)
+                )
                 LiveGuideMessageState(
                     modifier = Modifier.weight(1f),
                     title = message.title,
@@ -145,24 +162,31 @@ fun LiveGuideContent(
                     )
                 }
                 LiveGuideNowProvider {
-                    LiveGuideGrid(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .weight(1f),
-                        channels = channels,
-                        favoriteChannelIds = favoriteChannelIds,
-                        programsByChannel = programsByChannel,
-                        guideWindowStart = guideWindowStart,
-                        guideWindowEnd = guideWindowEnd,
-                        density = density,
-                        labels = labels.grid,
-                        onChannelClick = onChannelClick,
-                        onChannelLongClick = onChannelLongClick,
-                        onProgramClick = onProgramClick,
-                        onChannelFocused = onChannelFocused,
-                        onProgramFocused = onProgramFocused,
-                        onRequestMoreChannels = onRequestMoreChannels
-                    )
+                    key(focusCategoryId, focusRestoreGeneration) {
+                        LiveGuideGrid(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .weight(1f),
+                            channels = channels,
+                            favoriteChannelIds = favoriteChannelIds,
+                            programsByChannel = programsByChannel,
+                            guideWindowStart = guideWindowStart,
+                            guideWindowEnd = guideWindowEnd,
+                            density = density,
+                            labels = labels.grid,
+                            initialFocusedChannelId = initialFocusedChannelId,
+                            hasMoreChannels = hasMoreChannels,
+                            loadedChannelCount = loadedChannelCount,
+                            isLoadingMoreChannels = isLoadingMoreChannels,
+                            focusReady = !isRefreshing,
+                            onChannelClick = onChannelClick,
+                            onChannelLongClick = onChannelLongClick,
+                            onProgramClick = onProgramClick,
+                            onChannelFocused = onChannelFocused,
+                            onProgramFocused = onProgramFocused,
+                            onRequestMoreChannels = onRequestMoreChannels
+                        )
+                    }
                 }
             }
         }

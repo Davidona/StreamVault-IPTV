@@ -74,6 +74,7 @@ import com.streamvault.domain.model.LiveStreamFormatMode
 import com.streamvault.domain.model.XtreamConfig
 import com.streamvault.domain.model.SyncMetadata
 import com.streamvault.domain.repository.SyncMetadataRepository
+import com.streamvault.domain.repository.LiveChannelOrderRepository
 import com.streamvault.domain.repository.ProviderSetupRequest
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.flow.flowOf
@@ -81,7 +82,9 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.anyOrNull
+import org.mockito.kotlin.argThat
 import org.mockito.kotlin.doAnswer
+import org.mockito.kotlin.clearInvocations
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.inOrder
 import org.mockito.kotlin.mock
@@ -118,6 +121,7 @@ class ProviderRepositoryImplTest {
     private val providerConfigRevisionDao: ProviderConfigRevisionDao = mock()
     private val providerWorkflowRunner: ProviderWorkflowRunner = mock()
     private val providerCapabilityResolver: ProviderCapabilityResolver = mock()
+    private val liveChannelOrderRepository: LiveChannelOrderRepository = mock()
     private val stalkerRemoteIdentityResolver: StalkerRemoteIdentityResolver = mock()
     private val stalkerPortalStateStore: StalkerPortalStateStore = mock()
     private val typedProviderClientFactory = TypedProviderClientFactory(
@@ -135,7 +139,9 @@ class ProviderRepositoryImplTest {
     }
 
     private fun createRepository(
-        transactionRunner: DatabaseTransactionRunner = this.transactionRunner
+        transactionRunner: DatabaseTransactionRunner = this.transactionRunner,
+        combinedProfiles: com.streamvault.data.local.dao.CombinedM3uProfileDao? = null,
+        combinedMembers: com.streamvault.data.local.dao.CombinedM3uProfileMemberDao? = null
     ) = ProviderRepositoryImpl(
         providerDao = providerDao,
         providerSnapshotDao = providerSnapshotDao,
@@ -168,6 +174,9 @@ class ProviderRepositoryImplTest {
         providerWorkflowCommitFence = ProviderWorkflowCommitFence(),
         providerCapabilityResolver = providerCapabilityResolver,
         typedProviderClientFactory = typedProviderClientFactory,
+        liveChannelOrderRepository = liveChannelOrderRepository,
+        combinedProfileDao = combinedProfiles,
+        combinedMemberDao = combinedMembers,
         appContext = appContext
     )
 
@@ -417,7 +426,8 @@ class ProviderRepositoryImplTest {
             ProviderDeletionCleanupWorker.RECORDING_ALARM,
             ProviderDeletionCleanupWorker.REMINDER_ALARM,
             ProviderDeletionCleanupWorker.REMINDER_ALARM,
-            ProviderDeletionCleanupWorker.SYNC_RUNTIME
+            ProviderDeletionCleanupWorker.SYNC_RUNTIME,
+            ProviderDeletionCleanupWorker.LIVE_USAGE
         ).inOrder()
         verify(programDao).deleteByProvider(7L)
         verify(providerDao).delete(7L)
@@ -629,6 +639,91 @@ class ProviderRepositoryImplTest {
         assertThat(updatedProvider.firstValue.lastSyncedAt).isGreaterThan(0L)
         verify(syncManager).scheduleProviderSyncResume(9L)
         verify(providerDao, never()).setActive(9L)
+        verify(liveChannelOrderRepository, never()).reconcileCompleteCatalog(any(), any())
+    }
+
+    @Test
+    fun `refreshProviderData reconciles order only after a successful complete catalog`() = runTest {
+        val provider = Provider(
+            id = 9L,
+            name = "Xtream",
+            type = ProviderType.XTREAM_CODES,
+            serverUrl = "https://example.com",
+            username = "user"
+        )
+        whenever(providerDao.getById(9L)).thenReturn(provider.toEntity())
+        whenever(providerCapabilityResolver.snapshot(9L)).thenReturn(provider.toProviderSnapshot())
+        whenever(syncManager.sync(9L, false, null, null, null)).thenReturn(Result.success(Unit))
+        whenever(syncManager.currentSyncState(9L)).thenReturn(SyncState.Success(123L))
+        whenever(channelDao.getCount(9L)).thenReturn(flowOf(1))
+        whenever(channelDao.getByProviderSync(9L)).thenReturn(
+            listOf(ChannelEntity(id = 444L, streamId = 800L, name = "News", categoryId = 51L, providerId = 9L))
+        )
+        whenever(categoryDao.getByProviderAndTypeSync(9L, ContentType.LIVE.name)).thenReturn(
+            listOf(CategoryEntity(id = 7L, categoryId = 51L, name = "News", type = ContentType.LIVE, providerId = 9L))
+        )
+
+        val result = repository.refreshProviderData(
+            providerId = 9L,
+            force = false,
+            movieFastSyncOverride = null,
+            epgSyncModeOverride = null,
+            onProgress = null
+        )
+
+        assertThat(result.isSuccess).isTrue()
+        val allScope = com.streamvault.domain.policy.liveChannelOrderScope(
+            provider,
+            com.streamvault.domain.model.Category(
+                id = com.streamvault.domain.repository.ChannelRepository.ALL_CHANNELS_ID,
+                name = "",
+                type = ContentType.LIVE
+            )
+        )
+        verify(liveChannelOrderRepository).reconcileCompleteCatalog(
+            eq(allScope.sourceKey),
+            argThat<Map<String, List<String>>> {
+                this["live:-1000000"] == listOf("stream:800") && this["live:51"] == listOf("stream:800")
+            }
+        )
+    }
+
+    @Test
+    fun `complete provider refresh reconciles combined scope with provider qualified raw members`() = runTest {
+        val profiles: com.streamvault.data.local.dao.CombinedM3uProfileDao = mock()
+        val members: com.streamvault.data.local.dao.CombinedM3uProfileMemberDao = mock()
+        val provider = Provider(id = 9L, name = "Playlist", type = ProviderType.M3U,
+            serverUrl = "https://example.com", createdAt = 123L)
+        whenever(providerDao.getById(9L)).thenReturn(provider.toEntity())
+        whenever(providerCapabilityResolver.snapshot(9L)).thenReturn(provider.toProviderSnapshot())
+        whenever(syncManager.sync(9L, false, null, null, null)).thenReturn(Result.success(Unit))
+        whenever(syncManager.currentSyncState(9L)).thenReturn(SyncState.Success(123L))
+        whenever(channelDao.getCount(9L)).thenReturn(flowOf(1))
+        whenever(channelDao.getByProviderSync(9L)).thenReturn(listOf(
+            ChannelEntity(id = 444L, streamId = 800L, name = "News", categoryId = 51L, providerId = 9L)))
+        whenever(categoryDao.getByProviderAndTypeSync(9L, ContentType.LIVE.name)).thenReturn(listOf(
+            CategoryEntity(id = 7L, categoryId = 51L, name = "News", type = ContentType.LIVE, providerId = 9L)))
+        whenever(profiles.getAll()).thenReturn(flowOf(listOf(
+            com.streamvault.data.local.entity.CombinedM3uProfileEntity(id = 31L, identityKey = "profile-uuid", name = "Combined"))))
+        whenever(members.getForProfileSync(31L)).thenReturn(listOf(
+            com.streamvault.data.local.entity.CombinedM3uProfileMemberWithProvider(id = 1L, profileId = 31L,
+                providerId = 9L, priority = 0, enabled = true, providerName = "Playlist")))
+        val repo = createRepository(combinedProfiles = profiles, combinedMembers = members)
+        assertThat(repo.refreshProviderData(9L, false, null, null, null).isSuccess).isTrue()
+        verify(liveChannelOrderRepository).reconcileCompleteCatalog(eq("combined:profile-uuid"), argThat {
+            val key = this["live:all"]?.singleOrNull()
+            key != null && key.startsWith("provider:") && key.endsWith("|stream:800") &&
+                this["live:category:news"] == listOf(key)
+        })
+        clearInvocations(liveChannelOrderRepository)
+        whenever(members.getForProfileSync(31L)).thenReturn(listOf(
+            com.streamvault.data.local.entity.CombinedM3uProfileMemberWithProvider(id = 1L, profileId = 31L,
+                providerId = 9L, priority = 0, enabled = true, providerName = "Playlist"),
+            com.streamvault.data.local.entity.CombinedM3uProfileMemberWithProvider(id = 2L, profileId = 31L,
+                providerId = 10L, priority = 1, enabled = true, providerName = "Other")))
+        whenever(syncManager.currentSyncState(10L)).thenReturn(SyncState.Partial("Incomplete"))
+        repo.refreshProviderData(9L, false, null, null, null)
+        verify(liveChannelOrderRepository, never()).reconcileCompleteCatalog(eq("combined:profile-uuid"), any())
     }
 
     @Test

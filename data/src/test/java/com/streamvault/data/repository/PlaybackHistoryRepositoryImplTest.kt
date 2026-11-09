@@ -67,6 +67,31 @@ class PlaybackHistoryRepositoryImplTest {
         verify(historyDao, never()).insertOrUpdate(org.mockito.kotlin.any())
     }
 
+    @Test fun `history clearing also clears matching derived live usage while VOD removal leaves it alone`() = runTest {
+        whenever(preferencesRepository.isIncognitoMode).thenReturn(flowOf(false))
+        val usage: com.streamvault.domain.repository.LiveWatchUsageRepository = mock()
+        val repository = repository(liveUsage = usage)
+        assertThat(repository.clearLiveHistoryForProvider(7).isSuccess).isTrue()
+        assertThat(repository.clearHistoryForProvider(8).isSuccess).isTrue()
+        assertThat(repository.removeFromHistory(1, ContentType.LIVE, 7).isSuccess).isTrue()
+        assertThat(repository.removeFromHistory(2, ContentType.MOVIE, 7).isSuccess).isTrue()
+        assertThat(repository.clearAllHistory().isSuccess).isTrue()
+        verify(usage).clearProvider(7)
+        verify(usage).clearProvider(8)
+        verify(usage).clearContent(7, 1)
+        verify(usage, never()).clearContent(7, 2)
+        verify(usage).clearAll()
+    }
+
+    @Test fun `usage clearing failure cannot report successful live history deletion`() = runTest {
+        whenever(preferencesRepository.isIncognitoMode).thenReturn(flowOf(false))
+        val usage: com.streamvault.domain.repository.LiveWatchUsageRepository = mock()
+        whenever(usage.clearProvider(7)).thenThrow(IllegalStateException("storage unavailable"))
+        assertThat(repository(liveUsage = usage).clearLiveHistoryForProvider(7))
+            .isInstanceOf(com.streamvault.domain.model.Result.Error::class.java)
+        verify(historyDao, never()).deleteByProviderAndType(7, ContentType.LIVE.name)
+    }
+
     private val historyDao: PlaybackHistoryDao = mock()
     private val preferencesRepository: PreferencesRepository = mock()
     private val movieDao: MovieDao = mock()
@@ -76,13 +101,15 @@ class PlaybackHistoryRepositoryImplTest {
     }
 
     private fun repository(
-        transactionRunner: DatabaseTransactionRunner = this.transactionRunner
+        transactionRunner: DatabaseTransactionRunner = this.transactionRunner,
+        liveUsage: com.streamvault.domain.repository.LiveWatchUsageRepository? = null
     ) = PlaybackHistoryRepositoryImpl(
         dao = historyDao,
         preferencesRepository = preferencesRepository,
         movieDao = movieDao,
         episodeDao = episodeDao,
-        transactionRunner = transactionRunner
+        transactionRunner = transactionRunner,
+        liveWatchUsageRepository = liveUsage
     )
 
     private fun movieHistory(

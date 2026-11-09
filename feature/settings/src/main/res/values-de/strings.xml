@@ -962,4 +962,13 @@
     <string name="settings_text_size_default">Standard (100%)</string>
     <string name="settings_text_size_system">Geräteeinstellung verwenden</string>
     <string name="settings_text_size_custom">Benutzerdefiniert</string>
+    <string name="settings_privacy_policy">Datenschutzerklärung</string>
+    <string name="settings_category_reorder_channels">Kanäle neu anordnen</string>
+    <string name="settings_category_sort_manual">Manuell</string>
+    <string name="settings_category_reorder_categories">Kategorien neu anordnen</string>
+    <string name="settings_default_live_channel_order">Standard-Kanalreihenfolge</string>
+    <string name="settings_live_order_save_failed">Senderreihenfolge konnte nicht gespeichert werden. Bitte erneut versuchen.</string>
+    <string name="settings_live_order_recent">Zuletzt angesehen</string>
+    <string name="settings_live_order_most">Am meisten angesehen</string>
+    <string name="settings_live_order_usage_help">Wiedergaben zählen nach 10 Sekunden. Am meisten angesehen summiert die Wiedergabezeit der letzten 30 Tage.</string>
 </resources>

@@ -133,6 +133,7 @@
     <string name="player_more_controls">Meer controles</string>
     <string name="player_multiview_short">Multiview</string>
     <string name="player_mute">Dempen</string>
+    <string name="player_more">Meer</string>
     <string name="player_muted_badge">Gedempt</string>
     <string name="player_next_label">Volgende:</string>
     <string name="player_no_guide_data">Geen gidsgegevens</string>
@@ -307,4 +308,9 @@
 <string name="player_trakt_sent">Verzonden naar Trakt</string>
     <string name="player_trakt_badge">TRAKT</string>
     <string name="player_schedule_by_time">Op tijd plannen</string>     <string name="player_schedule_by_time_title">Opname plannen</string>     <string name="player_schedule_by_time_start">Start</string>     <string name="player_schedule_by_time_duration">Duur</string>     <string name="player_schedule_by_time_repeat">Herhalen</string>     <string name="player_schedule_by_time_once">Eenmalig</string>     <string name="player_schedule_by_time_daily">Dagelijks</string>     <string name="player_schedule_by_time_weekly">Wekelijks</string>     <string name="player_schedule_by_time_confirm">Plannen</string>     <string name="player_schedule_by_time_cancel">Annuleren</string>     <string name="player_schedule_by_time_duration_hm">%1$d u %2$d min</string>     <string name="player_schedule_by_time_duration_h">%1$d u</string>     <string name="player_schedule_by_time_duration_m">%1$d min</string>     <string name="player_recording_needs_live_channel">Opnemen vereist een livekanaal.</string>     <string name="player_recording_started_notice">Opname gestart voor %1$s.</string>     <string name="player_recording_scheduled_notice">%1$s gepland.</string>     <string name="player_recording_scheduled_daily_notice">%1$s dagelijks gepland.</string>     <string name="player_recording_scheduled_weekly_notice">%1$s wekelijks gepland.</string>     <string name="player_recording_failed_notice">De opname kon niet worden gepland.</string>     <string name="player_recording_stopped_notice">Opname gestopt.</string>
+    <string name="player_track_no_audio_tracks">Geen audiotracks</string>
+    <string name="player_stremio_subtitles_heading">Stremio-ondertitels</string>
+    <string name="player_stremio_subtitles_loading">Add-onondertitels laden…</string>
+    <string name="player_stremio_subtitles_empty">Geen add-onondertitels beschikbaar</string>
+    <string name="player_stremio_subtitles_retry">Add-onondertitels opnieuw laden</string>
 </resources>

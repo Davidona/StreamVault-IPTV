@@ -1,9 +1,11 @@
 package com.streamvault.data.manager
 
 import com.streamvault.domain.model.Provider as StableProvider
+import com.streamvault.domain.model.Channel
 
 import android.content.Context
 import android.net.Uri
+import com.streamvault.data.R
 import com.google.gson.Gson
 import com.google.gson.JsonElement
 import com.google.gson.JsonParseException
@@ -98,6 +100,13 @@ import com.streamvault.domain.manager.CombinedM3uProfileBackup
 import com.streamvault.domain.manager.CombinedM3uProfileMemberBackup
 import com.streamvault.domain.manager.PortableCategoryReference
 import com.streamvault.domain.manager.PortableCategorySortReference
+import com.streamvault.domain.manager.PortableLiveChannelOrderBackup
+import com.streamvault.domain.manager.PortableLiveChannelIdentity
+import com.streamvault.domain.manager.PortableCombinedLiveChannelOrderBackup
+import com.streamvault.domain.manager.PortableCombinedCategoryOrderBackup
+import com.streamvault.domain.manager.PortableProviderLiveCategoryOrderBackup
+import com.streamvault.domain.model.LiveChannelOrder
+import com.streamvault.domain.model.LiveChannelOrderMode
 import com.streamvault.domain.manager.PortableChannelReference
 import com.streamvault.domain.manager.PortableFavoriteBackup
 import com.streamvault.domain.manager.PortableCustomGroupBackup
@@ -119,6 +128,14 @@ import com.streamvault.domain.manager.PortableEpgTimeShiftReference
 import com.streamvault.domain.manager.PortableProviderPreferencesBackup
 import com.streamvault.domain.manager.PortableVariantSelectionReference
 import com.streamvault.domain.manager.PortableVirtualGroupReference
+import com.streamvault.domain.repository.LiveChannelOrderRepository
+import com.streamvault.domain.repository.LiveChannelOrderSaveResult
+import com.streamvault.domain.policy.liveChannelOrderScope
+import com.streamvault.domain.policy.liveFavoritesOrderScope
+import com.streamvault.domain.policy.liveCustomGroupOrderScope
+import com.streamvault.domain.policy.liveProviderOrderIdentity
+import com.streamvault.domain.policy.liveOrderKeys
+import com.streamvault.domain.model.LiveChannelOrderScope
 import com.streamvault.domain.manager.RecordingManager
 import com.streamvault.domain.manager.ScheduledRecordingBackup
 import com.streamvault.domain.manager.ProviderCredentials
@@ -228,7 +245,9 @@ class BackupManagerImpl @Inject constructor(
     private val playbackQualityPreferenceDao: PlaybackQualityPreferenceDao? = null,
     private val stremioAddonDao: StremioAddonDao? = null,
     private val stremioPlaybackHistoryDao: StremioPlaybackHistoryDao? = null,
-    private val sportsProviderStore: SportsProviderStore? = null
+    private val sportsProviderStore: SportsProviderStore? = null,
+    private val liveChannelOrderRepository: LiveChannelOrderRepository? = null,
+    private val legacyCombinedIdentityMigrator: com.streamvault.data.repository.LegacyCombinedIdentityMigrator? = null
 ) : BackupManager {
 
     internal suspend fun automaticSyncPreferenceBackup(providerEntities: List<ProviderEntity>): Map<String, String> {
@@ -277,6 +296,7 @@ class BackupManagerImpl @Inject constructor(
             put("showAllChannelsCategory", preferencesRepository.showAllChannelsCategory.first().toString())
             put("showRecentChannelsCategory", preferencesRepository.showRecentChannelsCategory.first().toString())
             put("hideDecorativeLiveRows", preferencesRepository.hideDecorativeLiveRows.first().toString())
+            put("defaultLiveChannelOrder", preferencesRepository.defaultLiveChannelOrder.first().name)
             put("liveChannelNumberingMode", preferencesRepository.liveChannelNumberingMode.first().name)
             put("liveChannelGroupingMode", preferencesRepository.liveChannelGroupingMode.first().name)
             put("groupedChannelLabelMode", preferencesRepository.groupedChannelLabelMode.first().name)
@@ -389,6 +409,7 @@ class BackupManagerImpl @Inject constructor(
     override suspend fun exportConfig(uriString: String, plan: BackupExportPlan): Result<Unit> = withContext(Dispatchers.IO) {
         require(plan.hasSections)
         try {
+            legacyCombinedIdentityMigrator?.migrate()
             val needsProviders = plan.exportPreferences || plan.exportProviders || plan.exportSavedLibrary ||
                 plan.exportPlaybackHistory || plan.exportMultiViewPresets || plan.exportRecordingSchedules
             val providerEntities = if (needsProviders) providerDao.getAll().first() else emptyList()
@@ -719,7 +740,8 @@ class BackupManagerImpl @Inject constructor(
                     icon = group.iconEmoji,
                     position = group.position,
                     createdAt = group.createdAt,
-                    members = members
+                    members = members,
+                    identityKey = group.identityKey
                 )
             }
             val portablePlaybackHistory = playbackHistory.mapNotNull { history ->
@@ -1189,6 +1211,7 @@ class BackupManagerImpl @Inject constructor(
         plan: BackupImportPlan
     ): com.streamvault.domain.model.Result<BackupImportResult> = withContext(Dispatchers.IO) {
         try {
+            legacyCombinedIdentityMigrator?.migrate()
             val parsedBackup = readBackupData(uriString)
                 ?: return@withContext com.streamvault.domain.model.Result.error("Failed to open input stream")
             val rawBackupData = parsedBackup.data
@@ -1306,7 +1329,7 @@ class BackupManagerImpl @Inject constructor(
                         }
                         val preferenceUnresolved = portablePreferences?.let { portable ->
                             restorePortableProviderPreferences(
-                                if (backupData.version >= 14 && (
+                                remapLegacyCombinedOrderReferences(backupData, if (backupData.version >= 14 && (
                                         portable.hiddenCategories.isNotEmpty() ||
                                             backupData.portableHiddenContent != null ||
                                             backupData.portableContentPreferences != null ||
@@ -1322,7 +1345,7 @@ class BackupManagerImpl @Inject constructor(
                                         vodVariantSelections = emptyList(),
                                         vodVariantSelectionsSpecified = false
                                     )
-                                } else portable,
+                                } else portable, storedProviders),
                                 storedProviders
                             )
                         }.orEmpty()
@@ -2187,6 +2210,8 @@ class BackupManagerImpl @Inject constructor(
             BACKUP_PROVIDER_REFERENCE_TYPE -> listOf("serverUrl", "username", "stalkerMacAddress", "providerType")
             PORTABLE_CATEGORY_REFERENCE_TYPE -> listOf("provider", "name", "type", "remoteCategoryId")
             PORTABLE_CATEGORY_SORT_REFERENCE_TYPE -> listOf("provider", "type", "mode")
+            PORTABLE_LIVE_CHANNEL_ORDER_TYPE -> listOf("provider", "category", "mode", "manualChannels")
+            PORTABLE_LIVE_CHANNEL_IDENTITY_TYPE -> listOf("provider", "streamId")
             PORTABLE_GROUP_REFERENCE_TYPE -> listOf("provider", "name", "contentType")
             PORTABLE_CHANNEL_REFERENCE_TYPE -> listOf("provider", "streamId", "name", "streamUrl", "remoteCategoryId")
             PORTABLE_CHANNEL_PREFERENCE_REFERENCE_TYPE -> listOf("channel", "aspectRatio", "audioVideoOffsetMs")
@@ -2274,6 +2299,7 @@ class BackupManagerImpl @Inject constructor(
         when (type) {
             PORTABLE_CATEGORY_REFERENCE_TYPE,
             PORTABLE_CATEGORY_SORT_REFERENCE_TYPE,
+            PORTABLE_LIVE_CHANNEL_IDENTITY_TYPE,
             PORTABLE_GROUP_REFERENCE_TYPE,
             PORTABLE_CHANNEL_REFERENCE_TYPE,
             PORTABLE_CHANNEL_PREFERENCE_REFERENCE_TYPE,
@@ -2293,6 +2319,21 @@ class BackupManagerImpl @Inject constructor(
                             normalizeLegacyBackupElement(provider, BACKUP_PROVIDER_REFERENCE_TYPE)
                         )
                     }
+                }
+            }
+            PORTABLE_LIVE_CHANNEL_ORDER_TYPE -> {
+                objectValue.get("provider")?.let { provider ->
+                    objectValue.add("provider", normalizeLegacyBackupElement(provider, BACKUP_PROVIDER_REFERENCE_TYPE))
+                }
+                objectValue.get("category")?.takeIf { it.isJsonObject }?.let { category ->
+                    objectValue.add("category", normalizeLegacyBackupElement(category, PORTABLE_CATEGORY_REFERENCE_TYPE))
+                }
+                objectValue.get("manualChannels")?.takeIf { it.isJsonArray }?.let { channelIds ->
+                    val normalized = com.google.gson.JsonArray()
+                    channelIds.asJsonArray.forEach { channel ->
+                        normalized.add(normalizeLegacyBackupElement(channel, PORTABLE_LIVE_CHANNEL_IDENTITY_TYPE))
+                    }
+                    objectValue.add("manualChannels", normalized)
                 }
             }
             PORTABLE_CONTENT_REFERENCE_TYPE -> objectValue.get("provider")?.let { provider ->
@@ -2587,6 +2628,13 @@ class BackupManagerImpl @Inject constructor(
         var pinnedCategoriesSpecified = false
         var categorySortModes = emptyList<PortableCategorySortReference>()
         var categorySortModesSpecified = false
+        var providerLiveCategoryOrders: List<PortableProviderLiveCategoryOrderBackup>? = null
+        var liveChannelOrders = emptyList<PortableLiveChannelOrderBackup>()
+        var liveChannelOrdersSpecified = false
+        var combinedLiveChannelOrders = emptyList<PortableCombinedLiveChannelOrderBackup>()
+        var combinedLiveChannelOrdersSpecified = false
+        var combinedLiveCategoryOrders = emptyList<PortableCombinedCategoryOrderBackup>()
+        var combinedLiveCategoryOrdersSpecified = false
         var epgTimeShifts = emptyList<PortableEpgTimeShiftReference>()
         var epgTimeShiftsSpecified = false
         var liveVariantSelections = emptyList<PortableVariantSelectionReference>()
@@ -2675,6 +2723,30 @@ class BackupManagerImpl @Inject constructor(
                         "category sort modes"
                     ).orEmpty()
                 "categorySortModesSpecified", "l" -> categorySortModesSpecified = reader.nextBoolean()
+                "providerLiveCategoryOrders" -> providerLiveCategoryOrders = readLimitedArray<PortableProviderLiveCategoryOrderBackup>(
+                    reader, PortableProviderLiveCategoryOrderBackup::class.java, MAX_SECTION_ITEMS, "provider Live category orders"
+                )
+                "liveChannelOrders" -> liveChannelOrders = readLimitedArray<PortableLiveChannelOrderBackup>(
+                    reader,
+                    PORTABLE_LIVE_CHANNEL_ORDER_TYPE,
+                    MAX_SECTION_ITEMS,
+                    "portable Live TV channel orders"
+                ).orEmpty()
+                "liveChannelOrdersSpecified" -> liveChannelOrdersSpecified = reader.nextBoolean()
+                "combinedLiveChannelOrders" -> combinedLiveChannelOrders = readLimitedArray<PortableCombinedLiveChannelOrderBackup>(
+                    reader,
+                    PORTABLE_COMBINED_LIVE_CHANNEL_ORDER_TYPE,
+                    MAX_SECTION_ITEMS,
+                    "portable combined Live TV channel orders"
+                ).orEmpty()
+                "combinedLiveChannelOrdersSpecified" -> combinedLiveChannelOrdersSpecified = reader.nextBoolean()
+                "combinedLiveCategoryOrders" -> combinedLiveCategoryOrders = readLimitedArray<PortableCombinedCategoryOrderBackup>(
+                    reader,
+                    PORTABLE_COMBINED_CATEGORY_ORDER_TYPE,
+                    MAX_SECTION_ITEMS,
+                    "combined Live TV category orders"
+                ).orEmpty()
+                "combinedLiveCategoryOrdersSpecified" -> combinedLiveCategoryOrdersSpecified = reader.nextBoolean()
                 "epgTimeShifts", "m" -> epgTimeShifts =
                     readLimitedArray<PortableEpgTimeShiftReference>(
                         reader,
@@ -2767,6 +2839,13 @@ class BackupManagerImpl @Inject constructor(
             pinnedCategoriesSpecified = pinnedCategoriesSpecified,
             categorySortModes = categorySortModes,
             categorySortModesSpecified = categorySortModesSpecified,
+            providerLiveCategoryOrders = providerLiveCategoryOrders,
+            liveChannelOrders = liveChannelOrders,
+            liveChannelOrdersSpecified = liveChannelOrdersSpecified,
+            combinedLiveChannelOrders = combinedLiveChannelOrders,
+            combinedLiveChannelOrdersSpecified = combinedLiveChannelOrdersSpecified,
+            combinedLiveCategoryOrders = combinedLiveCategoryOrders,
+            combinedLiveCategoryOrdersSpecified = combinedLiveCategoryOrdersSpecified,
             epgTimeShifts = epgTimeShifts,
             epgTimeShiftsSpecified = epgTimeShiftsSpecified,
             liveVariantSelections = liveVariantSelections,
@@ -2827,6 +2906,29 @@ class BackupManagerImpl @Inject constructor(
         }
         require(data.portableProviderPreferences?.playbackQualityPreferences.orEmpty().size <= MAX_SECTION_ITEMS) {
             "Backup has too many playback quality preferences"
+        }
+        require(data.portableProviderPreferences?.liveChannelOrders.orEmpty().size <= MAX_SECTION_ITEMS) {
+            "Backup has too many portable Live TV channel orders"
+        }
+        require(data.portableProviderPreferences?.liveChannelOrders.orEmpty().sumOf { it.manualChannels.size } <= MAX_SECTION_ITEMS) {
+            "Backup has too many portable Live TV channel order entries"
+        }
+        require(data.portableProviderPreferences?.combinedLiveChannelOrders.orEmpty().size <= MAX_SECTION_ITEMS) {
+            "Backup has too many combined Live TV channel orders"
+        }
+        require(data.portableProviderPreferences?.combinedLiveChannelOrders.orEmpty().sumOf { it.manualChannels.size } <= MAX_SECTION_ITEMS) {
+            "Backup has too many combined Live TV channel order entries"
+        }
+        require(data.portableProviderPreferences?.combinedLiveCategoryOrders.orEmpty().size <= MAX_SECTION_ITEMS) {
+            "Backup has too many combined Live TV category orders"
+        }
+        require(data.portableProviderPreferences?.providerLiveCategoryOrders.orEmpty().sumOf {
+            it.normalCategoryIds.size.toLong() + it.pinnedOrderCategoryIds.size + it.personalKeys.size
+        } <= MAX_SECTION_ITEMS.toLong()) { "Backup has too many provider Live TV category order entries" }
+        require(data.portableProviderPreferences?.combinedLiveCategoryOrders.orEmpty().sumOf {
+            it.normalCategoryKeys.size + it.pinnedOrderCategoryKeys.size + it.pinnedCategoryKeys.size
+        } <= MAX_SECTION_ITEMS) {
+            "Backup has too many combined Live TV category order entries"
         }
         require(data.epgSources.orEmpty().size <= MAX_EPG_SOURCES) { "Backup has too many EPG sources" }
         require(data.providerEpgAssignments.orEmpty().size <= MAX_SECTION_ITEMS) {
@@ -2939,6 +3041,7 @@ class BackupManagerImpl @Inject constructor(
         return profileDao.getAll().first().map { profile ->
             CombinedM3uProfileBackup(
                 name = profile.name,
+                identityKey = profile.identityKey,
                 enabled = profile.enabled,
                 members = memberDao.getForProfileSync(profile.id).map { member ->
                     val provider = referencesById[member.providerId]
@@ -2953,6 +3056,118 @@ class BackupManagerImpl @Inject constructor(
                 updatedAt = profile.updatedAt
             )
         }
+    }
+
+    private suspend fun buildCombinedLiveChannelOrderBackups(
+        providers: List<Provider>,
+        referencesById: Map<Long, BackupProviderReference>,
+        unresolved: MutableList<String>
+    ): List<PortableCombinedLiveChannelOrderBackup>? {
+        val orderRepository = liveChannelOrderRepository ?: return null
+        val profileDao = combinedM3uProfileDao ?: return null
+        val memberDao = combinedM3uProfileMemberDao ?: return null
+        return buildList {
+            profileDao.getAll().first().forEach { profileEntity ->
+                val members = memberDao.getForProfileSync(profileEntity.id)
+                val profileReferencesByIdentity = members.mapNotNull { member ->
+                    val provider = providers.singleOrNull { it.id == member.providerId } ?: return@mapNotNull null
+                    val reference = referencesById[provider.id] ?: return@mapNotNull null
+                    liveProviderOrderIdentity(provider) to reference
+                }.toMap()
+                val categoryNames = linkedMapOf<String, String>()
+                members.forEach { member ->
+                    val names = categoryDao?.getByProviderAndTypeSync(member.providerId, ContentType.LIVE.name)
+                        ?.map { it.name }
+                        ?: categoryRepository.getCategories(member.providerId).first()
+                            .filter { it.type == ContentType.LIVE && !it.isVirtual }
+                            .map { it.name }
+                    names.forEach { name ->
+                        val key = CombinedCategoryIdentity.keyForName(name)
+                        if (key.isNotBlank()) categoryNames.putIfAbsent(key, name)
+                    }
+                }
+                val categoryScopes = buildList {
+                    add("live:all" to null)
+                    add("live:favorites" to null)
+                    categoryNames.forEach { (key, name) -> add("live:category:$key" to name) }
+                }
+                categoryScopes.forEach { (categoryKey, categoryName) ->
+                    val scope = LiveChannelOrderScope("combined:${profileEntity.identityKey}", categoryKey)
+                    val order = orderRepository.observe(scope).first()
+                    if (order.mode == LiveChannelOrderMode.USE_DEFAULT && order.manualKeys.isEmpty()) return@forEach
+                    val manualChannels = order.manualKeys.mapNotNull { key ->
+                        val marker = key.lastIndexOf("|stream:")
+                        val identity = key.substringBeforeLast("|stream:", missingDelimiterValue = "")
+                        val streamId = key.substringAfterLast("|stream:", missingDelimiterValue = "").toLongOrNull()
+                        val providerReference = profileReferencesByIdentity[identity]
+                        if (marker <= 0 || streamId == null || streamId == 0L || providerReference == null) {
+                            unresolved += context.getString(R.string.backup_live_order_restore_issue)
+                            null
+                        } else {
+                            PortableLiveChannelIdentity(providerReference, streamId)
+                        }
+                    }
+                    add(
+                        PortableCombinedLiveChannelOrderBackup(
+                            profileIdentityKey = profileEntity.identityKey,
+                            categoryKey = categoryKey,
+                            categoryName = categoryName,
+                            mode = order.mode.name,
+                            manualChannels = manualChannels.distinctBy { it.provider to it.streamId }
+                        )
+                    )
+                }
+            }
+        }
+    }
+
+    private suspend fun buildCombinedCategoryOrderBackups(
+        providers: List<Provider>,
+        unresolved: MutableList<String>
+    ): List<PortableCombinedCategoryOrderBackup>? {
+        val profileDao = combinedM3uProfileDao ?: return null
+        val memberDao = combinedM3uProfileMemberDao ?: return null
+        val providerById = providers.associateBy { it.id }
+        val result = mutableListOf<PortableCombinedCategoryOrderBackup>()
+        for (profile in profileDao.getAll().first()) {
+            val names = mutableListOf<String>()
+            for (member in memberDao.getForProfileSync(profile.id).filter { it.enabled }) {
+                val provider = providerById[member.providerId]
+                if (provider == null) {
+                    unresolved += context.getString(R.string.backup_live_order_restore_issue)
+                    continue
+                }
+                val categories = categoryDao?.getByProviderAndTypeSync(provider.id, ContentType.LIVE.name)
+                    ?.map { it.name }
+                    ?: categoryRepository.getCategories(provider.id).first()
+                        .filter { it.type == ContentType.LIVE && !it.isVirtual }
+                        .map { it.name }
+                names += categories.map(CombinedCategoryIdentity::keyForName).filter(String::isNotBlank)
+            }
+            val distinctNames = names.distinct()
+            val idToKey = distinctNames.groupBy(CombinedCategoryIdentity::idForKey)
+                .mapNotNull { (id, keys) -> keys.singleOrNull()?.let { id to it } }
+                .toMap()
+            val saved = preferencesRepository.getCombinedLiveCategoryOrder(profile.identityKey).first()
+            fun portableKeys(ids: List<Long>): List<String> = ids.mapNotNull { id ->
+                idToKey[id].also { key ->
+                    if (key == null) unresolved += context.getString(R.string.backup_live_order_restore_issue)
+                }
+            }
+            val pinnedKeys = saved.pinnedCategoryIds.mapNotNull { id ->
+                idToKey[id].also { key ->
+                    if (key == null) unresolved += context.getString(R.string.backup_live_order_restore_issue)
+                }
+            }.distinct()
+            result += PortableCombinedCategoryOrderBackup(
+                profileIdentityKey = profile.identityKey,
+                sortMode = saved.sortMode.name,
+                normalCategoryKeys = portableKeys(saved.normalIds).distinct(),
+                pinnedOrderCategoryKeys = portableKeys(saved.pinnedIds).distinct(),
+                pinnedCategoryKeys = pinnedKeys
+            )
+        }
+        return result
     }
 
     private suspend fun buildActiveLiveSourceBackup(
@@ -2980,6 +3195,7 @@ class BackupManagerImpl @Inject constructor(
                 ActiveLiveSourceBackup(
                     type = "combined_m3u",
                     combinedProfileName = profile.name,
+                    combinedProfileIdentityKey = profile.identityKey,
                     combinedProfileProviders = memberProviders
                 )
             }
@@ -3105,7 +3321,8 @@ class BackupManagerImpl @Inject constructor(
                     icon = group.iconEmoji,
                     position = group.position,
                     createdAt = group.createdAt,
-                    members = members
+                    members = members,
+                    identityKey = group.identityKey
                 )
             }
         } else emptyList()
@@ -3429,6 +3646,9 @@ class BackupManagerImpl @Inject constructor(
                 homeDefaultCategorySpecified = homeId != null,
                 pinnedCategoriesSpecified = true,
                 categorySortModesSpecified = true,
+                liveChannelOrdersSpecified = liveChannelOrderRepository != null,
+                combinedLiveChannelOrdersSpecified = liveChannelOrderRepository != null && combinedM3uProfileDao != null,
+                combinedLiveCategoryOrdersSpecified = combinedM3uProfileDao != null && combinedM3uProfileMemberDao != null,
                 epgTimeShiftsSpecified = true,
                 liveVariantSelectionsSpecified = true,
                 vodVariantSelectionsSpecified = true,
@@ -3464,7 +3684,7 @@ class BackupManagerImpl @Inject constructor(
             }
             ?.let { group ->
                 referencesById[group.providerId]?.let { provider ->
-                    PortableVirtualGroupReference(provider, group.name, group.contentType)
+                    PortableVirtualGroupReference(provider, group.name, group.contentType, group.identityKey)
                 }
             }
         val guideDefaultCombinedCategoryName = guideId
@@ -3538,7 +3758,7 @@ class BackupManagerImpl @Inject constructor(
         val promotedGroups = preferencesRepository.promotedLiveGroupIds.first().mapNotNull { groupId ->
             virtualGroupDao.getById(groupId)?.let { group ->
                 referencesById[group.providerId]?.let { provider ->
-                    PortableVirtualGroupReference(provider, group.name, group.contentType)
+                    PortableVirtualGroupReference(provider, group.name, group.contentType, group.identityKey)
                 }
             } ?: run {
                 unresolved += "Promoted group id $groupId was not found during export"
@@ -3588,6 +3808,122 @@ class BackupManagerImpl @Inject constructor(
                 }
             }.orEmpty()
         }
+        val providerLiveCategoryOrders = providers.mapNotNull { provider ->
+            val reference = referencesById[provider.id] ?: return@mapNotNull null
+            val order = (preferencesRepository.getLiveCategoryOrder(provider.id)
+                ?: flowOf(com.streamvault.domain.model.LiveCategoryOrder())).first()
+            if (order.normalIds.isEmpty() && order.pinnedIds.isEmpty() && order.personalIds.isEmpty()) return@mapNotNull null
+            val builtins = setOf(com.streamvault.domain.repository.ChannelRepository.ALL_CHANNELS_ID,
+                com.streamvault.domain.model.VirtualCategoryIds.FAVORITES, com.streamvault.domain.model.VirtualCategoryIds.RECENT)
+            val groupsById = if (order.personalIds.any { it !in builtins }) {
+                virtualGroupDao.getByType(provider.id, ContentType.LIVE.name).first().associateBy { it.id }
+            } else emptyMap()
+            val personal = order.personalIds.mapNotNull { id ->
+                when (id) {
+                    com.streamvault.domain.repository.ChannelRepository.ALL_CHANNELS_ID -> "all"
+                    com.streamvault.domain.model.VirtualCategoryIds.FAVORITES -> "favorites"
+                    com.streamvault.domain.model.VirtualCategoryIds.RECENT -> "recent"
+                    else -> groupsById[-id]?.identityKey?.takeIf(String::isNotBlank)?.let { "group:$it" }
+                        ?: run { unresolved += context.getString(R.string.backup_live_order_restore_issue); null }
+                }
+            }
+            PortableProviderLiveCategoryOrderBackup(reference, order.normalIds, order.pinnedIds, personal)
+        }
+        val liveChannelOrders = buildList {
+            val orderRepository = liveChannelOrderRepository ?: return@buildList
+            providers.forEach { provider ->
+                val providerReference = referencesById[provider.id] ?: return@forEach
+                val rawCategories = categoryDao?.getByProviderAndTypeSync(provider.id, ContentType.LIVE.name).orEmpty()
+                val rawChannels = channels.getByProviderSync(provider.id)
+                val byRemoteStreamId = rawChannels.filter { it.streamId != 0L }.associateBy { it.streamId }
+
+                suspend fun exportOrder(
+                    category: com.streamvault.domain.model.Category,
+                    portableCategory: PortableCategoryReference?,
+                    scopeOverride: LiveChannelOrderScope? = null,
+                    isFavorites: Boolean = false,
+                    portableGroup: PortableVirtualGroupReference? = null
+                ) {
+                    val scope = scopeOverride ?: liveChannelOrderScope(provider, category)
+                    val order = orderRepository.observe(scope).first()
+                    if (order.mode == com.streamvault.domain.model.LiveChannelOrderMode.USE_DEFAULT && order.manualKeys.isEmpty()) {
+                        return
+                    }
+                    val portableChannels = order.manualKeys.mapNotNull { key ->
+                        val streamId = key.removePrefix("stream:").takeIf { it != key }?.toLongOrNull()
+                        val row = streamId?.let(byRemoteStreamId::get)
+                        if (row == null) {
+                            unresolved += context.getString(R.string.backup_live_order_restore_issue)
+                            null
+                        } else {
+                            PortableLiveChannelIdentity(providerReference, row.streamId)
+                        }
+                    }
+                    add(
+                        PortableLiveChannelOrderBackup(
+                            provider = providerReference,
+                            category = portableCategory,
+                            mode = order.mode.name,
+                            manualChannels = portableChannels.distinctBy { it.provider to it.streamId },
+                            isFavorites = isFavorites,
+                            group = portableGroup
+                        )
+                    )
+                }
+
+                rawCategories.forEach { category ->
+                    val domainCategory = category.toDomain()
+                    exportOrder(
+                        domainCategory,
+                        PortableCategoryReference(providerReference, category.name, ContentType.LIVE, category.categoryId)
+                    )
+                }
+                exportOrder(
+                    com.streamvault.domain.model.Category(
+                        id = com.streamvault.domain.repository.ChannelRepository.ALL_CHANNELS_ID,
+                        name = "",
+                        type = ContentType.LIVE
+                    ),
+                    portableCategory = null
+                )
+                exportOrder(
+                    category = com.streamvault.domain.model.Category(
+                        id = com.streamvault.domain.model.VirtualCategoryIds.FAVORITES,
+                        name = "",
+                        type = ContentType.LIVE,
+                        isVirtual = true
+                    ),
+                    portableCategory = null,
+                    scopeOverride = liveFavoritesOrderScope(liveProviderOrderIdentity(provider)),
+                    isFavorites = true
+                )
+                virtualGroupDao.getByType(provider.id, ContentType.LIVE.name).first().forEach { entity ->
+                    val group = entity.toDomain()
+                    exportOrder(
+                        category = com.streamvault.domain.model.Category(
+                            id = -group.id,
+                            name = group.name,
+                            type = ContentType.LIVE,
+                            isVirtual = true
+                        ),
+                        portableCategory = null,
+                        scopeOverride = liveCustomGroupOrderScope(provider, group),
+                        portableGroup = PortableVirtualGroupReference(
+                            providerReference,
+                            group.name,
+                            group.contentType,
+                            group.identityKey
+                        )
+                    )
+                }
+            }
+        }
+        val combinedLiveChannelOrders = buildCombinedLiveChannelOrderBackups(
+            providers = providers,
+            referencesById = referencesById,
+            unresolved = unresolved
+        )
+        val combinedLiveCategoryOrders = buildCombinedCategoryOrderBackups(providers, unresolved)
         val epgTimeShifts = (preferencesRepository.epgTimeShiftsByProvider ?: flowOf(emptyMap()))
             .first().mapNotNull { (providerId, minutes) ->
                 referencesById[providerId]?.let { reference ->
@@ -3691,6 +4027,15 @@ class BackupManagerImpl @Inject constructor(
             pinnedCategoriesSpecified = true,
             categorySortModes = categorySortModes.distinct(),
             categorySortModesSpecified = true,
+            providerLiveCategoryOrders = providerLiveCategoryOrders,
+            liveChannelOrders = liveChannelOrders.distinctBy {
+                Triple(it.provider to it.category, it.isFavorites, it.group?.identityKey to it.mode)
+            },
+            liveChannelOrdersSpecified = liveChannelOrderRepository != null,
+            combinedLiveChannelOrders = combinedLiveChannelOrders.orEmpty(),
+            combinedLiveChannelOrdersSpecified = liveChannelOrderRepository != null && combinedM3uProfileDao != null,
+            combinedLiveCategoryOrders = combinedLiveCategoryOrders.orEmpty(),
+            combinedLiveCategoryOrdersSpecified = combinedM3uProfileDao != null && combinedM3uProfileMemberDao != null,
             epgTimeShifts = epgTimeShifts.distinct(),
             epgTimeShiftsSpecified = true,
             liveVariantSelections = liveVariantSelections.distinct(),
@@ -3814,6 +4159,7 @@ class BackupManagerImpl @Inject constructor(
             put("showAllChannelsCategory", preferencesRepository.showAllChannelsCategory.first().toString())
             put("showRecentChannelsCategory", preferencesRepository.showRecentChannelsCategory.first().toString())
             put("hideDecorativeLiveRows", preferencesRepository.hideDecorativeLiveRows.first().toString())
+            put("defaultLiveChannelOrder", preferencesRepository.defaultLiveChannelOrder.first().name)
             put("liveChannelNumberingMode", preferencesRepository.liveChannelNumberingMode.first().name)
             put("liveChannelGroupingMode", preferencesRepository.liveChannelGroupingMode.first().name)
             put("groupedChannelLabelMode", preferencesRepository.groupedChannelLabelMode.first().name)
@@ -4061,6 +4407,43 @@ class BackupManagerImpl @Inject constructor(
         return unresolved.distinct()
     }
 
+    /** Legacy profile IDs were local row IDs; never resolve them directly on another device. */
+    internal suspend fun remapLegacyCombinedOrderReferences(
+        backup: BackupData,
+        portable: PortableProviderPreferencesBackup,
+        storedProviders: List<Provider>
+    ): PortableProviderPreferencesBackup {
+        val legacy = Regex("legacy-combined-[0-9]+")
+        if (portable.combinedLiveChannelOrders.none { it.profileIdentityKey.matches(legacy) } &&
+            portable.combinedLiveCategoryOrders.none { it.profileIdentityKey.matches(legacy) }) return portable
+        val sourceProfiles = backup.combinedM3uProfiles.orEmpty().filter { it.identityKey?.matches(legacy) == true }
+            .groupBy { it.identityKey }
+        val localProfiles = combinedM3uProfileDao?.getAll()?.first().orEmpty()
+        val localMembers = combinedM3uProfileMemberDao
+        val providersById = storedProviders.associateBy { it.id }
+        val mapped = mutableMapOf<String, String>()
+        if (localMembers != null) for ((key, candidates) in sourceProfiles) {
+            val source = candidates.singleOrNull() ?: continue
+            val sourceMembers = source.members.sortedBy { it.priority }.map { it.provider }
+            if (sourceMembers.isEmpty()) continue
+            val matching = mutableListOf<com.streamvault.data.local.entity.CombinedM3uProfileEntity>()
+            for (local in localProfiles.filter { it.name.equals(source.name, true) }) {
+                val localReferences = localMembers.getForProfileSync(local.id).sortedBy { it.priority }
+                    .mapNotNull { providersById[it.providerId]?.toBackupProviderReference() }
+                if (localReferences == sourceMembers && !local.identityKey.matches(legacy)) matching += local
+            }
+            matching.singleOrNull()?.let { mapped[checkNotNull(key)] = it.identityKey }
+        }
+        fun resolve(key: String): String {
+            if (!key.matches(legacy)) return key
+            return mapped[key] ?: "unresolved-legacy:$key"
+        }
+        return portable.copy(
+            combinedLiveChannelOrders = portable.combinedLiveChannelOrders.map { it.copy(profileIdentityKey = resolve(it.profileIdentityKey)) },
+            combinedLiveCategoryOrders = portable.combinedLiveCategoryOrders.map { it.copy(profileIdentityKey = resolve(it.profileIdentityKey)) }
+        )
+    }
+
     private suspend fun restorePortableProviderPreferences(
         portable: PortableProviderPreferencesBackup,
         storedProviders: List<Provider>
@@ -4083,6 +4466,15 @@ class BackupManagerImpl @Inject constructor(
             portable.hiddenCategories.forEach { add(it.provider) }
             portable.pinnedCategories.forEach { add(it.provider) }
             portable.categorySortModes.forEach { add(it.provider) }
+            portable.providerLiveCategoryOrders.orEmpty().forEach { add(it.provider) }
+            portable.liveChannelOrders.forEach { order ->
+                add(order.provider)
+                order.group?.provider?.let(::add)
+                order.manualChannels.forEach { add(it.provider) }
+            }
+            portable.combinedLiveChannelOrders.forEach { order ->
+                order.manualChannels.forEach { add(it.provider) }
+            }
             portable.epgTimeShifts.forEach { add(it.provider) }
             portable.liveVariantSelections.forEach { add(it.provider) }
             portable.vodVariantSelections.forEach { add(it.provider) }
@@ -4095,6 +4487,357 @@ class BackupManagerImpl @Inject constructor(
         }.toMap()
         val categories = resolvedProviders.values.associate { provider ->
             provider.id to categoryRepository.getCategories(provider.id).first()
+        }
+        if (portable.combinedLiveCategoryOrdersSpecified) {
+            val profileDao = combinedM3uProfileDao
+            val memberDao = combinedM3uProfileMemberDao
+            if (profileDao == null || memberDao == null) {
+                unresolved += context.getString(R.string.backup_live_order_restore_issue)
+            } else {
+                val profilesByIdentity = profileDao.getAll().first().groupBy { it.identityKey }
+                val storedProvidersById = storedProviders.associateBy { it.id }
+                val seenProfiles = hashSetOf<String>()
+                portable.combinedLiveCategoryOrders.forEach { saved ->
+                    val keys = saved.normalCategoryKeys + saved.pinnedOrderCategoryKeys + saved.pinnedCategoryKeys
+                    val validKeys = keys.all { key ->
+                        key.isNotBlank() && CombinedCategoryIdentity.keyForName(key) == key
+                    } && saved.normalCategoryKeys.distinct().size == saved.normalCategoryKeys.size &&
+                        saved.pinnedOrderCategoryKeys.distinct().size == saved.pinnedOrderCategoryKeys.size &&
+                        saved.pinnedCategoryKeys.distinct().size == saved.pinnedCategoryKeys.size
+                    val mode = com.streamvault.domain.model.CategorySortMode.entries
+                        .firstOrNull { it.name == saved.sortMode }
+                    if (saved.profileIdentityKey.isBlank() || !seenProfiles.add(saved.profileIdentityKey) ||
+                        !validKeys || mode == null
+                    ) {
+                        unresolved += context.getString(R.string.backup_live_order_restore_issue)
+                        return@forEach
+                    }
+                    val profile = profilesByIdentity[saved.profileIdentityKey]?.singleOrNull()
+                    if (profile == null) {
+                        unresolved += context.getString(R.string.backup_live_order_restore_issue)
+                        return@forEach
+                    }
+                    val categoryNames = memberDao.getForProfileSync(profile.id)
+                        .filter { it.enabled }
+                        .flatMap { member ->
+                            val provider = storedProvidersById[member.providerId]
+                            if (provider == null) emptyList() else categoryRepository.getCategories(provider.id).first()
+                                .filter { it.type == ContentType.LIVE && !it.isVirtual }
+                                .map { it.name }
+                        }
+                        .map(CombinedCategoryIdentity::keyForName)
+                        .filter(String::isNotBlank)
+                        .distinct()
+                    val currentCategoryIds = categoryNames.map(CombinedCategoryIdentity::idForKey)
+                    val currentIdsByKey = categoryNames.associateWith(CombinedCategoryIdentity::idForKey)
+                    val pins = saved.pinnedCategoryKeys.mapNotNull(currentIdsByKey::get).toSet()
+                    val normalIds = (saved.normalCategoryKeys.mapNotNull(currentIdsByKey::get) + currentCategoryIds).distinct()
+                    val pinnedIds = (saved.pinnedOrderCategoryKeys.mapNotNull(currentIdsByKey::get) + pins).distinct()
+                    val identity = profile.identityKey
+                    val current = preferencesRepository.getCombinedLiveCategoryOrder(identity).first()
+                    val requested = com.streamvault.domain.model.LiveCategoryOrder(
+                        sortMode = mode,
+                        normalIds = normalIds,
+                        pinnedIds = pinnedIds,
+                        personalIds = emptyList(),
+                        pinnedCategoryIds = pins
+                    )
+                    when (preferencesRepository.saveCombinedLiveCategoryOrder(identity, current.revision, requested)) {
+                        is com.streamvault.domain.model.SaveLiveCategoryOrderResult.Saved -> Unit
+                        is com.streamvault.domain.model.SaveLiveCategoryOrderResult.Conflict ->
+                            unresolved += context.getString(R.string.backup_live_order_restore_issue)
+                    }
+                }
+            }
+        }
+        if (portable.liveChannelOrdersSpecified) {
+            val orderRepository = liveChannelOrderRepository
+            if (orderRepository == null) {
+                unresolved += context.getString(R.string.backup_live_order_restore_issue)
+            } else {
+                resolvedProviders.forEach { (providerReference, provider) ->
+                    val rawCategories = categoryDao?.getByProviderAndTypeSync(provider.id, ContentType.LIVE.name).orEmpty()
+                    val liveCategories = if (categoryDao != null) {
+                        rawCategories.map { it.toDomain() }
+                    } else {
+                        categories[provider.id].orEmpty().filter { it.type == ContentType.LIVE && !it.isVirtual }
+                    }
+                    val providerChannels = channels.getByProviderSync(provider.id).map { it.toDomain() }
+                    val sourceOrders = portable.liveChannelOrders.filter {
+                        it.provider == providerReference && !it.isFavorites && it.group == null
+                    }
+
+                    suspend fun restoreOrder(
+                        category: com.streamvault.domain.model.Category,
+                        categoryReference: PortableCategoryReference?,
+                        scopeOverride: LiveChannelOrderScope? = null,
+                        isFavorites: Boolean = false,
+                        groupReference: PortableVirtualGroupReference? = null,
+                        completeRowsOverride: List<com.streamvault.domain.model.Channel>? = null,
+                        candidateOrders: List<PortableLiveChannelOrderBackup> = sourceOrders
+                    ) {
+                        val scope = scopeOverride ?: liveChannelOrderScope(provider, category)
+                        val matching = candidateOrders.filter { saved ->
+                            val savedCategory = saved.category
+                            when {
+                                groupReference != null -> savedCategory == null && saved.group?.let { backupGroup ->
+                                    backupGroup.provider == groupReference.provider &&
+                                        backupGroup.contentType == groupReference.contentType &&
+                                        if (!backupGroup.identityKey.isNullOrBlank() && !groupReference.identityKey.isNullOrBlank()) {
+                                            backupGroup.identityKey == groupReference.identityKey
+                                        } else backupGroup.name.equals(groupReference.name, ignoreCase = true)
+                                } == true
+                                isFavorites -> savedCategory == null && saved.isFavorites && saved.group == null
+                                categoryReference == null -> savedCategory == null && !saved.isFavorites && saved.group == null
+                                savedCategory == null -> false
+                                saved.isFavorites || saved.group != null -> false
+                                savedCategory.provider != providerReference -> false
+                                savedCategory.type != ContentType.LIVE -> false
+                                else -> savedCategory.remoteCategoryId == categoryReference.remoteCategoryId
+                            }
+                        }
+                        if (matching.size > 1) {
+                            unresolved += context.getString(R.string.backup_live_order_restore_issue)
+                            return
+                        }
+                        val saved = matching.singleOrNull()
+                        val mode = saved?.mode?.let { name -> LiveChannelOrderMode.entries.firstOrNull { it.name == name } }
+                        if (saved != null && mode == null) {
+                            unresolved += context.getString(R.string.backup_live_order_restore_issue)
+                        }
+                        val restoredMode = mode ?: LiveChannelOrderMode.USE_DEFAULT
+                        val identityRows = saved?.manualChannels.orEmpty().mapNotNull { identity ->
+                            if (identity.provider != providerReference) {
+                                unresolved += context.getString(R.string.backup_live_order_restore_issue)
+                                return@mapNotNull null
+                            }
+                            providerChannels.singleOrNull { it.streamId == identity.streamId }
+                                ?: run {
+                                    unresolved += context.getString(R.string.backup_live_order_restore_issue)
+                                    null
+                                }
+                        }
+                        val proposedKeys = identityRows.map { "stream:${it.streamId}" }
+                        if (proposedKeys.distinct().size != proposedKeys.size) {
+                            unresolved += context.getString(R.string.backup_live_order_restore_issue)
+                            return
+                        }
+                        val completeRows = completeRowsOverride ?: if (categoryReference == null) providerChannels else {
+                            providerChannels.filter { it.categoryId == category.id }
+                        }
+                        val completeKeys = completeRows.asSequence()
+                            .mapNotNull { it.streamId.takeIf { streamId -> streamId != 0L }?.let { streamId -> "stream:$streamId" } }
+                            .distinct()
+                            .toList()
+                        val baseOrder = if (restoredMode == LiveChannelOrderMode.MANUAL || proposedKeys.isNotEmpty()) {
+                            LiveChannelOrder(restoredMode, proposedKeys).reconcile(completeKeys)
+                        } else {
+                            LiveChannelOrder(restoredMode)
+                        }
+                        val current = orderRepository.observe(scope).first()
+                        val requested = baseOrder.copy(revision = current.revision, catalogRevision = current.catalogRevision)
+                        when (orderRepository.save(scope, current.revision, requested)) {
+                            is LiveChannelOrderSaveResult.Saved -> Unit
+                            is LiveChannelOrderSaveResult.Conflict ->
+                                unresolved += context.getString(R.string.backup_live_order_restore_issue)
+                        }
+                    }
+
+                    liveCategories.forEach { category ->
+                        val remoteId = rawCategories.firstOrNull { it.categoryId == category.id }?.categoryId
+                            ?: category.id
+                        val categoryReferenceFromBackup = PortableCategoryReference(
+                            providerReference,
+                            category.name,
+                            ContentType.LIVE,
+                            remoteId
+                        )
+                        val backupCategory = sourceOrders.mapNotNull { it.category }
+                            .firstOrNull { it.provider == providerReference && it.type == ContentType.LIVE && it.remoteCategoryId == remoteId }
+                        val portableCategory = backupCategory ?: categoryReferenceFromBackup
+                        restoreOrder(category, portableCategory)
+                    }
+                    restoreOrder(
+                        com.streamvault.domain.model.Category(
+                            id = com.streamvault.domain.repository.ChannelRepository.ALL_CHANNELS_ID,
+                            name = "",
+                            type = ContentType.LIVE
+                        ),
+                        categoryReference = null
+                    )
+
+                    val favoriteOrders = portable.liveChannelOrders.filter {
+                        it.provider == providerReference && it.isFavorites && it.group == null
+                    }
+                    if (favoriteOrders.size > 1) {
+                        unresolved += context.getString(R.string.backup_live_order_restore_issue)
+                    } else {
+                        val favoriteRows = favoriteDao.getAllByType(provider.id, ContentType.LIVE.name).first()
+                            .filter { it.groupId == null }
+                            .mapNotNull { favorite -> providerChannels.singleOrNull { it.id == favorite.contentId } }
+                        restoreOrder(
+                            category = com.streamvault.domain.model.Category(
+                                id = com.streamvault.domain.model.VirtualCategoryIds.FAVORITES,
+                                name = "",
+                                type = ContentType.LIVE,
+                                isVirtual = true
+                            ),
+                            categoryReference = null,
+                            scopeOverride = liveFavoritesOrderScope(liveProviderOrderIdentity(provider)),
+                            isFavorites = true,
+                            completeRowsOverride = favoriteRows,
+                            candidateOrders = favoriteOrders
+                        )
+                    }
+
+                    val groupOrders = portable.liveChannelOrders.filter {
+                        it.provider == providerReference && it.group != null && !it.isFavorites
+                    }
+                    val liveGroups = virtualGroupDao.getByType(provider.id, ContentType.LIVE.name).first()
+                    liveGroups.forEach { groupEntity ->
+                        val group = groupEntity.toDomain()
+                        val portableGroup = PortableVirtualGroupReference(
+                            providerReference,
+                            group.name,
+                            group.contentType,
+                            group.identityKey
+                        )
+                        val groupFavorites = favoriteDao.getAllByType(provider.id, ContentType.LIVE.name).first()
+                            .filter { it.groupId == group.id }
+                        val groupRows = groupFavorites.mapNotNull { favorite ->
+                            providerChannels.singleOrNull { it.id == favorite.contentId }
+                        }
+                        val matches = groupOrders.filter { saved ->
+                            saved.group?.let { backupGroup ->
+                                backupGroup.provider == providerReference && backupGroup.contentType == group.contentType &&
+                                    if (!backupGroup.identityKey.isNullOrBlank()) backupGroup.identityKey == group.identityKey
+                                    else backupGroup.name.equals(group.name, ignoreCase = true)
+                            } == true
+                        }
+                        if (matches.size > 1) {
+                            unresolved += context.getString(R.string.backup_live_order_restore_issue)
+                        } else {
+                            restoreOrder(
+                                category = com.streamvault.domain.model.Category(
+                                    id = -group.id,
+                                    name = group.name,
+                                    type = group.contentType,
+                                    isVirtual = true
+                                ),
+                                categoryReference = null,
+                                scopeOverride = liveCustomGroupOrderScope(provider, group),
+                                groupReference = portableGroup,
+                                completeRowsOverride = groupRows,
+                                candidateOrders = matches
+                            )
+                        }
+                    }
+                }
+            }
+        }
+        if (portable.combinedLiveChannelOrdersSpecified) {
+            val orderRepository = liveChannelOrderRepository
+            val profileDao = combinedM3uProfileDao
+            val memberDao = combinedM3uProfileMemberDao
+            if (orderRepository == null || profileDao == null || memberDao == null) {
+                unresolved += context.getString(R.string.backup_live_order_restore_issue)
+            } else {
+                val profilesByIdentity = profileDao.getAll().first().groupBy { it.identityKey }
+                portable.combinedLiveChannelOrders.forEach { saved ->
+                    val isCategory = saved.categoryKey.startsWith("live:category:")
+                    if (saved.profileIdentityKey.isBlank() ||
+                        saved.categoryKey != "live:all" && saved.categoryKey != "live:favorites" && !isCategory ||
+                        isCategory && CombinedCategoryIdentity.keyForName(saved.categoryName.orEmpty()) != saved.categoryKey.removePrefix("live:category:") ||
+                        !isCategory && saved.categoryName != null
+                    ) {
+                        unresolved += context.getString(R.string.backup_live_order_restore_issue)
+                        return@forEach
+                    }
+                    val profile = profilesByIdentity[saved.profileIdentityKey]?.singleOrNull()
+                    if (profile == null) {
+                        unresolved += context.getString(R.string.backup_live_order_restore_issue)
+                        return@forEach
+                    }
+                    val mode = LiveChannelOrderMode.entries.firstOrNull { it.name == saved.mode }
+                    if (mode == null) {
+                        unresolved += context.getString(R.string.backup_live_order_restore_issue)
+                        return@forEach
+                    }
+                    val enabledMemberIds = memberDao.getForProfileSync(profile.id)
+                        .filter { it.enabled }
+                        .map { it.providerId }
+                        .distinct()
+                    val enabledMemberIdSet = enabledMemberIds.toSet()
+                    val providerById = resolvedProviders.values.associateBy { it.id }
+                    val memberProviders = enabledMemberIds.mapNotNull { providerId ->
+                        providerById[providerId]?.let { provider -> providerId to provider }
+                    }.toMap()
+                    val localRows = memberProviders.mapValues { (_, provider) ->
+                        channels.getByProviderSync(provider.id).map { it.toDomain() }
+                    }
+                    val favoriteIdsByProvider = if (saved.categoryKey == "live:favorites" && enabledMemberIds.isNotEmpty()) {
+                        favoriteDao.getAllByTypeForProviders(enabledMemberIds, ContentType.LIVE.name).first()
+                            .filter { it.groupId == null }
+                            .groupBy({ it.providerId }, { it.contentId })
+                            .mapValues { it.value.toSet() }
+                    } else emptyMap()
+                    val categoryIdsByProvider = if (isCategory) {
+                        memberProviders.mapValues { (_, provider) ->
+                            categoryRepository.getCategories(provider.id).first()
+                                .filter { it.type == ContentType.LIVE && !it.isVirtual }
+                                .filter { CombinedCategoryIdentity.keyForName(it.name) == saved.categoryKey.removePrefix("live:category:") }
+                                .map { it.id }
+                                .toSet()
+                        }
+                    } else emptyMap()
+                    fun isInScope(providerId: Long, channel: Channel): Boolean = when (saved.categoryKey) {
+                        "live:all" -> true
+                        "live:favorites" -> channel.id in favoriteIdsByProvider[providerId].orEmpty()
+                        else -> channel.categoryId in categoryIdsByProvider[providerId].orEmpty()
+                    }
+                    val completeRows = enabledMemberIds.flatMap { providerId ->
+                        localRows[providerId].orEmpty().filter { isInScope(providerId, it) }
+                    }
+                    val completeKeys = completeRows.flatMap { channel ->
+                        memberProviders[channel.providerId]?.let { provider ->
+                            channel.liveOrderKeys(liveProviderOrderIdentity(provider))
+                        }.orEmpty()
+                    }.distinct()
+                    val manualKeys = saved.manualChannels.mapNotNull { identity ->
+                        val provider = resolvedProviders[identity.provider]
+                        if (provider == null || identity.streamId == 0L) {
+                            unresolved += context.getString(R.string.backup_live_order_restore_issue)
+                            null
+                        } else if (provider.id !in enabledMemberIdSet) {
+                            // A removed or disabled member is pruned; stable provider identity prevents ID reuse.
+                            null
+                        } else {
+                            val channel = localRows[provider.id].orEmpty().singleOrNull { it.streamId == identity.streamId }
+                            if (channel == null) {
+                                unresolved += context.getString(R.string.backup_live_order_restore_issue)
+                                null
+                            } else if (!isInScope(provider.id, channel)) {
+                                null
+                            } else {
+                                "${liveProviderOrderIdentity(provider)}|stream:${identity.streamId}"
+                            }
+                        }
+                    }
+                    if (manualKeys.distinct().size != manualKeys.size) {
+                        unresolved += context.getString(R.string.backup_live_order_restore_issue)
+                        return@forEach
+                    }
+                    val scope = LiveChannelOrderScope("combined:${profile.identityKey}", saved.categoryKey)
+                    val current = orderRepository.observe(scope).first()
+                    val base = if (mode == LiveChannelOrderMode.MANUAL || manualKeys.isNotEmpty()) {
+                        LiveChannelOrder(mode, manualKeys).reconcile(completeKeys)
+                    } else LiveChannelOrder(mode)
+                    val requested = base.copy(revision = current.revision, catalogRevision = current.catalogRevision)
+                    if (orderRepository.save(scope, current.revision, requested) is LiveChannelOrderSaveResult.Conflict) {
+                        unresolved += context.getString(R.string.backup_live_order_restore_issue)
+                    }
+                }
+            }
         }
         portable.activeProvider?.let { reference ->
             resolveProvider(reference)?.let { provider ->
@@ -4115,7 +4858,10 @@ class BackupManagerImpl @Inject constructor(
                 val provider = resolveProvider(reference.provider)
                 val groupId = provider?.let { resolved ->
                     virtualGroupDao.getByType(resolved.id, reference.contentType.name).first()
-                        .filter { it.name.equals(reference.name, ignoreCase = true) }
+                        .filter { group ->
+                            if (!reference.identityKey.isNullOrBlank()) group.identityKey == reference.identityKey
+                            else group.name.equals(reference.name, ignoreCase = true)
+                        }
                         .singleOrNull()
                         ?.id
                 }
@@ -4161,7 +4907,10 @@ class BackupManagerImpl @Inject constructor(
                 return@mapNotNull null
             }
             virtualGroupDao.getByType(provider.id, reference.contentType.name).first()
-                .filter { it.name.equals(reference.name, true) }.singleOrNull()?.id
+                .filter { group ->
+                    if (!reference.identityKey.isNullOrBlank()) group.identityKey == reference.identityKey
+                    else group.name.equals(reference.name, true)
+                }.singleOrNull()?.id
                 ?: run {
                     promotedCanApply = false
                     unresolved += reference.unresolvedLabel("Group")
@@ -4229,6 +4978,41 @@ class BackupManagerImpl @Inject constructor(
                         ?.let { mode -> com.streamvault.domain.model.CategorySortMode.entries.firstOrNull { it.name == mode } }
                         ?: com.streamvault.domain.model.CategorySortMode.DEFAULT
                     preferencesRepository.setCategorySortMode(provider.id, type, savedMode)
+                }
+            }
+            portable.providerLiveCategoryOrders?.let { orders ->
+                val matches = orders.filter { it.provider == reference }
+                if (matches.size > 1) {
+                    unresolved += context.getString(R.string.backup_live_order_restore_issue)
+                } else matches.singleOrNull()?.let { saved ->
+                    val validCategoryIds = categories[provider.id].orEmpty()
+                        .filter { it.type == ContentType.LIVE && !it.isVirtual }.map { it.id }.toSet()
+                    val groupsByIdentity = if (saved.personalKeys.any { it.startsWith("group:") }) {
+                        virtualGroupDao.getByType(provider.id, ContentType.LIVE.name).first().groupBy { it.identityKey }
+                    } else emptyMap()
+                    val personal = saved.personalKeys.mapNotNull { key -> when (key) {
+                        "all" -> com.streamvault.domain.repository.ChannelRepository.ALL_CHANNELS_ID
+                        "favorites" -> com.streamvault.domain.model.VirtualCategoryIds.FAVORITES
+                        "recent" -> com.streamvault.domain.model.VirtualCategoryIds.RECENT
+                        else -> key.removePrefix("group:").takeIf { key.startsWith("group:") }
+                            ?.let(groupsByIdentity::get)?.singleOrNull()?.id?.let { -it }
+                    } }
+                    if (saved.normalCategoryIds.any { it !in validCategoryIds } ||
+                        saved.pinnedOrderCategoryIds.any { it !in validCategoryIds } ||
+                        personal.size != saved.personalKeys.size ||
+                        saved.normalCategoryIds.distinct().size != saved.normalCategoryIds.size ||
+                        saved.pinnedOrderCategoryIds.distinct().size != saved.pinnedOrderCategoryIds.size ||
+                        personal.distinct().size != personal.size) {
+                        unresolved += context.getString(R.string.backup_live_order_restore_issue)
+                    } else {
+                        val current = preferencesRepository.getLiveCategoryOrder(provider.id).first()
+                        val requested = current.copy(normalIds = saved.normalCategoryIds,
+                            pinnedIds = saved.pinnedOrderCategoryIds, personalIds = personal)
+                        if (preferencesRepository.saveLiveCategoryOrder(provider.id, current.revision, requested)
+                            is com.streamvault.domain.model.SaveLiveCategoryOrderResult.Conflict) {
+                            unresolved += context.getString(R.string.backup_live_order_restore_issue)
+                        }
+                    }
                 }
             }
         }
@@ -4494,6 +5278,10 @@ class BackupManagerImpl @Inject constructor(
             ?.let { preferencesRepository.setShowRecentChannelsCategory(it) }
         prefs["hideDecorativeLiveRows"]?.toBooleanStrictOrNull()
             ?.let { preferencesRepository.setHideDecorativeLiveRows(it) }
+        prefs["defaultLiveChannelOrder"]?.let { savedMode ->
+            com.streamvault.domain.policy.liveChannelPresetModes.firstOrNull { it.name == savedMode }
+                ?.let { preferencesRepository.setDefaultLiveChannelOrder(it) }
+        }
         prefs["liveChannelNumberingMode"]?.let { savedMode ->
             preferencesRepository.setLiveChannelNumberingMode(
                 com.streamvault.domain.model.ChannelNumberingMode.fromStorage(savedMode)
@@ -5424,13 +6212,34 @@ class BackupManagerImpl @Inject constructor(
         var existingProfiles = profileDao.getAll().first()
 
         profiles.forEach { backup ->
-            val existing = existingProfiles.firstOrNull { it.name.equals(backup.name, ignoreCase = true) }
+            val legacyIdentity = backup.identityKey?.matches(Regex("legacy-combined-[0-9]+")) == true
+            val existing = if (legacyIdentity) {
+                val sourceMembers = backup.members.sortedBy { it.priority }.map { it.provider }
+                if (sourceMembers.isEmpty()) null else {
+                    val matches = mutableListOf<CombinedM3uProfileEntity>()
+                    for (candidate in existingProfiles.filter { it.name.equals(backup.name, ignoreCase = true) }) {
+                        val references = memberDao.getForProfileSync(candidate.id).sortedBy { it.priority }
+                            .mapNotNull { member -> storedProviders.firstOrNull { it.id == member.providerId }?.toBackupProviderReference() }
+                        if (references == sourceMembers) matches += candidate
+                    }
+                    matches.singleOrNull()
+                }
+            } else backup.identityKey?.takeIf { it.isNotBlank() }
+                ?.let { identity -> existingProfiles.firstOrNull { it.identityKey == identity } }
+                ?: existingProfiles.firstOrNull { it.name.equals(backup.name, ignoreCase = true) }
+            if (legacyIdentity && existing?.identityKey?.matches(Regex("legacy-combined-[0-9]+")) == true) {
+                unresolved += context.getString(R.string.backup_live_order_restore_issue)
+                return@forEach
+            }
             val profileId = if (existing != null && conflictStrategy == BackupConflictStrategy.KEEP_EXISTING) {
                 existing.id
             } else {
                 val now = System.currentTimeMillis()
                 val entity = CombinedM3uProfileEntity(
                     id = existing?.id ?: 0L,
+                    identityKey = backup.identityKey?.takeIf { it.isNotBlank() && !legacyIdentity }
+                        ?: existing?.identityKey
+                        ?: java.util.UUID.randomUUID().toString(),
                     name = backup.name,
                     enabled = backup.enabled,
                     createdAt = backup.createdAt.takeIf { it > 0L } ?: existing?.createdAt ?: now,
@@ -5472,25 +6281,33 @@ class BackupManagerImpl @Inject constructor(
                     }
                 }
                 "combined_m3u" -> {
-                    val profilesByName = profileDao.getAll().first()
+                    val allProfiles = profileDao.getAll().first()
+                    val legacyIdentity = source.combinedProfileIdentityKey
+                        ?.matches(Regex("legacy-combined-[0-9]+")) == true
+                    val exactIdentity = source.combinedProfileIdentityKey?.takeUnless { legacyIdentity }?.let { key ->
+                        allProfiles.firstOrNull { it.identityKey == key }
+                    }
+                    val profilesByName = allProfiles
                         .filter { profile -> profile.name.equals(source.combinedProfileName, true) }
                     val profileByMembers = if (source.combinedProfileProviders.isEmpty()) {
                         null
                     } else {
-                        profilesByName.firstOrNull { profile ->
+                        profilesByName.filter { profile ->
                             val localProviders = memberDao.getForProfileSync(profile.id)
                                 .sortedWith(compareBy({ member -> member.priority }, { member -> member.id }))
                                 .mapNotNull { member ->
                                     storedProviders.firstOrNull { provider -> provider.id == member.providerId }
                                         ?.toBackupProviderReference()
                                 }
-                            localProviders == source.combinedProfileProviders
-                        }
+                            localProviders == source.combinedProfileProviders &&
+                                (!legacyIdentity || !profile.identityKey.matches(Regex("legacy-combined-[0-9]+")))
+                        }.singleOrNull()
                     }
-                    val profileId = profileByMembers?.id
-                        ?: source.combinedProfileName
-                            ?.let { restoredProfileIdsByName[it.lowercase()] }
-                        ?: profilesByName.firstOrNull()?.id
+                    val profileId = exactIdentity?.id ?: profileByMembers?.id
+                        ?: if (legacyIdentity) null else {
+                            source.combinedProfileName?.let { restoredProfileIdsByName[it.lowercase()] }
+                                ?: profilesByName.singleOrNull()?.id
+                        }
                     if (profileId == null) {
                         unresolved += "Active combined M3U profile '${source.combinedProfileName.orEmpty()}' was not found"
                     } else {
@@ -5581,7 +6398,12 @@ class BackupManagerImpl @Inject constructor(
                     return@forEach
                 }
                 val insertedId = virtualGroupDao.insert(
-                    group.copy(id = 0L, providerId = resolvedProviderId).toEntity()
+                    group.copy(
+                        id = 0L,
+                        providerId = resolvedProviderId,
+                        identityKey = group.identityKey.orEmpty().takeIf(String::isNotBlank)
+                            ?: java.util.UUID.randomUUID().toString()
+                    ).toEntity()
                 )
                 groupIdMap[group.id] = insertedId
             }
@@ -6838,6 +7660,12 @@ private val RECORDING_STORAGE_TYPE: Type = RecordingStorageBackup::class.java
 private val BACKUP_PROVIDER_REFERENCE_TYPE: Type = BackupProviderReference::class.java
 private val PORTABLE_CATEGORY_REFERENCE_TYPE: Type = PortableCategoryReference::class.java
 private val PORTABLE_CATEGORY_SORT_REFERENCE_TYPE: Type = PortableCategorySortReference::class.java
+private val PORTABLE_LIVE_CHANNEL_ORDER_TYPE: Type = PortableLiveChannelOrderBackup::class.java
+private val PORTABLE_LIVE_CHANNEL_IDENTITY_TYPE: Type = PortableLiveChannelIdentity::class.java
+private val PORTABLE_COMBINED_LIVE_CHANNEL_ORDER_TYPE: Type = PortableCombinedLiveChannelOrderBackup::class.java
+private val PORTABLE_COMBINED_LIVE_CHANNEL_ORDER_LIST_TYPE: Type =
+    object : TypeToken<List<PortableCombinedLiveChannelOrderBackup>>() {}.type
+private val PORTABLE_COMBINED_CATEGORY_ORDER_TYPE: Type = PortableCombinedCategoryOrderBackup::class.java
 private val PORTABLE_GROUP_REFERENCE_TYPE: Type = PortableVirtualGroupReference::class.java
 private val PORTABLE_CHANNEL_REFERENCE_TYPE: Type = PortableChannelReference::class.java
 private val PORTABLE_CHANNEL_PREFERENCE_REFERENCE_TYPE: Type = PortableChannelPreferenceReference::class.java

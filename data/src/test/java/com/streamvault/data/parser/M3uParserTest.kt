@@ -81,6 +81,81 @@ class M3uParserTest {
     }
 
     @Test
+    fun `parse_extinfUserAgent_isRetainedInPlaybackMetadata`() {
+        val m3u = """
+            #EXTM3U
+            #EXTINF:-1 user-agent="EntryAgent/1.0" group-title="News",News
+            https://stream.example.com/news.m3u8
+        """.trimIndent()
+
+        val entry = parseEntries(m3u).single()
+
+        assertThat(entry.userAgent).isEqualTo("EntryAgent/1.0")
+        assertThat(entry.playbackMetadata?.userAgent).isEqualTo("EntryAgent/1.0")
+    }
+
+    @Test
+    fun `parse_headerUserAgent_isRetainedInPlaybackMetadata`() {
+        val m3u = """
+            #EXTM3U user-agent="GlobalAgent/1.0"
+            #EXTINF:-1 group-title="News",News
+            https://stream.example.com/news.m3u8
+        """.trimIndent()
+
+        val entry = parseEntries(m3u).single()
+
+        assertThat(entry.userAgent).isEqualTo("GlobalAgent/1.0")
+        assertThat(entry.playbackMetadata?.userAgent).isEqualTo("GlobalAgent/1.0")
+    }
+
+    @Test
+    fun `parse_pipeHeadersOnStreamUrl_stripsSuffixAndAttachesMetadata`() {
+        val m3u = """
+            #EXTM3U
+            #EXTINF:-1 tvg-logo="https://img.example/cnn.png" group-title="Notícias",CNN Brasil FHD
+            https://stream.example.com/cnnbrasil/index.m3u8|Referer=https://embed.example/&User-Agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36
+        """.trimIndent()
+
+        val entry = parseEntries(m3u).single()
+
+        assertThat(entry.url).isEqualTo("https://stream.example.com/cnnbrasil/index.m3u8")
+        assertThat(entry.userAgent).isEqualTo(
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36"
+        )
+        assertThat(entry.playbackMetadata?.referer).isEqualTo("https://embed.example/")
+        assertThat(entry.playbackMetadata?.userAgent).isEqualTo(entry.userAgent)
+    }
+
+    @Test
+    fun `parse_pipeHeadersOnStreamUrl_decodesPercentEncodedValues`() {
+        val m3u = """
+            #EXTM3U
+            #EXTINF:-1 group-title="News",News
+            https://stream.example.com/news.m3u8|Referer=https%3A%2F%2Fembed.example%2F&User-Agent=Mozilla%2F5.0%20Test
+        """.trimIndent()
+
+        val entry = parseEntries(m3u).single()
+
+        assertThat(entry.playbackMetadata?.referer).isEqualTo("https://embed.example/")
+        assertThat(entry.playbackMetadata?.userAgent).isEqualTo("Mozilla/5.0 Test")
+    }
+
+    @Test
+    fun `parse_pipeHeadersOnStreamUrl_keepsAdditionalHeaders`() {
+        val m3u = """
+            #EXTM3U
+            #EXTINF:-1 group-title="News",News
+            https://stream.example.com/news.m3u8|Origin=https://embed.example&X-Custom=value
+        """.trimIndent()
+
+        val entry = parseEntries(m3u).single()
+
+        assertThat(entry.url).isEqualTo("https://stream.example.com/news.m3u8")
+        assertThat(entry.playbackMetadata?.commonHeaders).containsEntry("Origin", "https://embed.example")
+        assertThat(entry.playbackMetadata?.commonHeaders).containsEntry("X-Custom", "value")
+    }
+
+    @Test
     fun `parse_malformedEntry_skipsGracefully`() {
         // Second entry has no URL line — should be skipped
         val m3u = """

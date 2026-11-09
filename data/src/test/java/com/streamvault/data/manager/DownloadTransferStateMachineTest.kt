@@ -17,6 +17,21 @@ import org.junit.Test
 class DownloadTransferStateMachineTest {
 
     @Test
+    fun `last scheduled retry can start and a further failure is terminal`() {
+        val machine = DownloadTransferStateMachine(maxRetries = 5)
+        val scheduled = machine.failure(4, DownloadFailureKind.TRANSIENT, "network error")
+
+        assertThat(scheduled.status).isEqualTo(DownloadStatus.PAUSED)
+        assertThat(scheduled.retryCount).isEqualTo(5)
+        assertThat(machine.canStartQueued(DownloadStatus.PAUSED, scheduled.retryCount)).isFalse()
+        assertThat(machine.canStartQueued(DownloadStatus.PENDING, scheduled.retryCount)).isTrue()
+        assertThat(machine.failure(scheduled.retryCount, DownloadFailureKind.TRANSIENT, "network error").status)
+            .isEqualTo(DownloadStatus.FAILED)
+        assertThat(machine.canStartQueued(DownloadStatus.PENDING, 6)).isFalse()
+        assertThat(machine.canStartQueued(DownloadStatus.PAUSED, 0)).isTrue()
+    }
+
+    @Test
     fun `transient failures use bounded retry schedule`() {
         val machine = DownloadTransferStateMachine(maxRetries = 5)
 

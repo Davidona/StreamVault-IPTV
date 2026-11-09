@@ -19,4 +19,5 @@
     <string name="player_no_archive">לא נמצאו תוכניות בארכיון</string>
     <string name="program_date_time_range">%1$s | %2$s עד %3$s</string>
     <string name="player_archive_badge">ארכיון</string>
+    <string name="cast_scoped_headers_unsupported">לא ניתן לשלוח כותרות בקשה של תוסף למקלט Cast.</string>
 </resources>

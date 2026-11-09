@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="player_error_live_startup_timeout">No se pudo iniciar la reproducción. Prueba otra transmisión.</string>
+    <string name="player_track_closed_captions">Subtítulos ocultos</string>
+    <string name="player_track_closed_captions_numbered">Subtítulos ocultos %1$d</string>
 </resources>

@@ -964,4 +964,13 @@
     <string name="settings_text_size_default">Parazgjedhja (100%)</string>
     <string name="settings_text_size_system">Sipas pajisjes</string>
     <string name="settings_text_size_custom">E personalizuar</string>
+    <string name="settings_privacy_policy">Politika e privatësisë</string>
+    <string name="settings_category_reorder_channels">Rirendit kanalet</string>
+    <string name="settings_category_sort_manual">Manualisht</string>
+    <string name="settings_category_reorder_categories">Rendit kategoritë</string>
+    <string name="settings_default_live_channel_order">Renditja e parazgjedhur e kanaleve</string>
+    <string name="settings_live_order_save_failed">Renditja e kanaleve nuk mund të ruhej. Provoni përsëri.</string>
+    <string name="settings_live_order_recent">Të shikuara së fundi</string>
+    <string name="settings_live_order_most">Më të shikuarat</string>
+    <string name="settings_live_order_usage_help">Shikimi llogaritet pas 10 sekondash riprodhim. Më të shikuarat mbledh kohën e riprodhimit gjatë 30 ditëve të fundit.</string>
 </resources>

@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="backup_live_order_restore_issue">Nie udało się przywrócić niektórych ustawień kolejności kanałów na żywo.</string>
+</resources>

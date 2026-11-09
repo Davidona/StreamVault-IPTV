@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="player_error_live_startup_timeout">Prehrávanie sa nepodarilo spustiť. Skúste iný stream.</string>
+    <string name="player_track_closed_captions">Skryté titulky</string>
+    <string name="player_track_closed_captions_numbered">Skryté titulky %1$d</string>
 </resources>

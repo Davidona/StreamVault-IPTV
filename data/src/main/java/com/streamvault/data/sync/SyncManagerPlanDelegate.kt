@@ -53,14 +53,14 @@ internal class SyncManagerPlanDelegate(
         xtreamCatalogSectionExecutor.syncMovies(
             request.snapshot.toLegacyProvider(),
             request.onProgress,
-            preservePendingIndex = !request.retryFailedCategoriesOnly
+            preservePendingIndex = request.preservePendingCatalogIndex()
         )
 
     override suspend fun syncXtreamSeries(request: SectionProviderSyncRequest): SyncOutcome =
         xtreamCatalogSectionExecutor.syncSeries(
             request.snapshot.toLegacyProvider(),
             request.onProgress,
-            preservePendingIndex = !request.retryFailedCategoriesOnly
+            preservePendingIndex = request.preservePendingCatalogIndex()
         )
 
     override suspend fun syncXtreamGuide(request: ProviderGuideSyncRequest): ProviderGuideSyncResult {
@@ -126,7 +126,7 @@ internal class SyncManagerPlanDelegate(
         stalkerCatalogSectionExecutor.syncMovies(
             request.snapshot.toLegacyProvider(),
             request.onProgress,
-            preservePendingIndex = !request.retryFailedCategoriesOnly,
+            preservePendingIndex = request.preservePendingCatalogIndex(),
             indexCatalog = request.syncReason != XtreamLiveSyncReason.BACKGROUND_STALE ||
                 (request.snapshot.configuration as com.streamvault.domain.model.StalkerConfig).catalogMode == com.streamvault.domain.model.StalkerCatalogMode.BACKGROUND_INDEX
         )
@@ -135,7 +135,7 @@ internal class SyncManagerPlanDelegate(
         stalkerCatalogSectionExecutor.syncSeries(
             request.snapshot.toLegacyProvider(),
             request.onProgress,
-            preservePendingIndex = !request.retryFailedCategoriesOnly,
+            preservePendingIndex = request.preservePendingCatalogIndex(),
             indexCatalog = request.syncReason != XtreamLiveSyncReason.BACKGROUND_STALE ||
                 (request.snapshot.configuration as com.streamvault.domain.model.StalkerConfig).catalogMode == com.streamvault.domain.model.StalkerCatalogMode.BACKGROUND_INDEX
         )

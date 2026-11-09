@@ -130,7 +130,7 @@ class PlaybackBufferPoliciesTest {
     }
 
     @Test
-    fun `manual mode ceilings stay unchanged for non-raw formats and non-live content`() {
+    fun `manual modes preserve live ceilings and override non-live raw TS policy`() {
         val liveFormats = listOf(
             ResolvedStreamType.HLS to StreamType.HLS,
             ResolvedStreamType.DASH to StreamType.DASH,
@@ -188,10 +188,63 @@ class PlaybackBufferPoliciesTest {
                         streamInfo = info
                     )
 
-                    assertEquals("$kind / lowMemory=$lowMemory / $mode", automatic, actual)
+                    assertEquals(
+                        "$kind / lowMemory=$lowMemory / $mode",
+                        expectedPolicy(kind, ResolvedStreamType.MPEG_TS_LIVE, lowMemory, mode),
+                        actual
+                    )
+                    assertThat(actual).isNotEqualTo(automatic)
                 }
             }
         }
+    }
+
+    @Test
+    fun `low-memory VOD honors explicit medium and large buffer preferences`() {
+        val info = StreamInfo(
+            url = "https://example.invalid/movie.mp4",
+            streamType = StreamType.PROGRESSIVE,
+            playbackContentKind = PlaybackContentKind.ON_DEMAND
+        )
+        val medium = PlaybackBufferPolicies.forPlayback(
+            resolvedStreamType = ResolvedStreamType.PROGRESSIVE,
+            compatibilityMode = false,
+            lowMemoryDevice = true,
+            bufferMode = PlaybackBufferMode.MEDIUM,
+            streamInfo = info
+        )
+        val large = PlaybackBufferPolicies.forPlayback(
+            resolvedStreamType = ResolvedStreamType.PROGRESSIVE,
+            compatibilityMode = false,
+            lowMemoryDevice = true,
+            bufferMode = PlaybackBufferMode.LARGE,
+            streamInfo = info
+        )
+        val automatic = PlaybackBufferPolicies.forPlayback(
+            resolvedStreamType = ResolvedStreamType.PROGRESSIVE,
+            compatibilityMode = false,
+            lowMemoryDevice = true,
+            bufferMode = PlaybackBufferMode.AUTO,
+            streamInfo = info
+        )
+
+        assertThat(medium.label).isEqualTo("medium-vod")
+        assertThat(medium.minBufferMs).isEqualTo(45_000)
+        assertThat(medium.maxBufferMs).isEqualTo(90_000)
+        assertThat(medium.playbackBufferMs).isEqualTo(30_000)
+        assertThat(medium.rebufferMs).isEqualTo(6_000)
+        assertThat(medium.qualityReason).isEqualTo("user-medium")
+
+        assertThat(large.label).isEqualTo("large-vod")
+        assertThat(large.minBufferMs).isEqualTo(90_000)
+        assertThat(large.maxBufferMs).isEqualTo(240_000)
+        assertThat(large.playbackBufferMs).isEqualTo(8_000)
+        assertThat(large.rebufferMs).isEqualTo(18_000)
+        assertThat(large.qualityReason).isEqualTo("user-large")
+
+        assertThat(automatic.label).isEqualTo("lowmem-vod")
+        assertThat(automatic.minBufferMs).isEqualTo(15_000)
+        assertThat(automatic.maxBufferMs).isEqualTo(45_000)
     }
 
     private fun expectedPolicy(
@@ -244,6 +297,31 @@ class PlaybackBufferPoliciesTest {
             } else {
                 policy
             }
+        }
+
+        if (!live && mode == PlaybackBufferMode.MEDIUM) {
+            return PlaybackBufferPolicy(
+                label = "medium-vod",
+                minBufferMs = 45_000,
+                maxBufferMs = 90_000,
+                playbackBufferMs = 30_000,
+                rebufferMs = 6_000,
+                targetBufferBytes = -1,
+                prioritizeTimeOverSizeThresholds = false,
+                qualityReason = "user-medium"
+            )
+        }
+        if (!live && mode == PlaybackBufferMode.LARGE) {
+            return PlaybackBufferPolicy(
+                label = "large-vod",
+                minBufferMs = 90_000,
+                maxBufferMs = 240_000,
+                playbackBufferMs = 8_000,
+                rebufferMs = 18_000,
+                targetBufferBytes = -1,
+                prioritizeTimeOverSizeThresholds = false,
+                qualityReason = "user-large"
+            )
         }
 
         if (!live && resolvedType == ResolvedStreamType.HLS) {

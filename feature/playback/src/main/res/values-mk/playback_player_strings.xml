@@ -190,6 +190,7 @@
     <string name="player_more_controls">Повеќе контроли</string>
     <string name="player_multiview_short">Мултиприказ</string>
     <string name="player_mute">Исклучи звук</string>
+    <string name="player_more">Повеќе</string>
     <string name="player_muted_badge">Исклучен звук</string>
     <string name="player_next_label">Следно:</string>
     <string name="player_no_guide_data">Нема податоци од водичот</string>
@@ -297,4 +298,9 @@
     <string name="player_diagnostics_quality_bitrate_summary">Бит-стапка: %1$s Mbps</string>
     <string name="player_recording_failure_output_too_slow">Локацијата за снимање не можеше да ја следи репродукцијата во живо.</string>
     <string name="player_schedule_by_time">Ð—Ð°ÐºÐ°Ð¶Ð¸ Ð¿Ð¾ Ð²Ñ€ÐµÐ¼Ðµ</string>     <string name="player_schedule_by_time_title">Ð—Ð°ÐºÐ°Ð¶Ð¸ ÑÐ½Ð¸Ð¼Ð°ÑšÐµ</string>     <string name="player_schedule_by_time_start">ÐŸÐ¾Ñ‡ÐµÑ‚Ð¾Ðº</string>     <string name="player_schedule_by_time_duration">Ð’Ñ€ÐµÐ¼ÐµÑ‚Ñ€Ð°ÐµÑšÐµ</string>     <string name="player_schedule_by_time_repeat">ÐŸÐ¾Ð²Ñ‚Ð¾Ñ€Ð¸</string>     <string name="player_schedule_by_time_once">Ð•Ð´Ð½Ð°Ñˆ</string>     <string name="player_schedule_by_time_daily">Ð”Ð½ÐµÐ²Ð½Ð¾</string>     <string name="player_schedule_by_time_weekly">ÐÐµÐ´ÐµÐ»Ð½Ð¾</string>     <string name="player_schedule_by_time_confirm">Ð—Ð°ÐºÐ°Ð¶Ð¸</string>     <string name="player_schedule_by_time_cancel">ÐžÑ‚ÐºÐ°Ð¶Ð¸</string>     <string name="player_schedule_by_time_duration_hm">%1$d Ñ‡ %2$d Ð¼Ð¸Ð½</string>     <string name="player_schedule_by_time_duration_h">%1$d Ñ‡</string>     <string name="player_schedule_by_time_duration_m">%1$d Ð¼Ð¸Ð½</string>     <string name="player_recording_needs_live_channel">Ð¡Ð½Ð¸Ð¼Ð°ÑšÐµÑ‚Ð¾ Ð±Ð°Ñ€Ð° ÐºÐ°Ð½Ð°Ð» Ð²Ð¾ Ð¶Ð¸Ð²Ð¾.</string>     <string name="player_recording_started_notice">Ð¡Ð½Ð¸Ð¼Ð°ÑšÐµÑ‚Ð¾ Ð·Ð°Ð¿Ð¾Ñ‡Ð½Ð° Ð·Ð° %1$s.</string>     <string name="player_recording_scheduled_notice">%1$s Ðµ Ð·Ð°ÐºÐ°Ð¶Ð°Ð½Ð¾.</string>     <string name="player_recording_scheduled_daily_notice">%1$s Ðµ Ð·Ð°ÐºÐ°Ð¶Ð°Ð½Ð¾ Ð´Ð½ÐµÐ²Ð½Ð¾.</string>     <string name="player_recording_scheduled_weekly_notice">%1$s Ðµ Ð·Ð°ÐºÐ°Ð¶Ð°Ð½Ð¾ Ð½ÐµÐ´ÐµÐ»Ð½Ð¾.</string>     <string name="player_recording_failed_notice">Ð¡Ð½Ð¸Ð¼Ð°ÑšÐµÑ‚Ð¾ Ð½Ðµ Ð¼Ð¾Ð¶ÐµÑˆÐµ Ð´Ð° ÑÐµ Ð·Ð°ÐºÐ°Ð¶Ðµ.</string>     <string name="player_recording_stopped_notice">Ð¡Ð½Ð¸Ð¼Ð°ÑšÐµÑ‚Ð¾ Ðµ Ð·Ð°Ð¿Ñ€ÐµÐ½Ð¾.</string>
+    <string name="player_track_no_audio_tracks">Нема аудио патеки</string>
+    <string name="player_stremio_subtitles_heading">Преводи од Stremio</string>
+    <string name="player_stremio_subtitles_loading">Се вчитуваат преводите од додатокот…</string>
+    <string name="player_stremio_subtitles_empty">Нема достапни преводи од додатокот</string>
+    <string name="player_stremio_subtitles_retry">Обиди се повторно да ги вчиташ преводите од додатокот</string>
 </resources>

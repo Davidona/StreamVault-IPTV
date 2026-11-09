@@ -969,4 +969,13 @@
     <string name="settings_text_size_default">ברירת מחדל (100%)</string>
     <string name="settings_text_size_system">לפי הגדרות המכשיר</string>
     <string name="settings_text_size_custom">מותאם אישית</string>
+    <string name="settings_privacy_policy">מדיניות פרטיות</string>
+    <string name="settings_category_reorder_channels">סדר מחדש את הערוצים</string>
+    <string name="settings_category_sort_manual">ידני</string>
+    <string name="settings_category_reorder_categories">שינוי סדר הקטגוריות</string>
+    <string name="settings_default_live_channel_order">סדר ערוצים כברירת מחדל</string>
+    <string name="settings_live_order_save_failed">לא ניתן לשמור את סדר הערוצים. נסו שוב.</string>
+    <string name="settings_live_order_recent">נצפו לאחרונה</string>
+    <string name="settings_live_order_most">הנצפים ביותר</string>
+    <string name="settings_live_order_usage_help">הצפייה נספרת לאחר 10 שניות ניגון. הנצפים ביותר מסכם את זמן הניגון ב־30 הימים האחרונים.</string>
 </resources>

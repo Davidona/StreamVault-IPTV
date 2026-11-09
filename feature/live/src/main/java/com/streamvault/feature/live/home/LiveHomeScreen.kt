@@ -86,6 +86,7 @@ import com.streamvault.feature.live.presentation.remote.dispatchLiveBrowseRemote
 import com.streamvault.feature.live.presentation.remote.remoteColorButtonForKeyCode
 import com.streamvault.feature.live.api.LiveHomeScaffoldContent
 import com.streamvault.feature.live.api.LiveAddToGroupContent
+import com.streamvault.feature.live.phone.PhoneOrderingDialog
 
 private enum class FocusRestoreTarget {
     CATEGORY,
@@ -150,6 +151,18 @@ fun LiveHomeScreen(
     var showAddQuickFilterDialog by rememberSaveable { mutableStateOf(false) }
     var showHiddenCategoriesDialog by rememberSaveable { mutableStateOf(false) }
     var showHiddenChannelsDialog by rememberSaveable { mutableStateOf(false) }
+    var showChannelMoveDialog by remember { mutableStateOf(false) }
+    var showDiscardOrder by remember { mutableStateOf(false) }
+    val requestExitReorder = {
+        if (!uiState.isSavingChannelOrder) {
+            if (viewModel.hasChannelOrderChanges()) showDiscardOrder = true else viewModel.exitChannelReorderMode()
+        }
+    }
+    var providerCategoryToReorder by remember { mutableStateOf<Pair<Long, Category>?>(null) }
+    var providerToReorderCategories by remember { mutableStateOf<Long?>(null) }
+    var combinedProfileToReorderCategories by remember { mutableStateOf<Long?>(null) }
+    var phoneOrderLaunch by remember { mutableStateOf<Pair<Long, Long?>?>(null) }
+    LaunchedEffect(isReorderMode) { if (!isReorderMode) { showChannelMoveDialog = false; showDiscardOrder = false } }
     val landscapeSidebarHidden = rememberSaveable { mutableStateOf(false) }
     val portraitSidebarHidden = rememberSaveable { mutableStateOf(true) }
     var isCategorySidebarHidden by if (portrait) portraitSidebarHidden else landscapeSidebarHidden
@@ -199,12 +212,15 @@ fun LiveHomeScreen(
 
         val hasOverlay = showPinDialog || showSplitManagerDialog || pendingSplitPlannerChannel != null ||
         showAddQuickFilterDialog || showHiddenCategoriesDialog || showHiddenChannelsDialog ||
-        uiState.showDialog || uiState.showDeleteGroupDialog ||
+        phoneOrderLaunch != null || uiState.showDialog || uiState.showDeleteGroupDialog ||
         uiState.showRenameGroupDialog || uiState.selectedCategoryForOptions != null ||
         isReorderMode
 
-    BackHandler(enabled = hasOverlay) {
+    val orderEditorOpen = providerToReorderCategories != null || combinedProfileToReorderCategories != null ||
+        providerCategoryToReorder != null
+    BackHandler(enabled = hasOverlay && !orderEditorOpen) {
         when {
+            phoneOrderLaunch != null -> phoneOrderLaunch = null
             showAddQuickFilterDialog -> showAddQuickFilterDialog = false
             showHiddenCategoriesDialog -> showHiddenCategoriesDialog = false
             showHiddenChannelsDialog -> showHiddenChannelsDialog = false
@@ -220,15 +236,15 @@ fun LiveHomeScreen(
             uiState.selectedCategoryForOptions != null -> viewModel.dismissCategoryOptions()
             uiState.showDialog -> viewModel.onDismissDialog()
             showSplitManagerDialog -> showSplitManagerDialog = false
-            isReorderMode -> viewModel.exitChannelReorderMode()
+            isReorderMode -> requestExitReorder()
         }
     }
 
-    BackHandler(enabled = !portrait && isCategorySidebarHidden && !hasOverlay) {
+    BackHandler(enabled = !portrait && isCategorySidebarHidden && !hasOverlay && !orderEditorOpen) {
         revealCategorySidebar()
     }
 
-    BackHandler(enabled = portrait && !isCategorySidebarHidden && !hasOverlay) {
+    BackHandler(enabled = portrait && !isCategorySidebarHidden && !hasOverlay && !orderEditorOpen) {
         isCategorySidebarHidden = true
     }
 
@@ -263,7 +279,20 @@ fun LiveHomeScreen(
         addToGroupContent = addToGroupContent,
         isChannelQueuedForMultiView = isChannelQueuedForMultiView,
         resolveProviderForChannel = resolveProviderForChannel,
-        scope = scope
+        scope = scope,
+        onReorderProviderCategory = { category -> uiState.provider?.id?.let { providerCategoryToReorder = it to category } },
+        onReorderCategories = {
+            if (uiState.isCombinedLiveSource) {
+                combinedProfileToReorderCategories = (uiState.activeLiveSource as? ActiveLiveSource.CombinedM3uSource)?.profileId
+            } else {
+                providerToReorderCategories = uiState.provider?.id
+            }
+        },
+        onManageOnPhone = { category ->
+            uiState.provider?.id?.takeIf { !uiState.isCombinedLiveSource }?.let { providerId ->
+                phoneOrderLaunch = providerId to category.id
+            }
+        }
     )
 
     LaunchedEffect(uiState.hiddenLiveCategories.isEmpty()) {
@@ -312,7 +341,32 @@ fun LiveHomeScreen(
         )
     }
 
+    if (showDiscardOrder && isReorderMode && !uiState.isSavingChannelOrder) {
+        com.streamvault.feature.live.presentation.dialogs.LiveOrderDiscardDialog(
+            onDiscard = { showDiscardOrder = false; viewModel.exitChannelReorderMode() },
+            onKeepEditing = { showDiscardOrder = false })
+    }
     Box(modifier = Modifier.fillMaxSize()) {
+        phoneOrderLaunch?.let { (providerId, categoryId) ->
+            PhoneOrderingDialog(providerId, categoryId, onDismiss = { phoneOrderLaunch = null })
+        }
+        providerToReorderCategories?.let { providerId ->
+            ProviderCategoryOrderEditor(providerId, onDismiss = { providerToReorderCategories = null })
+        }
+        combinedProfileToReorderCategories?.let { profileId ->
+            CombinedCategoryOrderEditor(profileId, onDismiss = { combinedProfileToReorderCategories = null })
+        }
+        providerCategoryToReorder?.let { (providerId, category) ->
+            ProviderChannelOrderEditor(providerId, category, onDismiss = { providerCategoryToReorder = null })
+        }
+        if (showChannelMoveDialog && isReorderMode && !uiState.isSavingChannelOrder) {
+            com.streamvault.feature.live.presentation.dialogs.LiveChannelMoveDialog(
+                channels = uiState.filteredChannels,
+                onMove = viewModel::moveChannelToPosition,
+                onMoveMany = viewModel::moveChannelsToPosition,
+                onDismiss = { showChannelMoveDialog = false }
+            )
+        }
         scaffold(
             currentRoute,
             stringResource(R.string.nav_live_tv),
@@ -320,9 +374,15 @@ fun LiveHomeScreen(
         ) {
             if (isReorderMode) {
                 LiveReorderTopBar(
-                    categoryName = uiState.reorderCategory?.name ?: uiState.selectedCategory?.name ?: "Channels",
+                    categoryName = uiState.reorderCategory?.name ?: uiState.selectedCategory?.name ?: stringResource(R.string.nav_live_tv),
                     onSave = { viewModel.saveChannelReorder() },
-                    onCancel = { viewModel.exitChannelReorderMode() },
+                    onCancel = requestExitReorder,
+                    enabled = !uiState.isSavingChannelOrder,
+                    onOpenTools = { showChannelMoveDialog = true },
+                    onUndo = viewModel::undoChannelReorder,
+                    onRedo = viewModel::redoChannelReorder,
+                    canUndo = uiState.canUndoChannelReorder,
+                    canRedo = uiState.canRedoChannelReorder,
                     subtitle = stringResource(R.string.live_reorder_subtitle),
                     titleFormat = { categoryName -> stringResource(R.string.label_reordering, categoryName) },
                     cancelLabel = stringResource(R.string.action_cancel),
@@ -955,9 +1015,10 @@ fun LiveHomeScreen(
                                 contentPaddingBottom = if (isDenseMode) 8.dp else 12.dp,
                                 channelListSpacing = channelListSpacing,
                                 onDraggingChannelChange = { draggingChannel = it },
-                                onExitReorderMode = viewModel::exitChannelReorderMode,
+                                onExitReorderMode = requestExitReorder,
                                 onMoveChannelUp = viewModel::moveChannelUp,
                                 onMoveChannelDown = viewModel::moveChannelDown,
+                                onCancelMove = viewModel::cancelChannelReorderMove,
                                 onVisibleChannelWindowChanged = viewModel::updateVisibleChannelWindow,
                                 onLoadMore = viewModel::loadMoreChannels,
                                 itemContent = { channel, channelFocusRequester, isDraggingThis ->
@@ -1002,6 +1063,7 @@ fun LiveHomeScreen(
                                         },
                                         onClick = {
                                             if (isReorderMode) {
+                                                if (isDraggingThis) viewModel.finishChannelReorderMove() else viewModel.beginChannelReorderMove()
                                                 draggingChannel = if (isDraggingThis) null else channel
                                             } else if (ignoreNextClick) {
                                                 ignoreNextClick = false

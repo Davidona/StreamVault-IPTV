@@ -87,16 +87,25 @@ class M3uParser {
                         }
                         line.startsWith("#EXTINF", ignoreCase = true) -> {
                             pendingExtinf = parseExtinf(line)
-                            pendingPlaybackMetadata = pendingExtinf?.let { M3uPlaybackMetadataBuilder() }
+                            pendingPlaybackMetadata = pendingExtinf?.let { extinf ->
+                                M3uPlaybackMetadataBuilder().also { builder ->
+                                    (extinf.userAgent ?: header.userAgent)
+                                        ?.let { builder.applyHeader("User-Agent", it) }
+                                }
+                            }
                         }
                         line.startsWith("#") -> {
                             pendingPlaybackMetadata?.applyDirective(line)
                             pendingExtinf = pendingExtinf?.let { applyPendingDirective(it, line) }
                         }
                         pendingExtinf != null -> {
+                            val (streamUrl, suffixHeaders) = splitStreamUrl(line)
+                            suffixHeaders.forEach { (name, value) ->
+                                pendingPlaybackMetadata?.applyHeader(name, value)
+                            }
                             parseEntry(
                                 pendingExtinf!!,
-                                line,
+                                streamUrl,
                                 header.userAgent,
                                 header.catchUpCorrectionSeconds,
                                 pendingPlaybackMetadata?.build()
@@ -151,16 +160,25 @@ class M3uParser {
                             onInvalidEntry()
                         }
                         pendingExtinf = parseExtinf(line)
-                        pendingPlaybackMetadata = pendingExtinf?.let { M3uPlaybackMetadataBuilder() }
+                        pendingPlaybackMetadata = pendingExtinf?.let { extinf ->
+                            M3uPlaybackMetadataBuilder().also { builder ->
+                                (extinf.userAgent ?: header.userAgent)
+                                    ?.let { builder.applyHeader("User-Agent", it) }
+                            }
+                        }
                     }
                     line.startsWith("#") -> {
                         pendingPlaybackMetadata?.applyDirective(line)
                         pendingExtinf = pendingExtinf?.let { applyPendingDirective(it, line) }
                     }
                     pendingExtinf != null -> {
+                        val (streamUrl, suffixHeaders) = splitStreamUrl(line)
+                        suffixHeaders.forEach { (name, value) ->
+                            pendingPlaybackMetadata?.applyHeader(name, value)
+                        }
                         parseEntry(
                             pendingExtinf!!,
-                            line,
+                            streamUrl,
                             header.userAgent,
                             header.catchUpCorrectionSeconds,
                             pendingPlaybackMetadata?.build()
@@ -567,6 +585,41 @@ class M3uParser {
         }
 
         return attributes
+    }
+
+    private fun splitStreamUrl(rawUrl: String): Pair<String, Map<String, String>> {
+        val trimmed = rawUrl.trim()
+        var searchFrom = 0
+        while (true) {
+            val separator = trimmed.indexOf('|', searchFrom)
+            if (separator <= 0 || separator == trimmed.lastIndex) break
+            val url = trimmed.substring(0, separator).trim()
+            val headers = parseStreamUrlSuffixHeaders(trimmed.substring(separator + 1))
+            if (url.isNotEmpty() && headers.isNotEmpty()) return url to headers
+            searchFrom = separator + 1
+        }
+        return trimmed to emptyMap()
+    }
+
+    private fun parseStreamUrlSuffixHeaders(raw: String): Map<String, String> {
+        val result = linkedMapOf<String, String>()
+        raw.split('&', '|').forEach { part ->
+            if (part.isBlank()) return@forEach
+            val separator = part.indexOf('=')
+            if (separator <= 0) return emptyMap()
+            val name = decodeSuffixComponent(part.substring(0, separator).trim())
+            val value = decodeSuffixComponent(part.substring(separator + 1).trim())
+            if (name.isEmpty() || value.isEmpty()) return emptyMap()
+            result[name] = value
+        }
+        return result
+    }
+
+    private fun decodeSuffixComponent(value: String): String {
+        if ('%' !in value) return value
+        return runCatching {
+            java.net.URLDecoder.decode(value.replace("+", "%2B"), java.nio.charset.StandardCharsets.UTF_8.name())
+        }.getOrDefault(value)
     }
 
     /**

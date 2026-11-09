@@ -189,6 +189,7 @@
     <string name="player_more_controls">ตัวควบคุมเพิ่มเติม</string>
     <string name="player_multiview_short">มุมมองหลายจอ</string>
     <string name="player_mute">ปิดเสียง</string>
+    <string name="player_more">เพิ่มเติม</string>
     <string name="player_muted_badge">ปิดเสียงอยู่</string>
     <string name="player_next_label">ถัดไป:</string>
     <string name="player_no_guide_data">ไม่มีข้อมูลผังรายการ</string>
@@ -296,4 +297,9 @@
     <string name="player_diagnostics_quality_bitrate_summary">บิตเรต: %1$s Mbps</string>
     <string name="player_recording_failure_output_too_slow">ปลายทางการบันทึกไม่สามารถรับข้อมูลได้ทันการเล่นสด</string>
     <string name="player_schedule_by_time">à¸à¸³à¸«à¸™à¸”à¹€à¸§à¸¥à¸²à¸•à¸²à¸¡à¹€à¸§à¸¥à¸²</string>     <string name="player_schedule_by_time_title">à¸à¸³à¸«à¸™à¸”à¹€à¸§à¸¥à¸²à¸šà¸±à¸™à¸—à¸¶à¸</string>     <string name="player_schedule_by_time_start">à¹€à¸£à¸´à¹ˆà¸¡</string>     <string name="player_schedule_by_time_duration">à¸£à¸°à¸¢à¸°à¹€à¸§à¸¥à¸²</string>     <string name="player_schedule_by_time_repeat">à¸—à¸³à¸‹à¹‰à¸³</string>     <string name="player_schedule_by_time_once">à¸„à¸£à¸±à¹‰à¸‡à¹€à¸”à¸µà¸¢à¸§</string>     <string name="player_schedule_by_time_daily">à¸—à¸¸à¸à¸§à¸±à¸™</string>     <string name="player_schedule_by_time_weekly">à¸—à¸¸à¸à¸ªà¸±à¸›à¸”à¸²à¸«à¹Œ</string>     <string name="player_schedule_by_time_confirm">à¸à¸³à¸«à¸™à¸”à¹€à¸§à¸¥à¸²</string>     <string name="player_schedule_by_time_cancel">à¸¢à¸à¹€à¸¥à¸´à¸</string>     <string name="player_schedule_by_time_duration_hm">%1$d à¸Šà¸¡. %2$d à¸™à¸²à¸—à¸µ</string>     <string name="player_schedule_by_time_duration_h">%1$d à¸Šà¸¡.</string>     <string name="player_schedule_by_time_duration_m">%1$d à¸™à¸²à¸—à¸µ</string>     <string name="player_recording_needs_live_channel">à¸à¸²à¸£à¸šà¸±à¸™à¸—à¸¶à¸à¸•à¹‰à¸­à¸‡à¹ƒà¸Šà¹‰à¸Šà¹ˆà¸­à¸‡à¸ªà¸”</string>     <string name="player_recording_started_notice">à¹€à¸£à¸´à¹ˆà¸¡à¸šà¸±à¸™à¸—à¸¶à¸à¸ªà¸³à¸«à¸£à¸±à¸š %1$s</string>     <string name="player_recording_scheduled_notice">à¸à¸³à¸«à¸™à¸”à¹€à¸§à¸¥à¸² %1$s à¹à¸¥à¹‰à¸§</string>     <string name="player_recording_scheduled_daily_notice">à¸à¸³à¸«à¸™à¸”à¹€à¸§à¸¥à¸² %1$s à¸—à¸¸à¸à¸§à¸±à¸™à¹à¸¥à¹‰à¸§</string>     <string name="player_recording_scheduled_weekly_notice">à¸à¸³à¸«à¸™à¸”à¹€à¸§à¸¥à¸² %1$s à¸—à¸¸à¸à¸ªà¸±à¸›à¸”à¸²à¸«à¹Œà¹à¸¥à¹‰à¸§</string>     <string name="player_recording_failed_notice">à¹„à¸¡à¹ˆà¸ªà¸²à¸¡à¸²à¸£à¸–à¸à¸³à¸«à¸™à¸”à¹€à¸§à¸¥à¸²à¸šà¸±à¸™à¸—à¸¶à¸à¹„à¸”à¹‰</string>     <string name="player_recording_stopped_notice">à¸«à¸¢à¸¸à¸”à¸šà¸±à¸™à¸—à¸¶à¸à¹à¸¥à¹‰à¸§</string>
+    <string name="player_track_no_audio_tracks">ไม่มีแทร็กเสียง</string>
+    <string name="player_stremio_subtitles_heading">คำบรรยาย Stremio</string>
+    <string name="player_stremio_subtitles_loading">กำลังโหลดคำบรรยายจากส่วนเสริม…</string>
+    <string name="player_stremio_subtitles_empty">ไม่มีคำบรรยายจากส่วนเสริม</string>
+    <string name="player_stremio_subtitles_retry">โหลดคำบรรยายจากส่วนเสริมอีกครั้ง</string>
 </resources>

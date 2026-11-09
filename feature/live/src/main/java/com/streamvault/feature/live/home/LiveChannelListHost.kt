@@ -10,6 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.snapshotFlow
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.input.key.*
@@ -36,6 +37,8 @@ fun LiveChannelListHost(
     onVisibleChannelWindowChanged: (List<Long>, Long?) -> Unit,
     onLoadMore: () -> Unit,
     itemContent: @Composable (channel: Channel, focusRequester: FocusRequester, isDragging: Boolean) -> Unit,
+    onCancelMove: () -> Unit = {},
+    jumpRequest: Pair<Int, Long>? = null,
     modifier: Modifier = Modifier
 ) {
     val channelListState = rememberLazyListState()
@@ -49,12 +52,16 @@ fun LiveChannelListHost(
         val visibleItems = channelListState.layoutInfo.visibleItemsInfo
         val firstVisibleIndex = visibleItems.firstOrNull()?.index
         val lastVisibleIndex = visibleItems.lastOrNull()?.index
-        if (
-            firstVisibleIndex != null &&
-            lastVisibleIndex != null &&
-            (draggedIndex <= firstVisibleIndex || draggedIndex >= lastVisibleIndex)
-        ) {
-            channelListState.scrollToItem(draggedIndex)
+        if (firstVisibleIndex != null && lastVisibleIndex != null) {
+            // Keep a neighbour visible while moving, so the new position has context.
+            when {
+                draggedIndex <= firstVisibleIndex ->
+                    channelListState.scrollToItem((draggedIndex - 1).coerceAtLeast(0))
+                draggedIndex >= lastVisibleIndex -> {
+                    val visibleSpan = lastVisibleIndex - firstVisibleIndex
+                    channelListState.scrollToItem((draggedIndex - visibleSpan + 1).coerceAtLeast(0))
+                }
+            }
         }
 
         runCatching { channelFocusRequesters[draggingChannelId]?.requestFocus() }
@@ -70,6 +77,17 @@ fun LiveChannelListHost(
             .collect { (visibleIds, focusedId) ->
                 onVisibleChannelWindowChanged(visibleIds, focusedId)
             }
+    }
+
+    LaunchedEffect(channelListState, channels, jumpRequest) {
+        val position = jumpRequest?.first ?: return@LaunchedEffect
+        val index = position - 1
+        if (index !in channels.indices) return@LaunchedEffect
+        channelListState.scrollToItem(index)
+        withFrameNanos { }
+        channels.getOrNull(index)?.let { channel ->
+            runCatching { channelFocusRequesters[channel.id]?.requestFocus() }
+        }
     }
 
     LaunchedEffect(channelListState) {
@@ -97,6 +115,7 @@ fun LiveChannelListHost(
                 when (event.nativeKeyEvent.keyCode) {
                     android.view.KeyEvent.KEYCODE_BACK -> {
                         if (draggingChannel != null) {
+                            onCancelMove()
                             onDraggingChannelChange(null)
                         } else {
                             onExitReorderMode()

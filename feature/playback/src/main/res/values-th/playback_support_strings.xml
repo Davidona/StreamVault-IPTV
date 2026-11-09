@@ -19,4 +19,5 @@
     <string name="player_no_archive">ไม่พบรายการที่เก็บไว้ในคลังย้อนหลัง</string>
     <string name="program_date_time_range">%1$s | %2$s – %3$s</string>
     <string name="player_archive_badge">ย้อนหลัง</string>
+    <string name="cast_scoped_headers_unsupported">ไม่สามารถส่งส่วนหัวคำขอของส่วนเสริมไปยังตัวรับ Cast ได้</string>
 </resources>

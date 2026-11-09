@@ -133,6 +133,7 @@
     <string name="player_more_controls">Flere kontroller</string>
     <string name="player_multiview_short">Multivisning</string>
     <string name="player_mute">Demp</string>
+    <string name="player_more">Mer</string>
     <string name="player_muted_badge">Dempet</string>
     <string name="player_next_label">Neste:</string>
     <string name="player_no_guide_data">Ingen veiledningsdata</string>
@@ -307,4 +308,9 @@
 <string name="player_trakt_sent">Sendt til Trakt</string>
     <string name="player_trakt_badge">TRAKT</string>
     <string name="player_schedule_by_time">Planlegg etter tid</string>     <string name="player_schedule_by_time_title">Planlegg opptak</string>     <string name="player_schedule_by_time_start">Start</string>     <string name="player_schedule_by_time_duration">Varighet</string>     <string name="player_schedule_by_time_repeat">Gjenta</string>     <string name="player_schedule_by_time_once">Ã‰n gang</string>     <string name="player_schedule_by_time_daily">Daglig</string>     <string name="player_schedule_by_time_weekly">Ukentlig</string>     <string name="player_schedule_by_time_confirm">Planlegg</string>     <string name="player_schedule_by_time_cancel">Avbryt</string>     <string name="player_schedule_by_time_duration_hm">%1$d t %2$d min</string>     <string name="player_schedule_by_time_duration_h">%1$d t</string>     <string name="player_schedule_by_time_duration_m">%1$d min</string>     <string name="player_recording_needs_live_channel">Opptak krever en direktesendt kanal.</string>     <string name="player_recording_started_notice">Opptak startet for %1$s.</string>     <string name="player_recording_scheduled_notice">%1$s planlagt.</string>     <string name="player_recording_scheduled_daily_notice">%1$s planlagt daglig.</string>     <string name="player_recording_scheduled_weekly_notice">%1$s planlagt ukentlig.</string>     <string name="player_recording_failed_notice">Opptaket kunne ikke planlegges.</string>     <string name="player_recording_stopped_notice">Opptak stoppet.</string>
+    <string name="player_track_no_audio_tracks">Ingen lydspor</string>
+    <string name="player_stremio_subtitles_heading">Stremio-undertekster</string>
+    <string name="player_stremio_subtitles_loading">Laster inn tilleggsundertekster…</string>
+    <string name="player_stremio_subtitles_empty">Ingen tilleggsundertekster tilgjengelig</string>
+    <string name="player_stremio_subtitles_retry">Last inn tilleggsundertekstene på nytt</string>
 </resources>

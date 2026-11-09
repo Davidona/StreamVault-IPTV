@@ -962,4 +962,13 @@
     <string name="settings_text_size_default">Predefinita (100%)</string>
     <string name="settings_text_size_system">Segui le impostazioni del dispositivo</string>
     <string name="settings_text_size_custom">Personalizzata</string>
+    <string name="settings_privacy_policy">Informativa sulla privacy</string>
+    <string name="settings_category_reorder_channels">Riordina i canali</string>
+    <string name="settings_category_sort_manual">Manuale</string>
+    <string name="settings_category_reorder_categories">Riordina categorie</string>
+    <string name="settings_default_live_channel_order">Ordine predefinito dei canali</string>
+    <string name="settings_live_order_save_failed">Impossibile salvare l’ordine dei canali. Riprova.</string>
+    <string name="settings_live_order_recent">Visti di recente</string>
+    <string name="settings_live_order_most">Più guardati</string>
+    <string name="settings_live_order_usage_help">Le visualizzazioni contano dopo 10 secondi di riproduzione. Più guardati somma il tempo di riproduzione degli ultimi 30 giorni.</string>
 </resources>

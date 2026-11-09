@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="player_error_live_startup_timeout">Không thể bắt đầu phát. Hãy thử luồng khác.</string>
+    <string name="player_track_closed_captions">Phụ đề ẩn</string>
+    <string name="player_track_closed_captions_numbered">Phụ đề ẩn %1$d</string>
 </resources>

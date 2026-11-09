@@ -187,6 +187,19 @@ internal fun AppNavHost(
                     },
                     onBack = onBack,
                     navigationDestinations = destinations,
+                    channelOrderContent = { providerId, category, openModePickerOnStart, dismiss ->
+                        com.streamvault.feature.live.home.ProviderChannelOrderEditor(
+                            providerId, category, dismiss, openModePickerOnStart
+                        )
+                    },
+                    channelOrderSummaryContent = { providerId, category, onChannelOrder, onReorderChannels ->
+                        com.streamvault.feature.live.home.ProviderCategoryChannelOrderControl(
+                            providerId, category, onChannelOrder, onReorderChannels
+                        )
+                    },
+                    categoryOrderContent = { providerId, dismiss ->
+                        com.streamvault.feature.live.home.ProviderCategoryOrderEditor(providerId, dismiss)
+                    },
                 )
             }
         )

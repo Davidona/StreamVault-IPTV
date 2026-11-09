@@ -189,6 +189,7 @@
     <string name="player_more_controls">Lebih banyak kawalan</string>
     <string name="player_multiview_short">Paparan Berbilang</string>
     <string name="player_mute">Bisukan</string>
+    <string name="player_more">Lagi</string>
     <string name="player_muted_badge">Dibisukan</string>
     <string name="player_next_label">Seterusnya:</string>
     <string name="player_no_guide_data">Tiada data panduan</string>
@@ -296,4 +297,9 @@
     <string name="player_diagnostics_quality_bitrate_summary">Kadar bit: %1$s Mbps</string>
     <string name="player_recording_failure_output_too_slow">Destinasi rakaman tidak dapat mengikuti main balik langsung.</string>
     <string name="player_schedule_by_time">Jadual mengikut masa</string>     <string name="player_schedule_by_time_title">Jadual rakaman</string>     <string name="player_schedule_by_time_start">Mula</string>     <string name="player_schedule_by_time_duration">Tempoh</string>     <string name="player_schedule_by_time_repeat">Ulang</string>     <string name="player_schedule_by_time_once">Sekali</string>     <string name="player_schedule_by_time_daily">Harian</string>     <string name="player_schedule_by_time_weekly">Mingguan</string>     <string name="player_schedule_by_time_confirm">Jadual</string>     <string name="player_schedule_by_time_cancel">Batal</string>     <string name="player_schedule_by_time_duration_hm">%1$d j %2$d min</string>     <string name="player_schedule_by_time_duration_h">%1$d j</string>     <string name="player_schedule_by_time_duration_m">%1$d min</string>     <string name="player_recording_needs_live_channel">Rakaman memerlukan saluran langsung.</string>     <string name="player_recording_started_notice">Rakaman dimulakan untuk %1$s.</string>     <string name="player_recording_scheduled_notice">%1$s dijadualkan.</string>     <string name="player_recording_scheduled_daily_notice">%1$s dijadualkan harian.</string>     <string name="player_recording_scheduled_weekly_notice">%1$s dijadualkan mingguan.</string>     <string name="player_recording_failed_notice">Rakaman tidak dapat dijadualkan.</string>     <string name="player_recording_stopped_notice">Rakaman dihentikan.</string>
+    <string name="player_track_no_audio_tracks">Tiada trek audio</string>
+    <string name="player_stremio_subtitles_heading">Sari kata Stremio</string>
+    <string name="player_stremio_subtitles_loading">Memuatkan sari kata add-on…</string>
+    <string name="player_stremio_subtitles_empty">Tiada sari kata add-on tersedia</string>
+    <string name="player_stremio_subtitles_retry">Muat semula sari kata add-on</string>
 </resources>

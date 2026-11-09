@@ -3417,6 +3417,9 @@ data class FavoriteGroupConstraint(
 
 @Dao
 abstract class FavoriteDao {
+    @Query("SELECT * FROM favorites WHERE provider_id = :providerId AND content_type = :contentType AND ((:groupId IS NULL AND group_id IS NULL) OR group_id = :groupId) ORDER BY position ASC, id ASC")
+    abstract suspend fun getPartitionSnapshot(providerId: Long, contentType: String, groupId: Long?): List<FavoriteEntity>
+
     @Query("SELECT * FROM favorites WHERE provider_id = :providerId AND group_id IS NULL ORDER BY position ASC")
     abstract fun getAllGlobal(providerId: Long): Flow<List<FavoriteEntity>>
 
@@ -3577,6 +3580,9 @@ interface VirtualGroupDao {
 
     @Query("UPDATE virtual_groups SET name = :name WHERE id = :id")
     suspend fun rename(id: Long, name: String)
+
+    @Query("UPDATE virtual_groups SET identity_key = :identityKey WHERE id = :id")
+    suspend fun updateIdentityKey(id: Long, identityKey: String)
 
     @Query("DELETE FROM virtual_groups WHERE id = :id")
     suspend fun delete(id: Long)

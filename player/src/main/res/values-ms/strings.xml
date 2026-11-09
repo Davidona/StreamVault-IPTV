@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="player_error_live_startup_timeout">Main balik tidak dapat dimulakan. Cuba strim lain.</string>
+    <string name="player_track_closed_captions">Kapsyen tertutup</string>
+    <string name="player_track_closed_captions_numbered">Kapsyen tertutup %1$d</string>
 </resources>

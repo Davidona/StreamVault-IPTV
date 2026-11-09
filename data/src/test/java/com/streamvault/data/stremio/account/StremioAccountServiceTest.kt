@@ -142,6 +142,29 @@ class StremioAccountServiceTest {
         assertTrue(history.value.isEmpty())
         assertTrue(addonFlow.value.all { it.catalogSettings.isEmpty() })
     }
+    @Test fun partialImportRetriesOnlyUnfinishedItemsAndDoesNotRecordSuccess()=runBlocking {
+        session()
+        cloud.add(cloudMovie())
+        cloud.add(jsonObject("_id" to "custom:1","type" to "movie","name" to "Custom"))
+        val second=addon.copy(id=2,installUrl="https://other.test/manifest.json")
+        addonFlow.value=listOf(addon,second)
+        assertFalse(service.sync())
+        assertEquals(0L,store.value.number("lastSyncAt"))
+        assertTrue(store.value.getAsJsonObject("importing").has("custom:1"))
+        assertFalse(store.value.getAsJsonObject("importing").has("tt123"))
+        addonFlow.value=addonFlow.value.filter { it.id==addon.id }
+        assertTrue(service.sync())
+        assertFalse(store.value.getAsJsonObject("importing").has("custom:1"))
+        assertEquals(now,store.value.number("lastSyncAt"))
+        assertTrue(uploaded.isEmpty())
+    }
+    @Test fun largeImportRebuildsLocalSnapshotPerBatch()=runBlocking {
+        session()
+        repeat(110) { i -> cloud.add(jsonObject("_id" to "tt${i+1}","type" to "movie","name" to "Movie")) }
+        assertTrue(service.sync())
+        verify(histories, atMost(5)).observeHistory()
+        assertEquals(110,history.value.size)
+    }
     @Test fun localProgressUploadPreservesUnknownCloudFields()=runBlocking {
         val remote=cloudMovie();cloud.add(remote)
         session(jsonObject("tt123" to "older"),jsonObject("tt123" to remote))

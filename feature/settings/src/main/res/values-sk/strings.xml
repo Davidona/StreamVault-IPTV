@@ -970,4 +970,13 @@
     <string name="settings_text_size_default">Predvolená (100%)</string>
     <string name="settings_text_size_system">Podľa zariadenia</string>
     <string name="settings_text_size_custom">Vlastná</string>
+    <string name="settings_privacy_policy">Zásady ochrany osobných údajov</string>
+    <string name="settings_category_reorder_channels">Usporiadať kanály</string>
+    <string name="settings_category_sort_manual">Ručne</string>
+    <string name="settings_category_reorder_categories">Zmeniť poradie kategórií</string>
+    <string name="settings_default_live_channel_order">Predvolené poradie kanálov</string>
+    <string name="settings_live_order_save_failed">Poradie kanálov sa nepodarilo uložiť. Skúste to znova.</string>
+    <string name="settings_live_order_recent">Nedávno sledované</string>
+    <string name="settings_live_order_most">Najsledovanejšie</string>
+    <string name="settings_live_order_usage_help">Sledovanie sa započíta po 10 sekundách prehrávania. Najsledovanejšie sčítava čas prehrávania za posledných 30 dní.</string>
 </resources>

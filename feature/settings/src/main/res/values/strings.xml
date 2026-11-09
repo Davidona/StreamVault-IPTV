@@ -1041,4 +1041,13 @@
     <string name="settings_text_size_default">Default (100%)</string>
     <string name="settings_text_size_system">Follow device</string>
     <string name="settings_text_size_custom">Custom</string>
+    <string name="settings_privacy_policy">Privacy Policy</string>
+    <string name="settings_category_reorder_channels">Reorder Channels</string>
+    <string name="settings_category_sort_manual">Manual</string>
+    <string name="settings_category_reorder_categories">Reorder categories</string>
+    <string name="settings_default_live_channel_order">Default channel order</string>
+    <string name="settings_live_order_save_failed">Could not save channel order. Try again.</string>
+    <string name="settings_live_order_recent">Recently watched</string>
+    <string name="settings_live_order_most">Most watched</string>
+    <string name="settings_live_order_usage_help">Watches qualify after 10 seconds of playback. Most watched totals playing time over the last 30 days.</string>
 </resources>

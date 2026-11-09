@@ -35,7 +35,8 @@ internal class ProviderContinuationScheduler(
             ProviderType.STALKER_PORTAL -> if (indexWork.isNotEmpty()) {
                 workScheduler.scheduleStalkerIndex(
                     providerId = providerId,
-                    force = indexWork.any { it.force }
+                    force = indexWork.any { it.force },
+                    appendSuccessor = AutomaticSyncExecution.automatic.get() != true
                 )
             }
             ProviderType.M3U,

@@ -53,6 +53,7 @@ import com.streamvault.core.ui.image.ChannelLogoBadge
 import com.streamvault.core.ui.components.shell.StatusPill
 import com.streamvault.core.ui.layout.AdaptiveRow
 import com.streamvault.core.ui.layout.isPortraitLayout
+import com.streamvault.core.ui.device.rememberIsTelevisionDevice
 import com.streamvault.core.ui.design.BrowseColors as AppColors
 import com.streamvault.core.ui.interaction.TvClickableSurface
 import com.streamvault.domain.playback.archivePlaybackCapability
@@ -63,7 +64,6 @@ import com.streamvault.core.ui.time.createTimeFormat
 import com.streamvault.domain.model.Channel
 import com.streamvault.domain.model.Program
 import com.streamvault.domain.model.RecordingStatus
-import com.streamvault.player.timeshift.LiveTimeshiftStatus
 import java.util.Date
 import com.streamvault.core.ui.design.BrowseColors.Brand as Primary
 import com.streamvault.core.ui.design.BrowseColors.TextTertiary as OnSurfaceDim
@@ -110,6 +110,7 @@ fun ChannelInfoOverlay(
     onToggleMute: () -> Unit = {},
     onOpenSubtitleTracks: () -> Unit = {},
     onOpenAudioTracks: () -> Unit = {},
+    trackSheetInputs: TvTrackSheetInputs = TvTrackSheetInputs(),
     onOpenVideoTracks: () -> Unit = {},
     onOpenVariants: () -> Unit = {},
     onOpenStreamFormats: () -> Unit = {},
@@ -121,9 +122,12 @@ fun ChannelInfoOverlay(
     onStopCasting: () -> Unit = {},
     timeshiftUiState: PlayerTimeshiftUiState = PlayerTimeshiftUiState(),
     onTransientPanelVisibilityChanged: (Boolean) -> Unit = {},
+    onSideSheetVisibilityChanged: (Boolean) -> Unit = {},
+    panelCloseRequests: Int = 0,
     resolutionLabel: String? = null,
     showBackButton: Boolean = false,
-    onBackToMenu: () -> Unit = {}
+    onBackToMenu: () -> Unit = {},
+    isTelevision: Boolean = rememberIsTelevisionDevice()
 ) {
     val appTimeFormat = LocalUiTimeFormat.current
     val timeFormat = remember(appTimeFormat) { appTimeFormat.createTimeFormat() }
@@ -134,6 +138,24 @@ fun ChannelInfoOverlay(
         currentProgram != null &&
         currentChannel.isArchivePlayable(currentProgram)
     val hasCatchUpOptions = canBrowseArchive || canRestartProgram
+    val actionInputs = ChannelInfoActionInputs(
+        showTimeshiftControls = showTimeshiftControls,
+        subtitleTrackCount = subtitleTrackCount,
+        liveTranslationAvailable = liveTranslationAvailable,
+        localSubtitleLoadingAvailable = localSubtitleLoadingAvailable,
+        audioTrackCount = audioTrackCount,
+        videoQualityCount = videoQualityCount,
+        channelVariantCount = channelVariantCount,
+        qualityOptionCount = qualityOptionCount,
+        audioVideoSyncEnabled = audioVideoSyncEnabled,
+        isCastConnected = isCastConnected,
+        lastVisitedCategoryName = lastVisitedCategoryName,
+        recordingStatus = currentRecordingStatus,
+        canRestartProgram = canRestartProgram,
+        canBrowseArchive = canBrowseArchive
+    )
+    val rowActions = channelInfoRowActions(actionInputs)
+    val moreItems = channelInfoMoreItems(actionInputs)
     var expandedPanel by remember { mutableStateOf<ChannelInfoPanel?>(null) }
     val recordButtonFocusRequester = remember { FocusRequester() }
     val catchUpButtonFocusRequester = remember { FocusRequester() }
@@ -164,8 +186,20 @@ fun ChannelInfoOverlay(
         onTransientPanelVisibilityChanged(expandedPanel != null)
     }
 
+    LaunchedEffect(panelCloseRequests) {
+        if (panelCloseRequests > 0) expandedPanel = null
+    }
+
+    val sideSheetOpen = expandedPanel?.isSideSheet == true
+    LaunchedEffect(sideSheetOpen) {
+        onSideSheetVisibilityChanged(sideSheetOpen)
+    }
+
     androidx.compose.runtime.DisposableEffect(Unit) {
-        onDispose { onTransientPanelVisibilityChanged(false) }
+        onDispose {
+            onTransientPanelVisibilityChanged(false)
+            onSideSheetVisibilityChanged(false)
+        }
     }
 
     BackHandler {
@@ -174,6 +208,63 @@ fun ChannelInfoOverlay(
         } else {
             onDismiss()
         }
+    }
+
+    if (isTelevision) {
+        TvChannelInfoOverlay(
+            currentChannel = currentChannel,
+            displayChannelNumber = displayChannelNumber,
+            currentProgram = currentProgram,
+            nextProgram = nextProgram,
+            actionInputs = actionInputs,
+            expandedPanel = expandedPanel,
+            onExpandedPanelChange = { expandedPanel = it },
+            playPauseFocusRequester = focusRequester,
+            isPlaying = isPlaying,
+            isMuted = isMuted,
+            currentAspectRatio = currentAspectRatio,
+            isDiagnosticsEnabled = isDiagnosticsEnabled,
+            resolutionLabel = resolutionLabel,
+            variantLabel = currentChannel?.currentVariant
+                ?.takeIf { channelVariantCount > 1 }
+                ?.attributes
+                ?.toOverlayBadgeLabel()
+                ?.takeIf { it.isNotBlank() },
+            timeshiftUiState = timeshiftUiState,
+            showBackButton = showBackButton,
+            trackSheetInputs = trackSheetInputs,
+            callbacks = TvChannelInfoCallbacks(
+                onDismiss = onDismiss,
+                onOverlayInteracted = onOverlayInteracted,
+                onBackToMenu = onBackToMenu,
+                onOpenFullEpg = onOpenFullEpg,
+                onOpenLastGroup = onOpenLastGroup,
+                onStartRecording = onStartRecording,
+                onStopRecording = onStopRecording,
+                onScheduleRecording = onScheduleRecording,
+                onScheduleDailyRecording = onScheduleDailyRecording,
+                onScheduleWeeklyRecording = onScheduleWeeklyRecording,
+                onScheduleByTime = onScheduleByTime,
+                onRestartProgram = onRestartProgram,
+                onOpenArchive = onOpenArchive,
+                onToggleAspectRatio = onToggleAspectRatio,
+                onToggleDiagnostics = onToggleDiagnostics,
+                onTogglePlayPause = onTogglePlayPause,
+                onSeekBackward = onSeekBackward,
+                onSeekForward = onSeekForward,
+                onSeekToLiveEdge = onSeekToLiveEdge,
+                onOpenSplitScreen = onOpenSplitScreen,
+                onToggleMute = onToggleMute,
+                onOpenVideoTracks = onOpenVideoTracks,
+                onOpenVariants = onOpenVariants,
+                onOpenStreamFormats = onOpenStreamFormats,
+                onOpenAudioVideoSync = onOpenAudioVideoSync,
+                onEnterPictureInPicture = onEnterPictureInPicture,
+                onCast = onCast,
+                onStopCasting = onStopCasting
+            )
+        )
+        return
     }
 
     ChannelInfoOverlayFrame(showBackButton, onBackToMenu, onOverlayInteracted) {
@@ -438,7 +529,7 @@ fun ChannelInfoOverlay(
                         onInteraction = { handleMainActionFocus(null) }
                     )
                 }
-                if (subtitleTrackCount > 0 || liveTranslationAvailable || localSubtitleLoadingAvailable) {
+                if (ChannelInfoRowAction.SUBTITLES in rowActions) {
                     item {
                         QuickActionButton(
                             icon = stringResource(R.string.player_subs),
@@ -448,7 +539,7 @@ fun ChannelInfoOverlay(
                         )
                     }
                 }
-                if (videoQualityCount > 0) {
+                if (ChannelInfoMoreItem.QUALITY in moreItems) {
                     item {
                         QuickActionButton(
                             icon = stringResource(R.string.player_action_quality),
@@ -458,7 +549,7 @@ fun ChannelInfoOverlay(
                         )
                     }
                 }
-                if (channelVariantCount > 1) {
+                if (ChannelInfoMoreItem.VARIANTS in moreItems) {
                     item {
                         QuickActionButton(
                             icon = stringResource(R.string.player_action_variants),
@@ -468,7 +559,7 @@ fun ChannelInfoOverlay(
                         )
                     }
                 }
-                if (qualityOptionCount > 1) {
+                if (ChannelInfoMoreItem.FORMAT in moreItems) {
                     item {
                         QuickActionButton(
                             icon = stringResource(R.string.player_action_format),
@@ -478,7 +569,7 @@ fun ChannelInfoOverlay(
                         )
                     }
                 }
-                if (audioTrackCount > 0) {
+                if (ChannelInfoRowAction.AUDIO in rowActions) {
                     item {
                         QuickActionButton(
                             icon = stringResource(R.string.player_audio),
@@ -488,7 +579,7 @@ fun ChannelInfoOverlay(
                         )
                     }
                 }
-                if (audioVideoSyncEnabled && !isCastConnected) {
+                if (ChannelInfoMoreItem.AV_SYNC in moreItems) {
                     item {
                         QuickActionButton(
                             icon = "A/V",
@@ -536,11 +627,11 @@ fun ChannelInfoOverlay(
                         onInteraction = { handleMainActionFocus(null) }
                     )
                 }
-                if (!lastVisitedCategoryName.isNullOrBlank()) {
+                if (ChannelInfoMoreItem.LAST_GROUP in moreItems) {
                     item {
                         QuickActionButton(
                             icon = stringResource(R.string.player_action_group),
-                            label = lastVisitedCategoryName,
+                            label = lastVisitedCategoryName.orEmpty(),
                             onClick = {
                                 expandedPanel = null
                                 onOpenLastGroup()
@@ -568,7 +659,7 @@ fun ChannelInfoOverlay(
                             }
                     )
                 }
-                if (hasCatchUpOptions) {
+                if (ChannelInfoRowAction.CATCH_UP in rowActions) {
                     item {
                         QuickActionButton(
                             icon = "C-UP",
@@ -703,7 +794,12 @@ fun ChannelInfoOverlay(
                     )
                 }
 
+                // Side sheets and the DVR tray only exist on TV.
                 ChannelInfoPanel.LIVE_DVR,
+                ChannelInfoPanel.MORE,
+                ChannelInfoPanel.SUBTITLES,
+                ChannelInfoPanel.AUDIO,
+                ChannelInfoPanel.SUBTITLE_DELAY,
                 null -> Unit
             }
         }
@@ -731,12 +827,6 @@ private fun ChannelInfoOverlayFrame(
             content = content
         )
     }
-}
-
-private enum class ChannelInfoPanel {
-    LIVE_DVR,
-    RECORD,
-    CATCH_UP
 }
 
 private fun com.streamvault.domain.model.LiveChannelVariantAttributes.toOverlayBadgeLabel(): String {
@@ -769,10 +859,10 @@ private fun CompactTimeshiftTransport(
     firstFocusRequester: FocusRequester,
     ownerFocusRequester: FocusRequester
 ) {
-    val transportReady = timeshiftUiState.bufferDepthMs > 1_000L &&
-        timeshiftUiState.engineState.status != LiveTimeshiftStatus.PREPARING
-    val behindLive = timeshiftUiState.bufferedBehindLiveMs.coerceAtLeast(0L)
-    val bufferDepth = timeshiftUiState.bufferDepthMs.coerceAtLeast(0L)
+    val dvrState = liveDvrTransportState(timeshiftUiState)
+    val transportReady = dvrState.transportReady
+    val behindLive = dvrState.behindLiveMs
+    val bufferDepth = dvrState.bufferDepthMs
     val liveProgress = if (bufferDepth > 0L) {
         ((bufferDepth - behindLive).toFloat() / bufferDepth.toFloat()).coerceIn(0f, 1f)
     } else {
@@ -791,9 +881,8 @@ private fun CompactTimeshiftTransport(
     var lastTransportActionAtMs by remember { mutableStateOf(0L) }
 
     fun runTransportAction(enabled: Boolean, action: () -> Unit) {
-        if (!enabled) return
         val now = System.currentTimeMillis()
-        if (now - lastTransportActionAtMs < 240L) return
+        if (!shouldRunDvrTransportAction(enabled, now, lastTransportActionAtMs)) return
         lastTransportActionAtMs = now
         onOverlayInteracted()
         action()

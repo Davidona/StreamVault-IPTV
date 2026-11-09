@@ -57,7 +57,7 @@ class StalkerTrafficCoordinatorTest {
         val previousAutomatic=automatic.get(); val previousPolicy=policy.get()
         try {
             com.streamvault.domain.sync.AutomaticSyncActivity.started(owner,7)
-            automatic.set(true); policy.set(com.streamvault.domain.sync.AutomaticSyncSettings())
+            automatic.set(true); policy.set(com.streamvault.domain.sync.AutomaticSyncSettings(deferWhileBusy = true))
             assertThat(StalkerTrafficCoordinator.isPlaybackActive(7)).isTrue()
             assertThat(StalkerTrafficCoordinator.shouldDeferIndexForPlayback(7)).isTrue()
             assertThat(StalkerTrafficCoordinator.shouldDeferIndexForPlayback(8)).isFalse()

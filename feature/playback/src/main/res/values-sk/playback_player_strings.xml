@@ -192,6 +192,7 @@
     <string name="player_more_controls">Ďalšie ovládacie prvky</string>
     <string name="player_multiview_short">Multiview</string>
     <string name="player_mute">Stlmiť</string>
+    <string name="player_more">Viac</string>
     <string name="player_muted_badge">Stlmené</string>
     <string name="player_next_label">Ďalej:</string>
     <string name="player_no_guide_data">Žiadne údaje programu</string>
@@ -299,4 +300,9 @@
     <string name="player_diagnostics_quality_bitrate_summary">Dátový tok: %1$s Mb/s</string>
     <string name="player_recording_failure_output_too_slow">Cieľové úložisko záznamu nedokázalo držať krok so živým prehrávaním.</string>
     <string name="player_schedule_by_time">NaplÃ¡novaÅ¥ podÄ¾a Äasu</string>     <string name="player_schedule_by_time_title">NaplÃ¡novaÅ¥ nahrÃ¡vanie</string>     <string name="player_schedule_by_time_start">ZaÄiatok</string>     <string name="player_schedule_by_time_duration">Trvanie</string>     <string name="player_schedule_by_time_repeat">OpakovaÅ¥</string>     <string name="player_schedule_by_time_once">Raz</string>     <string name="player_schedule_by_time_daily">Denne</string>     <string name="player_schedule_by_time_weekly">TÃ½Å¾denne</string>     <string name="player_schedule_by_time_confirm">NaplÃ¡novaÅ¥</string>     <string name="player_schedule_by_time_cancel">ZruÅ¡iÅ¥</string>     <string name="player_schedule_by_time_duration_hm">%1$d h %2$d min</string>     <string name="player_schedule_by_time_duration_h">%1$d h</string>     <string name="player_schedule_by_time_duration_m">%1$d min</string>     <string name="player_recording_needs_live_channel">NahrÃ¡vanie vyÅ¾aduje Å¾ivÃ½ kanÃ¡l.</string>     <string name="player_recording_started_notice">NahrÃ¡vanie spustenÃ© pre %1$s.</string>     <string name="player_recording_scheduled_notice">%1$s naplÃ¡novanÃ©.</string>     <string name="player_recording_scheduled_daily_notice">%1$s naplÃ¡novanÃ© denne.</string>     <string name="player_recording_scheduled_weekly_notice">%1$s naplÃ¡novanÃ© tÃ½Å¾denne.</string>     <string name="player_recording_failed_notice">NahrÃ¡vanie sa nepodarilo naplÃ¡novaÅ¥.</string>     <string name="player_recording_stopped_notice">NahrÃ¡vanie zastavenÃ©.</string>
+    <string name="player_track_no_audio_tracks">Žiadne zvukové stopy</string>
+    <string name="player_stremio_subtitles_heading">Titulky Stremio</string>
+    <string name="player_stremio_subtitles_loading">Načítavajú sa titulky doplnku…</string>
+    <string name="player_stremio_subtitles_empty">Titulky doplnku nie sú k dispozícii</string>
+    <string name="player_stremio_subtitles_retry">Znova načítať titulky doplnku</string>
 </resources>

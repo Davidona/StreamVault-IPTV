@@ -966,4 +966,13 @@
     <string name="settings_text_size_default">Standaard (100%)</string>
     <string name="settings_text_size_system">Apparaatinstelling volgen</string>
     <string name="settings_text_size_custom">Aangepast</string>
+    <string name="settings_privacy_policy">Privacybeleid</string>
+    <string name="settings_category_reorder_channels">Kanalen opnieuw rangschikken</string>
+    <string name="settings_category_sort_manual">Handmatig</string>
+    <string name="settings_category_reorder_categories">Categorieën herschikken</string>
+    <string name="settings_default_live_channel_order">Standaard kanaalvolgorde</string>
+    <string name="settings_live_order_save_failed">Kanaalvolgorde kon niet worden opgeslagen. Probeer het opnieuw.</string>
+    <string name="settings_live_order_recent">Onlangs bekeken</string>
+    <string name="settings_live_order_most">Meest bekeken</string>
+    <string name="settings_live_order_usage_help">Kijktijd telt mee na 10 seconden afspelen. Meest bekeken telt de afspeeltijd van de afgelopen 30 dagen op.</string>
 </resources>

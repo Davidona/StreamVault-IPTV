@@ -19,4 +19,5 @@
     <string name="player_no_archive">未找到已归档节目</string>
     <string name="program_date_time_range">%1$s | %2$s – %3$s</string>
     <string name="player_archive_badge">存档</string>
+    <string name="cast_scoped_headers_unsupported">插件请求标头无法发送到 Cast 接收器。</string>
 </resources>
