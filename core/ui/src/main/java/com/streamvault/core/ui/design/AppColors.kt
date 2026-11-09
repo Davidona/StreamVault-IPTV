@@ -25,6 +25,8 @@ object AppColors {
     val SurfaceElevated: Color get() = current.surfaceElevated
     val SurfaceEmphasis: Color get() = current.surfaceEmphasis
     val SurfaceAccent: Color get() = current.surfaceAccent
+    val SelectedContainer: Color get() = current.selectedContainer
+    val OnSelectedContainer: Color get() = current.onSelectedContainer
 
     val Brand: Color get() = current.brand
     val BrandMuted: Color get() = current.brandMuted

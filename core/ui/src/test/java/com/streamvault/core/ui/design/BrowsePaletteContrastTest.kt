@@ -42,6 +42,44 @@ class BrowsePaletteContrastTest {
     }
 
     @Test
+    fun selectedContainerKeepsLabelReadableAndSeparatesFromEveryBackground() {
+        allThemeIds.forEach { id ->
+            val browse = AppPalette.forTheme(id).forBrowsing()
+            val label = contrast(browse.onSelectedContainer, browse.selectedContainer)
+            assertTrue("$id label on selectedContainer was $label", label >= 4.5f)
+            mapOf(
+                "canvas" to browse.canvas,
+                "surface" to browse.surface,
+                "surfaceElevated" to browse.surfaceElevated,
+            ).forEach { (name, background) ->
+                val ratio = contrast(browse.selectedContainer, background)
+                assertTrue("$id selectedContainer on $name was $ratio", ratio >= 3f)
+            }
+        }
+    }
+
+    @Test
+    fun focusRingIsVisibleOnSelectedContainer() {
+        // Vintage's olive container is as dark as its ring, so it needs a ring offset by a gap (tracked
+        // in the shared selectable style), not a ring drawn against the fill.
+        val ringNeedsGap = setOf(AppPalette.VINTAGE_ID)
+        (allThemeIds - ringNeedsGap).forEach { id ->
+            val browse = AppPalette.forTheme(id).forBrowsing()
+            val ratio = contrast(browse.focus, browse.selectedContainer)
+            assertTrue("$id focus ring on selectedContainer was $ratio", ratio >= 3f)
+        }
+    }
+
+    @Test
+    fun focusedUnselectedLabelIsReadableOnAccentFill() {
+        allThemeIds.forEach { id ->
+            val browse = AppPalette.forTheme(id).forBrowsing()
+            val ratio = contrast(browse.textPrimary, browse.surfaceAccent)
+            assertTrue("$id textPrimary on surfaceAccent was $ratio", ratio >= 4.5f)
+        }
+    }
+
+    @Test
     fun browseFocusIsTheAppFocusToken() {
         allThemeIds.forEach { id ->
             val palette = AppPalette.forTheme(id)
