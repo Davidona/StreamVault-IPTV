@@ -1,295 +1,348 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
     <string name="app_name">StreamVault</string>
-    <string name="nav_home">Ana sayfa</string>
+
+
+    <string name="nav_home">Ana Sayfa</string>
     <string name="nav_live_tv">Canlı TV</string>
     <string name="nav_movies">Filmler</string>
     <string name="nav_series">Diziler</string>
     <string name="nav_epg">Rehber</string>
     <string name="nav_settings">Ayarlar</string>
-    <string name="welcome_enter_app">Uygulamaya Girin</string>
+    <string name="nav_extensions">Eklentiler</string>
+    <string name="nav_close_app">Uygulamayı kapat</string>
+
+
+    <string name="welcome_enter_app">Uygulamaya Gir</string>
     <string name="welcome_manage_providers">Sağlayıcıları Yönet</string>
     <string name="welcome_version">v1.0.3</string>
-    
-    <string name="welcome_feature_live">Önce uzaktan odaklanmayla hızlı canlı tarama</string>
-    <string name="welcome_feature_library">Dağınıklık olmadan geniş kütüphaneli filmler ve diziler</string>
-    <string name="welcome_feature_player">Birleşik oynatıcı katmanları, rehber erişimi ve kaydedilmiş içerik</string>
+    <string name="welcome_feature_live">Kumanda odaklı hızlı canlı kanal gezintisi</string>
+    <string name="welcome_feature_library">Karmaşadan uzak, geniş film ve dizi kütüphanesi</string>
+    <string name="welcome_feature_player">Birleşik oynatıcı arayüzü, rehber erişimi ve kayıtlı içerikler</string>
     <string name="welcome_manage_hint">Sağlayıcı değiştirin, meta verileri yenileyin veya yeni bir kaynak ekleyin.</string>
-    <string name="home_recent_channels">Son</string>
+
+
+    <string name="hidden_categories_dialog_title">Gizli kategoriler</string>
+    <string name="hidden_categories_dialog_subtitle">Geri yüklemek istediklerinizi seçin.</string>
+    <string name="hidden_categories_dialog_unhide_all">Tümünü Göster</string>
+    <string name="hidden_categories_dialog_close">Kapat</string>
+    <string name="home_recent_channels">Son Kanallar</string>
     <string name="home_last_channel">Son Kanal</string>
     <string name="home_last_channel_label">Son: %1$s</string>
     <string name="home_last_group_label">Son: %1$s</string>
     <string name="home_loading">Yükleniyor…</string>
     <string name="home_locked_short">KİLİTLİ</string>
-    <string name="live_shell_subtitle">Canlı kategorileri hızlıca tarayın, gezinmeyi tutarlı tutun ve yalnızca ekranda önemli olan program verilerini gösterin.</string>
-    <string name="live_shell_context">%1$d kategoriler • %2$d kanallar</string>
+    <string name="live_shell_subtitle">Canlı kategorilere hızla göz atın, akıcı gezintiyi koruyun ve ekranda yalnızca önemli yayın akışı verilerini görün.</string>
+    <string name="live_shell_context">%1$d kategori • %2$d kanal</string>
     <string name="live_shell_provider">Sağlayıcı</string>
-    <string name="live_shell_split">Multiview</string>
-    <string name="live_manage_groups">Multiview yuvalarını yönet</string>
+    <string name="live_shell_split">Çoklu Ekran</string>
+    <string name="live_manage_groups">Çoklu ekran yuvalarını yönet</string>
     <string name="live_reorder_title">%1$s yeniden sıralanıyor</string>
-    <string name="live_empty_hint_favorites">Bu rayı doldurmak için kanalları Favorilere veya kayıtlı bir gruba ekleyin.</string>
-    <string name="live_empty_hint_recent">Birkaç kanalda oynatmayı başlatın, burada görünecekler.</string>
+    <string name="live_empty_hint_favorites">Bu satırı doldurmak için kanalları Favorilere veya kayıtlı bir gruba ekleyin.</string>
+    <string name="live_empty_hint_recent">Birkaç kanal oynatmaya başladığınızda burada görünecekler.</string>
     <string name="home_saved_subtitle">Favoriler ve özel canlı gruplar</string>
-    <string name="home_saved_empty_hint">Bir kanalı favorilere ekleyin ya da buraya sabitlemek için özel bir canlı gruba ekleyin.</string>
+    <string name="home_saved_empty_hint">Buraya sabitlemek için bir kanalı favorilere veya özel bir canlı gruba ekleyin.</string>
     <string name="home_delete_group_title">Grup Silinsin mi?</string>
-    <string name="home_delete_group_body">\'%1$s\' silinsin mi? Bu, gruptaki tüm kanalları kaldırır.</string>
+    <string name="home_delete_group_body">\'%1$s\' grubunu silmek istediğinizden emin misiniz? Bu işlem tüm kanalları bu gruptan kaldırır.</string>
     <string name="home_delete_group_confirm">Sil</string>
     <string name="home_delete_group_cancel">İptal</string>
-    <string name="category_options_set_default">Varsayılan Grup Olarak Ayarla</string>
+
+
+    <string name="dashboard_customize_home">Ana Sayfayı Özelleştir</string>
+    <string name="dashboard_customize_home_subtitle">Burada hangi rafların görüneceğini seçin, daha fazla satır ekleyin ve istediğiniz zaman yeniden sıralayın.</string>
+    <string name="dashboard_customize_home_action">Özelleştir</string>
+
+
+
+    <string name="category_options_set_default">Varsayılan Yap</string>
     <string name="category_options_rename">Grubu Yeniden Adlandır</string>
     <string name="category_options_unlock">Grubun Kilidini Aç</string>
-    <string name="category_options_lock">Kilit Grubu</string>
+    <string name="category_options_lock">Grubu Kilitle</string>
     <string name="category_options_delete">Grubu Sil</string>
     <string name="category_options_cancel">İptal</string>
     <string name="category_options_reorder">Öğeleri Yeniden Sırala</string>
     <string name="category_options_hide">Kategoriyi Gizle</string>
+    <string name="category_options_hide_from_live_tv">Canlı TV\'den Gizle</string>
+    <string name="category_options_clear_recent">Geçmişi Temizle</string>
     <string name="category_options_pin">Kategoriyi Sabitle</string>
-    <string name="category_options_unpin">Kategorinin Sabitlemesini Kaldır</string>
+    <string name="category_options_unpin">Sabitlemeyi Kaldır</string>
+    <string name="m3u_organize_items">M3U Öğelerini Düzenle</string>
+    <string name="m3u_move_to_movies">Filmlere Taşı</string>
+    <string name="m3u_move_to_series">Dizilere Taşı</string>
+    <string name="m3u_move_back_to_live">Canlı TV\'ye Geri Taşı</string>
+    <string name="m3u_series_name">Dizi adı</string>
+    <string name="m3u_episode_number">Bölüm numarası</string>
+    <string name="m3u_season_number">Sezon numarası</string>
+    <string name="m3u_classify">Sınıflandır</string>
+    <string name="m3u_classification_saved">M3U sınıflandırması kaydedildi</string>
+    <string name="m3u_category_rule_subtitle">Bu M3U grubu için bir varsayılan seçin. Tekil kanallar yine de özel olarak değiştirilebilir.</string>
+    <string name="m3u_keep_live">Canlı TV Olarak Tut</string>
+    <string name="m3u_series_review_title">%1$s içindeki dizileri düzenle</string>
+    <string name="m3u_series_review_subtitle">Otomatik önerileri inceleyin veya her öğeyi bir dizi, sezon ve bölüme atayın.</string>
+    <string name="m3u_episode_unresolved">Bölüm numarası çözümlenemedi — düzeltilmesi için işaretli kalacak.</string>
+
     <string name="add_group_manage_title">Yönet: %1$s</string>
     <string name="add_group_close_cd">Kapat</string>
     <string name="add_group_name_hint">Grup Adı</string>
     <string name="add_group_cancel">İptal</string>
     <string name="add_group_create">Oluştur</string>
-    <string name="add_group_rename">Yeniden adlandır</string>
-    <string name="add_group_remove_favorites">Favorilerden Kaldır</string>
+    <string name="add_group_rename">Yeniden Adlandır</string>
+    <string name="add_group_remove_favorites">Favorilerden Çıkar</string>
     <string name="add_group_add_favorites">Favorilere Ekle</string>
-    <string name="add_group_reorder_title">Yeniden sırala</string>
+    <string name="channel_options_remove_from_recent">Geçmişten Çıkar</string>
+    <string name="add_group_reorder_title">Yeniden Sırala</string>
     <string name="add_group_move_up">Yukarı Taşı</string>
     <string name="add_group_move_down">Aşağı Taşı</string>
     <string name="add_group_custom_groups_title">Özel Gruplar</string>
     <string name="add_group_remove_btn">Kaldır</string>
     <string name="add_group_add_btn">Ekle</string>
     <string name="add_group_create_new_btn">Yeni Grup Oluştur</string>
+
+    <!-- M4 hide individual channels -->
+    <string name="channel_action_hide">Bu kanalı gizle</string>
+    <string name="hidden_channels_dialog_title">Gizli kanallar</string>
+    <string name="hidden_channels_dialog_subtitle">Geri yüklemek istediklerinizi seçin.</string>
+    <string name="hidden_channels_dialog_unhide_all">Tümünü Göster</string>
+    <string name="hidden_channels_dialog_close">Kapat</string>
+
     <string name="card_live_badge">CANLI</string>
     <string name="card_locked">Kilitli</string>
+
+
     <string name="playlist_no_provider">Sağlayıcı Yok</string>
     <string name="live_source_label">KAYNAK</string>
     <string name="live_source_filter_label">Oynatma Listesi Filtresi</string>
     <string name="live_source_filter_all">Tüm Kaynaklar</string>
-    <string name="live_source_unavailable_short">Kullanılamıyor</string>
+    <string name="live_source_unavailable_short">Yok</string>
     <string name="live_source_empty_short">Boş</string>
-    <string name="movies_shell_subtitle">Geçerli sağlayıcı bağlamından çıkmadan seçilmiş raflar, kaydedilmiş gruplar ve tam kütüphane gezintisi.</string>
+
+
+    <string name="movies_shell_subtitle">Mevcut sağlayıcıdan çıkmadan özel raflar, kayıtlı gruplar ve tam kütüphane gezintisi.</string>
     <string name="movies_all_categories">Tüm Kategoriler</string>
     <string name="movies_search_launch_title">Film kütüphanesinde ara</string>
-    <string name="movies_search_launch_subtitle">Geçerli gezinme durumunuzu kaybetmeden özel arama ekranına geçin.</string>
+    <string name="movies_search_launch_subtitle">Gezinme durumunuzu kaybetmeden özel arama ekranına geçin.</string>
     <string name="movies_group_created">%1$s grubu oluşturuldu</string>
     <string name="movies_group_renamed">Grup %1$s olarak yeniden adlandırıldı</string>
-    <string name="movies_group_deleted">Silinen grup %1$s</string>
+    <string name="movies_group_deleted">%1$s grubu silindi</string>
     <string name="movies_group_name_invalid">Bir grup adı girin</string>
-    <string name="movies_group_name_reserved">Favorites ayrılmıştır</string>
+    <string name="movies_group_name_reserved">Favoriler adı sistem tarafından ayrılmıştır</string>
     <string name="movies_group_name_duplicate">Bu ada sahip bir film grubu zaten mevcut</string>
-    <string name="movies_saved_empty_hint">Burada görmek için bir filmi favorilere ekleyin veya özel bir gruba ekleyin.</string>
-    <string name="movies_filter_subtitle">Tüm kütüphaneyi yeniden oluşturmadan seçili film kategorisini daraltın.</string>
+    <string name="movies_saved_empty_hint">Burada görmek için bir filmi favorilere veya özel bir gruba ekleyin.</string>
+    <string name="movies_filter_subtitle">Tüm kütüphaneyi yeniden yüklemeden seçili film kategorisini daraltın.</string>
     <string name="movies_reorder_title">%1$s yeniden sıralanıyor</string>
-    <string name="series_shell_subtitle">Büyük sağlayıcı kütüphaneleri için uyarlanmış editoryal raflar, kaydedilmiş gruplar ve sayfalı seri gezintisi.</string>
+
+
+    <string name="series_shell_subtitle">Geniş sağlayıcı kütüphaneleri için uyarlanmış özel raflar, kayıtlı gruplar ve sayfalı dizi gezintisi.</string>
     <string name="series_all_categories">Tüm Kategoriler</string>
-    <string name="series_search_launch_title">Seri kütüphanesinde ara</string>
-    <string name="series_search_launch_subtitle">Başlıkları, bölümleri veya kaydedilmiş grupları daha hızlı bulmak için komut arama görünümünü açın.</string>
+    <string name="series_search_launch_title">Dizi kütüphanesinde ara</string>
+    <string name="series_search_launch_subtitle">Yapımları, bölümleri veya kayıtlı grupları daha hızlı bulmak için hızlı arama görünümünü açın.</string>
     <string name="series_group_created">%1$s grubu oluşturuldu</string>
     <string name="series_group_renamed">Grup %1$s olarak yeniden adlandırıldı</string>
-    <string name="series_group_deleted">Silinen grup %1$s</string>
+    <string name="series_group_deleted">%1$s grubu silindi</string>
     <string name="series_group_name_invalid">Bir grup adı girin</string>
-    <string name="series_group_name_reserved">Favorites ayrılmıştır</string>
+    <string name="series_group_name_reserved">Favoriler adı sistem tarafından ayrılmıştır</string>
     <string name="series_group_name_duplicate">Bu ada sahip bir dizi grubu zaten mevcut</string>
-    <string name="series_saved_empty_hint">Burada görmek için bir seriyi favorilere ekleyin veya özel bir gruba ekleyin.</string>
-    <string name="series_filter_subtitle">Kaydedilmiş, izlenmekte olan, güncellenen ve yüksek puanlı seriler arasında geçiş yapın.</string>
+    <string name="series_saved_empty_hint">Burada görmek için bir diziyi favorilere veya özel bir gruba ekleyin.</string>
+    <string name="series_filter_subtitle">Kaydedilen, izlenmekte olan, güncellenen ve yüksek puanlı diziler arasında geçiş yapın.</string>
     <string name="series_reorder_title">%1$s yeniden sıralanıyor</string>
-    <string name="library_saved_title">Kaydedildi</string>
+
+    <string name="library_saved_title">Kaydedilenler</string>
     <string name="library_saved_subtitle">Favoriler ve özel gruplar</string>
-    <string name="library_saved_manage_hint">Seçenekler için kayıtlı bir grubu tutun</string>
-    <string name="library_lens_title">Kütüphane Merceği</string>
+    <string name="library_saved_manage_hint">Seçenekler için gruba basılı tutun</string>
+    <string name="library_lens_title">Kütüphane Görünümü</string>
     <string name="library_filter_results">%2$d öğenin %1$d tanesi gösteriliyor</string>
     <string name="library_loaded_results">%2$d öğenin %1$d tanesi yüklendi</string>
     <string name="library_sort_library">Kütüphane Sırası</string>
     <string name="library_sort_az">A\'dan Z\'ye</string>
-    <string name="library_sort_release">En yeni</string>
+    <string name="library_sort_release">En Yeni</string>
     <string name="library_sort_updated">Son Güncellenenler</string>
-    <string name="library_sort_rating">Derecelendirme</string>
-    <string name="settings_parental_subtitle">Yetişkin veya hassas içerikleri TV\'ye uygun kontrollerle koruyun.</string>
+    <string name="library_sort_rating">Puan</string>
+
+
+    <string name="settings_parental_subtitle">Yetişkinlere yönelik veya hassas içerikleri TV uyumlu kontrollerle koruyun.</string>
     <string name="settings_parental_groups_title">Korunan Gruplar</string>
     <string name="settings_parental_groups_hint">Etkin sağlayıcı için kategorileri kilitleyin veya kilidini açın.</string>
     <string name="settings_parental_groups_action">Yönet</string>
     <string name="settings_categories_title">Kategori Tercihleri</string>
-    <string name="settings_categories_subtitle">Sağlayıcı kategorilerini gizleyin ve sıralarını istediğiniz gibi koruyun.</string>
+    <string name="settings_categories_subtitle">Sağlayıcı kategorilerini gizleyin ve sıralamasını istediğiniz gibi koruyun.</string>
     <string name="settings_category_sorting_title">Kategori Sıralaması</string>
-    <string name="settings_category_sorting_subtitle">Etkin oynatma listesi için kategorileri sıralayın. Kilitleme ve gizleme artık Kategori Kontrolleri\'nde.</string>
+    <string name="settings_category_sorting_subtitle">Etkin oynatma listesi için kategorileri sıralayın. Kilitleme ve gizleme işlemleri artık Kategori Kontrolleri\'nde.</string>
     <string name="settings_hidden_categories_title">Gizli Kategoriler</string>
-    <string name="settings_hidden_categories_subtitle">Daha önce göz atma alanlarından gizlediğiniz sağlayıcı kategorilerini geri yükleyin.</string>
-    <string name="settings_hidden_categories_none">Gizli yok</string>
+    <string name="settings_hidden_categories_subtitle">Daha önce gezinme ekranlarından gizlediğiniz sağlayıcı kategorilerini geri yükleyin.</string>
+    <string name="settings_hidden_categories_none">Gizli kategori yok</string>
     <string name="settings_hidden_categories_count">%1$d gizli</string>
     <string name="settings_hidden_categories_empty">Şu anda gizli kategori yok.</string>
-    <string name="settings_playback_subtitle">Daha akıcı oynatma için kod çözücü ve arabellek davranışını ayarlayın.</string>
+    <string name="settings_playback_subtitle">Daha akıcı bir oynatma için kod çözücü ve önbellek davranışını ayarlayın.</string>
+    <string name="settings_live_timeshift_backend_value">Otomatik</string>
     <string name="vod_classic_categories_title">Kategoriler</string>
     <string name="settings_decoder_mode">Kod Çözücü Modu</string>
-    <string name="settings_select_decoder_mode">Kod Çözücü Modunu Seçin</string>
-    <string name="settings_buffer_duration">Arabellek Süresi</string>
+    <string name="settings_select_decoder_mode">Kod Çözücü Seçimi</string>
+    <string name="settings_buffer_duration">Önbellek Süresi</string>
     <string name="settings_buffer_5s">5 saniye</string>
     <string name="settings_about_subtitle">Bu kurulum için sürüm, derleme ve destek bilgileri.</string>
     <string name="settings_syncing">Veriler eşitleniyor, lütfen bekleyin…</string>
     <string name="settings_cancel">İptal</string>
     <string name="settings_sync_option_all">Tümünü Eşitle</string>
-    <string name="settings_sync_option_fast">Hızlı Senkronizasyon</string>
+    <string name="settings_sync_option_fast">Hızlı Eşitleme</string>
     <string name="settings_pc_btn">Ebeveyn Kontrolü</string>
     <string name="settings_language">Dil</string>
     <string name="settings_language_subtitle">TV arayüzünden çıkmadan uygulama dilini seçin.</string>
-    <string name="settings_diagnostic_never">Asla</string>
+
+    <string name="settings_backup_share_failed">Yedek dosyasını alabilecek bir uygulama bulunamadı.</string>
+    <string name="settings_crash_report_share_failed">Çökme raporunu alabilecek bir uygulama bulunamadı.</string>
+    <string name="settings_crash_report_missing">Kullanılabilir çökme raporu yok.</string>
+    <string name="settings_catalog_count_pending">Bekliyor</string>
+    <string name="settings_diagnostic_never">Hiçbir zaman</string>
     <string name="settings_diagnostic_items">%1$d öğe</string>
-    <string name="settings_recording_subtitle">Yerel canlı DVR görevlerini, depolamayı ve planlı kayıtları yönetin.</string>
+    <string name="settings_recording_subtitle">Yerel canlı DVR kayıtlarını, depolamayı ve zamanlanmış kayıtları yönetin.</string>
     <string name="settings_recording_pattern_summary">%1$s</string>
-    <string name="saved_preset_watch_next">Sonrakini İzle</string>
+
+
+    <string name="saved_preset_watch_next">Sıradakini İzle</string>
     <string name="tv_channel_continue_watching_title">İzlemeye Devam Et</string>
-    <string name="tv_channel_continue_watching_description">Son zamanlarda başladığınız içeriklere devam edin</string>
-    <string name="tv_channel_top_movies_title">En İyi Filmler</string>
-    <string name="tv_channel_top_movies_description">%1$s içinden popüler seçimler</string>
+    <string name="tv_channel_continue_watching_description">Son zamanlarda başladığınız içeriklere kaldığınız yerden devam edin</string>
+    <string name="tv_channel_top_movies_title">Popüler Filmler</string>
+    <string name="tv_channel_top_movies_description">%1$s üzerindeki popüler seçimler</string>
     <string name="tv_channel_recommended_movies_title">Önerilen Filmler</string>
-    <string name="tv_channel_recommended_movies_description">%1$s üzerindeki son seçimlerinize göre</string>
+    <string name="tv_channel_recommended_movies_description">%1$s üzerindeki son tercihlerinize göre uyarlandı</string>
     <string name="tv_channel_fresh_series_title">Yeni Diziler</string>
-    <string name="tv_channel_fresh_series_description">%1$s\'den son güncellenen diziler</string>
+    <string name="tv_channel_fresh_series_description">%1$s üzerinde son güncellenen diziler</string>
+
+
     <string name="search_title">Ara</string>
-    <string name="parental_group_shell_subtitle">Korunan canlı, film ve dizi gruplarını premium ayarlar ekranından çıkmadan inceleyin.</string>
-    <string name="search_command_title">Komut Arama</string>
+    <string name="parental_group_shell_subtitle">Ayarlar arayüzünden çıkmadan korunan canlı yayın, film ve dizi gruplarını inceleyin.</string>
+    <string name="search_command_title">Hızlı Arama</string>
     <string name="search_hint">Ara…</string>
+    <string name="search_actions_title">%1$s</string>
+    <string name="search_actions_pin_subtitle">Onaylamak için ebeveyn PIN kodunuzu girin</string>
     <string name="a11y_locked">Kilitli</string>
     <string name="a11y_favorite">Favori</string>
-    <string name="a11y_catch_up_available">Yakalama mevcut</string>
-    <string name="a11y_now_playing">%1$s oynatılıyor</string>
+    <string name="a11y_catch_up_available">Geri sarma mevcut</string>
+    <string name="a11y_now_playing">Şu anda oynatılıyor: %1$s</string>
     <string name="a11y_channel_with_number">Kanal %1$d, %2$s</string>
-    <string name="player_next">SONRAKİ</string>
+
+
+
+
+    <string name="player_no_external_player">Yüklü harici oynatıcı bulunamadı</string>
+    <string name="player_unsafe_stream_url">Bu yayın harici bir oynatıcıda açılamaz</string>
+    <string name="player_external_launch_failed">Harici oynatıcı başlatılamadı</string>
+    <string name="player_next">SIRADAKİ</string>
     <string name="player_recording_started">%1$s için kayıt başladı.</string>
     <string name="player_recording_stopped">Kayıt durduruldu.</string>
-    <string name="player_recording_scheduled">Kayıt %1$s için planlandı.</string>
-    <string name="player_recording_missing_context">Kayıt için geçerli bir canlı kanal bağlamı gerekir.</string>
+    <string name="player_recording_scheduled">%1$s için kayıt zamanlandı.</string>
+    <string name="player_recording_missing_context">Kayıt için geçerli bir canlı kanal gerekiyor.</string>
     <string name="player_categories_label">Kategoriler</string>
-    <string name="player_full_epg">Tam EPG</string>
+    <string name="player_full_epg">Tam Rehber</string>
     <string name="player_action_controls">Kontroller</string>
-    <string name="player_action_restart_short">Yeniden Başlat</string>
+    <string name="player_action_restart_short">Başa Sar</string>
     <string name="player_action_recent_short">Son</string>
-    <string name="player_diagnostics_decoder">Kod çözücü</string>
-    <string name="epg_search_short">Program Arama</string>
+    <string name="player_diagnostics_decoder">Kod Çözücü</string>
+    <string name="player_diagnostics_policy_guard">Politika Koruması</string>
+    <string name="player_diagnostics_policy_profile">Politika Profili</string>
+    <string name="player_diagnostics_policy_buffer">Önbellek Profili</string>
+    <string name="player_diagnostics_policy_render_path">İşleme Yolu</string>
+    <string name="player_diagnostics_policy_known_bad">Bilinen Hatalı Politika</string>
+    <string name="player_diagnostics_policy_recovery">Otomatik Kurtarma</string>
+    <string name="player_diagnostics_policy_last_action">Son Politika Eylemi</string>
+    <string name="epg_search_short">Program Ara</string>
     <string name="epg_show_options">Rehber seçeneklerini göster</string>
-    <string name="epg_hide_options">Kılavuz seçeneklerini gizle</string>
+    <string name="epg_hide_options">Rehber seçeneklerini gizle</string>
     <string name="epg_showing_channels">%2$d kanalın %1$d tanesi gösteriliyor</string>
-    <string name="epg_schedule_summary">Kılavuz verileri %1$d / %2$d kanallarda mevcuttur</string>
+    <string name="epg_schedule_summary">Rehber verileri %2$d kanalın %1$d tanesinde mevcut</string>
     <string name="epg_window_label">%1$s - %2$s</string>
-    <string name="epg_timeline_label">Zaman çizelgesi</string>
-    <string name="epg_timeline_range_label">%1$s penceresi</string>
+    <string name="epg_timeline_label">Zaman Çizelgesi</string>
+    <string name="epg_timeline_range_label">%1$s aralığı</string>
     <string name="epg_updated_now">Az önce güncellendi</string>
     <string name="epg_updated_minutes_ago">%1$d dk önce güncellendi</string>
-    <string name="epg_minutes_remaining">%1$d dakika kaldı</string>
+    <string name="epg_minutes_remaining">%1$d dk kaldı</string>
     <string name="epg_program_channel_label">Kanal</string>
     <string name="epg_program_provider_label">Sağlayıcı</string>
     <string name="epg_program_provider_type_label">Kaynak</string>
     <string name="epg_program_language_label">Dil</string>
-    <string name="epg_program_replay_label">Tekrar oynat</string>
+    <string name="epg_program_replay_label">Tekrar İzle</string>
     <string name="epg_program_progress_label">İlerleme</string>
-    <string name="epg_program_replay_unavailable">Kullanılamıyor</string>
-    <string name="epg_program_progress_value">%1$d%% tamamlandı • %2$s</string>
-    <string name="epg_provider_troubleshooting_missing_template">Sağlayıcı, kullanılabilir bir geri sarma şablonu olmadan geri sarma desteği sunduğu için oynatma başarısız olabilir.</string>
-    <string name="epg_provider_troubleshooting_missing_stream_id">Sağlayıcı bir geri sarma yayın kimliği sunmadığı için oynatma başarısız olabilir.</string>
+    <string name="epg_program_replay_unavailable">Yok</string>
+    <string name="epg_program_progress_value">%%%1$d tamamlandı • %2$s</string>
+    <string name="epg_provider_troubleshooting_missing_template">Sağlayıcı, kullanılabilir bir tekrar oynatma şablonu olmadan geri sarma desteği sunduğu için oynatma başarısız olabilir.</string>
+    <string name="epg_provider_troubleshooting_missing_stream_id">Sağlayıcı bir tekrar oynatma yayın kimliği (Stream ID) sunmadığı için oynatma başarısız olabilir.</string>
+
+
     <string name="parental_group_title">Korunan Gruplar</string>
-    <string name="parental_group_search">Kategorileri ara…</string>
-    <string name="multiview_add_to_split">Bölünmüş Ekrana Ekle</string>
-    <string name="multiview_queued">Bölünmüş Ekranda</string>
+    <string name="parental_group_search">Kategorilerde ara…</string>
+    <string name="player_live_timeshift_ready">Zaman kaydırma hazır.</string>
+    <string name="player_live_timeshift_failed">Bu yayın için yerel canlı geri sarma kullanılamıyor.</string>
+
+
+    <string name="multiview_add_to_split">Çoklu Ekrana Ekle</string>
+    <string name="multiview_queued">Çoklu Ekranda</string>
+
+
     <string name="settings_privacy_subtitle">İzleme geçmişini ve gizli modu yönetin.</string>
+
+
     <string name="action_done">Bitti</string>
     <string name="action_delete">Sil</string>
     <string name="action_clear">Temizle</string>
-    <string name="action_space">Uzay</string>
+    <string name="action_space">Boşluk</string>
+
+
     <string name="label_provider">SAĞLAYICI</string>
     <string name="label_selected">Seçildi</string>
-    <string name="label_no_schedule">Program bilgisi yok</string>
+    <string name="label_no_schedule">Yayın akışı bilgisi yok</string>
     <string name="label_slots_count">%1$d/4 yuva</string>
-    <string name="label_rating">RTG %1$s</string>
-    <string name="label_episode">Bölüm %1$d</string>
+    <string name="label_rating">★ %1$s/10</string>
+    <string name="label_episode">B%1$d</string>
     <string name="label_episode_full">Bölüm %1$d</string>
-    <string name="badge_saved">KAYDEDİLDİ</string>
-    <string name="badge_catch_up">YAKALAN</string>
-    <string name="badge_moving">HAREKETLİ</string>
-    <string name="badge_fav">Favorim</string>
+    <string name="badge_saved">KAYITLI</string>
+    <string name="badge_catch_up">GERİ SAR</string>
+    <string name="badge_moving">TAŞIMA</string>
+    <string name="badge_fav">FAV</string>
+
+
+
+
     <string name="favorites_content_type_movie">Film</string>
+
+
+
+
     <string name="split_count_format">%1$s %2$d/4</string>
-    <string name="tv_input_setup_scanning_title">StreamVault kanallarını tarama</string>
+    <string name="tv_input_setup_scanning_title">StreamVault kanalları taranıyor</string>
     <string name="tv_input_setup_success_title">Canlı TV hazır</string>
     <string name="tv_input_setup_no_provider_title">Yapılandırılmış IPTV sağlayıcısı yok</string>
     <string name="tv_input_setup_error_title">Otomatik tarama başarısız oldu</string>
-    <string name="tv_input_setup_idle_title">Canlı TV entegrasyonunun hazırlanması</string>
-    <string name="tv_input_setup_scanning_body">StreamVault, aktif sağlayıcınızı Android TV Live TV ile senkronize ediyor.</string>
-    <string name="tv_input_setup_success_body">Kanallarınız başarıyla senkronize edildi.</string>
-    <string name="tv_input_setup_no_provider_body">StreamVault\'ta en az bir IPTV sağlayıcısı ekleyin, ardından kanalları Android TV Live TV\'ye taramak için buraya geri dönün.</string>
-    <string name="tv_input_setup_error_body">TV girişi senkronizasyonu tamamlanmadı.</string>
+    <string name="tv_input_setup_idle_title">Canlı TV entegrasyonu hazırlanıyor</string>
+    <string name="tv_input_setup_scanning_body">StreamVault, etkin sağlayıcınızı Android TV Canlı TV ile eşitliyor.</string>
+    <string name="tv_input_setup_success_body">Kanallarınız başarıyla eşitlendi.</string>
+    <string name="tv_input_setup_no_provider_body">StreamVault\'a en az bir IPTV sağlayıcısı ekleyin, ardından kanalları Android TV Canlı TV\'ye taramak için buraya dönün.</string>
+    <string name="tv_input_setup_error_body">TV girişi eşitlemesi tamamlanamadı.</string>
     <string name="tv_input_setup_idle_body">Lütfen bekleyin.</string>
     <string name="tv_input_setup_source_format">Kaynak: %1$s</string>
     <string name="tv_input_setup_open_setup">StreamVault Kurulumunu Aç</string>
-    <string name="tv_input_setup_try_scan_again">Otomatik Taramayı Tekrar Deneyin</string>
-    <string name="tv_input_setup_retry_scan">Otomatik Taramayı Yeniden Dene</string>
-    <string name="tv_input_setup_success_hint">Android TV Live TV artık StreamVault kanallarınızı açabilir.</string>
-    <string name="category_options_clear_recent">Tüm Son İzlenenleri Temizle</string>
-    <string name="category_options_hide_from_live_tv">Canlı TV\'den Gizle</string>
-    <string name="channel_options_remove_from_recent">Son İzlenenlerden Kaldır</string>
-    <string name="player_diagnostics_policy_buffer">Arabellek Profili</string>
-    <string name="player_diagnostics_policy_guard">Politika Koruması</string>
-    <string name="player_diagnostics_policy_known_bad">Bilinen Hatalı Politika</string>
-    <string name="player_diagnostics_policy_last_action">Son Politika Eylemi</string>
-    <string name="player_diagnostics_policy_profile">Politika Profili</string>
-    <string name="player_diagnostics_policy_recovery">Otomatik Kurtarma</string>
-    <string name="player_diagnostics_policy_render_path">Render Yolu</string>
-    <string name="player_live_timeshift_failed">Bu akış için yerel canlı geri sarım kullanılamıyor.</string>
-    <string name="player_live_timeshift_ready">Zaman kaydırma hazır.</string>
-    <string name="search_actions_pin_subtitle">Onaylamak için ebeveyn PIN\'inizi girin</string>
-    <string name="search_actions_title">%1$s</string>
-    <string name="settings_backup_share_failed">Yedek dosyasını hiçbir uygulama alamadı.</string>
-    <string name="settings_catalog_count_pending">Bekliyor</string>
-    <string name="settings_live_timeshift_backend_value">Otomatik</string>
+    <string name="tv_input_setup_try_scan_again">Tekrar Otomatik Tara</string>
+    <string name="tv_input_setup_retry_scan">Yeniden Tara</string>
+    <string name="tv_input_setup_success_hint">Android TV Canlı TV artık StreamVault kanallarınızı açabilir.</string>
+
     <!-- M2: Google Drive backup sync -->
-    <string name="nav_vod">VOD</string>
-    <string name="nav_downloads">İndirmeler</string>
-    <string name="nav_close_app">Uygulamayı kapat</string>
-    <string name="hidden_channels_dialog_title">Gizli kanallar</string>
-    <string name="hidden_channels_dialog_subtitle">Geri yüklemek istediklerinizi seçin.</string>
-    <string name="hidden_channels_dialog_unhide_all">Tümünün gizlemesini kaldır</string>
-    <string name="hidden_channels_dialog_close">Kapat</string>
-    <string name="hidden_categories_dialog_title">Gizli kategoriler</string>
-    <string name="hidden_categories_dialog_subtitle">Geri yüklemek istediklerinizi seçin.</string>
-    <string name="hidden_categories_dialog_unhide_all">Tümünün gizlemesini kaldır</string>
-    <string name="hidden_categories_dialog_close">Kapat</string>
-    <string name="channel_action_hide">Bu kanalı gizle</string>
-    <string name="dashboard_customize_home">Ana Sayfayı Özelleştir</string>
-    <string name="dashboard_customize_home_subtitle">Burada hangi rafların görüneceğini seçin, daha fazla satır ekleyin ve istediğiniz zaman yeniden sıralayın.</string>
-    <string name="dashboard_customize_home_action">Özelleştir</string>
-    <string name="settings_crash_report_share_failed">Çökme raporunu alabilecek bir uygulama bulunamadı.</string>
-    <string name="settings_crash_report_missing">Kullanılabilir çökme raporu yok.</string>
-    <string name="player_no_external_player">Harici oynatıcı yüklü değil</string>
-    <string name="player_unsafe_stream_url">Bu yayın harici bir oynatıcıda açılamaz</string>
-    <string name="player_external_launch_failed">Harici oynatıcı başlatılamadı</string>
+    <string name="settings_drive_cancel_backup_choice_subtitle">Drive yedekleme işlemlerine geri dönün.</string>
+
+    <!-- Download feature -->
     <string name="download_failed">İndirme başarısız: %1$s</string>
     <string name="download_completed">İndirme tamamlandı</string>
     <string name="download_cancelled">İndirme iptal edildi</string>
+    <string name="download_notification_channel">İndirilenler</string>
+    <string name="download_notification_channel_description">İndirme ilerlemesini ve tamamlanma durumunu gösterir</string>
     <string name="download_in_progress">%s indiriliyor</string>
     <string name="download_progress">%1$s / %2$s</string>
-    <string name="download_notification_channel">İndirmeler</string>
-    <string name="download_notification_channel_description">İndirme ilerlemesini ve tamamlanmasını gösterir</string>
+    <string name="nav_downloads">İndirilenler</string>
     <string name="downloads_empty">Henüz indirme yok</string>
     <string name="downloads_delete_confirm">Bu indirme silinsin mi?</string>
     <string name="download_play_local">Oynat</string>
-    <string name="m3u_classify">Sınıflandır</string>
-    <string name="m3u_series_name">Dizi adı</string>
-    <string name="m3u_season_number">Sezon numarası</string>
-    <string name="m3u_episode_number">Bölüm numarası</string>
-    <string name="m3u_episode_unresolved">Bölüm numarası çözümlenemedi — düzeltme için işaretli kalacak.</string>
-    <string name="m3u_keep_live">Canlı TV Olarak Koru</string>
-    <string name="m3u_move_back_to_live">Canlı TV\'ye Geri Taşı</string>
-    <string name="m3u_move_to_movies">Filmlere Taşı</string>
-    <string name="m3u_move_to_series">Dizilere Taşı</string>
-    <string name="m3u_organize_items">M3U Öğelerini Düzenle</string>
-    <string name="m3u_series_review_title">%1$s içindeki dizileri düzenleyin</string>
-    <string name="m3u_series_review_subtitle">Otomatik önerileri inceleyin veya her girdiyi bir diziye, sezona ve bölüme atayın.</string>
-    <string name="m3u_category_rule_subtitle">Bu M3U grubu için bir varsayılan seçin. Tek tek kanallar yine de geçersiz kılınabilir.</string>
-    <string name="m3u_classification_saved">M3U sınıflandırması kaydedildi</string>
-    <string name="settings_drive_cancel_backup_choice_subtitle">Drive yedekleme işlemlerine geri dönün.</string>
+    <string name="nav_vod">VOD</string>
     <string name="torrent_playback_start_failed">Torrent oynatımı başlatılamadı. Lütfen tekrar deneyin.</string>
-    <string name="torrent_cache_capacity_reached">Torrent oynatma geçici depolama sınırına ulaştı. Önbelleği temizleyin veya alan açıp yeniden deneyin.</string>
-    <string name="torrent_storage_check_failed">Kullanılabilir depolama alanı denetlenemedi. Torrent oynatma güvenli biçimde sürdürülemez.</string>
-    <string name="nav_extensions">Eklentiler</string>
+    <string name="torrent_cache_capacity_reached">Torrent oynatımı geçici depolama sınırına ulaştı. Önbelleği temizleyin veya cihazda yer açıp tekrar deneyin.</string>
+    <string name="torrent_storage_check_failed">Kullanılabilir depolama alanı kontrol edilemedi. Torrent oynatımı güvenli şekilde sürdürülemez.</string>
     <string name="nav_sports">Spor</string>
     <string name="stremio_new_episode_channel">Yeni bölüm bildirimleri</string>
     <string name="stremio_new_episode_count">Yeni bölümler: %1$d</string>
