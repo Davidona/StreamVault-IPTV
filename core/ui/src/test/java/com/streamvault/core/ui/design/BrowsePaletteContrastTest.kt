@@ -7,6 +7,48 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class BrowsePaletteContrastTest {
+    private val allThemeIds = listOf(
+        AppPalette.CLASSIC_BLUE_ID, AppPalette.M3_PURPLE_ID, AppPalette.LIGHT_ID,
+        AppPalette.FOREST_ID, AppPalette.SUNSET_ID, AppPalette.OCEAN_ID,
+        AppPalette.ROSE_ID, AppPalette.AMOLED_BLACK_ID, AppPalette.VINTAGE_ID,
+    )
+
+    private fun contrast(a: Color, b: Color): Float {
+        val la = a.luminance()
+        val lb = b.luminance()
+        return (maxOf(la, lb) + 0.05f) / (minOf(la, lb) + 0.05f)
+    }
+
+    @Test
+    fun allNineThemesResolveToDistinctPalettes() {
+        assertEquals(9, allThemeIds.map { AppPalette.forTheme(it) }.toSet().size)
+    }
+
+    @Test
+    fun focusRingIsVisibleOnEveryBrowseSurfaceInEveryTheme() {
+        allThemeIds.forEach { id ->
+            val browse = AppPalette.forTheme(id).forBrowsing()
+            mapOf(
+                "canvas" to browse.canvas,
+                "canvasElevated" to browse.canvasElevated,
+                "surface" to browse.surface,
+                "surfaceElevated" to browse.surfaceElevated,
+                "surfaceAccent" to browse.surfaceAccent,
+            ).forEach { (name, background) ->
+                val ratio = contrast(browse.focus, background)
+                assertTrue("$id focus ring on $name was $ratio", ratio >= 3f)
+            }
+        }
+    }
+
+    @Test
+    fun browseFocusIsTheAppFocusToken() {
+        allThemeIds.forEach { id ->
+            val palette = AppPalette.forTheme(id)
+            assertEquals(id, palette.focus, palette.forBrowsing().focus)
+        }
+    }
+
     @Test
     fun metadataRemainsReadableOnFocusedSurfaces() {
         listOf(AppPalette.classicBlue(), AppPalette.m3Purple(), AppPalette.light()).forEach {

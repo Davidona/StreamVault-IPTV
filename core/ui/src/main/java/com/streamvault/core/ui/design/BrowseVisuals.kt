@@ -32,7 +32,6 @@ internal fun AppPalette.forBrowsing(): AppPalette = copy(
     textTertiary = if (isLight) lerp(textSecondary, textTertiary, 0.15f)
         else lerp(textTertiary, textSecondary, 0.35f),
     onPrimary = contentOnColor(brand),
-    focus = brandStrong,
     outline = textPrimary.copy(alpha = if (isLight) 0.12f else 0.09f),
     heroBottom = if (isLight) heroBottom else lerp(heroBottom, Color.Black, 0.24f),
 )

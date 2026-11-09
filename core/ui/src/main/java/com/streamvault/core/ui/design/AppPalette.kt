@@ -90,7 +90,7 @@ data class AppPalette(
             brandMuted = Color(0x33D0BCFF),
             brandStrong = Color(0xFFEADDFF),
             onPrimary = Color(0xFF381E72),
-            focus = Color(0xFF8A8A92),
+            focus = Color(0xFFF6F0FF),
             textPrimary = Color(0xFFF5F7FB),
             textSecondary = Color(0xFFC2C2C8),
             textTertiary = Color(0xFF8A8A92),
