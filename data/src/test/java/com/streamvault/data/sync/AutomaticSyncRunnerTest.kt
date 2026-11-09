@@ -132,6 +132,7 @@ class AutomaticSyncRunnerTest {
 
     @Test fun `playback defers all automatic provider requests`() = runTest {
         snapshot(M3uConfig("https://example.test/list"))
+        whenever(preferences.automaticSyncConfiguration).thenReturn(flowOf(AutomaticSyncConfiguration(AutomaticSyncSettings(deferWhileBusy = true))))
         whenever(metadata.getMetadata(7L)).thenReturn(null)
         val player = Any()
         try {
@@ -139,6 +140,17 @@ class AutomaticSyncRunnerTest {
             runner.check(7L)
             verify(commands, never()).refreshScheduledPlaylist(any(), any(), any())
             verify(preferences).recordAutomaticSyncStatus(eq(7L), argThat { outcome == AutomaticSyncOutcome.WAITING_PLAYBACK })
+        } finally { AutomaticSyncActivity.stopped(player) }
+    }
+
+    @Test fun `default automatic sync runs during playback`() = runTest {
+        snapshot(M3uConfig("https://example.test/list"))
+        whenever(metadata.getMetadata(7L)).thenReturn(null)
+        val player = Any()
+        try {
+            AutomaticSyncActivity.started(player)
+            runner.check(7L)
+            verify(commands).refreshScheduledPlaylist(7L, true, true)
         } finally { AutomaticSyncActivity.stopped(player) }
     }
 

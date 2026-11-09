@@ -431,7 +431,7 @@ class StalkerRequestCoordinatorTest {
             com.streamvault.domain.sync.AutomaticSyncActivity.started(owner,707)
             kotlinx.coroutines.withContext(
                 com.streamvault.data.sync.AutomaticSyncExecution.automatic.asContextElement(true) +
-                    com.streamvault.data.sync.AutomaticSyncExecution.policy.asContextElement(com.streamvault.domain.sync.AutomaticSyncSettings())
+                    com.streamvault.data.sync.AutomaticSyncExecution.policy.asContextElement(com.streamvault.domain.sync.AutomaticSyncSettings(deferWhileBusy = true))
             ) {
                 val pending=async { coordinator.acquireNetworkPermit(707,StalkerNetworkPriority.INDEX) }
                 runCurrent()

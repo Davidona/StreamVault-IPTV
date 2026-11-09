@@ -23,6 +23,10 @@ internal data class SectionProviderSyncRequest(
     val retryFailedCategoriesOnly: Boolean = true
 )
 
+/** Scheduled refreshes resume unfinished work; a Settings refresh starts a new sweep. */
+internal fun SectionProviderSyncRequest.preservePendingCatalogIndex(): Boolean =
+    syncReason == XtreamLiveSyncReason.BACKGROUND_STALE && !retryFailedCategoriesOnly
+
 internal data class ProviderGuideSyncRequest(
     val snapshot: ProviderSnapshot,
     val force: Boolean,

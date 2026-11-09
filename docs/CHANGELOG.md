@@ -14,11 +14,13 @@ All notable product changes are recorded in this document.
 - Added per-channel M3U request headers from Kodi/Xtream-style `url|Referer=...&User-Agent=...` suffixes, plus playlist-level and per-entry `user-agent` attributes, so channels that require a Referer or custom User-Agent can open.
 
 ### Changed
+- Automatic sync now runs during playback and recording by default; the existing setting can still defer it, and saved preferences are preserved.
 - Live TV subtitle, audio and delay menus now open in the same end-edge side sheet as More, and the overlay idle timer pauses while a side sheet is open.
 - Raised the default Live TV overlay timeout from 4 to 6 seconds.
 - Recording action labels now use higher-contrast text and TV-readable typography.
 
 ### Fixed
+- Fixed manual Stalker and Xtream movie and series sync resuming an unfinished scan without revisiting already scanned categories; manual refresh now starts a new scan and reloads categories.
 - Fixed Xtream EPG indexing getting stuck after an interrupted sync by recovering orphaned workflow phases and persisting the result of forced EPG retries.
 - Improved Stremio account sync for large libraries by processing imports in batches, preserving partial progress for retries, and adding privacy-safe failure diagnostics. Failed syncs no longer update the last successful sync time.
 - Fixed Live TV overlay focus and Back handling on Android TV: Back and Info close an open tray before the overlay, focus returns to the pill that opened it, and focus no longer resets when buffering changes the track lists.
