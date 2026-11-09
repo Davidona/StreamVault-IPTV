@@ -63,6 +63,35 @@ fun selectableSurfaceColors(selected: Boolean) = ClickableSurfaceDefaults.colors
     focusedContentColor = if (selected) BrowseColors.OnSelectedContainer else BrowseColors.TextPrimary,
 )
 
+/** Secondary button: filled at rest with no stroke, brighter fill on focus (the ring carries the focus state). */
+@Composable
+fun secondaryButtonColors() = ButtonDefaults.colors(
+    containerColor = BrowseColors.ControlContainer,
+    contentColor = BrowseColors.TextPrimary,
+    focusedContainerColor = BrowseColors.SurfaceAccent,
+    focusedContentColor = BrowseColors.TextPrimary,
+    disabledContainerColor = BrowseColors.ControlContainer,
+    disabledContentColor = BrowseColors.TextDisabled,
+)
+
+/** Secondary clickable surface: same look as [secondaryButtonColors] for Surface-based controls. */
+@Composable
+fun secondarySurfaceColors() = ClickableSurfaceDefaults.colors(
+    containerColor = BrowseColors.ControlContainer,
+    contentColor = BrowseColors.TextPrimary,
+    focusedContainerColor = BrowseColors.SurfaceAccent,
+    focusedContentColor = BrowseColors.TextPrimary,
+)
+
+/** Buttons get no stroke at rest; the focus ring is the only stroke. */
+@Composable
+fun focusRingButtonBorder(shape: RoundedCornerShape) = ButtonDefaults.border(
+    focusedBorder = Border(
+        border = BorderStroke(BrowseFocusSpec.SelectableRingWidth, BrowseColors.Focus),
+        shape = shape,
+    ),
+)
+
 /** The only stroke an interactive item gets: the focus ring. */
 @Composable
 fun selectableFocusBorder(shape: RoundedCornerShape) = ClickableSurfaceDefaults.border(
@@ -91,6 +120,7 @@ object BrowseColors {
     val SurfaceElevated get() = current.surfaceElevated
     val SurfaceEmphasis get() = current.surfaceEmphasis
     val SurfaceAccent get() = current.surfaceAccent
+    val ControlContainer get() = current.controlContainer
     val SelectedContainer get() = current.selectedContainer
     val OnSelectedContainer get() = current.onSelectedContainer
     val Brand get() = current.brand

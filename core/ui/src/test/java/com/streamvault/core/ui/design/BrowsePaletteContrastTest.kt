@@ -60,10 +60,7 @@ class BrowsePaletteContrastTest {
 
     @Test
     fun focusRingIsVisibleOnSelectedContainer() {
-        // Vintage's olive container is as dark as its ring, so it needs a ring offset by a gap (tracked
-        // in the shared selectable style), not a ring drawn against the fill.
-        val ringNeedsGap = setOf(AppPalette.VINTAGE_ID)
-        (allThemeIds - ringNeedsGap).forEach { id ->
+        allThemeIds.forEach { id ->
             val browse = AppPalette.forTheme(id).forBrowsing()
             val ratio = contrast(browse.focus, browse.selectedContainer)
             assertTrue("$id focus ring on selectedContainer was $ratio", ratio >= 3f)
@@ -76,6 +73,70 @@ class BrowsePaletteContrastTest {
             val browse = AppPalette.forTheme(id).forBrowsing()
             val ratio = contrast(browse.textPrimary, browse.surfaceAccent)
             assertTrue("$id textPrimary on surfaceAccent was $ratio", ratio >= 4.5f)
+            val secondary = contrast(browse.textSecondary, browse.surfaceAccent)
+            assertTrue("$id textSecondary on surfaceAccent was $secondary", secondary >= 4.5f)
+        }
+    }
+
+    @Test
+    fun controlContainerSeparatesFromItsBackgroundsInEveryTheme() {
+        allThemeIds.forEach { id ->
+            val raw = AppPalette.forTheme(id)
+            val browse = raw.forBrowsing()
+            // A light theme's fill would turn heavy grey at 1.5:1, so it is held to a lower bar.
+            val minimum = if (raw.isLight) 1.3f else 1.5f
+            listOf(raw, browse).forEach { palette ->
+                mapOf(
+                    "canvas" to (palette.canvas to minimum),
+                    "surface" to (palette.surface to minimum),
+                ).forEach { (name, backgroundAndFloor) ->
+                    val (background, floor) = backgroundAndFloor
+                    val ratio = contrast(raw.controlContainer, background)
+                    assertTrue("$id controlContainer on $name was $ratio", ratio >= floor)
+                }
+            }
+            // The Search screen hero panel is a browse elevated surface; the field only needs to stay visible on it.
+            val onElevated = contrast(raw.controlContainer, browse.surfaceElevated)
+            assertTrue("$id controlContainer on browse surfaceElevated was $onElevated", onElevated >= 1.25f)
+        }
+    }
+
+    @Test
+    fun fieldTextAndRingAreReadableOnControlContainer() {
+        allThemeIds.forEach { id ->
+            val palette = AppPalette.forTheme(id)
+            val placeholder = contrast(palette.textSecondary, palette.controlContainer)
+            val typed = contrast(palette.textPrimary, palette.controlContainer)
+            val ring = contrast(palette.focus, palette.controlContainer)
+            assertTrue("$id placeholder on controlContainer was $placeholder", placeholder >= 4.5f)
+            assertTrue("$id typed text on controlContainer was $typed", typed >= 4.5f)
+            assertTrue("$id focus ring on controlContainer was $ring", ring >= 3f)
+        }
+    }
+
+    @Test
+    fun restingTextIsReadableOnCanvasAndSurfaceInEveryTheme() {
+        allThemeIds.forEach { id ->
+            val browse = AppPalette.forTheme(id).forBrowsing()
+            listOf(
+                "canvas" to browse.canvas,
+                "surface" to browse.surface,
+                "surfaceElevated" to browse.surfaceElevated,
+            ).forEach { (name, background) ->
+                val primary = contrast(browse.textPrimary, background)
+                val secondary = contrast(browse.textSecondary, background)
+                assertTrue("$id textPrimary on $name was $primary", primary >= 4.5f)
+                assertTrue("$id textSecondary on $name was $secondary", secondary >= 4.5f)
+            }
+        }
+    }
+
+    @Test
+    fun loadingSpinnerBrandIsVisibleOnCanvasInEveryTheme() {
+        allThemeIds.forEach { id ->
+            val browse = AppPalette.forTheme(id).forBrowsing()
+            val ratio = contrast(browse.brand, browse.canvas)
+            assertTrue("$id brand on canvas was $ratio", ratio >= 3f)
         }
     }
 
