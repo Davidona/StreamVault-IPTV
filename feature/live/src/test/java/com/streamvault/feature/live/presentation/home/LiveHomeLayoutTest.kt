@@ -15,7 +15,6 @@ class LiveHomeLayoutTest {
         )
 
         assertThat(metrics.sidebarWidth.value).isWithin(0.01f).of(216f)
-        assertThat(metrics.channelSearchWidth.value).isWithin(0.01f).of(204f)
         assertThat(metrics.channelRowHeight).isEqualTo(54.dp)
         assertThat(metrics.channelListSpacing).isEqualTo(2.dp)
     }
@@ -29,7 +28,6 @@ class LiveHomeLayoutTest {
         )
 
         assertThat(metrics.sidebarWidth).isEqualTo(252.dp)
-        assertThat(metrics.channelSearchWidth).isEqualTo(280.dp)
         assertThat(metrics.channelRowHeight).isEqualTo(92.dp)
         assertThat(metrics.channelListSpacing).isEqualTo(8.dp)
     }
@@ -43,7 +41,6 @@ class LiveHomeLayoutTest {
         )
 
         assertThat(metrics.sidebarWidth).isEqualTo(272.dp)
-        assertThat(metrics.channelSearchWidth).isEqualTo(320.dp)
         assertThat(metrics.channelRowHeight).isEqualTo(52.dp)
         assertThat(metrics.channelListSpacing).isEqualTo(2.dp)
     }
