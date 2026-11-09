@@ -11,6 +11,7 @@ import androidx.tv.material3.Border
 import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
+import com.streamvault.core.ui.design.AppColors
 import com.streamvault.core.ui.design.FocusSpec
 import com.streamvault.core.ui.interaction.TvClickableSurface
 
@@ -37,8 +38,8 @@ public fun CompactRecordingActionChip(
     ) {
         Text(
             text = label,
-            color = accent,
-            style = MaterialTheme.typography.labelSmall,
+            color = AppColors.TextPrimary,
+            style = MaterialTheme.typography.bodyMedium,
             modifier = Modifier.padding(horizontal = 9.dp, vertical = 5.dp)
         )
     }

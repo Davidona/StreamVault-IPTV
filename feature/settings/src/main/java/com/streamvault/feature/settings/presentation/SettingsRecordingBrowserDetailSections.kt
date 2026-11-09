@@ -67,7 +67,7 @@ public fun RecordingDetailActions(
         modifier = modifier.fillMaxWidth(),
         maxItemsInEachRow = 4
     ) {
-        if (item.status == RecordingStatus.COMPLETED && (!item.outputUri.isNullOrBlank() || !item.outputPath.isNullOrBlank())) {
+        if (item.hasPlayableOutput()) {
             CompactRecordingActionChip(
                 label = stringResource(R.string.settings_recording_play),
                 accent = Primary,

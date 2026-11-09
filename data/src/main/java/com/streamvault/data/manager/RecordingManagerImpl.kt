@@ -29,6 +29,7 @@ import com.streamvault.data.manager.recording.ResolvedRecordingSource
 import com.streamvault.data.manager.recording.SmbRecordingCredentials
 import com.streamvault.data.manager.recording.SmbRecordingStorage
 import com.streamvault.data.manager.recording.TsPassThroughCaptureEngine
+import com.streamvault.data.manager.recording.UnexpectedRecordingStreamEndException
 import com.streamvault.data.manager.recording.UnsupportedRecordingException
 import com.streamvault.data.preferences.PreferencesRepository
 import com.streamvault.data.security.AndroidKeystoreCredentialCrypto
@@ -269,14 +270,27 @@ class RecordingManagerImpl @Inject constructor(
     }
 
     override suspend fun stopRecording(recordingId: String): Result<Unit> = withContext(Dispatchers.IO) {
-        val run = recordingRunDao.getById(recordingId) ?: return@withContext Result.error("Recording not found")
+        val initialRun = recordingRunDao.getById(recordingId)
+            ?: return@withContext Result.error("Recording not found")
+        if (initialRun.status != RecordingStatus.RECORDING && initialRun.status != RecordingStatus.SCHEDULED) {
+            alarmScheduler.cancel(recordingId)
+            return@withContext Result.success(Unit)
+        }
+
         cancelActiveJob(recordingId)
+        val run = recordingRunDao.getById(recordingId)
+            ?: return@withContext Result.error("Recording not found")
+        if (run.status != RecordingStatus.RECORDING && run.status != RecordingStatus.SCHEDULED) {
+            alarmScheduler.cancel(recordingId)
+            return@withContext Result.success(Unit)
+        }
+
         alarmScheduler.cancel(recordingId)
         val now = System.currentTimeMillis()
-        val newStatus = when {
-            run.status == RecordingStatus.RECORDING -> RecordingStatus.COMPLETED
-            run.status == RecordingStatus.SCHEDULED -> RecordingStatus.CANCELLED
-            else -> RecordingStatus.CANCELLED
+        val newStatus = when (run.status) {
+            RecordingStatus.RECORDING -> RecordingStatus.COMPLETED
+            RecordingStatus.SCHEDULED -> RecordingStatus.CANCELLED
+            else -> return@withContext Result.success(Unit)
         }
         recordingRunDao.update(
             run.copy(
@@ -290,10 +304,23 @@ class RecordingManagerImpl @Inject constructor(
     }
 
     override suspend fun stopRecordingForForegroundServiceTimeout(recordingId: String): Result<Unit> = withContext(Dispatchers.IO) {
-        val run = recordingRunDao.getById(recordingId) ?: return@withContext Result.error("Recording not found")
+        val initialRun = recordingRunDao.getById(recordingId)
+            ?: return@withContext Result.error("Recording not found")
+        if (initialRun.status != RecordingStatus.RECORDING) {
+            alarmScheduler.cancel(recordingId)
+            return@withContext Result.success(Unit)
+        }
+
         foregroundServiceTimeoutRecordingIds.add(recordingId)
         try {
             cancelActiveJob(recordingId)
+            val run = recordingRunDao.getById(recordingId)
+                ?: return@withContext Result.error("Recording not found")
+            if (run.status != RecordingStatus.RECORDING) {
+                alarmScheduler.cancel(recordingId)
+                return@withContext Result.success(Unit)
+            }
+
             alarmScheduler.cancel(recordingId)
             val now = System.currentTimeMillis()
             recordingRunDao.update(
@@ -837,6 +864,9 @@ class RecordingManagerImpl @Inject constructor(
                 throw cancelled
             } catch (unsupported: UnsupportedRecordingException) {
                 markRunFailed(run.id, unsupported.message ?: "Recording format is unsupported.", unsupported.category)
+            } catch (endedEarly: UnexpectedRecordingStreamEndException) {
+                Log.w(TAG, "Live recording stream ended before the scheduled stop time")
+                markRunFailed(run.id, "", RecordingFailureCategory.NETWORK)
             } catch (error: Throwable) {
                 val failureReason = if (error is LivePlaybackCaptureBackpressureException) {
                     Log.w(TAG, "Live recording output could not keep up with playback.", error)

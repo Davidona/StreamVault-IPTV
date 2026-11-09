@@ -16,6 +16,7 @@ All notable product changes are recorded in this document.
 ### Changed
 - Live TV subtitle, audio and delay menus now open in the same end-edge side sheet as More, and the overlay idle timer pauses while a side sheet is open.
 - Raised the default Live TV overlay timeout from 4 to 6 seconds.
+- Recording action labels now use higher-contrast text and TV-readable typography.
 
 ### Fixed
 - Improved Stremio account sync for large libraries by processing imports in batches, preserving partial progress for retries, and adding privacy-safe failure diagnostics. Failed syncs no longer update the last successful sync time.
@@ -25,6 +26,8 @@ All notable product changes are recorded in this document.
 - Fixed the TV Guide showing no channels or stopping early when hidden categories occur before visible channels; guide controls now remain available in the empty state.
 - Fixed TV D-pad navigation getting trapped in Search, Guide category filter, and Category Controls fields; arrow keys now move the cursor within text and move focus to adjacent controls at text boundaries.
 - Fixed TV Guide focus returning to the first channel after leaving full-screen playback or loading more channels; the guide now restores the playing channel and keeps focus while paging.
+- Fixed TS and HLS recordings ending before their scheduled stop being reported as complete; early stream ends are retried and failed captures retain non-empty partial output for playback.
+- Fixed recording stop and foreground-timeout races overwriting terminal status, and made saved partial recordings playable from the recording browser.
 - Fixed Xtream live recordings being classified from stale container metadata instead of the resolved stream URL, which could select the HLS recorder for an MPEG-TS stream and leave a zero-byte recording.
 - Fixed downloaded external subtitles not being recognized or auto-selected when Media3 prefixes their track IDs during source merging.
 - Fixed TV focus jumping to Home when opening Downloads or switching Series and Movies to Saved/full-library browsing; focus now returns to screen content, with the active tab as a fallback.

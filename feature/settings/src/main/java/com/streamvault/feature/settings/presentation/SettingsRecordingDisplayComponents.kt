@@ -59,6 +59,15 @@ public fun recordingDisplaySubtitle(item: RecordingItem): String? {
     return if (title.isNotBlank() && title != item.channelName) item.channelName else null
 }
 
+public fun RecordingItem.hasPlayableOutput(): Boolean {
+    if (outputUri.isNullOrBlank() && outputPath.isNullOrBlank()) return false
+    return when (status) {
+        RecordingStatus.COMPLETED -> true
+        RecordingStatus.FAILED, RecordingStatus.CANCELLED -> bytesWritten > 0L
+        RecordingStatus.SCHEDULED, RecordingStatus.RECORDING -> false
+    }
+}
+
 @Composable
 public fun recordingStatusLabel(status: RecordingStatus): String = when (status) {
     RecordingStatus.SCHEDULED -> stringResource(R.string.settings_recording_status_scheduled)
