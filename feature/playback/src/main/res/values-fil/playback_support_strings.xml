@@ -19,4 +19,5 @@
     <string name="player_no_archive">Walang nahanap na naka-archive na programa</string>
     <string name="program_date_time_range">%1$s | %2$s – %3$s</string>
     <string name="player_archive_badge">Archive</string>
+    <string name="cast_scoped_headers_unsupported">Hindi maipapadala ang mga header ng request ng add-on sa isang Cast receiver.</string>
 </resources>

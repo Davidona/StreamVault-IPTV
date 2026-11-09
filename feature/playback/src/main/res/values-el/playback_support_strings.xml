@@ -19,4 +19,5 @@
     <string name="player_no_archive">Δεν βρέθηκαν αρχειοθετημένα προγράμματα</string>
     <string name="program_date_time_range">%1$s | %2$s – %3$s</string>
     <string name="player_archive_badge">Αρχείο</string>
+    <string name="cast_scoped_headers_unsupported">Οι κεφαλίδες αιτημάτων πρόσθετων δεν μπορούν να σταλούν σε δέκτη Cast.</string>
 </resources>

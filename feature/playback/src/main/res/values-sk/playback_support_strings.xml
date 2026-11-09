@@ -19,4 +19,5 @@
     <string name="player_no_archive">Nenašli sa žiadne archivované programy</string>
     <string name="program_date_time_range">%1$s | %2$s – %3$s</string>
     <string name="player_archive_badge">Archív</string>
+    <string name="cast_scoped_headers_unsupported">Hlavičky požiadaviek doplnku nemožno odoslať do prijímača Cast.</string>
 </resources>

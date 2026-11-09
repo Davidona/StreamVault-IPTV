@@ -19,4 +19,5 @@
     <string name="player_no_archive">找不到已封存的節目</string>
     <string name="program_date_time_range">%1$s | %2$s – %3$s</string>
     <string name="player_archive_badge">封存</string>
+    <string name="cast_scoped_headers_unsupported">外掛程式要求標頭無法傳送至 Cast 接收器。</string>
 </resources>

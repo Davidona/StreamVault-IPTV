@@ -19,4 +19,5 @@
     <string name="player_no_archive">보관된 프로그램이 없습니다</string>
     <string name="program_date_time_range">%1$s | %2$s ~ %3$s</string>
     <string name="player_archive_badge">아카이브</string>
+    <string name="cast_scoped_headers_unsupported">추가 기능 요청 헤더는 Cast 수신기로 보낼 수 없습니다.</string>
 </resources>

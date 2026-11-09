@@ -19,4 +19,5 @@
     <string name="player_no_archive">Tidak ada program yang diarsipkan ditemukan</string>
     <string name="program_date_time_range">%1$s | %2$s – %3$s</string>
     <string name="player_archive_badge">Arsip</string>
+    <string name="cast_scoped_headers_unsupported">Header permintaan add-on tidak dapat dikirim ke penerima Cast.</string>
 </resources>

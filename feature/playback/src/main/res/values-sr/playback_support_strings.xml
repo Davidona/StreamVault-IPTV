@@ -19,4 +19,5 @@
     <string name="player_no_archive">Нема пронађених архивираних програма</string>
     <string name="program_date_time_range">%1$s | %2$s – %3$s</string>
     <string name="player_archive_badge">Архива</string>
+    <string name="cast_scoped_headers_unsupported">Заглавља захтева додатка не могу да се пошаљу на Cast пријемник.</string>
 </resources>

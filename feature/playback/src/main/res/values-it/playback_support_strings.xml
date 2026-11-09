@@ -19,4 +19,5 @@
     <string name="player_no_archive">Nessun programma archiviato trovato</string>
     <string name="program_date_time_range">%1$s | %2$s – %3$s</string>
     <string name="player_archive_badge">Archivio</string>
+    <string name="cast_scoped_headers_unsupported">Le intestazioni delle richieste del componente aggiuntivo non possono essere inviate a un ricevitore Cast.</string>
 </resources>

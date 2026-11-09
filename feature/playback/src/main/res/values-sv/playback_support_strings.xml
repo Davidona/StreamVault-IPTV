@@ -19,4 +19,5 @@
     <string name="player_no_archive">Inga arkiverade program hittades</string>
     <string name="program_date_time_range">%1$s | %2$s – %3$s</string>
     <string name="player_archive_badge">Arkiv</string>
+    <string name="cast_scoped_headers_unsupported">Tilläggets begäranderubriker kan inte skickas till en Cast-mottagare.</string>
 </resources>

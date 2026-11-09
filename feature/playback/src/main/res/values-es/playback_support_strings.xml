@@ -19,4 +19,5 @@
     <string name="player_no_archive">No se encontraron programas archivados</string>
     <string name="program_date_time_range">%1$s | %2$s – %3$s</string>
     <string name="player_archive_badge">Archivo</string>
+    <string name="cast_scoped_headers_unsupported">Los encabezados de solicitudes del complemento no se pueden enviar a un receptor Cast.</string>
 </resources>
