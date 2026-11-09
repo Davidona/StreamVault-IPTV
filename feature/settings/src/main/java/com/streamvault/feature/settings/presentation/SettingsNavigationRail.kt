@@ -19,7 +19,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.res.stringResource
@@ -32,6 +31,8 @@ import com.streamvault.core.ui.interaction.TvIconButton
 import com.streamvault.core.ui.theme.*
 import com.streamvault.feature.settings.R
 import com.streamvault.core.ui.design.AppColors
+import com.streamvault.core.ui.design.selectableFocusBorder
+import com.streamvault.core.ui.design.selectableSurfaceColors
 
 internal val SettingsCategory.icon: ImageVector get() = when (this) {
     SettingsCategory.SOURCES -> Icons.Rounded.Dns
@@ -73,21 +74,14 @@ public fun SettingsNavigationRail(
                 .then(if (isSelected) Modifier.onGloballyPositioned { selectedEntryPlaced = true } else Modifier)
                 .semantics { selected = isSelected },
             shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(SettingsDesignTokens.groupRadius)),
-            colors = ClickableSurfaceDefaults.colors(
-                containerColor = if (isSelected) colors.focusedSurface else Color.Transparent,
-                focusedContainerColor = colors.focusedSurface
-            ),
-            border = ClickableSurfaceDefaults.border(focusedBorder = Border(
-                    androidx.compose.foundation.BorderStroke(SettingsDesignTokens.focusStroke, colors.focusOutline),
-                    shape = RoundedCornerShape(SettingsDesignTokens.groupRadius))),
+            colors = selectableSurfaceColors(isSelected),
+            border = selectableFocusBorder(RoundedCornerShape(SettingsDesignTokens.groupRadius)),
             scale = ClickableSurfaceDefaults.scale(focusedScale = 1f)
         ) {
             Row(Modifier.fillMaxWidth().heightIn(min = 48.dp).padding(horizontal = 14.dp, vertical = 10.dp),
                 horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
-                Icon(category.icon, null, tint = if (isSelected) colors.accent else colors.secondaryText,
-                    modifier = Modifier.size(20.dp))
+                Icon(category.icon, null, modifier = Modifier.size(20.dp))
                 Text(stringResource(category.title), style = MaterialTheme.typography.labelLarge,
-                    color = if (isSelected) colors.accent else colors.primaryText,
                     fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal)
             }
         }
