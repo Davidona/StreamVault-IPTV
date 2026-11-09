@@ -12,14 +12,17 @@ All notable product changes are recorded in this document.
 - Added Live TV subtitle and audio side sheets on Android TV, including subtitle tracks, real-time translation, subtitle delay and loading subtitles from the device.
 - Added localized "Closed Captions" naming for in-band CEA-608/708 caption tracks, numbered when a stream has more than one.
 - Added per-channel M3U request headers from Kodi/Xtream-style `url|Referer=...&User-Agent=...` suffixes, plus playlist-level and per-entry `user-agent` attributes, so channels that require a Referer or custom User-Agent can open.
+- Added Stremio add-on subtitle and Cast request-header messages across all 38 advertised locales.
 
 ### Changed
 - Automatic sync now runs during playback and recording by default; the existing setting can still defer it, and saved preferences are preserved.
 - Live TV subtitle, audio and delay menus now open in the same end-edge side sheet as More, and the overlay idle timer pauses while a side sheet is open.
 - Raised the default Live TV overlay timeout from 4 to 6 seconds.
 - Recording action labels now use higher-contrast text and TV-readable typography.
+- Refined Turkish localization for Android TV, including IPTV/EPG terminology, plural and percentage formatting, and shorter labels for TV layouts.
 
 ### Fixed
+- Fixed low-memory VOD playback ignoring explicit MEDIUM or LARGE buffer duration preferences; AUTO keeps its conservative low-memory policy.
 - Fixed manual Stalker and Xtream movie and series sync resuming an unfinished scan without revisiting already scanned categories; manual refresh now starts a new scan and reloads categories.
 - Fixed Xtream EPG indexing getting stuck after an interrupted sync by recovering orphaned workflow phases and persisting the result of forced EPG retries.
 - Improved Stremio account sync for large libraries by processing imports in batches, preserving partial progress for retries, and adding privacy-safe failure diagnostics. Failed syncs no longer update the last successful sync time.
