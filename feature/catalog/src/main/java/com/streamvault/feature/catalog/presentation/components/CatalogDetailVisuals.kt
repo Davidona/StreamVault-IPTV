@@ -17,6 +17,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.outlined.FavoriteBorder
@@ -151,6 +152,36 @@ fun DetailBackButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    SecondaryCircleIconButton(
+        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+        contentDescription = contentDescription,
+        onClick = onClick,
+        modifier = modifier
+    )
+}
+
+/** Dialog close: the same secondary icon circle as [DetailBackButton], so the focused X never turns into a solid white disc. */
+@Composable
+fun DetailCloseButton(
+    contentDescription: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    SecondaryCircleIconButton(
+        imageVector = Icons.Default.Close,
+        contentDescription = contentDescription,
+        onClick = onClick,
+        modifier = modifier
+    )
+}
+
+@Composable
+private fun SecondaryCircleIconButton(
+    imageVector: ImageVector,
+    contentDescription: String,
+    onClick: () -> Unit,
+    modifier: Modifier
+) {
     TvIconButton(
         onClick = onClick,
         modifier = modifier.size(48.dp),
@@ -169,7 +200,7 @@ fun DetailBackButton(
             focusedContentColor = AppColors.TextPrimary
         )
     ) {
-        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = contentDescription)
+        Icon(imageVector, contentDescription = contentDescription)
     }
 }
 

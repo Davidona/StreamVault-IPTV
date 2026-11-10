@@ -4,6 +4,8 @@ package com.streamvault.feature.catalog.presentation.search
 
 import com.streamvault.core.ui.design.focusRingButtonBorder
 import com.streamvault.core.ui.design.secondaryButtonColors
+import com.streamvault.core.ui.design.secondarySurfaceColors
+import com.streamvault.feature.catalog.presentation.components.DetailCloseButton
 import com.streamvault.core.ui.layout.AdaptiveRow
 
 import androidx.compose.foundation.layout.FlowRow
@@ -999,7 +1001,8 @@ private fun SearchHeroPanel(
                             val recentQueryDescription = stringResource(R.string.a11y_recent_search, recentQuery)
                             SearchPill(
                                 text = recentQuery,
-                                selected = recentQuery.equals(query, ignoreCase = true),
+                                selected = false,
+                                secondary = true,
                                 onClick = { onRecentQuerySelected(recentQuery) },
                                 modifier = Modifier.semantics {
                                     contentDescription = recentQueryDescription
@@ -1030,14 +1033,16 @@ private fun SearchPill(
     selected: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    compact: Boolean = false
+    compact: Boolean = false,
+    // Recent queries are actions, not a selection, so they get a filled secondary container instead of the tonal selected one.
+    secondary: Boolean = false
 ) {
     TvClickableSurface(
         modifier = modifier,
         onClick = onClick,
         shape = ClickableSurfaceDefaults.shape(CircleShape),
         scale = ClickableSurfaceDefaults.scale(focusedScale = 1f),
-        colors = selectableSurfaceColors(selected),
+        colors = if (secondary) secondarySurfaceColors() else selectableSurfaceColors(selected),
         border = selectableFocusBorder(CircleShape)
     ) {
         Text(
@@ -1307,12 +1312,11 @@ private fun SearchItemActionsDialog(
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier.weight(1f)
                     )
-                    IconButton(
+                    DetailCloseButton(
+                        contentDescription = stringResource(R.string.search_actions_dismiss),
                         onClick = safeDismiss,
                         modifier = Modifier.mouseClickable(onClick = safeDismiss)
-                    ) {
-                        Icon(Icons.Default.Close, contentDescription = stringResource(R.string.search_actions_dismiss))
-                    }
+                    )
                 }
 
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
