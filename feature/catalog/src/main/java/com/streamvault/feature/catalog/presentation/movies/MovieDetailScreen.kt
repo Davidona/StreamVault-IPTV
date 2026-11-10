@@ -25,10 +25,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -38,8 +34,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -50,10 +44,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.runtime.remember
-import androidx.tv.material3.Border
 import androidx.tv.material3.Button
-import androidx.tv.material3.ButtonDefaults
-import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import coil3.compose.AsyncImage
@@ -63,6 +54,9 @@ import com.streamvault.feature.catalog.api.CatalogUiEvent
 import com.streamvault.feature.catalog.presentation.catalogMessageText
 import com.streamvault.feature.catalog.presentation.components.ExternalRatingsStrip
 import com.streamvault.feature.catalog.presentation.components.DetailActionButton
+import com.streamvault.feature.catalog.presentation.components.DetailBackButton
+import com.streamvault.feature.catalog.presentation.components.DetailFavoriteButton
+import com.streamvault.feature.catalog.presentation.components.DetailVariantButton
 import com.streamvault.feature.catalog.presentation.components.DetailInfoPanel
 import com.streamvault.feature.catalog.presentation.components.DetailSectionHeading
 import com.streamvault.feature.catalog.presentation.components.formatVodRatingLabel
@@ -76,7 +70,8 @@ import com.streamvault.core.ui.image.rememberCrossfadeImageModel
 import com.streamvault.core.ui.components.shell.ContentMetadataStrip
 import com.streamvault.core.ui.components.shell.StatusPill
 import com.streamvault.core.ui.design.BrowseColors as AppColors
-import com.streamvault.core.ui.design.requestFocusSafely
+import com.streamvault.core.ui.design.ComfortZoneScrollOnFocus
+import com.streamvault.core.ui.design.rememberInitialFocusModifier
 import com.streamvault.domain.model.ExternalRatings
 import com.streamvault.domain.model.Movie
 import com.streamvault.domain.model.VodMovieVariant
@@ -84,8 +79,6 @@ import com.streamvault.domain.trakt.TraktCustomListItem
 import com.streamvault.domain.trakt.TraktCustomListItemIdentity
 import com.streamvault.domain.trakt.TraktCustomListItemType
 import com.streamvault.core.ui.interaction.TvClickableSurface
-import com.streamvault.core.ui.interaction.TvButton
-import com.streamvault.core.ui.interaction.TvIconButton
 import com.streamvault.domain.model.Result
 import kotlinx.coroutines.launch
 
@@ -219,15 +212,12 @@ private fun MovieDetailContent(
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     val isTelevisionDevice = rememberIsTelevisionDevice()
-    val playButtonFocusRequester = remember { FocusRequester() }
+    val playButtonModifier = rememberInitialFocusModifier(
+        key = movie.id,
+        tag = "MovieDetailScreen",
+        target = "Play button"
+    )
     val onDownload: () -> Unit = viewModel::downloadMovie
-
-    LaunchedEffect(movie.id) {
-        playButtonFocusRequester.requestFocusSafely(
-            tag = "MovieDetailScreen",
-            target = "Play button"
-        )
-    }
 
     BoxWithConstraints(
         modifier = Modifier
@@ -268,164 +258,158 @@ private fun MovieDetailContent(
                 )
         )
 
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            contentPadding = contentPadding,
-            verticalArrangement = Arrangement.spacedBy(24.dp)
-        ) {
-            item {
-                TvButton(
-                    onClick = onBack,
-                    colors = ButtonDefaults.colors(
-                        containerColor = AppColors.Surface.copy(alpha = 0.72f),
-                        contentColor = AppColors.TextPrimary
-                    ),
-                    border = ButtonDefaults.border(
-                        border = Border(border = androidx.compose.foundation.BorderStroke(1.dp, AppColors.Outline))
+        ComfortZoneScrollOnFocus {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = contentPadding,
+                verticalArrangement = Arrangement.spacedBy(24.dp)
+            ) {
+                item {
+                    DetailBackButton(
+                        contentDescription = stringResource(R.string.movie_detail_back),
+                        onClick = onBack
                     )
-                ) {
-                    Text(stringResource(R.string.movie_detail_back))
                 }
-            }
 
-            item {
-                if (compactLayout) {
-                    Column(verticalArrangement = Arrangement.spacedBy(18.dp)) {
-                        MoviePoster(movie = movie, posterWidth = posterWidth)
-                        MovieDetailHeroText(
-                            movie = movie,
-                            hasResume = hasResume,
-                            resumePositionMs = resumePositionMs,
-                            isCasting = isCasting,
-                            externalRatings = externalRatings,
-                            isLoadingExternalRatings = isLoadingExternalRatings,
-                            onPlay = onPlay,
-                            onCopyUrl = {
-                                coroutineScope.launch {
-                                    copyStreamUrlToClipboard(context, onCopyUrl())
-                                }
-                            },
-                            onDownload = onDownload,
-                            onCast = onCast,
-                            onToggleFavorite = onToggleFavorite,
-                            onSelectVariant = onSelectVariant,
-                            playButtonFocusRequester = playButtonFocusRequester,
-                            onPlayTrailer = {
-                                resolveTrailerUrl(movie.youtubeTrailer)?.let { trailerUrl ->
-                                    runCatching {
-                                        context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(trailerUrl)))
+                item {
+                    if (compactLayout) {
+                        Column(verticalArrangement = Arrangement.spacedBy(18.dp)) {
+                            MoviePoster(movie = movie, posterWidth = posterWidth)
+                            MovieDetailHeroText(
+                                movie = movie,
+                                hasResume = hasResume,
+                                resumePositionMs = resumePositionMs,
+                                isCasting = isCasting,
+                                externalRatings = externalRatings,
+                                isLoadingExternalRatings = isLoadingExternalRatings,
+                                onPlay = onPlay,
+                                onCopyUrl = {
+                                    coroutineScope.launch {
+                                        copyStreamUrlToClipboard(context, onCopyUrl())
+                                    }
+                                },
+                                onDownload = onDownload,
+                                onCast = onCast,
+                                onToggleFavorite = onToggleFavorite,
+                                onSelectVariant = onSelectVariant,
+                                playButtonModifier = playButtonModifier,
+                                onPlayTrailer = {
+                                    resolveTrailerUrl(movie.youtubeTrailer)?.let { trailerUrl ->
+                                        runCatching {
+                                            context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(trailerUrl)))
+                                        }
                                     }
                                 }
+                            )
+                        }
+                    } else {
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(28.dp),
+                            verticalAlignment = Alignment.Bottom
+                        ) {
+                            MoviePoster(movie = movie, posterWidth = posterWidth)
+                            MovieDetailHeroText(
+                                movie = movie,
+                                hasResume = hasResume,
+                                resumePositionMs = resumePositionMs,
+                                isCasting = isCasting,
+                                externalRatings = externalRatings,
+                                isLoadingExternalRatings = isLoadingExternalRatings,
+                                onPlay = onPlay,
+                                onCopyUrl = {
+                                    coroutineScope.launch {
+                                        copyStreamUrlToClipboard(context, onCopyUrl())
+                                    }
+                                },
+                                onDownload = onDownload,
+                                onCast = onCast,
+                                onToggleFavorite = onToggleFavorite,
+                                onSelectVariant = onSelectVariant,
+                                playButtonModifier = playButtonModifier,
+                                onPlayTrailer = {
+                                    resolveTrailerUrl(movie.youtubeTrailer)?.let { trailerUrl ->
+                                        runCatching {
+                                            context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(trailerUrl)))
+                                        }
+                                    }
+                                },
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        }
+                    }
+                }
+
+                if (movie.tmdbId?.let { it > 0L } == true) {
+                    item {
+                        LazyRow(
+                            horizontalArrangement = Arrangement.spacedBy(10.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            item {
+                                TraktWatchlistActionButton(
+                                    hasIdentity = true,
+                                    connected = traktWatchlistConnected,
+                                    loaded = traktWatchlistLoaded,
+                                    watchlisted = traktWatchlisted,
+                                    busy = traktWatchlistBusy,
+                                    onClick = onToggleTraktWatchlist,
+                                )
                             }
-                        )
-                    }
-                } else {
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(28.dp),
-                        verticalAlignment = Alignment.Bottom
-                    ) {
-                        MoviePoster(movie = movie, posterWidth = posterWidth)
-                        MovieDetailHeroText(
-                            movie = movie,
-                            hasResume = hasResume,
-                            resumePositionMs = resumePositionMs,
-                            isCasting = isCasting,
-                            externalRatings = externalRatings,
-                            isLoadingExternalRatings = isLoadingExternalRatings,
-                            onPlay = onPlay,
-                            onCopyUrl = {
-                                coroutineScope.launch {
-                                    copyStreamUrlToClipboard(context, onCopyUrl())
-                                }
-                            },
-                            onDownload = onDownload,
-                            onCast = onCast,
-                            onToggleFavorite = onToggleFavorite,
-                            onSelectVariant = onSelectVariant,
-                            playButtonFocusRequester = playButtonFocusRequester,
-                            onPlayTrailer = {
-                                resolveTrailerUrl(movie.youtubeTrailer)?.let { trailerUrl ->
-                                    runCatching {
-                                        context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(trailerUrl)))
-                                    }
-                                }
-                            },
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                    }
-                }
-            }
-
-            if (movie.tmdbId?.let { it > 0L } == true) {
-                item {
-                    LazyRow(
-                        horizontalArrangement = Arrangement.spacedBy(10.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        item {
-                            TraktWatchlistActionButton(
-                                hasIdentity = true,
-                                connected = traktWatchlistConnected,
-                                loaded = traktWatchlistLoaded,
-                                watchlisted = traktWatchlisted,
-                                busy = traktWatchlistBusy,
-                                onClick = onToggleTraktWatchlist,
-                            )
+                            item {
+                                TraktRatingActionButton(
+                                    hasIdentity = true,
+                                    connected = traktWatchlistConnected,
+                                    busy = traktRatingBusy,
+                                    rating = traktUserRating,
+                                    onClick = onRateOnTrakt,
+                                )
+                            }
+                            item { TraktCustomListActionButton(movie.traktCustomListItem()) }
                         }
-                        item {
-                            TraktRatingActionButton(
-                                hasIdentity = true,
-                                connected = traktWatchlistConnected,
-                                busy = traktRatingBusy,
-                                rating = traktUserRating,
-                                onClick = onRateOnTrakt,
-                            )
-                        }
-                        item { TraktCustomListActionButton(movie.traktCustomListItem()) }
                     }
                 }
-            }
 
-            if (listOf(movie.director, movie.releaseDate, movie.duration, movie.genre, movie.cast)
-                    .any { !it.isNullOrBlank() }) {
-                item { MovieFactGrid(movie = movie) }
-            }
-
-            if (relatedContent.isNotEmpty()) {
-                item {
-                    DetailSectionHeading(stringResource(R.string.movie_detail_related))
+                if (listOf(movie.director, movie.releaseDate, movie.duration, movie.genre, movie.cast)
+                        .any { !it.isNullOrBlank() }) {
+                    item { MovieFactGrid(movie = movie) }
                 }
-                item {
-                    LazyRow(
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        items(relatedContent, key = { it.id }) { related ->
-                            TvClickableSurface(
-                                onClick = { onRelatedClick(related) },
-                                modifier = Modifier.width(120.dp)
-                            ) {
-                                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                                    Box(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .aspectRatio(2f / 3f)
-                                            .clip(BrowseShapes.Artwork)
-                                            .background(AppColors.SurfaceElevated)
-                                    ) {
-                                        AsyncImage(
-                                            model = rememberCrossfadeImageModel(related.posterUrl ?: related.backdropUrl),
-                                            contentDescription = related.name,
-                                            modifier = Modifier.fillMaxSize(),
-                                            contentScale = ContentScale.Crop
+
+                if (relatedContent.isNotEmpty()) {
+                    item {
+                        DetailSectionHeading(stringResource(R.string.movie_detail_related))
+                    }
+                    item {
+                        LazyRow(
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            items(relatedContent, key = { it.id }) { related ->
+                                TvClickableSurface(
+                                    onClick = { onRelatedClick(related) },
+                                    modifier = Modifier.width(120.dp)
+                                ) {
+                                    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                                        Box(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .aspectRatio(2f / 3f)
+                                                .clip(BrowseShapes.Artwork)
+                                                .background(AppColors.SurfaceElevated)
+                                        ) {
+                                            AsyncImage(
+                                                model = rememberCrossfadeImageModel(related.posterUrl ?: related.backdropUrl),
+                                                contentDescription = related.name,
+                                                modifier = Modifier.fillMaxSize(),
+                                                contentScale = ContentScale.Crop
+                                            )
+                                        }
+                                        Text(
+                                            text = related.name,
+                                            style = MaterialTheme.typography.labelMedium,
+                                            color = AppColors.TextPrimary,
+                                            maxLines = 2,
+                                            overflow = TextOverflow.Ellipsis
                                         )
                                     }
-                                    Text(
-                                        text = related.name,
-                                        style = MaterialTheme.typography.labelMedium,
-                                        color = AppColors.TextPrimary,
-                                        maxLines = 2,
-                                        overflow = TextOverflow.Ellipsis
-                                    )
                                 }
                             }
                         }
@@ -481,7 +465,7 @@ private fun MovieDetailHeroText(
     onCast: () -> Unit,
     onToggleFavorite: () -> Unit,
     onSelectVariant: (Long) -> Unit,
-    playButtonFocusRequester: FocusRequester,
+    playButtonModifier: Modifier,
     onPlayTrailer: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -539,7 +523,7 @@ private fun MovieDetailHeroText(
                     stringResource(R.string.movie_detail_play)
                 },
                 onClick = onPlay,
-                modifier = Modifier.focusRequester(playButtonFocusRequester),
+                modifier = playButtonModifier,
                 primary = true
             ) }
             item { DetailActionButton(stringResource(R.string.stream_url_copy), onCopyUrl) }
@@ -551,28 +535,7 @@ private fun MovieDetailHeroText(
             if (hasTrailer) {
                 item { DetailActionButton(stringResource(R.string.movie_detail_trailer), onPlayTrailer) }
             }
-            item { TvIconButton(
-                onClick = onToggleFavorite,
-                scale = ButtonDefaults.scale(focusedScale = 1f),
-                shape = ButtonDefaults.shape(shape = CircleShape),
-                border = ButtonDefaults.border(
-                    border = Border(androidx.compose.foundation.BorderStroke(1.dp, AppColors.Outline), shape = CircleShape),
-                    focusedBorder = Border(androidx.compose.foundation.BorderStroke(2.dp, AppColors.Focus), shape = CircleShape)
-                ),
-                colors = ButtonDefaults.colors(
-                    containerColor = if (movie.isFavorite) AppColors.Brand else AppColors.SurfaceEmphasis,
-                    focusedContainerColor = if (movie.isFavorite) AppColors.Brand else AppColors.SurfaceEmphasis,
-                    contentColor = if (movie.isFavorite) AppColors.OnPrimary else AppColors.TextSecondary,
-                    focusedContentColor = if (movie.isFavorite) AppColors.OnPrimary else AppColors.TextSecondary
-                )
-            ) {
-                Icon(
-                    imageVector = if (movie.isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
-                    contentDescription = stringResource(
-                        if (movie.isFavorite) R.string.favorites_remove else R.string.favorites_add
-                    )
-                )
-            } }
+            item { DetailFavoriteButton(isFavorite = movie.isFavorite, onToggle = onToggleFavorite) }
         }
 
         Text(
@@ -602,19 +565,11 @@ private fun MovieVersionSelector(
         LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             items(variants, key = { it.rawMovieId }) { variant ->
                 val selected = variant.rawMovieId == selectedVariantId
-                TvButton(
-                    onClick = { onSelectVariant(variant.rawMovieId) },
-                    colors = ButtonDefaults.colors(
-                        containerColor = if (selected) AppColors.Brand else AppColors.SurfaceEmphasis,
-                        contentColor = if (selected) AppColors.OnPrimary else AppColors.TextPrimary
-                    )
-                ) {
-                    Text(
-                        text = variant.label,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                }
+                DetailVariantButton(
+                    label = variant.label,
+                    selected = selected,
+                    onClick = { onSelectVariant(variant.rawMovieId) }
+                )
             }
         }
     }
