@@ -87,6 +87,7 @@ fun MovieDetailScreen(
     onPlay: (Movie) -> Unit,
     onOpenRelatedMovie: (Movie) -> Unit,
     onBack: () -> Unit,
+    onOpenSettings: () -> Unit,
     platformHost: CatalogPlatformHost? = null,
     viewModel: MovieDetailViewModel = hiltViewModel()
 ) {
@@ -149,7 +150,8 @@ fun MovieDetailScreen(
                 traktWatchlistBusy = uiState.traktWatchlistBusy,
                 traktUserRating = uiState.traktUserRating,
                 traktRatingBusy = uiState.traktRatingBusy,
-                onToggleTraktWatchlist = viewModel::toggleTraktWatchlist,
+                // Not connected: the watchlist button reads "Connect Trakt in Settings" and opens Settings.
+                onToggleTraktWatchlist = if (uiState.traktWatchlistConnected) viewModel::toggleTraktWatchlist else onOpenSettings,
                 onRateOnTrakt = { ratingDialogOpen = true },
                 onPlay = { onPlay(movie) },
                 onCopyUrl = {

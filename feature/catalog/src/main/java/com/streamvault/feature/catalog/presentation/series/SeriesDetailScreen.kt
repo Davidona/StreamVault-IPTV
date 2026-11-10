@@ -100,6 +100,7 @@ fun SeriesDetailScreen(
     onEpisodeClick: (Episode, Series) -> Unit,
     onResumeClick: ((Episode) -> Unit)? = null,
     onBack: () -> Unit,
+    onOpenSettings: () -> Unit,
     platformHost: CatalogPlatformHost? = null,
     viewModel: SeriesDetailViewModel = hiltViewModel()
 ) {
@@ -159,7 +160,8 @@ fun SeriesDetailScreen(
         traktWatchlistBusy = uiState.traktWatchlistBusy,
         traktUserRating = uiState.traktUserRating,
         traktRatingBusy = uiState.traktRatingBusy,
-        onToggleTraktWatchlist = viewModel::toggleTraktWatchlist,
+        // Not connected: the watchlist button reads "Connect Trakt in Settings" and opens Settings.
+        onToggleTraktWatchlist = if (uiState.traktWatchlistConnected) viewModel::toggleTraktWatchlist else onOpenSettings,
         onRateOnTrakt = { ratingDialogOpen = true },
         onToggleFavorite = viewModel::toggleFavorite,
         onSelectVariant = viewModel::selectSeriesVariant,

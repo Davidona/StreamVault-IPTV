@@ -171,6 +171,7 @@ fun NavGraphBuilder.registerCatalogGraph(
                 )
             },
             onBack = { actions.returnTo(returnDestination) },
+            onOpenSettings = { onTopLevelDestinationRequested(AppDestination.Settings(openTrakt = true)) },
             platformHost = platformHost,
         )
     }
@@ -200,6 +201,7 @@ fun NavGraphBuilder.registerCatalogGraph(
                 )
             },
             onBack = { actions.returnTo(returnDestination) },
+            onOpenSettings = { onTopLevelDestinationRequested(AppDestination.Settings(openTrakt = true)) },
             platformHost = platformHost,
         )
     }
