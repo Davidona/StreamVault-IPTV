@@ -365,8 +365,10 @@ internal class XtreamIncrementalIndexExecutor(
             if (hasMoreCategories && failedCategories == 0) {
                 operations.scheduleIndex(provider.id, contentType)
             }
-            if (!hasMoreCategories && failedCategories > 0) {
-                throw IllegalStateException(
+            if (failedCategories > 0) {
+                // Keep the durable cursor at the failed category and let the owning
+                // worker apply its retry backoff instead of reporting success.
+                throw java.io.IOException(
                     "${sectionLabel(contentType)} indexing completed partially.",
                     lastError
                 )

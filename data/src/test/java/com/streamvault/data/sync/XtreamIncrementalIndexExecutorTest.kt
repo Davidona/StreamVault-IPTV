@@ -18,6 +18,50 @@ import org.mockito.kotlin.mock
 
 class XtreamIncrementalIndexExecutorTest {
     @Test
+    fun `repeated category rate limits request retry and resume from saved cursor`() = runTest {
+        val categories = listOf(category(1L), category(2L), category(3L))
+        var checkpoint = XtreamIndexJobEntity(
+            providerId = 1L, section = "MOVIE", state = "QUEUED",
+            nextCategoryIndex = 1, completedCategories = 1, indexedRows = 10
+        )
+        repeat(4) {
+            val operations = FakeOperations(
+                categories, job = checkpoint, failureCategoryId = 2L,
+                categoryFailure = com.streamvault.data.remote.xtream.XtreamNetworkException(
+                    "HTTP 429", statusCode = 429, retryAfterMs = 60_000L
+                )
+            )
+            val failure = runCatching {
+                XtreamIncrementalIndexExecutor(operations).processSummary(
+                    provider(), mock(), ContentType.MOVIE, 3, onProgress = null
+                )
+            }.exceptionOrNull()
+            assertThat(failure).isInstanceOf(IOException::class.java)
+            assertThat(failure?.cause).isInstanceOf(com.streamvault.data.remote.xtream.XtreamNetworkException::class.java)
+            val saved = operations.updates.last()
+            assertThat(saved.state).isEqualTo("PARTIAL")
+            assertThat(saved.nextCategoryIndex).isEqualTo(1)
+            assertThat(operations.fetchedCategoryIds).containsExactly(2L)
+            assertThat(operations.scheduled).isEmpty()
+            checkpoint = checkpoint.copy(
+                state = saved.state,
+                nextCategoryIndex = requireNotNull(saved.nextCategoryIndex),
+                completedCategories = requireNotNull(saved.completedCategories),
+                failedCategories = requireNotNull(saved.failedCategories),
+                indexedRows = requireNotNull(saved.indexedRows)
+            )
+        }
+
+        val restored = FakeOperations(categories, job = checkpoint)
+        XtreamIncrementalIndexExecutor(restored).processSummary(
+            provider(), mock(), ContentType.MOVIE, 3, onProgress = null
+        )
+        assertThat(restored.fetchedCategoryIds).containsExactly(2L, 3L).inOrder()
+        assertThat(restored.updates.last().state).isEqualTo("SUCCESS")
+        assertThat(restored.updates.last().nextCategoryIndex).isEqualTo(3)
+    }
+
+    @Test
     fun `authentication rejected full summary does not fetch categories or schedule continuation`() = runTest {
         val rejection = com.streamvault.data.remote.xtream.XtreamAuthenticationException(401, "Rejected")
         val operations = FakeOperations(listOf(category(1L)), streamMovieResult = Result.error("Rejected", rejection))
@@ -112,13 +156,16 @@ class XtreamIncrementalIndexExecutorTest {
             failureCategoryId = 2L
         )
 
-        XtreamIncrementalIndexExecutor(operations).processSummary(
-            provider = provider(),
-            api = mock(),
-            contentType = ContentType.MOVIE,
-            maxCategories = 3,
-            onProgress = null
-        )
+        val failure = runCatching {
+            XtreamIncrementalIndexExecutor(operations).processSummary(
+                provider = provider(),
+                api = mock(),
+                contentType = ContentType.MOVIE,
+                maxCategories = 3,
+                onProgress = null
+            )
+        }.exceptionOrNull()
+        assertThat(failure).isInstanceOf(IOException::class.java)
 
         assertThat(operations.fetchedCategoryIds).containsExactly(1L, 2L).inOrder()
         assertThat(operations.updates.last().nextCategoryIndex).isEqualTo(1)
@@ -269,7 +316,10 @@ class XtreamIncrementalIndexExecutorTest {
     @Test fun `failed category preserves cache and does not schedule another failing pass`() = runTest {
         val operations = FakeOperations(listOf(category(1L), category(2L)),
             streamMovieResult = Result.error("unavailable"), failureCategoryId = 1L)
-        XtreamIncrementalIndexExecutor(operations).processSummary(provider(), mock(), ContentType.MOVIE, 4, onProgress = null)
+        val failure = runCatching {
+            XtreamIncrementalIndexExecutor(operations).processSummary(provider(), mock(), ContentType.MOVIE, 4, onProgress = null)
+        }.exceptionOrNull()
+        assertThat(failure).isInstanceOf(IOException::class.java)
         assertThat(operations.updates.last().state).isEqualTo("PARTIAL")
         assertThat(operations.updates.last().nextCategoryIndex).isEqualTo(0)
         assertThat(operations.scheduled).isEmpty()

@@ -179,7 +179,8 @@ internal class StalkerIndexContinuationCoordinator(
         val retryDelaySeconds = StalkerIndexPolicy.nextRetryDelaySeconds(hydrations, now)
         val hasUnresolvedWork = hydrations.any { hydration ->
             hydration == null ||
-                (!hydration.isComplete && !hydration.isTruncated && !hydration.isTerminalFailure && hydration.retryBudgetRemaining > 0)
+                (!hydration.isComplete && !hydration.isTruncated && !hydration.isTerminalFailure &&
+                    (hydration.retryBudgetRemaining > 0 || hydration.isRecoverableLegacyFailure))
         }
         val needsStateReconciliation = job?.state in setOf(
             StalkerIndexState.QUEUED,

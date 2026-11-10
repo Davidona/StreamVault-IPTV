@@ -11,7 +11,10 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
 
-internal class XtreamAdaptiveSyncPolicy(private val nowMillis: () -> Long = System::currentTimeMillis) {
+internal class XtreamAdaptiveSyncPolicy(
+    private val deadlines: XtreamRetryDeadlines? = null,
+    private val nowMillis: () -> Long = System::currentTimeMillis
+) {
     private companion object {
         const val MAX_SEGMENTED_CONCURRENCY = 4
     }
@@ -71,7 +74,8 @@ internal class XtreamAdaptiveSyncPolicy(private val nowMillis: () -> Long = Syst
     private suspend fun awaitProviderBackoff(providerId: Long) {
         while (true) {
             val health = providerHealth[providerId]
-            val waitMs = maxOf(health?.backoffUntilMs ?: 0L, health?.retryAfterUntilMs ?: 0L) - nowMillis()
+            val waitMs = maxOf(health?.backoffUntilMs ?: 0L, health?.retryAfterUntilMs ?: 0L,
+                deadlines?.deadline(providerId) ?: 0L) - nowMillis()
             if (waitMs <= 0L) return
             delay(waitMs)
         }
@@ -137,6 +141,9 @@ internal class XtreamAdaptiveSyncPolicy(private val nowMillis: () -> Long = Syst
     }
 
     fun recordFailure(providerId: Long, error: Throwable) {
+        val now = nowMillis()
+        val retryAfter = (error as? XtreamNetworkException)?.retryAfterMs?.takeIf { it > 0L }
+        if (retryAfter != null) deadlines?.extend(providerId, now + retryAfter.coerceAtMost(Long.MAX_VALUE - now))
         providerHealth.compute(providerId) { _, current ->
             val state = current ?: ProviderHealth()
             val signal = classify(error)
@@ -196,6 +203,7 @@ internal class XtreamAdaptiveSyncPolicy(private val nowMillis: () -> Long = Syst
     fun forgetProvider(providerId: Long) {
         providerHealth.remove(providerId)
         providerPacing.remove(providerId)
+        deadlines?.clear(providerId)
     }
 
     fun isProviderStress(error: Throwable): Boolean = classify(error) != StressSignal.NONE

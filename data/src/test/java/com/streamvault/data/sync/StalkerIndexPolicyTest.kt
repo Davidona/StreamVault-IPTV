@@ -9,6 +9,21 @@ import org.junit.Test
 
 class StalkerIndexPolicyTest {
     @Test
+    fun `legacy transient terminal checkpoints resume but ambiguous and device failures stay terminal`() {
+        val rateLimited = snapshot(lastStatus = "FAILED_BUDGET_EXHAUSTED", lastAttemptedPage = 7,
+            lastSuccessfulPage = 6, retryBudgetRemaining = 0).copy(lastError = "Portal rate limit reached")
+        val expired = rateLimited.copy(lastStatus = "FAILED_PERMANENT", lastError = "Portal session expired with HTTP 401")
+        val rejected = expired.copy(lastError = "Invalid MAC")
+        val malformed = rateLimited.copy(lastError = "Portal repeated page payload")
+
+        assertThat(StalkerIndexPolicy.canAttempt(rateLimited, 1_000L)).isTrue()
+        assertThat(StalkerIndexPolicy.canAttempt(expired, 1_000L)).isTrue()
+        assertThat(StalkerIndexPolicy.nextAttemptPage(rateLimited)).isEqualTo(7)
+        assertThat(StalkerIndexPolicy.canAttempt(rejected, 1_000L)).isFalse()
+        assertThat(StalkerIndexPolicy.canAttempt(malformed, 1_000L)).isFalse()
+    }
+
+    @Test
     fun `split catalogs finish series before derived movie supplementation`() {
         val decision = StalkerIndexPolicy.chooseNextSection(
             layout = CatalogLayout.SPLIT,

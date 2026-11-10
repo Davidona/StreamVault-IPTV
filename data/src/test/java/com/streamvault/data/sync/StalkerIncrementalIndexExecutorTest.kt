@@ -20,6 +20,47 @@ import org.junit.Test
 
 class StalkerIncrementalIndexExecutorTest {
     @Test
+    fun `expired session after refresh is deferred with page and retry budget intact`() = runTest {
+        val category = CategoryEntity(categoryId = -9L, name = "All", type = ContentType.MOVIE, providerId = 91L)
+        val operations = WildcardIndexOperations(category, summaryFailurePageOnce = 2,
+            summaryFailuresRemaining = 3, summaryFailure = com.streamvault.data.remote.stalker.StalkerApiError.SessionExpired())
+        val api = mock<StalkerProvider>()
+        whenever(api.isWildcardCategory(org.mockito.kotlin.any(), org.mockito.kotlin.any())).thenReturn(false)
+        whenever(api.isWildcardCategory(ContentType.MOVIE, category.categoryId)).thenReturn(true)
+        val provider = LegacyProvider(id = 91L, name = "Portal", type = ProviderType.STALKER_PORTAL,
+            serverUrl = "https://portal.invalid", catalogLayout = CatalogLayout.SPLIT)
+
+        StalkerIncrementalIndexExecutor(operations, configuredWildcardPageConcurrency = 1)
+            .processSummary(provider, api, ContentType.MOVIE, maxCategories = 1, onProgress = null)
+
+        assertThat(operations.summaryFetches).containsExactly(category.categoryId to 1, category.categoryId to 2).inOrder()
+        assertThat(operations.hydration?.lastStatus).isEqualTo("COOLDOWN")
+        assertThat(operations.hydration?.lastSuccessfulPage).isEqualTo(1)
+        assertThat(operations.hydration?.lastAttemptedPage).isEqualTo(2)
+        assertThat(operations.hydration?.retryBudgetRemaining).isEqualTo(3)
+    }
+
+    @Test
+    fun `throttled page is deferred without repeated immediate requests`() = runTest {
+        val category = CategoryEntity(categoryId = -9L, name = "All", type = ContentType.MOVIE, providerId = 91L)
+        val operations = WildcardIndexOperations(category, summaryFailurePageOnce = 1,
+            summaryFailuresRemaining = 3, summaryFailure = com.streamvault.data.remote.stalker.StalkerApiError.RateLimited(retryAfterMillis = 60_000L))
+        val api = mock<StalkerProvider>()
+        whenever(api.isWildcardCategory(org.mockito.kotlin.any(), org.mockito.kotlin.any())).thenReturn(false)
+        whenever(api.isWildcardCategory(ContentType.MOVIE, category.categoryId)).thenReturn(true)
+        val provider = LegacyProvider(id = 91L, name = "Portal", type = ProviderType.STALKER_PORTAL,
+            serverUrl = "https://portal.invalid", catalogLayout = CatalogLayout.SPLIT)
+
+        StalkerIncrementalIndexExecutor(operations, configuredWildcardPageConcurrency = 1)
+            .processSummary(provider, api, ContentType.MOVIE, maxCategories = 1, onProgress = null)
+
+        assertThat(operations.summaryFetches).containsExactly(category.categoryId to 1)
+        assertThat(operations.hydration?.lastStatus).isEqualTo("COOLDOWN")
+        assertThat(operations.hydration?.retryBudgetRemaining).isEqualTo(3)
+        assertThat(operations.hydration?.retryAfterMs).isGreaterThan(System.currentTimeMillis())
+    }
+
+    @Test
     fun unifiedPageKeepsMoviesAndSeriesAndItsOrderedPageReceipt() = runTest {
         val category = CategoryEntity(categoryId = 10L, name = "Catalog", type = ContentType.VOD, providerId = 91L)
         val operations = WildcardIndexOperations(category, summaryPageCount = 1, mixedPage = true)
@@ -273,6 +314,7 @@ class StalkerIncrementalIndexExecutorTest {
         private val summaryPageCount: Int = 2,
         private var summaryFailurePageOnce: Int? = null,
         private var summaryFailuresRemaining: Int = 1,
+        private val summaryFailure: Throwable = java.io.IOException("reset"),
         private val mixedPage: Boolean = false,
         private val storedCategoryCounts: Map<Long, Int> = emptyMap()
     ) : StalkerIncrementalIndexOperations {
@@ -371,7 +413,7 @@ class StalkerIncrementalIndexExecutorTest {
                 delay(if (page == 2) 200 else 20)
                 summaryCompletions += page
                 if (summaryFailurePageOnce == page && summaryFailuresRemaining-- > 0) {
-                    return Result.error("Temporary page failure", java.io.IOException("reset"))
+                    return Result.error("Temporary page failure", summaryFailure)
                 }
                 Result.success(
                     StalkerPagedResult(
@@ -493,7 +535,8 @@ class StalkerIncrementalIndexExecutorTest {
             now: Long,
             message: String,
             retryable: Boolean,
-            pageFingerprint: String?
+            pageFingerprint: String?,
+            deferredUntilMs: Long?
         ) {
             failedPages += attemptedPage
             val previous = hydration
@@ -515,12 +558,12 @@ class StalkerIncrementalIndexExecutorTest {
                 retryBudgetRemaining = 3,
                 lastPageFingerprint = null
             )).copy(
-                lastStatus = if (retryable) "FAILED_RETRYABLE" else "FAILED_PERMANENT",
+                lastStatus = if (deferredUntilMs != null) "COOLDOWN" else if (retryable) "FAILED_RETRYABLE" else "FAILED_PERMANENT",
                 lastError = message,
                 lastAttemptedPage = attemptedPage,
-                retryAfterMs = 0L,
-                failureCount = (previous?.failureCount ?: 0) + 1,
-                retryBudgetRemaining = ((previous?.retryBudgetRemaining ?: 3) - 1).coerceAtLeast(0),
+                retryAfterMs = deferredUntilMs ?: 0L,
+                failureCount = (previous?.failureCount ?: 0) + if (deferredUntilMs == null) 1 else 0,
+                retryBudgetRemaining = if (deferredUntilMs != null) previous?.retryBudgetRemaining ?: 3 else ((previous?.retryBudgetRemaining ?: 3) - 1).coerceAtLeast(0),
                 lastPageFingerprint = pageFingerprint
             )
             categoryHydrations[categoryId] = snapshot

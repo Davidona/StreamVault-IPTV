@@ -4,9 +4,12 @@ import com.google.common.truth.Truth.assertThat
 import com.streamvault.data.local.DatabaseTransactionRunner
 import com.streamvault.data.local.dao.ChannelDao
 import com.streamvault.data.local.dao.ProgramDao
+import com.streamvault.data.local.dao.StalkerPortalStateDao
 import com.streamvault.data.local.entity.ChannelGuideSyncEntity
 import com.streamvault.data.local.entity.ProgramEntity
+import com.streamvault.data.local.entity.StalkerPortalStateEntity
 import com.streamvault.data.preferences.PreferencesRepository
+import com.streamvault.data.security.CredentialCrypto
 import com.streamvault.data.remote.stalker.StalkerPortalStateStore
 import com.streamvault.data.remote.stalker.StalkerProvider
 import com.streamvault.data.remote.stalker.StalkerRequestCoordinator
@@ -19,6 +22,7 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import org.mockito.kotlin.*
 import java.io.IOException
+import java.util.Base64
 
 /** Regression contract for native bulk guide bodies interrupted after streaming a prefix. */
 class StalkerNativeGuideInterruptionTest {
@@ -72,9 +76,42 @@ class StalkerNativeGuideInterruptionTest {
         })
     }
 
+    @Test
+    fun `transient guide failure preserves data and retries despite old unsupported capability`() = runTest {
+        val fixture = Fixture(
+            bulkFailsAfterPrefix = false,
+            bulkFailsBeforePrefix = true,
+            perChannelFailsInitially = true
+        )
+        fixture.setUp()
+
+        val first = fixture.run()
+
+        assertThat(first.hasRetryableFailure).isTrue()
+        assertThat(fixture.savedPrograms.map { it.title })
+            .containsExactly("Old covered guide", "Old uncovered guide")
+        assertThat(fixture.portalState.getValidated(7L)?.epgSupported).isNull()
+        val callsBeforeRestoration = fixture.bulkCallCount to fixture.channelCallCount
+        assertThat(callsBeforeRestoration.first).isEqualTo(1)
+        assertThat(callsBeforeRestoration.second).isEqualTo(2)
+
+        fixture.restoreGuideBackend()
+        // Simulate a bad observation persisted by an earlier app version.
+        fixture.portalState.recordEpg(7L, false)
+        val forcedRetry = fixture.run()
+
+        assertThat(forcedRetry.hasRetryableFailure).isFalse()
+        assertThat(fixture.bulkCallCount).isEqualTo(callsBeforeRestoration.first + 1)
+        assertThat(fixture.channelCallCount).isEqualTo(callsBeforeRestoration.second)
+        assertThat(fixture.savedPrograms.map { it.title })
+            .containsExactly("Restored bulk guide", "Old uncovered guide")
+        assertThat(fixture.portalState.getValidated(7L)?.epgSupported).isTrue()
+    }
+
     private class Fixture(
         private val bulkFailsAfterPrefix: Boolean,
-        private val bulkFailsBeforePrefix: Boolean = false
+        private val bulkFailsBeforePrefix: Boolean = false,
+        perChannelFailsInitially: Boolean = false
     ) {
         val now = 2_000L
         val previousSuccess = 1_000L
@@ -88,8 +125,16 @@ class StalkerNativeGuideInterruptionTest {
         private val channelDao: ChannelDao = mock()
         private val programDao: ProgramDao = mock()
         private val epgSources: EpgSourceRepository = mock()
-        private val portalState: StalkerPortalStateStore = mock()
+        private val portalStateDao = FakePortalStateDao()
+        val portalState = StalkerPortalStateStore(portalStateDao, TestCredentialCrypto())
         private val stalkerProvider: StalkerProvider = mock()
+        var backendRestored = false
+            private set
+        private var perChannelFails = perChannelFailsInitially
+        var bulkCallCount = 0
+            private set
+        var channelCallCount = 0
+            private set
         private val transaction = object : DatabaseTransactionRunner {
             override suspend fun <T> inTransaction(block: suspend () -> T): T = block()
         }
@@ -138,30 +183,40 @@ class StalkerNativeGuideInterruptionTest {
             whenever(metadataRepository.getMetadata(7L)).thenReturn(
                 SyncMetadata(providerId = 7L, lastEpgSuccess = previousSuccess)
             )
-            whenever(portalState.getValidated(7L)).thenReturn(null)
-            whenever(stalkerProvider.recordEpgCapability(any())).thenReturn(Unit)
+            whenever(stalkerProvider.recordEpgCapability(any())).doSuspendableAnswer { invocation ->
+                portalState.recordEpg(7L, invocation.getArgument(0), now = System.currentTimeMillis())
+            }
             whenever(stalkerProvider.streamBulkEpg(eq(6), any())).doSuspendableAnswer { invocation ->
+                bulkCallCount += 1
                 val onProgram = invocation.getArgument<suspend (Program) -> Unit>(1)
-                if (!bulkFailsBeforePrefix) {
-                    repeat(6_000) { index ->
-                        onProgram(
-                            Program(
-                                channelId = "100",
-                                title = "Portal programme ${index + 1}",
-                                startTime = index * 60_000L,
-                                endTime = (index + 1) * 60_000L
+                if (backendRestored) {
+                    onProgram(Program(channelId = "100", title = "Restored bulk guide", startTime = 0L, endTime = 60_000L))
+                    Result.success(1)
+                } else {
+                    if (!bulkFailsBeforePrefix) {
+                        repeat(6_000) { index ->
+                            onProgram(
+                                Program(
+                                    channelId = "100",
+                                    title = "Portal programme ${index + 1}",
+                                    startTime = index * 60_000L,
+                                    endTime = (index + 1) * 60_000L
+                                )
                             )
-                        )
+                        }
                     }
+                    if (bulkFailsAfterPrefix || bulkFailsBeforePrefix) {
+                        Result.error("Interrupted native guide", IOException("fixture EOF"))
+                    } else Result.success(6_000)
                 }
-                if (bulkFailsAfterPrefix || bulkFailsBeforePrefix) {
-                    Result.error("Interrupted native guide", IOException("fixture EOF"))
-                }
-                else Result.success(6_000)
             }
             whenever(stalkerProvider.streamEpg(any(), eq(6), any())).doSuspendableAnswer { invocation ->
+                channelCallCount += 1
                 val channelId = invocation.getArgument<String>(0)
                 val onProgram = invocation.getArgument<suspend (Program) -> Unit>(2)
+                if (perChannelFails) {
+                    return@doSuspendableAnswer Result.error("Temporary guide outage", IOException("fixture reset"))
+                }
                 repeat(2) { index ->
                     onProgram(
                         Program(
@@ -190,5 +245,24 @@ class StalkerNativeGuideInterruptionTest {
             force = true,
             onProgress = null
         )
+
+        fun restoreGuideBackend() {
+            backendRestored = true
+            perChannelFails = false
+        }
+    }
+
+    private class FakePortalStateDao : StalkerPortalStateDao {
+        private val rows = mutableMapOf<Long, StalkerPortalStateEntity>()
+        override suspend fun get(providerId: Long): StalkerPortalStateEntity? = rows[providerId]
+        override suspend fun upsert(entity: StalkerPortalStateEntity) { rows[entity.providerId] = entity }
+        override suspend fun invalidate(providerId: Long): Int = if (rows.remove(providerId) != null) 1 else 0
+    }
+
+    private class TestCredentialCrypto : CredentialCrypto {
+        override fun encryptIfNeeded(value: String): String =
+            "enc:test:" + Base64.getEncoder().encodeToString(value.toByteArray(Charsets.UTF_8))
+        override fun decryptIfNeeded(value: String): String =
+            String(Base64.getDecoder().decode(value.removePrefix("enc:test:")), Charsets.UTF_8)
     }
 }

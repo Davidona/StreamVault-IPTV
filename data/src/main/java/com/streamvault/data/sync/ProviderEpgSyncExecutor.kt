@@ -12,7 +12,6 @@ import com.streamvault.data.remote.stalker.StalkerPortalStateStore
 import com.streamvault.data.remote.stalker.StalkerProvider
 import com.streamvault.data.remote.stalker.StalkerRequestCoordinator
 import com.streamvault.data.remote.stalker.StalkerRequestDescriptor
-import com.streamvault.data.remote.stalker.StalkerTelemetry
 import com.streamvault.data.remote.xtream.XtreamUrlFactory
 import com.streamvault.data.util.UrlSecurityPolicy
 import com.streamvault.data.util.runSuspendCatching
@@ -135,15 +134,11 @@ internal class ProviderEpgSyncExecutor(
         if (shouldUseProviderGuide(provider.guideSourcePolicy) &&
             (force || ContentCachePolicy.shouldRefresh(metadata.lastEpgSuccess, ContentCachePolicy.EPG_TTL_MILLIS, now))
         ) {
-            val learnedEpgSupport = stalkerPortalStateStore.getValidated(provider.id)?.epgSupported
-            if (learnedEpgSupport == false && provider.epgUrl.isBlank()) {
-                StalkerTelemetry.strategySelected(provider.id, "EPG_SKIP", "EPG_KNOWN_UNSUPPORTED")
-                warnings += "Stalker portal guide is known to be unsupported; keeping cached guide data."
-            } else {
-                val stalkerWarnings = syncStalkerPreferredEpg(provider, now, onProgress)
-                retryable = stalkerWarnings.isNotEmpty()
-                warnings += stalkerWarnings
-            }
+            // Older versions learned "unsupported" from transient failures. Re-probe so
+            // those saved observations cannot permanently suppress guide recovery.
+            val stalkerWarnings = syncStalkerPreferredEpg(provider, now, onProgress)
+            retryable = stalkerWarnings.isNotEmpty()
+            warnings += stalkerWarnings
         }
         retryable
     }
@@ -377,7 +372,6 @@ internal class ProviderEpgSyncExecutor(
         flushPrograms()
 
         if (replacedChannelKeys.isEmpty() && failedChannels.isNotEmpty()) {
-            api.recordEpgCapability(supported = false)
             return listOf(
                 "Stalker portal guide sync failed for all ${failedChannels.size} channels; keeping existing guide data."
             )

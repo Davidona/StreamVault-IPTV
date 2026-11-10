@@ -226,7 +226,8 @@ class SyncManager @Inject constructor(
     private val providerSyncWorkScheduler: ProviderSyncWorkScheduler,
     private val m3uClassificationDao: M3uClassificationDao? = null,
     private val m3uClassificationRepository: M3uClassificationRepository? = null,
-    private val pendingBackupRestoreCoordinator: PendingBackupRestoreCoordinator? = null
+    private val pendingBackupRestoreCoordinator: PendingBackupRestoreCoordinator? = null,
+    private val xtreamRetryDeadlineStore: XtreamRetryDeadlineStore? = null
 ) : ProviderSyncCommands, CatalogHydrationCommands, ProviderSyncStateSource, ProviderSyncLifecycle {
     private val syncProviderSnapshotAdapter = SyncProviderSnapshotAdapter(providerSnapshotRepository)
     private val syncStatusPublicationCoordinator = SyncStatusPublicationCoordinator(
@@ -235,7 +236,7 @@ class SyncManager @Inject constructor(
         transactionRunner = transactionRunner
     )
     private val syncErrorSanitizer = SyncErrorSanitizer()
-    private val xtreamAdaptiveSyncPolicy = XtreamAdaptiveSyncPolicy()
+    private val xtreamAdaptiveSyncPolicy = XtreamAdaptiveSyncPolicy(xtreamRetryDeadlineStore)
     private val syncCatalogStore = SyncCatalogStore(
         channelDao = channelDao,
         movieDao = movieDao,
@@ -362,11 +363,11 @@ class SyncManager @Inject constructor(
                         }
                     },
                     markAttemptFailed = { providerId, contentType, categoryId, hydration, attemptedPage,
-                                          now, message, retryable, pageFingerprint ->
+                                          now, message, retryable, pageFingerprint, deferredUntilMs ->
                         inFencedStalkerIndexTransaction(providerId) {
                             stalkerIndexCheckpointStore.markAttemptFailed(
                                 providerId, contentType, categoryId, hydration, attemptedPage, now,
-                                message, retryable, pageFingerprint
+                                message, retryable, pageFingerprint, deferredUntilMs
                             )
                         }
                     },

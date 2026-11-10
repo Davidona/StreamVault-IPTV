@@ -49,7 +49,8 @@ internal data class StalkerIncrementalIndexCallbacks(
         Long,
         String,
         Boolean,
-        String?
+        String?,
+        Long?
     ) -> Unit,
     val upsertMovieSummaryBatch: suspend (Long, List<Movie>, Long) -> Unit,
     val upsertSeriesSummaryBatch: suspend (Long, List<Series>, Long) -> Unit,
@@ -179,7 +180,8 @@ internal class CallbackStalkerIncrementalIndexOperations(
         now: Long,
         message: String,
         retryable: Boolean,
-        pageFingerprint: String?
+        pageFingerprint: String?,
+        deferredUntilMs: Long?
     ) = callbacks.markAttemptFailed(
         providerId,
         contentType,
@@ -189,7 +191,8 @@ internal class CallbackStalkerIncrementalIndexOperations(
         now,
         message,
         retryable,
-        pageFingerprint
+        pageFingerprint,
+        deferredUntilMs
     )
 
     override suspend fun upsertMovieSummaryBatch(providerId: Long, movies: List<Movie>, indexedAt: Long) =

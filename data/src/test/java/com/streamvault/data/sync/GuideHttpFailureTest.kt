@@ -21,7 +21,17 @@ import org.junit.Test
 import org.mockito.kotlin.*
 
 /** Real HTTP response -> repository result -> guide executor classification and freshness. */
+@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 class GuideHttpFailureTest {
+    @Test fun `XMLTV rate limit retains retry after for guide retry classification`() = runTest {
+        val requestsAt = mutableListOf<Long>()
+        verifyFailure(429, retryable = true, retryAfter = "600") {
+            requestsAt += testScheduler.currentTime
+        }
+        // Without a deadline store this isolated fixture makes both requests; production injects one.
+        assertThat(requestsAt).containsExactly(0L, 0L).inOrder()
+    }
+
     @Test fun `temporary HTTP guide failures remain retryable without replacing cached data`() = runTest {
         for (status in listOf(408, 429, 500, 502, 503, 504)) verifyFailure(status, retryable = true)
     }
@@ -30,7 +40,12 @@ class GuideHttpFailureTest {
         for (status in listOf(400, 401, 403, 404, 410)) verifyFailure(status, retryable = false)
     }
 
-    private suspend fun verifyFailure(status: Int, retryable: Boolean) {
+    private suspend fun verifyFailure(
+        status: Int,
+        retryable: Boolean,
+        retryAfter: String? = null,
+        onRequest: () -> Unit = {}
+    ) {
         val preferences: PreferencesRepository = mock()
         val programs: ProgramDao = mock()
         val providers: ProviderDao = mock()
@@ -45,7 +60,9 @@ class GuideHttpFailureTest {
             override suspend fun <T> inTransaction(block: suspend () -> T): T = block()
         }
         val client = OkHttpClient.Builder().addInterceptor { chain ->
+            onRequest()
             Response.Builder().request(chain.request()).protocol(Protocol.HTTP_1_1)
+                .apply { retryAfter?.let { header("Retry-After", it) } }
                 .code(status).message("Fixture HTTP error").body("fixture".toResponseBody()).build()
         }.build()
         val repository = EpgRepositoryImpl(programDao = programs, providerDao = providers,
@@ -56,6 +73,10 @@ class GuideHttpFailureTest {
         val error = direct as Result.Error
         assertThat(error.message).isEqualTo("Failed to download EPG: HTTP $status")
         assertThat(error.exception is java.io.IOException).isEqualTo(retryable)
+        if (retryAfter != null) {
+            assertThat((error.exception as com.streamvault.data.remote.xtream.XtreamNetworkException).retryAfterMs)
+                .isEqualTo(retryAfter.toLong() * 1_000L)
+        }
         val executor = ProviderEpgSyncExecutor(preferencesRepository = preferences,
             epgRepository = repository, epgSourceRepository = sources, channelDao = mock(),
             programDao = programs, transactionRunner = transaction, syncMetadataRepository = metadata,
