@@ -24,7 +24,7 @@ internal object AppRoutePatterns {
     const val EPG = LiveRoutePatterns.EPG
     const val EPG_DESTINATION = LiveRoutePatterns.EPG_DESTINATION
     const val SETTINGS = "settings"
-    const val SETTINGS_DESTINATION = "settings?backupUri={backupUri}&openOpenSubtitlesSignIn={openOpenSubtitlesSignIn}"
+    const val SETTINGS_DESTINATION = "settings?backupUri={backupUri}&openOpenSubtitlesSignIn={openOpenSubtitlesSignIn}&openTrakt={openTrakt}"
     const val PLUGINS = SystemRoutePatterns.PLUGINS
     const val ADDONS = StremioRoutePatterns.ADDONS
     const val PLAYER = PlaybackRoutePatterns.PLAYER
@@ -61,6 +61,9 @@ internal object AppRouteCodec {
             }
             if (destination.openOpenSubtitlesSignIn) {
                 add("openOpenSubtitlesSignIn=true")
+            }
+            if (destination.openTrakt) {
+                add("openTrakt=true")
             }
         }.takeIf { it.isNotEmpty() }
             ?.joinToString(prefix = "${AppRoutePatterns.SETTINGS}?")
@@ -115,6 +118,7 @@ internal object AppRouteCodec {
             path == AppRoutePatterns.SETTINGS -> AppDestination.Settings(
                 backupUri = query["backupUri"]?.takeIf(String::isNotBlank),
                 openOpenSubtitlesSignIn = query["openOpenSubtitlesSignIn"]?.toBooleanStrictOrNull() ?: false,
+                openTrakt = query["openTrakt"]?.toBooleanStrictOrNull() ?: false,
             )
             path == AppRoutePatterns.PLUGINS -> AppDestination.Plugins
             path == AppRoutePatterns.ADDONS -> AppDestination.Addons
