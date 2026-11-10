@@ -4,7 +4,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.*
@@ -15,6 +17,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
+import kotlinx.coroutines.flow.first
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -48,6 +52,25 @@ internal val SettingsCategory.icon: ImageVector get() = when (this) {
     SettingsCategory.TRAKT -> Icons.Rounded.AccountCircle
     SettingsCategory.SPORTS -> Icons.Rounded.SportsSoccer
 }
+
+/**
+ * Opening Settings on a category that sits below the first screenful (deep links such as Trakt) would
+ * otherwise leave the selected entry off screen. Scrolls once, on entry, and only when it is not visible.
+ */
+@Composable
+private fun rememberRailListState(selectedCategory: Int, headerItemCount: Int): LazyListState {
+    val listState = rememberLazyListState()
+    LaunchedEffect(Unit) {
+        val index = SettingsCategory.entries.indexOfFirst { it.legacyId == selectedCategory } + headerItemCount
+        snapshotFlow { listState.layoutInfo.visibleItemsInfo.isNotEmpty() }.first { it }
+        if (listState.layoutInfo.visibleItemsInfo.none { it.index == index }) {
+            listState.scrollToItem((index - ENTRIES_ABOVE_SELECTED_ON_ENTRY).coerceAtLeast(0))
+        }
+    }
+    return listState
+}
+
+private const val ENTRIES_ABOVE_SELECTED_ON_ENTRY = 3
 
 @Composable
 public fun SettingsNavigationRail(
@@ -104,6 +127,7 @@ public fun SettingsNavigationRail(
                 searchModifier = searchModifier,
             )
             LazyColumn(
+                state = rememberRailListState(selectedCategory, headerItemCount = 0),
                 modifier = Modifier.weight(1f).fillMaxWidth(),
                 contentPadding = PaddingValues(top = SettingsDesignTokens.space12, bottom = SettingsDesignTokens.space24),
                 verticalArrangement = Arrangement.spacedBy(SettingsDesignTokens.space4),
@@ -113,6 +137,7 @@ public fun SettingsNavigationRail(
         }
     } else {
         LazyColumn(
+            state = rememberRailListState(selectedCategory, headerItemCount = 1),
             modifier = Modifier.width(SettingsDesignTokens.railWidth).fillMaxHeight().background(colors.canvas),
             contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 20.dp, bottom = 24.dp),
             verticalArrangement = Arrangement.spacedBy(4.dp)
