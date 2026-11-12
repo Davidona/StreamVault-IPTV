@@ -159,3 +159,38 @@ timeline. It does not test Android scheduling, an actual HTTP server, or the
 mixed EPG case where earlier ordinary failures precede a rate-limit response.
 Production code was unchanged at the time of that historical test run; see the
 investigation for subsequent fixes.
+
+## Android file-backed checkpoint reopen (2026-11-11)
+
+`StalkerRecoveryReopenInstrumentationTest` passed on the `Television_1080p`
+Android 16 emulator (1 test). It wrote movie and series checkpoint state to a
+file-backed Room database, closed and reopened it, and verified the saved page,
+retry budget, cooldown boundary, and next page. This does not simulate process
+death, live portal responses, or WorkManager scheduling. The investigation
+records the Gradle command and preceding packaging attempts.
+
+
+## Combined Stalker and Xtream validation (2026-11-11)
+
+The following focused combined unit run passed **458 tests across 29 suites**,
+with zero failures, errors, or skips. It covers both providers' indexing and
+recovery suites, sync manager, guide HTTP failures, workers, Stalker coordinator
+and provider, and both API services:
+
+```powershell
+.\gradlew.bat :data:testDebugUnitTest --tests 'com.streamvault.data.sync.Stalker*' --tests 'com.streamvault.data.sync.Xtream*' --tests com.streamvault.data.sync.SyncManagerTest --tests com.streamvault.data.sync.SyncManagerXtreamSupportTest --tests com.streamvault.data.sync.GuideHttpFailureTest --tests com.streamvault.data.sync.CatalogIndexJobStoreTest --tests com.streamvault.data.sync.ProviderSyncWorkerTest --tests com.streamvault.data.remote.stalker.StalkerProviderTest --tests com.streamvault.data.remote.stalker.StalkerRequestCoordinatorTest --tests com.streamvault.data.remote.stalker.OkHttpStalkerApiServiceTest --tests com.streamvault.data.remote.xtream.OkHttpXtreamApiServiceTest --max-workers=2 --no-parallel '-Pkotlin.compiler.execution.strategy=in-process'
+```
+
+A separate Android 16 TV emulator run passed **6 instrumentation tests**:
+Stalker file-backed checkpoint reopen (1), WorkManager unique-work isolation and
+coalescing (2), and provider workflow lease/priority behavior (3). The workflow
+lease test closes and reopens the database and simulates an expired lease; it
+does not kill the Android process. The WorkManager tests inspect queued work and
+isolation; they do not establish a full provider retry/backoff timeline.
+
+```powershell
+.\gradlew.bat :data:connectedDebugAndroidTest '-Pandroid.testInstrumentationRunnerArguments.class=com.streamvault.data.sync.StalkerRecoveryReopenInstrumentationTest,com.streamvault.data.local.ProviderWorkManagerSerializationTest,com.streamvault.data.local.ProviderWorkflowIntegrationTest' --max-workers=2 --no-parallel '-Pkotlin.compiler.execution.strategy=in-process'
+```
+
+No actual process kill, real-provider recovery, or end-to-end timed retry was
+performed. These checks do not determine the cause of the original screenshot.

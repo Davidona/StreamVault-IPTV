@@ -12,6 +12,28 @@ and legacy assertion. Portals truly lacking native EPG may now be probed again
 on subsequent eligible guide syncs; there is no definitive unsupported signal
 in this path to safely distinguish them from transient failures.
 
+## Current status and open work (2026-11-11)
+
+- **Implemented:** G1 session-expiry deferral, G2 recovery of recognized
+  exhausted transient failures, G3 guide retry after inconclusive failures, and
+  G7 rate-limit deferral without spending the category retry budget. Historical
+  descriptions and proposals below describe behavior before those fixes.
+- **Open — scheduling and process recovery:** Test actual WorkManager retry and
+  continuation execution, including constraints, cooldown wake-ups, sequential
+  sections, and process death/restart. Emulator unique-work isolation and stale
+  lease reclamation now pass, but do not exercise the full retry timeline. The emulator database-reopen test passes,
+  but does not simulate process death or prove a worker is scheduled.
+- **Open — authentication concurrency:** Exercise simultaneous expired-token
+  requests, refresh/invalidation, cookies, and bounded request counts (G5).
+- **Open — visibility:** Verify the relationship between queued/partial UI,
+  persisted job state, and actual scheduled work (G4/G6); decide whether users
+  need explicit waiting reasons and retry times. No UI change has been made.
+- **Open — legacy ambiguity:** Old ambiguous authorization/error records are not
+  automatically reopened; conservative recovery does not cover every legacy
+  error string. Definitive account/device denials remain terminal.
+- **Open — real provider:** No affected-device logs or real-portal reproduction
+  establish the screenshot's cause or verify recovery against that provider.
+
 Compared baseline: `dc7c7cf1fbdbcf55d9dfaa1cd6ece0159b9ac54f`.
 Source inspected at: `1588c6406a14f268c8aedcbe294f7ff90b00264b`.
 
@@ -23,6 +45,25 @@ stores. This verifies recreated store objects against real DAO/preferences APIs,
 not actual Android process death. A file-backed Room reopen test could not run
 on this Windows/Robolectric environment: SQLite returned SQLITE_CANTOPEN even
 with TRUNCATE journaling. No emulator was connected.
+
+2026-11-11 continuation: an Android TV emulator became available and a
+file-backed Room reopen instrumentation test was added. Its Kotlin source
+compiled, but `:data:connectedDebugAndroidTest` stalled in Android dexing before
+installing or executing the test and was cancelled. Those attempts did not
+execute the emulator test; the later successful run is recorded below.
+A second run with `--max-workers=2 --no-parallel` stalled at the same packaging
+stage and was also cancelled. The earlier 32-test in-memory Room/preferences
+result remains valid.
+On 2026-11-11 a later emulator-test retry again stalled before execution and was
+cancelled. A subsequent run completed successfully on Android TV emulator
+`Television_1080p` (Android 16): the file-backed Room test passed for movie and
+series checkpoints after closing and reopening the database. It verified saved
+page progress, retry budget, cooldown eligibility, and the next page to fetch.
+Command: `gradlew :data:connectedDebugAndroidTest
+-Pandroid.testInstrumentationRunnerArguments.class=com.streamvault.data.sync.StalkerRecoveryReopenInstrumentationTest
+--max-workers=2 --no-parallel -Pkotlin.compiler.execution.strategy=in-process --info`.
+This is a database reopen in one process, not a process-death, actual network
+recovery, or WorkManager scheduling test; those remain unverified.
 
 Follow-up: [Xtream comparison and targeted test results](XTREAM_SYNC_RECOVERY_INVESTIGATION.md)
 records which issues carry over and the separate Xtream recovery gaps.
@@ -279,7 +320,7 @@ recordNetworkFailure); `OkHttpStalkerApiService.kt` (runApiCall, HTTP/soft-error
 parsing); `StalkerPagedCatalogImporter.kt`; `StalkerIndexCheckpointStore.kt`;
 `ProviderEpgSyncExecutor.kt`.
 
-## Candidate follow-up changes (not implemented)
+## Historical candidate follow-up changes (proposed before fixes)
 
 - Separate recoverable session expiry/token rejection from definitive account,
   MAC, registration, or device-identity denial. Bound retries and preserve portal
@@ -298,8 +339,8 @@ parsing); `StalkerPagedCatalogImporter.kt`; `StalkerIndexCheckpointStore.kt`;
 - Expose why work is waiting, retry time, and terminal coverage where necessary,
   with all UI/localization/contrast requirements applied if product UI is changed.
 
-These are proposed directions for review after reproductions, not authorization
-to silently change production behavior as part of the test-only investigation.
+These were the original proposals. See the current-status summary and the
+implementation updates above for what has since been completed or remains open.
 
 ## EPG recovery is different from catalog page recovery
 

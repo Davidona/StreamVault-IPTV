@@ -4,7 +4,8 @@ Date: 2026-11-10 (Asia/Jerusalem)
 
 Branch update: continuing recovery work is on `codex/provider-sync-recovery`.
 Robolectric Android SharedPreferences reconstruction was verified for the EPG
-and catalog deadline stores as part of a 32-test focused recovery run. This is
+and catalog deadline stores as part of a 32-test focused recovery run. The X1
+policy, executor, and sync-manager suites subsequently passed 137 tests. This is
 not a real Android process-death or WorkManager scheduling test.
 
 Implementation update: X2 is fixed in the working tree. Retryable category
@@ -18,33 +19,62 @@ suites, including a simulated 503 reaching the sync-manager retry result.
 Related reports: [Stalker investigation](STALKER_SYNC_RECOVERY_INVESTIGATION.md)
 and [Stalker tests](STALKER_SYNC_RECOVERY_TEST_RESULTS.md).
 
+## Current status and open work (2026-11-11)
+
+- **Implemented:** X1 action-level 403 is retryable; X2 partial category failures
+  signal retry; X3 catalog Retry-After deadlines and X4 XMLTV deadlines persist.
+  Explicit account authentication rejection remains permanent.
+- **Open — old permanent 403 jobs:** Stored error text does not reliably identify
+  whether an old 403 was an edge block or account rejection, so those jobs are
+  not automatically reopened.
+- **Open — runtime validation:** Test actual WorkManager backoff, wake-up timing,
+  process death/restart, and real provider responses. Shared workflow lease and
+  unique-work isolation tests passed on Android, but do not run an Xtream retry. The 403 cursor-resume test
+  uses fake operations and does not validate a real HTTP or worker run.
+- **Known scope:** Catalog pacing is not a universal gate for direct API callers;
+  changing a provider endpoint can retain its old catalog deadline until expiry.
+  XMLTV workers may wake during cooldown, though early network requests are gated.
+
 ## Conclusion
 
 Some failure outcomes carry over, but the protocol and retry mechanisms differ.
 Xtream does not use the Stalker bearer-token/session or its per-category
 three-pass retry budget. The Stalker EPG unsupported capability also does not
-gate Xtream XMLTV. Xtream has its own concerns: terminal classification of
-401/403, partial indexing without self-continuation, non-persisted sync pacing,
-and loss of XMLTV Retry-After information.
+gate Xtream XMLTV. The investigation below records Xtream-specific issues and
+their subsequent fixes, along with remaining validation gaps.
 
 These findings do not establish the cause of any real-provider screenshot.
-No production fixes were made. Existing Stalker test/document changes remain
-in the working tree alongside this comparison.
+The original investigation preceded production fixes. Current implementation
+status is recorded in the X1 through X4 updates below; previously permanent
+403 jobs and real-device recovery validation remain open.
 
 ## Comparison
 
 | Scenario | Xtream behavior | Evidence / qualification |
 | --- | --- | --- |
 | Expired Stalker bearer session | Not applicable: ordinary Xtream player_api requests include username/password rather than that bearer session. | Source trace through XtreamProvider and XtreamUrlFactory. |
-| Persistent 401/403 stops automatic indexing | Authentication exceptions and request 401/403 map to FAILED_PERMANENT. Forced/configuration repair is required to bypass ordinary eligibility. | Existing auth-rejection executor, store, worker, and SyncManager tests. A transient edge 403 could be classified too harshly; real occurrence unproven. |
+| Persistent 401/403 stops automatic indexing | Explicit account-authentication rejection and request 401 remain permanent. Action-level request 403 is now retryable. | Existing auth-rejection tests and the X1 regression test; previously recorded permanent 403 jobs are not automatically reopened. |
 | Three category failures exhaust a durable budget | No equivalent Stalker category budget in this Xtream executor. Retryable failures retain a PARTIAL section and category cursor. | New test exercises four failed invocations and then a successful explicit invocation. |
 | Local cooldown rejections spend category budget | The same mechanism is absent. Adaptive sync awaits its deadline instead of rejecting locally; there is no such durable category budget. | Existing Retry-After tests; source trace. |
-| Retry-After survives restart | Adaptive sync health/deadlines are held in in-memory maps, not durable portal state. A newly constructed policy loses the old deadline. | New policy reconstruction test; Android restart itself not tested. |
+| Retry-After survives restart | Catalog sync now persists provider-scoped deadlines; reconstructed policy and store tests pass. | Actual Android process death remains untested. |
 | EPG failure teaches unsupported and skips forced guide sync | No Stalker epgSupported=false gate on Xtream's XMLTV path. HTTP transient failures preserve old data and return retryable warnings. | Existing real HTTP response -> repository -> executor tests. |
-| EPG honors Retry-After | XMLTV repository reduces 429/5xx to IOException without retaining Retry-After. Worker scheduling does not receive that server deadline. | New HTTP-header characterization plus repository source. Exact later worker request timing not tested. |
+| EPG honors Retry-After | XMLTV now persists a guide-specific deadline and prevents requests before it expires. | Worker wake-up timing and real process death remain untested. |
 | Retry resumes exact page | Xtream bulk/category import differs from Stalker paging: completed category cursor is durable; a failed/in-flight category is fetched again. Interrupted bulk import can fall back to categories. | Existing cursor, row-budget, and cancellation tests. No byte-offset resume guarantee. |
 
 ## X1: Permanent 401/403 classification
+
+Implementation update: action-level `XtreamRequestException(403)` is now
+retryable, allowing the worker to back off and resume from its saved cursor.
+Explicit `XtreamAuthenticationException` (including account-level 403) and
+request 401 remain permanent. Existing permanent job records are not reopened:
+their stored error strings cannot reliably distinguish edge blocks from account
+rejection. The targeted policy, executor, and sync-manager suites passed 137
+tests, including the new classification regression. Actual WorkManager scheduling
+and a real provider response remain unverified. A subsequent 16-test policy and
+executor run passed, including an action-level 403 that preserves the failed
+category cursor and resumes at that category after recovery. The executor uses
+fake operations, so this is not a real network or WorkManager test. The detailed
+discussion below describes the pre-fix classification.
 
 OkHttpXtreamApiService maps HTTP 401 to XtreamAuthenticationException. HTTP 403
 on account authentication is also authentication failure; on an action route it
@@ -199,3 +229,29 @@ in the implementation updates above.
 - data/src/main/java/com/streamvault/data/remote/xtream/OkHttpXtreamApiService.kt
 - data/src/main/java/com/streamvault/data/repository/EpgRepositoryImpl.kt
 - app/src/main/java/com/streamvault/app/StartupWorkRegistry.kt
+
+
+## Combined Stalker and Xtream validation (2026-11-11)
+
+The following focused combined unit run passed **458 tests across 29 suites**,
+with zero failures, errors, or skips. It covers both providers' indexing and
+recovery suites, sync manager, guide HTTP failures, workers, Stalker coordinator
+and provider, and both API services:
+
+```powershell
+.\gradlew.bat :data:testDebugUnitTest --tests 'com.streamvault.data.sync.Stalker*' --tests 'com.streamvault.data.sync.Xtream*' --tests com.streamvault.data.sync.SyncManagerTest --tests com.streamvault.data.sync.SyncManagerXtreamSupportTest --tests com.streamvault.data.sync.GuideHttpFailureTest --tests com.streamvault.data.sync.CatalogIndexJobStoreTest --tests com.streamvault.data.sync.ProviderSyncWorkerTest --tests com.streamvault.data.remote.stalker.StalkerProviderTest --tests com.streamvault.data.remote.stalker.StalkerRequestCoordinatorTest --tests com.streamvault.data.remote.stalker.OkHttpStalkerApiServiceTest --tests com.streamvault.data.remote.xtream.OkHttpXtreamApiServiceTest --max-workers=2 --no-parallel '-Pkotlin.compiler.execution.strategy=in-process'
+```
+
+A separate Android 16 TV emulator run passed **6 instrumentation tests**:
+Stalker file-backed checkpoint reopen (1), WorkManager unique-work isolation and
+coalescing (2), and provider workflow lease/priority behavior (3). The workflow
+lease test closes and reopens the database and simulates an expired lease; it
+does not kill the Android process. The WorkManager tests inspect queued work and
+isolation; they do not establish a full provider retry/backoff timeline.
+
+```powershell
+.\gradlew.bat :data:connectedDebugAndroidTest '-Pandroid.testInstrumentationRunnerArguments.class=com.streamvault.data.sync.StalkerRecoveryReopenInstrumentationTest,com.streamvault.data.local.ProviderWorkManagerSerializationTest,com.streamvault.data.local.ProviderWorkflowIntegrationTest' --max-workers=2 --no-parallel '-Pkotlin.compiler.execution.strategy=in-process'
+```
+
+No actual process kill, real-provider recovery, or end-to-end timed retry was
+performed. These checks do not determine the cause of the original screenshot.

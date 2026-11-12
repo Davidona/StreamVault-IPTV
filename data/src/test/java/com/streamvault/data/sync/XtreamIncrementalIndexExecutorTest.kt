@@ -18,6 +18,43 @@ import org.mockito.kotlin.mock
 
 class XtreamIncrementalIndexExecutorTest {
     @Test
+    fun `action forbidden preserves failed category and resumes after recovery`() = runTest {
+        val categories = listOf(category(1L), category(2L), category(3L))
+        val checkpoint = XtreamIndexJobEntity(
+            providerId = 1L, section = "MOVIE", state = "QUEUED",
+            nextCategoryIndex = 1, completedCategories = 1, indexedRows = 10
+        )
+        val forbidden = com.streamvault.data.remote.xtream.XtreamRequestException(403, "HTTP 403")
+        val blocked = FakeOperations(categories, job = checkpoint, failureCategoryId = 2L, categoryFailure = forbidden)
+        val failure = runCatching {
+            XtreamIncrementalIndexExecutor(blocked).processSummary(
+                provider(), mock(), ContentType.MOVIE, 3, onProgress = null
+            )
+        }.exceptionOrNull()
+
+        assertThat(failure).isInstanceOf(IOException::class.java)
+        assertThat(failure?.cause).isSameInstanceAs(forbidden)
+        assertThat(blocked.fetchedCategoryIds).containsExactly(2L)
+        val saved = blocked.updates.last()
+        assertThat(saved.state).isEqualTo("PARTIAL")
+        assertThat(saved.nextCategoryIndex).isEqualTo(1)
+        assertThat(blocked.scheduled).isEmpty()
+
+        val restored = FakeOperations(categories, job = checkpoint.copy(
+            state = saved.state,
+            nextCategoryIndex = requireNotNull(saved.nextCategoryIndex),
+            completedCategories = requireNotNull(saved.completedCategories),
+            failedCategories = requireNotNull(saved.failedCategories),
+            indexedRows = requireNotNull(saved.indexedRows)
+        ))
+        XtreamIncrementalIndexExecutor(restored).processSummary(
+            provider(), mock(), ContentType.MOVIE, 3, onProgress = null
+        )
+        assertThat(restored.fetchedCategoryIds).containsExactly(2L, 3L).inOrder()
+        assertThat(restored.updates.last().state).isEqualTo("SUCCESS")
+    }
+
+    @Test
     fun `repeated category rate limits request retry and resume from saved cursor`() = runTest {
         val categories = listOf(category(1L), category(2L), category(3L))
         var checkpoint = XtreamIndexJobEntity(
