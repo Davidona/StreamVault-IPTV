@@ -266,18 +266,10 @@ fun LiveEpgScreen(
         onDispose { viewModel.clearPreview() }
     }
 
+    // Same fix as the Home preview: `context as? Activity` is always null (LocalContext is a
+    // localized wrapper), so the old window-flag code never kept the screen on.
     val hasActivePreview = uiState.previewPlayerEngine != null
-    DisposableEffect(hasActivePreview) {
-        val window = (context as? android.app.Activity)?.window
-        if (hasActivePreview) {
-            window?.addFlags(android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-        }
-        onDispose {
-            if (hasActivePreview) {
-                window?.clearFlags(android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-            }
-        }
-    }
+    com.streamvault.core.ui.device.KeepScreenOn(enabled = hasActivePreview)
 
     LaunchedEffect(initialCategoryId, initialAnchorTime, initialFavoritesOnly) {
         viewModel.applyNavigationContext(
