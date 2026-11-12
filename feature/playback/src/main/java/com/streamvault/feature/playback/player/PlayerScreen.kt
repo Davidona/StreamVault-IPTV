@@ -134,6 +134,7 @@ fun PlayerScreen(
     returnDestination: AppDestination? = null,
     onBack: () -> Unit,
     onNavigate: ((AppDestination) -> Unit)? = null,
+    onPlaybackCompleted: () -> Unit = onBack,
     playbackPlatformHost: PlaybackPlatformHost? = null,
     splitScreenPlanner: @Composable (Channel, () -> Unit, () -> Unit) -> Unit = { _, _, _ -> },
     viewModel: PlayerViewModel = hiltViewModel()
@@ -192,6 +193,7 @@ fun PlayerScreen(
     val playerNotice by viewModel.playerNotice.collectAsStateWithLifecycle()
     val preventStandbyDuringPlayback by viewModel.preventStandbyDuringPlayback.collectAsStateWithLifecycle()
     val sleepTimerExitEvent by viewModel.sleepTimerExitEvent.collectAsStateWithLifecycle()
+    val playbackCompleted by viewModel.playbackCompleted.collectAsStateWithLifecycle()
     val playerPreferences by viewModel.playerPreferencesUiState.collectAsStateWithLifecycle()
     val localSubtitlePicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocument()
@@ -264,6 +266,13 @@ fun PlayerScreen(
                 pixelWidthHeightRatio = videoFormat.pixelWidthHeightRatio
             )
         )
+    }
+
+    LaunchedEffect(playbackCompleted) {
+        if (playbackCompleted) {
+            viewModel.consumePlaybackCompleted()
+            onPlaybackCompleted()
+        }
     }
 
     LaunchedEffect(sleepTimerExitEvent) {
