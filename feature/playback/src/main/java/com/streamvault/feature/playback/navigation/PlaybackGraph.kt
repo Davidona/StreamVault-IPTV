@@ -68,7 +68,7 @@ fun NavGraphBuilder.registerPlaybackGraph(
                 stremioMediaRequestHeaders = safePlayerRequest.stremioMediaRequestHeaders,
                 stremioInlineSubtitles = safePlayerRequest.stremioInlineSubtitles,
                 onBack = { actions.returnTo(safePlayerRequest.returnDestination) },
-                onPlaybackCompleted = { actions.returnTo(AppDestination.Home) },
+                onPlaybackCompleted = { actions.returnTo(playbackCompletionDestination(safePlayerRequest)) },
                 playbackPlatformHost = platformHost,
                 splitScreenPlanner = { pendingChannel, onDismiss, onLaunch ->
                     MultiViewPlannerDialog(
