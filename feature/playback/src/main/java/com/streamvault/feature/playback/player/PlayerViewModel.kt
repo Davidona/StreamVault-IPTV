@@ -227,6 +227,8 @@ class PlayerViewModel @Inject constructor(
     val timeshiftUiState: StateFlow<PlayerTimeshiftUiState> = _timeshiftUiState.asStateFlow()
     internal val _sleepTimerUiState = MutableStateFlow(SleepTimerUiState())
     val sleepTimerUiState: StateFlow<SleepTimerUiState> = _sleepTimerUiState.asStateFlow()
+    internal val _playbackCompleted = MutableStateFlow(false)
+    val playbackCompleted: StateFlow<Boolean> = _playbackCompleted.asStateFlow()
     internal val _sleepTimerExitEvent = MutableStateFlow(0)
     val sleepTimerExitEvent: StateFlow<Int> = _sleepTimerExitEvent.asStateFlow()
     val remoteShortcutPreferences = playerPreferencesCoordinator.remoteShortcutPreferences
@@ -1153,7 +1155,12 @@ class PlayerViewModel @Inject constructor(
             .stateIn(viewModelScope, kotlinx.coroutines.flow.SharingStarted.WhileSubscribed(5000), true)
     }
 
+    fun consumePlaybackCompleted() {
+        _playbackCompleted.value = false
+    }
+
     internal fun beginPlaybackSession(): Long {
+        _playbackCompleted.value = false
         val sessionId = playbackSessionCoordinator.begin().id
         episodeSourceState.reset(sessionId)
         lastTriggeredCreditsChapterStartMs = null
