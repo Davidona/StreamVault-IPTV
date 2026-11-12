@@ -14,6 +14,7 @@ import dagger.hilt.components.SingletonComponent
 @EntryPoint
 @InstallIn(SingletonComponent::class)
 interface XtreamSyncBenchmarkEntryPoint {
+    fun webhooks(): com.streamvault.domain.playback.events.PlaybackWebhooks
     fun setup(): ValidateAndAddProvider
     fun providers(): ProviderRepository
     fun sync(): ProviderSyncCommands

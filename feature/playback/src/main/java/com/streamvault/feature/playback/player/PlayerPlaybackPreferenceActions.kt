@@ -566,6 +566,7 @@ fun PlayerViewModel.useGlobalAudioVideoOffset() {
 }
 
 fun PlayerViewModel.seekTo(positionMs: Long) {
+    webhookState.discontinuity = true
     notifyUserActivity()
     playerEngine.seekTo(positionMs)
     clearSeekPreview()

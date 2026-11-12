@@ -18,6 +18,14 @@ import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
 
 class PlayerRecoveryExecutionCoordinatorTest {
+    @Test
+    fun `a final movie source failure ends the optional tracking session`() = runTest {
+        val port = RecordingRecoveryPort()
+        PlayerRecoveryExecutionCoordinator().handlePlaybackError(
+            request = request(PlayerError.SourceError("source failed")), sessionScope = this, port = port)
+        advanceUntilIdle()
+        assertThat(port.exhaustedCalls).isEqualTo(1)
+    }
 
     @Test
     fun `stale playback errors are ignored`() = runTest {
@@ -274,6 +282,8 @@ class PlayerRecoveryExecutionCoordinatorTest {
         override val playerEngine: PlayerEngine = mock()
         override val recoveryState = PlayerRecoveryCoordinator()
         var active = true
+        var exhaustedCalls = 0
+        override fun onRecoveryExhausted() { exhaustedCalls++ }
         var alternateStreamResult = false
         var alternateStreamCalls = 0
         var avcFallbackResult = false

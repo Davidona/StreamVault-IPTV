@@ -35,6 +35,7 @@ internal data class PlayerRecoveryRequest(
 )
 
 internal interface PlayerRecoveryExecutionPort {
+    fun onRecoveryExhausted() = Unit
     val appPackageName: String
     val playerEngine: PlayerEngine
     val recoveryState: PlayerRecoveryCoordinator
@@ -203,6 +204,7 @@ class PlayerRecoveryExecutionCoordinator @Inject constructor() {
 
             if (recoveryType == PlayerRecoveryType.DRM) {
                 if (!port.isActivePlaybackSession(request.requestVersion, request.playbackUrl)) return@launch
+                port.onRecoveryExhausted()
                 port.showPlayerNotice(
                     message = "This channel requires DRM support that is not available. " +
                         "Your subscription may not include this content.",
@@ -214,6 +216,7 @@ class PlayerRecoveryExecutionCoordinator @Inject constructor() {
 
             if (request.contentType != ContentType.LIVE || channel == null) {
                 if (!port.isActivePlaybackSession(request.requestVersion, request.playbackUrl)) return@launch
+                port.onRecoveryExhausted()
                 port.showPlayerNotice(
                     message = resolvePlaybackErrorMessage(error),
                     recoveryType = recoveryType,
@@ -298,6 +301,7 @@ class PlayerRecoveryExecutionCoordinator @Inject constructor() {
                     actions = port.buildRecoveryActions(recoveryType)
                 )
             } else {
+                port.onRecoveryExhausted()
                 port.showPlayerNotice(
                     message = resolvePlaybackErrorMessage(error),
                     recoveryType = recoveryType,

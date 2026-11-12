@@ -262,7 +262,9 @@ public fun SettingsContentPane(
                                     onClick = { lastPage = destination; page = destination })
                     }
                 } else {
-                    if (page == SettingsPage.SPORTS_DATA_PROVIDERS) {
+                    if (page == SettingsPage.PLAYBACK_WEBHOOKS) {
+                        item { PlaybackWebhookSettingsPage(modifier = if (activeSearchTarget != null) searchTargetModifier else Modifier) }
+                    } else if (page == SettingsPage.SPORTS_DATA_PROVIDERS) {
                         item { SportsDataProviderSettingsPage() }
                     } else if (page == SettingsPage.SOURCE_COMPATIBILITY) {
                         item {

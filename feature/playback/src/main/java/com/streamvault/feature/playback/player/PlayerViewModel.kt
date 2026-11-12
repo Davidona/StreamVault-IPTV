@@ -101,7 +101,9 @@ class PlayerViewModel @Inject constructor(
     internal val downloadExternalSubtitleUseCase: DownloadExternalSubtitle,
     internal val getExternalSubtitleLanguagesUseCase: GetExternalSubtitleLanguages,
     internal val openSubtitlesAccountManager: OpenSubtitlesAccountManager,
+    internal val playbackWebhooks: com.streamvault.domain.playback.events.PlaybackWebhooks,
 ) : ViewModel() {
+    internal val webhookState = PlayerWebhookState()
     companion object {
         private const val MIN_WATCHED_FOR_AUTO_PLAY_MS = 5_000L
         private const val AUTO_PLAY_COUNTDOWN_SECONDS = 10
@@ -307,9 +309,11 @@ class PlayerViewModel @Inject constructor(
         logRepositoryFailure = { operation, result -> logRepositoryFailure(operation, result) },
         fallbackToPreviousChannel = { reason -> fallbackToPreviousChannel(reason) },
         hasLastChannel = { hasLastChannel() },
+        onRecoveryExhausted = { finishWebhookPlayback(failed = true) },
         tryFallbackToAvcEpisodeVariant = { requestVersion, playbackUrl -> tryFallbackToAvcEpisodeVariant(requestVersion, playbackUrl) },
         handleEpisodeReplacementError = { error ->
             if (episodeSourceState.attempted && episodeSourceState.recoveryPending) {
+                finishWebhookPlayback(failed = true)
                 episodeSourceState.markFailed(episodeSourceState.token)
                 playerEngine.stop()
                 val type = classifyPlaybackError(error)
@@ -587,6 +591,7 @@ class PlayerViewModel @Inject constructor(
                     SystemClock.elapsedRealtime(), playerEngine.playbackSpeed.value
                 )
                 reportTraktPlayback()
+                reportWebhookPlayback()
                 reportLiveUsage()
                 delay(500)
             }
@@ -643,7 +648,10 @@ class PlayerViewModel @Inject constructor(
             }
         }
         viewModelScope.launch {
-            activePlayerEngineFlow.flatMapLatest { it.isPlaying }.collect { reportLiveUsage() }
+            activePlayerEngineFlow.flatMapLatest { it.isPlaying }.collect {
+                reportLiveUsage()
+                reportWebhookPlayback()
+            }
         }
         viewModelScope.launch {
             activePlayerEngineFlow.flatMapLatest { it.playbackState }.collect { state ->
@@ -651,6 +659,7 @@ class PlayerViewModel @Inject constructor(
                 _playerDiagnostics.update { it.copy(playbackStateLabel = state.name.replace('_', ' ')) }
                 if (state == PlaybackState.ENDED && lastObservedPlaybackState != PlaybackState.ENDED) {
                     reportTraktPlayback(state)
+                    reportWebhookPlayback(state)
                     handlePlaybackEnded()
                 }
                 lastObservedPlaybackState = state
@@ -1653,6 +1662,7 @@ class PlayerViewModel @Inject constructor(
         } else {
             PlaybackResolutionUiState.Resolving
         }
+        finishWebhookPlayback()
         val contentSwitchFlush = queueContentSwitchProgressFlush()
         if (
             currentStremioPlaybackReference != stremioPlaybackReference ||
@@ -2077,6 +2087,7 @@ class PlayerViewModel @Inject constructor(
     )?.url
 
     override fun onCleared() {
+        finishWebhookPlayback()
         reportLiveUsage(stop = true)
         stremioEventDispatcher.close()
         playerTraktCoordinator.close()

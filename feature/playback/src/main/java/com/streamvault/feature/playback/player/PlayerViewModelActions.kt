@@ -78,6 +78,10 @@ internal fun PlayerViewModel.observeCastPlaybackEvents() {
 }
 
 private fun PlayerViewModel.handleCastPlaybackEvent(event: CastPlaybackEvent) {
+    if (event is CastPlaybackEvent.MediaLoadSucceeded) {
+        finishWebhookPlayback()
+        webhookState.handedOff = true
+    }
     val reportMode = castPlaybackReportMode
     if (reportMode == CastPlaybackReportMode.NONE) return
     if (event is CastPlaybackEvent.RouteSelectionCancelled) {

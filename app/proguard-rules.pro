@@ -50,6 +50,13 @@
 -keep class com.streamvault.data.trakt.TraktPendingDevice { *; }
 -keep class com.streamvault.data.trakt.TraktStoredSession { *; }
 
+# Encrypted webhook configuration/outbox uses Gson. Preserve its persisted field
+# and enum names across minified updates, plus the worker restored by WorkManager.
+-keep class com.streamvault.domain.playback.events.** { *; }
+-keep class com.streamvault.data.webhook.StoredWebhooks { *; }
+-keep class com.streamvault.data.webhook.PendingWebhook { *; }
+-keep class com.streamvault.data.webhook.PlaybackWebhookRecoveryWorker { *; }
+
 # ── Room ────────────────────────────────────────────────────
 -keep class * extends androidx.room.RoomDatabase
 -keep @androidx.room.Entity class *

@@ -32,7 +32,9 @@ internal class PlayerRecoveryExecutionPortAdapter(
     private val hasLastChannel: () -> Boolean,
     private val tryFallbackToAvcEpisodeVariant: suspend (Long, String) -> EpisodeFallbackResult = { _, _ -> EpisodeFallbackResult.NotEligible },
     private val handleEpisodeReplacementError: (PlayerError) -> Boolean = { false },
+    private val onRecoveryExhausted: () -> Unit = {},
 ) : PlayerRecoveryExecutionPort {
+    override fun onRecoveryExhausted() = onRecoveryExhausted.invoke()
     override val playerEngine: PlayerEngine
         get() = engineCoordinator.currentEngine
 

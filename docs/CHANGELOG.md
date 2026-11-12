@@ -2,6 +2,14 @@
 
 All notable product changes are recorded in this document.
 
+## [1.2.6]
+
+### Added
+- Added optional playback webhooks for movies, episodes and live TV, with start, pause, resume, stop, periodic progress and watched-threshold events, including known external IDs and separate series identities.
+- Added Settings → App & Remote → Playback webhooks with up to four named destinations, custom authentication headers, event and content filters, configurable progress intervals and watched thresholds, payload previews, native test events and delivery diagnostics. The feature is off by default and localized across all 38 advertised locales.
+- Added encrypted webhook configuration excluded from backups, independent destination delivery, expiring real-time updates and recoverable history delivery with bounded retries.
+- Added native JSON for home automation and custom receivers, plus Jellyfin and Yamtrack payload formats. Yamtrack episodes require actual episode IMDb/TVDB IDs; standalone Watcharr integration is not supported. See the [playback webhook guide](PLAYBACK_WEBHOOKS.md) for setup and receiver limitations.
+
 ## [1.2.5]
 
 ### Added
