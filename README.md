@@ -169,6 +169,7 @@ Built for Android TV first, StreamVault focuses on the things generic IPTV apps 
 ### Platform Integrations
 
 - Android TV Watch Next integration
+- [External launcher item links and TV row integration](docs/EXTERNAL_LAUNCHER_INTEGRATION.md)
 - Launcher recommendations and TV entry points
 - Android TV Input Framework channel sync
 - Google Cast sender support

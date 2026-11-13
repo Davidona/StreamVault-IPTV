@@ -13,7 +13,7 @@ import androidx.annotation.RequiresApi
 import com.streamvault.app.MainActivity
 import com.streamvault.app.R
 import com.streamvault.app.device.isTelevisionDevice
-import com.streamvault.app.navigation.toPlayerNavigationRequest
+import com.streamvault.app.navigation.ExternalItemLinkCodec
 import com.streamvault.domain.model.ContentType
 import com.streamvault.domain.model.PlaybackHistory
 import com.streamvault.domain.repository.PlaybackHistoryRepository
@@ -214,6 +214,7 @@ class WatchNextManager @Inject constructor(
             put(COLUMN_TITLE, history.title)
             put(COLUMN_POSTER_ART_URI, history.posterUrl ?: "android.resource://${context.packageName}/${R.mipmap.ic_launcher}")
             put(COLUMN_INTENT_URI, intent.toUri(Intent.URI_INTENT_SCHEME))
+            put(COLUMN_SEARCHABLE, 1)
             put(COLUMN_LAST_PLAYBACK_POSITION_MILLIS, history.resumePositionMs)
             put(COLUMN_DURATION_MILLIS, history.totalDurationMs)
             put(COLUMN_LAST_ENGAGEMENT_TIME_UTC_MILLIS, history.lastWatchedAt)
@@ -223,10 +224,8 @@ class WatchNextManager @Inject constructor(
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun buildWatchNextValues(history: PlaybackHistory): ContentValues {
-        val launchIntent = Intent(context, MainActivity::class.java)
-            .setAction(Intent.ACTION_VIEW)
-            .putExtra(MainActivity.EXTRA_PLAYER_REQUEST, history.toPlayerNavigationRequest())
-            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        val launchIntent = ExternalItemLinkCodec.intent(context,
+            requireNotNull(ExternalItemLinkCodec.historyLink(history)))
 
         return ContentValues().apply {
             put(COLUMN_INTERNAL_PROVIDER_ID, watchNextKey(history))
@@ -235,6 +234,7 @@ class WatchNextManager @Inject constructor(
             put(COLUMN_DESCRIPTION, context.getString(R.string.saved_preset_watch_next))
             put(COLUMN_POSTER_ART_URI, artworkUriFor(history).toString())
             put(COLUMN_INTENT_URI, launchIntent.toUri(Intent.URI_INTENT_SCHEME))
+            put(COLUMN_SEARCHABLE, 1)
             put(COLUMN_LAST_PLAYBACK_POSITION_MILLIS, history.resumePositionMs)
             put(COLUMN_DURATION_MILLIS, history.totalDurationMs)
             put(COLUMN_LAST_ENGAGEMENT_TIME_UTC_MILLIS, history.lastWatchedAt)
@@ -260,7 +260,7 @@ class WatchNextManager @Inject constructor(
     }
 
     private fun isEligibleForWatchNext(history: PlaybackHistory): Boolean {
-        if (history.providerId <= 0L) return false
+        if (history.providerId <= 0L || history.contentId <= 0L) return false
         if (history.resumePositionMs <= 0L || history.totalDurationMs <= 0L) return false
         if (history.contentType != ContentType.MOVIE && history.contentType != ContentType.SERIES_EPISODE) {
             return false
@@ -287,6 +287,7 @@ class WatchNextManager @Inject constructor(
         const val COLUMN_DESCRIPTION = "description"
         const val COLUMN_POSTER_ART_URI = "poster_art_uri"
         const val COLUMN_INTENT_URI = "intent_uri"
+        const val COLUMN_SEARCHABLE = "searchable"
         const val COLUMN_LAST_PLAYBACK_POSITION_MILLIS = "last_playback_position_millis"
         const val COLUMN_DURATION_MILLIS = "duration_millis"
         const val COLUMN_LAST_ENGAGEMENT_TIME_UTC_MILLIS = "last_engagement_time_utc_millis"
@@ -304,7 +305,7 @@ internal fun selectWatchNextHistoryEntries(
     val scopedProviderId = activeProviderId?.takeIf { it > 0L } ?: return emptyList()
     return historyEntries
         .asSequence()
-        .filter { it.providerId == scopedProviderId }
+        .filter { it.providerId == scopedProviderId && it.contentId > 0 }
         .filter { history ->
             history.resumePositionMs > 0L &&
                 history.totalDurationMs > 0L &&

@@ -3594,6 +3594,9 @@ interface VirtualGroupDao {
 @Dao
 @RewriteQueriesToDropUnusedColumns
 interface PlaybackHistoryDao {
+    @Query("SELECT * FROM playback_history WHERE provider_id = :providerId AND series_id = :seriesId AND content_type = 'SERIES_EPISODE' ORDER BY last_watched_at DESC, content_id DESC LIMIT 1")
+    suspend fun getLatestEpisodeHistoryForSeries(providerId: Long, seriesId: Long): PlaybackHistoryEntity?
+
     @Query("SELECT * FROM playback_history ORDER BY last_watched_at DESC, content_id DESC, content_type DESC, provider_id DESC LIMIT :limit")
     fun getRecentlyWatched(limit: Int = 100): Flow<List<PlaybackHistoryLiteEntity>>
 

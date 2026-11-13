@@ -3,6 +3,10 @@ package com.streamvault.app.navigation
 import com.google.common.truth.Truth.assertThat
 import com.streamvault.core.navigation.AppDestination
 import com.streamvault.core.navigation.ExternalNavigationRequest
+import com.streamvault.core.navigation.ExternalItemLink
+import com.streamvault.core.navigation.ExternalItemType
+import com.streamvault.core.navigation.ExternalItemAction
+import com.streamvault.core.navigation.NavigationCommand
 import com.streamvault.data.preferences.PreferencesRepository
 import com.streamvault.domain.model.ActiveLiveSource
 import com.streamvault.domain.model.AppLandingDestination
@@ -25,14 +29,76 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
+import org.mockito.kotlin.doSuspendableAnswer
 
 class AppNavigationCoordinatorTest {
+    @Test
+    fun stalledItemLookupTimesOutAndAllowsLaterRequests() = runTest {
+        Dispatchers.setMain(kotlinx.coroutines.test.UnconfinedTestDispatcher(testScheduler))
+        val link = ExternalItemLink(ExternalItemType.MOVIE, 42, 7, ExternalItemAction.RESUME)
+        val resolver = mock<ExternalItemNavigationResolver>()
+        whenever(resolver.resolve(link)).doSuspendableAnswer { CompletableDeferred<NavigationCommand>().await() }
+        var nextId = 10L
+        val coordinator = coordinator(NavigationCommandIdSource { nextId++ }, externalItemResolver = resolver)
+        coordinator.submitExternalRequest(ExternalNavigationRequest.Item(link))
+        coordinator.submitExternalRequest(ExternalNavigationRequest.Search("news"))
+        advanceTimeBy(15_001)
+        runCurrent()
+        assertThat((coordinator.pendingCommand.value?.command as NavigationCommand.Navigate).destination)
+            .isEqualTo(AppDestination.Home)
+        coordinator.acknowledge(10)
+        assertThat((coordinator.pendingCommand.value?.command as NavigationCommand.Navigate).destination)
+            .isEqualTo(AppDestination.Search("news"))
+    }
+
+    @Test
+    fun externalItemResolutionKeepsLaterRequestsInOrderAndSuppressesStartupAutoplay() = runTest {
+        val link = ExternalItemLink(ExternalItemType.MOVIE, 42, 7, ExternalItemAction.RESUME)
+        val resolved = CompletableDeferred<NavigationCommand>()
+        val resolver = mock<ExternalItemNavigationResolver>()
+        whenever(resolver.resolve(link)).doSuspendableAnswer { resolved.await() }
+        var nextId = 10L
+        val coordinator = coordinator(NavigationCommandIdSource { nextId++ },
+            AppLandingDestination.FIRST_FAVORITE_LIVE, externalItemResolver = resolver)
+        coordinator.submitExternalRequest(ExternalNavigationRequest.Item(link))
+        coordinator.submitExternalRequest(ExternalNavigationRequest.Search("news"))
+        coordinator.requestStartupNavigation(AppDestination.Welcome)
+        assertThat(coordinator.pendingCommand.value).isNull()
+        resolved.complete(NavigationCommand.Navigate(AppDestination.MovieDetail(42)))
+        runCurrent()
+        assertThat(coordinator.pendingCommand.value?.command)
+            .isEqualTo(NavigationCommand.Navigate(AppDestination.MovieDetail(42)))
+        coordinator.acknowledge(10)
+        assertThat((coordinator.pendingCommand.value?.command as NavigationCommand.Navigate).destination)
+            .isEqualTo(AppDestination.Search("news"))
+        coordinator.acknowledge(11)
+        coordinator.onDestinationResumed(AppDestination.LiveTv())
+        assertThat(coordinator.pendingCommand.value).isNull()
+    }
+
+    @Test
+    fun failingItemResolutionReturnsHomeAndDoesNotBlockSubsequentRequests() = runTest {
+        val link = ExternalItemLink(ExternalItemType.MOVIE, 42, 7, ExternalItemAction.RESUME)
+        val resolver = mock<ExternalItemNavigationResolver>()
+        whenever(resolver.resolve(link)).thenThrow(IllegalStateException("catalogue unavailable"))
+        var nextId = 10L
+        val coordinator = coordinator(NavigationCommandIdSource { nextId++ }, externalItemResolver = resolver)
+        coordinator.submitExternalRequest(ExternalNavigationRequest.Item(link))
+        coordinator.submitExternalRequest(ExternalNavigationRequest.Search("news"))
+        assertThat((coordinator.pendingCommand.value?.command as NavigationCommand.Navigate).destination)
+            .isEqualTo(AppDestination.Home)
+        coordinator.acknowledge(10)
+        assertThat((coordinator.pendingCommand.value?.command as NavigationCommand.Navigate).destination)
+            .isEqualTo(AppDestination.Search("news"))
+    }
+
     @Before
     fun setUp() {
         Dispatchers.setMain(Dispatchers.Unconfined)
@@ -186,7 +252,8 @@ class AppNavigationCoordinatorTest {
         activeLiveSource: kotlinx.coroutines.flow.Flow<ActiveLiveSource?> =
             flowOf(ActiveLiveSource.ProviderSource(7L)),
         activeProvider: kotlinx.coroutines.flow.Flow<LegacyProvider?> =
-            flowOf(null)
+            flowOf(null),
+        externalItemResolver: ExternalItemNavigationResolver = mock()
     ): AppNavigationCoordinator {
         val preferencesRepository = mock<PreferencesRepository>()
         whenever(preferencesRepository.appLandingDestination)
@@ -229,7 +296,8 @@ class AppNavigationCoordinatorTest {
             commandIds = ids,
             startupResolver = startupResolver,
             preferencesRepository = preferencesRepository,
-            providerRepository = providerRepository
+            providerRepository = providerRepository,
+            externalItemResolver = dagger.Lazy { externalItemResolver }
         )
     }
 }

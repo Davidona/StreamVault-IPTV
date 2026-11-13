@@ -293,4 +293,6 @@
     <string name="nav_sports">Deportes</string>
     <string name="stremio_new_episode_channel">Avisos de episodios nuevos</string>
     <string name="stremio_new_episode_count">Episodios nuevos: %1$d</string>
+    <string name="tv_channel_favorites_title">Favoritos</string>
+    <string name="tv_channel_favorites_description">Tus canales, películas y series favoritos</string>
 </resources>

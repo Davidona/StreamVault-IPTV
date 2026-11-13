@@ -14,6 +14,7 @@ import com.streamvault.domain.model.CatalogLayout
 import com.streamvault.domain.model.ContentType
 import com.streamvault.domain.repository.ProviderRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.Lazy
 import java.util.concurrent.atomic.AtomicLong
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -27,6 +28,10 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.withTimeout
 
 data class PendingNavigationCommand(
     val id: Long,
@@ -38,7 +43,8 @@ class AppNavigationCoordinator @Inject constructor(
     private val commandIds: NavigationCommandIdSource,
     private val startupResolver: StartupNavigationResolver,
     private val preferencesRepository: PreferencesRepository,
-    private val providerRepository: ProviderRepository
+    private val providerRepository: ProviderRepository,
+    private val externalItemResolver: Lazy<ExternalItemNavigationResolver>
 ) : ViewModel() {
     private val commandQueue = ArrayDeque<PendingNavigationCommand>()
     private val _pendingCommand = MutableStateFlow<PendingNavigationCommand?>(null)
@@ -48,6 +54,8 @@ class AppNavigationCoordinator @Inject constructor(
 
     private var activeProviderId: Long? = null
     private var startupNavigationRequested = false
+    private var externalNavigationRequested = false
+    private val externalRequests = Channel<ExternalNavigationRequest>(Channel.UNLIMITED)
     private var startupNavigationAcknowledged = false
     private var startupNavigationCommandId: Long? = null
     private var startupPlayerRequest: PlayerNavigationRequest? = null
@@ -57,6 +65,23 @@ class AppNavigationCoordinator @Inject constructor(
     private var startupResolutionKey: StartupResolutionKey? = null
 
     init {
+        viewModelScope.launch {
+            for (request in externalRequests) {
+                val command = try {
+                    if (request is ExternalNavigationRequest.Item) withTimeout(15_000) {
+                        externalItemResolver.get().resolve(request.link)
+                    }
+                    else requireNotNull(request.toNavigationCommand())
+                } catch (_: TimeoutCancellationException) {
+                    NavigationCommand.Navigate(AppDestination.Home, NavigationOptions(launchSingleTop = true))
+                } catch (cancelled: CancellationException) {
+                    throw cancelled
+                } catch (_: Exception) {
+                    NavigationCommand.Navigate(AppDestination.Home, NavigationOptions(launchSingleTop = true))
+                }
+                submit(command)
+            }
+        }
         observeStartupState()
         observeCatalogState()
     }
@@ -147,7 +172,8 @@ class AppNavigationCoordinator @Inject constructor(
     }
 
     fun submitExternalRequest(request: ExternalNavigationRequest) {
-        submit(request.toNavigationCommand())
+        externalNavigationRequested = true
+        externalRequests.trySend(request)
     }
 
     fun submit(command: NavigationCommand) {
@@ -155,7 +181,7 @@ class AppNavigationCoordinator @Inject constructor(
     }
 
     fun requestStartupNavigation(popUpTo: AppDestination) {
-        if (startupNavigationRequested) return
+        if (startupNavigationRequested || externalNavigationRequested) return
         val target = state.value.startupTarget ?: return
         startupNavigationRequested = true
         startupResolutionKey = resolvedStartupKey
@@ -176,7 +202,7 @@ class AppNavigationCoordinator @Inject constructor(
     }
 
     private fun enqueueStartupPlayerIfReady() {
-        if (!startupNavigationAcknowledged || !startupLiveDestinationResumed || startupPlayerEnqueued) {
+        if (externalNavigationRequested || !startupNavigationAcknowledged || !startupLiveDestinationResumed || startupPlayerEnqueued) {
             return
         }
         val request = startupPlayerRequest ?: return
@@ -258,7 +284,8 @@ class AppNavigationCoordinator @Inject constructor(
     )
 }
 
-internal fun ExternalNavigationRequest.toNavigationCommand(): NavigationCommand = when (this) {
+internal fun ExternalNavigationRequest.toNavigationCommand(): NavigationCommand? = when (this) {
+    is ExternalNavigationRequest.Item -> null // Requires the asynchronous catalogue resolver.
     is ExternalNavigationRequest.StremioItem -> NavigationCommand.StremioItem(route)
     is ExternalNavigationRequest.Search -> NavigationCommand.Navigate(
         destination = AppDestination.Search(query),

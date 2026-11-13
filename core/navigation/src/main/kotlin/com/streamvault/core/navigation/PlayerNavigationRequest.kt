@@ -28,5 +28,8 @@ data class PlayerNavigationRequest(
     val remoteSeriesId: String? = null,
     val stremioPlaybackReference: StremioPlaybackReference? = null,
     val stremioMediaRequestHeaders: Map<String, String> = emptyMap(),
-    val stremioInlineSubtitles: List<StremioSubtitlePlaybackSource> = emptyList()
+    val stremioInlineSubtitles: List<StremioSubtitlePlaybackSource> = emptyList(),
+    val startMode: PlaybackStartMode = PlaybackStartMode.PROMPT,
+    /** Distinguishes repeated external launches of the same item in a running player. */
+    val externalLaunchId: Long? = null
 ) : Serializable

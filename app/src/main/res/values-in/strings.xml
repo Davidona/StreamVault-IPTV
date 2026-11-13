@@ -293,4 +293,6 @@
     <string name="nav_sports">Olahraga</string>
     <string name="stremio_new_episode_channel">Notifikasi episode baru</string>
     <string name="stremio_new_episode_count">Episode baru: %1$d</string>
+    <string name="tv_channel_favorites_title">Favorit</string>
+    <string name="tv_channel_favorites_description">Saluran, film, dan serial favorit Anda</string>
 </resources>

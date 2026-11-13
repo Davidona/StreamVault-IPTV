@@ -124,6 +124,16 @@ class PlaybackHistoryRepositoryImpl @Inject constructor(
         )
     }
 
+    override suspend fun getLatestEpisodeHistoryForSeries(providerId: Long, seriesId: Long): PlaybackHistory? {
+        val persisted = dao.getLatestEpisodeHistoryForSeries(providerId, seriesId)?.toDomain()
+        val pending = pendingResumeUpdates.values.filter {
+            it.providerId == providerId && it.seriesId == seriesId && it.contentType == ContentType.SERIES_EPISODE
+        }
+        return (pending + listOfNotNull(persisted)).maxWithOrNull(
+            compareBy<PlaybackHistory> { it.lastWatchedAt }.thenBy { it.contentId }
+        )
+    }
+
     override suspend fun getPlaybackHistory(
         contentId: Long,
         contentType: ContentType,

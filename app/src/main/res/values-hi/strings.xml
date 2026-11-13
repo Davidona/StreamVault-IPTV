@@ -346,4 +346,6 @@
     <string name="nav_sports">खेल</string>
     <string name="stremio_new_episode_channel">नए एपिसोड की सूचनाएँ</string>
     <string name="stremio_new_episode_count">नए एपिसोड: %1$d</string>
+    <string name="tv_channel_favorites_title">पसंदीदा</string>
+    <string name="tv_channel_favorites_description">आपके पसंदीदा चैनल, फ़िल्में और सीरीज़</string>
 </resources>

@@ -293,4 +293,6 @@
     <string name="nav_sports">Sport</string>
     <string name="stremio_new_episode_channel">Notifikationer om nye afsnit</string>
     <string name="stremio_new_episode_count">Nye afsnit: %1$d</string>
+    <string name="tv_channel_favorites_title">Favoritter</string>
+    <string name="tv_channel_favorites_description">Dine yndlingskanaler, film og serier</string>
 </resources>

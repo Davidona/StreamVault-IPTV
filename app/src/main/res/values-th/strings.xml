@@ -346,4 +346,6 @@
     <string name="nav_sports">กีฬา</string>
     <string name="stremio_new_episode_channel">การแจ้งเตือนตอนใหม่</string>
     <string name="stremio_new_episode_count">ตอนใหม่: %1$d</string>
+    <string name="tv_channel_favorites_title">รายการโปรด</string>
+    <string name="tv_channel_favorites_description">ช่อง ภาพยนตร์ และซีรีส์โปรดของคุณ</string>
 </resources>

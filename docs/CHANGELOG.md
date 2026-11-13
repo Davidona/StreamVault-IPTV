@@ -21,6 +21,8 @@ All notable product changes are recorded in this document.
 - Added localized "Closed Captions" naming for in-band CEA-608/708 caption tracks, numbered when a stream has more than one.
 - Added per-channel M3U request headers from Kodi/Xtream-style `url|Referer=...&User-Agent=...` suffixes, plus playlist-level and per-entry `user-agent` attributes, so channels that require a Referer or custom User-Agent can open.
 - Added Stremio add-on subtitle and Cast request-header messages across all 38 advertised locales.
+- Added URI-safe deep links for movies, series, episodes and live channels, allowing Android TV launchers to open details or start playback with resume or start-over behavior. See the [external launcher integration guide](EXTERNAL_LAUNCHER_INTEGRATION.md).
+- Added a Favorites preview channel for supported movies, series and live channels, with reactive updates, saved ordering, localized metadata and links that open the selected item.
 
 ### Changed
 - Automatic sync now runs during playback and recording by default; the existing setting can still defer it, and saved preferences are preserved.

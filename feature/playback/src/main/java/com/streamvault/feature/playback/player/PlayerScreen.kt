@@ -1,5 +1,7 @@
 package com.streamvault.feature.playback.player
 
+import com.streamvault.core.navigation.PlaybackStartMode
+
 import android.view.KeyEvent
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -128,6 +130,8 @@ fun PlayerScreen(
     episodeId: Long? = null,
     remoteContentId: String? = null,
     remoteSeriesId: String? = null,
+    startMode: PlaybackStartMode = PlaybackStartMode.PROMPT,
+    externalLaunchId: Long? = null,
     stremioPlaybackReference: StremioPlaybackReference? = null,
     stremioMediaRequestHeaders: Map<String, String> = emptyMap(),
     stremioInlineSubtitles: List<StremioSubtitlePlaybackSource> = emptyList(),
@@ -384,7 +388,7 @@ fun PlayerScreen(
         stremioInlineSubtitles = stremioInlineSubtitles
     )
 
-    LaunchedEffect(prepareIdentity) {
+    LaunchedEffect(prepareIdentity, startMode, externalLaunchId) {
         viewModel.prepare(
             streamUrl = streamUrl,
             epgChannelId = epgChannelId,
@@ -406,6 +410,7 @@ fun PlayerScreen(
             episodeId = episodeId,
             remoteContentId = remoteContentId,
             remoteSeriesId = remoteSeriesId,
+            startMode = startMode,
             stremioPlaybackReference = stremioPlaybackReference,
             stremioMediaRequestHeaders = stremioMediaRequestHeaders,
             stremioInlineSubtitles = stremioInlineSubtitles

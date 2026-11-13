@@ -3,6 +3,7 @@ package com.streamvault.feature.playback.player
 import android.net.Uri
 import android.os.SystemClock
 import com.streamvault.core.navigation.StremioPlaybackReference
+import com.streamvault.core.navigation.PlaybackStartMode
 import com.streamvault.core.navigation.StremioSubtitlePlaybackSource
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -1646,10 +1647,12 @@ class PlayerViewModel @Inject constructor(
         remoteContentId: String? = null,
         remoteSeriesId: String? = null,
         showResumePrompt: Boolean = true,
+        startMode: PlaybackStartMode = PlaybackStartMode.PROMPT,
         stremioPlaybackReference: StremioPlaybackReference? = null,
         stremioMediaRequestHeaders: Map<String, String> = emptyMap(),
         stremioInlineSubtitles: List<StremioSubtitlePlaybackSource> = emptyList()
     ) {
+        _resumePrompt.value = ResumePromptState()
         val hasArchiveRequest = hasArchivePlaybackIdentity(
             contentType = contentType,
             archiveStartMs = archiveStartMs,
@@ -1809,7 +1812,7 @@ class PlayerViewModel @Inject constructor(
                 // Check for resume position after the player is fully prepared (VOD only).
                 // Doing this after preparePlayer ensures pause() acts on the live player instance,
                 // not a stale one that may have already been replaced by prepareInternal().
-                if (showResumePrompt && currentContentType != ContentType.LIVE) {
+                if (showResumePrompt && startMode != PlaybackStartMode.START_OVER && currentContentType != ContentType.LIVE) {
                     val reference = currentStremioPlaybackReference
                     val contentKey = reference?.let {
                         stremioPlaybackContentKey(
@@ -1837,16 +1840,19 @@ class PlayerViewModel @Inject constructor(
                     val resumePosition = stremioHistory?.takeUnless { it.watched }?.resumePositionMs
                         ?: providerHistory?.resumePositionMs
                     val resumeDuration = stremioHistory?.totalDurationMs ?: providerHistory?.totalDurationMs
-                    if (isActivePlaybackSession(requestVersion, playbackLogicalUrl) &&
-                        resumePosition != null && resumeDuration != null && resumePosition > 5000L &&
-                        !isPlaybackComplete(resumePosition, resumeDuration)
-                    ) {
-                        playerEngine.pause()
-                        _resumePrompt.value = ResumePromptState(
-                            show = true,
-                            positionMs = resumePosition,
-                            title = currentTitle
-                        )
+                    if (isActivePlaybackSession(requestVersion, playbackLogicalUrl)) {
+                        when (val action = playbackResumeAction(startMode, resumePosition, resumeDuration)) {
+                            PlaybackResumeAction.None -> Unit
+                            is PlaybackResumeAction.Seek -> playerEngine.seekTo(action.positionMs)
+                            is PlaybackResumeAction.Prompt -> {
+                                playerEngine.pause()
+                                _resumePrompt.value = ResumePromptState(
+                                    show = true,
+                                    positionMs = action.positionMs,
+                                    title = currentTitle
+                                )
+                            }
+                        }
                     }
                 }
             }

@@ -5,7 +5,8 @@ import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
+import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.toBitmap
 import android.media.tv.TvContract
 import android.net.Uri
 import android.os.Build
@@ -15,9 +16,10 @@ import androidx.annotation.RequiresApi
 import com.streamvault.app.MainActivity
 import com.streamvault.app.R
 import com.streamvault.app.device.isTelevisionDevice
-import com.streamvault.core.navigation.AppDestination
-import com.streamvault.core.navigation.PlayerNavigationRequest
-import com.streamvault.app.navigation.toPlayerNavigationRequest
+import com.streamvault.app.navigation.ExternalItemLinkCodec
+import com.streamvault.core.navigation.ExternalItemAction
+import com.streamvault.core.navigation.ExternalItemLink
+import com.streamvault.core.navigation.ExternalItemType
 import com.streamvault.domain.model.ActiveLiveSource
 import com.streamvault.domain.model.ContentType
 import com.streamvault.domain.model.PlaybackHistory
@@ -40,6 +42,15 @@ import kotlinx.coroutines.withContext
 import java.io.OutputStream
 import javax.inject.Inject
 import javax.inject.Singleton
+import dagger.Lazy
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.collectLatest
 
 @Singleton
 class LauncherRecommendationsManager @Inject constructor(
@@ -48,11 +59,80 @@ class LauncherRecommendationsManager @Inject constructor(
     private val combinedM3uRepository: CombinedM3uRepository,
     private val playbackHistoryRepository: PlaybackHistoryRepository,
     movieRepository: MovieRepository,
-    private val seriesRepository: SeriesRepository
+    private val seriesRepository: SeriesRepository,
+    private val favoritesSource: Lazy<LauncherFavoritesSource>
 ) {
     private val getRecommendations = GetRecommendations(movieRepository)
     private val getContinueWatching = GetContinueWatching(playbackHistoryRepository)
     private val refreshMutex = Mutex()
+    private var favoritesLogoChannelId: Long? = null
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    @OptIn(FlowPreview::class)
+    private val favoritesObservation by lazy {
+        scope.launch {
+            while (true) {
+                try {
+                    favoritesSource.get().observe().debounce(300).collectLatest(::syncFavorites)
+                    break
+                } catch (cancelled: CancellationException) {
+                    throw cancelled
+                } catch (cause: Exception) {
+                    // Fail closed: stale public metadata must not survive unreadable privacy state.
+                    try { syncFavorites(LauncherFavoritesSnapshot(null, emptyList())) }
+                    catch (cancelled: CancellationException) { throw cancelled }
+                    catch (_: Exception) { /* Retry the provider write with the next observation. */ }
+                    Log.w(TAG, "Favorites observation failed: ${cause.javaClass.simpleName}")
+                    delay(5_000)
+                }
+            }
+        }
+    }
+
+    fun startObservingFavorites() {
+        if (context.isTelevisionDevice() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            favoritesObservation.start()
+        }
+    }
+
+    suspend fun refreshFavorites() = withContext(Dispatchers.IO) {
+        if (!context.isTelevisionDevice() || Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return@withContext
+        startObservingFavorites()
+        syncFavorites(favoritesSource.get().observe().first())
+    }
+
+    private suspend fun syncFavorites(snapshot: LauncherFavoritesSnapshot) = refreshMutex.withLock {
+        // Source snapshots can be queued while a provider switch is being processed.
+        val activeId = providerRepository.getActiveProvider().first()?.id
+        if (snapshot.providerId != null && snapshot.providerId != activeId) return@withLock
+        val existing = loadExistingChannels(setOf(CHANNEL_FAVORITES))[CHANNEL_FAVORITES]
+        if (snapshot.items.isEmpty() && existing == null) return@withLock
+        val spec = RecommendationChannelSpec(CHANNEL_FAVORITES,
+            context.getString(R.string.tv_channel_favorites_title),
+            context.getString(R.string.tv_channel_favorites_description),
+            snapshot.items.mapIndexed { index, item -> RecommendationProgramSpec(
+                key = "favorite:${item.link.providerId}:${item.link.type.path}:${item.link.id}",
+                title = item.title,
+                description = context.getString(R.string.tv_channel_favorites_description),
+                posterArtUri = artworkUri(item.posterUrl),
+                intentUri = ExternalItemLinkCodec.intent(context, item.link).toUri(Intent.URI_INTENT_SCHEME),
+                weight = LauncherFavoritesSource.MAX_ITEMS - index,
+                durationMillis = item.durationMs,
+                playbackPositionMillis = item.positionMs,
+                contentType = when (item.link.type) {
+                    ExternalItemType.MOVIE -> ContentType.MOVIE
+                    ExternalItemType.SERIES -> ContentType.SERIES
+                    else -> ContentType.LIVE
+                }
+            ) })
+        val channelId = existing ?: insertChannel(spec) ?: return@withLock
+        if (favoritesLogoChannelId != channelId && updateChannelLogo(channelId)) favoritesLogoChannelId = channelId
+        updateChannel(channelId, spec)
+        syncPrograms(channelId, spec)
+        // Additional channels are enabled by the viewer in their launcher's channel controls.
+        if (providerRepository.getActiveProvider().first()?.id != snapshot.providerId) {
+            syncPrograms(channelId, spec.copy(programs = emptyList()))
+        }
+    }
     @Volatile
     private var lastRefreshAtMs: Long = 0L
 
@@ -60,6 +140,9 @@ class LauncherRecommendationsManager @Inject constructor(
         if (!context.isTelevisionDevice()) return@withContext
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return@withContext
 
+        try { refreshFavorites() }
+        catch (cancelled: CancellationException) { throw cancelled }
+        catch (cause: Exception) { Log.w(TAG, "Favorites refresh failed: ${cause.javaClass.simpleName}") }
         refreshMutex.withLock {
             val now = System.currentTimeMillis()
             if (!force && lastRefreshAtMs > 0L && now - lastRefreshAtMs < MIN_REFRESH_INTERVAL_MS) {
@@ -136,13 +219,14 @@ class LauncherRecommendationsManager @Inject constructor(
         val continueWatching = when (val result = getContinueWatching(provider.id, limit = 12, requireResumePosition = true).first()) {
             is ContinueWatchingResult.Items -> result.items
             ContinueWatchingResult.Degraded -> emptyList()
-        }.map { history ->
+        }.mapNotNull { history ->
+                val link = ExternalItemLinkCodec.historyLink(history) ?: return@mapNotNull null
                 RecommendationProgramSpec(
                     key = "cw:${history.contentType.name}:${history.contentId}",
                     title = history.title,
                     description = context.getString(R.string.saved_preset_watch_next),
                     posterArtUri = artworkUri(history.posterUrl),
-                    intentUri = buildPlayerIntent(history.toPlayerNavigationRequest()).toUri(Intent.URI_INTENT_SCHEME),
+                    intentUri = ExternalItemLinkCodec.intent(context, link).toUri(Intent.URI_INTENT_SCHEME),
                     weight = history.lastWatchedAt.toInt().coerceAtLeast(0),
                     durationMillis = history.totalDurationMs,
                     playbackPositionMillis = history.resumePositionMs,
@@ -161,17 +245,9 @@ class LauncherRecommendationsManager @Inject constructor(
                         title = movie.name,
                         description = movie.plot ?: movie.genre ?: provider.name,
                         posterArtUri = artworkUri(movie.posterUrl ?: movie.backdropUrl),
-                        intentUri = buildPlayerIntent(
-                            PlayerNavigationRequest(
-                                streamUrl = movie.streamUrl,
-                                title = movie.name,
-                                internalId = movie.id,
-                                categoryId = movie.categoryId,
-                                providerId = movie.providerId,
-                                contentType = ContentType.MOVIE.name,
-                                artworkUrl = movie.posterUrl ?: movie.backdropUrl
-                            )
-                        ).toUri(Intent.URI_INTENT_SCHEME),
+                        intentUri = ExternalItemLinkCodec.intent(context, ExternalItemLink(
+                            ExternalItemType.MOVIE, movie.id, movie.providerId, ExternalItemAction.PLAY
+                        )).toUri(Intent.URI_INTENT_SCHEME),
                         weight = (TOP_MOVIE_WEIGHT_BASE - index).coerceAtLeast(0),
                         durationMillis = movie.durationSeconds.toLong() * 1000L,
                         playbackPositionMillis = movie.watchProgress,
@@ -194,9 +270,9 @@ class LauncherRecommendationsManager @Inject constructor(
                     title = series.name,
                     description = series.plot ?: series.genre ?: provider.name,
                     posterArtUri = artworkUri(series.posterUrl ?: series.backdropUrl),
-                    intentUri = buildDestinationIntent(
-                        AppDestination.SeriesDetail(series.id)
-                    ).toUri(Intent.URI_INTENT_SCHEME),
+                    intentUri = ExternalItemLinkCodec.intent(context, ExternalItemLink(
+                        ExternalItemType.SERIES, series.id, series.providerId, ExternalItemAction.DETAILS
+                    )).toUri(Intent.URI_INTENT_SCHEME),
                     weight = (FRESH_SERIES_WEIGHT_BASE - index).coerceAtLeast(0),
                     durationMillis = 0L,
                     playbackPositionMillis = 0L,
@@ -228,7 +304,7 @@ class LauncherRecommendationsManager @Inject constructor(
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    private fun loadExistingChannels(): Map<String, Long> {
+    private fun loadExistingChannels(managedKeys: Set<String> = MANAGED_CHANNEL_KEYS): Map<String, Long> {
         val projection = arrayOf(
             BaseColumns._ID,
             CHANNEL_COLUMN_TYPE,
@@ -248,7 +324,7 @@ class LauncherRecommendationsManager @Inject constructor(
                 while (cursor.moveToNext()) {
                     val type = cursor.getString(typeIndex)
                     val key = cursor.getString(keyIndex)
-                    if (type == TvContract.Channels.TYPE_PREVIEW && key in MANAGED_CHANNEL_KEYS) {
+                    if (type == TvContract.Channels.TYPE_PREVIEW && key in managedKeys) {
                         put(key, cursor.getLong(idIndex))
                     }
                 }
@@ -333,6 +409,7 @@ class LauncherRecommendationsManager @Inject constructor(
         put(CHANNEL_COLUMN_DESCRIPTION, spec.description)
         put(CHANNEL_COLUMN_INTERNAL_PROVIDER_ID, spec.key)
         put(CHANNEL_COLUMN_APP_LINK_INTENT_URI, buildBrowseIntent().toUri(Intent.URI_INTENT_SCHEME))
+        put("searchable", 1)
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -343,6 +420,7 @@ class LauncherRecommendationsManager @Inject constructor(
         put(PREVIEW_COLUMN_DESCRIPTION, spec.description)
         put(PREVIEW_COLUMN_POSTER_ART_URI, spec.posterArtUri.toString())
         put(PREVIEW_COLUMN_INTENT_URI, spec.intentUri)
+        put("searchable", 1)
         put(PREVIEW_COLUMN_WEIGHT, spec.weight)
         put(PREVIEW_COLUMN_INTERNAL_PROVIDER_ID, spec.key)
         put(PREVIEW_COLUMN_LAST_PLAYBACK_POSITION_MILLIS, spec.playbackPositionMillis)
@@ -358,20 +436,11 @@ class LauncherRecommendationsManager @Inject constructor(
         ContentType.LIVE -> TvContract.PreviewPrograms.TYPE_CLIP
     }
 
-    private fun buildPlayerIntent(request: PlayerNavigationRequest): Intent =
-        Intent(context, MainActivity::class.java)
-            .setAction(Intent.ACTION_VIEW)
-            .putExtra(MainActivity.EXTRA_PLAYER_REQUEST, request)
-            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
-
-    private fun buildDestinationIntent(destination: AppDestination): Intent =
-        Intent(context, MainActivity::class.java)
-            .setAction(Intent.ACTION_VIEW)
-            .putExtra(MainActivity.EXTRA_EXTERNAL_DESTINATION, destination)
-            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
-
     private fun buildBrowseIntent(): Intent =
-        buildDestinationIntent(AppDestination.Home)
+        Intent(context, MainActivity::class.java)
+            .setAction(Intent.ACTION_VIEW)
+            .putExtra(MainActivity.EXTRA_EXTERNAL_ROUTE, "home")
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun requestChannelBrowsable(channelId: Long) {
@@ -382,17 +451,18 @@ class LauncherRecommendationsManager @Inject constructor(
         }
     }
 
-    private fun updateChannelLogo(channelId: Long) {
+    private fun updateChannelLogo(channelId: Long): Boolean =
         runCatching {
-            context.contentResolver.openOutputStream(TvContract.buildChannelLogoUri(channelId), "w")
-                ?.use(::writeDefaultLogo)
+            val output = context.contentResolver.openOutputStream(TvContract.buildChannelLogoUri(channelId), "w")
+                ?: return@runCatching false
+            output.use(::writeDefaultLogo)
+            true
         }.onFailure { throwable ->
             Log.w(TAG, "Unable to write channel logo for $channelId", throwable)
-        }
-    }
+        }.getOrDefault(false)
 
     private fun writeDefaultLogo(stream: OutputStream) {
-        val bitmap = BitmapFactory.decodeResource(context.resources, R.mipmap.ic_launcher)
+        val bitmap = requireNotNull(ContextCompat.getDrawable(context, R.mipmap.ic_launcher)).toBitmap()
         bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)
     }
 
@@ -443,6 +513,7 @@ class LauncherRecommendationsManager @Inject constructor(
         const val CHANNEL_CONTINUE_WATCHING = "streamvault_continue_watching"
         const val CHANNEL_TOP_MOVIES = "streamvault_top_movies"
         const val CHANNEL_FRESH_SERIES = "streamvault_fresh_series"
+        const val CHANNEL_FAVORITES = "streamvault_favorites"
         val MANAGED_CHANNEL_KEYS = setOf(
             CHANNEL_CONTINUE_WATCHING,
             CHANNEL_TOP_MOVIES,
