@@ -10,6 +10,9 @@ All notable product changes are recorded in this document.
 - Added encrypted webhook configuration excluded from backups, independent destination delivery, expiring real-time updates and recoverable history delivery with bounded retries.
 - Added native JSON for home automation and custom receivers, plus Jellyfin and Yamtrack payload formats. Yamtrack episodes require actual episode IMDb/TVDB IDs; standalone Watcharr integration is not supported. See the [playback webhook guide](PLAYBACK_WEBHOOKS.md) for setup and receiver limitations.
 
+### Changed
+- Moved Adjust EPG Match from Guide Options into the TV Guide channel long-press menu, where it applies to the selected channel.
+
 ## [1.2.5]
 
 ### Added

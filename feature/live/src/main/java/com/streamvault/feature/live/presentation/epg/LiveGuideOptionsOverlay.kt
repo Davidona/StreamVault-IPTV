@@ -34,7 +34,6 @@ data class LiveGuideOptionsLabels(
     val title: String,
     val showAppNavigation: String,
     val cancel: String,
-    val manageEpgMatch: String,
     val refreshGuide: String
 )
 
@@ -104,8 +103,7 @@ fun LiveGuideOptionsOverlay(
     onDensitySelected: (GuideDensity) -> Unit,
     onToggleScheduledOnly: () -> Unit,
     onToggleFavoritesOnly: () -> Unit,
-    onRefresh: () -> Unit,
-    onManageEpgMatch: (() -> Unit)? = null
+    onRefresh: () -> Unit
 ) {
     val optionsFocusRequester = remember { FocusRequester() }
     LaunchedEffect(Unit) {
@@ -196,12 +194,6 @@ fun LiveGuideOptionsOverlay(
                         .padding(horizontal = 24.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)
                 ) {
-                    if (onManageEpgMatch != null) {
-                        LiveGuideShortcutChip(
-                            label = labels.manageEpgMatch,
-                            onClick = onManageEpgMatch
-                        )
-                    }
                     LiveGuideShortcutChip(
                         label = labels.refreshGuide,
                         onClick = onRefresh
