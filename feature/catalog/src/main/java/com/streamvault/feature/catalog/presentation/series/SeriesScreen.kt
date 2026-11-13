@@ -1,5 +1,6 @@
 ﻿package com.streamvault.feature.catalog.presentation.series
 
+import com.streamvault.core.ui.design.BrowseColors
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -22,7 +23,6 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.tv.material3.*
 import androidx.compose.ui.layout.ContentScale
 import coil3.compose.AsyncImage
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -183,10 +183,10 @@ fun SeriesScreen(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    CircularProgressIndicator(color = Color.White)
+                    CircularProgressIndicator(color = BrowseColors.Brand)
                     Text(
                         text = stringResource(R.string.series_loading),
-                        color = Color.White.copy(alpha = 0.7f)
+                        color = BrowseColors.TextSecondary
                     )
                 }
             }
@@ -830,7 +830,7 @@ private fun SeriesVodContent(
                             .padding(vertical = 24.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        CircularProgressIndicator(color = Color.White, modifier = Modifier.size(32.dp))
+                        CircularProgressIndicator(color = BrowseColors.Brand, modifier = Modifier.size(32.dp))
                     }
                 }
             }
@@ -999,10 +999,10 @@ private fun SeriesVodContent(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
-                        CircularProgressIndicator(color = Color.White)
+                        CircularProgressIndicator(color = BrowseColors.Brand)
                         Text(
                             text = stringResource(R.string.series_loading),
-                            color = Color.White.copy(alpha = 0.7f)
+                            color = BrowseColors.TextSecondary
                         )
                     }
                 }
@@ -1462,7 +1462,7 @@ private fun SeriesVodClassicContent(
                                 .height(320.dp),
                             contentAlignment = Alignment.Center
                         ) {
-                            CircularProgressIndicator(color = Color.White)
+                            CircularProgressIndicator(color = BrowseColors.Brand)
                         }
                     }
                 } else if (filteredGridSeries.isEmpty()) {

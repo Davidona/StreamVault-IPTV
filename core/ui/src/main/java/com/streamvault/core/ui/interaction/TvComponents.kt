@@ -1,5 +1,6 @@
 package com.streamvault.core.ui.interaction
 
+import com.streamvault.core.ui.design.selectableFocusBorder
 import android.view.KeyEvent
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -29,10 +30,11 @@ import androidx.tv.material3.IconButton
 import androidx.tv.material3.IconButtonDefaults
 import androidx.tv.material3.Surface
 import com.streamvault.core.ui.design.AppColors
-import com.streamvault.core.ui.design.contentOnColor
 import com.streamvault.core.ui.design.BrowseColors
 import com.streamvault.core.ui.design.BrowseShapes
 import com.streamvault.core.ui.design.LocalBrowseVisuals
+import com.streamvault.core.ui.design.focusRingButtonBorder
+import com.streamvault.core.ui.design.secondaryButtonColors
 import androidx.compose.ui.unit.dp
 
 /**
@@ -52,10 +54,7 @@ fun TvClickableSurface(
         contentColor = BrowseColors.TextPrimary,
         focusedContentColor = BrowseColors.TextPrimary,
     ) else ClickableSurfaceDefaults.colors(),
-    border: ClickableSurfaceBorder = if (LocalBrowseVisuals.current) ClickableSurfaceDefaults.border(
-        border = Border(BorderStroke(1.dp, BrowseColors.Outline), shape = BrowseShapes.Control),
-        focusedBorder = Border(BorderStroke(2.dp, BrowseColors.Focus), shape = BrowseShapes.Control),
-    ) else ClickableSurfaceDefaults.border(),
+    border: ClickableSurfaceBorder = if (LocalBrowseVisuals.current) selectableFocusBorder(BrowseShapes.Control) else ClickableSurfaceDefaults.border(),
     scale: ClickableSurfaceScale = if (LocalBrowseVisuals.current) ClickableSurfaceDefaults.scale(focusedScale = 1.035f) else ClickableSurfaceDefaults.scale(),
     glow: ClickableSurfaceGlow = ClickableSurfaceDefaults.glow(),
     interactionSource: MutableInteractionSource? = null,
@@ -106,16 +105,8 @@ fun TvButton(
     glow: ButtonGlow = ButtonDefaults.glow(),
     interactionSource: MutableInteractionSource? = null,
     shape: ButtonShape = if (LocalBrowseVisuals.current) ButtonDefaults.shape(BrowseShapes.Control) else ButtonDefaults.shape(),
-    colors: ButtonColors = if (LocalBrowseVisuals.current) ButtonDefaults.colors(
-        containerColor = BrowseColors.Brand.copy(alpha = 0.14f),
-        contentColor = BrowseColors.TextPrimary,
-        focusedContainerColor = BrowseColors.BrandStrong,
-        focusedContentColor = contentOnColor(BrowseColors.BrandStrong),
-    ) else ButtonDefaults.colors(),
-    border: ButtonBorder = if (LocalBrowseVisuals.current) ButtonDefaults.border(
-        border = Border(BorderStroke(1.dp, BrowseColors.Outline), shape = BrowseShapes.Control),
-        focusedBorder = Border(BorderStroke(2.dp, BrowseColors.Focus), shape = BrowseShapes.Control),
-    ) else ButtonDefaults.border(),
+    colors: ButtonColors = if (LocalBrowseVisuals.current) secondaryButtonColors() else ButtonDefaults.colors(),
+    border: ButtonBorder = if (LocalBrowseVisuals.current) focusRingButtonBorder(BrowseShapes.Control) else ButtonDefaults.border(),
     contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
     content: @Composable RowScope.() -> Unit,
 ) {

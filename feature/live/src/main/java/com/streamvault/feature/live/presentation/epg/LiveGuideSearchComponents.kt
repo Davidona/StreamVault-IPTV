@@ -1,7 +1,9 @@
 package com.streamvault.feature.live.presentation.epg
 
+import com.streamvault.core.ui.design.selectableFocusBorder
+import com.streamvault.core.ui.design.BrowseShapes
+import com.streamvault.core.ui.design.BrowseColors
 import android.view.inputmethod.InputMethodManager
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,7 +16,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.relocation.bringIntoViewRequester
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -45,19 +46,14 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.tv.material3.Border
 import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.streamvault.core.ui.device.rememberIsTelevisionDevice
 import com.streamvault.core.ui.components.handleTvSearchKey
 import com.streamvault.core.ui.interaction.TvClickableSurface
-import com.streamvault.core.ui.design.browse.FocusBorder
-import com.streamvault.core.ui.design.browse.OnSurface
 import com.streamvault.core.ui.design.browse.OnSurfaceDim
 import com.streamvault.core.ui.design.browse.Primary
-import com.streamvault.core.ui.design.browse.SurfaceElevated
-import com.streamvault.core.ui.design.browse.SurfaceHighlight
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -259,18 +255,13 @@ fun LiveGuideSearchField(
             .bringIntoViewRequester(bringIntoViewRequester)
             .onFocusChanged { hasContainerFocus = it.isFocused },
         colors = ClickableSurfaceDefaults.colors(
-            containerColor = if (isFocused) SurfaceHighlight else SurfaceElevated,
-            focusedContainerColor = SurfaceHighlight,
-            contentColor = OnSurface,
-            focusedContentColor = OnSurface
+            containerColor = BrowseColors.ControlContainer,
+            focusedContainerColor = BrowseColors.ControlContainer,
+            contentColor = BrowseColors.TextPrimary,
+            focusedContentColor = BrowseColors.TextPrimary
         ),
-        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(10.dp)),
-        border = ClickableSurfaceDefaults.border(
-            focusedBorder = Border(
-                border = BorderStroke(2.dp, FocusBorder),
-                shape = RoundedCornerShape(10.dp)
-            )
-        )
+        shape = ClickableSurfaceDefaults.shape(BrowseShapes.Control),
+        border = selectableFocusBorder(BrowseShapes.Control)
     ) {
         Row(
             modifier = Modifier
@@ -282,7 +273,7 @@ fun LiveGuideSearchField(
             androidx.tv.material3.Icon(
                 imageVector = Icons.Default.Search,
                 contentDescription = null,
-                tint = if (isFocused) Primary else OnSurfaceDim
+                tint = BrowseColors.TextSecondary
             )
             Box(
                 modifier = Modifier.weight(1f),
@@ -292,7 +283,7 @@ fun LiveGuideSearchField(
                     Text(
                         text = placeholder,
                         style = MaterialTheme.typography.bodySmall,
-                        color = OnSurfaceDim,
+                        color = BrowseColors.TextSecondary,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -333,7 +324,7 @@ fun LiveGuideSearchField(
                                 keyboardController?.hide()
                             }
                         },
-                    textStyle = MaterialTheme.typography.bodySmall.copy(color = OnSurface),
+                    textStyle = MaterialTheme.typography.bodySmall.copy(color = BrowseColors.TextPrimary),
                     singleLine = true,
                     cursorBrush = SolidColor(Primary),
                     readOnly = isTelevisionDevice && !acceptsInput,

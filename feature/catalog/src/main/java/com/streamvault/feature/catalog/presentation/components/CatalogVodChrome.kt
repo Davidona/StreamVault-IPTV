@@ -1,5 +1,6 @@
 ﻿package com.streamvault.feature.catalog.presentation.components
 
+import com.streamvault.core.ui.design.selectableFocusBorder
 import com.streamvault.core.ui.design.contentOnColor
 import com.streamvault.core.ui.design.BrowseShapes
 import androidx.compose.foundation.layout.Arrangement
@@ -102,7 +103,6 @@ fun VodActionChipRow(
         chipHorizontalPadding = 14,
         supportingTextStyle = MaterialTheme.typography.labelSmall,
         supportingTextMaxLines = 1,
-        focusedContainerBoostWhenSelected = true,
         firstItemFocusRequester = firstActionFocusRequester
     )
 }
@@ -123,15 +123,12 @@ fun VodHeroStrip(
             .then(if (isPortraitLayout()) Modifier else Modifier.height(132.dp)),
         shape = ClickableSurfaceDefaults.shape(BrowseShapes.Panel),
         colors = ClickableSurfaceDefaults.colors(
-            containerColor = SurfaceHighlight,
-            focusedContainerColor = Primary.copy(alpha = 0.22f)
+            containerColor = AppColors.SurfaceElevated,
+            contentColor = AppColors.TextPrimary,
+            focusedContainerColor = AppColors.SurfaceAccent,
+            focusedContentColor = AppColors.TextPrimary
         ),
-        border = ClickableSurfaceDefaults.border(
-            focusedBorder = Border(
-                border = BorderStroke(2.dp, FocusBorder),
-                shape = BrowseShapes.Panel
-            )
-        ),
+        border = selectableFocusBorder(BrowseShapes.Panel),
         scale = ClickableSurfaceDefaults.scale(focusedScale = 1f)
     ) {
         AdaptiveRow(
@@ -155,7 +152,7 @@ fun VodHeroStrip(
                 Text(
                     text = subtitle,
                     style = MaterialTheme.typography.bodySmall,
-                    color = OnSurfaceDim,
+                    color = AppColors.TextSecondary,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )

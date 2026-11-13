@@ -1,7 +1,9 @@
 ﻿package com.streamvault.feature.catalog.presentation.components
 
+import androidx.compose.ui.graphics.Color
+import com.streamvault.core.ui.design.BrowseColors
+import com.streamvault.core.ui.design.selectableFocusBorder
 import com.streamvault.core.ui.design.BrowseShapes
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -24,17 +26,11 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.selected
-import androidx.tv.material3.Border
 import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
-import com.streamvault.core.ui.design.browse.FocusBorder
-import com.streamvault.core.ui.design.browse.OnSurface
 import com.streamvault.core.ui.design.browse.OnSurfaceDim
-import com.streamvault.core.ui.design.browse.Primary
-import com.streamvault.core.ui.design.browse.SurfaceElevated
-import com.streamvault.core.ui.design.browse.SurfaceHighlight
 import com.streamvault.core.ui.interaction.mouseClickable
 import com.streamvault.core.ui.interaction.rememberTvInteractionSounds
 
@@ -63,7 +59,6 @@ fun ChipRowSection(
     chipHorizontalPadding: Int = 16,
     supportingTextStyle: TextStyle = MaterialTheme.typography.bodySmall,
     supportingTextMaxLines: Int = Int.MAX_VALUE,
-    focusedContainerBoostWhenSelected: Boolean = false,
     firstItemFocusRequester: FocusRequester? = null
 ) {
     if (chips.isEmpty()) return
@@ -131,19 +126,15 @@ fun ChipRowSection(
                             wasFocused = it.isFocused
                         }
                         .semantics(mergeDescendants = true) { selected = isSelected },
+                    // Secondary control: filled at rest, no stroke. Selected keeps its fill when focused; the ring carries focus.
                     colors = ClickableSurfaceDefaults.colors(
-                        containerColor = if (isSelected) Primary.copy(alpha = 0.18f) else SurfaceElevated,
-                        focusedContainerColor = if (isSelected && focusedContainerBoostWhenSelected) Primary.copy(alpha = 0.28f) else SurfaceHighlight,
-                        contentColor = if (isSelected) Primary else OnSurface,
-                        focusedContentColor = OnSurface
+                        containerColor = if (isSelected) BrowseColors.SelectedContainer else BrowseColors.ControlContainer,
+                        focusedContainerColor = if (isSelected) BrowseColors.SelectedContainer else BrowseColors.SurfaceAccent,
+                        contentColor = if (isSelected) BrowseColors.OnSelectedContainer else BrowseColors.TextPrimary,
+                        focusedContentColor = if (isSelected) BrowseColors.OnSelectedContainer else BrowseColors.TextPrimary
                     ),
                     shape = ClickableSurfaceDefaults.shape(BrowseShapes.Control),
-                    border = ClickableSurfaceDefaults.border(
-                        focusedBorder = Border(
-                            border = BorderStroke(2.dp, FocusBorder),
-                            shape = BrowseShapes.Control
-                        )
-                    ),
+                    border = selectableFocusBorder(BrowseShapes.Control),
                     scale = ClickableSurfaceDefaults.scale(focusedScale = 1f)
                 ) {
                     Column(
@@ -160,7 +151,7 @@ fun ChipRowSection(
                             Text(
                                 text = it,
                                 style = supportingTextStyle,
-                                color = OnSurfaceDim,
+                                color = if (isSelected || wasFocused) Color.Unspecified else BrowseColors.TextSecondary,
                                 maxLines = supportingTextMaxLines,
                                 overflow = TextOverflow.Ellipsis
                             )
