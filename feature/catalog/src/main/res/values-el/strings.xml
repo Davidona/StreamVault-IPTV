@@ -367,4 +367,13 @@
 <string name="trakt_rating_saved">Η βαθμολογία σας αποθηκεύτηκε στο Trakt.</string>
 <string name="trakt_rating_failed">Δεν ήταν δυνατή η αποθήκευση της βαθμολογίας σας στο Trakt.</string>
 <string name="trakt_favorite_sync_failed">Το StreamVault αποθήκευσε την αλλαγή, αλλά δεν μπόρεσε να ενημερώσει τα αγαπημένα του Trakt. Δοκιμάστε ξανά.</string>
+
+  <string name="movies_group_created">Δημιουργήθηκε η ομάδα %1$s</string>
+  <string name="series_group_created">Δημιουργήθηκε η ομάδα %1$s</string>
+  <string name="movies_group_name_invalid">Εισαγάγετε όνομα ομάδας</string>
+  <string name="series_group_name_invalid">Εισαγάγετε όνομα ομάδας</string>
+  <string name="movies_group_name_reserved">Το Favorites είναι δεσμευμένο</string>
+  <string name="series_group_name_reserved">Το Favorites είναι δεσμευμένο</string>
+  <string name="movies_group_name_duplicate">Υπάρχει ήδη ομάδα ταινιών με αυτό το όνομα</string>
+  <string name="series_group_name_duplicate">Υπάρχει ήδη ομάδα σειρών με αυτό το όνομα</string>
 </resources>

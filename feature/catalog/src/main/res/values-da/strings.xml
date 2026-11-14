@@ -367,4 +367,13 @@
 <string name="trakt_rating_saved">Din bedømmelse blev gemt på Trakt.</string>
 <string name="trakt_rating_failed">Kunne ikke gemme din bedømmelse på Trakt.</string>
 <string name="trakt_favorite_sync_failed">StreamVault gemte ændringen, men kunne ikke opdatere Trakt-favoritter. Prøv igen.</string>
+
+  <string name="movies_group_created">Oprettet gruppe %1$s</string>
+  <string name="series_group_created">Oprettet gruppe %1$s</string>
+  <string name="movies_group_name_invalid">Indtast et gruppenavn</string>
+  <string name="series_group_name_invalid">Indtast et gruppenavn</string>
+  <string name="movies_group_name_reserved">Favoritter er reserveret</string>
+  <string name="series_group_name_reserved">Favoritter er reserveret</string>
+  <string name="movies_group_name_duplicate">Der findes allerede en filmgruppe med det navn</string>
+  <string name="series_group_name_duplicate">Der findes allerede en seriegruppe med det navn</string>
 </resources>

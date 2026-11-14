@@ -367,4 +367,13 @@
 <string name="trakt_rating_saved">Đã lưu điểm của bạn vào Trakt.</string>
 <string name="trakt_rating_failed">Không thể lưu điểm của bạn vào Trakt.</string>
 <string name="trakt_favorite_sync_failed">StreamVault đã lưu thay đổi nhưng không thể cập nhật Mục yêu thích Trakt. Hãy thử lại.</string>
+
+  <string name="movies_group_created">Đã tạo nhóm %1$s</string>
+  <string name="series_group_created">Đã tạo nhóm %1$s</string>
+  <string name="movies_group_name_invalid">Nhập tên nhóm</string>
+  <string name="series_group_name_invalid">Nhập tên nhóm</string>
+  <string name="movies_group_name_reserved">Favorites là tên dành riêng</string>
+  <string name="series_group_name_reserved">Favorites là tên dành riêng</string>
+  <string name="movies_group_name_duplicate">Đã tồn tại nhóm phim với tên đó</string>
+  <string name="series_group_name_duplicate">Đã tồn tại nhóm series với tên đó</string>
 </resources>

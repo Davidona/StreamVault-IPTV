@@ -367,4 +367,13 @@
 <string name="trakt_rating_saved">Hodnocení bylo uloženo do Traktu.</string>
 <string name="trakt_rating_failed">Hodnocení se nepodařilo uložit do Traktu.</string>
 <string name="trakt_favorite_sync_failed">StreamVault změnu uložil, ale nepodařilo se aktualizovat Oblíbené na Traktu. Zkuste to znovu.</string>
+
+  <string name="movies_group_created">Vytvořená skupina %1$s</string>
+  <string name="series_group_created">Vytvořená skupina %1$s</string>
+  <string name="movies_group_name_invalid">Zadejte název skupiny</string>
+  <string name="series_group_name_invalid">Zadejte název skupiny</string>
+  <string name="movies_group_name_reserved">Oblíbené je rezervováno</string>
+  <string name="series_group_name_reserved">Oblíbené je rezervováno</string>
+  <string name="movies_group_name_duplicate">Skupina filmů s tímto názvem už existuje</string>
+  <string name="series_group_name_duplicate">Skupina seriálů s tímto názvem už existuje</string>
 </resources>

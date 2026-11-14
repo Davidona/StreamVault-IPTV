@@ -367,4 +367,13 @@
 <string name="trakt_rating_saved">La tua valutazione è stata salvata su Trakt.</string>
 <string name="trakt_rating_failed">Impossibile salvare la valutazione su Trakt.</string>
 <string name="trakt_favorite_sync_failed">StreamVault ha salvato la modifica, ma non è riuscito ad aggiornare i Preferiti di Trakt. Riprova.</string>
+
+  <string name="movies_group_created">Gruppo creato %1$s</string>
+  <string name="series_group_created">Gruppo creato %1$s</string>
+  <string name="movies_group_name_invalid">Inserisci il nome del gruppo</string>
+  <string name="series_group_name_invalid">Inserisci il nome del gruppo</string>
+  <string name="movies_group_name_reserved">I preferiti sono riservati</string>
+  <string name="series_group_name_reserved">I preferiti sono riservati</string>
+  <string name="movies_group_name_duplicate">Esiste già un gruppo di film con questo nome</string>
+  <string name="series_group_name_duplicate">Esiste già un gruppo di serie con questo nome</string>
 </resources>

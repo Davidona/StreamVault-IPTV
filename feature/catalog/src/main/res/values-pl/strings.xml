@@ -367,4 +367,13 @@
 <string name="trakt_rating_saved">Twoja ocena została zapisana w Trakt.</string>
 <string name="trakt_rating_failed">Nie udało się zapisać oceny w Trakt.</string>
 <string name="trakt_favorite_sync_failed">StreamVault zapisał zmianę, ale nie udało się zaktualizować ulubionych Trakt. Spróbuj ponownie.</string>
+
+  <string name="movies_group_created">Utworzono grupę %1$s</string>
+  <string name="series_group_created">Utworzono grupę %1$s</string>
+  <string name="movies_group_name_invalid">Wprowadź nazwę grupy</string>
+  <string name="series_group_name_invalid">Wprowadź nazwę grupy</string>
+  <string name="movies_group_name_reserved">Ulubione są zarezerwowane</string>
+  <string name="series_group_name_reserved">Ulubione są zarezerwowane</string>
+  <string name="movies_group_name_duplicate">Grupa filmów o tej nazwie już istnieje</string>
+  <string name="series_group_name_duplicate">Grupa seriali o tej nazwie już istnieje</string>
 </resources>

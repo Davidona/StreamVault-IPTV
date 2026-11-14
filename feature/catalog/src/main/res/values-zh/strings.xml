@@ -367,4 +367,13 @@
 <string name="trakt_rating_saved">评分已保存到 Trakt。</string>
 <string name="trakt_rating_failed">无法将评分保存到 Trakt。</string>
 <string name="trakt_favorite_sync_failed">StreamVault 已保存更改，但无法更新 Trakt 收藏夹。请重试。</string>
+
+  <string name="movies_group_created">已创建分组 %1$s</string>
+  <string name="series_group_created">已创建分组 %1$s</string>
+  <string name="movies_group_name_invalid">请输入分组名称</string>
+  <string name="series_group_name_invalid">请输入分组名称</string>
+  <string name="movies_group_name_reserved">Favorites 为保留名称</string>
+  <string name="series_group_name_reserved">Favorites 为保留名称</string>
+  <string name="movies_group_name_duplicate">已存在同名电影分组</string>
+  <string name="series_group_name_duplicate">已存在同名剧集分组</string>
 </resources>

@@ -132,5 +132,11 @@
 -keep class org.bouncycastle.jcajce.provider.digest.MD4$Mappings { *; }
 -keep class org.bouncycastle.jcajce.provider.digest.MD4$Digest { *; }
 
+# SMB3 signing also resolves AES-CMAC through Bouncy Castle's reflective registry.
+# Keeping MD4 alone lets NTLM complete but fails later with "Session setup failed".
+-keepnames class org.bouncycastle.jcajce.provider.symmetric.AES
+-keep class org.bouncycastle.jcajce.provider.symmetric.AES$Mappings { *; }
+-keep class org.bouncycastle.jcajce.provider.symmetric.AES$AESCMAC { *; }
+
 # SLF4J's binding is optional; jcifs-ng uses the API without bundling a backend.
 -dontwarn org.slf4j.impl.StaticLoggerBinder

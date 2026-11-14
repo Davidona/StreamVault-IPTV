@@ -367,4 +367,13 @@
 <string name="trakt_rating_saved">Nota ta a fost salvată pe Trakt.</string>
 <string name="trakt_rating_failed">Nu s-a putut salva nota pe Trakt.</string>
 <string name="trakt_favorite_sync_failed">StreamVault a salvat modificarea, dar nu a putut actualiza Favoritele Trakt. Încearcă din nou.</string>
+
+  <string name="movies_group_created">Grupul creat %1$s</string>
+  <string name="series_group_created">Grupul creat %1$s</string>
+  <string name="movies_group_name_invalid">Introduceți un nume de grup</string>
+  <string name="series_group_name_invalid">Introduceți un nume de grup</string>
+  <string name="movies_group_name_reserved">Favorite este rezervată</string>
+  <string name="series_group_name_reserved">Favorite este rezervată</string>
+  <string name="movies_group_name_duplicate">Un grup de filme cu acest nume există deja</string>
+  <string name="series_group_name_duplicate">Un grup de serie cu acest nume există deja</string>
 </resources>

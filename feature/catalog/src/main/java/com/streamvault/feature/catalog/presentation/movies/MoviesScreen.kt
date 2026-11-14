@@ -81,7 +81,6 @@ import com.streamvault.feature.catalog.presentation.components.VodBrowseOptionsD
 import com.streamvault.feature.catalog.presentation.components.VodClassicCategoryOption
 import com.streamvault.feature.catalog.presentation.components.VodClassicContentHeader
 import com.streamvault.feature.catalog.presentation.components.VodClassicSplitLayout
-import com.streamvault.feature.catalog.presentation.components.VodHeroStrip
 import com.streamvault.feature.catalog.presentation.components.VodSectionHeader
 import com.streamvault.core.ui.design.FocusRestoreHost
 import com.streamvault.core.ui.design.requestFocusSafely
@@ -391,7 +390,6 @@ private fun MoviesVodContent(
     val freshMovies = uiState.libraryLensRows[MovieLibraryLens.FRESH].orEmpty()
     val topRatedMovies = uiState.libraryLensRows[MovieLibraryLens.TOP_RATED].orEmpty()
     val continueWatching = uiState.continueWatching
-    val heroMovie = freshMovies.firstOrNull() ?: topRatedMovies.firstOrNull() ?: favoriteMovies.firstOrNull()
     val categoryByName = remember(uiState.providerCategories, uiState.categories, uiState.favoriteCategoryName) {
         buildMap<String, Category> {
             uiState.providerCategories.forEach { put(it.name, it) }
@@ -468,12 +466,6 @@ private fun MoviesVodContent(
             category == null || category.id !in uiState.pinnedCategoryIds
         }
     }
-    val fallbackMovieId = if (heroMovie == null) {
-        favoriteMovies.firstOrNull()?.id
-            ?: freshMovies.firstOrNull()?.id
-            ?: topRatedMovies.firstOrNull()?.id
-            ?: catEntries.firstOrNull()?.value?.firstOrNull()?.id
-    } else null
     val categoryOptions = remember(
         visibleCategoryNames,
         uiState.categoryCounts,
@@ -588,24 +580,6 @@ private fun MoviesVodContent(
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(bottom = 28.dp)
         ) {
-            item(key = "hero") {
-            if (heroMovie != null) {
-                VodHeroStrip(
-                        title = heroMovie.name,
-                        subtitle = heroMovie.plot?.takeIf { it.isNotBlank() }
-                            ?: heroMovie.year
-                            ?: stringResource(R.string.movies_library_lens_subtitle),
-                        actionLabel = stringResource(R.string.player_resume).substringBefore(" "),
-                        onClick = {
-                            val isLocked = isMovieLocked(heroMovie)
-                            if (isLocked) onProtectedMovieClick(heroMovie) else onMovieClick(heroMovie)
-                        },
-                        modifier = Modifier
-                            .padding(top = 8.dp, bottom = 6.dp)
-                            .focusRequester(initialFocusRequester)
-                    )
-            }
-            }
             item(key = "actions") {
             VodActionChipRow(
                     actions = buildList {
@@ -695,7 +669,8 @@ private fun MoviesVodContent(
                             )
                         }
                     },
-                    modifier = Modifier.padding(top = 2.dp, bottom = 6.dp)
+                    modifier = Modifier.padding(top = 2.dp, bottom = 6.dp),
+                    firstActionFocusRequester = initialFocusRequester
                 )
             }
             if (continueWatching.isNotEmpty()) {
@@ -749,8 +724,6 @@ private fun MoviesVodContent(
                         isLocked = isLocked,
                         onClick = { if (isLocked) onProtectedMovieClick(movie) else onMovieClick(movie) },
                         onLongClick = { onShowDialog(movie) }
-                        ,
-                        modifier = if (movie.id == fallbackMovieId) Modifier.focusRequester(initialFocusRequester) else Modifier
                     )
                 }
             }
@@ -812,8 +785,6 @@ private fun MoviesVodContent(
                         isLocked = isLocked,
                         onClick = { if (isLocked) onProtectedMovieClick(movie) else onMovieClick(movie) },
                         onLongClick = { onShowDialog(movie) }
-                        ,
-                        modifier = if (movie.id == fallbackMovieId) Modifier.focusRequester(initialFocusRequester) else Modifier
                     )
                 }
             }

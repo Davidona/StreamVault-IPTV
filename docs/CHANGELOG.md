@@ -12,6 +12,11 @@ All notable product changes are recorded in this document.
 
 ### Changed
 - Moved Adjust EPG Match from Guide Options into the TV Guide channel long-press menu, where it applies to the selected channel.
+- Removed the top Resume card from Movies and Series; Continue Watching remains available in each section.
+- Added Favorites and custom-group actions to movie and series posters in the unified VOD tab's long-press menu.
+
+### Fixed
+- Fixed SMB3 recording storage setup failing with "Session setup failed" in release builds by retaining the AES-CMAC provider required for SMB signing, alongside the existing MD4 authentication support.
 
 ## [1.2.5]
 

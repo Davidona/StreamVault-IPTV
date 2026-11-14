@@ -353,4 +353,13 @@
   <string name="vod_sync_needed_title">सिंक आवश्यक</string>
   <string name="vod_unavailable_subtitle">यह प्रदाता अलग फ़िल्म और सीरीज़ कैटलॉग प्रदान करता है।</string>
   <string name="vod_unavailable_title">VOD उपलब्ध नहीं है</string>
+
+  <string name="movies_group_created">समूह %1$s बनाया गया</string>
+  <string name="series_group_created">समूह %1$s बनाया गया</string>
+  <string name="movies_group_name_invalid">समूह का नाम दर्ज करें</string>
+  <string name="series_group_name_invalid">समूह का नाम दर्ज करें</string>
+  <string name="movies_group_name_reserved">पसंदीदा नाम आरक्षित है</string>
+  <string name="series_group_name_reserved">पसंदीदा नाम आरक्षित है</string>
+  <string name="movies_group_name_duplicate">इस नाम का फ़िल्म समूह पहले से मौजूद है</string>
+  <string name="series_group_name_duplicate">इस नाम का सीरीज़ समूह पहले से मौजूद है</string>
 </resources>

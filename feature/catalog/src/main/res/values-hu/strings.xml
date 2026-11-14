@@ -367,4 +367,13 @@
 <string name="trakt_rating_saved">Az értékelésed mentve a Traktra.</string>
 <string name="trakt_rating_failed">Nem sikerült menteni az értékelésedet a Traktra.</string>
 <string name="trakt_favorite_sync_failed">A StreamVault mentette a módosítást, de nem sikerült frissítenie a Trakt kedvenceket. Próbáld újra.</string>
+
+  <string name="movies_group_created">Csoport létrehozva %1$s</string>
+  <string name="series_group_created">Csoport létrehozva %1$s</string>
+  <string name="movies_group_name_invalid">Adja meg a csoport nevét</string>
+  <string name="series_group_name_invalid">Adja meg a csoport nevét</string>
+  <string name="movies_group_name_reserved">A kedvencek le vannak foglalva</string>
+  <string name="series_group_name_reserved">A kedvencek le vannak foglalva</string>
+  <string name="movies_group_name_duplicate">Már létezik ilyen nevű filmcsoport</string>
+  <string name="series_group_name_duplicate">Már létezik ilyen nevű sorozatcsoport</string>
 </resources>

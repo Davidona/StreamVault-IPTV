@@ -367,4 +367,13 @@
 <string name="trakt_rating_saved">評価をTraktに保存しました。</string>
 <string name="trakt_rating_failed">評価をTraktに保存できませんでした。</string>
 <string name="trakt_favorite_sync_failed">StreamVaultで変更を保存しましたが、Traktのお気に入りを更新できませんでした。もう一度お試しください。</string>
+
+  <string name="movies_group_created">グループ %1$s を作成しました</string>
+  <string name="series_group_created">グループ %1$s を作成しました</string>
+  <string name="movies_group_name_invalid">グループ名を入力してください</string>
+  <string name="series_group_name_invalid">グループ名を入力してください</string>
+  <string name="movies_group_name_reserved">Favorites は予約済みです</string>
+  <string name="series_group_name_reserved">Favorites は予約済みです</string>
+  <string name="movies_group_name_duplicate">その名前の映画グループはすでに存在します</string>
+  <string name="series_group_name_duplicate">その名前のシリーズグループはすでに存在します</string>
 </resources>

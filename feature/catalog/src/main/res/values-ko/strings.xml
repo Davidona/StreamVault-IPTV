@@ -367,4 +367,13 @@
 <string name="trakt_rating_saved">Trakt에 평점을 저장했습니다.</string>
 <string name="trakt_rating_failed">Trakt에 평점을 저장하지 못했습니다.</string>
 <string name="trakt_favorite_sync_failed">StreamVault에서 변경 사항을 저장했지만 Trakt 즐겨찾기를 업데이트하지 못했습니다. 다시 시도하세요.</string>
+
+  <string name="movies_group_created">%1$s 그룹이 생성되었습니다</string>
+  <string name="series_group_created">그룹 %1$s 생성됨</string>
+  <string name="movies_group_name_invalid">그룹 이름을 입력하세요</string>
+  <string name="series_group_name_invalid">그룹 이름을 입력하세요</string>
+  <string name="movies_group_name_reserved">Favorites는 예약되어 있습니다</string>
+  <string name="series_group_name_reserved">Favorites는 예약되어 있습니다</string>
+  <string name="movies_group_name_duplicate">같은 이름의 영화 그룹이 이미 있습니다</string>
+  <string name="series_group_name_duplicate">같은 이름의 시리즈 그룹이 이미 있습니다</string>
 </resources>

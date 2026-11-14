@@ -367,4 +367,13 @@
 <string name="trakt_rating_saved">הדירוג נשמר ב‑Trakt.</string>
 <string name="trakt_rating_failed">לא ניתן לשמור את הדירוג ב‑Trakt.</string>
 <string name="trakt_favorite_sync_failed">StreamVault שמר את השינוי, אך לא הצליח לעדכן את המועדפים ב‑Trakt. נסו שוב.</string>
+
+  <string name="movies_group_created">הקבוצה נוצרה %1$s</string>
+  <string name="series_group_created">הקבוצה נוצרה %1$s</string>
+  <string name="movies_group_name_invalid">הזן שם קבוצה</string>
+  <string name="series_group_name_invalid">הזן שם קבוצה</string>
+  <string name="movies_group_name_reserved">מועדפים שמורה</string>
+  <string name="series_group_name_reserved">מועדפים שמורה</string>
+  <string name="movies_group_name_duplicate">כבר קיימת קבוצת סרטים בשם זה</string>
+  <string name="series_group_name_duplicate">כבר קיימת קבוצת סדרות בשם זה</string>
 </resources>

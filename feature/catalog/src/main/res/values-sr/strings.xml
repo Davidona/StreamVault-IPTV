@@ -353,4 +353,13 @@
   <string name="vod_sync_needed_title">Потребна је синхронизација</string>
   <string name="vod_unavailable_subtitle">Овај провајдер нуди одвојене каталоге филмова и серија.</string>
   <string name="vod_unavailable_title">VOD није доступан</string>
+
+  <string name="movies_group_created">Направљена група %1$s</string>
+  <string name="series_group_created">Направљена група %1$s</string>
+  <string name="movies_group_name_invalid">Унесите назив групе</string>
+  <string name="series_group_name_invalid">Унесите назив групе</string>
+  <string name="movies_group_name_reserved">Омиљено је резервисано</string>
+  <string name="series_group_name_reserved">Омиљено је резервисано</string>
+  <string name="movies_group_name_duplicate">Група филмова са тим називом већ постоји</string>
+  <string name="series_group_name_duplicate">Група серија са тим називом већ постоји</string>
 </resources>

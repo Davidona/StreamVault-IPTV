@@ -80,7 +80,6 @@ import com.streamvault.feature.catalog.presentation.components.VodBrowseOptionsD
 import com.streamvault.feature.catalog.presentation.components.VodClassicCategoryOption
 import com.streamvault.feature.catalog.presentation.components.VodClassicContentHeader
 import com.streamvault.feature.catalog.presentation.components.VodClassicSplitLayout
-import com.streamvault.feature.catalog.presentation.components.VodHeroStrip
 import com.streamvault.feature.catalog.presentation.components.VodSectionHeader
 import com.streamvault.core.ui.design.FocusRestoreHost
 import com.streamvault.core.ui.design.requestFocusSafely
@@ -389,7 +388,6 @@ private fun SeriesVodContent(
     val freshSeries = uiState.libraryLensRows[SeriesLibraryLens.FRESH].orEmpty()
     val topRatedSeries = uiState.libraryLensRows[SeriesLibraryLens.TOP_RATED].orEmpty()
     val continueWatching = uiState.continueWatching
-    val heroSeries = freshSeries.firstOrNull() ?: topRatedSeries.firstOrNull() ?: favoriteSeries.firstOrNull()
     val categoryByName = remember(uiState.providerCategories, uiState.categories, uiState.favoriteCategoryName) {
         buildMap<String, Category> {
             uiState.providerCategories.forEach { put(it.name, it) }
@@ -466,12 +464,6 @@ private fun SeriesVodContent(
             category == null || category.id !in uiState.pinnedCategoryIds
         }
     }
-    val fallbackSeriesId = if (heroSeries == null) {
-        favoriteSeries.firstOrNull()?.id
-            ?: freshSeries.firstOrNull()?.id
-            ?: topRatedSeries.firstOrNull()?.id
-            ?: catEntries.firstOrNull()?.value?.firstOrNull()?.id
-    } else null
     val categoryOptions = remember(
         visibleCategoryNames,
         uiState.categoryCounts,
@@ -587,24 +579,6 @@ private fun SeriesVodContent(
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(bottom = 28.dp)
         ) {
-            item(key = "hero") {
-            if (heroSeries != null) {
-                VodHeroStrip(
-                        title = heroSeries.name,
-                        subtitle = heroSeries.plot?.takeIf { it.isNotBlank() }
-                            ?: heroSeries.genre
-                            ?: stringResource(R.string.series_library_lens_subtitle),
-                        actionLabel = stringResource(R.string.player_resume).substringBefore(" "),
-                        onClick = {
-                            val isLocked = isSeriesLocked(heroSeries)
-                            if (isLocked) onProtectedSeriesClick(heroSeries) else onSeriesClick(heroSeries)
-                        },
-                        modifier = Modifier
-                            .padding(top = 8.dp, bottom = 6.dp)
-                            .focusRequester(initialFocusRequester)
-                    )
-            }
-            }
             item(key = "actions") {
             VodActionChipRow(
                     actions = buildList {
@@ -694,7 +668,8 @@ private fun SeriesVodContent(
                             )
                         }
                     },
-                    modifier = Modifier.padding(top = 2.dp, bottom = 6.dp)
+                    modifier = Modifier.padding(top = 2.dp, bottom = 6.dp),
+                    firstActionFocusRequester = initialFocusRequester
                 )
             }
             if (continueWatching.isNotEmpty()) {
@@ -755,8 +730,7 @@ private fun SeriesVodContent(
                         series = series,
                         isLocked = isLocked,
                         onClick = { if (isLocked) onProtectedSeriesClick(series) else onSeriesClick(series) },
-                        onLongClick = { onShowDialog(series) },
-                        modifier = if (series.id == fallbackSeriesId) Modifier.focusRequester(initialFocusRequester) else Modifier
+                        onLongClick = { onShowDialog(series) }
                     )
                 }
             }
@@ -817,8 +791,7 @@ private fun SeriesVodContent(
                         series = series,
                         isLocked = isLocked,
                         onClick = { if (isLocked) onProtectedSeriesClick(series) else onSeriesClick(series) },
-                        onLongClick = { onShowDialog(series) },
-                        modifier = if (series.id == fallbackSeriesId) Modifier.focusRequester(initialFocusRequester) else Modifier
+                        onLongClick = { onShowDialog(series) }
                     )
                 }
             }

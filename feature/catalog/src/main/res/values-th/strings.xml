@@ -353,4 +353,13 @@
   <string name="vod_sync_needed_title">ต้องซิงค์</string>
   <string name="vod_unavailable_subtitle">ผู้ให้บริการนี้มีแค็ตตาล็อกภาพยนตร์และซีรีส์แยกกัน</string>
   <string name="vod_unavailable_title">VOD ใช้งานไม่ได้</string>
+
+  <string name="movies_group_created">สร้างกลุ่ม %1$s แล้ว</string>
+  <string name="series_group_created">สร้างกลุ่ม %1$s แล้ว</string>
+  <string name="movies_group_name_invalid">กรอกชื่อกลุ่ม</string>
+  <string name="series_group_name_invalid">กรอกชื่อกลุ่ม</string>
+  <string name="movies_group_name_reserved">รายการโปรดเป็นชื่อที่สงวนไว้</string>
+  <string name="series_group_name_reserved">รายการโปรดเป็นชื่อที่สงวนไว้</string>
+  <string name="movies_group_name_duplicate">มีกลุ่มภาพยนตร์ชื่อนี้อยู่แล้ว</string>
+  <string name="series_group_name_duplicate">มีกลุ่มซีรีส์ชื่อนี้อยู่แล้ว</string>
 </resources>

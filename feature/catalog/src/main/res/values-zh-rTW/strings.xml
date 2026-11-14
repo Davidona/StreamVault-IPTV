@@ -353,4 +353,13 @@
   <string name="vod_sync_needed_title">需要同步</string>
   <string name="vod_unavailable_subtitle">此供應商分別提供電影和影集目錄。</string>
   <string name="vod_unavailable_title">VOD 無法使用</string>
+
+  <string name="movies_group_created">已建立群組 %1$s</string>
+  <string name="series_group_created">已建立群組 %1$s</string>
+  <string name="movies_group_name_invalid">請輸入群組名稱</string>
+  <string name="series_group_name_invalid">請輸入群組名稱</string>
+  <string name="movies_group_name_reserved">Favorites 為保留名稱</string>
+  <string name="series_group_name_reserved">Favorites 為保留名稱</string>
+  <string name="movies_group_name_duplicate">已存在同名電影群組</string>
+  <string name="series_group_name_duplicate">已存在同名劇集群組</string>
 </resources>

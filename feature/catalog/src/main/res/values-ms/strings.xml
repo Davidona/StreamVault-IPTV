@@ -353,4 +353,13 @@
   <string name="vod_sync_needed_title">Penyegerakan diperlukan</string>
   <string name="vod_unavailable_subtitle">Penyedia ini menyediakan katalog Filem dan Siri yang berasingan.</string>
   <string name="vod_unavailable_title">VOD tidak tersedia</string>
+
+  <string name="movies_group_created">Kumpulan %1$s dicipta</string>
+  <string name="series_group_created">Kumpulan %1$s dicipta</string>
+  <string name="movies_group_name_invalid">Masukkan nama kumpulan</string>
+  <string name="series_group_name_invalid">Masukkan nama kumpulan</string>
+  <string name="movies_group_name_reserved">Nama Kegemaran telah dikhaskan</string>
+  <string name="series_group_name_reserved">Nama Kegemaran telah dikhaskan</string>
+  <string name="movies_group_name_duplicate">Kumpulan filem dengan nama itu sudah wujud</string>
+  <string name="series_group_name_duplicate">Kumpulan siri dengan nama itu sudah wujud</string>
 </resources>
