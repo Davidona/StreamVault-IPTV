@@ -12,6 +12,7 @@ import com.streamvault.domain.model.VodCategoryHydration
 import com.streamvault.domain.model.VodCategoryHydrationRequest
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 
 interface MovieRepository {
     fun getMovies(providerId: Long): Flow<List<Movie>>
@@ -23,6 +24,13 @@ interface MovieRepository {
     fun getCategoryPreviewRows(providerId: Long, categoryIds: List<Long>, limitPerCategory: Int): Flow<Map<Long?, List<Movie>>>
     fun getTopRatedPreview(providerId: Long, limit: Int): Flow<List<Movie>>
     fun getFreshPreview(providerId: Long, limit: Int): Flow<List<Movie>>
+    fun getFreshPreviewExcludingHiddenCategories(
+        providerId: Long,
+        hiddenCategoryIds: Set<Long>,
+        limit: Int
+    ): Flow<List<Movie>> = getFreshPreview(providerId, limit).map { movies ->
+        movies.filterNot { movie -> movie.categoryId?.let(hiddenCategoryIds::contains) == true }
+    }
     fun getRecommendations(providerId: Long, limit: Int): Flow<List<Movie>>
     fun getRelatedContent(providerId: Long, movieId: Long, limit: Int): Flow<List<Movie>>
     fun getMoviesByIds(ids: List<Long>): Flow<List<Movie>>

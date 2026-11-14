@@ -139,6 +139,20 @@ class SearchViewModel @Inject constructor(
             provider?.let { parentalControlManager.unlockedCategoriesForProvider(it.id) } ?: flowOf(emptySet())
         }
 
+    private val searchProviderWithHiddenCategoryIds = providerRepository.getActiveProvider()
+        .flatMapLatest { provider ->
+            if (provider == null) {
+                flowOf(SearchProviderVisibility())
+            } else {
+                combine(
+                    preferencesRepository.getHiddenCategoryIds(provider.id, ContentType.MOVIE),
+                    preferencesRepository.getHiddenCategoryIds(provider.id, ContentType.SERIES)
+                ) { movieIds, seriesIds ->
+                    SearchProviderVisibility(provider, movieIds, seriesIds)
+                }
+            }
+        }
+
     init {
         viewModelScope.launch {
             preferencesRepository.parentalControlLevel.collect { level ->
@@ -171,15 +185,26 @@ class SearchViewModel @Inject constructor(
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     @OptIn(FlowPreview::class)
-    val uiState: StateFlow<SearchUiState> = combine(
-        providerRepository.getActiveProvider(),
+    private val searchFilterParams = combine(
+        searchProviderWithHiddenCategoryIds,
         _query.debounce(300),
         _selectedTab,
         _parentalControlLevel,
         unlockedCategoryIds
-    ) { provider, query, tab, level, unlockedIds ->
-        SearchFilterParams(provider, query, tab, level, unlockedIds)
-    }.distinctUntilChanged().flatMapLatest { params ->
+    ) { providerVisibility, query, tab, level, unlockedIds ->
+        SearchFilterParams(
+            provider = providerVisibility.provider,
+            query = query,
+            tab = tab,
+            level = level,
+            unlockedCategoryIds = unlockedIds,
+            hiddenMovieCategoryIds = providerVisibility.hiddenMovieCategoryIds,
+            hiddenSeriesCategoryIds = providerVisibility.hiddenSeriesCategoryIds
+        )
+    }
+
+    val uiState: StateFlow<SearchUiState> = searchFilterParams
+        .distinctUntilChanged().flatMapLatest { params ->
         val provider = params.provider
         val query = params.query
         val tab = params.tab
@@ -208,12 +233,14 @@ class SearchViewModel @Inject constructor(
                     channels = if (filterAdult)
                         results.channels.filterNot { it.isAdult || it.isUserProtected }
                     else results.channels,
-                    movies = if (filterAdult)
-                        results.movies.filterNot { it.isAdult || it.isUserProtected }
-                    else results.movies,
-                    series = if (filterAdult)
-                        results.series.filterNot { it.isAdult || it.isUserProtected }
-                    else results.series,
+                    movies = results.movies.filter { movie ->
+                        movie.categoryId?.let(params.hiddenMovieCategoryIds::contains) != true &&
+                            (!filterAdult || (!movie.isAdult && !movie.isUserProtected))
+                    },
+                    series = results.series.filter { series ->
+                        series.categoryId?.let(params.hiddenSeriesCategoryIds::contains) != true &&
+                            (!filterAdult || (!series.isAdult && !series.isUserProtected))
+                    },
                     isLoading = false,
                     hasSearched = true,
                     hasSearchError = results.isPartialResult &&
@@ -367,7 +394,15 @@ private data class SearchFilterParams(
     val query: String,
     val tab: SearchTab,
     val level: Int,
-    val unlockedCategoryIds: Set<Long>
+    val unlockedCategoryIds: Set<Long>,
+    val hiddenMovieCategoryIds: Set<Long> = emptySet(),
+    val hiddenSeriesCategoryIds: Set<Long> = emptySet()
+)
+
+private data class SearchProviderVisibility(
+    val provider: com.streamvault.domain.model.LegacyProvider? = null,
+    val hiddenMovieCategoryIds: Set<Long> = emptySet(),
+    val hiddenSeriesCategoryIds: Set<Long> = emptySet()
 )
 
 enum class SearchTab(@get:StringRes val titleRes: Int) {

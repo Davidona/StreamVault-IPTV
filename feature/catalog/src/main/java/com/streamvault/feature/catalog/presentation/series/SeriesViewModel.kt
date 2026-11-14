@@ -579,20 +579,27 @@ class SeriesViewModel @Inject constructor(
             providerRepository.getActiveProvider()
                 .filterNotNull()
                 .flatMapLatest { provider ->
-                    combine(
-                        favoriteRepository.getAllFavorites(provider.id, ContentType.SERIES),
-                        playbackHistoryRepository.getRecentlyWatchedByProvider(provider.id, limit = 24),
-                        seriesRepository.getTopRatedPreview(provider.id, VodBrowseDefaults.PREVIEW_ROW_LIMIT),
-                        seriesRepository.getFreshPreview(provider.id, VodBrowseDefaults.PREVIEW_ROW_LIMIT)
-                    ) { allFavorites, history, topRated, fresh ->
-                        SeriesLibraryLensDependencies(
-                            providerId = provider.id,
-                            allFavorites = allFavorites,
-                            history = history,
-                            topRated = topRated,
-                            fresh = fresh
-                        )
-                    }
+                    preferencesRepository.getHiddenCategoryIds(provider.id, ContentType.SERIES)
+                        .flatMapLatest { hiddenCategoryIds ->
+                            combine(
+                                favoriteRepository.getAllFavorites(provider.id, ContentType.SERIES),
+                                playbackHistoryRepository.getRecentlyWatchedByProvider(provider.id, limit = 24),
+                                seriesRepository.getTopRatedPreview(provider.id, VodBrowseDefaults.PREVIEW_ROW_LIMIT),
+                                seriesRepository.getFreshPreviewExcludingHiddenCategories(
+                                    provider.id,
+                                    hiddenCategoryIds,
+                                    VodBrowseDefaults.PREVIEW_ROW_LIMIT
+                                )
+                            ) { allFavorites, history, topRated, fresh ->
+                                SeriesLibraryLensDependencies(
+                                    providerId = provider.id,
+                                    allFavorites = allFavorites,
+                                    history = history,
+                                    topRated = topRated,
+                                    fresh = fresh
+                                )
+                            }
+                        }
                 }
                 .collectLatest { dependencies ->
                     val globalFavoriteIds = dependencies.allFavorites

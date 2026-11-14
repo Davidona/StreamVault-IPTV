@@ -17,6 +17,7 @@ All notable product changes are recorded in this document.
 
 ### Fixed
 - Fixed SMB3 recording storage setup failing with "Session setup failed" in release builds by retaining the AES-CMAC provider required for SMB signing, alongside the existing MD4 authentication support.
+- Fixed hidden movie and series categories appearing in search results and Recently Added sections; fresh previews now exclude hidden categories before applying their result limit.
 
 ## [1.2.5]
 

@@ -247,14 +247,21 @@ class DashboardViewModel @Inject constructor(
         liveProviderIds: List<Long>,
         combinedProfileId: Long?
     ): Flow<DashboardUiState> {
-        val movieShelf = combine(
-            movieRepository.getFreshPreview(provider.id, MOVIE_SHELF_LIMIT),
-            preferencesRepository.parentalControlLevel
-        ) { movies, level ->
-            movies
-                .filter { !shouldHideVodFromHome(it, level) }
-                .take(MOVIE_SHELF_LIMIT)
-        }
+        val movieShelf = preferencesRepository.getHiddenCategoryIds(provider.id, ContentType.MOVIE)
+            .flatMapLatest { hiddenCategoryIds ->
+                combine(
+                    movieRepository.getFreshPreviewExcludingHiddenCategories(
+                        provider.id,
+                        hiddenCategoryIds,
+                        MOVIE_SHELF_LIMIT
+                    ),
+                    preferencesRepository.parentalControlLevel
+                ) { movies, level ->
+                    movies
+                        .filter { !shouldHideVodFromHome(it, level) }
+                        .take(MOVIE_SHELF_LIMIT)
+                }
+            }
         val topRatedMovieShelf = combine(
             movieRepository.getTopRatedPreview(provider.id, MOVIE_SHELF_LIMIT),
             preferencesRepository.parentalControlLevel
@@ -271,14 +278,21 @@ class DashboardViewModel @Inject constructor(
                 .filter { !shouldHideVodFromHome(it, level) }
                 .take(MOVIE_SHELF_LIMIT)
         }
-        val seriesShelf = combine(
-            seriesRepository.getFreshPreview(provider.id, SERIES_SHELF_LIMIT),
-            preferencesRepository.parentalControlLevel
-        ) { series, level ->
-            series
-                .filter { !shouldHideVodFromHome(it, level) }
-                .take(SERIES_SHELF_LIMIT)
-        }
+        val seriesShelf = preferencesRepository.getHiddenCategoryIds(provider.id, ContentType.SERIES)
+            .flatMapLatest { hiddenCategoryIds ->
+                combine(
+                    seriesRepository.getFreshPreviewExcludingHiddenCategories(
+                        provider.id,
+                        hiddenCategoryIds,
+                        SERIES_SHELF_LIMIT
+                    ),
+                    preferencesRepository.parentalControlLevel
+                ) { series, level ->
+                    series
+                        .filter { !shouldHideVodFromHome(it, level) }
+                        .take(SERIES_SHELF_LIMIT)
+                }
+            }
         val activeTraktWatchlistState = combine(traktAccount.state, traktWatchlist.state) { account, watchlist ->
             if (account.connected && account.username == watchlist.accountUsername) {
                 watchlist
