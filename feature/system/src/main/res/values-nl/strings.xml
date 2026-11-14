@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="app_name">StreamVault</string>
+  <string name="app_name">Sokatito</string>
   <string name="welcome_setup_provider">Installatieprovider</string>
   <string name="welcome_loading_title">Uw bibliotheek voorbereiden</string>
   <string name="sync_section_live">Live</string>
@@ -47,12 +47,12 @@
     <string name="torrent_cache_active">Stop de torrentweergave voordat je de cache wist.</string>
     <string name="torrent_cache_clear_failed">De tijdelijke cache kan niet worden gewist.</string>
     <string name="extensions_title">Extensies</string>
-    <string name="plugins_section_description">Voeg functies toe aan StreamVault met begeleidende Android-apps.</string>
+    <string name="plugins_section_description">Voeg functies toe aan Sokatito met begeleidende Android-apps.</string>
     <string name="plugins_install_url">Plugin installeren vanaf URL</string>
     <string name="plugins_install_file">Plugin-APK installeren</string>
     <string name="plugins_install_hint">Gebruik een APK-bestand of een directe APK-downloadlink. Gebruik voor manifest-URL\'s van Stremio-add-ons het tabblad Stremio-add-ons.</string>
     <string name="plugins_empty_title">Geen plugins geïnstalleerd</string>
-    <string name="plugins_empty_description">Installeer een compatibele begeleidende StreamVault-app of controleer opnieuw op een plugin die u buiten StreamVault hebt geïnstalleerd.</string>
+    <string name="plugins_empty_description">Installeer een compatibele begeleidende Sokatito-app of controleer opnieuw op een plugin die u buiten Sokatito hebt geïnstalleerd.</string>
     <string name="plugins_provider_sources_count">%1$d bronnen van aanbieders beschikbaar</string>
     <string name="plugins_details">Details</string>
     <string name="plugins_hide_details">Details verbergen</string>

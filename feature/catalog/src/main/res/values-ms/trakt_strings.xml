@@ -14,7 +14,7 @@
     <string name="trakt_watchlist_add">Tambahkan pada senarai pantau Trakt</string>
     <string name="trakt_watchlist_connect">Sambungkan Trakt dalam Tetapan</string>
     <string name="trakt_watchlist_failed">Tidak dapat mengemas kini senarai pantau Trakt. Cuba lagi.</string>
-    <string name="trakt_favorite_sync_failed">StreamVault menyimpan perubahan itu, tetapi tidak dapat mengemas kini Trakt Kegemaran. Cuba lagi.</string>
+    <string name="trakt_favorite_sync_failed">Sokatito menyimpan perubahan itu, tetapi tidak dapat mengemas kini Trakt Kegemaran. Cuba lagi.</string>
     <string name="trakt_watchlist_load">Muatkan senarai pantau Trakt</string>
     <string name="trakt_watchlist_remove">Alih keluar daripada senarai pantau Trakt</string>
     <string name="trakt_custom_lists_action">Senarai Trakt</string>
@@ -25,7 +25,7 @@
     <string name="trakt_custom_lists_empty">Anda belum mempunyai sebarang senarai Trakt tersuai lagi.</string>
     <string name="trakt_custom_lists_failed">Tidak dapat memuatkan atau mengemas kini senarai Trakt ini. Cuba lagi.</string>
     <string name="trakt_custom_lists_incognito">Senarai Trakt tidak tersedia semasa mod Inkognito dihidupkan.</string>
-    <string name="trakt_custom_lists_too_large">Senarai ini terlalu besar untuk dimuatkan sepenuhnya dalam StreamVault.</string>
+    <string name="trakt_custom_lists_too_large">Senarai ini terlalu besar untuk dimuatkan sepenuhnya dalam Sokatito.</string>
     <string name="trakt_custom_list_open">%1$s · %2$d item</string>
     <string name="trakt_custom_list_contains_item">%1$s ada dalam senarai ini.</string>
     <string name="trakt_custom_list_does_not_contain_item">%1$s tiada dalam senarai ini.</string>

@@ -63,7 +63,7 @@
     <string name="trakt_custom_lists_connect_first">Συνδέστε το Trakt στις Ρυθμίσεις για να χρησιμοποιήσετε τις λίστες σας.</string>
     <string name="trakt_custom_lists_failed">Δεν ήταν δυνατή η φόρτωση ή η ενημέρωση αυτής της λίστας Trakt. Προσπαθήστε ξανά.</string>
     <string name="trakt_custom_lists_incognito">Οι λίστες Trakt δεν είναι διαθέσιμες όταν είναι ενεργοποιημένη η κατάσταση ανώνυμης περιήγησης.</string>
-    <string name="trakt_custom_lists_too_large">Αυτή η λίστα είναι πολύ μεγάλη για να φορτωθεί πλήρως στο StreamVault.</string>
+    <string name="trakt_custom_lists_too_large">Αυτή η λίστα είναι πολύ μεγάλη για να φορτωθεί πλήρως στο Sokatito.</string>
     <string name="trakt_custom_list_remove_item">Αφαίρεση</string>
     <string name="trakt_custom_lists_delete">Διαγραφή</string>
     <string name="trakt_custom_lists_delete_title">Διαγραφή αυτής της λίστας Trakt;</string>

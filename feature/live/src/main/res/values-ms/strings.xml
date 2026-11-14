@@ -242,8 +242,8 @@
     <string name="epg_watch_live">Tonton Langsung</string>
     <string name="guide_shell_subtitle">Penapis panduan, kepadatan jadual dan butiran program yang fokus dalam satu permukaan mesra alat kawalan jauh.</string>
     <string name="nav_epg">Panduan</string>
-    <string name="notification_permission_recording_alert_required">Dayakan pemberitahuan untuk StreamVault untuk menerima makluman kegagalan rakaman.</string>
-    <string name="notification_permission_reminder_required">Dayakan pemberitahuan untuk StreamVault untuk menerima peringatan program.</string>
+    <string name="notification_permission_recording_alert_required">Dayakan pemberitahuan untuk Sokatito untuk menerima makluman kegagalan rakaman.</string>
+    <string name="notification_permission_reminder_required">Dayakan pemberitahuan untuk Sokatito untuk menerima peringatan program.</string>
     <string name="player_archive_badge">Arkib</string>
     <string name="settings_parental_control">Kawalan Ibu Bapa</string>
     <string name="nav_sports">Sukan</string>

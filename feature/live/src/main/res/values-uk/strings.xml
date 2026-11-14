@@ -241,8 +241,8 @@
     <string name="epg_watch_live">Дивитися наживо</string>
     <string name="guide_shell_subtitle">Фільтри гіда, щільність розкладу та зосереджені деталі програми в одному екрані для керування з пульта.</string>
     <string name="nav_epg">Гід</string>
-    <string name="notification_permission_recording_alert_required">Увімкніть сповіщення для StreamVault, щоб отримувати сповіщення про помилки запису.</string>
-    <string name="notification_permission_reminder_required">Увімкніть сповіщення для StreamVault, щоб отримувати нагадування про програми.</string>
+    <string name="notification_permission_recording_alert_required">Увімкніть сповіщення для Sokatito, щоб отримувати сповіщення про помилки запису.</string>
+    <string name="notification_permission_reminder_required">Увімкніть сповіщення для Sokatito, щоб отримувати нагадування про програми.</string>
     <string name="player_archive_badge">Архів</string>
     <string name="settings_parental_control">Батьківський контроль</string>
     <string name="home_show_categories">Показати категорії</string>

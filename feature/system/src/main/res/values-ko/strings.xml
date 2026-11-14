@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="app_name">StreamVault</string>
+  <string name="app_name">Sokatito</string>
   <string name="welcome_setup_provider">공급자 설정</string>
   <string name="welcome_loading_title">라이브러리 준비 중</string>
   <string name="sync_section_live">라이브</string>
@@ -47,12 +47,12 @@
     <string name="torrent_cache_active">캐시를 지우기 전에 토렌트 재생을 중지하세요.</string>
     <string name="torrent_cache_clear_failed">임시 캐시를 지우지 못했습니다.</string>
     <string name="extensions_title">확장 기능</string>
-    <string name="plugins_section_description">동반 Android 앱으로 StreamVault에 기능을 추가하세요.</string>
+    <string name="plugins_section_description">동반 Android 앱으로 Sokatito에 기능을 추가하세요.</string>
     <string name="plugins_install_url">URL에서 플러그인 설치</string>
     <string name="plugins_install_file">플러그인 APK 설치</string>
     <string name="plugins_install_hint">APK 파일 또는 직접 APK 다운로드 링크를 사용하세요. Stremio 애드온 매니페스트 URL은 Stremio 애드온 탭을 사용하세요.</string>
     <string name="plugins_empty_title">설치된 플러그인 없음</string>
-    <string name="plugins_empty_description">호환되는 StreamVault 동반 앱을 설치하거나, StreamVault 외부에서 설치한 플러그인을 다시 확인하세요.</string>
+    <string name="plugins_empty_description">호환되는 Sokatito 동반 앱을 설치하거나, Sokatito 외부에서 설치한 플러그인을 다시 확인하세요.</string>
     <string name="plugins_provider_sources_count">사용 가능한 공급자 소스 %1$d개</string>
     <string name="plugins_details">세부 정보</string>
     <string name="plugins_hide_details">세부 정보 숨기기</string>

@@ -6,7 +6,7 @@
     <string name="settings_syncing_btn">جارٍ المزامنة...</string>
     <string name="settings_backup_restore">النسخ الاحتياطي والاستعادة</string>
     <string name="settings_restore_data">استيراد البيانات</string>
-    <string name="setup_title_streamvault">StreamVault</string>
+    <string name="setup_title_streamvault">Sokatito</string>
     <string name="setup_provider_title">أضف مزودًا</string>
     <string name="setup_edit_provider">تعديل المزود</string>
     <string name="setup_update_desc">حدّث تفاصيل مزود IPTV الخاص بك</string>
@@ -62,7 +62,7 @@
     <string name="setup_validating">جارٍ التحقق...</string>
     <string name="setup_add">إضافة قائمة التشغيل</string>
     <string name="badge_beta">بيتا</string>
-    <string name="settings_restore_subtitle">اختر ملف نسخ احتياطي، أو افتح نسخة احتياطية مع StreamVault من مدير الملفات.</string>
+    <string name="settings_restore_subtitle">اختر ملف نسخ احتياطي، أو افتح نسخة احتياطية مع Sokatito من مدير الملفات.</string>
     <string name="setup_discard_draft_body">إعداد هذا المزود غير مكتمل. العودة وفقدان المسودة الحالية؟</string>
     <string name="setup_discard_draft_cancel">متابعة التحرير</string>
     <string name="setup_discard_draft_confirm">تجاهل</string>

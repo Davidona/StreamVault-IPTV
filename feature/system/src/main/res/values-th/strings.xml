@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="app_name">StreamVault</string>
+  <string name="app_name">Sokatito</string>
   <string name="welcome_setup_provider">ตั้งค่าผู้ให้บริการ</string>
   <string name="welcome_setup_later">ตั้งค่าภายหลัง</string>
   <string name="welcome_loading_title">กำลังเตรียมคลังของคุณ</string>
@@ -47,12 +47,12 @@
     <string name="torrent_cache_active">หยุดเล่นทอร์เรนต์ก่อนล้างแคช</string>
     <string name="torrent_cache_clear_failed">ล้างแคชชั่วคราวไม่สำเร็จ</string>
     <string name="extensions_title">ส่วนขยาย</string>
-    <string name="plugins_section_description">เพิ่มคุณสมบัติให้ StreamVault ด้วยแอป Android เสริม</string>
+    <string name="plugins_section_description">เพิ่มคุณสมบัติให้ Sokatito ด้วยแอป Android เสริม</string>
     <string name="plugins_install_url">ติดตั้งปลั๊กอินจาก URL</string>
     <string name="plugins_install_file">ติดตั้งปลั๊กอินจาก APK</string>
     <string name="plugins_install_hint">ใช้ไฟล์ APK หรือลิงก์ดาวน์โหลด APK โดยตรง สำหรับ URL ของ manifest ส่วนเสริม Stremio ให้ใช้แท็บส่วนเสริม Stremio</string>
     <string name="plugins_empty_title">ยังไม่ได้ติดตั้งปลั๊กอิน</string>
-    <string name="plugins_empty_description">ติดตั้งแอปเสริมที่เข้ากันได้ของ StreamVault หรือตรวจสอบอีกครั้งสำหรับปลั๊กอินที่คุณติดตั้งไว้นอก StreamVault</string>
+    <string name="plugins_empty_description">ติดตั้งแอปเสริมที่เข้ากันได้ของ Sokatito หรือตรวจสอบอีกครั้งสำหรับปลั๊กอินที่คุณติดตั้งไว้นอก Sokatito</string>
     <string name="plugins_provider_sources_count">มีแหล่งผู้ให้บริการ %1$d แหล่งพร้อมใช้งาน</string>
     <string name="plugins_details">รายละเอียด</string>
     <string name="plugins_hide_details">ซ่อนรายละเอียด</string>

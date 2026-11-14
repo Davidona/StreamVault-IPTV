@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">StreamVault</string>
+    <string name="app_name">Sokatito</string>
 
     <string name="nav_home">首頁</string>
     <string name="nav_live_tv">直播電視</string>
@@ -276,21 +276,21 @@
     <string name="favorites_content_type_movie">電影</string>
 
     <string name="split_count_format">%1$s %2$d/4</string>
-    <string name="tv_input_setup_scanning_title">掃描 StreamVault 頻道</string>
+    <string name="tv_input_setup_scanning_title">掃描 Sokatito 頻道</string>
     <string name="tv_input_setup_success_title">直播電視已就緒</string>
     <string name="tv_input_setup_no_provider_title">未設定 IPTV 供應商</string>
     <string name="tv_input_setup_error_title">自動掃描失敗</string>
     <string name="tv_input_setup_idle_title">準備直播電視整合</string>
-    <string name="tv_input_setup_scanning_body">StreamVault 正在將您的作用中供應商同步到 Android TV Live TV。</string>
+    <string name="tv_input_setup_scanning_body">Sokatito 正在將您的作用中供應商同步到 Android TV Live TV。</string>
     <string name="tv_input_setup_success_body">您的頻道已成功同步。</string>
-    <string name="tv_input_setup_no_provider_body">在 StreamVault 中新增至少一個 IPTV 供應商，然後返回此處將頻道掃描到 Android TV Live TV。</string>
+    <string name="tv_input_setup_no_provider_body">在 Sokatito 中新增至少一個 IPTV 供應商，然後返回此處將頻道掃描到 Android TV Live TV。</string>
     <string name="tv_input_setup_error_body">電視輸入同步未完成。</string>
     <string name="tv_input_setup_idle_body">請稍候。</string>
     <string name="tv_input_setup_source_format">來源：%1$s</string>
-    <string name="tv_input_setup_open_setup">開啟 StreamVault 設定</string>
+    <string name="tv_input_setup_open_setup">開啟 Sokatito 設定</string>
     <string name="tv_input_setup_try_scan_again">再次嘗試自動掃描</string>
     <string name="tv_input_setup_retry_scan">重試自動掃描</string>
-    <string name="tv_input_setup_success_hint">Android TV Live TV 現在可以開啟您的 StreamVault 頻道。</string>
+    <string name="tv_input_setup_success_hint">Android TV Live TV 現在可以開啟您的 Sokatito 頻道。</string>
 
     <!-- M2: Google Drive backup sync -->
     <string name="settings_drive_cancel_backup_choice_subtitle">返回 Drive 備份操作。</string>

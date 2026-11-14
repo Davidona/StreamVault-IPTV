@@ -107,11 +107,11 @@
   <string name="dashboard_top_rated_movies">Mga Top Rated na Pelikula</string>
   <string name="dashboard_update_allow_installs">Payagan ang Pag-install</string>
   <string name="dashboard_update_available">May naka-cache na bagong release ng app, handa nang suriin mula sa Settings.</string>
-  <string name="dashboard_update_install_permission_required">Na-download na ang update. Payagan ang pag-install mula sa StreamVault, pagkatapos ay subukang muli ang pag-install.</string>
+  <string name="dashboard_update_install_permission_required">Na-download na ang update. Payagan ang pag-install mula sa Sokatito, pagkatapos ay subukang muli ang pag-install.</string>
   <string name="dashboard_update_install_ready">Na-download na ang pinakabagong update. Buksan ang installer para tapusin.</string>
   <string name="dashboard_update_open_installer">I-install ang Update</string>
   <string name="dashboard_update_open_settings">Buksan ang Mga Update</string>
-  <string name="dashboard_update_title">Available na ang StreamVault %1$s</string>
+  <string name="dashboard_update_title">Available na ang Sokatito %1$s</string>
   <string name="dashboard_updated_series">Na-update na shelf ng serye</string>
   <string name="dashboard_updated_series_badge">Na-update na serye</string>
   <string name="dashboard_warning_review">Buksan ang Detalye ng Provider</string>

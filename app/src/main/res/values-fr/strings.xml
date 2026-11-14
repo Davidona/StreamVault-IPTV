@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">StreamVault</string>
+    <string name="app_name">Sokatito</string>
     <string name="nav_home">Accueil</string>
     <string name="nav_live_tv">Télévision en direct</string>
     <string name="nav_movies">Films</string>
@@ -219,21 +219,21 @@
     <string name="badge_fav">FAV</string>
     <string name="favorites_content_type_movie">Film</string>
     <string name="split_count_format">%1$s %2$d/4</string>
-    <string name="tv_input_setup_scanning_title">Analyse des canaux StreamVault</string>
+    <string name="tv_input_setup_scanning_title">Analyse des canaux Sokatito</string>
     <string name="tv_input_setup_success_title">La TV en direct est prête</string>
     <string name="tv_input_setup_no_provider_title">Aucun fournisseur IPTV configuré</string>
     <string name="tv_input_setup_error_title">Analyse automatique échouée</string>
     <string name="tv_input_setup_idle_title">Préparation de l’intégration TV en direct</string>
-    <string name="tv_input_setup_scanning_body">StreamVault synchronise votre fournisseur actif avec Android TV TV en direct.</string>
+    <string name="tv_input_setup_scanning_body">Sokatito synchronise votre fournisseur actif avec Android TV TV en direct.</string>
     <string name="tv_input_setup_success_body">Vos chaînes ont été synchronisées avec succès.</string>
-    <string name="tv_input_setup_no_provider_body">Ajoutez au moins un fournisseur IPTV dans StreamVault, puis revenez ici pour analyser les chaînes dans Android TV TV en direct.</string>
+    <string name="tv_input_setup_no_provider_body">Ajoutez au moins un fournisseur IPTV dans Sokatito, puis revenez ici pour analyser les chaînes dans Android TV TV en direct.</string>
     <string name="tv_input_setup_error_body">La synchronisation de l’entrée TV n’a pas abouti.</string>
     <string name="tv_input_setup_idle_body">Veuillez patienter.</string>
     <string name="tv_input_setup_source_format">Source : %1$s</string>
-    <string name="tv_input_setup_open_setup">Ouvrez la configuration de StreamVault</string>
+    <string name="tv_input_setup_open_setup">Ouvrez la configuration de Sokatito</string>
     <string name="tv_input_setup_try_scan_again">Réessayer l’analyse automatique</string>
     <string name="tv_input_setup_retry_scan">Relancer l’analyse automatique</string>
-    <string name="tv_input_setup_success_hint">Android TV TV en direct peut maintenant ouvrir vos chaînes StreamVault.</string>
+    <string name="tv_input_setup_success_hint">Android TV TV en direct peut maintenant ouvrir vos chaînes Sokatito.</string>
     <string name="category_options_clear_recent">Effacer tout le récent</string>
     <string name="category_options_hide_from_live_tv">Masquer de la TV en direct</string>
     <string name="channel_options_remove_from_recent">Retirer du récent</string>

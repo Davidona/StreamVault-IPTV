@@ -107,11 +107,11 @@
   <string name="dashboard_top_rated_movies">Ταινίες με κορυφαία βαθμολογία</string>
   <string name="dashboard_update_allow_installs">Να επιτρέπονται οι εγκαταστάσεις</string>
   <string name="dashboard_update_available">Μια νεότερη έκδοση της εφαρμογής είναι αποθηκευμένη και έτοιμη για έλεγχο από τις Ρυθμίσεις.</string>
-  <string name="dashboard_update_install_permission_required">Η ενημέρωση έχει ληφθεί. Επιτρέψτε τις εγκαταστάσεις από το StreamVault και, στη συνέχεια, δοκιμάστε ξανά την εγκατάσταση.</string>
+  <string name="dashboard_update_install_permission_required">Η ενημέρωση έχει ληφθεί. Επιτρέψτε τις εγκαταστάσεις από το Sokatito και, στη συνέχεια, δοκιμάστε ξανά την εγκατάσταση.</string>
   <string name="dashboard_update_install_ready">Η τελευταία ενημέρωση έχει ήδη ληφθεί. Ανοίξτε τις Ρυθμίσεις για να την εγκαταστήσετε.</string>
   <string name="dashboard_update_open_installer">Εγκατάσταση από τις Ρυθμίσεις</string>
   <string name="dashboard_update_open_settings">Άνοιγμα ενημερώσεων</string>
-  <string name="dashboard_update_title">Το StreamVault %1$s είναι διαθέσιμο</string>
+  <string name="dashboard_update_title">Το Sokatito %1$s είναι διαθέσιμο</string>
   <string name="dashboard_updated_series">Ενημερωμένη σειρά</string>
   <string name="dashboard_updated_series_badge">Ενημερωμένες σειρές</string>
   <string name="dashboard_warning_review">Άνοιγμα λεπτομερειών παρόχου</string>
@@ -364,5 +364,5 @@
 <string name="trakt_rating_current">Η βαθμολογία σας στο Trakt: %1$d/10</string>
 <string name="trakt_rating_saved">Η βαθμολογία σας αποθηκεύτηκε στο Trakt.</string>
 <string name="trakt_rating_failed">Δεν ήταν δυνατή η αποθήκευση της βαθμολογίας σας στο Trakt.</string>
-<string name="trakt_favorite_sync_failed">Το StreamVault αποθήκευσε την αλλαγή, αλλά δεν μπόρεσε να ενημερώσει τα αγαπημένα του Trakt. Δοκιμάστε ξανά.</string>
+<string name="trakt_favorite_sync_failed">Το Sokatito αποθήκευσε την αλλαγή, αλλά δεν μπόρεσε να ενημερώσει τα αγαπημένα του Trakt. Δοκιμάστε ξανά.</string>
 </resources>

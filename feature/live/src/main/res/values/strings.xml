@@ -242,8 +242,8 @@
     <string name="epg_watch_live">Watch Live</string>
     <string name="guide_shell_subtitle">Guide filters, schedule density, and focused program detail in one remote-first surface.</string>
     <string name="nav_epg">Guide</string>
-    <string name="notification_permission_recording_alert_required">Enable notifications for StreamVault to receive recording failure alerts.</string>
-    <string name="notification_permission_reminder_required">Enable notifications for StreamVault to receive program reminders.</string>
+    <string name="notification_permission_recording_alert_required">Enable notifications for Sokatito to receive recording failure alerts.</string>
+    <string name="notification_permission_reminder_required">Enable notifications for Sokatito to receive program reminders.</string>
     <string name="player_archive_badge">Archive</string>
     <string name="settings_parental_control">Parental Control</string>
     <string name="nav_sports">Sports</string>

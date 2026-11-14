@@ -65,7 +65,7 @@
     <string name="trakt_custom_lists_connect_first">Поврзете го Trakt во Поставки за да ги користите вашите списоци.</string>
     <string name="trakt_custom_lists_failed">Не може да се вчита или ажурира оваа листа Trakt. Обидете се повторно.</string>
     <string name="trakt_custom_lists_incognito">Списоците Trakt се недостапни додека е вклучен режимот Инкогнито.</string>
-    <string name="trakt_custom_lists_too_large">Оваа листа е преголема за целосно да се вчита во StreamVault.</string>
+    <string name="trakt_custom_lists_too_large">Оваа листа е преголема за целосно да се вчита во Sokatito.</string>
     <string name="trakt_custom_list_remove_item">Отстрани</string>
     <string name="trakt_custom_lists_delete">Избриши</string>
     <string name="trakt_custom_lists_delete_title">Да се ​​избрише оваа листа Trakt?</string>

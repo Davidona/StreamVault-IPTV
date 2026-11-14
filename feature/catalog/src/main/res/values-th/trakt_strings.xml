@@ -14,7 +14,7 @@
     <string name="trakt_watchlist_add">เพิ่มไปยังรายการเฝ้าดู Trakt</string>
     <string name="trakt_watchlist_connect">เชื่อมต่อ Trakt ในการตั้งค่า</string>
     <string name="trakt_watchlist_failed">ไม่สามารถอัปเดตรายการเฝ้าดู Trakt ได้ ลองอีกครั้ง</string>
-    <string name="trakt_favorite_sync_failed">StreamVault บันทึกการเปลี่ยนแปลง แต่ไม่สามารถอัปเดตรายการโปรดของ Trakt ได้ ลองอีกครั้ง</string>
+    <string name="trakt_favorite_sync_failed">Sokatito บันทึกการเปลี่ยนแปลง แต่ไม่สามารถอัปเดตรายการโปรดของ Trakt ได้ ลองอีกครั้ง</string>
     <string name="trakt_watchlist_load">โหลดรายการเฝ้าดู Trakt</string>
     <string name="trakt_watchlist_remove">ลบออกจากรายการเฝ้าดู Trakt</string>
     <string name="trakt_custom_lists_action">รายการ Trakt</string>
@@ -25,7 +25,7 @@
     <string name="trakt_custom_lists_empty">คุณยังไม่มีรายการ Trakt ที่กำหนดเอง</string>
     <string name="trakt_custom_lists_failed">ไม่สามารถโหลดหรืออัปเดตรายการ Trakt นี้ ลองอีกครั้ง</string>
     <string name="trakt_custom_lists_incognito">รายการ Trakt ไม่พร้อมใช้งานในขณะที่เปิดโหมดไม่ระบุตัวตน</string>
-    <string name="trakt_custom_lists_too_large">รายการนี้ใหญ่เกินไปที่จะโหลดทั้งหมดใน StreamVault</string>
+    <string name="trakt_custom_lists_too_large">รายการนี้ใหญ่เกินไปที่จะโหลดทั้งหมดใน Sokatito</string>
     <string name="trakt_custom_list_open">%1$s · รายการ %2$d</string>
     <string name="trakt_custom_list_contains_item">%1$s อยู่ในรายการนี้</string>
     <string name="trakt_custom_list_does_not_contain_item">%1$s ไม่ได้อยู่ในรายการนี้</string>

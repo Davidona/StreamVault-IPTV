@@ -65,7 +65,7 @@
     <string name="trakt_custom_lists_connect_first">अपनी सूचियों का उपयोग करने के लिए सेटिंग्स में Trakt कनेक्ट करें।</string>
     <string name="trakt_custom_lists_failed">इस Trakt सूची को लोड या अपडेट नहीं किया जा सका. पुनः प्रयास करें।</string>
     <string name="trakt_custom_lists_incognito">गुप्त मोड चालू होने पर Trakt सूचियाँ अनुपलब्ध हैं।</string>
-    <string name="trakt_custom_lists_too_large">StreamVault में पूरी तरह लोड करने के लिए यह सूची बहुत बड़ी है।</string>
+    <string name="trakt_custom_lists_too_large">Sokatito में पूरी तरह लोड करने के लिए यह सूची बहुत बड़ी है।</string>
     <string name="trakt_custom_list_remove_item">हटाएँ</string>
     <string name="trakt_custom_lists_delete">हटाएँ</string>
     <string name="trakt_custom_lists_delete_title">यह Trakt सूची हटाएं?</string>

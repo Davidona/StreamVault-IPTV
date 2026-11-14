@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">StreamVault</string>
+    <string name="app_name">Sokatito</string>
     <string name="nav_home">Inicio</string>
     <string name="nav_live_tv">TV en vivo</string>
     <string name="nav_movies">Películas</string>
@@ -208,21 +208,21 @@
     <string name="badge_fav">FAVORITO</string>
     <string name="favorites_content_type_movie">película</string>
     <string name="split_count_format">%1$s %2$d/4</string>
-    <string name="tv_input_setup_scanning_title">Escaneando canales de StreamVault</string>
+    <string name="tv_input_setup_scanning_title">Escaneando canales de Sokatito</string>
     <string name="tv_input_setup_success_title">La televisión en vivo está lista</string>
     <string name="tv_input_setup_no_provider_title">No hay ningún proveedor IPTV configurado</string>
     <string name="tv_input_setup_error_title">Falló el escaneo automático</string>
     <string name="tv_input_setup_idle_title">Preparando la integración de Live TV</string>
-    <string name="tv_input_setup_scanning_body">StreamVault está sincronizando su proveedor activo con Android TV Live TV.</string>
+    <string name="tv_input_setup_scanning_body">Sokatito está sincronizando su proveedor activo con Android TV Live TV.</string>
     <string name="tv_input_setup_success_body">Tus canales se sincronizaron correctamente.</string>
-    <string name="tv_input_setup_no_provider_body">Añade al menos un proveedor IPTV en StreamVault y luego vuelve aquí para buscar canales en Android TV Live TV.</string>
+    <string name="tv_input_setup_no_provider_body">Añade al menos un proveedor IPTV en Sokatito y luego vuelve aquí para buscar canales en Android TV Live TV.</string>
     <string name="tv_input_setup_error_body">La sincronización de la entrada de TV no se completó.</string>
     <string name="tv_input_setup_idle_body">Espere por favor.</string>
     <string name="tv_input_setup_source_format">Fuente: %1$s</string>
-    <string name="tv_input_setup_open_setup">Abra la configuración de StreamVault</string>
+    <string name="tv_input_setup_open_setup">Abra la configuración de Sokatito</string>
     <string name="tv_input_setup_try_scan_again">Intente escanear automáticamente nuevamente</string>
     <string name="tv_input_setup_retry_scan">Reintentar escaneo automático</string>
-    <string name="tv_input_setup_success_hint">Android TV Live TV ahora puede abrir sus canales StreamVault.</string>
+    <string name="tv_input_setup_success_hint">Android TV Live TV ahora puede abrir sus canales Sokatito.</string>
     <string name="category_options_clear_recent">Borrar todo el historial</string>
     <string name="category_options_hide_from_live_tv">Ocultar del TV en vivo</string>
     <string name="channel_options_remove_from_recent">Quitar de recientes</string>

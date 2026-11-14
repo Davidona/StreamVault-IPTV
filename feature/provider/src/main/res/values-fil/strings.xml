@@ -6,8 +6,8 @@
     <string name="settings_syncing_btn">Nag-sy-sync...</string>
     <string name="settings_backup_restore">Backup at Restore</string>
     <string name="settings_restore_data">Mag-import ng Data</string>
-    <string name="settings_restore_subtitle">Pumili ng backup file, o buksan ang backup gamit ang StreamVault mula sa file manager.</string>
-    <string name="setup_title_streamvault">StreamVault</string>
+    <string name="settings_restore_subtitle">Pumili ng backup file, o buksan ang backup gamit ang Sokatito mula sa file manager.</string>
+    <string name="setup_title_streamvault">Sokatito</string>
     <string name="setup_provider_title">Magdagdag ng provider</string>
     <string name="setup_edit_provider">I-edit ang Provider</string>
     <string name="setup_update_desc">I-update ang detalye ng IPTV provider mo</string>

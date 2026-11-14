@@ -17,7 +17,7 @@
     <string name="trakt_custom_lists_empty">Vous n’avez pas encore de listes Trakt personnalisées.</string>
     <string name="trakt_custom_lists_failed">Impossible de charger ou de mettre à jour cette liste Trakt. Essayer à nouveau.</string>
     <string name="trakt_custom_lists_incognito">Les listes Trakt ne sont pas disponibles lorsque le mode navigation privée est activé.</string>
-    <string name="trakt_custom_lists_too_large">Cette liste est trop longue pour être chargée entièrement dans StreamVault.</string>
+    <string name="trakt_custom_lists_too_large">Cette liste est trop longue pour être chargée entièrement dans Sokatito.</string>
     <string name="trakt_custom_list_open">%1$s · Articles %2$d</string>
     <string name="trakt_custom_list_contains_item">%1$s est dans cette liste.</string>
     <string name="trakt_custom_list_does_not_contain_item">%1$s ne figure pas dans cette liste.</string>

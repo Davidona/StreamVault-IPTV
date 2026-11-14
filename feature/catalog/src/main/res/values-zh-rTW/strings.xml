@@ -107,11 +107,11 @@
   <string name="dashboard_top_rated_movies">最高評分電影</string>
   <string name="dashboard_update_allow_installs">允許安裝</string>
   <string name="dashboard_update_available">有較新的應用程式版本已快取，可在設定中查看。</string>
-  <string name="dashboard_update_install_permission_required">更新已下載。請允許來自 StreamVault 的安裝，然後重試安裝。</string>
+  <string name="dashboard_update_install_permission_required">更新已下載。請允許來自 Sokatito 的安裝，然後重試安裝。</string>
   <string name="dashboard_update_install_ready">最新更新已下載完成。開啟安裝程式即可完成。</string>
   <string name="dashboard_update_open_installer">安裝更新</string>
   <string name="dashboard_update_open_settings">開啟更新</string>
-  <string name="dashboard_update_title">StreamVault %1$s 已推出</string>
+  <string name="dashboard_update_title">Sokatito %1$s 已推出</string>
   <string name="dashboard_updated_series">已更新的影集專區</string>
   <string name="dashboard_updated_series_badge">已更新影集</string>
   <string name="dashboard_warning_review">開啟供應商詳細資訊</string>

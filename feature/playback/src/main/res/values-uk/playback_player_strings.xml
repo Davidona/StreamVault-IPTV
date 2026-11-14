@@ -17,8 +17,8 @@
     <string name="label_duration_min">%1$d хв</string>
     <string name="multiview_nav">Розділений екран</string>
     <string name="nav_live_tv">Прямий ефір</string>
-    <string name="notification_permission_recording_alert_required">Увімкніть сповіщення для StreamVault, щоб отримувати сповіщення про помилки запису.</string>
-    <string name="notification_permission_reminder_required">Увімкніть сповіщення для StreamVault, щоб отримувати нагадування про програми.</string>
+    <string name="notification_permission_recording_alert_required">Увімкніть сповіщення для Sokatito, щоб отримувати сповіщення про помилки запису.</string>
+    <string name="notification_permission_reminder_required">Увімкніть сповіщення для Sokatito, щоб отримувати нагадування про програми.</string>
     <string name="player_action_cast">Трансляція</string>
     <string name="player_action_diagnostics">Діагностика</string>
     <string name="player_action_format">Формат</string>

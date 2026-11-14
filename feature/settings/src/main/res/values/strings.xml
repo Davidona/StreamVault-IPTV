@@ -511,8 +511,8 @@
     <string name="settings_update_status_downloading">Downloading update</string>
     <string name="settings_update_status_ready_to_install">Ready to install</string>
     <string name="settings_update_status_permission_required">Install permission required</string>
-    <string name="settings_update_available_message">StreamVault %1$s is available.</string>
-    <string name="settings_update_current_message">You already have the latest StreamVault release.</string>
+    <string name="settings_update_available_message">Sokatito %1$s is available.</string>
+    <string name="settings_update_current_message">You already have the latest Sokatito release.</string>
     <string name="settings_sync_option_sync_now">Sync Now</string>
     <string name="settings_sync_option_rebuild_index">Rebuild Index</string>
     <string name="settings_sync_option_tv">Live TV</string>
@@ -704,15 +704,15 @@
     <string name="settings_backup_share_data">Share Backup</string>
     <string name="settings_backup_share_subtitle">Send a backup file to a TV file manager or another app.</string>
     <string name="settings_restore_data">Import Data</string>
-    <string name="settings_restore_subtitle">Choose a backup file, or open a backup with StreamVault from a file manager.</string>
+    <string name="settings_restore_subtitle">Choose a backup file, or open a backup with Sokatito from a file manager.</string>
     <string name="settings_manage_local_backups">Manage local backups</string>
-    <string name="settings_manage_local_backups_subtitle">Review and delete backups created by StreamVault.</string>
+    <string name="settings_manage_local_backups_subtitle">Review and delete backups created by Sokatito.</string>
     <string name="settings_backup_usb_data">Export to USB</string>
     <string name="settings_backup_usb_subtitle">Save a backup to the connected USB drive.</string>
     <string name="settings_restore_usb_data">Import from USB</string>
     <string name="settings_restore_usb_subtitle">Restore a backup from the connected USB drive.</string>
     <string name="settings_drive_section_title">Google Drive backup</string>
-    <string name="settings_drive_section_subtitle">Push and pull your StreamVault configuration to a private Drive folder.</string>
+    <string name="settings_drive_section_subtitle">Push and pull your Sokatito configuration to a private Drive folder.</string>
     <string name="settings_drive_signin">Sign in to Google Drive</string>
     <string name="settings_drive_signin_description">Connect a Google account to enable cloud backup.</string>
     <string name="settings_drive_push">Send to Drive</string>
@@ -728,7 +728,7 @@
     <string name="settings_drive_last_push">Pushed: %1$s</string>
     <string name="settings_drive_last_pull">Pulled: %1$s</string>
     <string name="settings_updates_title">Updates</string>
-    <string name="settings_updates_subtitle">Check GitHub Releases for newer StreamVault versions without leaving the app.</string>
+    <string name="settings_updates_subtitle">Check GitHub Releases for newer Sokatito versions without leaving the app.</string>
     <string name="settings_app_version">App Version</string>
     <string name="settings_enabled">Enabled</string>
     <string name="settings_disabled">Disabled</string>
@@ -745,7 +745,7 @@
     <string name="player_close">Close</string>
     <string name="settings_crash_report_none">No crash report saved</string>
     <string name="settings_build">Build</string>
-    <string name="settings_build_desc">StreamVault for Android TV</string>
+    <string name="settings_build_desc">Sokatito for Android TV</string>
     <string name="settings_build_verification">Build Verification</string>
     <string name="settings_build_verification_official">Official build</string>
     <string name="settings_build_verification_unofficial">Unofficial build</string>
@@ -775,8 +775,8 @@
     <string name="settings_backup_folder_picker_unavailable">No folder picker is available on this device.</string>
     <string name="settings_backup_folder_read_failed">Could not read that folder.</string>
     <string name="settings_backup_no_files_in_folder">No backup files (.json) found in that folder.</string>
-    <string name="settings_backup_no_local_files">No local StreamVault backups found. Export one first or open a backup file with StreamVault.</string>
-    <string name="settings_backup_no_managed_files">No StreamVault-created local backups found.</string>
+    <string name="settings_backup_no_local_files">No local Sokatito backups found. Export one first or open a backup file with Sokatito.</string>
+    <string name="settings_backup_no_managed_files">No Sokatito-created local backups found.</string>
     <string name="settings_backup_picker_free_failed">Could not save the backup without a file picker.</string>
     <string name="settings_backup_picker_free_saved">Backup saved locally. On supported TVs it is in Downloads/StreamVault; open it with a file manager.</string>
     <string name="settings_backup_share_failed">No app could receive the backup file.</string>
@@ -931,7 +931,7 @@
     <string name="trakt_custom_lists_connect_first">Connect Trakt in Settings to use your lists.</string>
     <string name="trakt_custom_lists_failed">Could not load or update this Trakt list. Try again.</string>
     <string name="trakt_custom_lists_incognito">Trakt lists are unavailable while Incognito mode is on.</string>
-    <string name="trakt_custom_lists_too_large">This list is too large to load completely in StreamVault.</string>
+    <string name="trakt_custom_lists_too_large">This list is too large to load completely in Sokatito.</string>
     <string name="trakt_custom_list_remove_item">Remove</string>
     <string name="trakt_custom_lists_delete">Delete</string>
     <string name="trakt_custom_lists_delete_title">Delete this Trakt list?</string>

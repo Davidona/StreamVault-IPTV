@@ -14,7 +14,7 @@
     <string name="trakt_watchlist_add">Додај на Trakt листу праћења</string>
     <string name="trakt_watchlist_connect">Повежите Trakt у подешавањима</string>
     <string name="trakt_watchlist_failed">Није могуће ажурирати листу посматрања Trakt. Покушајте поново.</string>
-    <string name="trakt_favorite_sync_failed">StreamVault је сачувао промену, али није могао да ажурира Trakt Фаворите. Покушајте поново.</string>
+    <string name="trakt_favorite_sync_failed">Sokatito је сачувао промену, али није могао да ажурира Trakt Фаворите. Покушајте поново.</string>
     <string name="trakt_watchlist_load">Учитај Trakt листу праћења</string>
     <string name="trakt_watchlist_remove">Уклони са листе праћења Trakt</string>
     <string name="trakt_custom_lists_action">Trakt Листе</string>
@@ -25,7 +25,7 @@
     <string name="trakt_custom_lists_empty">Још увек немате ниједну прилагођену листу Trakt.</string>
     <string name="trakt_custom_lists_failed">Није могуће учитати или ажурирати ову Trakt листу. Покушајте поново.</string>
     <string name="trakt_custom_lists_incognito">Trakt листе су недоступне док је режим без архивирања укључен.</string>
-    <string name="trakt_custom_lists_too_large">Ова листа је превелика да би се у потпуности учитала у StreamVault.</string>
+    <string name="trakt_custom_lists_too_large">Ова листа је превелика да би се у потпуности учитала у Sokatito.</string>
     <string name="trakt_custom_list_open">%1$s · %2$d ставке</string>
     <string name="trakt_custom_list_contains_item">%1$s је на овој листи.</string>
     <string name="trakt_custom_list_does_not_contain_item">%1$s није на овој листи.</string>

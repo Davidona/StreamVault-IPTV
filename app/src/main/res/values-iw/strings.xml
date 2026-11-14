@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">StreamVault</string>
+    <string name="app_name">Sokatito</string>
     <string name="nav_home">בית</string>
     <string name="nav_live_tv">טלוויזיה בשידור חי</string>
     <string name="nav_movies">סרטים</string>
@@ -208,21 +208,21 @@
     <string name="badge_fav">מועדפים</string>
     <string name="favorites_content_type_movie">סרט</string>
     <string name="split_count_format">%1$s %2$d/4</string>
-    <string name="tv_input_setup_scanning_title">סורק ערוצי StreamVault</string>
+    <string name="tv_input_setup_scanning_title">סורק ערוצי Sokatito</string>
     <string name="tv_input_setup_success_title">הטלוויזיה החיה מוכנה</string>
     <string name="tv_input_setup_no_provider_title">לא הוגדר ספק IPTV</string>
     <string name="tv_input_setup_error_title">הסריקה האוטומטית נכשלה</string>
     <string name="tv_input_setup_idle_title">מכין שילוב עם Live TV</string>
-    <string name="tv_input_setup_scanning_body">StreamVault מסנכרן את הספק הפעיל שלך אל Android TV Live TV.</string>
+    <string name="tv_input_setup_scanning_body">Sokatito מסנכרן את הספק הפעיל שלך אל Android TV Live TV.</string>
     <string name="tv_input_setup_success_body">הערוצים שלך סונכרנו בהצלחה.</string>
-    <string name="tv_input_setup_no_provider_body">הוסף לפחות ספק IPTV אחד ב-StreamVault ואז חזור לכאן כדי לסרוק ערוצים אל Android TV Live TV.</string>
+    <string name="tv_input_setup_no_provider_body">הוסף לפחות ספק IPTV אחד ב-Sokatito ואז חזור לכאן כדי לסרוק ערוצים אל Android TV Live TV.</string>
     <string name="tv_input_setup_error_body">סנכרון קלט הטלוויזיה לא הושלם.</string>
     <string name="tv_input_setup_idle_body">אנא המתן.</string>
     <string name="tv_input_setup_source_format">מקור: %1$s</string>
-    <string name="tv_input_setup_open_setup">פתח את הגדרת StreamVault</string>
+    <string name="tv_input_setup_open_setup">פתח את הגדרת Sokatito</string>
     <string name="tv_input_setup_try_scan_again">נסה שוב סריקה אוטומטית</string>
     <string name="tv_input_setup_retry_scan">סרוק שוב אוטומטית</string>
-    <string name="tv_input_setup_success_hint">Android TV Live TV יכולה כעת לפתוח את ערוצי StreamVault שלך.</string>
+    <string name="tv_input_setup_success_hint">Android TV Live TV יכולה כעת לפתוח את ערוצי Sokatito שלך.</string>
     <string name="category_options_clear_recent">נקה את כל האחרונים</string>
     <string name="category_options_hide_from_live_tv">הסתר מ-Live TV</string>
     <string name="channel_options_remove_from_recent">הסר מהאחרונים</string>

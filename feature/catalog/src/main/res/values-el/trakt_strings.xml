@@ -17,7 +17,7 @@
     <string name="trakt_custom_lists_empty">Δεν έχετε ακόμη προσαρμοσμένες λίστες Trakt.</string>
     <string name="trakt_custom_lists_failed">Δεν ήταν δυνατή η φόρτωση ή η ενημέρωση αυτής της λίστας Trakt. Προσπαθήστε ξανά.</string>
     <string name="trakt_custom_lists_incognito">Οι λίστες Trakt δεν είναι διαθέσιμες όταν είναι ενεργοποιημένη η κατάσταση ανώνυμης περιήγησης.</string>
-    <string name="trakt_custom_lists_too_large">Αυτή η λίστα είναι πολύ μεγάλη για να φορτωθεί πλήρως στο StreamVault.</string>
+    <string name="trakt_custom_lists_too_large">Αυτή η λίστα είναι πολύ μεγάλη για να φορτωθεί πλήρως στο Sokatito.</string>
     <string name="trakt_custom_list_open">%1$s · %2$d είδη</string>
     <string name="trakt_custom_list_contains_item">Το %1$s βρίσκεται σε αυτήν τη λίστα.</string>
     <string name="trakt_custom_list_does_not_contain_item">Το %1$s δεν βρίσκεται σε αυτήν τη λίστα.</string>

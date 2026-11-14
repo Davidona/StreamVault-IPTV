@@ -15,8 +15,8 @@
     <string name="label_duration_min">%1$d mnt</string>
     <string name="multiview_nav">Layar Terpisah</string>
     <string name="nav_live_tv">siaran langsung</string>
-    <string name="notification_permission_recording_alert_required">Aktifkan notifikasi untuk StreamVault agar menerima peringatan kegagalan rekaman.</string>
-    <string name="notification_permission_reminder_required">Aktifkan notifikasi untuk StreamVault agar menerima pengingat program.</string>
+    <string name="notification_permission_recording_alert_required">Aktifkan notifikasi untuk Sokatito agar menerima peringatan kegagalan rekaman.</string>
+    <string name="notification_permission_reminder_required">Aktifkan notifikasi untuk Sokatito agar menerima pengingat program.</string>
     <string name="player_action_cast">Pemeran</string>
     <string name="player_action_diagnostics">Diagnostik</string>
     <string name="player_action_format">Format</string>

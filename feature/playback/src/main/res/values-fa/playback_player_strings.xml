@@ -50,8 +50,8 @@
     <string name="label_duration_min">%1$d دقیقه</string>
     <string name="multiview_nav">صفحه تقسیمشده</string>
     <string name="nav_live_tv">تلویزیون زنده</string>
-    <string name="notification_permission_recording_alert_required">برای دریافت هشدارهای شکست ضبط، اعلانهای StreamVault را فعال کنید.</string>
-    <string name="notification_permission_reminder_required">برای دریافت یادآورهای برنامه، اعلانهای StreamVault را فعال کنید.</string>
+    <string name="notification_permission_recording_alert_required">برای دریافت هشدارهای شکست ضبط، اعلانهای Sokatito را فعال کنید.</string>
+    <string name="notification_permission_reminder_required">برای دریافت یادآورهای برنامه، اعلانهای Sokatito را فعال کنید.</string>
     <string name="player_action_cast">Cast</string>
     <string name="player_action_diagnostics">عیبیابی</string>
     <string name="player_action_format">قالب</string>

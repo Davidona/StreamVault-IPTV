@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">StreamVault</string>
+    <string name="app_name">Sokatito</string>
 
 
     <string name="nav_home">Почетна</string>
@@ -307,21 +307,21 @@
 
 
     <string name="split_count_format">%1$s %2$d/4</string>
-    <string name="tv_input_setup_scanning_title">Скенирање StreamVault канала</string>
+    <string name="tv_input_setup_scanning_title">Скенирање Sokatito канала</string>
     <string name="tv_input_setup_success_title">ТВ уживо је спреман</string>
     <string name="tv_input_setup_no_provider_title">Није подешен ниједан IPTV провајдер</string>
     <string name="tv_input_setup_error_title">Аутоматско скенирање није успело</string>
     <string name="tv_input_setup_idle_title">Припрема интеграције ТВ уживо</string>
-    <string name="tv_input_setup_scanning_body">StreamVault синхронизује вашег активног провајдера са ТВ уживо на Android TV.</string>
+    <string name="tv_input_setup_scanning_body">Sokatito синхронизује вашег активног провајдера са ТВ уживо на Android TV.</string>
     <string name="tv_input_setup_success_body">Ваши канали су успешно синхронизовани.</string>
-    <string name="tv_input_setup_no_provider_body">Додајте барем једног IPTV провајдера у StreamVault, па се вратите овде да скенирате канале у ТВ уживо на Android TV.</string>
+    <string name="tv_input_setup_no_provider_body">Додајте барем једног IPTV провајдера у Sokatito, па се вратите овде да скенирате канале у ТВ уживо на Android TV.</string>
     <string name="tv_input_setup_error_body">Синхронизација ТВ улаза није завршена.</string>
     <string name="tv_input_setup_idle_body">Сачекајте.</string>
     <string name="tv_input_setup_source_format">Извор: %1$s</string>
-    <string name="tv_input_setup_open_setup">Отвори StreamVault подешавање</string>
+    <string name="tv_input_setup_open_setup">Отвори Sokatito подешавање</string>
     <string name="tv_input_setup_try_scan_again">Покушај поново аутоматско скенирање</string>
     <string name="tv_input_setup_retry_scan">Понови аутоматско скенирање</string>
-    <string name="tv_input_setup_success_hint">ТВ уживо на Android TV сада може да отвори ваше StreamVault канале.</string>
+    <string name="tv_input_setup_success_hint">ТВ уживо на Android TV сада може да отвори ваше Sokatito канале.</string>
 
     <!-- M2: Google Drive backup sync -->
     <string name="settings_drive_cancel_backup_choice_subtitle">Вратите се на радње резервне копије на Google Drive-у.</string>

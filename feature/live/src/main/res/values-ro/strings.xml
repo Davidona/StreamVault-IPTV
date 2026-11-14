@@ -241,8 +241,8 @@
     <string name="epg_watch_live">Urmărește în direct</string>
     <string name="guide_shell_subtitle">Ghidați filtrele, densitatea programului și detaliile concentrate ale programului într-o singură suprafață de la distanță.</string>
     <string name="nav_epg">Ghid</string>
-    <string name="notification_permission_recording_alert_required">Activează notificările pentru StreamVault pentru a primi alerte de eșec înregistrare.</string>
-    <string name="notification_permission_reminder_required">Activează notificările pentru StreamVault pentru a primi remindere de programe.</string>
+    <string name="notification_permission_recording_alert_required">Activează notificările pentru Sokatito pentru a primi alerte de eșec înregistrare.</string>
+    <string name="notification_permission_reminder_required">Activează notificările pentru Sokatito pentru a primi remindere de programe.</string>
     <string name="player_archive_badge">Arhiva</string>
     <string name="settings_parental_control">Control parental</string>
     <string name="home_show_categories">Afișați categoriile</string>

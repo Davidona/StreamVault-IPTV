@@ -107,11 +107,11 @@
   <string name="dashboard_top_rated_movies">Найвище оцінені фільми</string>
   <string name="dashboard_update_allow_installs">Дозволити встановлення</string>
   <string name="dashboard_update_available">Нова версія програми вже кешована й готова до перегляду в Налаштуваннях.</string>
-  <string name="dashboard_update_install_permission_required">Оновлення завантажено. Дозвольте встановлення з StreamVault і повторіть спробу.</string>
+  <string name="dashboard_update_install_permission_required">Оновлення завантажено. Дозвольте встановлення з Sokatito і повторіть спробу.</string>
   <string name="dashboard_update_install_ready">Останнє оновлення вже завантажено. Відкрийте Налаштування, щоб установити його.</string>
   <string name="dashboard_update_open_installer">Встановити з Налаштувань</string>
   <string name="dashboard_update_open_settings">Відкрити оновлення</string>
-  <string name="dashboard_update_title">Доступна версія StreamVault %1$s</string>
+  <string name="dashboard_update_title">Доступна версія Sokatito %1$s</string>
   <string name="dashboard_updated_series">Оновлена добірка серіалів</string>
   <string name="dashboard_updated_series_badge">Оновлені серіали</string>
   <string name="dashboard_warning_review">Відкрити деталі провайдера</string>
@@ -364,5 +364,5 @@
 <string name="trakt_rating_current">Ваша оцінка в Trakt: %1$d/10</string>
 <string name="trakt_rating_saved">Оцінку збережено в Trakt.</string>
 <string name="trakt_rating_failed">Не вдалося зберегти оцінку в Trakt.</string>
-<string name="trakt_favorite_sync_failed">StreamVault зберіг зміни, але не зміг оновити обране Trakt. Спробуйте ще раз.</string>
+<string name="trakt_favorite_sync_failed">Sokatito зберіг зміни, але не зміг оновити обране Trakt. Спробуйте ще раз.</string>
 </resources>

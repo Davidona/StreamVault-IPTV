@@ -63,7 +63,7 @@
     <string name="trakt_custom_lists_connect_first">Csatlakoztassa a Trakt-t a Beállításokban a listák használatához.</string>
     <string name="trakt_custom_lists_failed">Nem sikerült betölteni vagy frissíteni ezt a Trakt listát. Próbáld újra.</string>
     <string name="trakt_custom_lists_incognito">A Trakt listák nem érhetők el, ha az inkognitó mód be van kapcsolva.</string>
-    <string name="trakt_custom_lists_too_large">Ez a lista túl nagy ahhoz, hogy teljesen betöltse a StreamVault-ban.</string>
+    <string name="trakt_custom_lists_too_large">Ez a lista túl nagy ahhoz, hogy teljesen betöltse a Sokatito-ban.</string>
     <string name="trakt_custom_list_remove_item">Eltávolítás</string>
     <string name="trakt_custom_lists_delete">Törlés</string>
     <string name="trakt_custom_lists_delete_title">Törli ezt a Trakt listát?</string>

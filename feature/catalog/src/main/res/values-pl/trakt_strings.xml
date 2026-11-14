@@ -17,7 +17,7 @@
     <string name="trakt_custom_lists_empty">Nie masz jeszcze żadnych niestandardowych list Trakt.</string>
     <string name="trakt_custom_lists_failed">Nie można załadować lub zaktualizować tej listy Trakt. Spróbuj ponownie.</string>
     <string name="trakt_custom_lists_incognito">Listy Trakt są niedostępne, gdy włączony jest tryb incognito.</string>
-    <string name="trakt_custom_lists_too_large">Ta lista jest zbyt duża, aby załadować ją w całości do StreamVault.</string>
+    <string name="trakt_custom_lists_too_large">Ta lista jest zbyt duża, aby załadować ją w całości do Sokatito.</string>
     <string name="trakt_custom_list_open">%1$s · Elementy %2$d</string>
     <string name="trakt_custom_list_contains_item">%1$s znajduje się na tej liście.</string>
     <string name="trakt_custom_list_does_not_contain_item">%1$s nie znajduje się na tej liście.</string>

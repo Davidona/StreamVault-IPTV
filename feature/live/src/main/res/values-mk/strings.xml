@@ -242,8 +242,8 @@
     <string name="epg_watch_live">Гледај во живо</string>
     <string name="guide_shell_subtitle">Филтри за водичот, густина на програмата и детали за избраната програма на една површина прилагодена за далечинско управување.</string>
     <string name="nav_epg">Водич</string>
-    <string name="notification_permission_recording_alert_required">Овозможете известувања за StreamVault за да добивате предупредувања за неуспешно снимање.</string>
-    <string name="notification_permission_reminder_required">Овозможете известувања за StreamVault за да добивате потсетници за програми.</string>
+    <string name="notification_permission_recording_alert_required">Овозможете известувања за Sokatito за да добивате предупредувања за неуспешно снимање.</string>
+    <string name="notification_permission_reminder_required">Овозможете известувања за Sokatito за да добивате потсетници за програми.</string>
     <string name="player_archive_badge">Архива</string>
     <string name="settings_parental_control">Родителска контрола</string>
     <string name="nav_sports">Спорт</string>

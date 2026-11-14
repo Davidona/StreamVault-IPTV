@@ -50,8 +50,8 @@
     <string name="label_duration_min">%1$d मिनट</string>
     <string name="multiview_nav">स्प्लिट स्क्रीन</string>
     <string name="nav_live_tv">लाइव TV</string>
-    <string name="notification_permission_recording_alert_required">रिकॉर्डिंग विफलता अलर्ट पाने के लिए StreamVault की सूचनाएँ सक्षम करें।</string>
-    <string name="notification_permission_reminder_required">कार्यक्रम रिमाइंडर पाने के लिए StreamVault की सूचनाएँ सक्षम करें।</string>
+    <string name="notification_permission_recording_alert_required">रिकॉर्डिंग विफलता अलर्ट पाने के लिए Sokatito की सूचनाएँ सक्षम करें।</string>
+    <string name="notification_permission_reminder_required">कार्यक्रम रिमाइंडर पाने के लिए Sokatito की सूचनाएँ सक्षम करें।</string>
     <string name="player_action_cast">Cast</string>
     <string name="player_action_diagnostics">डायग्नोस्टिक्स</string>
     <string name="player_action_format">फ़ॉर्मेट</string>

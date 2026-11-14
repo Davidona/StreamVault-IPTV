@@ -6,7 +6,7 @@
     <string name="settings_syncing_btn">Sincronizando...</string>
     <string name="settings_backup_restore">Backup e restauração</string>
     <string name="settings_restore_data">Importar dados</string>
-    <string name="setup_title_streamvault">StreamVault</string>
+    <string name="setup_title_streamvault">Sokatito</string>
     <string name="setup_provider_title">Adicionar um provedor</string>
     <string name="setup_edit_provider">Editar provedor</string>
     <string name="setup_update_desc">Atualize os detalhes do seu provedor de IPTV</string>
@@ -62,7 +62,7 @@
     <string name="setup_validating">Validando...</string>
     <string name="setup_add">Adicionar lista de reprodução</string>
     <string name="badge_beta">Beta</string>
-    <string name="settings_restore_subtitle">Escolha um arquivo de backup ou abra um backup com StreamVault de um gerenciador de arquivos.</string>
+    <string name="settings_restore_subtitle">Escolha um arquivo de backup ou abra um backup com Sokatito de um gerenciador de arquivos.</string>
     <string name="setup_discard_draft_body">A configuração do provedor está incompleta. Voltar e perder o rascunho atual?</string>
     <string name="setup_discard_draft_cancel">Continuar editando</string>
     <string name="setup_discard_draft_confirm">Descartar</string>

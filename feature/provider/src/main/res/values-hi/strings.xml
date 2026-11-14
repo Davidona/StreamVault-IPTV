@@ -6,8 +6,8 @@
     <string name="settings_syncing_btn">सिंक हो रहा है...</string>
     <string name="settings_backup_restore">बैकअप और रीस्टोर</string>
     <string name="settings_restore_data">डेटा आयात करें</string>
-    <string name="settings_restore_subtitle">बैकअप फ़ाइल चुनें या फ़ाइल मैनेजर से StreamVault के साथ बैकअप खोलें।</string>
-    <string name="setup_title_streamvault">StreamVault</string>
+    <string name="settings_restore_subtitle">बैकअप फ़ाइल चुनें या फ़ाइल मैनेजर से Sokatito के साथ बैकअप खोलें।</string>
+    <string name="setup_title_streamvault">Sokatito</string>
     <string name="setup_provider_title">प्रदाता जोड़ें</string>
     <string name="setup_edit_provider">प्रदाता संपादित करें</string>
     <string name="setup_update_desc">अपने IPTV प्रदाता विवरण अपडेट करें</string>

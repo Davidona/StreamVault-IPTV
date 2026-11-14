@@ -63,7 +63,7 @@
     <string name="trakt_custom_lists_connect_first">Chcete-li používat seznamy, připojte Trakt v Nastavení.</string>
     <string name="trakt_custom_lists_failed">Tento seznam Trakt nelze načíst nebo aktualizovat. Zkuste to znovu.</string>
     <string name="trakt_custom_lists_incognito">Seznamy Trakt nejsou k dispozici, když je zapnutý anonymní režim.</string>
-    <string name="trakt_custom_lists_too_large">Tento seznam je příliš velký na to, aby se mohl celý načíst do StreamVault.</string>
+    <string name="trakt_custom_lists_too_large">Tento seznam je příliš velký na to, aby se mohl celý načíst do Sokatito.</string>
     <string name="trakt_custom_list_remove_item">Odebrat</string>
     <string name="trakt_custom_lists_delete">Smazat</string>
     <string name="trakt_custom_lists_delete_title">Smazat tento seznam Trakt?</string>

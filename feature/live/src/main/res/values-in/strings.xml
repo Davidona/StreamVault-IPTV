@@ -241,8 +241,8 @@
     <string name="epg_watch_live">Tonton Langsung</string>
     <string name="guide_shell_subtitle">Filter panduan, kepadatan jadwal, dan detail program terfokus dalam satu permukaan yang mengutamakan jarak jauh.</string>
     <string name="nav_epg">Panduan</string>
-    <string name="notification_permission_recording_alert_required">Aktifkan notifikasi untuk StreamVault agar menerima peringatan kegagalan rekaman.</string>
-    <string name="notification_permission_reminder_required">Aktifkan notifikasi untuk StreamVault agar menerima pengingat program.</string>
+    <string name="notification_permission_recording_alert_required">Aktifkan notifikasi untuk Sokatito agar menerima peringatan kegagalan rekaman.</string>
+    <string name="notification_permission_reminder_required">Aktifkan notifikasi untuk Sokatito agar menerima pengingat program.</string>
     <string name="player_archive_badge">Arsip</string>
     <string name="settings_parental_control">Kontrol Orang Tua</string>
     <string name="home_show_categories">Tampilkan kategori</string>

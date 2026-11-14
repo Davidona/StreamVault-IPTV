@@ -15,8 +15,8 @@
     <string name="label_duration_min">%1$d min</string>
     <string name="multiview_nav">Gesplitst scherm</string>
     <string name="nav_live_tv">Live-tv</string>
-    <string name="notification_permission_recording_alert_required">Schakel meldingen voor StreamVault in om opnamefoutmeldingen te ontvangen.</string>
-    <string name="notification_permission_reminder_required">Schakel meldingen voor StreamVault in om programmaherinneringen te ontvangen.</string>
+    <string name="notification_permission_recording_alert_required">Schakel meldingen voor Sokatito in om opnamefoutmeldingen te ontvangen.</string>
+    <string name="notification_permission_reminder_required">Schakel meldingen voor Sokatito in om programmaherinneringen te ontvangen.</string>
     <string name="player_action_cast">Gegoten</string>
     <string name="player_action_diagnostics">Diagnostiek</string>
     <string name="player_action_format">Formaat</string>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="app_name">StreamVault</string>
+  <string name="app_name">Sokatito</string>
   <string name="welcome_setup_provider">Konfigurera leverantör</string>
   <string name="welcome_loading_title">Förbereder ditt bibliotek</string>
   <string name="sync_section_live">Live</string>
@@ -47,12 +47,12 @@
     <string name="torrent_cache_active">Stoppa torrentuppspelningen innan du rensar cachen.</string>
     <string name="torrent_cache_clear_failed">Det gick inte att rensa den tillfälliga cachen.</string>
     <string name="extensions_title">Tillägg</string>
-    <string name="plugins_section_description">Lägg till funktioner i StreamVault med kompanjonappar för Android.</string>
+    <string name="plugins_section_description">Lägg till funktioner i Sokatito med kompanjonappar för Android.</string>
     <string name="plugins_install_url">Installera insticksprogram från URL</string>
     <string name="plugins_install_file">Installera insticksprogram från APK</string>
     <string name="plugins_install_hint">Använd en APK-fil eller en direkt nedladdningslänk till en APK. För manifest-URL:er till Stremio-tillägg använder du fliken Stremio-tillägg.</string>
     <string name="plugins_empty_title">Inga insticksprogram installerade</string>
-    <string name="plugins_empty_description">Installera en kompatibel kompanjonapp för StreamVault, eller kontrollera igen efter ett insticksprogram som du installerade utanför StreamVault.</string>
+    <string name="plugins_empty_description">Installera en kompatibel kompanjonapp för Sokatito, eller kontrollera igen efter ett insticksprogram som du installerade utanför Sokatito.</string>
     <string name="plugins_provider_sources_count">%1$d leverantörskällor tillgängliga</string>
     <string name="plugins_details">Detaljer</string>
     <string name="plugins_hide_details">Dölj detaljer</string>

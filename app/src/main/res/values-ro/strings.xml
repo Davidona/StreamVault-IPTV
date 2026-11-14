@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">StreamVault</string>
+    <string name="app_name">Sokatito</string>
     <string name="nav_home">Acasă</string>
     <string name="nav_live_tv">TV în direct</string>
     <string name="nav_movies">Filme</string>
@@ -208,21 +208,21 @@
     <string name="badge_fav">FAV</string>
     <string name="favorites_content_type_movie">Film</string>
     <string name="split_count_format">%1$s %2$d/4</string>
-    <string name="tv_input_setup_scanning_title">Scanarea canalelor StreamVault</string>
+    <string name="tv_input_setup_scanning_title">Scanarea canalelor Sokatito</string>
     <string name="tv_input_setup_success_title">Live TV este gata</string>
     <string name="tv_input_setup_no_provider_title">Nu a fost configurat niciun furnizor IPTV</string>
     <string name="tv_input_setup_error_title">Scanarea automată a eșuat</string>
     <string name="tv_input_setup_idle_title">Pregătirea integrării Live TV</string>
-    <string name="tv_input_setup_scanning_body">StreamVault sincronizează furnizorul dvs. activ cu Android TV Live TV.</string>
+    <string name="tv_input_setup_scanning_body">Sokatito sincronizează furnizorul dvs. activ cu Android TV Live TV.</string>
     <string name="tv_input_setup_success_body">Canalele dvs. au fost sincronizate cu succes.</string>
-    <string name="tv_input_setup_no_provider_body">Adaugă cel puțin un furnizor IPTV în StreamVault, apoi revino aici pentru a scana canalele în Android TV Live TV.</string>
+    <string name="tv_input_setup_no_provider_body">Adaugă cel puțin un furnizor IPTV în Sokatito, apoi revino aici pentru a scana canalele în Android TV Live TV.</string>
     <string name="tv_input_setup_error_body">Sincronizarea intrării televizorului nu s-a finalizat.</string>
     <string name="tv_input_setup_idle_body">Va rugam asteptati.</string>
     <string name="tv_input_setup_source_format">Sursa: %1$s</string>
-    <string name="tv_input_setup_open_setup">Deschideți StreamVault Setup</string>
+    <string name="tv_input_setup_open_setup">Deschideți Sokatito Setup</string>
     <string name="tv_input_setup_try_scan_again">Încearcă din nou scanarea automată</string>
     <string name="tv_input_setup_retry_scan">Reîncearcă scanarea automată</string>
-    <string name="tv_input_setup_success_hint">Android TV Live TV vă poate deschide acum canalele StreamVault.</string>
+    <string name="tv_input_setup_success_hint">Android TV Live TV vă poate deschide acum canalele Sokatito.</string>
     <string name="category_options_clear_recent">Șterge tot istoricul recent</string>
     <string name="category_options_hide_from_live_tv">Ascunde din Live TV</string>
     <string name="channel_options_remove_from_recent">Elimină din Recent</string>

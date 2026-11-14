@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="app_name">StreamVault</string>
+  <string name="app_name">Sokatito</string>
   <string name="welcome_setup_provider">إعداد مزوّد</string>
   <string name="welcome_loading_title">جارٍ تحضير مكتبتك</string>
   <string name="sync_section_live">البث المباشر</string>
@@ -47,12 +47,12 @@
     <string name="torrent_cache_active">أوقف تشغيل التورنت قبل مسح الذاكرة المؤقتة.</string>
     <string name="torrent_cache_clear_failed">تعذر مسح الذاكرة المؤقتة.</string>
     <string name="extensions_title">التمديدات</string>
-    <string name="plugins_section_description">أضف ميزات إلى StreamVault باستخدام تطبيقات Android المرافقة.</string>
+    <string name="plugins_section_description">أضف ميزات إلى Sokatito باستخدام تطبيقات Android المرافقة.</string>
     <string name="plugins_install_url">تثبيت ملحق من رابط</string>
     <string name="plugins_install_file">تثبيت ملحق APK</string>
     <string name="plugins_install_hint">استخدم ملف APK أو رابط تنزيل APK مباشرًا. بالنسبة لروابط بيان الإضافات المتوافقة مع Stremio، استخدم تبويب إضافات Stremio.</string>
     <string name="plugins_empty_title">لا توجد ملحقات مثبتة</string>
-    <string name="plugins_empty_description">ثبّت تطبيقًا مرافقًا متوافقًا مع StreamVault، أو أعد التحقق من ملحق مثبّت خارج StreamVault.</string>
+    <string name="plugins_empty_description">ثبّت تطبيقًا مرافقًا متوافقًا مع Sokatito، أو أعد التحقق من ملحق مثبّت خارج Sokatito.</string>
     <string name="plugins_provider_sources_count">%1$d مصادر مزوّد متاحة</string>
     <string name="plugins_details">التفاصيل</string>
     <string name="plugins_hide_details">إخفاء التفاصيل</string>

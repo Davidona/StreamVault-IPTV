@@ -118,11 +118,11 @@
   <string name="dashboard_top_rated_movies">Top Rated Movies</string>
   <string name="dashboard_update_allow_installs">Allow Installs</string>
   <string name="dashboard_update_available">A newer app release is cached and ready to review from Settings.</string>
-  <string name="dashboard_update_install_permission_required">The update is downloaded. Allow installs from StreamVault, then retry installation.</string>
+  <string name="dashboard_update_install_permission_required">The update is downloaded. Allow installs from Sokatito, then retry installation.</string>
   <string name="dashboard_update_install_ready">The latest update has already been downloaded. Open the installer to finish.</string>
   <string name="dashboard_update_open_installer">Install Update</string>
   <string name="dashboard_update_open_settings">Open Updates</string>
-  <string name="dashboard_update_title">StreamVault %1$s is available</string>
+  <string name="dashboard_update_title">Sokatito %1$s is available</string>
   <string name="dashboard_updated_series">Updated series shelf</string>
   <string name="dashboard_updated_series_badge">Updated series</string>
   <string name="dashboard_warning_review">Open Provider Details</string>
@@ -135,7 +135,7 @@
   <string name="trakt_watchlist_add">Add to Trakt watchlist</string>
   <string name="trakt_watchlist_connect">Connect Trakt in Settings</string>
   <string name="trakt_watchlist_failed">Could not update the Trakt watchlist. Try again.</string>
-  <string name="trakt_favorite_sync_failed">StreamVault saved the change, but could not update Trakt Favorites. Try again.</string>
+  <string name="trakt_favorite_sync_failed">Sokatito saved the change, but could not update Trakt Favorites. Try again.</string>
   <string name="trakt_watchlist_load">Load Trakt watchlist</string>
   <string name="trakt_watchlist_remove">Remove from Trakt watchlist</string>
   <string name="trakt_custom_lists_action">Trakt Lists</string>
@@ -146,7 +146,7 @@
   <string name="trakt_custom_lists_empty">You don’t have any custom Trakt lists yet.</string>
   <string name="trakt_custom_lists_failed">Could not load or update this Trakt list. Try again.</string>
   <string name="trakt_custom_lists_incognito">Trakt lists are unavailable while Incognito mode is on.</string>
-  <string name="trakt_custom_lists_too_large">This list is too large to load completely in StreamVault.</string>
+  <string name="trakt_custom_lists_too_large">This list is too large to load completely in Sokatito.</string>
   <string name="trakt_custom_list_open">%1$s · %2$d items</string>
   <string name="trakt_custom_list_contains_item">%1$s is in this list.</string>
   <string name="trakt_custom_list_does_not_contain_item">%1$s is not in this list.</string>

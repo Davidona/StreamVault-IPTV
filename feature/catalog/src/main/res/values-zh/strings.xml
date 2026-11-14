@@ -107,11 +107,11 @@
   <string name="dashboard_top_rated_movies">热门电影</string>
   <string name="dashboard_update_allow_installs">允许安装</string>
   <string name="dashboard_update_available">有更新版本已缓存，可在设置中查看。</string>
-  <string name="dashboard_update_install_permission_required">更新已下载。请允许来自 StreamVault 的安装，然后重试安装。</string>
+  <string name="dashboard_update_install_permission_required">更新已下载。请允许来自 Sokatito 的安装，然后重试安装。</string>
   <string name="dashboard_update_install_ready">最新更新已下载。打开设置即可安装。</string>
   <string name="dashboard_update_open_installer">从设置安装</string>
   <string name="dashboard_update_open_settings">打开更新</string>
-  <string name="dashboard_update_title">StreamVault %1$s 可用</string>
+  <string name="dashboard_update_title">Sokatito %1$s 可用</string>
   <string name="dashboard_updated_series">已更新剧集栏</string>
   <string name="dashboard_updated_series_badge">已更新剧集</string>
   <string name="dashboard_warning_review">打开提供商详情</string>
@@ -364,5 +364,5 @@
 <string name="trakt_rating_current">你的 Trakt 评分：%1$d/10</string>
 <string name="trakt_rating_saved">评分已保存到 Trakt。</string>
 <string name="trakt_rating_failed">无法将评分保存到 Trakt。</string>
-<string name="trakt_favorite_sync_failed">StreamVault 已保存更改，但无法更新 Trakt 收藏夹。请重试。</string>
+<string name="trakt_favorite_sync_failed">Sokatito 已保存更改，但无法更新 Trakt 收藏夹。请重试。</string>
 </resources>

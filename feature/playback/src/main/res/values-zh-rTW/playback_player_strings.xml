@@ -49,8 +49,8 @@
     <string name="label_duration_min">%1$d 分鐘</string>
     <string name="multiview_nav">分割畫面</string>
     <string name="nav_live_tv">直播電視</string>
-    <string name="notification_permission_recording_alert_required">為 StreamVault 啟用通知，以接收錄影失敗警示。</string>
-    <string name="notification_permission_reminder_required">為 StreamVault 啟用通知，以接收節目提醒。</string>
+    <string name="notification_permission_recording_alert_required">為 Sokatito 啟用通知，以接收錄影失敗警示。</string>
+    <string name="notification_permission_reminder_required">為 Sokatito 啟用通知，以接收節目提醒。</string>
     <string name="player_action_cast">Cast</string>
     <string name="player_action_diagnostics">診斷</string>
     <string name="player_action_format">格式</string>

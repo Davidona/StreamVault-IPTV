@@ -65,7 +65,7 @@
     <string name="trakt_custom_lists_connect_first">Свържете Trakt в Настройки, за да използвате вашите списъци.</string>
     <string name="trakt_custom_lists_failed">Не може да се зареди или актуализира този списък Trakt. Опитайте отново.</string>
     <string name="trakt_custom_lists_incognito">Списъците Trakt не са достъпни, докато режимът инкогнито е включен.</string>
-    <string name="trakt_custom_lists_too_large">Този списък е твърде голям, за да се зареди изцяло в StreamVault.</string>
+    <string name="trakt_custom_lists_too_large">Този списък е твърде голям, за да се зареди изцяло в Sokatito.</string>
     <string name="trakt_custom_list_remove_item">Премахване</string>
     <string name="trakt_custom_lists_delete">Изтриване</string>
     <string name="trakt_custom_lists_delete_title">Да се ​​изтрие ли този списък Trakt?</string>

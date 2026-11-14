@@ -107,11 +107,11 @@
   <string name="dashboard_top_rated_movies">Legjobbra értékelt filmek</string>
   <string name="dashboard_update_allow_installs">Telepítések engedélyezése</string>
   <string name="dashboard_update_available">Egy újabb alkalmazásverzió gyorsítótárban van, és a Beállításokban megtekinthető.</string>
-  <string name="dashboard_update_install_permission_required">A frissítés letöltve. Engedélyezze a telepítéseket a StreamVaultból, majd próbálja újra a telepítést.</string>
+  <string name="dashboard_update_install_permission_required">A frissítés letöltve. Engedélyezze a telepítéseket a Sokatitoból, majd próbálja újra a telepítést.</string>
   <string name="dashboard_update_install_ready">A legújabb frissítés már le lett töltve. Nyisd meg a Beállításokat a telepítéshez.</string>
   <string name="dashboard_update_open_installer">Telepítés a Beállításokból</string>
   <string name="dashboard_update_open_settings">Frissítések megnyitása</string>
-  <string name="dashboard_update_title">A StreamVault %1$s elérhető</string>
+  <string name="dashboard_update_title">A Sokatito %1$s elérhető</string>
   <string name="dashboard_updated_series">Frissített sorozat polc</string>
   <string name="dashboard_updated_series_badge">Frissített sorozat</string>
   <string name="dashboard_warning_review">Szolgáltató részletei megnyitása</string>
@@ -364,5 +364,5 @@
 <string name="trakt_rating_current">Trakt-értékelésed: %1$d/10</string>
 <string name="trakt_rating_saved">Az értékelésed mentve a Traktra.</string>
 <string name="trakt_rating_failed">Nem sikerült menteni az értékelésedet a Traktra.</string>
-<string name="trakt_favorite_sync_failed">A StreamVault mentette a módosítást, de nem sikerült frissítenie a Trakt kedvenceket. Próbáld újra.</string>
+<string name="trakt_favorite_sync_failed">A Sokatito mentette a módosítást, de nem sikerült frissítenie a Trakt kedvenceket. Próbáld újra.</string>
 </resources>

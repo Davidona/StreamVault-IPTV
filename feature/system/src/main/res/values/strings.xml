@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="extensions_title">Extensions</string>
-    <string name="plugins_section_description">Add features to StreamVault with companion Android apps.</string>
+    <string name="plugins_section_description">Add features to Sokatito with companion Android apps.</string>
     <string name="plugins_install_url">Install plugin from URL</string>
     <string name="plugins_install_file">Install plugin APK</string>
     <string name="plugins_refresh">Check installed plugins</string>
     <string name="plugins_install_hint">Use an APK file or a direct APK download link. For Stremio-compatible add-on manifest URLs, use the Stremio-compatible Add-ons tab.</string>
     <string name="plugins_empty_title">No plugins installed</string>
-    <string name="plugins_empty_description">Install a compatible StreamVault companion app, or check again for a plugin you installed outside StreamVault.</string>
+    <string name="plugins_empty_description">Install a compatible Sokatito companion app, or check again for a plugin you installed outside Sokatito.</string>
     <string name="plugins_add">Add plugin</string>
     <string name="plugins_installed_count">Plugins · %1$d installed</string>
     <string name="plugins_provider_sources_count">%1$d provider sources available</string>
@@ -16,7 +16,7 @@
     <string name="plugins_back_to_plugins">Back to Plugins</string>
     <string name="plugins_refresh_configuration">Refresh</string>
     <string name="plugins_save_configuration">Save</string>
-  <string name="app_name">StreamVault</string>
+  <string name="app_name">Sokatito</string>
   <string name="welcome_setup_provider">Setup Provider</string>
   <string name="welcome_setup_later">Set up later</string>
   <string name="welcome_dont_ask_again">Don’t ask me again</string>

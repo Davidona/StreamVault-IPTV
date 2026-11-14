@@ -241,8 +241,8 @@
     <string name="epg_watch_live">Se live</string>
     <string name="guide_shell_subtitle">Guidefiltre, programtæthed og fokuserede programdetaljer i én fjernbetjeningsvenlig visning.</string>
     <string name="nav_epg">Vejledning</string>
-    <string name="notification_permission_recording_alert_required">Aktivér notifikationer for StreamVault for at modtage advarsler om optagelsesfejl.</string>
-    <string name="notification_permission_reminder_required">Aktivér notifikationer for StreamVault for at modtage programpåmindelser.</string>
+    <string name="notification_permission_recording_alert_required">Aktivér notifikationer for Sokatito for at modtage advarsler om optagelsesfejl.</string>
+    <string name="notification_permission_reminder_required">Aktivér notifikationer for Sokatito for at modtage programpåmindelser.</string>
     <string name="player_archive_badge">Arkiv</string>
     <string name="settings_parental_control">Forældrekontrol</string>
     <string name="home_show_categories">Vis kategorier</string>

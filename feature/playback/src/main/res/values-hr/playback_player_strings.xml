@@ -51,8 +51,8 @@
     <string name="label_duration_min">%1$d min</string>
     <string name="multiview_nav">Podijeljeni zaslon</string>
     <string name="nav_live_tv">TV uživo</string>
-    <string name="notification_permission_recording_alert_required">Omogućite obavijesti za StreamVault da biste primali upozorenja o neuspješnim snimanjima.</string>
-    <string name="notification_permission_reminder_required">Omogućite obavijesti za StreamVault da biste primali podsjetnike za emisije.</string>
+    <string name="notification_permission_recording_alert_required">Omogućite obavijesti za Sokatito da biste primali upozorenja o neuspješnim snimanjima.</string>
+    <string name="notification_permission_reminder_required">Omogućite obavijesti za Sokatito da biste primali podsjetnike za emisije.</string>
     <string name="player_action_cast">Cast</string>
     <string name="player_action_diagnostics">Dijagnostika</string>
     <string name="player_action_format">Format</string>

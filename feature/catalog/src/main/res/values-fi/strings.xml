@@ -107,11 +107,11 @@
   <string name="dashboard_top_rated_movies">Parhaiten arvioidut elokuvat</string>
   <string name="dashboard_update_allow_installs">Salli asennukset</string>
   <string name="dashboard_update_available">Uudempi sovellusversio on välimuistissa ja valmis tarkistettavaksi Asetuksista.</string>
-  <string name="dashboard_update_install_permission_required">Päivitys on ladattu. Salli asennukset StreamVaultista ja yritä asennusta uudelleen.</string>
+  <string name="dashboard_update_install_permission_required">Päivitys on ladattu. Salli asennukset Sokatitoista ja yritä asennusta uudelleen.</string>
   <string name="dashboard_update_install_ready">Uusin päivitys on jo ladattu. Avaa Asetukset asentaaksesi sen.</string>
   <string name="dashboard_update_open_installer">Asenna asetuksista</string>
   <string name="dashboard_update_open_settings">Avaa päivitykset</string>
-  <string name="dashboard_update_title">StreamVault %1$s on saatavilla</string>
+  <string name="dashboard_update_title">Sokatito %1$s on saatavilla</string>
   <string name="dashboard_updated_series">Päivitetty sarjahylly</string>
   <string name="dashboard_updated_series_badge">Päivitetty sarja</string>
   <string name="dashboard_warning_review">Avaa Palveluntarjoajan tiedot</string>
@@ -364,5 +364,5 @@
 <string name="trakt_rating_current">Trakt-arvosanasi: %1$d/10</string>
 <string name="trakt_rating_saved">Arvosanasi tallennettiin Traktiin.</string>
 <string name="trakt_rating_failed">Arvosanan tallentaminen Traktiin epäonnistui.</string>
-<string name="trakt_favorite_sync_failed">StreamVault tallensi muutoksen, mutta Trakt-suosikkeja ei voitu päivittää. Yritä uudelleen.</string>
+<string name="trakt_favorite_sync_failed">Sokatito tallensi muutoksen, mutta Trakt-suosikkeja ei voitu päivittää. Yritä uudelleen.</string>
 </resources>

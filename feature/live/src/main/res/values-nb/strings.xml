@@ -241,8 +241,8 @@
     <string name="epg_watch_live">Se direkte</string>
     <string name="guide_shell_subtitle">Guidefiltre, programtetthet og fokusert programdetalj i ett fjernkontrollvennlig grensesnitt.</string>
     <string name="nav_epg">Veiledning</string>
-    <string name="notification_permission_recording_alert_required">Aktiver varsler for StreamVault for å motta advarsler om opptaksfeil.</string>
-    <string name="notification_permission_reminder_required">Aktiver varsler for StreamVault for å motta programpåminnelser.</string>
+    <string name="notification_permission_recording_alert_required">Aktiver varsler for Sokatito for å motta advarsler om opptaksfeil.</string>
+    <string name="notification_permission_reminder_required">Aktiver varsler for Sokatito for å motta programpåminnelser.</string>
     <string name="player_archive_badge">Arkiv</string>
     <string name="settings_parental_control">Foreldrekontroll</string>
     <string name="home_show_categories">Vis kategorier</string>

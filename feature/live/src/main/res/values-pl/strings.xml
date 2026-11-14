@@ -241,8 +241,8 @@
     <string name="epg_watch_live">Oglądaj na żywo</string>
     <string name="guide_shell_subtitle">Filtry przewodnika, gęstość programu i szczegóły programu w jednym widoku zoptymalizowanym pod pilota.</string>
     <string name="nav_epg">Przewodnik</string>
-    <string name="notification_permission_recording_alert_required">Włącz powiadomienia dla StreamVault, aby otrzymywać alerty o błędach nagrywania.</string>
-    <string name="notification_permission_reminder_required">Włącz powiadomienia dla StreamVault, aby otrzymywać przypomnienia programów.</string>
+    <string name="notification_permission_recording_alert_required">Włącz powiadomienia dla Sokatito, aby otrzymywać alerty o błędach nagrywania.</string>
+    <string name="notification_permission_reminder_required">Włącz powiadomienia dla Sokatito, aby otrzymywać przypomnienia programów.</string>
     <string name="player_archive_badge">Archiwum</string>
     <string name="settings_parental_control">Kontrola rodzicielska</string>
     <string name="home_show_categories">Pokaż kategorie</string>

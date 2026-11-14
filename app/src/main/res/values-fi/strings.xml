@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">StreamVault</string>
+    <string name="app_name">Sokatito</string>
     <string name="nav_home">Kotiin</string>
     <string name="nav_live_tv">Live-TV</string>
     <string name="nav_movies">Elokuvat</string>
@@ -208,21 +208,21 @@
     <string name="badge_fav">SUOS</string>
     <string name="favorites_content_type_movie">Elokuva</string>
     <string name="split_count_format">%1$s %2$d/4</string>
-    <string name="tv_input_setup_scanning_title">Skannataan StreamVault-kanavia</string>
+    <string name="tv_input_setup_scanning_title">Skannataan Sokatito-kanavia</string>
     <string name="tv_input_setup_success_title">Live-TV on valmis</string>
     <string name="tv_input_setup_no_provider_title">IPTV-palveluntarjoajaa ei ole määritetty</string>
     <string name="tv_input_setup_error_title">Automaattinen haku epäonnistui</string>
     <string name="tv_input_setup_idle_title">Valmistellaan suora-TV-integraatiota</string>
-    <string name="tv_input_setup_scanning_body">StreamVault synkronoi aktiivisen palveluntarjoajan Android TV Live TV:hen.</string>
+    <string name="tv_input_setup_scanning_body">Sokatito synkronoi aktiivisen palveluntarjoajan Android TV Live TV:hen.</string>
     <string name="tv_input_setup_success_body">Kanavasi synkronointi onnistui.</string>
-    <string name="tv_input_setup_no_provider_body">Lisää vähintään yksi IPTV-palveluntarjoaja StreamVaultiin ja palaa sitten tänne skannaamaan kanavat Android TV:n Live TV:hen.</string>
+    <string name="tv_input_setup_no_provider_body">Lisää vähintään yksi IPTV-palveluntarjoaja Sokatitoiin ja palaa sitten tänne skannaamaan kanavat Android TV:n Live TV:hen.</string>
     <string name="tv_input_setup_error_body">TV-tulon synkronointi ei ole valmis.</string>
     <string name="tv_input_setup_idle_body">Odota.</string>
     <string name="tv_input_setup_source_format">Lähde: %1$s</string>
-    <string name="tv_input_setup_open_setup">Avaa StreamVault Setup</string>
+    <string name="tv_input_setup_open_setup">Avaa Sokatito Setup</string>
     <string name="tv_input_setup_try_scan_again">Kokeile automaattista skannausta uudelleen</string>
     <string name="tv_input_setup_retry_scan">Yritä automaattista hakua uudelleen</string>
-    <string name="tv_input_setup_success_hint">Android TV Live TV voi nyt avata StreamVault-kanavasi.</string>
+    <string name="tv_input_setup_success_hint">Android TV Live TV voi nyt avata Sokatito-kanavasi.</string>
     <string name="category_options_clear_recent">Tyhjennä kaikki viimeisimmät</string>
     <string name="category_options_hide_from_live_tv">Piilota Live TV:stä</string>
     <string name="channel_options_remove_from_recent">Poista viimeisimmistä</string>

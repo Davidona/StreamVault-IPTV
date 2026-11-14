@@ -65,7 +65,7 @@
     <string name="trakt_custom_lists_connect_first">Sambungkan Trakt dalam Tetapan untuk menggunakan senarai anda.</string>
     <string name="trakt_custom_lists_failed">Tidak dapat memuatkan atau mengemas kini senarai Trakt ini. Cuba lagi.</string>
     <string name="trakt_custom_lists_incognito">Senarai Trakt tidak tersedia semasa mod Inkognito dihidupkan.</string>
-    <string name="trakt_custom_lists_too_large">Senarai ini terlalu besar untuk dimuatkan sepenuhnya dalam StreamVault.</string>
+    <string name="trakt_custom_lists_too_large">Senarai ini terlalu besar untuk dimuatkan sepenuhnya dalam Sokatito.</string>
     <string name="trakt_custom_list_remove_item">Alih keluar</string>
     <string name="trakt_custom_lists_delete">Padam</string>
     <string name="trakt_custom_lists_delete_title">Padamkan senarai Trakt ini?</string>

@@ -63,7 +63,7 @@
     <string name="trakt_custom_lists_connect_first">Kết nối Trakt trong Cài đặt để sử dụng danh sách của bạn.</string>
     <string name="trakt_custom_lists_failed">Không thể tải hoặc cập nhật danh sách Trakt này. Hãy thử lại.</string>
     <string name="trakt_custom_lists_incognito">Danh sách Trakt không khả dụng khi chế độ Ẩn danh đang bật.</string>
-    <string name="trakt_custom_lists_too_large">Danh sách này quá lớn để tải hoàn toàn trong StreamVault.</string>
+    <string name="trakt_custom_lists_too_large">Danh sách này quá lớn để tải hoàn toàn trong Sokatito.</string>
     <string name="trakt_custom_list_remove_item">Xóa</string>
     <string name="trakt_custom_lists_delete">Xóa</string>
     <string name="trakt_custom_lists_delete_title">Xóa danh sách Trakt này?</string>

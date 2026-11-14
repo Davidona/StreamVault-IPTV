@@ -242,8 +242,8 @@
     <string name="epg_watch_live">Gledaj uživo</string>
     <string name="guide_shell_subtitle">Filtri vodiča, gustoća rasporeda i detalji odabrane emisije na jednom sučelju prilagođenom daljinskom upravljaču.</string>
     <string name="nav_epg">Vodič</string>
-    <string name="notification_permission_recording_alert_required">Omogućite obavijesti za StreamVault da biste primali upozorenja o neuspjelim snimanjima.</string>
-    <string name="notification_permission_reminder_required">Omogućite obavijesti za StreamVault da biste primali podsjetnike za emisije.</string>
+    <string name="notification_permission_recording_alert_required">Omogućite obavijesti za Sokatito da biste primali upozorenja o neuspjelim snimanjima.</string>
+    <string name="notification_permission_reminder_required">Omogućite obavijesti za Sokatito da biste primali podsjetnike za emisije.</string>
     <string name="player_archive_badge">Arhiva</string>
     <string name="settings_parental_control">Roditeljska kontrola</string>
     <string name="nav_sports">Sport</string>

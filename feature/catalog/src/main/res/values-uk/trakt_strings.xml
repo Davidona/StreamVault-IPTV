@@ -17,7 +17,7 @@
     <string name="trakt_custom_lists_empty">У вас ще немає спеціальних списків Trakt.</string>
     <string name="trakt_custom_lists_failed">Не вдалося завантажити або оновити цей список Trakt. Спробуйте знову.</string>
     <string name="trakt_custom_lists_incognito">Списки Trakt недоступні, коли ввімкнено режим анонімного перегляду.</string>
-    <string name="trakt_custom_lists_too_large">Цей список завеликий для повного завантаження в StreamVault.</string>
+    <string name="trakt_custom_lists_too_large">Цей список завеликий для повного завантаження в Sokatito.</string>
     <string name="trakt_custom_list_open">%1$s · %2$d елементи</string>
     <string name="trakt_custom_list_contains_item">%1$s є в цьому списку.</string>
     <string name="trakt_custom_list_does_not_contain_item">%1$s немає в цьому списку.</string>

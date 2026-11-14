@@ -63,7 +63,7 @@
     <string name="trakt_custom_lists_connect_first">חבר את Trakt בהגדרות כדי להשתמש ברשימות שלך.</string>
     <string name="trakt_custom_lists_failed">לא ניתן היה לטעון או לעדכן את רשימת Trakt זו. נסה שוב.</string>
     <string name="trakt_custom_lists_incognito">רשימות Trakt אינן זמינות כאשר מצב גלישה בסתר מופעל.</string>
-    <string name="trakt_custom_lists_too_large">רשימה זו גדולה מדי לטעינה מלאה ב-StreamVault.</string>
+    <string name="trakt_custom_lists_too_large">רשימה זו גדולה מדי לטעינה מלאה ב-Sokatito.</string>
     <string name="trakt_custom_list_remove_item">הסר</string>
     <string name="trakt_custom_lists_delete">מחק</string>
     <string name="trakt_custom_lists_delete_title">למחוק את רשימת ה-Trakt הזו?</string>

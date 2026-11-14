@@ -242,8 +242,8 @@
     <string name="epg_watch_live">लाइव देखें</string>
     <string name="guide_shell_subtitle">एक रिमोट-प्रथम सतह में गाइड फ़िल्टर, शेड्यूल घनत्व और केंद्रित कार्यक्रम विवरण।</string>
     <string name="nav_epg">गाइड</string>
-    <string name="notification_permission_recording_alert_required">रिकॉर्डिंग विफलता अलर्ट प्राप्त करने के लिए StreamVault के लिए सूचनाएँ सक्षम करें।</string>
-    <string name="notification_permission_reminder_required">कार्यक्रम अनुस्मारक प्राप्त करने के लिए StreamVault के लिए सूचनाएँ सक्षम करें।</string>
+    <string name="notification_permission_recording_alert_required">रिकॉर्डिंग विफलता अलर्ट प्राप्त करने के लिए Sokatito के लिए सूचनाएँ सक्षम करें।</string>
+    <string name="notification_permission_reminder_required">कार्यक्रम अनुस्मारक प्राप्त करने के लिए Sokatito के लिए सूचनाएँ सक्षम करें।</string>
     <string name="player_archive_badge">आर्काइव</string>
     <string name="settings_parental_control">पैरेंटल कंट्रोल</string>
     <string name="nav_sports">खेल</string>

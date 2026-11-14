@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="app_name">StreamVault</string>
+  <string name="app_name">Sokatito</string>
   <string name="welcome_setup_provider">Setup-Anbieter</string>
   <string name="welcome_loading_title">Vorbereiten Ihrer Bibliothek</string>
   <string name="sync_section_live">Live</string>
@@ -47,12 +47,12 @@
     <string name="torrent_cache_active">Beende die Torrent-Wiedergabe, bevor du den Cache leerst.</string>
     <string name="torrent_cache_clear_failed">Der temporäre Cache konnte nicht geleert werden.</string>
     <string name="extensions_title">Erweiterungen</string>
-    <string name="plugins_section_description">Erweitere StreamVault mit begleitenden Android-Apps um neue Funktionen.</string>
+    <string name="plugins_section_description">Erweitere Sokatito mit begleitenden Android-Apps um neue Funktionen.</string>
     <string name="plugins_install_url">Plugin von URL installieren</string>
     <string name="plugins_install_file">Plugin-APK installieren</string>
     <string name="plugins_install_hint">Verwende eine APK-Datei oder einen direkten APK-Downloadlink. Für Manifest-URLs von Stremio-kompatiblen Add-ons verwende den Tab Stremio-Add-ons.</string>
     <string name="plugins_empty_title">Keine Plugins installiert</string>
-    <string name="plugins_empty_description">Installiere eine kompatible StreamVault-Begleit-App oder prüfe erneut auf ein Plugin, das du außerhalb von StreamVault installiert hast.</string>
+    <string name="plugins_empty_description">Installiere eine kompatible Sokatito-Begleit-App oder prüfe erneut auf ein Plugin, das du außerhalb von Sokatito installiert hast.</string>
     <string name="plugins_provider_sources_count">%1$d Anbieterquellen verfügbar</string>
     <string name="plugins_details">Details</string>
     <string name="plugins_hide_details">Details ausblenden</string>

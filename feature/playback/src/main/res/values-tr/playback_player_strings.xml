@@ -15,8 +15,8 @@
     <string name="label_duration_min">%1$d dakika</string>
     <string name="multiview_nav">Bölünmüş Ekran</string>
     <string name="nav_live_tv">Canlı TV</string>
-    <string name="notification_permission_recording_alert_required">Kayıt hatası uyarıları almak için StreamVault bildirimlerini etkinleştirin.</string>
-    <string name="notification_permission_reminder_required">Program hatırlatıcıları almak için StreamVault bildirimlerini etkinleştirin.</string>
+    <string name="notification_permission_recording_alert_required">Kayıt hatası uyarıları almak için Sokatito bildirimlerini etkinleştirin.</string>
+    <string name="notification_permission_reminder_required">Program hatırlatıcıları almak için Sokatito bildirimlerini etkinleştirin.</string>
     <string name="player_action_cast">Oyuncular</string>
     <string name="player_action_diagnostics">Tanılama</string>
     <string name="player_action_format">Format</string>

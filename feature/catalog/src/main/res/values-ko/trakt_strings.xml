@@ -17,7 +17,7 @@
     <string name="trakt_custom_lists_empty">아직 맞춤 Trakt 목록이 없습니다.</string>
     <string name="trakt_custom_lists_failed">이 Trakt 목록을 로드하거나 업데이트할 수 없습니다. 다시 시도해 보세요.</string>
     <string name="trakt_custom_lists_incognito">시크릿 모드가 켜져 있으면 Trakt 목록을 사용할 수 없습니다.</string>
-    <string name="trakt_custom_lists_too_large">이 목록은 너무 커서 StreamVault에 완전히 로드할 수 없습니다.</string>
+    <string name="trakt_custom_lists_too_large">이 목록은 너무 커서 Sokatito에 완전히 로드할 수 없습니다.</string>
     <string name="trakt_custom_list_open">%1$s · %2$d 항목</string>
     <string name="trakt_custom_list_contains_item">%1$s가 이 목록에 있습니다.</string>
     <string name="trakt_custom_list_does_not_contain_item">%1$s는 이 목록에 없습니다.</string>

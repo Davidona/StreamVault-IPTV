@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">StreamVault</string>
+    <string name="app_name">Sokatito</string>
 
 
     <string name="nav_home">خانه</string>
@@ -310,21 +310,21 @@
 
 
     <string name="split_count_format">%1$s %2$d/4</string>
-    <string name="tv_input_setup_scanning_title">اسکن کانال‌های StreamVault</string>
+    <string name="tv_input_setup_scanning_title">اسکن کانال‌های Sokatito</string>
     <string name="tv_input_setup_success_title">پخش زنده آماده است</string>
     <string name="tv_input_setup_no_provider_title">هیچ ارائه‌دهنده IPTV پیکربندی نشده است</string>
     <string name="tv_input_setup_error_title">اسکن خودکار ناموفق بود</string>
     <string name="tv_input_setup_idle_title">آماده‌سازی یکپارچگی پخش زنده</string>
-    <string name="tv_input_setup_scanning_body">StreamVault در حال همگام‌سازی ارائه‌دهنده فعال شما با پخش زنده Android TV است.</string>
+    <string name="tv_input_setup_scanning_body">Sokatito در حال همگام‌سازی ارائه‌دهنده فعال شما با پخش زنده Android TV است.</string>
     <string name="tv_input_setup_success_body">کانال‌های شما با موفقیت همگام شدند.</string>
-    <string name="tv_input_setup_no_provider_body">حداقل یک ارائه‌دهنده IPTV در StreamVault اضافه کنید، سپس برای اسکن کانال‌ها به پخش زنده Android TV بازگردید.</string>
+    <string name="tv_input_setup_no_provider_body">حداقل یک ارائه‌دهنده IPTV در Sokatito اضافه کنید، سپس برای اسکن کانال‌ها به پخش زنده Android TV بازگردید.</string>
     <string name="tv_input_setup_error_body">همگام‌سازی ورودی تلویزیون کامل نشد.</string>
     <string name="tv_input_setup_idle_body">لطفاً صبر کنید.</string>
     <string name="tv_input_setup_source_format">منبع: %1$s</string>
-    <string name="tv_input_setup_open_setup">باز کردن راه‌اندازی StreamVault</string>
+    <string name="tv_input_setup_open_setup">باز کردن راه‌اندازی Sokatito</string>
     <string name="tv_input_setup_try_scan_again">تلاش دوباره برای اسکن خودکار</string>
     <string name="tv_input_setup_retry_scan">تکرار اسکن خودکار</string>
-    <string name="tv_input_setup_success_hint">پخش زنده Android TV اکنون می‌تواند کانال‌های StreamVault شما را باز کند.</string>
+    <string name="tv_input_setup_success_hint">پخش زنده Android TV اکنون می‌تواند کانال‌های Sokatito شما را باز کند.</string>
 
     <!-- M2: Google Drive backup sync -->
     <string name="settings_drive_cancel_backup_choice_subtitle">بازگشت به اقدامات پشتیبان‌گیری Drive.</string>

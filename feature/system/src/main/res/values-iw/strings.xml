@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="app_name">StreamVault</string>
+  <string name="app_name">Sokatito</string>
   <string name="welcome_setup_provider">ספק התקנה</string>
   <string name="welcome_setup_later">הגדר מאוחר יותר</string>
   <string name="welcome_loading_title">מכין את הספרייה שלך</string>
@@ -47,12 +47,12 @@
     <string name="torrent_cache_active">יש לעצור את ניגון הטורנט לפני ניקוי המטמון.</string>
     <string name="torrent_cache_clear_failed">לא ניתן לנקות את המטמון הזמני.</string>
     <string name="extensions_title">הרחבות</string>
-    <string name="plugins_section_description">הוספת תכונות ל-StreamVault עם אפליקציות Android נלוות.</string>
+    <string name="plugins_section_description">הוספת תכונות ל-Sokatito עם אפליקציות Android נלוות.</string>
     <string name="plugins_install_url">התקנת תוסף מכתובת URL</string>
     <string name="plugins_install_file">התקנת קובץ APK של תוסף</string>
     <string name="plugins_install_hint">יש להשתמש בקובץ APK או בקישור הורדה ישיר של APK. לכתובות מניפסט של תוספים תואמי Stremio, יש להשתמש בלשונית תוספי Stremio.</string>
     <string name="plugins_empty_title">לא הותקנו תוספים</string>
-    <string name="plugins_empty_description">יש להתקין אפליקציית לוויין תואמת של StreamVault, או לבדוק שוב תוסף שהותקן מחוץ ל-StreamVault.</string>
+    <string name="plugins_empty_description">יש להתקין אפליקציית לוויין תואמת של Sokatito, או לבדוק שוב תוסף שהותקן מחוץ ל-Sokatito.</string>
     <string name="plugins_provider_sources_count">%1$d מקורות ספק זמינים</string>
     <string name="plugins_details">פרטים</string>
     <string name="plugins_hide_details">הסתרת פרטים</string>

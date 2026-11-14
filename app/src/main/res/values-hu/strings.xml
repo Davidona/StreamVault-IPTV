@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">StreamVault</string>
+    <string name="app_name">Sokatito</string>
     <string name="nav_home">Otthon</string>
     <string name="nav_live_tv">Élő TV</string>
     <string name="nav_movies">Filmek</string>
@@ -208,21 +208,21 @@
     <string name="badge_fav">KEDV</string>
     <string name="favorites_content_type_movie">Film</string>
     <string name="split_count_format">%1$s %2$d/4</string>
-    <string name="tv_input_setup_scanning_title">StreamVault csatornák keresése</string>
+    <string name="tv_input_setup_scanning_title">Sokatito csatornák keresése</string>
     <string name="tv_input_setup_success_title">A Live TV készen áll</string>
     <string name="tv_input_setup_no_provider_title">Nincs konfigurálva IPTV-szolgáltató</string>
     <string name="tv_input_setup_error_title">Az automatikus keresés sikertelen</string>
     <string name="tv_input_setup_idle_title">Live TV integráció előkészítése</string>
-    <string name="tv_input_setup_scanning_body">A StreamVault szinkronizálja az aktív szolgáltatót az Android TV Live TV-vel.</string>
+    <string name="tv_input_setup_scanning_body">A Sokatito szinkronizálja az aktív szolgáltatót az Android TV Live TV-vel.</string>
     <string name="tv_input_setup_success_body">Csatornái sikeresen szinkronizálva.</string>
-    <string name="tv_input_setup_no_provider_body">Adjon hozzá legalább egy IPTV szolgáltatót a StreamVaultban, majd térjen vissza ide, hogy csatornákat keressen az Android TV Live TV-be.</string>
+    <string name="tv_input_setup_no_provider_body">Adjon hozzá legalább egy IPTV szolgáltatót a Sokatitoban, majd térjen vissza ide, hogy csatornákat keressen az Android TV Live TV-be.</string>
     <string name="tv_input_setup_error_body">A TV bemeneti szinkronizálása nem fejeződött be.</string>
     <string name="tv_input_setup_idle_body">Kérjük, várjon.</string>
     <string name="tv_input_setup_source_format">Forrás: %1$s</string>
-    <string name="tv_input_setup_open_setup">StreamVault beállítások megnyitása</string>
+    <string name="tv_input_setup_open_setup">Sokatito beállítások megnyitása</string>
     <string name="tv_input_setup_try_scan_again">Automatikus keresés újrapróbálása</string>
     <string name="tv_input_setup_retry_scan">Automatikus keresés újrapróbálása</string>
-    <string name="tv_input_setup_success_hint">Az Android TV Live TV mostantól megnyithatja StreamVault csatornáit.</string>
+    <string name="tv_input_setup_success_hint">Az Android TV Live TV mostantól megnyithatja Sokatito csatornáit.</string>
     <string name="category_options_clear_recent">Összes legutóbbi törlése</string>
     <string name="category_options_hide_from_live_tv">Elrejtés az élő TV-ből</string>
     <string name="channel_options_remove_from_recent">Eltávolítás a legutóbbiakból</string>

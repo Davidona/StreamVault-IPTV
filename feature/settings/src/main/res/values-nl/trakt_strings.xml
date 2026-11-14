@@ -63,7 +63,7 @@
     <string name="trakt_custom_lists_connect_first">Verbind Trakt in Instellingen om uw lijsten te gebruiken.</string>
     <string name="trakt_custom_lists_failed">Kan deze Trakt-lijst niet laden of bijwerken. Probeer het opnieuw.</string>
     <string name="trakt_custom_lists_incognito">Trakt-lijsten zijn niet beschikbaar als de incognitomodus is ingeschakeld.</string>
-    <string name="trakt_custom_lists_too_large">Deze lijst is te groot om volledig in StreamVault te laden.</string>
+    <string name="trakt_custom_lists_too_large">Deze lijst is te groot om volledig in Sokatito te laden.</string>
     <string name="trakt_custom_list_remove_item">Verwijder</string>
     <string name="trakt_custom_lists_delete">Verwijder</string>
     <string name="trakt_custom_lists_delete_title">Deze Trakt-lijst verwijderen?</string>

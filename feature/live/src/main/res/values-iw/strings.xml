@@ -242,8 +242,8 @@
     <string name="epg_watch_live">צפו בשידור חי</string>
     <string name="guide_shell_subtitle">מסנני מדריך, צפיפות לוח זמנים ופרטי תוכנית ממוקדים במשטח אחד מרוחק-ראשון.</string>
     <string name="nav_epg">מדריך</string>
-    <string name="notification_permission_recording_alert_required">הפעל התראות עבור StreamVault לקבלת התראות כישלון הקלטה.</string>
-    <string name="notification_permission_reminder_required">הפעל התראות עבור StreamVault לקבלת תזכורות תוכנית.</string>
+    <string name="notification_permission_recording_alert_required">הפעל התראות עבור Sokatito לקבלת התראות כישלון הקלטה.</string>
+    <string name="notification_permission_reminder_required">הפעל התראות עבור Sokatito לקבלת תזכורות תוכנית.</string>
     <string name="player_archive_badge">ארכיון</string>
     <string name="settings_parental_control">בקרת הורים</string>
     <string name="nav_sports">ספורט</string>

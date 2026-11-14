@@ -242,8 +242,8 @@
     <string name="epg_watch_live">Se live</string>
     <string name="guide_shell_subtitle">Guidefilter, schematäthet och fokuserad programinformation i ett fjärrvänligt gränssnitt.</string>
     <string name="nav_epg">Guide</string>
-    <string name="notification_permission_recording_alert_required">Aktivera aviseringar för StreamVault för att ta emot varningar om misslyckade inspelningar.</string>
-    <string name="notification_permission_reminder_required">Aktivera aviseringar för StreamVault för att ta emot programpåminnelser.</string>
+    <string name="notification_permission_recording_alert_required">Aktivera aviseringar för Sokatito för att ta emot varningar om misslyckade inspelningar.</string>
+    <string name="notification_permission_reminder_required">Aktivera aviseringar för Sokatito för att ta emot programpåminnelser.</string>
     <string name="player_archive_badge">Arkiv</string>
     <string name="settings_parental_control">Föräldrakontroll</string>
     <string name="nav_sports">Sport</string>

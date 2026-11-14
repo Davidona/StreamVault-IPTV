@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="app_name">StreamVault</string>
+  <string name="app_name">Sokatito</string>
   <string name="welcome_setup_provider">प्रदाता सेट करें</string>
   <string name="welcome_setup_later">बाद में सेट करें</string>
   <string name="welcome_loading_title">आपकी लाइब्रेरी तैयार हो रही है</string>
@@ -47,12 +47,12 @@
     <string name="torrent_cache_active">कैश साफ़ करने से पहले टोरेंट प्लेबैक रोकें.</string>
     <string name="torrent_cache_clear_failed">अस्थायी कैश साफ़ नहीं किया जा सका।</string>
     <string name="extensions_title">एक्सटेंशन</string>
-    <string name="plugins_section_description">कंपैनियन Android ऐप्स के साथ StreamVault में सुविधाएँ जोड़ें।</string>
+    <string name="plugins_section_description">कंपैनियन Android ऐप्स के साथ Sokatito में सुविधाएँ जोड़ें।</string>
     <string name="plugins_install_url">URL से प्लगइन इंस्टॉल करें</string>
     <string name="plugins_install_file">प्लगइन APK इंस्टॉल करें</string>
     <string name="plugins_install_hint">APK फ़ाइल या सीधा APK डाउनलोड लिंक इस्तेमाल करें। Stremio ऐड-ऑन मैनिफ़ेस्ट URL के लिए Stremio ऐड-ऑन टैब का उपयोग करें।</string>
     <string name="plugins_empty_title">कोई प्लगइन इंस्टॉल नहीं है</string>
-    <string name="plugins_empty_description">संगत StreamVault कंपैनियन ऐप इंस्टॉल करें, या StreamVault के बाहर इंस्टॉल किए गए प्लगइन के लिए फिर से जाँचें।</string>
+    <string name="plugins_empty_description">संगत Sokatito कंपैनियन ऐप इंस्टॉल करें, या Sokatito के बाहर इंस्टॉल किए गए प्लगइन के लिए फिर से जाँचें।</string>
     <string name="plugins_provider_sources_count">%1$d प्रोवाइडर स्रोत उपलब्ध</string>
     <string name="plugins_details">विवरण</string>
     <string name="plugins_hide_details">विवरण छिपाएँ</string>

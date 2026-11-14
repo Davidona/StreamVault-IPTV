@@ -6,7 +6,7 @@
     <string name="settings_syncing_btn">Συγχρονισμός...</string>
     <string name="settings_backup_restore">Αντίγραφο ασφαλείας &amp; Επαναφορά</string>
     <string name="settings_restore_data">Εισαγωγή δεδομένων</string>
-    <string name="setup_title_streamvault">StreamVault</string>
+    <string name="setup_title_streamvault">Sokatito</string>
     <string name="setup_provider_title">Προσθήκη παρόχου</string>
     <string name="setup_edit_provider">Επεξεργασία παρόχου</string>
     <string name="setup_update_desc">Ενημερώστε τα στοιχεία του παρόχου IPTV</string>
@@ -62,7 +62,7 @@
     <string name="setup_validating">Επαλήθευση...</string>
     <string name="setup_add">Προσθήκη playlist</string>
     <string name="badge_beta">Beta</string>
-    <string name="settings_restore_subtitle">Επιλέξτε αρχείο αντιγράφου ή ανοίξτε ένα αντίγραφο με StreamVault από διαχειριστή αρχείων.</string>
+    <string name="settings_restore_subtitle">Επιλέξτε αρχείο αντιγράφου ή ανοίξτε ένα αντίγραφο με Sokatito από διαχειριστή αρχείων.</string>
     <string name="setup_discard_draft_body">Η ρύθμιση αυτού του παρόχου είναι ημιτελής. Επιστρέψτε και χάστε το τρέχον προσχέδιο;</string>
     <string name="setup_discard_draft_cancel">Συνέχεια επεξεργασίας</string>
     <string name="setup_discard_draft_confirm">Απόρριψη</string>

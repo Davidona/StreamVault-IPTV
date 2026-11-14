@@ -63,7 +63,7 @@
     <string name="trakt_custom_lists_connect_first">Listelerinizi kullanmak için Ayarlar\'da Trakt\'yu bağlayın.</string>
     <string name="trakt_custom_lists_failed">Bu Trakt listesi yüklenemedi veya güncellenemedi. Tekrar deneyin.</string>
     <string name="trakt_custom_lists_incognito">Gizli mod açıkken Trakt listeleri kullanılamaz.</string>
-    <string name="trakt_custom_lists_too_large">Bu liste tamamen StreamVault\'ya yüklenemeyecek kadar büyük.</string>
+    <string name="trakt_custom_lists_too_large">Bu liste tamamen Sokatito\'ya yüklenemeyecek kadar büyük.</string>
     <string name="trakt_custom_list_remove_item" />
     <string name="trakt_custom_lists_delete">Kaldır Sil</string>
     <string name="trakt_custom_lists_delete_title">Bu Trakt listesi silinsin mi?</string>

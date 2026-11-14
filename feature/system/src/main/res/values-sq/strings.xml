@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="app_name">StreamVault</string>
+  <string name="app_name">Sokatito</string>
   <string name="welcome_setup_provider">Konfiguro ofruesin</string>
   <string name="welcome_setup_later">Konfiguro më vonë</string>
   <string name="welcome_loading_title">Po përgatitet biblioteka jote</string>
@@ -47,12 +47,12 @@
     <string name="torrent_cache_active">Ndalo luajtjen e torrentit para pastrimit të memories.</string>
     <string name="torrent_cache_clear_failed">Memoria e përkohshme nuk mund të pastrohej.</string>
     <string name="extensions_title">Zgjerimet</string>
-    <string name="plugins_section_description">Shto funksione në StreamVault me aplikacione shoqëruese Android.</string>
+    <string name="plugins_section_description">Shto funksione në Sokatito me aplikacione shoqëruese Android.</string>
     <string name="plugins_install_url">Instalo shtojcë nga URL</string>
     <string name="plugins_install_file">Instalo APK-në e shtojcës</string>
     <string name="plugins_install_hint">Përdor një skedar APK ose një lidhje të drejtpërdrejtë shkarkimi të APK-së. Për URL-të e manifesteve të shtesave Stremio, përdor skedën Shtesa Stremio.</string>
     <string name="plugins_empty_title">Nuk ka shtojca të instaluara</string>
-    <string name="plugins_empty_description">Instalo një aplikacion shoqërues të përputhshëm të StreamVault, ose kontrollo përsëri për një shtojcë që e instaloje jashtë StreamVault.</string>
+    <string name="plugins_empty_description">Instalo një aplikacion shoqërues të përputhshëm të Sokatito, ose kontrollo përsëri për një shtojcë që e instaloje jashtë Sokatito.</string>
     <string name="plugins_provider_sources_count">%1$d burime ofruesi në dispozicion</string>
     <string name="plugins_details">Detajet</string>
     <string name="plugins_hide_details">Fshih detajet</string>

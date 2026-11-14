@@ -241,8 +241,8 @@
     <string name="epg_watch_live">Sledovat živě</string>
     <string name="guide_shell_subtitle">Navigujte filtry, plánujte hustotu a zaměřené detaily programu na jednom vzdáleném povrchu.</string>
     <string name="nav_epg">Průvodce</string>
-    <string name="notification_permission_recording_alert_required">Povolte oznámení pro StreamVault, abyste dostávali upozornění na selhání nahrávání.</string>
-    <string name="notification_permission_reminder_required">Povolte oznámení pro StreamVault, abyste dostávali připomínky pořadů.</string>
+    <string name="notification_permission_recording_alert_required">Povolte oznámení pro Sokatito, abyste dostávali upozornění na selhání nahrávání.</string>
+    <string name="notification_permission_reminder_required">Povolte oznámení pro Sokatito, abyste dostávali připomínky pořadů.</string>
     <string name="player_archive_badge">Archiv</string>
     <string name="settings_parental_control">Rodičovská kontrola</string>
     <string name="home_show_categories">Zobrazit kategorie</string>

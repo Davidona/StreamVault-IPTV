@@ -52,8 +52,8 @@
     <string name="label_duration_min">%1$d min</string>
     <string name="multiview_nav">Rozdelená obrazovka</string>
     <string name="nav_live_tv">Živé TV</string>
-    <string name="notification_permission_recording_alert_required">Povoľte oznámenia pre StreamVault, aby ste dostávali upozornenia na zlyhanie nahrávania.</string>
-    <string name="notification_permission_reminder_required">Povoľte oznámenia pre StreamVault, aby ste dostávali pripomienky programov.</string>
+    <string name="notification_permission_recording_alert_required">Povoľte oznámenia pre Sokatito, aby ste dostávali upozornenia na zlyhanie nahrávania.</string>
+    <string name="notification_permission_reminder_required">Povoľte oznámenia pre Sokatito, aby ste dostávali pripomienky programov.</string>
     <string name="player_action_cast">Cast</string>
     <string name="player_action_diagnostics">Diagnostika</string>
     <string name="player_action_format">Formát</string>

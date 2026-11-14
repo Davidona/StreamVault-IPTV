@@ -165,7 +165,7 @@ class RecordingForegroundService : Service() {
         }
         return NotificationCompat.Builder(this, CHANNEL_ID)
             .setSmallIcon(android.R.drawable.stat_sys_warning)
-            .setContentTitle("StreamVault DVR")
+            .setContentTitle("Sokatito DVR")
             .setContentText(title)
             .setOngoing(activeCount > 0 || pendingCommand)
             .setOnlyAlertOnce(true)
@@ -190,7 +190,7 @@ class RecordingForegroundService : Service() {
         val manager = getSystemService(NotificationManager::class.java)
         val channel = NotificationChannel(
             CHANNEL_ID,
-            "StreamVault DVR",
+            "Sokatito DVR",
             NotificationManager.IMPORTANCE_LOW
         ).apply {
             description = "Active recording and scheduling status"

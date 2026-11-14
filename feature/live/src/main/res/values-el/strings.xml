@@ -241,8 +241,8 @@
     <string name="epg_watch_live">Παρακολούθηση ζωντανά</string>
     <string name="guide_shell_subtitle">Φίλτρα οδηγού, πυκνότητα προγράμματος και εστιασμένες λεπτομέρειες εκπομπών σε ένα περιβάλλον σχεδιασμένο για το τηλεχειριστήριο.</string>
     <string name="nav_epg">Οδηγός</string>
-    <string name="notification_permission_recording_alert_required">Ενεργοποιήστε ειδοποιήσεις για StreamVault για λήψη ειδοποιήσεων αποτυχίας εγγραφής.</string>
-    <string name="notification_permission_reminder_required">Ενεργοποιήστε ειδοποιήσεις για StreamVault για λήψη υπενθυμίσεων προγράμματος.</string>
+    <string name="notification_permission_recording_alert_required">Ενεργοποιήστε ειδοποιήσεις για Sokatito για λήψη ειδοποιήσεων αποτυχίας εγγραφής.</string>
+    <string name="notification_permission_reminder_required">Ενεργοποιήστε ειδοποιήσεις για Sokatito για λήψη υπενθυμίσεων προγράμματος.</string>
     <string name="player_archive_badge">Αρχείο</string>
     <string name="settings_parental_control">Γονικός έλεγχος</string>
     <string name="home_show_categories">Εμφάνιση κατηγοριών</string>

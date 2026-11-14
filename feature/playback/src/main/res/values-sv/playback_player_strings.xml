@@ -15,8 +15,8 @@
     <string name="label_duration_min">%1$d min</string>
     <string name="multiview_nav">Delad skärm</string>
     <string name="nav_live_tv">Live-TV</string>
-    <string name="notification_permission_recording_alert_required">Aktivera aviseringar för StreamVault för att ta emot varningar om misslyckade inspelningar.</string>
-    <string name="notification_permission_reminder_required">Aktivera aviseringar för StreamVault för att ta emot programpåminnelser.</string>
+    <string name="notification_permission_recording_alert_required">Aktivera aviseringar för Sokatito för att ta emot varningar om misslyckade inspelningar.</string>
+    <string name="notification_permission_reminder_required">Aktivera aviseringar för Sokatito för att ta emot programpåminnelser.</string>
     <string name="player_action_cast">Casta</string>
     <string name="player_action_diagnostics">Diagnostik</string>
     <string name="player_action_format">Format</string>

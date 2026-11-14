@@ -15,8 +15,8 @@
     <string name="label_duration_min">%1$d 分钟</string>
     <string name="multiview_nav">分屏</string>
     <string name="nav_live_tv">直播电视</string>
-    <string name="notification_permission_recording_alert_required">为 StreamVault 启用通知以接收录制失败提醒。</string>
-    <string name="notification_permission_reminder_required">为 StreamVault 启用通知以接收节目提醒。</string>
+    <string name="notification_permission_recording_alert_required">为 Sokatito 启用通知以接收录制失败提醒。</string>
+    <string name="notification_permission_reminder_required">为 Sokatito 启用通知以接收节目提醒。</string>
     <string name="player_action_cast">投屏</string>
     <string name="player_action_diagnostics">诊断</string>
     <string name="player_action_format">格式</string>

@@ -2699,7 +2699,7 @@ class Media3PlayerEngine @Inject constructor(
     }
 
     private fun buildPlaybackSupportSnapshot(): String = buildString {
-        appendLine("StreamVault Playback Support Snapshot")
+        appendLine("Sokatito Playback Support Snapshot")
         appendLine("requestedAudioDecoderMode=$requestedAudioDecoderMode")
         appendLine("requestedVideoDecoderMode=$requestedVideoDecoderMode")
         appendLine("activeAudioDecoderMode=$activeAudioDecoderMode")

@@ -65,7 +65,7 @@
     <string name="trakt_custom_lists_connect_first">Ikonekta ang Trakt sa Mga Setting upang magamit ang iyong mga listahan.</string>
     <string name="trakt_custom_lists_failed">Hindi ma-load o ma-update ang listahan ng Trakt na ito. Subukan muli.</string>
     <string name="trakt_custom_lists_incognito">Hindi available ang mga listahan ng Trakt habang naka-on ang Incognito mode.</string>
-    <string name="trakt_custom_lists_too_large">Masyadong malaki ang listahang ito upang ganap na mai-load sa StreamVault.</string>
+    <string name="trakt_custom_lists_too_large">Masyadong malaki ang listahang ito upang ganap na mai-load sa Sokatito.</string>
     <string name="trakt_custom_list_remove_item">Alisin</string>
     <string name="trakt_custom_lists_delete">Tanggalin</string>
     <string name="trakt_custom_lists_delete_title">Tanggalin itong Trakt na listahan?</string>

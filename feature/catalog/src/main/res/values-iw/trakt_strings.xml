@@ -17,7 +17,7 @@
     <string name="trakt_custom_lists_empty">עדיין אין לך רשימות Trakt מותאמות אישית.</string>
     <string name="trakt_custom_lists_failed">לא ניתן היה לטעון או לעדכן את רשימת Trakt זו. נסה שוב.</string>
     <string name="trakt_custom_lists_incognito">רשימות Trakt אינן זמינות כאשר מצב גלישה בסתר מופעל.</string>
-    <string name="trakt_custom_lists_too_large">רשימה זו גדולה מדי לטעינה מלאה ב-StreamVault.</string>
+    <string name="trakt_custom_lists_too_large">רשימה זו גדולה מדי לטעינה מלאה ב-Sokatito.</string>
     <string name="trakt_custom_list_open">%1$s · %2$d פריטים</string>
     <string name="trakt_custom_list_contains_item">%1$s נמצא ברשימה זו.</string>
     <string name="trakt_custom_list_does_not_contain_item">%1$s אינו ברשימה זו.</string>

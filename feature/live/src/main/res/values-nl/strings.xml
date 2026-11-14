@@ -241,8 +241,8 @@
     <string name="epg_watch_live">Kijk live</string>
     <string name="guide_shell_subtitle">Gidsfilters, planningsdichtheid en gerichte programmadetails op één extern oppervlak.</string>
     <string name="nav_epg">Gids</string>
-    <string name="notification_permission_recording_alert_required">Schakel meldingen voor StreamVault in om opnamefoutmeldingen te ontvangen.</string>
-    <string name="notification_permission_reminder_required">Schakel meldingen voor StreamVault in om programmaherinneringen te ontvangen.</string>
+    <string name="notification_permission_recording_alert_required">Schakel meldingen voor Sokatito in om opnamefoutmeldingen te ontvangen.</string>
+    <string name="notification_permission_reminder_required">Schakel meldingen voor Sokatito in om programmaherinneringen te ontvangen.</string>
     <string name="player_archive_badge">Archief</string>
     <string name="settings_parental_control">Ouderlijk toezicht</string>
     <string name="home_show_categories">Categorieën tonen</string>

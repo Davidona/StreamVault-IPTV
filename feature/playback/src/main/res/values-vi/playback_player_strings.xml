@@ -15,8 +15,8 @@
     <string name="label_duration_min">%1$d phút</string>
     <string name="multiview_nav">Chia màn hình</string>
     <string name="nav_live_tv">TV trực tiếp</string>
-    <string name="notification_permission_recording_alert_required">Bật thông báo cho StreamVault để nhận cảnh báo lỗi ghi.</string>
-    <string name="notification_permission_reminder_required">Bật thông báo cho StreamVault để nhận nhắc nhở chương trình.</string>
+    <string name="notification_permission_recording_alert_required">Bật thông báo cho Sokatito để nhận cảnh báo lỗi ghi.</string>
+    <string name="notification_permission_reminder_required">Bật thông báo cho Sokatito để nhận nhắc nhở chương trình.</string>
     <string name="player_action_cast">Truyền</string>
     <string name="player_action_diagnostics">Chẩn đoán</string>
     <string name="player_action_format">Định dạng</string>

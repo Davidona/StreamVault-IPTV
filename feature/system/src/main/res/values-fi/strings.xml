@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="app_name">StreamVault</string>
+  <string name="app_name">Sokatito</string>
   <string name="welcome_setup_provider">Asennustarjoaja</string>
   <string name="welcome_setup_later">Määritä myöhemmin</string>
   <string name="welcome_loading_title">Valmistelee kirjastoasi</string>
@@ -47,12 +47,12 @@
     <string name="torrent_cache_active">Pysäytä torrentin toisto ennen välimuistin tyhjentämistä.</string>
     <string name="torrent_cache_clear_failed">Väliaikaisen välimuistin tyhjentäminen epäonnistui.</string>
     <string name="extensions_title">Laajennukset</string>
-    <string name="plugins_section_description">Lisää ominaisuuksia StreamVaultiin kumppani-Android-sovelluksilla.</string>
+    <string name="plugins_section_description">Lisää ominaisuuksia Sokatitoiin kumppani-Android-sovelluksilla.</string>
     <string name="plugins_install_url">Asenna liitännäinen URL-osoitteesta</string>
     <string name="plugins_install_file">Asenna liitännäisen APK</string>
     <string name="plugins_install_hint">Käytä APK-tiedostoa tai suoraa APK-latauslinkkiä. Stremio-yhteensopivien lisäosien manifestin URL-osoitteissa käytä Stremio-lisäosat-välilehteä.</string>
     <string name="plugins_empty_title">Liitännäisiä ei ole asennettu</string>
-    <string name="plugins_empty_description">Asenna yhteensopiva StreamVault-kumppanisovellus tai tarkista uudelleen StreamVaultin ulkopuolella asentamasi liitännäinen.</string>
+    <string name="plugins_empty_description">Asenna yhteensopiva Sokatito-kumppanisovellus tai tarkista uudelleen Sokatitoin ulkopuolella asentamasi liitännäinen.</string>
     <string name="plugins_provider_sources_count">%1$d palveluntarjoajan lähdettä saatavilla</string>
     <string name="plugins_details">Tiedot</string>
     <string name="plugins_hide_details">Piilota tiedot</string>

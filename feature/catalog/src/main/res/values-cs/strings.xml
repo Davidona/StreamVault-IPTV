@@ -107,11 +107,11 @@
   <string name="dashboard_top_rated_movies">Nejlépe hodnocené filmy</string>
   <string name="dashboard_update_allow_installs">Povolit instalace</string>
   <string name="dashboard_update_available">Novější verze aplikace je uložená v mezipaměti a připravená ke kontrole v Nastavení.</string>
-  <string name="dashboard_update_install_permission_required">Aktualizace je stažena. Povolte instalace z aplikace StreamVault a zkuste instalaci znovu.</string>
+  <string name="dashboard_update_install_permission_required">Aktualizace je stažena. Povolte instalace z aplikace Sokatito a zkuste instalaci znovu.</string>
   <string name="dashboard_update_install_ready">Nejnovější aktualizace už byla stažena. Otevřete Nastavení a nainstalujte ji.</string>
   <string name="dashboard_update_open_installer">Nainstalovat z Nastavení</string>
   <string name="dashboard_update_open_settings">Otevřít aktualizace</string>
-  <string name="dashboard_update_title">StreamVault %1$s je k dispozici</string>
+  <string name="dashboard_update_title">Sokatito %1$s je k dispozici</string>
   <string name="dashboard_updated_series">Aktualizovaná sériová police</string>
   <string name="dashboard_updated_series_badge">Aktualizovaná série</string>
   <string name="dashboard_warning_review">Otevřete Podrobnosti poskytovatele</string>
@@ -364,5 +364,5 @@
 <string name="trakt_rating_current">Vaše hodnocení na Traktu: %1$d/10</string>
 <string name="trakt_rating_saved">Hodnocení bylo uloženo do Traktu.</string>
 <string name="trakt_rating_failed">Hodnocení se nepodařilo uložit do Traktu.</string>
-<string name="trakt_favorite_sync_failed">StreamVault změnu uložil, ale nepodařilo se aktualizovat Oblíbené na Traktu. Zkuste to znovu.</string>
+<string name="trakt_favorite_sync_failed">Sokatito změnu uložil, ale nepodařilo se aktualizovat Oblíbené na Traktu. Zkuste to znovu.</string>
 </resources>

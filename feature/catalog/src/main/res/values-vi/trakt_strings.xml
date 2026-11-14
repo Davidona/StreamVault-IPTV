@@ -17,7 +17,7 @@
     <string name="trakt_custom_lists_empty">Bạn chưa có bất kỳ danh sách Trakt tùy chỉnh nào.</string>
     <string name="trakt_custom_lists_failed">Không thể tải hoặc cập nhật danh sách Trakt này. Hãy thử lại.</string>
     <string name="trakt_custom_lists_incognito">Danh sách Trakt không khả dụng khi chế độ Ẩn danh đang bật.</string>
-    <string name="trakt_custom_lists_too_large">Danh sách này quá lớn để tải hoàn toàn trong StreamVault.</string>
+    <string name="trakt_custom_lists_too_large">Danh sách này quá lớn để tải hoàn toàn trong Sokatito.</string>
     <string name="trakt_custom_list_open">%1$s · Vật phẩm %2$d</string>
     <string name="trakt_custom_list_contains_item">%1$s nằm trong danh sách này.</string>
     <string name="trakt_custom_list_does_not_contain_item">%1$s không có trong danh sách này.</string>

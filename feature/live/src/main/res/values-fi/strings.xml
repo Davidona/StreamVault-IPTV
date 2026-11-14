@@ -242,8 +242,8 @@
     <string name="epg_watch_live">Katso suorana</string>
     <string name="guide_shell_subtitle">Ohjaa suodattimet, aikataulutiheys ja tarkennetut ohjelman yksityiskohdat yhdellä kaukosäätimen pinnalla.</string>
     <string name="nav_epg">Opas</string>
-    <string name="notification_permission_recording_alert_required">Ota StreamVaultin ilmoitukset käyttöön saadaksesi tallennusvirheistä ilmoituksia.</string>
-    <string name="notification_permission_reminder_required">Ota StreamVaultin ilmoitukset käyttöön saadaksesi ohjelmamuistutuksia.</string>
+    <string name="notification_permission_recording_alert_required">Ota Sokatitoin ilmoitukset käyttöön saadaksesi tallennusvirheistä ilmoituksia.</string>
+    <string name="notification_permission_reminder_required">Ota Sokatitoin ilmoitukset käyttöön saadaksesi ohjelmamuistutuksia.</string>
     <string name="player_archive_badge">Arkisto</string>
     <string name="settings_parental_control">Lapsilukko</string>
     <string name="nav_sports">Urheilu</string>

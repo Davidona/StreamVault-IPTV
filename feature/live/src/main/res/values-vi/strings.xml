@@ -242,8 +242,8 @@
     <string name="epg_watch_live">Xem trực tiếp</string>
     <string name="guide_shell_subtitle">Bộ lọc hướng dẫn, mật độ lịch và chi tiết chương trình tập trung trong một giao diện ưu tiên điều khiển từ xa.</string>
     <string name="nav_epg">Hướng dẫn</string>
-    <string name="notification_permission_recording_alert_required">Bật thông báo cho StreamVault để nhận cảnh báo lỗi ghi.</string>
-    <string name="notification_permission_reminder_required">Bật thông báo cho StreamVault để nhận nhắc nhở chương trình.</string>
+    <string name="notification_permission_recording_alert_required">Bật thông báo cho Sokatito để nhận cảnh báo lỗi ghi.</string>
+    <string name="notification_permission_reminder_required">Bật thông báo cho Sokatito để nhận nhắc nhở chương trình.</string>
     <string name="player_archive_badge">Lưu trữ</string>
     <string name="settings_parental_control">Kiểm soát phụ huynh</string>
     <string name="nav_sports">Thể thao</string>

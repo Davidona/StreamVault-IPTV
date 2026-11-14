@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">StreamVault</string>
+    <string name="app_name">Sokatito</string>
 
 
     <string name="nav_home">Home</string>
@@ -307,21 +307,21 @@
 
 
     <string name="split_count_format">%1$s %2$d/4</string>
-    <string name="tv_input_setup_scanning_title">Ini-scan ang mga channel ng StreamVault</string>
+    <string name="tv_input_setup_scanning_title">Ini-scan ang mga channel ng Sokatito</string>
     <string name="tv_input_setup_success_title">Handa na ang Live TV</string>
     <string name="tv_input_setup_no_provider_title">Walang naka-configure na IPTV provider</string>
     <string name="tv_input_setup_error_title">Nabigo ang auto scan</string>
     <string name="tv_input_setup_idle_title">Inihahanda ang Live TV integration</string>
-    <string name="tv_input_setup_scanning_body">Sina-sync ng StreamVault ang aktibong provider mo sa Android TV Live TV.</string>
+    <string name="tv_input_setup_scanning_body">Sina-sync ng Sokatito ang aktibong provider mo sa Android TV Live TV.</string>
     <string name="tv_input_setup_success_body">Matagumpay na na-sync ang mga channel mo.</string>
-    <string name="tv_input_setup_no_provider_body">Magdagdag ng kahit isang IPTV provider sa StreamVault, pagkatapos ay bumalik dito para i-scan ang mga channel sa Android TV Live TV.</string>
+    <string name="tv_input_setup_no_provider_body">Magdagdag ng kahit isang IPTV provider sa Sokatito, pagkatapos ay bumalik dito para i-scan ang mga channel sa Android TV Live TV.</string>
     <string name="tv_input_setup_error_body">Hindi natapos ang sync ng TV input.</string>
     <string name="tv_input_setup_idle_body">Mangyaring maghintay.</string>
     <string name="tv_input_setup_source_format">Source: %1$s</string>
-    <string name="tv_input_setup_open_setup">Buksan ang StreamVault Setup</string>
+    <string name="tv_input_setup_open_setup">Buksan ang Sokatito Setup</string>
     <string name="tv_input_setup_try_scan_again">Subukan Muli ang Auto Scan</string>
     <string name="tv_input_setup_retry_scan">Ulitin ang Auto Scan</string>
-    <string name="tv_input_setup_success_hint">Mabubuksan na ng Android TV Live TV ang mga channel ng StreamVault mo.</string>
+    <string name="tv_input_setup_success_hint">Mabubuksan na ng Android TV Live TV ang mga channel ng Sokatito mo.</string>
 
     <!-- M2: Google Drive backup sync -->
     <string name="settings_drive_cancel_backup_choice_subtitle">Bumalik sa mga aksyon ng Drive backup.</string>

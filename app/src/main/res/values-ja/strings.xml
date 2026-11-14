@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">StreamVault</string>
+    <string name="app_name">Sokatito</string>
     <string name="nav_home">ホーム</string>
     <string name="nav_live_tv">ライブテレビ</string>
     <string name="nav_movies">映画</string>
@@ -208,21 +208,21 @@
     <string name="badge_fav">お気に入り</string>
     <string name="favorites_content_type_movie">映画</string>
     <string name="split_count_format">%1$s %2$d/4</string>
-    <string name="tv_input_setup_scanning_title">StreamVault チャネルのスキャン</string>
+    <string name="tv_input_setup_scanning_title">Sokatito チャネルのスキャン</string>
     <string name="tv_input_setup_success_title">ライブテレビの準備ができました</string>
     <string name="tv_input_setup_no_provider_title">IPTVプロバイダーが構成されていません</string>
     <string name="tv_input_setup_error_title">自動スキャンに失敗しました</string>
     <string name="tv_input_setup_idle_title">ライブ TV 統合の準備</string>
-    <string name="tv_input_setup_scanning_body">StreamVault は、アクティブなプロバイダーを Android TV ライブ TV に同期しています。</string>
+    <string name="tv_input_setup_scanning_body">Sokatito は、アクティブなプロバイダーを Android TV ライブ TV に同期しています。</string>
     <string name="tv_input_setup_success_body">チャンネルは正常に同期されました。</string>
-    <string name="tv_input_setup_no_provider_body">StreamVault に少なくとも 1 つの IPTV プロバイダーを追加し、ここに戻って Android TV Live TV にチャンネルをスキャンします。</string>
+    <string name="tv_input_setup_no_provider_body">Sokatito に少なくとも 1 つの IPTV プロバイダーを追加し、ここに戻って Android TV Live TV にチャンネルをスキャンします。</string>
     <string name="tv_input_setup_error_body">テレビ入力の同期が完了しませんでした。</string>
     <string name="tv_input_setup_idle_body">お待ちください。</string>
     <string name="tv_input_setup_source_format">出典: %1$s</string>
-    <string name="tv_input_setup_open_setup">StreamVault セットアップを開く</string>
+    <string name="tv_input_setup_open_setup">Sokatito セットアップを開く</string>
     <string name="tv_input_setup_try_scan_again">自動スキャンを再試行してください</string>
     <string name="tv_input_setup_retry_scan">自動スキャンを再試行します</string>
-    <string name="tv_input_setup_success_hint">Android TV Live TV で StreamVault チャンネルを開くことができるようになりました。</string>
+    <string name="tv_input_setup_success_hint">Android TV Live TV で Sokatito チャンネルを開くことができるようになりました。</string>
     <string name="category_options_clear_recent">最近をすべてクリア</string>
     <string name="category_options_hide_from_live_tv">ライブTVから非表示</string>
     <string name="channel_options_remove_from_recent">最近から削除</string>

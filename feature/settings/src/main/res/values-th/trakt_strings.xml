@@ -65,7 +65,7 @@
     <string name="trakt_custom_lists_connect_first">เชื่อมต่อ Trakt ในการตั้งค่าเพื่อใช้รายการของคุณ</string>
     <string name="trakt_custom_lists_failed">ไม่สามารถโหลดหรืออัปเดตรายการ Trakt นี้ ลองอีกครั้ง</string>
     <string name="trakt_custom_lists_incognito">รายการ Trakt ไม่พร้อมใช้งานในขณะที่เปิดโหมดไม่ระบุตัวตน</string>
-    <string name="trakt_custom_lists_too_large">รายการนี้ใหญ่เกินไปที่จะโหลดทั้งหมดใน StreamVault</string>
+    <string name="trakt_custom_lists_too_large">รายการนี้ใหญ่เกินไปที่จะโหลดทั้งหมดใน Sokatito</string>
     <string name="trakt_custom_list_remove_item">ลบ</string>
     <string name="trakt_custom_lists_delete">ลบ</string>
     <string name="trakt_custom_lists_delete_title">ลบรายการ Trakt นี้หรือไม่</string>

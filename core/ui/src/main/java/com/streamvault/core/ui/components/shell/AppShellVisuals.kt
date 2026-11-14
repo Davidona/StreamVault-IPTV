@@ -292,7 +292,7 @@ private fun TopNavigationBar(
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Text(
-                text = "StreamVault",
+                text = "Sokatito",
                 style = MaterialTheme.typography.titleSmall.copy(letterSpacing = (-0.4).sp),
                 color = BrowseColors.TextPrimary,
                 modifier = Modifier.wrapContentWidth(Alignment.Start)
@@ -687,7 +687,7 @@ private fun DestinationRail(
                 .padding(horizontal = 12.dp, vertical = 20.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            Text(text = "StreamVault", style = MaterialTheme.typography.titleMedium, color = BrowseColors.TextPrimary)
+            Text(text = "Sokatito", style = MaterialTheme.typography.titleMedium, color = BrowseColors.TextPrimary)
             Text(text = "TV", style = MaterialTheme.typography.labelSmall, color = BrowseColors.TextTertiary)
             Spacer(modifier = Modifier.height(10.dp))
             destinations.forEach { destination ->

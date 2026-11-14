@@ -15,8 +15,8 @@
     <string name="label_duration_min">%1$d min</string>
     <string name="multiview_nav">Delt skjerm</string>
     <string name="nav_live_tv">Direktesendt TV</string>
-    <string name="notification_permission_recording_alert_required">Aktiver varsler for StreamVault for å motta advarsler om opptaksfeil.</string>
-    <string name="notification_permission_reminder_required">Aktiver varsler for StreamVault for å motta programpåminnelser.</string>
+    <string name="notification_permission_recording_alert_required">Aktiver varsler for Sokatito for å motta advarsler om opptaksfeil.</string>
+    <string name="notification_permission_reminder_required">Aktiver varsler for Sokatito for å motta programpåminnelser.</string>
     <string name="player_action_cast">Cast</string>
     <string name="player_action_diagnostics">Diagnostikk</string>
     <string name="player_action_format">Format</string>

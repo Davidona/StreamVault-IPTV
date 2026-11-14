@@ -15,8 +15,8 @@
     <string name="label_duration_min">%1$d mín.</string>
     <string name="multiview_nav">Pantalla dividida</string>
     <string name="nav_live_tv">TV en vivo</string>
-    <string name="notification_permission_recording_alert_required">Habilita las notificaciones de StreamVault para recibir alertas de errores de grabación.</string>
-    <string name="notification_permission_reminder_required">Habilita las notificaciones de StreamVault para recibir recordatorios de programas.</string>
+    <string name="notification_permission_recording_alert_required">Habilita las notificaciones de Sokatito para recibir alertas de errores de grabación.</string>
+    <string name="notification_permission_reminder_required">Habilita las notificaciones de Sokatito para recibir recordatorios de programas.</string>
     <string name="player_action_cast">Elenco</string>
     <string name="player_action_diagnostics">Diagnóstico</string>
     <string name="player_action_format">Formato</string>

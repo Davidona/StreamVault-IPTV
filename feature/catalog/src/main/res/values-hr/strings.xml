@@ -107,11 +107,11 @@
   <string name="dashboard_top_rated_movies">Najbolje ocijenjeni filmovi</string>
   <string name="dashboard_update_allow_installs">Dopusti instalacije</string>
   <string name="dashboard_update_available">Novije izdanje aplikacije nalazi se u predmemoriji i spremno je za pregled u Postavkama.</string>
-  <string name="dashboard_update_install_permission_required">Ažuriranje je preuzeto. Dopustite instalacije iz aplikacije StreamVault, zatim pokušajte ponovno.</string>
+  <string name="dashboard_update_install_permission_required">Ažuriranje je preuzeto. Dopustite instalacije iz aplikacije Sokatito, zatim pokušajte ponovno.</string>
   <string name="dashboard_update_install_ready">Najnovije ažuriranje već je preuzeto. Otvorite instalacijski program da dovršite.</string>
   <string name="dashboard_update_open_installer">Instaliraj ažuriranje</string>
   <string name="dashboard_update_open_settings">Otvori ažuriranja</string>
-  <string name="dashboard_update_title">Dostupan je StreamVault %1$s</string>
+  <string name="dashboard_update_title">Dostupan je Sokatito %1$s</string>
   <string name="dashboard_updated_series">Polica ažuriranih serija</string>
   <string name="dashboard_updated_series_badge">Ažurirane serije</string>
   <string name="dashboard_warning_review">Otvori detalje pružatelja</string>

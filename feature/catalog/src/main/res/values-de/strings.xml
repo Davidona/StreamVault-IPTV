@@ -107,11 +107,11 @@
   <string name="dashboard_top_rated_movies">Bestbewertete Filme</string>
   <string name="dashboard_update_allow_installs">Installationen zulassen</string>
   <string name="dashboard_update_available">Eine neuere App-Version ist zwischengespeichert und kann in den Einstellungen geprüft werden.</string>
-  <string name="dashboard_update_install_permission_required">Das Update wurde heruntergeladen. Erlauben Sie StreamVault die Installation von Apps und versuchen Sie es dann erneut.</string>
+  <string name="dashboard_update_install_permission_required">Das Update wurde heruntergeladen. Erlauben Sie Sokatito die Installation von Apps und versuchen Sie es dann erneut.</string>
   <string name="dashboard_update_install_ready">Das neueste Update wurde bereits heruntergeladen. Öffnen Sie die Einstellungen, um es zu installieren.</string>
   <string name="dashboard_update_open_installer">Aus Einstellungen installieren</string>
   <string name="dashboard_update_open_settings">Updates öffnen</string>
-  <string name="dashboard_update_title">StreamVault %1$s ist verfügbar</string>
+  <string name="dashboard_update_title">Sokatito %1$s ist verfügbar</string>
   <string name="dashboard_updated_series">Aktualisiertes Serienregal</string>
   <string name="dashboard_updated_series_badge">Aktualisierte Serie</string>
   <string name="dashboard_warning_review">Öffnen Sie die Anbieterdetails</string>
@@ -364,5 +364,5 @@
 <string name="trakt_rating_current">Deine Trakt-Bewertung: %1$d/10</string>
 <string name="trakt_rating_saved">Deine Bewertung wurde auf Trakt gespeichert.</string>
 <string name="trakt_rating_failed">Deine Bewertung konnte nicht auf Trakt gespeichert werden.</string>
-<string name="trakt_favorite_sync_failed">StreamVault hat die Änderung gespeichert, konnte aber die Trakt-Favoriten nicht aktualisieren. Versuche es erneut.</string>
+<string name="trakt_favorite_sync_failed">Sokatito hat die Änderung gespeichert, konnte aber die Trakt-Favoriten nicht aktualisieren. Versuche es erneut.</string>
 </resources>

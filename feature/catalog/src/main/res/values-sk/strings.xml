@@ -107,11 +107,11 @@
   <string name="dashboard_top_rated_movies">Najlepšie hodnotené filmy</string>
   <string name="dashboard_update_allow_installs">Povoliť inštalácie</string>
   <string name="dashboard_update_available">Novšia verzia aplikácie je uložená vo vyrovnávacej pamäti a pripravená na kontrolu v Nastaveniach.</string>
-  <string name="dashboard_update_install_permission_required">Aktualizácia je stiahnutá. Povoľte inštalácie z aplikácie StreamVault a skúste inštaláciu znova.</string>
+  <string name="dashboard_update_install_permission_required">Aktualizácia je stiahnutá. Povoľte inštalácie z aplikácie Sokatito a skúste inštaláciu znova.</string>
   <string name="dashboard_update_install_ready">Najnovšia aktualizácia už bola stiahnutá. Dokončite ju otvorením inštalátora.</string>
   <string name="dashboard_update_open_installer">Nainštalovať aktualizáciu</string>
   <string name="dashboard_update_open_settings">Otvoriť aktualizácie</string>
-  <string name="dashboard_update_title">StreamVault %1$s je k dispozícii</string>
+  <string name="dashboard_update_title">Sokatito %1$s je k dispozícii</string>
   <string name="dashboard_updated_series">Polica s aktualizovanými seriálmi</string>
   <string name="dashboard_updated_series_badge">Aktualizované seriály</string>
   <string name="dashboard_warning_review">Otvoriť podrobnosti poskytovateľa</string>

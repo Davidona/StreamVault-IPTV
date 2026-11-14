@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="app_name">StreamVault</string>
+  <string name="app_name">Sokatito</string>
   <string name="welcome_setup_provider">Настройка на доставчик</string>
   <string name="welcome_setup_later">Настрой по-късно</string>
   <string name="welcome_loading_title">Подготовка на вашата библиотека</string>
@@ -47,12 +47,12 @@
     <string name="torrent_cache_active">Спрете възпроизвеждането на торент, преди да изчистите кеша.</string>
     <string name="torrent_cache_clear_failed">Временният кеш не можа да бъде изчистен.</string>
     <string name="extensions_title">Разширения</string>
-    <string name="plugins_section_description">Добавяйте функции към StreamVault с придружаващи Android приложения.</string>
+    <string name="plugins_section_description">Добавяйте функции към Sokatito с придружаващи Android приложения.</string>
     <string name="plugins_install_url">Инсталиране на приставка от URL адрес</string>
     <string name="plugins_install_file">Инсталиране на приставка APK</string>
     <string name="plugins_install_hint">Използвайте APK файл или директен URL адрес за изтегляне на APK. За URL адреси на манифести на съвместими със Stremio добавки използвайте раздела „Добавки за Stremio“.</string>
     <string name="plugins_empty_title">Няма инсталирани приставки</string>
-    <string name="plugins_empty_description">Инсталирайте съвместимо придружаващо приложение за StreamVault или проверете отново за приставка, инсталирана извън StreamVault.</string>
+    <string name="plugins_empty_description">Инсталирайте съвместимо придружаващо приложение за Sokatito или проверете отново за приставка, инсталирана извън Sokatito.</string>
     <string name="plugins_provider_sources_count">%1$d налични източника от доставчика</string>
     <string name="plugins_details">Подробности</string>
     <string name="plugins_hide_details">Скриване на подробностите</string>

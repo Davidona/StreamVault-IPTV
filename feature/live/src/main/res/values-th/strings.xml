@@ -242,8 +242,8 @@
     <string name="epg_watch_live">ดูทีวีสด</string>
     <string name="guide_shell_subtitle">ตัวกรองผังรายการ ความหนาแน่นของตาราง และรายละเอียดรายการแบบเจาะจง รวมไว้ในหน้าจอที่ออกแบบสำหรับรีโมต</string>
     <string name="nav_epg">ผังรายการ</string>
-    <string name="notification_permission_recording_alert_required">เปิดการแจ้งเตือนสำหรับ StreamVault เพื่อรับการแจ้งเตือนเมื่อการบันทึกล้มเหลว</string>
-    <string name="notification_permission_reminder_required">เปิดการแจ้งเตือนสำหรับ StreamVault เพื่อรับการแจ้งเตือนรายการที่ตั้งไว้</string>
+    <string name="notification_permission_recording_alert_required">เปิดการแจ้งเตือนสำหรับ Sokatito เพื่อรับการแจ้งเตือนเมื่อการบันทึกล้มเหลว</string>
+    <string name="notification_permission_reminder_required">เปิดการแจ้งเตือนสำหรับ Sokatito เพื่อรับการแจ้งเตือนรายการที่ตั้งไว้</string>
     <string name="player_archive_badge">ย้อนหลัง</string>
     <string name="settings_parental_control">การควบคุมโดยผู้ปกครอง</string>
     <string name="nav_sports">กีฬา</string>

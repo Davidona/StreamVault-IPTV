@@ -241,8 +241,8 @@
     <string name="epg_watch_live">ライブ視聴</string>
     <string name="guide_shell_subtitle">ガイドのフィルター、番組密度、詳細情報をリモコン操作向けの画面に集約。</string>
     <string name="nav_epg">ガイド</string>
-    <string name="notification_permission_recording_alert_required">録画失敗アラートを受け取るためにStreamVaultの通知を有効にしてください。</string>
-    <string name="notification_permission_reminder_required">番組リマインダーを受け取るためにStreamVaultの通知を有効にしてください。</string>
+    <string name="notification_permission_recording_alert_required">録画失敗アラートを受け取るためにSokatitoの通知を有効にしてください。</string>
+    <string name="notification_permission_reminder_required">番組リマインダーを受け取るためにSokatitoの通知を有効にしてください。</string>
     <string name="player_archive_badge">アーカイブ</string>
     <string name="settings_parental_control">ペアレンタルコントロール</string>
     <string name="home_show_categories">カテゴリを表示</string>

@@ -50,8 +50,8 @@
     <string name="label_duration_min">%1$d мин</string>
     <string name="multiview_nav">Разделен екран</string>
     <string name="nav_live_tv">Телевизия на живо</string>
-    <string name="notification_permission_recording_alert_required">Разрешете известия за StreamVault, за да получавате предупреждения за неуспешен запис.</string>
-    <string name="notification_permission_reminder_required">Разрешете известия за StreamVault, за да получавате напомняния за предавания.</string>
+    <string name="notification_permission_recording_alert_required">Разрешете известия за Sokatito, за да получавате предупреждения за неуспешен запис.</string>
+    <string name="notification_permission_reminder_required">Разрешете известия за Sokatito, за да получавате напомняния за предавания.</string>
     <string name="player_action_cast">Cast</string>
     <string name="player_action_diagnostics">Диагностика</string>
     <string name="player_action_format">Формат</string>

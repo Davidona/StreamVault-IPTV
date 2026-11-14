@@ -432,8 +432,8 @@
     <string name="settings_update_status_check_failed">فشل آخر فحص</string>
     <string name="settings_update_status_downloading">جارٍ تنزيل التحديث</string>
     <string name="settings_update_status_ready_to_install">جاهز للتثبيت</string>
-    <string name="settings_update_available_message">يتوفر StreamVault %1$s.</string>
-    <string name="settings_update_current_message">لديك بالفعل أحدث إصدار من StreamVault.</string>
+    <string name="settings_update_available_message">يتوفر Sokatito %1$s.</string>
+    <string name="settings_update_current_message">لديك بالفعل أحدث إصدار من Sokatito.</string>
     <string name="settings_sync_option_sync_now">مزامنة الآن</string>
     <string name="settings_sync_option_rebuild_index">إعادة بناء الفهرس</string>
     <string name="settings_sync_option_tv">مزامنة القنوات</string>
@@ -585,9 +585,9 @@
     <string name="settings_backup_share_data">مشاركة النسخة الاحتياطية</string>
     <string name="settings_backup_share_subtitle">إرسال ملف نسخ احتياطي إلى مدير ملفات التلفزيون أو تطبيق آخر.</string>
     <string name="settings_restore_data">استيراد البيانات</string>
-    <string name="settings_restore_subtitle">اختر ملف نسخ احتياطي، أو افتح نسخة احتياطية مع StreamVault من مدير الملفات.</string>
+    <string name="settings_restore_subtitle">اختر ملف نسخ احتياطي، أو افتح نسخة احتياطية مع Sokatito من مدير الملفات.</string>
     <string name="settings_drive_section_title">النسخ الاحتياطي على Google Drive</string>
-    <string name="settings_drive_section_subtitle">ارفع إعدادات StreamVault واستعدها من مجلد خاص في Drive.</string>
+    <string name="settings_drive_section_subtitle">ارفع إعدادات Sokatito واستعدها من مجلد خاص في Drive.</string>
     <string name="settings_drive_signin">تسجيل الدخول إلى Google Drive</string>
     <string name="settings_drive_signin_description">اربط حساب Google لتفعيل النسخ الاحتياطي السحابي.</string>
     <string name="settings_drive_push">الإرسال إلى Drive</string>
@@ -599,7 +599,7 @@
     <string name="settings_drive_last_push">آخر إرسال: %1$s</string>
     <string name="settings_drive_last_pull">آخر استعادة: %1$s</string>
     <string name="settings_updates_title">التحديثات</string>
-    <string name="settings_updates_subtitle">تحقق من إصدارات GitHub للحصول على نسخ أحدث من StreamVault دون مغادرة التطبيق.</string>
+    <string name="settings_updates_subtitle">تحقق من إصدارات GitHub للحصول على نسخ أحدث من Sokatito دون مغادرة التطبيق.</string>
     <string name="settings_app_version">إصدار التطبيق</string>
     <string name="settings_enabled">مفعّل</string>
     <string name="settings_disabled">معطّل</string>
@@ -616,7 +616,7 @@
     <string name="player_close">إغلاق</string>
     <string name="settings_crash_report_none">لا يوجد تقرير عطل محفوظ</string>
     <string name="settings_build">الإصدار</string>
-    <string name="settings_build_desc">StreamVault لـ Android TV</string>
+    <string name="settings_build_desc">Sokatito لـ Android TV</string>
     <string name="settings_build_verification">التحقق من الإصدار</string>
     <string name="settings_build_verification_official">إصدار رسمي</string>
     <string name="settings_build_verification_unofficial">إصدار غير رسمي</string>
@@ -804,7 +804,7 @@
     <string name="settings_vod_portal_search_off">استخدام كتالوج VOD المفهرس محليًا للبحث.</string>
     <string name="settings_vod_portal_search_on">اطلب من بوابات Stalker البحث في VOD قبل فهرسة الكتالوج الكامل.</string>
     <string name="settings_manage_local_backups">إدارة النسخ الاحتياطية المحلية</string>
-    <string name="settings_manage_local_backups_subtitle">راجع النسخ الاحتياطية المحلية التي أنشأها StreamVault واحذفها.</string>
+    <string name="settings_manage_local_backups_subtitle">راجع النسخ الاحتياطية المحلية التي أنشأها Sokatito واحذفها.</string>
     <string name="settings_backup_usb_data">التصدير إلى USB</string>
     <string name="settings_backup_usb_subtitle">احفظ نسخة احتياطية إلى محرك USB المتصل.</string>
     <string name="settings_restore_usb_data">الاستيراد من USB</string>
@@ -823,8 +823,8 @@
     <string name="settings_backup_folder_picker_unavailable">لا يتوفر منتقي مجلدات على هذا الجهاز.</string>
     <string name="settings_backup_folder_read_failed">تعذّرت قراءة ذلك المجلد.</string>
     <string name="settings_backup_no_files_in_folder">لم يتم العثور على ملفات نسخ احتياطي (.json) في ذلك المجلد.</string>
-    <string name="settings_backup_no_local_files">لم يتم العثور على نسخ احتياطية محلية لـ StreamVault. صدّر واحدة أولًا أو افتح ملف نسخة احتياطية باستخدام StreamVault.</string>
-    <string name="settings_backup_no_managed_files">لم يتم العثور على نسخ احتياطية محلية أنشأها StreamVault.</string>
+    <string name="settings_backup_no_local_files">لم يتم العثور على نسخ احتياطية محلية لـ Sokatito. صدّر واحدة أولًا أو افتح ملف نسخة احتياطية باستخدام Sokatito.</string>
+    <string name="settings_backup_no_managed_files">لم يتم العثور على نسخ احتياطية محلية أنشأها Sokatito.</string>
     <string name="settings_backup_picker_free_failed">تعذّر حفظ النسخة الاحتياطية بدون منتقي ملفات.</string>
     <string name="settings_backup_picker_free_saved">تم حفظ النسخة الاحتياطية محليًا. على أجهزة التلفاز المدعومة تكون في Downloads/StreamVault؛ افتحها بمدير ملفات.</string>
     <string name="settings_backup_usb_failed">تعذّرت كتابة النسخة الاحتياطية إلى محرك USB.</string>

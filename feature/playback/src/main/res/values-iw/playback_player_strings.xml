@@ -16,8 +16,8 @@
     <string name="label_duration_min">%1$d דקות</string>
     <string name="multiview_nav">מסך מפוצל</string>
     <string name="nav_live_tv">טלוויזיה בשידור חי</string>
-    <string name="notification_permission_recording_alert_required">הפעל התראות עבור StreamVault לקבלת התראות כישלון הקלטה.</string>
-    <string name="notification_permission_reminder_required">הפעל התראות עבור StreamVault לקבלת תזכורות תוכנית.</string>
+    <string name="notification_permission_recording_alert_required">הפעל התראות עבור Sokatito לקבלת התראות כישלון הקלטה.</string>
+    <string name="notification_permission_reminder_required">הפעל התראות עבור Sokatito לקבלת תזכורות תוכנית.</string>
     <string name="player_action_cast">שחקנים</string>
     <string name="player_action_diagnostics">אבחון</string>
     <string name="player_action_format">פורמט</string>

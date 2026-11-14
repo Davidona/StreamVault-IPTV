@@ -63,7 +63,7 @@
     <string name="trakt_custom_lists_connect_first">قم بتوصيل Trakt في الإعدادات لاستخدام قوائمك.</string>
     <string name="trakt_custom_lists_failed">تعذر تحميل أو تحديث قائمة Trakt هذه. حاول ثانية.</string>
     <string name="trakt_custom_lists_incognito">لا تتوفر قوائم Trakt أثناء تشغيل وضع التصفح المتخفي.</string>
-    <string name="trakt_custom_lists_too_large">هذه القائمة كبيرة جدًا بحيث لا يمكن تحميلها بالكامل في StreamVault.</string>
+    <string name="trakt_custom_lists_too_large">هذه القائمة كبيرة جدًا بحيث لا يمكن تحميلها بالكامل في Sokatito.</string>
     <string name="trakt_custom_list_remove_item">إزالة</string>
     <string name="trakt_custom_lists_delete">حذف</string>
     <string name="trakt_custom_lists_delete_title">هل تريد حذف قائمة Trakt هذه؟</string>

@@ -242,8 +242,8 @@
     <string name="epg_watch_live">Гледай на живо</string>
     <string name="guide_shell_subtitle">Филтри за справочника, гъстота на програмата и подробности за избраната програма на един екран, оптимизиран за дистанционно.</string>
     <string name="nav_epg">Програма</string>
-    <string name="notification_permission_recording_alert_required">Разрешете известия за StreamVault, за да получавате предупреждения за неуспешен запис.</string>
-    <string name="notification_permission_reminder_required">Разрешете известия за StreamVault, за да получавате напомняния за предавания.</string>
+    <string name="notification_permission_recording_alert_required">Разрешете известия за Sokatito, за да получавате предупреждения за неуспешен запис.</string>
+    <string name="notification_permission_reminder_required">Разрешете известия за Sokatito, за да получавате напомняния за предавания.</string>
     <string name="player_archive_badge">Архив</string>
     <string name="settings_parental_control">Родителски контрол</string>
     <string name="nav_sports">Спорт</string>

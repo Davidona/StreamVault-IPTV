@@ -6,8 +6,8 @@
     <string name="settings_syncing_btn">Синхронизација...</string>
     <string name="settings_backup_restore">Резервна копија и враћање</string>
     <string name="settings_restore_data">Увези податке</string>
-    <string name="settings_restore_subtitle">Изаберите датотеку резервне копије или отворите резервну копију у апликацији StreamVault из управљача датотека.</string>
-    <string name="setup_title_streamvault">StreamVault</string>
+    <string name="settings_restore_subtitle">Изаберите датотеку резервне копије или отворите резервну копију у апликацији Sokatito из управљача датотека.</string>
+    <string name="setup_title_streamvault">Sokatito</string>
     <string name="setup_provider_title">Додајте провајдера</string>
     <string name="setup_edit_provider">Уреди провајдера</string>
     <string name="setup_update_desc">Ажурирајте детаље IPTV провајдера</string>

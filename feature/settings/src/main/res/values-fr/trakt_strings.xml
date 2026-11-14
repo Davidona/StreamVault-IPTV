@@ -63,7 +63,7 @@
     <string name="trakt_custom_lists_connect_first">Connectez Trakt dans Paramètres pour utiliser vos listes.</string>
     <string name="trakt_custom_lists_failed">Impossible de charger ou de mettre à jour cette liste Trakt. Essayer à nouveau.</string>
     <string name="trakt_custom_lists_incognito">Les listes Trakt ne sont pas disponibles lorsque le mode navigation privée est activé.</string>
-    <string name="trakt_custom_lists_too_large">Cette liste est trop longue pour être chargée entièrement dans StreamVault.</string>
+    <string name="trakt_custom_lists_too_large">Cette liste est trop longue pour être chargée entièrement dans Sokatito.</string>
     <string name="trakt_custom_list_remove_item">Supprimer</string>
     <string name="trakt_custom_lists_delete">Supprimer</string>
     <string name="trakt_custom_lists_delete_title">Supprimer cette liste Trakt ?</string>

@@ -316,7 +316,7 @@ private fun SettingsUpdateProgressPreview() {
                 )
                 ClickableSettingsRow("Install update", "Available when the download finishes", {}, enabled = false)
                 Text(
-                    text = "You can continue using StreamVault while the update downloads.",
+                    text = "You can continue using Sokatito while the update downloads.",
                     style = MaterialTheme.typography.bodySmall,
                     color = AppColors.TextSecondary,
                 )

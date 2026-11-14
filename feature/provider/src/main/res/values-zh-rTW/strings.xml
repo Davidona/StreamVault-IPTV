@@ -6,8 +6,8 @@
     <string name="settings_syncing_btn">正在同步...</string>
     <string name="settings_backup_restore">備份 &amp; 還原</string>
     <string name="settings_restore_data">匯入資料</string>
-    <string name="settings_restore_subtitle">選擇備份檔案，或從檔案管理員用 StreamVault 開啟備份。</string>
-    <string name="setup_title_streamvault">StreamVault</string>
+    <string name="settings_restore_subtitle">選擇備份檔案，或從檔案管理員用 Sokatito 開啟備份。</string>
+    <string name="setup_title_streamvault">Sokatito</string>
     <string name="setup_provider_title">新增供應商</string>
     <string name="setup_edit_provider">編輯供應商</string>
     <string name="setup_update_desc">更新您的 IPTV 供應商詳細資料</string>

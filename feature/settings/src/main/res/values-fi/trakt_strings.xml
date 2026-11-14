@@ -63,7 +63,7 @@
     <string name="trakt_custom_lists_connect_first">Liitä Trakt asetuksissa käyttääksesi luetteloitasi.</string>
     <string name="trakt_custom_lists_failed">Tätä Trakt-luetteloa ei voitu ladata tai päivittää. Yritä uudelleen.</string>
     <string name="trakt_custom_lists_incognito">Trakt-luettelot eivät ole käytettävissä, kun incognito-tila on käytössä.</string>
-    <string name="trakt_custom_lists_too_large">Tämä luettelo on liian suuri ladattavaksi kokonaan StreamVault:ssa.</string>
+    <string name="trakt_custom_lists_too_large">Tämä luettelo on liian suuri ladattavaksi kokonaan Sokatito:ssa.</string>
     <string name="trakt_custom_list_remove_item">Poista</string>
     <string name="trakt_custom_lists_delete">Poista</string>
     <string name="trakt_custom_lists_delete_title">Poistetaanko tämä Trakt-luettelo?</string>

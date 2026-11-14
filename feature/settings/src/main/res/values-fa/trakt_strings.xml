@@ -65,7 +65,7 @@
     <string name="trakt_custom_lists_connect_first">برای استفاده از لیست های خود، Trakt را در تنظیمات وصل کنید.</string>
     <string name="trakt_custom_lists_failed">این فهرست Trakt بارگیری یا به‌روزرسانی نشد. دوباره امتحان کنید.</string>
     <string name="trakt_custom_lists_incognito">وقتی حالت ناشناس روشن است، لیست‌های Trakt در دسترس نیستند.</string>
-    <string name="trakt_custom_lists_too_large">این لیست برای بارگیری کامل در StreamVault بسیار بزرگ است.</string>
+    <string name="trakt_custom_lists_too_large">این لیست برای بارگیری کامل در Sokatito بسیار بزرگ است.</string>
     <string name="trakt_custom_list_remove_item">حذف</string>
     <string name="trakt_custom_lists_delete">حذف</string>
     <string name="trakt_custom_lists_delete_title">این لیست Trakt حذف شود؟</string>

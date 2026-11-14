@@ -444,7 +444,7 @@ private fun PluginInstallUrlDialog(
 
     PremiumDialog(
         title = "Install plugin from URL",
-        subtitle = "Enter the direct APK URL. StreamVault will download it and open the installer.",
+        subtitle = "Enter the direct APK URL. Sokatito will download it and open the installer.",
         onDismissRequest = {
             keyboardController?.hide()
             if (!isInstalling) onDismiss()

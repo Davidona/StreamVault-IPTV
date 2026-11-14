@@ -107,11 +107,11 @@
   <string name="dashboard_top_rated_movies">برترین فیلم‌ها</string>
   <string name="dashboard_update_allow_installs">اجازه نصب</string>
   <string name="dashboard_update_available">نسخه جدیدتری از برنامه ذخیره شده و از تنظیمات قابل بررسی است.</string>
-  <string name="dashboard_update_install_permission_required">به‌روزرسانی دانلود شده است. اجازه نصب از StreamVault را بدهید و سپس نصب را دوباره امتحان کنید.</string>
+  <string name="dashboard_update_install_permission_required">به‌روزرسانی دانلود شده است. اجازه نصب از Sokatito را بدهید و سپس نصب را دوباره امتحان کنید.</string>
   <string name="dashboard_update_install_ready">آخرین به‌روزرسانی دانلود شده است. برای پایان، نصب‌کننده را باز کنید.</string>
   <string name="dashboard_update_open_installer">نصب به‌روزرسانی</string>
   <string name="dashboard_update_open_settings">باز کردن به‌روزرسانی‌ها</string>
-  <string name="dashboard_update_title">StreamVault %1$s در دسترس است</string>
+  <string name="dashboard_update_title">Sokatito %1$s در دسترس است</string>
   <string name="dashboard_updated_series">قفسه سریال‌های به‌روزرسانی‌شده</string>
   <string name="dashboard_updated_series_badge">سریال به‌روزرسانی‌شده</string>
   <string name="dashboard_warning_review">باز کردن جزئیات سرویس‌دهنده</string>

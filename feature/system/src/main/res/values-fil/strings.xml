@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="app_name">StreamVault</string>
+  <string name="app_name">Sokatito</string>
   <string name="welcome_setup_provider">I-setup ang Provider</string>
   <string name="welcome_setup_later">I-setup mamaya</string>
   <string name="welcome_loading_title">Inihahanda ang library mo</string>
@@ -47,12 +47,12 @@
     <string name="torrent_cache_active">Ihinto muna ang pag-play ng torrent bago i-clear ang cache.</string>
     <string name="torrent_cache_clear_failed">Hindi na-clear ang pansamantalang cache.</string>
     <string name="extensions_title">Mga extension</string>
-    <string name="plugins_section_description">Magdagdag ng feature sa StreamVault gamit ang mga kasamang Android app.</string>
+    <string name="plugins_section_description">Magdagdag ng feature sa Sokatito gamit ang mga kasamang Android app.</string>
     <string name="plugins_install_url">I-install ang plugin mula sa URL</string>
     <string name="plugins_install_file">I-install ang plugin APK</string>
     <string name="plugins_install_hint">Gumamit ng APK file o direktang download link ng APK. Para sa manifest URL ng add-on na compatible sa Stremio, gamitin ang tab na Mga add-on ng Stremio.</string>
     <string name="plugins_empty_title">Walang naka-install na plugin</string>
-    <string name="plugins_empty_description">Mag-install ng kasamang StreamVault app, o tingnan muli kung may plugin kang na-install sa labas ng StreamVault.</string>
+    <string name="plugins_empty_description">Mag-install ng kasamang Sokatito app, o tingnan muli kung may plugin kang na-install sa labas ng Sokatito.</string>
     <string name="plugins_provider_sources_count">%1$d pinagmumulan ng provider ang available</string>
     <string name="plugins_details">Detalye</string>
     <string name="plugins_hide_details">Itago ang detalye</string>

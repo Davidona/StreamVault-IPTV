@@ -242,8 +242,8 @@
     <string name="epg_watch_live">Manood ng Live</string>
     <string name="guide_shell_subtitle">Mga filter ng gabay, density ng iskedyul, at nakatuong detalye ng programa sa isang surface na inuuna ang remote.</string>
     <string name="nav_epg">Gabay</string>
-    <string name="notification_permission_recording_alert_required">I-enable ang mga notification para sa StreamVault para makatanggap ng mga alert kapag bigo ang recording.</string>
-    <string name="notification_permission_reminder_required">I-enable ang mga notification para sa StreamVault para makatanggap ng mga paalala ng programa.</string>
+    <string name="notification_permission_recording_alert_required">I-enable ang mga notification para sa Sokatito para makatanggap ng mga alert kapag bigo ang recording.</string>
+    <string name="notification_permission_reminder_required">I-enable ang mga notification para sa Sokatito para makatanggap ng mga paalala ng programa.</string>
     <string name="player_archive_badge">Archive</string>
     <string name="settings_parental_control">Kontrol ng Magulang</string>
     <string name="nav_sports">Palakasan</string>

@@ -15,8 +15,8 @@
     <string name="label_duration_min">%1$d분</string>
     <string name="multiview_nav">분할 화면</string>
     <string name="nav_live_tv">라이브 TV</string>
-    <string name="notification_permission_recording_alert_required">녹화 실패 알림을 받으려면 StreamVault 알림을 활성화하세요.</string>
-    <string name="notification_permission_reminder_required">프로그램 알림을 받으려면 StreamVault 알림을 활성화하세요.</string>
+    <string name="notification_permission_recording_alert_required">녹화 실패 알림을 받으려면 Sokatito 알림을 활성화하세요.</string>
+    <string name="notification_permission_reminder_required">프로그램 알림을 받으려면 Sokatito 알림을 활성화하세요.</string>
     <string name="player_action_cast">전송</string>
     <string name="player_action_diagnostics">진단</string>
     <string name="player_action_format">형식</string>

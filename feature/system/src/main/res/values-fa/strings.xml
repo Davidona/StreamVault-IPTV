@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="extensions_title">افزونه‌ها</string>
-    <string name="plugins_section_description">با برنامه‌های همراه اندرویدی به StreamVault قابلیت اضافه کنید.</string>
+    <string name="plugins_section_description">با برنامه‌های همراه اندرویدی به Sokatito قابلیت اضافه کنید.</string>
     <string name="plugins_install_url">نصب افزونه از نشانی وب</string>
     <string name="plugins_install_file">نصب فایل APK افزونه</string>
     <string name="plugins_install_hint">از یک فایل APK یا پیوند مستقیم دانلود APK استفاده کنید. برای نشانی‌های مانیفست افزونهٔ سازگار با Stremio، از زبانه افزونه‌های Stremio استفاده کنید.</string>
     <string name="plugins_empty_title">هیچ افزونه‌ای نصب نشده است</string>
-    <string name="plugins_empty_description">یک برنامه همراه سازگار با StreamVault نصب کنید، یا برای افزونه‌ای که بیرون از StreamVault نصب کرده‌اید دوباره بررسی کنید.</string>
+    <string name="plugins_empty_description">یک برنامه همراه سازگار با Sokatito نصب کنید، یا برای افزونه‌ای که بیرون از Sokatito نصب کرده‌اید دوباره بررسی کنید.</string>
     <string name="plugins_provider_sources_count">%1$d منبع ارائه‌دهنده در دسترس</string>
     <string name="plugins_details">جزئیات</string>
     <string name="plugins_hide_details">پنهان کردن جزئیات</string>
     <string name="plugins_back_to_plugins">بازگشت به افزونه‌ها</string>
     <string name="plugins_refresh_configuration">تازه‌سازی</string>
     <string name="plugins_save_configuration">ذخیره</string>
-  <string name="app_name">StreamVault</string>
+  <string name="app_name">Sokatito</string>
   <string name="welcome_setup_provider">راه‌اندازی ارائه‌دهنده</string>
   <string name="welcome_setup_later">راه‌اندازی بعداً</string>
   <string name="welcome_loading_title">آماده‌سازی کتابخانه شما</string>

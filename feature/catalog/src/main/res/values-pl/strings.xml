@@ -107,11 +107,11 @@
   <string name="dashboard_top_rated_movies">Najwyżej oceniane filmy</string>
   <string name="dashboard_update_allow_installs">Zezwól na instalacje</string>
   <string name="dashboard_update_available">Nowsza wersja aplikacji jest zapisana i gotowa do sprawdzenia w Ustawieniach.</string>
-  <string name="dashboard_update_install_permission_required">Aktualizacja została pobrana. Zezwól StreamVault na instalacje, a następnie ponów instalację.</string>
+  <string name="dashboard_update_install_permission_required">Aktualizacja została pobrana. Zezwól Sokatito na instalacje, a następnie ponów instalację.</string>
   <string name="dashboard_update_install_ready">Najnowsza aktualizacja została już pobrana. Otwórz Ustawienia, aby ją zainstalować.</string>
   <string name="dashboard_update_open_installer">Zainstaluj z Ustawień</string>
   <string name="dashboard_update_open_settings">Otwórz aktualizacje</string>
-  <string name="dashboard_update_title">Dostępny jest StreamVault %1$s</string>
+  <string name="dashboard_update_title">Dostępny jest Sokatito %1$s</string>
   <string name="dashboard_updated_series">Zaktualizowana półka seriali</string>
   <string name="dashboard_updated_series_badge">Zaktualizowana seria</string>
   <string name="dashboard_warning_review">Otwórz szczegóły dostawcy</string>
@@ -364,5 +364,5 @@
 <string name="trakt_rating_current">Twoja ocena w Trakt: %1$d/10</string>
 <string name="trakt_rating_saved">Twoja ocena została zapisana w Trakt.</string>
 <string name="trakt_rating_failed">Nie udało się zapisać oceny w Trakt.</string>
-<string name="trakt_favorite_sync_failed">StreamVault zapisał zmianę, ale nie udało się zaktualizować ulubionych Trakt. Spróbuj ponownie.</string>
+<string name="trakt_favorite_sync_failed">Sokatito zapisał zmianę, ale nie udało się zaktualizować ulubionych Trakt. Spróbuj ponownie.</string>
 </resources>

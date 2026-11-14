@@ -17,7 +17,7 @@
     <string name="trakt_custom_lists_empty">Még nincs egyéni Trakt listája.</string>
     <string name="trakt_custom_lists_failed">Nem sikerült betölteni vagy frissíteni ezt a Trakt listát. Próbáld újra.</string>
     <string name="trakt_custom_lists_incognito">A Trakt listák nem érhetők el, ha az inkognitó mód be van kapcsolva.</string>
-    <string name="trakt_custom_lists_too_large">Ez a lista túl nagy ahhoz, hogy teljesen betöltse a StreamVault-ban.</string>
+    <string name="trakt_custom_lists_too_large">Ez a lista túl nagy ahhoz, hogy teljesen betöltse a Sokatito-ban.</string>
     <string name="trakt_custom_list_open">%1$s · %2$d tételek</string>
     <string name="trakt_custom_list_contains_item">A %1$s szerepel ebben a listában.</string>
     <string name="trakt_custom_list_does_not_contain_item">A %1$s nem szerepel ebben a listában.</string>

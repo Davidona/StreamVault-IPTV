@@ -242,8 +242,8 @@
     <string name="epg_watch_live">تماشای زنده</string>
     <string name="guide_shell_subtitle">فیلترهای راهنما، تراکم برنامه و جزئیات متمرکز برنامه، همه در یک محیط مناسب کنترل از راه دور.</string>
     <string name="nav_epg">راهنما</string>
-    <string name="notification_permission_recording_alert_required">برای دریافت هشدارهای ناموفق بودن ضبط، اعلان‌ها را برای StreamVault فعال کنید.</string>
-    <string name="notification_permission_reminder_required">برای دریافت یادآورهای برنامه، اعلان‌ها را برای StreamVault فعال کنید.</string>
+    <string name="notification_permission_recording_alert_required">برای دریافت هشدارهای ناموفق بودن ضبط، اعلان‌ها را برای Sokatito فعال کنید.</string>
+    <string name="notification_permission_reminder_required">برای دریافت یادآورهای برنامه، اعلان‌ها را برای Sokatito فعال کنید.</string>
     <string name="player_archive_badge">آرشیو</string>
     <string name="settings_parental_control">کنترل والدین</string>
     <string name="nav_sports">ورزش</string>

@@ -49,8 +49,8 @@
     <string name="label_duration_min">%1$d นาที</string>
     <string name="multiview_nav">หน้าจอแยก</string>
     <string name="nav_live_tv">ทีวีสด</string>
-    <string name="notification_permission_recording_alert_required">เปิดการแจ้งเตือนสำหรับ StreamVault เพื่อรับการแจ้งเตือนเมื่อการบันทึกล้มเหลว</string>
-    <string name="notification_permission_reminder_required">เปิดการแจ้งเตือนสำหรับ StreamVault เพื่อรับการแจ้งเตือนรายการที่ตั้งไว้</string>
+    <string name="notification_permission_recording_alert_required">เปิดการแจ้งเตือนสำหรับ Sokatito เพื่อรับการแจ้งเตือนเมื่อการบันทึกล้มเหลว</string>
+    <string name="notification_permission_reminder_required">เปิดการแจ้งเตือนสำหรับ Sokatito เพื่อรับการแจ้งเตือนรายการที่ตั้งไว้</string>
     <string name="player_action_cast">แคสต์</string>
     <string name="player_action_diagnostics">การวินิจฉัย</string>
     <string name="player_action_format">รูปแบบ</string>

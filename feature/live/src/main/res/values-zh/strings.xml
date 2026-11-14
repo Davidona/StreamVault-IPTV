@@ -242,8 +242,8 @@
     <string name="epg_watch_live">观看直播</string>
     <string name="guide_shell_subtitle">指南筛选、节目密度和专注的节目详情，尽在一个以遥控器为先的界面。</string>
     <string name="nav_epg">节目指南</string>
-    <string name="notification_permission_recording_alert_required">为 StreamVault 启用通知以接收录制失败提醒。</string>
-    <string name="notification_permission_reminder_required">为 StreamVault 启用通知以接收节目提醒。</string>
+    <string name="notification_permission_recording_alert_required">为 Sokatito 启用通知以接收录制失败提醒。</string>
+    <string name="notification_permission_reminder_required">为 Sokatito 启用通知以接收节目提醒。</string>
     <string name="player_archive_badge">存档</string>
     <string name="settings_parental_control">家长控制</string>
     <string name="nav_sports">体育</string>

@@ -15,8 +15,8 @@
     <string name="label_duration_min">%1$d perc</string>
     <string name="multiview_nav">Osztott képernyő</string>
     <string name="nav_live_tv">Élő TV</string>
-    <string name="notification_permission_recording_alert_required">Engedélyezze az értesítéseket a StreamVault számára a felvételi hibák fogadásához.</string>
-    <string name="notification_permission_reminder_required">Engedélyezze az értesítéseket a StreamVault számára a műsoremlékeztetők fogadásához.</string>
+    <string name="notification_permission_recording_alert_required">Engedélyezze az értesítéseket a Sokatito számára a felvételi hibák fogadásához.</string>
+    <string name="notification_permission_reminder_required">Engedélyezze az értesítéseket a Sokatito számára a műsoremlékeztetők fogadásához.</string>
     <string name="player_action_cast">Szereplők</string>
     <string name="player_action_diagnostics">Diagnosztika</string>
     <string name="player_action_format">Formátum</string>

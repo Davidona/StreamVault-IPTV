@@ -50,8 +50,8 @@
     <string name="label_duration_min">%1$d min</string>
     <string name="multiview_nav">Ekran i ndarë</string>
     <string name="nav_live_tv">TV drejtpërdrejt</string>
-    <string name="notification_permission_recording_alert_required">Aktivizo njoftimet për StreamVault që të marrësh alarme për dështimet e regjistrimeve.</string>
-    <string name="notification_permission_reminder_required">Aktivizo njoftimet për StreamVault që të marrësh kujtues për programet.</string>
+    <string name="notification_permission_recording_alert_required">Aktivizo njoftimet për Sokatito që të marrësh alarme për dështimet e regjistrimeve.</string>
+    <string name="notification_permission_reminder_required">Aktivizo njoftimet për Sokatito që të marrësh kujtues për programet.</string>
     <string name="player_action_cast">Cast</string>
     <string name="player_action_diagnostics">Diagnostifikimi</string>
     <string name="player_action_format">Formati</string>

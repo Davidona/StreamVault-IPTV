@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="app_name">StreamVault</string>
+  <string name="app_name">Sokatito</string>
   <string name="welcome_setup_provider">Poskytovatel nastavení</string>
   <string name="welcome_loading_title">Příprava vaší knihovny</string>
   <string name="sync_section_live">Živé</string>
@@ -47,12 +47,12 @@
     <string name="torrent_cache_active">Před vymazáním mezipaměti zastavte přehrávání torrentu.</string>
     <string name="torrent_cache_clear_failed">Dočasnou mezipaměť se nepodařilo vymazat.</string>
     <string name="extensions_title">Rozšíření</string>
-    <string name="plugins_section_description">Přidejte StreamVaultu funkce pomocí doprovodných aplikací pro Android.</string>
+    <string name="plugins_section_description">Přidejte Sokatitou funkce pomocí doprovodných aplikací pro Android.</string>
     <string name="plugins_install_url">Nainstalovat plugin z URL</string>
     <string name="plugins_install_file">Nainstalovat plugin APK</string>
     <string name="plugins_install_hint">Použijte soubor APK nebo přímý odkaz ke stažení APK. Pro adresy URL manifestů doplňků kompatibilních se Stremio použijte kartu Doplňky Stremio.</string>
     <string name="plugins_empty_title">Nejsou nainstalovány žádné pluginy</string>
-    <string name="plugins_empty_description">Nainstalujte kompatibilní doprovodnou aplikaci StreamVault nebo znovu zkontrolujte plugin nainstalovaný mimo StreamVault.</string>
+    <string name="plugins_empty_description">Nainstalujte kompatibilní doprovodnou aplikaci Sokatito nebo znovu zkontrolujte plugin nainstalovaný mimo Sokatito.</string>
     <string name="plugins_provider_sources_count">K dispozici %1$d zdrojů poskytovatele</string>
     <string name="plugins_details">Podrobnosti</string>
     <string name="plugins_hide_details">Skrýt podrobnosti</string>

@@ -322,7 +322,7 @@ object BackupFileBridge {
             putExtra(Intent.EXTRA_STREAM, uri)
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         }
-        return Intent.createChooser(sendIntent, "Share StreamVault backup")
+        return Intent.createChooser(sendIntent, "Share Sokatito backup")
             .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
     }
 

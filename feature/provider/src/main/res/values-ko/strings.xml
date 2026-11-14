@@ -6,7 +6,7 @@
     <string name="settings_syncing_btn">동기화 중...</string>
     <string name="settings_backup_restore">백업 및 복원</string>
     <string name="settings_restore_data">데이터 가져오기</string>
-    <string name="setup_title_streamvault">StreamVault</string>
+    <string name="setup_title_streamvault">Sokatito</string>
     <string name="setup_provider_title">제공업체 추가</string>
     <string name="setup_edit_provider">제공업체 수정</string>
     <string name="setup_update_desc">IPTV 제공업체 정보를 업데이트하세요</string>
@@ -62,7 +62,7 @@
     <string name="setup_validating">검증 중...</string>
     <string name="setup_add">재생목록 추가</string>
     <string name="badge_beta">베타</string>
-    <string name="settings_restore_subtitle">백업 파일을 선택하거나 파일 관리자에서 StreamVault로 백업을 여세요.</string>
+    <string name="settings_restore_subtitle">백업 파일을 선택하거나 파일 관리자에서 Sokatito로 백업을 여세요.</string>
     <string name="setup_discard_draft_body">이 공급자 설정이 불완전합니다. 돌아가서 현재 초안을 잃으시겠습니까?</string>
     <string name="setup_discard_draft_cancel">계속 편집</string>
     <string name="setup_discard_draft_confirm">삭제</string>

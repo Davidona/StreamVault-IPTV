@@ -107,11 +107,11 @@
   <string name="dashboard_top_rated_movies">En Çok Oy Alan Filmler</string>
   <string name="dashboard_update_allow_installs">Yüklemelere İzin Ver</string>
   <string name="dashboard_update_available">Daha yeni bir uygulama sürümü önbelleğe alındı ve Ayarlar\'dan incelemeye hazır.</string>
-  <string name="dashboard_update_install_permission_required">Güncelleme indirildi. StreamVault\'tan yüklemelere izin verin, ardından yüklemeyi yeniden deneyin.</string>
+  <string name="dashboard_update_install_permission_required">Güncelleme indirildi. Sokatito\'tan yüklemelere izin verin, ardından yüklemeyi yeniden deneyin.</string>
   <string name="dashboard_update_install_ready">En son güncelleme zaten indirildi. Yüklemek için Ayarlar\'ı açın.</string>
   <string name="dashboard_update_open_installer">Ayarlar\'dan Yükle</string>
   <string name="dashboard_update_open_settings">Güncellemeleri Aç</string>
-  <string name="dashboard_update_title">StreamVault %1$s kullanılabilir</string>
+  <string name="dashboard_update_title">Sokatito %1$s kullanılabilir</string>
   <string name="dashboard_updated_series">Güncellenmiş dizi rafı</string>
   <string name="dashboard_updated_series_badge">Güncellenen dizi</string>
   <string name="dashboard_warning_review">Sağlayıcı Ayrıntılarını Aç</string>
@@ -364,5 +364,5 @@
 <string name="trakt_rating_current">Trakt puanınız: %1$d/10</string>
 <string name="trakt_rating_saved">Puanınız Trakt üzerine kaydedildi.</string>
 <string name="trakt_rating_failed">Puanınız Trakt üzerine kaydedilemedi.</string>
-<string name="trakt_favorite_sync_failed">StreamVault değişikliği kaydetti ancak Trakt Favorilerini güncelleyemedi. Yeniden deneyin.</string>
+<string name="trakt_favorite_sync_failed">Sokatito değişikliği kaydetti ancak Trakt Favorilerini güncelleyemedi. Yeniden deneyin.</string>
 </resources>

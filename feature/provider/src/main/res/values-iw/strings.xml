@@ -6,7 +6,7 @@
     <string name="settings_syncing_btn">מסנכרן...</string>
     <string name="settings_backup_restore">גיבוי ושחזור</string>
     <string name="settings_restore_data">ייבוא נתונים</string>
-    <string name="setup_title_streamvault">StreamVault</string>
+    <string name="setup_title_streamvault">Sokatito</string>
     <string name="setup_provider_title">הוסף ספק</string>
     <string name="setup_edit_provider">ערוך ספק</string>
     <string name="setup_update_desc">עדכן את פרטי ספק ה-IPTV שלך</string>
@@ -62,7 +62,7 @@
     <string name="setup_validating">מאמת...</string>
     <string name="setup_add">הוסף רשימת השמעה</string>
     <string name="badge_beta">בטא</string>
-    <string name="settings_restore_subtitle">בחר קובץ גיבוי, או פתח גיבוי עם StreamVault ממנהל קבצים.</string>
+    <string name="settings_restore_subtitle">בחר קובץ גיבוי, או פתח גיבוי עם Sokatito ממנהל קבצים.</string>
     <string name="setup_discard_draft_body">הגדרת הספק אינה שלמה. לחזור ולאבד את הטיוטה הנוכחית?</string>
     <string name="setup_discard_draft_cancel">המשך עריכה</string>
     <string name="setup_discard_draft_confirm">בטל</string>

@@ -65,7 +65,7 @@
     <string name="trakt_custom_lists_connect_first">Ak chcete používať zoznamy, pripojte Trakt v Nastaveniach.</string>
     <string name="trakt_custom_lists_failed">Nepodarilo sa načítať alebo aktualizovať tento zoznam Trakt. Skúste to znova.</string>
     <string name="trakt_custom_lists_incognito">Kým je zapnutý režim inkognito, zoznamy Trakt nie sú k dispozícii.</string>
-    <string name="trakt_custom_lists_too_large">Tento zoznam je príliš veľký na to, aby sa mohol úplne načítať do StreamVault.</string>
+    <string name="trakt_custom_lists_too_large">Tento zoznam je príliš veľký na to, aby sa mohol úplne načítať do Sokatito.</string>
     <string name="trakt_custom_list_remove_item">Odstrániť</string>
     <string name="trakt_custom_lists_delete">Odstrániť</string>
     <string name="trakt_custom_lists_delete_title">Odstrániť tento zoznam Trakt?</string>

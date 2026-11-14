@@ -50,8 +50,8 @@
     <string name="label_duration_min">%1$d min</string>
     <string name="multiview_nav">Split Screen</string>
     <string name="nav_live_tv">Live TV</string>
-    <string name="notification_permission_recording_alert_required">I-enable ang mga notification para sa StreamVault upang makatanggap ng mga alerto sa pagkabigo ng recording.</string>
-    <string name="notification_permission_reminder_required">I-enable ang mga notification para sa StreamVault upang makatanggap ng mga paalala sa programa.</string>
+    <string name="notification_permission_recording_alert_required">I-enable ang mga notification para sa Sokatito upang makatanggap ng mga alerto sa pagkabigo ng recording.</string>
+    <string name="notification_permission_reminder_required">I-enable ang mga notification para sa Sokatito upang makatanggap ng mga paalala sa programa.</string>
     <string name="player_action_cast">Cast</string>
     <string name="player_action_diagnostics">Diagnostics</string>
     <string name="player_action_format">Format</string>

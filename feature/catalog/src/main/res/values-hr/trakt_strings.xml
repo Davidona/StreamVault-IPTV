@@ -14,7 +14,7 @@
     <string name="trakt_watchlist_add">Dodaj na Trakt popis za praćenje</string>
     <string name="trakt_watchlist_connect">Povežite Trakt u postavkama</string>
     <string name="trakt_watchlist_failed">Nije moguće ažurirati Trakt popis za praćenje. Pokušajte ponovno.</string>
-    <string name="trakt_favorite_sync_failed">StreamVault je spremio promjenu, ali nije mogao ažurirati Trakt Favorite. Pokušajte ponovno.</string>
+    <string name="trakt_favorite_sync_failed">Sokatito je spremio promjenu, ali nije mogao ažurirati Trakt Favorite. Pokušajte ponovno.</string>
     <string name="trakt_watchlist_load">Učitaj Trakt popis za praćenje</string>
     <string name="trakt_watchlist_remove">Ukloni s Trakt popisa za praćenje</string>
     <string name="trakt_custom_lists_action">Trakt Popisi</string>
@@ -25,7 +25,7 @@
     <string name="trakt_custom_lists_empty">Još nemate nijedan prilagođeni popis Trakt.</string>
     <string name="trakt_custom_lists_failed">Nije moguće učitati ili ažurirati ovaj popis Trakt. Pokušajte ponovno.</string>
     <string name="trakt_custom_lists_incognito">Trakt popisi nisu dostupni dok je uključen anonimni način rada.</string>
-    <string name="trakt_custom_lists_too_large">Ovaj popis je prevelik za potpuno učitavanje u StreamVault.</string>
+    <string name="trakt_custom_lists_too_large">Ovaj popis je prevelik za potpuno učitavanje u Sokatito.</string>
     <string name="trakt_custom_list_open">%1$s · %2$d stavke</string>
     <string name="trakt_custom_list_contains_item">%1$s je na ovom popisu.</string>
     <string name="trakt_custom_list_does_not_contain_item">%1$s nije na ovom popisu.</string>

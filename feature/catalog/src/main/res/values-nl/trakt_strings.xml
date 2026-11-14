@@ -17,7 +17,7 @@
     <string name="trakt_custom_lists_empty">U heeft nog geen aangepaste Trakt-lijsten.</string>
     <string name="trakt_custom_lists_failed">Kan deze Trakt-lijst niet laden of bijwerken. Probeer het opnieuw.</string>
     <string name="trakt_custom_lists_incognito">Trakt-lijsten zijn niet beschikbaar als de incognitomodus is ingeschakeld.</string>
-    <string name="trakt_custom_lists_too_large">Deze lijst is te groot om volledig in StreamVault te laden.</string>
+    <string name="trakt_custom_lists_too_large">Deze lijst is te groot om volledig in Sokatito te laden.</string>
     <string name="trakt_custom_list_open">%1$s · %2$d-artikelen</string>
     <string name="trakt_custom_list_contains_item">%1$s staat in deze lijst.</string>
     <string name="trakt_custom_list_does_not_contain_item">%1$s staat niet in deze lijst.</string>

@@ -107,11 +107,11 @@
   <string name="dashboard_top_rated_movies">Filma më të vlerësuar</string>
   <string name="dashboard_update_allow_installs">Lejo instalimet</string>
   <string name="dashboard_update_available">Një version më i ri i aplikacionit është në cache dhe gati për t\'u shqyrtuar nga Cilësimet.</string>
-  <string name="dashboard_update_install_permission_required">Përditësimi u shkarkua. Lejo instalimet nga StreamVault, pastaj provo përsëri instalimin.</string>
+  <string name="dashboard_update_install_permission_required">Përditësimi u shkarkua. Lejo instalimet nga Sokatito, pastaj provo përsëri instalimin.</string>
   <string name="dashboard_update_install_ready">Përditësimi më i ri është shkarkuar tashmë. Hap instaluesin për të përfunduar.</string>
   <string name="dashboard_update_open_installer">Instalo përditësimin</string>
   <string name="dashboard_update_open_settings">Hap përditësimet</string>
-  <string name="dashboard_update_title">StreamVault %1$s është i disponueshëm</string>
+  <string name="dashboard_update_title">Sokatito %1$s është i disponueshëm</string>
   <string name="dashboard_updated_series">Rafti i serialeve të përditësuar</string>
   <string name="dashboard_updated_series_badge">Seriale të përditësuar</string>
   <string name="dashboard_warning_review">Hap detajet e ofruesit</string>

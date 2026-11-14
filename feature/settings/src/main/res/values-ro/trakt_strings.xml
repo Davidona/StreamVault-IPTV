@@ -63,7 +63,7 @@
     <string name="trakt_custom_lists_connect_first">Conectați Trakt în Setări pentru a vă folosi listele.</string>
     <string name="trakt_custom_lists_failed">Nu s-a putut încărca sau actualiza această listă Trakt. Încearcă din nou.</string>
     <string name="trakt_custom_lists_incognito">Listele Trakt nu sunt disponibile în timp ce modul incognito este activat.</string>
-    <string name="trakt_custom_lists_too_large">Această listă este prea mare pentru a se încărca complet în StreamVault.</string>
+    <string name="trakt_custom_lists_too_large">Această listă este prea mare pentru a se încărca complet în Sokatito.</string>
     <string name="trakt_custom_list_remove_item">Eliminați</string>
     <string name="trakt_custom_lists_delete">Șterge</string>
     <string name="trakt_custom_lists_delete_title">Ștergeți această listă Trakt?</string>

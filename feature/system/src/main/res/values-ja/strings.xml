@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="app_name">StreamVault</string>
+  <string name="app_name">Sokatito</string>
   <string name="welcome_setup_provider">プロバイダーを設定</string>
   <string name="welcome_loading_title">ライブラリを準備中</string>
   <string name="sync_section_live">ライブ</string>
@@ -47,12 +47,12 @@
     <string name="torrent_cache_active">キャッシュを消去する前にトレント再生を停止してください。</string>
     <string name="torrent_cache_clear_failed">一時キャッシュを消去できませんでした。</string>
     <string name="extensions_title">拡張機能</string>
-    <string name="plugins_section_description">AndroidコンパニオンアプリでStreamVaultに機能を追加できます。</string>
+    <string name="plugins_section_description">AndroidコンパニオンアプリでSokatitoに機能を追加できます。</string>
     <string name="plugins_install_url">URLからプラグインをインストール</string>
     <string name="plugins_install_file">プラグインAPKをインストール</string>
     <string name="plugins_install_hint">APKファイルまたは直接のAPKダウンロードリンクを使用してください。StremioアドオンのマニフェストURLには、Stremioアドオンタブを使用してください。</string>
     <string name="plugins_empty_title">プラグインがインストールされていません</string>
-    <string name="plugins_empty_description">対応するStreamVaultコンパニオンアプリをインストールするか、StreamVault外でインストールしたプラグインを再確認してください。</string>
+    <string name="plugins_empty_description">対応するSokatitoコンパニオンアプリをインストールするか、Sokatito外でインストールしたプラグインを再確認してください。</string>
     <string name="plugins_provider_sources_count">%1$d個のプロバイダーソースが利用可能</string>
     <string name="plugins_details">詳細</string>
     <string name="plugins_hide_details">詳細を非表示</string>

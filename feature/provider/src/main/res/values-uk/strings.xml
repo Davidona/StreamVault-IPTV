@@ -6,7 +6,7 @@
     <string name="settings_syncing_btn">Синхронізація...</string>
     <string name="settings_backup_restore">Резервне копіювання та відновлення</string>
     <string name="settings_restore_data">Імпортувати дані</string>
-    <string name="setup_title_streamvault">StreamVault</string>
+    <string name="setup_title_streamvault">Sokatito</string>
     <string name="setup_provider_title">Додати провайдера</string>
     <string name="setup_edit_provider">Редагувати провайдера</string>
     <string name="setup_update_desc">Оновіть дані вашого IPTV-провайдера</string>
@@ -62,7 +62,7 @@
     <string name="setup_validating">Перевірка...</string>
     <string name="setup_add">Додати плейлист</string>
     <string name="badge_beta">Beta</string>
-    <string name="settings_restore_subtitle">Виберіть резервний файл або відкрийте резервну копію через StreamVault з менеджера файлів.</string>
+    <string name="settings_restore_subtitle">Виберіть резервний файл або відкрийте резервну копію через Sokatito з менеджера файлів.</string>
     <string name="setup_discard_draft_body">Налаштування цього провайдера не завершено. Повернутися та втратити поточну чернетку?</string>
     <string name="setup_discard_draft_cancel">Продовжити редагування</string>
     <string name="setup_discard_draft_confirm">Відхилити</string>

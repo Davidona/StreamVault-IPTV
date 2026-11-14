@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">StreamVault</string>
+    <string name="app_name">Sokatito</string>
     <string name="nav_home">홈</string>
     <string name="nav_live_tv">라이브 TV</string>
     <string name="nav_movies">영화</string>
@@ -208,21 +208,21 @@
     <string name="badge_fav">즐겨찾기</string>
     <string name="favorites_content_type_movie">영화</string>
     <string name="split_count_format">%1$s %2$d/4</string>
-    <string name="tv_input_setup_scanning_title">StreamVault 채널 검색</string>
+    <string name="tv_input_setup_scanning_title">Sokatito 채널 검색</string>
     <string name="tv_input_setup_success_title">실시간 TV가 준비되었습니다</string>
     <string name="tv_input_setup_no_provider_title">IPTV 제공업체가 구성되지 않았습니다.</string>
     <string name="tv_input_setup_error_title">자동 스캔 실패</string>
     <string name="tv_input_setup_idle_title">라이브 TV 통합 준비</string>
-    <string name="tv_input_setup_scanning_body">StreamVault가 활성 공급자를 Android TV Live TV에 ​​동기화하고 있습니다.</string>
+    <string name="tv_input_setup_scanning_body">Sokatito가 활성 공급자를 Android TV Live TV에 ​​동기화하고 있습니다.</string>
     <string name="tv_input_setup_success_body">채널이 성공적으로 동기화되었습니다.</string>
-    <string name="tv_input_setup_no_provider_body">StreamVault에 IPTV 공급자를 하나 이상 추가한 다음 여기로 돌아와 채널을 Android TV Live TV로 스캔하세요.</string>
+    <string name="tv_input_setup_no_provider_body">Sokatito에 IPTV 공급자를 하나 이상 추가한 다음 여기로 돌아와 채널을 Android TV Live TV로 스캔하세요.</string>
     <string name="tv_input_setup_error_body">TV 입력 동기화가 완료되지 않았습니다.</string>
     <string name="tv_input_setup_idle_body">기다리세요.</string>
     <string name="tv_input_setup_source_format">출처: %1$s</string>
-    <string name="tv_input_setup_open_setup">StreamVault 설정 열기</string>
+    <string name="tv_input_setup_open_setup">Sokatito 설정 열기</string>
     <string name="tv_input_setup_try_scan_again">다시 자동 스캔을 시도하세요</string>
     <string name="tv_input_setup_retry_scan">자동 스캔 재시도</string>
-    <string name="tv_input_setup_success_hint">이제 Android TV Live TV에서 StreamVault 채널을 열 수 있습니다.</string>
+    <string name="tv_input_setup_success_hint">이제 Android TV Live TV에서 Sokatito 채널을 열 수 있습니다.</string>
     <string name="category_options_clear_recent">최근 항목 모두 지우기</string>
     <string name="category_options_hide_from_live_tv">라이브 TV에서 숨기기</string>
     <string name="channel_options_remove_from_recent">최근 항목에서 제거</string>

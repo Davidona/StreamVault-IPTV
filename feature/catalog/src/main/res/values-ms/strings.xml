@@ -107,11 +107,11 @@
   <string name="dashboard_top_rated_movies">Filem Berpenilaian Tertinggi</string>
   <string name="dashboard_update_allow_installs">Benarkan Pemasangan</string>
   <string name="dashboard_update_available">Keluaran apl yang lebih baharu telah dicache dan sedia untuk disemak dari Tetapan.</string>
-  <string name="dashboard_update_install_permission_required">Kemas kini telah dimuat turun. Benarkan pemasangan daripada StreamVault, kemudian cuba pasang semula.</string>
+  <string name="dashboard_update_install_permission_required">Kemas kini telah dimuat turun. Benarkan pemasangan daripada Sokatito, kemudian cuba pasang semula.</string>
   <string name="dashboard_update_install_ready">Kemas kini terkini telah dimuat turun. Buka pemasang untuk menyelesaikannya.</string>
   <string name="dashboard_update_open_installer">Pasang Kemas Kini</string>
   <string name="dashboard_update_open_settings">Buka Kemas Kini</string>
-  <string name="dashboard_update_title">StreamVault %1$s tersedia</string>
+  <string name="dashboard_update_title">Sokatito %1$s tersedia</string>
   <string name="dashboard_updated_series">Rak siri dikemas kini</string>
   <string name="dashboard_updated_series_badge">Siri dikemas kini</string>
   <string name="dashboard_warning_review">Buka Butiran Penyedia</string>

@@ -17,7 +17,7 @@
     <string name="trakt_custom_lists_empty">Du har inga anpassade Trakt-listor än.</string>
     <string name="trakt_custom_lists_failed">Det gick inte att ladda eller uppdatera denna Trakt-lista. Försök igen.</string>
     <string name="trakt_custom_lists_incognito">Trakt-listor är inte tillgängliga när inkognitoläget är på.</string>
-    <string name="trakt_custom_lists_too_large">Den här listan är för stor för att laddas helt i StreamVault.</string>
+    <string name="trakt_custom_lists_too_large">Den här listan är för stor för att laddas helt i Sokatito.</string>
     <string name="trakt_custom_list_open">%1$s · %2$d artiklar</string>
     <string name="trakt_custom_list_contains_item">%1$s finns i den här listan.</string>
     <string name="trakt_custom_list_does_not_contain_item">%1$s finns inte i den här listan.</string>

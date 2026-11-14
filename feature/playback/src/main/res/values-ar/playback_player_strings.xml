@@ -19,8 +19,8 @@
     <string name="label_duration_min">%1$d دقيقة</string>
     <string name="multiview_nav">الشاشة المقسمة</string>
     <string name="nav_live_tv">البث المباشر</string>
-    <string name="notification_permission_recording_alert_required">فعّل الإشعارات لـ StreamVault لتلقي تنبيهات فشل التسجيل.</string>
-    <string name="notification_permission_reminder_required">فعّل الإشعارات لـ StreamVault لتلقي تذكيرات البرامج.</string>
+    <string name="notification_permission_recording_alert_required">فعّل الإشعارات لـ Sokatito لتلقي تنبيهات فشل التسجيل.</string>
+    <string name="notification_permission_reminder_required">فعّل الإشعارات لـ Sokatito لتلقي تذكيرات البرامج.</string>
     <string name="player_action_cast">إرسال</string>
     <string name="player_action_diagnostics">التشخيص</string>
     <string name="player_action_format">التنسيق</string>

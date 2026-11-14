@@ -107,11 +107,11 @@
   <string name="dashboard_top_rated_movies">高評価の映画</string>
   <string name="dashboard_update_allow_installs">インストールを許可</string>
   <string name="dashboard_update_available">新しいアプリ版がキャッシュされ、設定から確認できます。</string>
-  <string name="dashboard_update_install_permission_required">更新はダウンロード済みです。StreamVault からのインストールを許可して、再試行してください。</string>
+  <string name="dashboard_update_install_permission_required">更新はダウンロード済みです。Sokatito からのインストールを許可して、再試行してください。</string>
   <string name="dashboard_update_install_ready">最新の更新はすでにダウンロード済みです。設定を開いてインストールしてください。</string>
   <string name="dashboard_update_open_installer">設定からインストール</string>
   <string name="dashboard_update_open_settings">更新を開く</string>
-  <string name="dashboard_update_title">StreamVault %1$s が利用可能です</string>
+  <string name="dashboard_update_title">Sokatito %1$s が利用可能です</string>
   <string name="dashboard_updated_series">更新されたシリーズ棚</string>
   <string name="dashboard_updated_series_badge">更新されたシリーズ</string>
   <string name="dashboard_warning_review">プロバイダー詳細を開く</string>
@@ -364,5 +364,5 @@
 <string name="trakt_rating_current">Traktでの評価: %1$d/10</string>
 <string name="trakt_rating_saved">評価をTraktに保存しました。</string>
 <string name="trakt_rating_failed">評価をTraktに保存できませんでした。</string>
-<string name="trakt_favorite_sync_failed">StreamVaultで変更を保存しましたが、Traktのお気に入りを更新できませんでした。もう一度お試しください。</string>
+<string name="trakt_favorite_sync_failed">Sokatitoで変更を保存しましたが、Traktのお気に入りを更新できませんでした。もう一度お試しください。</string>
 </resources>

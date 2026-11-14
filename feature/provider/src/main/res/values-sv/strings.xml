@@ -6,7 +6,7 @@
     <string name="settings_syncing_btn">Synkroniseras...</string>
     <string name="settings_backup_restore">Säkerhetskopiera och återställa</string>
     <string name="settings_restore_data">Importera data</string>
-    <string name="setup_title_streamvault">StreamVault</string>
+    <string name="setup_title_streamvault">Sokatito</string>
     <string name="setup_provider_title">Lägg till en leverantör</string>
     <string name="setup_edit_provider">Redigera leverantör</string>
     <string name="setup_update_desc">Uppdatera dina IPTV-leverantörsuppgifter</string>
@@ -62,7 +62,7 @@
     <string name="setup_validating">Validerar...</string>
     <string name="setup_add">Lägg till spellista</string>
     <string name="badge_beta">Beta</string>
-    <string name="settings_restore_subtitle">Välj en säkerhetskopieringsfil eller öppna med StreamVault från en filhanterare.</string>
+    <string name="settings_restore_subtitle">Välj en säkerhetskopieringsfil eller öppna med Sokatito från en filhanterare.</string>
     <string name="setup_discard_draft_body">Den här leverantörsinställningen är ofullständig. Gå tillbaka och förlora det nuvarande utkastet?</string>
     <string name="setup_discard_draft_cancel">Fortsätt redigera</string>
     <string name="setup_discard_draft_confirm">Ta bort</string>

@@ -375,7 +375,7 @@ class StreamVaultPluginManager @Inject constructor(
     suspend fun loadPluginConfiguration(plugin: InstalledStreamVaultPlugin): Result<PluginConfigurationSnapshot> =
         withContext(Dispatchers.IO) {
             if (!plugin.manifest.supportsHostRenderedConfiguration) {
-                return@withContext Result.error("This plugin does not expose a StreamVault configuration schema")
+                return@withContext Result.error("This plugin does not expose a Sokatito configuration schema")
             }
 
             val schemaResponse = runPluginCatching {
@@ -618,7 +618,7 @@ class StreamVaultPluginManager @Inject constructor(
     }
 
     suspend fun rewriteCastUrl(url: String): String? =
-        rewriteCastUrl(CastMediaRequest(url = url, title = "StreamVault"))
+        rewriteCastUrl(CastMediaRequest(url = url, title = "Sokatito"))
 
     private fun applyPlaybackPreparationResponse(
         streamInfo: StreamInfo,
@@ -923,7 +923,7 @@ class StreamVaultPluginManager @Inject constructor(
             ?: StreamVaultPluginManifest(
                 id = packageName,
                 name = appLabel.ifBlank { packageName },
-                description = "StreamVault plugin"
+                description = "Sokatito plugin"
             )
         val status = statusResult.await()
         InstalledStreamVaultPlugin(
@@ -955,7 +955,7 @@ class StreamVaultPluginManager @Inject constructor(
             ?: StreamVaultPluginManifest(
                 id = packageName,
                 name = appLabel.ifBlank { packageName },
-                description = "StreamVault plugin"
+                description = "Sokatito plugin"
             )
         return InstalledStreamVaultPlugin(
             packageName = packageName,
@@ -1039,7 +1039,7 @@ class StreamVaultPluginManager @Inject constructor(
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             }
             context.startActivity(settingsIntent)
-            return Result.error("Allow installs from StreamVault, then choose the plugin APK again")
+            return Result.error("Allow installs from Sokatito, then choose the plugin APK again")
         }
 
         val apkUri = FileProvider.getUriForFile(

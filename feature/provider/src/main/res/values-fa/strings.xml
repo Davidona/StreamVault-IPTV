@@ -6,8 +6,8 @@
     <string name="settings_syncing_btn">در حال همگام‌سازی...</string>
     <string name="settings_backup_restore">پشتیبان‌گیری و بازیابی</string>
     <string name="settings_restore_data">وارد کردن داده‌ها</string>
-    <string name="settings_restore_subtitle">یک فایل پشتیبان انتخاب کنید یا پشتیبان را از مدیر فایل با StreamVault باز کنید.</string>
-    <string name="setup_title_streamvault">StreamVault</string>
+    <string name="settings_restore_subtitle">یک فایل پشتیبان انتخاب کنید یا پشتیبان را از مدیر فایل با Sokatito باز کنید.</string>
+    <string name="setup_title_streamvault">Sokatito</string>
     <string name="setup_provider_title">افزودن ارائه‌دهنده</string>
     <string name="setup_edit_provider">ویرایش ارائه‌دهنده</string>
     <string name="setup_update_desc">جزئیات ارائه‌دهنده IPTV خود را به‌روزرسانی کنید</string>

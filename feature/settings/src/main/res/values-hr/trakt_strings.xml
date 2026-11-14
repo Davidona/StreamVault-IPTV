@@ -65,7 +65,7 @@
     <string name="trakt_custom_lists_connect_first">Povežite Trakt u Postavkama za korištenje svojih popisa.</string>
     <string name="trakt_custom_lists_failed">Nije moguće učitati ili ažurirati ovaj popis Trakt. Pokušajte ponovno.</string>
     <string name="trakt_custom_lists_incognito">Trakt popisi nisu dostupni dok je uključen anonimni način rada.</string>
-    <string name="trakt_custom_lists_too_large">Ovaj popis je prevelik za potpuno učitavanje u StreamVault.</string>
+    <string name="trakt_custom_lists_too_large">Ovaj popis je prevelik za potpuno učitavanje u Sokatito.</string>
     <string name="trakt_custom_list_remove_item">Ukloni</string>
     <string name="trakt_custom_lists_delete">Izbriši</string>
     <string name="trakt_custom_lists_delete_title">Izbrisati ovaj Trakt popis?</string>

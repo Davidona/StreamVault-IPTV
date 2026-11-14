@@ -15,8 +15,8 @@
     <string name="label_duration_min">%1$d λεπτά</string>
     <string name="multiview_nav">Διαχωρισμένη οθόνη</string>
     <string name="nav_live_tv">Ζωντανή TV</string>
-    <string name="notification_permission_recording_alert_required">Ενεργοποιήστε ειδοποιήσεις για StreamVault για λήψη ειδοποιήσεων αποτυχίας εγγραφής.</string>
-    <string name="notification_permission_reminder_required">Ενεργοποιήστε ειδοποιήσεις για StreamVault για λήψη υπενθυμίσεων προγράμματος.</string>
+    <string name="notification_permission_recording_alert_required">Ενεργοποιήστε ειδοποιήσεις για Sokatito για λήψη ειδοποιήσεων αποτυχίας εγγραφής.</string>
+    <string name="notification_permission_reminder_required">Ενεργοποιήστε ειδοποιήσεις για Sokatito για λήψη υπενθυμίσεων προγράμματος.</string>
     <string name="player_action_cast">Μετάδοση</string>
     <string name="player_action_diagnostics">Διαγνωστικά</string>
     <string name="player_action_format">Μορφή</string>

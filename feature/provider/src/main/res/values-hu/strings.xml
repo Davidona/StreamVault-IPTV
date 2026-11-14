@@ -6,7 +6,7 @@
     <string name="settings_syncing_btn">Szinkronizálás...</string>
     <string name="settings_backup_restore">Biztonsági mentés és visszaállítás</string>
     <string name="settings_restore_data">Adatok importálása</string>
-    <string name="setup_title_streamvault">StreamVault</string>
+    <string name="setup_title_streamvault">Sokatito</string>
     <string name="setup_provider_title">Szolgáltató hozzáadása</string>
     <string name="setup_edit_provider">Szolgáltató szerkesztése</string>
     <string name="setup_update_desc">Frissítse IPTV-szolgáltatója adatait</string>
@@ -62,7 +62,7 @@
     <string name="setup_validating">Érvényesítés...</string>
     <string name="setup_add">Lejátszási lista hozzáadása</string>
     <string name="badge_beta">Beta</string>
-    <string name="settings_restore_subtitle">Válasszon biztonsági mentési fájlt, vagy nyisson meg egy mentést a StreamVault-tal fájlkezelőből.</string>
+    <string name="settings_restore_subtitle">Válasszon biztonsági mentési fájlt, vagy nyisson meg egy mentést a Sokatito-tal fájlkezelőből.</string>
     <string name="setup_discard_draft_body">Ez a szolgáltatói beállítás hiányos. Visszalép és elveszíti a jelenlegi vázlatot?</string>
     <string name="setup_discard_draft_cancel">Szerkesztés folytatása</string>
     <string name="setup_discard_draft_confirm">Elvet</string>

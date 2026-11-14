@@ -107,11 +107,11 @@
   <string name="dashboard_top_rated_movies">टॉप रेटेड फ़िल्में</string>
   <string name="dashboard_update_allow_installs">इंस्टॉल की अनुमति दें</string>
   <string name="dashboard_update_available">नया ऐप रिलीज़ कैश में है और सेटिंग्स से समीक्षा के लिए तैयार है।</string>
-  <string name="dashboard_update_install_permission_required">अपडेट डाउनलोड हो गया है। StreamVault से इंस्टॉल की अनुमति दें, फिर इंस्टॉलेशन दोबारा आज़माएँ।</string>
+  <string name="dashboard_update_install_permission_required">अपडेट डाउनलोड हो गया है। Sokatito से इंस्टॉल की अनुमति दें, फिर इंस्टॉलेशन दोबारा आज़माएँ।</string>
   <string name="dashboard_update_install_ready">नवीनतम अपडेट पहले ही डाउनलोड हो चुका है। पूरा करने के लिए इंस्टॉलर खोलें।</string>
   <string name="dashboard_update_open_installer">अपडेट इंस्टॉल करें</string>
   <string name="dashboard_update_open_settings">अपडेट खोलें</string>
-  <string name="dashboard_update_title">StreamVault %1$s उपलब्ध है</string>
+  <string name="dashboard_update_title">Sokatito %1$s उपलब्ध है</string>
   <string name="dashboard_updated_series">अपडेट की गई सीरीज़ शेल्फ़</string>
   <string name="dashboard_updated_series_badge">अपडेट की गई सीरीज़</string>
   <string name="dashboard_warning_review">प्रदाता विवरण खोलें</string>

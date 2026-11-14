@@ -242,8 +242,8 @@
     <string name="epg_watch_live">Shiko drejtpërdrejt</string>
     <string name="guide_shell_subtitle">Filtra guide, dendësi programi dhe detaje të fokusuara të programit në një ndërfaqe të vetme për telekomandën.</string>
     <string name="nav_epg">Guida</string>
-    <string name="notification_permission_recording_alert_required">Aktivizo njoftimet për StreamVault për të marrë alarme për dështime regjistrimi.</string>
-    <string name="notification_permission_reminder_required">Aktivizo njoftimet për StreamVault për të marrë kujtues programesh.</string>
+    <string name="notification_permission_recording_alert_required">Aktivizo njoftimet për Sokatito për të marrë alarme për dështime regjistrimi.</string>
+    <string name="notification_permission_reminder_required">Aktivizo njoftimet për Sokatito për të marrë kujtues programesh.</string>
     <string name="player_archive_badge">Arkiv</string>
     <string name="settings_parental_control">Kontrolli prindëror</string>
     <string name="nav_sports">Sport</string>

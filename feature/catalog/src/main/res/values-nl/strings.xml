@@ -107,11 +107,11 @@
   <string name="dashboard_top_rated_movies">Hoogst gewaardeerde films</string>
   <string name="dashboard_update_allow_installs">Installaties toestaan</string>
   <string name="dashboard_update_available">Een nieuwere appversie is in de cache opgeslagen en klaar om te bekijken via Instellingen.</string>
-  <string name="dashboard_update_install_permission_required">De update is gedownload. Sta installaties van StreamVault toe en probeer de installatie opnieuw.</string>
+  <string name="dashboard_update_install_permission_required">De update is gedownload. Sta installaties van Sokatito toe en probeer de installatie opnieuw.</string>
   <string name="dashboard_update_install_ready">De nieuwste update is al gedownload. Open Instellingen om deze te installeren.</string>
   <string name="dashboard_update_open_installer">Installeren via Instellingen</string>
   <string name="dashboard_update_open_settings">Updates openen</string>
-  <string name="dashboard_update_title">StreamVault %1$s is beschikbaar</string>
+  <string name="dashboard_update_title">Sokatito %1$s is beschikbaar</string>
   <string name="dashboard_updated_series">Bijgewerkte serieplank</string>
   <string name="dashboard_updated_series_badge">Bijgewerkte serie</string>
   <string name="dashboard_warning_review">Open Providergegevens</string>
@@ -364,5 +364,5 @@
 <string name="trakt_rating_current">Je Trakt-beoordeling: %1$d/10</string>
 <string name="trakt_rating_saved">Je beoordeling is opgeslagen op Trakt.</string>
 <string name="trakt_rating_failed">Je beoordeling kon niet op Trakt worden opgeslagen.</string>
-<string name="trakt_favorite_sync_failed">StreamVault heeft de wijziging opgeslagen, maar kon de Trakt-favorieten niet bijwerken. Probeer het opnieuw.</string>
+<string name="trakt_favorite_sync_failed">Sokatito heeft de wijziging opgeslagen, maar kon de Trakt-favorieten niet bijwerken. Probeer het opnieuw.</string>
 </resources>

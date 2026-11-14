@@ -14,7 +14,7 @@
     <string name="trakt_watchlist_add">Idagdag sa Trakt watchlist</string>
     <string name="trakt_watchlist_connect">Ikonekta ang Trakt sa Mga Setting</string>
     <string name="trakt_watchlist_failed">Hindi ma-update ang Trakt watchlist. Subukan muli.</string>
-    <string name="trakt_favorite_sync_failed">Na-save ng StreamVault ang pagbabago, ngunit hindi ma-update ang Mga Paborito ng Trakt. Subukan muli.</string>
+    <string name="trakt_favorite_sync_failed">Na-save ng Sokatito ang pagbabago, ngunit hindi ma-update ang Mga Paborito ng Trakt. Subukan muli.</string>
     <string name="trakt_watchlist_load">I-load ang Trakt watchlist</string>
     <string name="trakt_watchlist_remove">Alisin sa Trakt watchlist</string>
     <string name="trakt_custom_lists_action">Mga Listahan ng Trakt</string>
@@ -25,7 +25,7 @@
     <string name="trakt_custom_lists_empty">Wala ka pang anumang custom na listahan ng Trakt.</string>
     <string name="trakt_custom_lists_failed">Hindi ma-load o ma-update ang listahan ng Trakt na ito. Subukan muli.</string>
     <string name="trakt_custom_lists_incognito">Hindi available ang mga listahan ng Trakt habang naka-on ang Incognito mode.</string>
-    <string name="trakt_custom_lists_too_large">Masyadong malaki ang listahang ito upang ganap na mai-load sa StreamVault.</string>
+    <string name="trakt_custom_lists_too_large">Masyadong malaki ang listahang ito upang ganap na mai-load sa Sokatito.</string>
     <string name="trakt_custom_list_open">%1$s · %2$d item</string>
     <string name="trakt_custom_list_contains_item">%1$s ay nasa listahang ito.</string>
     <string name="trakt_custom_list_does_not_contain_item">Ang %1$s ay wala sa listahang ito.</string>

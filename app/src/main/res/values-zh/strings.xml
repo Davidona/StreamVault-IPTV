@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">StreamVault</string>
+    <string name="app_name">Sokatito</string>
     <string name="nav_home">首页</string>
     <string name="nav_live_tv">直播电视</string>
     <string name="nav_movies">电影</string>
@@ -208,21 +208,21 @@
     <string name="badge_fav">收藏</string>
     <string name="favorites_content_type_movie">电影</string>
     <string name="split_count_format">%1$s %2$d/4</string>
-    <string name="tv_input_setup_scanning_title">扫描 StreamVault 频道</string>
+    <string name="tv_input_setup_scanning_title">扫描 Sokatito 频道</string>
     <string name="tv_input_setup_success_title">电视直播已准备就绪</string>
     <string name="tv_input_setup_no_provider_title">未配置 IPTV 提供商</string>
     <string name="tv_input_setup_error_title">自动扫描失败</string>
     <string name="tv_input_setup_idle_title">准备直播电视集成</string>
-    <string name="tv_input_setup_scanning_body">StreamVault 正在将您的活动提供商同步到 Android TV Live TV。</string>
+    <string name="tv_input_setup_scanning_body">Sokatito 正在将您的活动提供商同步到 Android TV Live TV。</string>
     <string name="tv_input_setup_success_body">您的频道已成功同步。</string>
-    <string name="tv_input_setup_no_provider_body">在 StreamVault 中添加至少一个 IPTV 提供商，然后返回此处将频道扫描到 Android TV Live TV。</string>
+    <string name="tv_input_setup_no_provider_body">在 Sokatito 中添加至少一个 IPTV 提供商，然后返回此处将频道扫描到 Android TV Live TV。</string>
     <string name="tv_input_setup_error_body">电视输入同步未完成。</string>
     <string name="tv_input_setup_idle_body">请稍等。</string>
     <string name="tv_input_setup_source_format">来源：%1$s</string>
-    <string name="tv_input_setup_open_setup">打开 StreamVault 设置</string>
+    <string name="tv_input_setup_open_setup">打开 Sokatito 设置</string>
     <string name="tv_input_setup_try_scan_again">再次尝试自动扫描</string>
     <string name="tv_input_setup_retry_scan">重试自动扫描</string>
-    <string name="tv_input_setup_success_hint">Android TV Live TV 现在可以打开您的 StreamVault 频道。</string>
+    <string name="tv_input_setup_success_hint">Android TV Live TV 现在可以打开您的 Sokatito 频道。</string>
     <string name="category_options_clear_recent">清除所有最近记录</string>
     <string name="category_options_hide_from_live_tv">从直播电视隐藏</string>
     <string name="channel_options_remove_from_recent">从最近记录中移除</string>

@@ -63,7 +63,7 @@
     <string name="trakt_custom_lists_connect_first">Verbinden Sie Trakt in den Einstellungen, um Ihre Listen zu verwenden.</string>
     <string name="trakt_custom_lists_failed">Diese Trakt-Liste konnte nicht geladen oder aktualisiert werden. Versuchen Sie es erneut.</string>
     <string name="trakt_custom_lists_incognito">Trakt-Listen sind nicht verfügbar, während der Inkognito-Modus aktiviert ist.</string>
-    <string name="trakt_custom_lists_too_large">Diese Liste ist zu groß, um vollständig in StreamVault geladen zu werden.</string>
+    <string name="trakt_custom_lists_too_large">Diese Liste ist zu groß, um vollständig in Sokatito geladen zu werden.</string>
     <string name="trakt_custom_list_remove_item">Entfernen Sie</string>
     <string name="trakt_custom_lists_delete">Löschen Sie</string>
     <string name="trakt_custom_lists_delete_title">Diese Trakt-Liste löschen?</string>

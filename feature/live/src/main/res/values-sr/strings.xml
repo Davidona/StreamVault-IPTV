@@ -242,8 +242,8 @@
     <string name="epg_watch_live">Гледај уживо</string>
     <string name="guide_shell_subtitle">Филтери водича, густина програма и детаљи одабраног програма на једном екрану прилагођеном даљинском управљачу.</string>
     <string name="nav_epg">Водич</string>
-    <string name="notification_permission_recording_alert_required">Омогућите обавештења за StreamVault да бисте примали упозорења о неуспешним снимањима.</string>
-    <string name="notification_permission_reminder_required">Омогућите обавештења за StreamVault да бисте примали подсетнике за програме.</string>
+    <string name="notification_permission_recording_alert_required">Омогућите обавештења за Sokatito да бисте примали упозорења о неуспешним снимањима.</string>
+    <string name="notification_permission_reminder_required">Омогућите обавештења за Sokatito да бисте примали подсетнике за програме.</string>
     <string name="player_archive_badge">Архива</string>
     <string name="settings_parental_control">Родитељска контрола</string>
     <string name="nav_sports">Спорт</string>

@@ -14,7 +14,7 @@
     <string name="trakt_watchlist_add">افزودن به لیست پیگیری Trakt</string>
     <string name="trakt_watchlist_connect">Trakt را در تنظیمات وصل کنید</string>
     <string name="trakt_watchlist_failed">فهرست پیگیری Trakt به‌روزرسانی نشد. دوباره امتحان کنید.</string>
-    <string name="trakt_favorite_sync_failed">StreamVault تغییر را ذخیره کرد، اما نمی تواند Trakt موارد دلخواه را به روز کند. دوباره امتحان کنید.</string>
+    <string name="trakt_favorite_sync_failed">Sokatito تغییر را ذخیره کرد، اما نمی تواند Trakt موارد دلخواه را به روز کند. دوباره امتحان کنید.</string>
     <string name="trakt_watchlist_load">بارگیری لیست پیگیری Trakt</string>
     <string name="trakt_watchlist_remove">حذف از فهرست پیگیری Trakt</string>
     <string name="trakt_custom_lists_action">لیست های Trakt</string>
@@ -25,7 +25,7 @@
     <string name="trakt_custom_lists_empty">شما هنوز هیچ لیست سفارشی Trakt ندارید.</string>
     <string name="trakt_custom_lists_failed">این فهرست Trakt بارگیری یا به‌روزرسانی نشد. دوباره امتحان کنید.</string>
     <string name="trakt_custom_lists_incognito">وقتی حالت ناشناس روشن است، لیست‌های Trakt در دسترس نیستند.</string>
-    <string name="trakt_custom_lists_too_large">این لیست برای بارگیری کامل در StreamVault بسیار بزرگ است.</string>
+    <string name="trakt_custom_lists_too_large">این لیست برای بارگیری کامل در Sokatito بسیار بزرگ است.</string>
     <string name="trakt_custom_list_open">%1$s · اقلام %2$d</string>
     <string name="trakt_custom_list_contains_item">%1$s در این لیست قرار دارد.</string>
     <string name="trakt_custom_list_does_not_contain_item">%1$s در این لیست نیست.</string>

@@ -15,8 +15,8 @@
     <string name="label_duration_min">%1$d Min.</string>
     <string name="multiview_nav">Geteilter Bildschirm</string>
     <string name="nav_live_tv">Live-TV</string>
-    <string name="notification_permission_recording_alert_required">Benachrichtigungen für StreamVault aktivieren, um Aufnahmefehlerwarnungen zu erhalten.</string>
-    <string name="notification_permission_reminder_required">Benachrichtigungen für StreamVault aktivieren, um Programmerinnerungen zu erhalten.</string>
+    <string name="notification_permission_recording_alert_required">Benachrichtigungen für Sokatito aktivieren, um Aufnahmefehlerwarnungen zu erhalten.</string>
+    <string name="notification_permission_reminder_required">Benachrichtigungen für Sokatito aktivieren, um Programmerinnerungen zu erhalten.</string>
     <string name="player_action_cast">Besetzung</string>
     <string name="player_action_diagnostics">Diagnose</string>
     <string name="player_action_format">Format</string>

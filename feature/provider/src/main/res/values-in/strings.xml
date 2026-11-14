@@ -6,7 +6,7 @@
     <string name="settings_syncing_btn">Menyinkronkan...</string>
     <string name="settings_backup_restore">Cadangkan &amp; Pulihkan</string>
     <string name="settings_restore_data">Impor Data</string>
-    <string name="setup_title_streamvault">StreamVault</string>
+    <string name="setup_title_streamvault">Sokatito</string>
     <string name="setup_provider_title">Tambahkan penyedia</string>
     <string name="setup_edit_provider">Sunting Penyedia</string>
     <string name="setup_update_desc">Perbarui detail penyedia IPTV Anda</string>
@@ -62,7 +62,7 @@
     <string name="setup_validating">Memvalidasi...</string>
     <string name="setup_add">Tambahkan Daftar Putar</string>
     <string name="badge_beta">Beta</string>
-    <string name="settings_restore_subtitle">Pilih file cadangan, atau buka cadangan dengan StreamVault dari manajer file.</string>
+    <string name="settings_restore_subtitle">Pilih file cadangan, atau buka cadangan dengan Sokatito dari manajer file.</string>
     <string name="setup_discard_draft_body">Pengaturan penyedia ini belum selesai. Kembali dan kehilangan draf saat ini?</string>
     <string name="setup_discard_draft_cancel">Lanjutkan mengedit</string>
     <string name="setup_discard_draft_confirm">Buang</string>

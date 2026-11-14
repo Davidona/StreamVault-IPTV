@@ -6,7 +6,7 @@
     <string name="settings_syncing_btn">Synchronizace...</string>
     <string name="settings_backup_restore">Zálohování a obnovení</string>
     <string name="settings_restore_data">Importovat data</string>
-    <string name="setup_title_streamvault">StreamVault</string>
+    <string name="setup_title_streamvault">Sokatito</string>
     <string name="setup_provider_title">Přidejte poskytovatele</string>
     <string name="setup_edit_provider">Upravit poskytovatele</string>
     <string name="setup_update_desc">Aktualizujte podrobnosti svého poskytovatele IPTV</string>
@@ -62,7 +62,7 @@
     <string name="setup_validating">Ověřování...</string>
     <string name="setup_add">Přidat seznam skladeb</string>
     <string name="badge_beta">Beta</string>
-    <string name="settings_restore_subtitle">Vyberte záložní soubor nebo otevřete zálohu pomocí StreamVault ze správce souborů.</string>
+    <string name="settings_restore_subtitle">Vyberte záložní soubor nebo otevřete zálohu pomocí Sokatito ze správce souborů.</string>
     <string name="setup_discard_draft_body">Nastavení tohoto poskytovatele není dokončeno. Vrátit se zpět a ztratit aktuální koncept?</string>
     <string name="setup_discard_draft_cancel">Pokračovat v úpravách</string>
     <string name="setup_discard_draft_confirm">Zahodit</string>

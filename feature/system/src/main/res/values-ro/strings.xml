@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="app_name">StreamVault</string>
+  <string name="app_name">Sokatito</string>
   <string name="welcome_setup_provider">Furnizor de configurare</string>
   <string name="welcome_loading_title">Pregătirea bibliotecii</string>
   <string name="sync_section_live">Live</string>
@@ -47,12 +47,12 @@
     <string name="torrent_cache_active">Oprește redarea torrentului înainte de a șterge cache-ul.</string>
     <string name="torrent_cache_clear_failed">Cache-ul temporar nu a putut fi șters.</string>
     <string name="extensions_title">Extensii</string>
-    <string name="plugins_section_description">Adaugă funcționalități la StreamVault cu aplicații companion Android.</string>
+    <string name="plugins_section_description">Adaugă funcționalități la Sokatito cu aplicații companion Android.</string>
     <string name="plugins_install_url">Instalează plugin de la URL</string>
     <string name="plugins_install_file">Instalează plugin din APK</string>
     <string name="plugins_install_hint">Folosește un fișier APK sau un link direct de descărcare APK. Pentru URL-urile de manifest ale extensiilor Stremio, folosește fila Extensii Stremio.</string>
     <string name="plugins_empty_title">Niciun plugin instalat</string>
-    <string name="plugins_empty_description">Instalează o aplicație companion StreamVault compatibilă sau verifică din nou pentru un plugin instalat în afara StreamVault.</string>
+    <string name="plugins_empty_description">Instalează o aplicație companion Sokatito compatibilă sau verifică din nou pentru un plugin instalat în afara Sokatito.</string>
     <string name="plugins_provider_sources_count">%1$d surse de furnizori disponibile</string>
     <string name="plugins_details">Detalii</string>
     <string name="plugins_hide_details">Ascunde detaliile</string>

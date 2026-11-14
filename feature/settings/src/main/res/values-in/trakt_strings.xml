@@ -63,7 +63,7 @@
     <string name="trakt_custom_lists_connect_first">Hubungkan Trakt di Pengaturan untuk menggunakan daftar Anda.</string>
     <string name="trakt_custom_lists_failed">Tidak dapat memuat atau memperbarui daftar Trakt ini. Coba lagi.</string>
     <string name="trakt_custom_lists_incognito">Daftar Trakt tidak tersedia saat mode Penyamaran aktif.</string>
-    <string name="trakt_custom_lists_too_large">Daftar ini terlalu besar untuk dimuat seluruhnya di StreamVault.</string>
+    <string name="trakt_custom_lists_too_large">Daftar ini terlalu besar untuk dimuat seluruhnya di Sokatito.</string>
     <string name="trakt_custom_list_remove_item">Hapus</string>
     <string name="trakt_custom_lists_delete">Hapus</string>
     <string name="trakt_custom_lists_delete_title">Hapus daftar Trakt ini?</string>

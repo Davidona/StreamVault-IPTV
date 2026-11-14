@@ -107,11 +107,11 @@
   <string name="dashboard_top_rated_movies">Filmes mais bem avaliados</string>
   <string name="dashboard_update_allow_installs">Permitir instalações</string>
   <string name="dashboard_update_available">Uma versão mais recente do app está em cache e pronta para revisão em Configurações.</string>
-  <string name="dashboard_update_install_permission_required">A atualização foi baixada. Permita instalações do StreamVault e tente instalar novamente.</string>
+  <string name="dashboard_update_install_permission_required">A atualização foi baixada. Permita instalações do Sokatito e tente instalar novamente.</string>
   <string name="dashboard_update_install_ready">A atualização mais recente já foi baixada. Abra Configurações para instalá-la.</string>
   <string name="dashboard_update_open_installer">Instalar nas configurações</string>
   <string name="dashboard_update_open_settings">Abrir atualizações</string>
-  <string name="dashboard_update_title">StreamVault %1$s está disponível</string>
+  <string name="dashboard_update_title">Sokatito %1$s está disponível</string>
   <string name="dashboard_updated_series">Prateleira de série atualizada</string>
   <string name="dashboard_updated_series_badge">Série atualizada</string>
   <string name="dashboard_warning_review">Abrir detalhes do provedor</string>
@@ -364,5 +364,5 @@
 <string name="trakt_rating_current">Sua avaliação no Trakt: %1$d/10</string>
 <string name="trakt_rating_saved">Sua avaliação foi salva no Trakt.</string>
 <string name="trakt_rating_failed">Não foi possível salvar sua avaliação no Trakt.</string>
-<string name="trakt_favorite_sync_failed">O StreamVault salvou a alteração, mas não conseguiu atualizar os Favoritos do Trakt. Tente novamente.</string>
+<string name="trakt_favorite_sync_failed">O Sokatito salvou a alteração, mas não conseguiu atualizar os Favoritos do Trakt. Tente novamente.</string>
 </resources>

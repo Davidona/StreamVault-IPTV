@@ -107,11 +107,11 @@
   <string name="dashboard_top_rated_movies">الأفلام الأعلى تقييمًا</string>
   <string name="dashboard_update_allow_installs">السماح بالتثبيتات</string>
   <string name="dashboard_update_available">تم تخزين إصدار أحدث من التطبيق وهو جاهز للمراجعة من الإعدادات.</string>
-  <string name="dashboard_update_install_permission_required">تم تنزيل التحديث. اسمح بالتثبيت من StreamVault، ثم أعد محاولة التثبيت.</string>
+  <string name="dashboard_update_install_permission_required">تم تنزيل التحديث. اسمح بالتثبيت من Sokatito، ثم أعد محاولة التثبيت.</string>
   <string name="dashboard_update_install_ready">تم تنزيل آخر تحديث بالفعل. افتح الإعدادات لتثبيته.</string>
   <string name="dashboard_update_open_installer">التثبيت من الإعدادات</string>
   <string name="dashboard_update_open_settings">فتح التحديثات</string>
-  <string name="dashboard_update_title">يتوفر إصدار StreamVault %1$s</string>
+  <string name="dashboard_update_title">يتوفر إصدار Sokatito %1$s</string>
   <string name="dashboard_updated_series">رفّ المسلسلات المحدّثة</string>
   <string name="dashboard_updated_series_badge">مسلسلات محدَّثة</string>
   <string name="dashboard_warning_review">فتح تفاصيل المزوّد</string>
@@ -364,5 +364,5 @@
 <string name="trakt_rating_current">تقييمك على Trakt: %1$d/10</string>
 <string name="trakt_rating_saved">تم حفظ تقييمك في Trakt.</string>
 <string name="trakt_rating_failed">تعذر حفظ تقييمك في Trakt.</string>
-<string name="trakt_favorite_sync_failed">حفظ StreamVault التغيير، لكن تعذر تحديث مفضلات Trakt. حاول مرة أخرى.</string>
+<string name="trakt_favorite_sync_failed">حفظ Sokatito التغيير، لكن تعذر تحديث مفضلات Trakt. حاول مرة أخرى.</string>
 </resources>

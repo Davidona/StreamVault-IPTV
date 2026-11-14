@@ -6,7 +6,7 @@
     <string name="settings_syncing_btn">同期中...</string>
     <string name="settings_backup_restore">バックアップと復元</string>
     <string name="settings_restore_data">データをインポート</string>
-    <string name="setup_title_streamvault">StreamVault</string>
+    <string name="setup_title_streamvault">Sokatito</string>
     <string name="setup_provider_title">プロバイダーを追加</string>
     <string name="setup_edit_provider">プロバイダーを編集</string>
     <string name="setup_update_desc">IPTVプロバイダーの詳細を更新します</string>
@@ -62,7 +62,7 @@
     <string name="setup_validating">検証中...</string>
     <string name="setup_add">プレイリストを追加</string>
     <string name="badge_beta">ベータ</string>
-    <string name="settings_restore_subtitle">バックアップファイルを選択するか、ファイルマネージャーからStreamVaultでバックアップを開いてください。</string>
+    <string name="settings_restore_subtitle">バックアップファイルを選択するか、ファイルマネージャーからSokatitoでバックアップを開いてください。</string>
     <string name="setup_discard_draft_body">このプロバイダー設定は未完了です。戻って現在の下書きを破棄しますか？</string>
     <string name="setup_discard_draft_cancel">編集を続ける</string>
     <string name="setup_discard_draft_confirm">破棄</string>

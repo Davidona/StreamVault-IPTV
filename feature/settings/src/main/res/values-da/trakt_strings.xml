@@ -63,7 +63,7 @@
     <string name="trakt_custom_lists_connect_first">Tilslut Trakt i Indstillinger for at bruge dine lister.</string>
     <string name="trakt_custom_lists_failed">Kunne ikke indlæse eller opdatere denne Trakt-liste. Prøv igen.</string>
     <string name="trakt_custom_lists_incognito">Trakt-lister er ikke tilgængelige, mens inkognitotilstand er aktiveret.</string>
-    <string name="trakt_custom_lists_too_large">Denne liste er for stor til at indlæse fuldstændigt i StreamVault.</string>
+    <string name="trakt_custom_lists_too_large">Denne liste er for stor til at indlæse fuldstændigt i Sokatito.</string>
     <string name="trakt_custom_list_remove_item">Fjern</string>
     <string name="trakt_custom_lists_delete">Slet</string>
     <string name="trakt_custom_lists_delete_title">Vil du slette denne Trakt-liste?</string>

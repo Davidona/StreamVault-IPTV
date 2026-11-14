@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">StreamVault</string>
+    <string name="app_name">Sokatito</string>
 
 
     <string name="nav_home">होम</string>
@@ -307,21 +307,21 @@
 
 
     <string name="split_count_format">%1$s %2$d/4</string>
-    <string name="tv_input_setup_scanning_title">StreamVault चैनल स्कैन हो रहे हैं</string>
+    <string name="tv_input_setup_scanning_title">Sokatito चैनल स्कैन हो रहे हैं</string>
     <string name="tv_input_setup_success_title">लाइव TV तैयार है</string>
     <string name="tv_input_setup_no_provider_title">कोई IPTV प्रदाता कॉन्फ़िगर नहीं है</string>
     <string name="tv_input_setup_error_title">ऑटो स्कैन विफल रहा</string>
     <string name="tv_input_setup_idle_title">लाइव TV एकीकरण तैयार हो रहा है</string>
-    <string name="tv_input_setup_scanning_body">StreamVault आपके सक्रिय प्रदाता को Android TV Live TV में सिंक कर रहा है।</string>
+    <string name="tv_input_setup_scanning_body">Sokatito आपके सक्रिय प्रदाता को Android TV Live TV में सिंक कर रहा है।</string>
     <string name="tv_input_setup_success_body">आपके चैनल सफलतापूर्वक सिंक हो गए।</string>
-    <string name="tv_input_setup_no_provider_body">StreamVault में कम से कम एक IPTV प्रदाता जोड़ें, फिर Android TV Live TV में चैनल स्कैन करने के लिए यहाँ वापस आएँ।</string>
+    <string name="tv_input_setup_no_provider_body">Sokatito में कम से कम एक IPTV प्रदाता जोड़ें, फिर Android TV Live TV में चैनल स्कैन करने के लिए यहाँ वापस आएँ।</string>
     <string name="tv_input_setup_error_body">TV इनपुट सिंक पूरा नहीं हुआ।</string>
     <string name="tv_input_setup_idle_body">कृपया प्रतीक्षा करें।</string>
     <string name="tv_input_setup_source_format">स्रोत: %1$s</string>
-    <string name="tv_input_setup_open_setup">StreamVault सेटअप खोलें</string>
+    <string name="tv_input_setup_open_setup">Sokatito सेटअप खोलें</string>
     <string name="tv_input_setup_try_scan_again">फिर से ऑटो स्कैन आज़माएँ</string>
     <string name="tv_input_setup_retry_scan">ऑटो स्कैन फिर से करें</string>
-    <string name="tv_input_setup_success_hint">Android TV Live TV अब आपके StreamVault चैनल खोल सकता है।</string>
+    <string name="tv_input_setup_success_hint">Android TV Live TV अब आपके Sokatito चैनल खोल सकता है।</string>
 
     <!-- M2: Google Drive backup sync -->
     <string name="settings_drive_cancel_backup_choice_subtitle">Drive बैकअप क्रियाओं पर वापस जाएँ।</string>

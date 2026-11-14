@@ -107,11 +107,11 @@
   <string name="dashboard_top_rated_movies">סרטים מדורגים מובילים</string>
   <string name="dashboard_update_allow_installs">אפשר התקנות</string>
   <string name="dashboard_update_available">גרסה חדשה יותר של האפליקציה נשמרה במטמון ומוכנה לבדיקה בהגדרות.</string>
-  <string name="dashboard_update_install_permission_required">העדכון הורד. אפשר התקנות מ-StreamVault, ואז נסה להתקין שוב.</string>
+  <string name="dashboard_update_install_permission_required">העדכון הורד. אפשר התקנות מ-Sokatito, ואז נסה להתקין שוב.</string>
   <string name="dashboard_update_install_ready">העדכון האחרון כבר הורד. פתח את ההגדרות כדי להתקין אותו.</string>
   <string name="dashboard_update_open_installer">התקן מההגדרות</string>
   <string name="dashboard_update_open_settings">פתח עדכונים</string>
-  <string name="dashboard_update_title">StreamVault %1$s זמין</string>
+  <string name="dashboard_update_title">Sokatito %1$s זמין</string>
   <string name="dashboard_updated_series">מדף סדרה מעודכן</string>
   <string name="dashboard_updated_series_badge">סדרה מעודכנת</string>
   <string name="dashboard_warning_review">פתח את פרטי הספק</string>
@@ -364,5 +364,5 @@
 <string name="trakt_rating_current">הדירוג שלך ב‑Trakt: %1$d/10</string>
 <string name="trakt_rating_saved">הדירוג נשמר ב‑Trakt.</string>
 <string name="trakt_rating_failed">לא ניתן לשמור את הדירוג ב‑Trakt.</string>
-<string name="trakt_favorite_sync_failed">StreamVault שמר את השינוי, אך לא הצליח לעדכן את המועדפים ב‑Trakt. נסו שוב.</string>
+<string name="trakt_favorite_sync_failed">Sokatito שמר את השינוי, אך לא הצליח לעדכן את המועדפים ב‑Trakt. נסו שוב.</string>
 </resources>

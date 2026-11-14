@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">StreamVault</string>
+    <string name="app_name">Sokatito</string>
     <string name="nav_home">Rumah</string>
     <string name="nav_live_tv">siaran langsung</string>
     <string name="nav_movies">Film</string>
@@ -208,21 +208,21 @@
     <string name="badge_fav">FAV</string>
     <string name="favorites_content_type_movie">Film</string>
     <string name="split_count_format">%1$s %2$d/4</string>
-    <string name="tv_input_setup_scanning_title">Memindai saluran StreamVault</string>
+    <string name="tv_input_setup_scanning_title">Memindai saluran Sokatito</string>
     <string name="tv_input_setup_success_title">TV langsung sudah siap</string>
     <string name="tv_input_setup_no_provider_title">Tidak ada penyedia IPTV yang dikonfigurasi</string>
     <string name="tv_input_setup_error_title">Pemindaian otomatis gagal</string>
     <string name="tv_input_setup_idle_title">Mempersiapkan integrasi TV Langsung</string>
-    <string name="tv_input_setup_scanning_body">StreamVault sedang menyinkronkan penyedia aktif Anda ke Android TV Live TV.</string>
+    <string name="tv_input_setup_scanning_body">Sokatito sedang menyinkronkan penyedia aktif Anda ke Android TV Live TV.</string>
     <string name="tv_input_setup_success_body">Saluran Anda berhasil disinkronkan.</string>
-    <string name="tv_input_setup_no_provider_body">Tambahkan setidaknya satu penyedia IPTV di StreamVault, lalu kembali ke sini untuk memindai saluran ke Android TV Live TV.</string>
+    <string name="tv_input_setup_no_provider_body">Tambahkan setidaknya satu penyedia IPTV di Sokatito, lalu kembali ke sini untuk memindai saluran ke Android TV Live TV.</string>
     <string name="tv_input_setup_error_body">Sinkronisasi input TV tidak selesai.</string>
     <string name="tv_input_setup_idle_body">Harap tunggu.</string>
     <string name="tv_input_setup_source_format">Sumber: %1$s</string>
-    <string name="tv_input_setup_open_setup">Buka Pengaturan StreamVault</string>
+    <string name="tv_input_setup_open_setup">Buka Pengaturan Sokatito</string>
     <string name="tv_input_setup_try_scan_again">Coba Pindai Otomatis Lagi</string>
     <string name="tv_input_setup_retry_scan">Coba lagi Pindai Otomatis</string>
-    <string name="tv_input_setup_success_hint">Android TV Live TV sekarang dapat membuka saluran StreamVault Anda.</string>
+    <string name="tv_input_setup_success_hint">Android TV Live TV sekarang dapat membuka saluran Sokatito Anda.</string>
     <string name="category_options_clear_recent">Hapus Semua Terkini</string>
     <string name="category_options_hide_from_live_tv">Sembunyikan dari Live TV</string>
     <string name="channel_options_remove_from_recent">Hapus dari Terkini</string>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">StreamVault</string>
+    <string name="app_name">Sokatito</string>
     <string name="nav_home">الرئيسية</string>
     <string name="nav_live_tv">البث المباشر</string>
     <string name="nav_movies">الأفلام</string>
@@ -208,21 +208,21 @@
     <string name="badge_fav">مفضلة</string>
     <string name="favorites_content_type_movie">فيلم</string>
     <string name="split_count_format">%1$s %2$d/4</string>
-    <string name="tv_input_setup_scanning_title">جارٍ فحص قنوات StreamVault</string>
+    <string name="tv_input_setup_scanning_title">جارٍ فحص قنوات Sokatito</string>
     <string name="tv_input_setup_success_title">البث التلفزيوني المباشر جاهز</string>
     <string name="tv_input_setup_no_provider_title">لم يتم إعداد أي مزود IPTV</string>
     <string name="tv_input_setup_error_title">فشل الفحص التلقائي</string>
     <string name="tv_input_setup_idle_title">جارٍ تجهيز تكامل البث التلفزيوني المباشر</string>
-    <string name="tv_input_setup_scanning_body">يقوم StreamVault بمزامنة المزود النشط لديك مع Android TV Live TV.</string>
+    <string name="tv_input_setup_scanning_body">يقوم Sokatito بمزامنة المزود النشط لديك مع Android TV Live TV.</string>
     <string name="tv_input_setup_success_body">تمت مزامنة قنواتك بنجاح.</string>
-    <string name="tv_input_setup_no_provider_body">أضف مزود IPTV واحدًا على الأقل في StreamVault، ثم عد هنا لفحص القنوات إلى Android TV Live TV.</string>
+    <string name="tv_input_setup_no_provider_body">أضف مزود IPTV واحدًا على الأقل في Sokatito، ثم عد هنا لفحص القنوات إلى Android TV Live TV.</string>
     <string name="tv_input_setup_error_body">لم تكتمل مزامنة إدخال التلفزيون.</string>
     <string name="tv_input_setup_idle_body">يرجى الانتظار.</string>
     <string name="tv_input_setup_source_format">المصدر: %1$s</string>
-    <string name="tv_input_setup_open_setup">فتح إعداد StreamVault</string>
+    <string name="tv_input_setup_open_setup">فتح إعداد Sokatito</string>
     <string name="tv_input_setup_try_scan_again">حاول الفحص التلقائي مرة أخرى</string>
     <string name="tv_input_setup_retry_scan">إعادة محاولة الفحص التلقائي</string>
-    <string name="tv_input_setup_success_hint">يمكن لـ Android TV Live TV الآن فتح قنوات StreamVault الخاصة بك.</string>
+    <string name="tv_input_setup_success_hint">يمكن لـ Android TV Live TV الآن فتح قنوات Sokatito الخاصة بك.</string>
     <string name="category_options_clear_recent">مسح جميع الأخيرة</string>
     <string name="category_options_hide_from_live_tv">إخفاء من التلفزيون المباشر</string>
     <string name="channel_options_remove_from_recent">إزالة من الأخيرة</string>

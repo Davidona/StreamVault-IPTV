@@ -241,8 +241,8 @@
     <string name="epg_watch_live">مشاهدة مباشرة</string>
     <string name="guide_shell_subtitle">فلاتر الدليل، وكثافة الجدول، وتفاصيل البرامج المركزة في واجهة واحدة مخصصة للريموت.</string>
     <string name="nav_epg">دليل البرامج</string>
-    <string name="notification_permission_recording_alert_required">فعّل الإشعارات لـ StreamVault لتلقي تنبيهات فشل التسجيل.</string>
-    <string name="notification_permission_reminder_required">فعّل الإشعارات لـ StreamVault لتلقي تذكيرات البرامج.</string>
+    <string name="notification_permission_recording_alert_required">فعّل الإشعارات لـ Sokatito لتلقي تنبيهات فشل التسجيل.</string>
+    <string name="notification_permission_reminder_required">فعّل الإشعارات لـ Sokatito لتلقي تذكيرات البرامج.</string>
     <string name="player_archive_badge">الأرشيف</string>
     <string name="settings_parental_control">الرقابة الأبوية</string>
     <string name="home_show_categories">إظهار الفئات</string>

@@ -107,11 +107,11 @@
   <string name="dashboard_top_rated_movies">Phim đánh giá cao nhất</string>
   <string name="dashboard_update_allow_installs">Cho phép cài đặt</string>
   <string name="dashboard_update_available">Một bản phát hành mới hơn đã được lưu sẵn và có thể xem lại trong Cài đặt.</string>
-  <string name="dashboard_update_install_permission_required">Bản cập nhật đã được tải xuống. Cho phép cài đặt từ StreamVault, rồi thử cài đặt lại.</string>
+  <string name="dashboard_update_install_permission_required">Bản cập nhật đã được tải xuống. Cho phép cài đặt từ Sokatito, rồi thử cài đặt lại.</string>
   <string name="dashboard_update_install_ready">Bản cập nhật mới nhất đã được tải xuống. Mở Cài đặt để cài đặt.</string>
   <string name="dashboard_update_open_installer">Cài đặt từ Cài đặt</string>
   <string name="dashboard_update_open_settings">Mở cập nhật</string>
-  <string name="dashboard_update_title">StreamVault %1$s đã có sẵn</string>
+  <string name="dashboard_update_title">Sokatito %1$s đã có sẵn</string>
   <string name="dashboard_updated_series">Kệ phim bộ đã cập nhật</string>
   <string name="dashboard_updated_series_badge">loạt cập nhật</string>
   <string name="dashboard_warning_review">Mở chi tiết nhà cung cấp</string>
@@ -364,5 +364,5 @@
 <string name="trakt_rating_current">Điểm Trakt của bạn: %1$d/10</string>
 <string name="trakt_rating_saved">Đã lưu điểm của bạn vào Trakt.</string>
 <string name="trakt_rating_failed">Không thể lưu điểm của bạn vào Trakt.</string>
-<string name="trakt_favorite_sync_failed">StreamVault đã lưu thay đổi nhưng không thể cập nhật Mục yêu thích Trakt. Hãy thử lại.</string>
+<string name="trakt_favorite_sync_failed">Sokatito đã lưu thay đổi nhưng không thể cập nhật Mục yêu thích Trakt. Hãy thử lại.</string>
 </resources>

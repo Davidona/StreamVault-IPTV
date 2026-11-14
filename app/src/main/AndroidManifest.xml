@@ -161,7 +161,7 @@
         <service
             android:name=".tvinput.StreamVaultTvInputService"
             android:exported="true"
-            android:label="StreamVault Live Channels"
+            android:label="Sokatito Live Channels"
             android:permission="android.permission.BIND_TV_INPUT">
 
             <intent-filter>

@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">StreamVault</string>
+    <string name="app_name">Sokatito</string>
     <string name="nav_home">Ana sayfa</string>
     <string name="nav_live_tv">Canlı TV</string>
     <string name="nav_movies">Filmler</string>
@@ -208,21 +208,21 @@
     <string name="badge_fav">Favorim</string>
     <string name="favorites_content_type_movie">Film</string>
     <string name="split_count_format">%1$s %2$d/4</string>
-    <string name="tv_input_setup_scanning_title">StreamVault kanallarını tarama</string>
+    <string name="tv_input_setup_scanning_title">Sokatito kanallarını tarama</string>
     <string name="tv_input_setup_success_title">Canlı TV hazır</string>
     <string name="tv_input_setup_no_provider_title">Yapılandırılmış IPTV sağlayıcısı yok</string>
     <string name="tv_input_setup_error_title">Otomatik tarama başarısız oldu</string>
     <string name="tv_input_setup_idle_title">Canlı TV entegrasyonunun hazırlanması</string>
-    <string name="tv_input_setup_scanning_body">StreamVault, aktif sağlayıcınızı Android TV Live TV ile senkronize ediyor.</string>
+    <string name="tv_input_setup_scanning_body">Sokatito, aktif sağlayıcınızı Android TV Live TV ile senkronize ediyor.</string>
     <string name="tv_input_setup_success_body">Kanallarınız başarıyla senkronize edildi.</string>
-    <string name="tv_input_setup_no_provider_body">StreamVault\'ta en az bir IPTV sağlayıcısı ekleyin, ardından kanalları Android TV Live TV\'ye taramak için buraya geri dönün.</string>
+    <string name="tv_input_setup_no_provider_body">Sokatito\'ta en az bir IPTV sağlayıcısı ekleyin, ardından kanalları Android TV Live TV\'ye taramak için buraya geri dönün.</string>
     <string name="tv_input_setup_error_body">TV girişi senkronizasyonu tamamlanmadı.</string>
     <string name="tv_input_setup_idle_body">Lütfen bekleyin.</string>
     <string name="tv_input_setup_source_format">Kaynak: %1$s</string>
-    <string name="tv_input_setup_open_setup">StreamVault Kurulumunu Aç</string>
+    <string name="tv_input_setup_open_setup">Sokatito Kurulumunu Aç</string>
     <string name="tv_input_setup_try_scan_again">Otomatik Taramayı Tekrar Deneyin</string>
     <string name="tv_input_setup_retry_scan">Otomatik Taramayı Yeniden Dene</string>
-    <string name="tv_input_setup_success_hint">Android TV Live TV artık StreamVault kanallarınızı açabilir.</string>
+    <string name="tv_input_setup_success_hint">Android TV Live TV artık Sokatito kanallarınızı açabilir.</string>
     <string name="category_options_clear_recent">Tüm Son İzlenenleri Temizle</string>
     <string name="category_options_hide_from_live_tv">Canlı TV\'den Gizle</string>
     <string name="channel_options_remove_from_recent">Son İzlenenlerden Kaldır</string>

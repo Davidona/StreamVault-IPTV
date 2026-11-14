@@ -17,7 +17,7 @@
     <string name="trakt_custom_lists_empty">ليس لديك أي قوائم Trakt مخصصة حتى الآن.</string>
     <string name="trakt_custom_lists_failed">تعذر تحميل أو تحديث قائمة Trakt هذه. حاول ثانية.</string>
     <string name="trakt_custom_lists_incognito">لا تتوفر قوائم Trakt أثناء تشغيل وضع التصفح المتخفي.</string>
-    <string name="trakt_custom_lists_too_large">هذه القائمة كبيرة جدًا بحيث لا يمكن تحميلها بالكامل في StreamVault.</string>
+    <string name="trakt_custom_lists_too_large">هذه القائمة كبيرة جدًا بحيث لا يمكن تحميلها بالكامل في Sokatito.</string>
     <string name="trakt_custom_list_open">%1$s · عناصر %2$d</string>
     <string name="trakt_custom_list_contains_item">%1$s موجود في هذه القائمة.</string>
     <string name="trakt_custom_list_does_not_contain_item">%1$s ليس في هذه القائمة.</string>

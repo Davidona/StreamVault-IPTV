@@ -241,8 +241,8 @@
     <string name="epg_watch_live">Canlı İzle</string>
     <string name="guide_shell_subtitle">Kılavuz filtreleri, program yoğunluğu ve odaklı program ayrıntıları tek bir uzaktan kumanda öncelikli ekranda.</string>
     <string name="nav_epg">Rehber</string>
-    <string name="notification_permission_recording_alert_required">Kayıt hatası uyarıları almak için StreamVault bildirimlerini etkinleştirin.</string>
-    <string name="notification_permission_reminder_required">Program hatırlatıcıları almak için StreamVault bildirimlerini etkinleştirin.</string>
+    <string name="notification_permission_recording_alert_required">Kayıt hatası uyarıları almak için Sokatito bildirimlerini etkinleştirin.</string>
+    <string name="notification_permission_reminder_required">Program hatırlatıcıları almak için Sokatito bildirimlerini etkinleştirin.</string>
     <string name="player_archive_badge">Arşiv</string>
     <string name="settings_parental_control">Ebeveyn Kontrolü</string>
     <string name="home_show_categories">Kategorileri göster</string>

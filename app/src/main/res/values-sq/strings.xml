@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">StreamVault</string>
+    <string name="app_name">Sokatito</string>
 
 
     <string name="nav_home">Kryefaqja</string>
@@ -307,21 +307,21 @@
 
 
     <string name="split_count_format">%1$s %2$d/4</string>
-    <string name="tv_input_setup_scanning_title">Po skanohen kanalet e StreamVault</string>
+    <string name="tv_input_setup_scanning_title">Po skanohen kanalet e Sokatito</string>
     <string name="tv_input_setup_success_title">Live TV është gati</string>
     <string name="tv_input_setup_no_provider_title">Nuk ka ofrues IPTV të konfiguruar</string>
     <string name="tv_input_setup_error_title">Skanimi automatik dështoi</string>
     <string name="tv_input_setup_idle_title">Po përgatitet integrimi me Live TV</string>
-    <string name="tv_input_setup_scanning_body">StreamVault po sinkronizon ofruesin aktiv në Android TV Live TV.</string>
+    <string name="tv_input_setup_scanning_body">Sokatito po sinkronizon ofruesin aktiv në Android TV Live TV.</string>
     <string name="tv_input_setup_success_body">Kanalet u sinkronizuan me sukses.</string>
-    <string name="tv_input_setup_no_provider_body">Shto të paktën një ofrues IPTV në StreamVault, pastaj kthehu këtu për të skanuar kanalet në Android TV Live TV.</string>
+    <string name="tv_input_setup_no_provider_body">Shto të paktën një ofrues IPTV në Sokatito, pastaj kthehu këtu për të skanuar kanalet në Android TV Live TV.</string>
     <string name="tv_input_setup_error_body">Sinkronizimi i hyrjes së TV-së nuk përfundoi.</string>
     <string name="tv_input_setup_idle_body">Ju lutem pritni.</string>
     <string name="tv_input_setup_source_format">Burimi: %1$s</string>
-    <string name="tv_input_setup_open_setup">Hap konfigurimin e StreamVault</string>
+    <string name="tv_input_setup_open_setup">Hap konfigurimin e Sokatito</string>
     <string name="tv_input_setup_try_scan_again">Provo përsëri skanimin automatik</string>
     <string name="tv_input_setup_retry_scan">Riprovo skanimin automatik</string>
-    <string name="tv_input_setup_success_hint">Android TV Live TV tani mund të hapë kanalet e tua të StreamVault.</string>
+    <string name="tv_input_setup_success_hint">Android TV Live TV tani mund të hapë kanalet e tua të Sokatito.</string>
 
     <!-- M2: Google Drive backup sync -->
     <string name="settings_drive_cancel_backup_choice_subtitle">Kthehu te veprimet e kopjes rezervë në Drive.</string>

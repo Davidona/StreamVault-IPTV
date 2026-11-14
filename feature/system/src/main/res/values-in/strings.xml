@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="app_name">StreamVault</string>
+  <string name="app_name">Sokatito</string>
   <string name="welcome_setup_provider">Penyedia Pengaturan</string>
   <string name="welcome_loading_title">Mempersiapkan perpustakaan Anda</string>
   <string name="sync_section_live">Live</string>
@@ -47,12 +47,12 @@
     <string name="torrent_cache_active">Hentikan pemutaran torrent sebelum menghapus cache.</string>
     <string name="torrent_cache_clear_failed">Cache sementara tidak dapat dihapus.</string>
     <string name="extensions_title">Ekstensi</string>
-    <string name="plugins_section_description">Tambahkan fitur ke StreamVault dengan aplikasi pendamping Android.</string>
+    <string name="plugins_section_description">Tambahkan fitur ke Sokatito dengan aplikasi pendamping Android.</string>
     <string name="plugins_install_url">Pasang plugin dari URL</string>
     <string name="plugins_install_file">Pasang plugin APK</string>
     <string name="plugins_install_hint">Gunakan file APK atau tautan unduhan APK langsung. Untuk URL manifes add-on Stremio, gunakan tab Add-on Stremio.</string>
     <string name="plugins_empty_title">Tidak ada plugin terpasang</string>
-    <string name="plugins_empty_description">Pasang aplikasi pendamping StreamVault yang kompatibel, atau periksa lagi plugin yang Anda pasang di luar StreamVault.</string>
+    <string name="plugins_empty_description">Pasang aplikasi pendamping Sokatito yang kompatibel, atau periksa lagi plugin yang Anda pasang di luar Sokatito.</string>
     <string name="plugins_provider_sources_count">%1$d sumber penyedia tersedia</string>
     <string name="plugins_details">Detail</string>
     <string name="plugins_hide_details">Sembunyikan detail</string>

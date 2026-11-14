@@ -63,7 +63,7 @@
     <string name="trakt_custom_lists_connect_first">リストを使用するには、設定で Trakt を接続します。</string>
     <string name="trakt_custom_lists_failed">この Trakt リストをロードまたは更新できませんでした。もう一度やり直してください。</string>
     <string name="trakt_custom_lists_incognito">Trakt リストは、シークレット モードがオンになっている間は使用できません。</string>
-    <string name="trakt_custom_lists_too_large">このリストは大きすぎて StreamVault に完全にロードできません。</string>
+    <string name="trakt_custom_lists_too_large">このリストは大きすぎて Sokatito に完全にロードできません。</string>
     <string name="trakt_custom_list_remove_item">削除</string>
     <string name="trakt_custom_lists_delete">削除</string>
     <string name="trakt_custom_lists_delete_title">この Trakt リストを削除しますか?</string>

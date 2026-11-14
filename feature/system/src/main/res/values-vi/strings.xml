@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="app_name">StreamVault</string>
+  <string name="app_name">Sokatito</string>
   <string name="welcome_setup_provider">Thiết lập nhà cung cấp</string>
   <string name="welcome_loading_title">Đang chuẩn bị thư viện của bạn</string>
   <string name="sync_section_live">Trực tiếp</string>
@@ -47,12 +47,12 @@
     <string name="torrent_cache_active">Hãy dừng phát torrent trước khi xóa bộ nhớ đệm.</string>
     <string name="torrent_cache_clear_failed">Không thể xóa bộ nhớ đệm tạm thời.</string>
     <string name="extensions_title">Tiện ích mở rộng</string>
-    <string name="plugins_section_description">Thêm tính năng cho StreamVault bằng các ứng dụng Android đồng hành.</string>
+    <string name="plugins_section_description">Thêm tính năng cho Sokatito bằng các ứng dụng Android đồng hành.</string>
     <string name="plugins_install_url">Cài trình cắm từ URL</string>
     <string name="plugins_install_file">Cài trình cắm từ tệp APK</string>
     <string name="plugins_install_hint">Dùng tệp APK hoặc liên kết tải APK trực tiếp. Với URL manifest của tiện ích Stremio, hãy dùng tab Tiện ích Stremio.</string>
     <string name="plugins_empty_title">Chưa cài trình cắm nào</string>
-    <string name="plugins_empty_description">Cài ứng dụng đồng hành StreamVault tương thích, hoặc kiểm tra lại trình cắm bạn đã cài bên ngoài StreamVault.</string>
+    <string name="plugins_empty_description">Cài ứng dụng đồng hành Sokatito tương thích, hoặc kiểm tra lại trình cắm bạn đã cài bên ngoài Sokatito.</string>
     <string name="plugins_provider_sources_count">Có %1$d nguồn nhà cung cấp khả dụng</string>
     <string name="plugins_details">Chi tiết</string>
     <string name="plugins_hide_details">Ẩn chi tiết</string>

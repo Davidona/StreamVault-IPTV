@@ -107,11 +107,11 @@
   <string name="dashboard_top_rated_movies">Най-високо оценени филми</string>
   <string name="dashboard_update_allow_installs">Разреши инсталации</string>
   <string name="dashboard_update_available">По-нова версия на приложението е изтеглена и готова за преглед от Настройки.</string>
-  <string name="dashboard_update_install_permission_required">Актуализацията е изтеглена. Разрешете инсталации от StreamVault, след което опитайте отново.</string>
+  <string name="dashboard_update_install_permission_required">Актуализацията е изтеглена. Разрешете инсталации от Sokatito, след което опитайте отново.</string>
   <string name="dashboard_update_install_ready">Последната актуализация вече е изтеглена. Отворете инсталатора, за да завършите.</string>
   <string name="dashboard_update_open_installer">Инсталирай актуализацията</string>
   <string name="dashboard_update_open_settings">Отвори актуализациите</string>
-  <string name="dashboard_update_title">StreamVault %1$s е наличен</string>
+  <string name="dashboard_update_title">Sokatito %1$s е наличен</string>
   <string name="dashboard_updated_series">Рафт с обновени сериали</string>
   <string name="dashboard_updated_series_badge">Обновени сериали</string>
   <string name="dashboard_warning_review">Отвори данните на доставчика</string>

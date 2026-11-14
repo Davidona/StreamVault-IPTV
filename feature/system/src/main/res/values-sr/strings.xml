@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="app_name">StreamVault</string>
+  <string name="app_name">Sokatito</string>
   <string name="welcome_setup_provider">Подесите провајдера</string>
   <string name="welcome_setup_later">Подесите касније</string>
   <string name="welcome_loading_title">Припремамо вашу библиотеку</string>
@@ -47,12 +47,12 @@
     <string name="torrent_cache_active">Зауставите репродукцију торента пре брисања кеша.</string>
     <string name="torrent_cache_clear_failed">Привремени кеш није могуће обрисати.</string>
     <string name="extensions_title">Проширења</string>
-    <string name="plugins_section_description">Додајте функције у StreamVault уз пратеће Android апликације.</string>
+    <string name="plugins_section_description">Додајте функције у Sokatito уз пратеће Android апликације.</string>
     <string name="plugins_install_url">Инсталирај прикључак са URL-а</string>
     <string name="plugins_install_file">Инсталирај прикључак из APK датотеке</string>
     <string name="plugins_install_hint">Користите APK датотеку или директну везу за преузимање APK-а. За URL-ове манифеста Stremio додатака користите картицу Stremio додаци.</string>
     <string name="plugins_empty_title">Нема инсталираних прикључака</string>
-    <string name="plugins_empty_description">Инсталирајте компатибилну пратећу апликацију за StreamVault или поново проверите прикључак који сте инсталирали ван StreamVault-а.</string>
+    <string name="plugins_empty_description">Инсталирајте компатибилну пратећу апликацију за Sokatito или поново проверите прикључак који сте инсталирали ван Sokatito-а.</string>
     <string name="plugins_provider_sources_count">Доступно %1$d извора провајдера</string>
     <string name="plugins_details">Детаљи</string>
     <string name="plugins_hide_details">Сакриј детаље</string>

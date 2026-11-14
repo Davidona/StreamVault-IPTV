@@ -6,8 +6,8 @@
     <string name="settings_syncing_btn">Menyegerakkan...</string>
     <string name="settings_backup_restore">Sandaran &amp; Pemulihan</string>
     <string name="settings_restore_data">Import Data</string>
-    <string name="settings_restore_subtitle">Pilih fail sandaran, atau buka sandaran dengan StreamVault daripada pengurus fail.</string>
-    <string name="setup_title_streamvault">StreamVault</string>
+    <string name="settings_restore_subtitle">Pilih fail sandaran, atau buka sandaran dengan Sokatito daripada pengurus fail.</string>
+    <string name="setup_title_streamvault">Sokatito</string>
     <string name="setup_provider_title">Tambah penyedia</string>
     <string name="setup_edit_provider">Edit Penyedia</string>
     <string name="setup_update_desc">Kemas kini butiran penyedia IPTV anda</string>

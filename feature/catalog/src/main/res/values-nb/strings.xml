@@ -107,11 +107,11 @@
   <string name="dashboard_top_rated_movies">Topprangerte filmer</string>
   <string name="dashboard_update_allow_installs">Tillat installasjoner</string>
   <string name="dashboard_update_available">En nyere appversjon er bufret og klar til å gjennomgås i Innstillinger.</string>
-  <string name="dashboard_update_install_permission_required">Oppdateringen er lastet ned. Tillat installasjon fra StreamVault, og prøv installasjonen på nytt.</string>
+  <string name="dashboard_update_install_permission_required">Oppdateringen er lastet ned. Tillat installasjon fra Sokatito, og prøv installasjonen på nytt.</string>
   <string name="dashboard_update_install_ready">Den nyeste oppdateringen er allerede lastet ned. Åpne Innstillinger for å installere den.</string>
   <string name="dashboard_update_open_installer">Installer fra Innstillinger</string>
   <string name="dashboard_update_open_settings">Åpne oppdateringer</string>
-  <string name="dashboard_update_title">StreamVault %1$s er tilgjengelig</string>
+  <string name="dashboard_update_title">Sokatito %1$s er tilgjengelig</string>
   <string name="dashboard_updated_series">Oppdatert seriehylle</string>
   <string name="dashboard_updated_series_badge">Oppdatert serie</string>
   <string name="dashboard_warning_review">Åpne leverandørdetaljer</string>
@@ -364,5 +364,5 @@
 <string name="trakt_rating_current">Din Trakt-vurdering: %1$d/10</string>
 <string name="trakt_rating_saved">Vurderingen ble lagret på Trakt.</string>
 <string name="trakt_rating_failed">Kunne ikke lagre vurderingen på Trakt.</string>
-<string name="trakt_favorite_sync_failed">StreamVault lagret endringen, men kunne ikke oppdatere Trakt-favorittene. Prøv igjen.</string>
+<string name="trakt_favorite_sync_failed">Sokatito lagret endringen, men kunne ikke oppdatere Trakt-favorittene. Prøv igjen.</string>
 </resources>

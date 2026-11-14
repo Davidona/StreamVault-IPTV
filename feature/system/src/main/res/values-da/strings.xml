@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="app_name">StreamVault</string>
+  <string name="app_name">Sokatito</string>
   <string name="welcome_setup_provider">Opsæt udbyder</string>
   <string name="welcome_loading_title">Forberedelse af dit bibliotek</string>
   <string name="sync_section_live">Live</string>
@@ -47,12 +47,12 @@
     <string name="torrent_cache_active">Stop torrentafspilning, før du rydder cachen.</string>
     <string name="torrent_cache_clear_failed">Den midlertidige cache kunne ikke ryddes.</string>
     <string name="extensions_title">Udvidelser</string>
-    <string name="plugins_section_description">Føj funktioner til StreamVault med ledsagende Android-apps.</string>
+    <string name="plugins_section_description">Føj funktioner til Sokatito med ledsagende Android-apps.</string>
     <string name="plugins_install_url">Installér plugin fra URL</string>
     <string name="plugins_install_file">Installér plugin-APK</string>
     <string name="plugins_install_hint">Brug en APK-fil eller et direkte downloadlink til APK. Brug fanen Stremio-tilføjelser til manifest-URL\'er for Stremio-kompatible tilføjelser.</string>
     <string name="plugins_empty_title">Ingen plugins installeret</string>
-    <string name="plugins_empty_description">Installér en kompatibel ledsagende StreamVault-app, eller tjek igen for et plugin, du har installeret uden for StreamVault.</string>
+    <string name="plugins_empty_description">Installér en kompatibel ledsagende Sokatito-app, eller tjek igen for et plugin, du har installeret uden for Sokatito.</string>
     <string name="plugins_provider_sources_count">%1$d tilgængelige udbyderkilder</string>
     <string name="plugins_details">Oplysninger</string>
     <string name="plugins_hide_details">Skjul detaljer</string>

@@ -14,7 +14,7 @@
     <string name="trakt_watchlist_add">Pridať do zoznamu sledovaných Trakt</string>
     <string name="trakt_watchlist_connect">Pripojte Trakt v Nastaveniach</string>
     <string name="trakt_watchlist_failed">Nepodarilo sa aktualizovať zoznam sledovania Trakt. Skúste to znova.</string>
-    <string name="trakt_favorite_sync_failed">StreamVault uložil zmenu, ale nemohol aktualizovať obľúbené položky Trakt. Skúste to znova.</string>
+    <string name="trakt_favorite_sync_failed">Sokatito uložil zmenu, ale nemohol aktualizovať obľúbené položky Trakt. Skúste to znova.</string>
     <string name="trakt_watchlist_load">Načítať zoznam sledovaných Trakt</string>
     <string name="trakt_watchlist_remove">Odstrániť zo zoznamu sledovaných Trakt</string>
     <string name="trakt_custom_lists_action">Trakt zoznamy</string>
@@ -25,7 +25,7 @@
     <string name="trakt_custom_lists_empty">Zatiaľ nemáte žiadne vlastné zoznamy Trakt.</string>
     <string name="trakt_custom_lists_failed">Nepodarilo sa načítať alebo aktualizovať tento zoznam Trakt. Skúste to znova.</string>
     <string name="trakt_custom_lists_incognito">Kým je zapnutý režim inkognito, zoznamy Trakt nie sú k dispozícii.</string>
-    <string name="trakt_custom_lists_too_large">Tento zoznam je príliš veľký na to, aby sa mohol úplne načítať do StreamVault.</string>
+    <string name="trakt_custom_lists_too_large">Tento zoznam je príliš veľký na to, aby sa mohol úplne načítať do Sokatito.</string>
     <string name="trakt_custom_list_open">%1$s · %2$d položky</string>
     <string name="trakt_custom_list_contains_item">%1$s je v tomto zozname.</string>
     <string name="trakt_custom_list_does_not_contain_item">%1$s nie je v tomto zozname.</string>

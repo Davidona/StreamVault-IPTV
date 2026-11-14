@@ -242,8 +242,8 @@
     <string name="epg_watch_live">라이브 시청</string>
     <string name="guide_shell_subtitle">가이드 필터, 일정 밀도, 집중된 프로그램 정보를 리모컨 중심 화면에서 한 번에.</string>
     <string name="nav_epg">가이드</string>
-    <string name="notification_permission_recording_alert_required">녹화 실패 알림을 받으려면 StreamVault 알림을 활성화하세요.</string>
-    <string name="notification_permission_reminder_required">프로그램 알림을 받으려면 StreamVault 알림을 활성화하세요.</string>
+    <string name="notification_permission_recording_alert_required">녹화 실패 알림을 받으려면 Sokatito 알림을 활성화하세요.</string>
+    <string name="notification_permission_reminder_required">프로그램 알림을 받으려면 Sokatito 알림을 활성화하세요.</string>
     <string name="player_archive_badge">아카이브</string>
     <string name="settings_parental_control">자녀 보호</string>
     <string name="nav_sports">스포츠</string>

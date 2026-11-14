@@ -14,7 +14,7 @@
     <string name="trakt_watchlist_add">加入 Trakt 關注列表</string>
     <string name="trakt_watchlist_connect">在設定中連接 Trakt</string>
     <string name="trakt_watchlist_failed">無法更新 Trakt 追蹤清單，請再試一次。</string>
-    <string name="trakt_favorite_sync_failed">StreamVault 儲存了更改，但無法更新 Trakt 收藏夾。再試一次。</string>
+    <string name="trakt_favorite_sync_failed">Sokatito 儲存了更改，但無法更新 Trakt 收藏夾。再試一次。</string>
     <string name="trakt_watchlist_load">載入 Trakt 關注列表</string>
     <string name="trakt_watchlist_remove">從 Trakt 關注列表中刪除</string>
     <string name="trakt_custom_lists_action">Trakt 列表</string>
@@ -25,7 +25,7 @@
     <string name="trakt_custom_lists_empty">您還沒有任何自訂 Trakt 清單。</string>
     <string name="trakt_custom_lists_failed">無法載入或更新此 Trakt 清單。再試一次。</string>
     <string name="trakt_custom_lists_incognito">當隱身模式開啟時，Trakt 清單不可用。</string>
-    <string name="trakt_custom_lists_too_large">此列表太大，無法在 StreamVault 中完全載入。</string>
+    <string name="trakt_custom_lists_too_large">此列表太大，無法在 Sokatito 中完全載入。</string>
     <string name="trakt_custom_list_open">%1$s · %2$d 項目</string>
     <string name="trakt_custom_list_contains_item">%1$s 在此清單中。</string>
     <string name="trakt_custom_list_does_not_contain_item">%1$s 不在此列表中。</string>

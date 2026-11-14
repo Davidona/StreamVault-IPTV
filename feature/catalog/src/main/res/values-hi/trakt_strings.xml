@@ -14,7 +14,7 @@
     <string name="trakt_watchlist_add">Trakt वॉचलिस्ट में जोड़ें</string>
     <string name="trakt_watchlist_connect">सेटिंग्स में Trakt से कनेक्ट करें</string>
     <string name="trakt_watchlist_failed">Trakt वॉचलिस्ट अपडेट नहीं हो सकी। कृपया फिर से कोशिश करें।</string>
-    <string name="trakt_favorite_sync_failed">StreamVault ने परिवर्तन सहेजा, लेकिन Trakt पसंदीदा को अपडेट नहीं कर सका। पुनः प्रयास करें।</string>
+    <string name="trakt_favorite_sync_failed">Sokatito ने परिवर्तन सहेजा, लेकिन Trakt पसंदीदा को अपडेट नहीं कर सका। पुनः प्रयास करें।</string>
     <string name="trakt_watchlist_load">Trakt वॉचलिस्ट लोड करें</string>
     <string name="trakt_watchlist_remove">Trakt वॉचलिस्ट से हटाएँ</string>
     <string name="trakt_custom_lists_action">Trakt सूचियाँ</string>
@@ -25,7 +25,7 @@
     <string name="trakt_custom_lists_empty">आपके पास अभी तक कोई कस्टम Trakt सूची नहीं है।</string>
     <string name="trakt_custom_lists_failed">इस Trakt सूची को लोड या अपडेट नहीं किया जा सका. पुनः प्रयास करें।</string>
     <string name="trakt_custom_lists_incognito">गुप्त मोड चालू होने पर Trakt सूचियाँ अनुपलब्ध हैं।</string>
-    <string name="trakt_custom_lists_too_large">StreamVault में पूरी तरह लोड करने के लिए यह सूची बहुत बड़ी है।</string>
+    <string name="trakt_custom_lists_too_large">Sokatito में पूरी तरह लोड करने के लिए यह सूची बहुत बड़ी है।</string>
     <string name="trakt_custom_list_open">%1$s · %2$d आइटम</string>
     <string name="trakt_custom_list_contains_item">%1$s इस सूची में है.</string>
     <string name="trakt_custom_list_does_not_contain_item">%1$s इस सूची में नहीं है.</string>

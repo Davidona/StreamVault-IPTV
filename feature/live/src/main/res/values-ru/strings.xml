@@ -241,8 +241,8 @@
     <string name="epg_watch_live">Смотреть в прямом эфире</string>
     <string name="guide_shell_subtitle">Фильтры гида, плотность расписания и подробности программы в одном интерфейсе для пульта.</string>
     <string name="nav_epg">Гид</string>
-    <string name="notification_permission_recording_alert_required">Включите уведомления StreamVault для получения оповещений об ошибках записи.</string>
-    <string name="notification_permission_reminder_required">Включите уведомления StreamVault для получения напоминаний о программах.</string>
+    <string name="notification_permission_recording_alert_required">Включите уведомления Sokatito для получения оповещений об ошибках записи.</string>
+    <string name="notification_permission_reminder_required">Включите уведомления Sokatito для получения напоминаний о программах.</string>
     <string name="player_archive_badge">Архив</string>
     <string name="settings_parental_control">Родительский контроль</string>
     <string name="home_show_categories">Показать категории</string>

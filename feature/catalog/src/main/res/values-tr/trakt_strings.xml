@@ -17,7 +17,7 @@
     <string name="trakt_custom_lists_empty">Henüz özel Trakt listeniz yok.</string>
     <string name="trakt_custom_lists_failed">Bu Trakt listesi yüklenemedi veya güncellenemedi. Tekrar deneyin.</string>
     <string name="trakt_custom_lists_incognito">Gizli mod açıkken Trakt listeleri kullanılamaz.</string>
-    <string name="trakt_custom_lists_too_large">Bu liste tamamen StreamVault\'ya yüklenemeyecek kadar büyük.</string>
+    <string name="trakt_custom_lists_too_large">Bu liste tamamen Sokatito\'ya yüklenemeyecek kadar büyük.</string>
     <string name="trakt_custom_list_open">%1$s · %2$d öğeleri</string>
     <string name="trakt_custom_list_contains_item">%1$s bu listede.</string>
     <string name="trakt_custom_list_does_not_contain_item">%1$s bu listede yok.</string>

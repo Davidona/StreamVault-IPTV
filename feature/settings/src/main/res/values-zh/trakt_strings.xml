@@ -63,7 +63,7 @@
     <string name="trakt_custom_lists_connect_first">在“设置”中连接 Trakt 以使用您的列表。</string>
     <string name="trakt_custom_lists_failed">无法加载或更新此 Trakt 列表。再试一次。</string>
     <string name="trakt_custom_lists_incognito">当隐身模式开启时，Trakt 列表不可用。</string>
-    <string name="trakt_custom_lists_too_large">此列表太大，无法在 StreamVault 中完全加载。</string>
+    <string name="trakt_custom_lists_too_large">此列表太大，无法在 Sokatito 中完全加载。</string>
     <string name="trakt_custom_list_remove_item">删除</string>
     <string name="trakt_custom_lists_delete">删除</string>
     <string name="trakt_custom_lists_delete_title">删除这个Trakt列表吗？</string>

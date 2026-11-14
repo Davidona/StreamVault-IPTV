@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="app_name">StreamVault</string>
+  <string name="app_name">Sokatito</string>
   <string name="welcome_setup_provider">Sağlayıcı Kur</string>
   <string name="welcome_loading_title">Kitaplığınız hazırlanıyor</string>
   <string name="sync_section_live">Canlı</string>
@@ -47,12 +47,12 @@
     <string name="torrent_cache_active">Önbelleği temizlemeden önce torrent oynatmayı durdurun.</string>
     <string name="torrent_cache_clear_failed">Geçici önbellek temizlenemedi.</string>
     <string name="extensions_title">Eklentiler</string>
-    <string name="plugins_section_description">Android yardımcı uygulamalarıyla StreamVault\'a özellik ekleyin.</string>
+    <string name="plugins_section_description">Android yardımcı uygulamalarıyla Sokatito\'a özellik ekleyin.</string>
     <string name="plugins_install_url">URL\'den eklenti yükle</string>
     <string name="plugins_install_file">Eklenti APK\'sı yükle</string>
     <string name="plugins_install_hint">Bir APK dosyası veya doğrudan APK indirme bağlantısı kullanın. Stremio eklenti manifest URL\'leri için Stremio eklentileri sekmesini kullanın.</string>
     <string name="plugins_empty_title">Yüklü eklenti yok</string>
-    <string name="plugins_empty_description">Uyumlu bir StreamVault yardımcı uygulaması yükleyin veya StreamVault dışında yüklediğiniz bir eklentiyi yeniden denetleyin.</string>
+    <string name="plugins_empty_description">Uyumlu bir Sokatito yardımcı uygulaması yükleyin veya Sokatito dışında yüklediğiniz bir eklentiyi yeniden denetleyin.</string>
     <string name="plugins_provider_sources_count">%1$d sağlayıcı kaynağı kullanılabilir</string>
     <string name="plugins_details">Ayrıntılar</string>
     <string name="plugins_hide_details">Ayrıntıları gizle</string>

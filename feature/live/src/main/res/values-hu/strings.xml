@@ -241,8 +241,8 @@
     <string name="epg_watch_live">Nézd élőben</string>
     <string name="guide_shell_subtitle">Útmutatók, műsorsűrűség és fókuszált műsorrészletek egyetlen, távirányító-központú felületen.</string>
     <string name="nav_epg">Műsorújság</string>
-    <string name="notification_permission_recording_alert_required">Engedélyezze az értesítéseket a StreamVault számára a felvételi hibák fogadásához.</string>
-    <string name="notification_permission_reminder_required">Engedélyezze az értesítéseket a StreamVault számára a műsoremlékeztetők fogadásához.</string>
+    <string name="notification_permission_recording_alert_required">Engedélyezze az értesítéseket a Sokatito számára a felvételi hibák fogadásához.</string>
+    <string name="notification_permission_reminder_required">Engedélyezze az értesítéseket a Sokatito számára a műsoremlékeztetők fogadásához.</string>
     <string name="player_archive_badge">Archívum</string>
     <string name="settings_parental_control">Szülői felügyelet</string>
     <string name="home_show_categories">Kategóriák megjelenítése</string>
