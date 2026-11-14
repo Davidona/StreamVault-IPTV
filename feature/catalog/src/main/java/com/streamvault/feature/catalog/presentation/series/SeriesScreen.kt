@@ -42,6 +42,7 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import com.streamvault.core.ui.device.rememberIsTelevisionDevice
 import com.streamvault.feature.catalog.presentation.components.CategoryRow
 import com.streamvault.feature.catalog.presentation.components.ContinueWatchingRow
+import com.streamvault.feature.catalog.presentation.components.ContinueWatchingRemovalDialog
 import com.streamvault.feature.catalog.presentation.components.SavedCategoryContextCard
 import com.streamvault.feature.catalog.presentation.components.SavedCategoryShortcut
 import com.streamvault.feature.catalog.presentation.components.SavedCategoryShortcutsRow
@@ -50,8 +51,10 @@ import com.streamvault.feature.catalog.presentation.components.SelectionChipRow
 import com.streamvault.feature.catalog.presentation.components.SeriesCard
 import com.streamvault.core.ui.design.browse.*
 import com.streamvault.domain.model.Category
+import com.streamvault.domain.model.ContentType
 import com.streamvault.domain.model.LibraryFilterType
 import com.streamvault.domain.model.LibrarySortBy
+import com.streamvault.domain.model.PlaybackHistory
 import com.streamvault.domain.model.Series
 import com.streamvault.domain.util.SearchTextNormalizer
 import kotlinx.coroutines.launch
@@ -117,6 +120,7 @@ fun SeriesScreen(
     var pinError by remember { mutableStateOf<String?>(null) }
     var pendingSeries by remember { mutableStateOf<Series?>(null) }
     var pendingCategory by remember { mutableStateOf<Category?>(null) }
+    var pendingContinueWatchingRemoval by remember { mutableStateOf<PlaybackHistory?>(null) }
 
     HandleVodUserMessage(
         userMessage = uiState.userMessage,
@@ -228,6 +232,8 @@ fun SeriesScreen(
                 onSearchQueryChange = viewModel::setSearchQuery,
                 onSeriesClick = onSeriesClick,
                 onSeriesIdClick = onSeriesIdClick,
+                onRemoveFromContinueWatching = viewModel::removeFromContinueWatching,
+                onRequestContinueWatchingRemoval = { pendingContinueWatchingRemoval = it },
                 onProtectedSeriesClick = { series ->
                     pendingCategory = null
                     pendingSeries = series
@@ -273,6 +279,17 @@ fun SeriesScreen(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .padding(bottom = 16.dp)
+        )
+    }
+
+    pendingContinueWatchingRemoval?.let { history ->
+        ContinueWatchingRemovalDialog(
+            history = history,
+            onDismiss = { pendingContinueWatchingRemoval = null },
+            onConfirm = {
+                viewModel.removeFromContinueWatching(history)
+                pendingContinueWatchingRemoval = null
+            }
         )
     }
 
@@ -349,6 +366,8 @@ private fun SeriesVodContent(
     onSearchQueryChange: (String) -> Unit,
     onSeriesClick: (Series) -> Unit,
     onSeriesIdClick: (Long) -> Unit,
+    onRemoveFromContinueWatching: (PlaybackHistory) -> Unit,
+    onRequestContinueWatchingRemoval: (PlaybackHistory) -> Unit,
     onProtectedSeriesClick: (Series) -> Unit,
     onProtectedCategoryClick: (Category) -> Unit,
     onShowDialog: (Series) -> Unit,
@@ -551,6 +570,7 @@ private fun SeriesVodContent(
             onProtectedSeriesClick = onProtectedSeriesClick,
             onProtectedCategoryClick = onProtectedCategoryClick,
             onShowDialog = onShowDialog,
+            onRequestContinueWatchingRemoval = onRequestContinueWatchingRemoval,
             onShowCategoryOptions = onShowCategoryOptions,
             onSelectCategory = onSelectCategory,
             onSelectFullLibraryBrowse = onSelectFullLibraryBrowse,
@@ -676,6 +696,7 @@ private fun SeriesVodContent(
             item(key = "continue_watching") {
                 ContinueWatchingRow(
                         items = continueWatching,
+                        onRemoveFromContinueWatching = onRemoveFromContinueWatching,
                         onItemClick = { history ->
                             val rawSeriesId = history.seriesId ?: history.contentId
                             val presentedSeries = continueSeries.firstOrNull { series ->
@@ -1085,6 +1106,7 @@ private fun SeriesVodClassicContent(
     onProtectedSeriesClick: (Series) -> Unit,
     onProtectedCategoryClick: (Category) -> Unit,
     onShowDialog: (Series) -> Unit,
+    onRequestContinueWatchingRemoval: (PlaybackHistory) -> Unit,
     onShowCategoryOptions: (String) -> Unit,
     onSelectCategory: (String?) -> Unit,
     onSelectFullLibraryBrowse: () -> Unit,
@@ -1499,7 +1521,20 @@ private fun SeriesVodClassicContent(
                                 }
                             },
                             onLongClick = {
-                                if (!uiState.isReorderMode) onShowDialog(series)
+                                if (!uiState.isReorderMode) {
+                                    val history = if (selectedFilterType == LibraryFilterType.IN_PROGRESS) {
+                                        uiState.continueWatching.firstOrNull { item ->
+                                            val historySeriesId = item.seriesId ?: item.contentId
+                                            item.providerId == series.providerId &&
+                                                item.contentType in setOf(ContentType.SERIES, ContentType.SERIES_EPISODE) &&
+                                                (historySeriesId == series.id ||
+                                                    historySeriesId == series.selectedVariantId ||
+                                                    series.variants.any { variant -> variant.rawSeriesId == historySeriesId })
+                                        }
+                                    } else null
+                                    if (history != null) onRequestContinueWatchingRemoval(history)
+                                    else onShowDialog(series)
+                                }
                             }
                         )
                     }

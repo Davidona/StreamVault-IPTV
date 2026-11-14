@@ -376,4 +376,8 @@
   <string name="series_group_name_reserved">Favoritos está reservado</string>
   <string name="movies_group_name_duplicate">Ya existe un grupo de películas con ese nombre.</string>
   <string name="series_group_name_duplicate">Ya existe un grupo de series con ese nombre.</string>
+  <string name="continue_watching_remove_title">¿Quitar de Seguir viendo?</string>
+  <string name="continue_watching_remove_message">Esto quitará %1$s de Seguir viendo y borrará el progreso de reproducción guardado.</string>
+  <string name="continue_watching_removed">Se quitó %1$s de Seguir viendo.</string>
+  <string name="continue_watching_remove_failed">No se pudo quitar este elemento de Seguir viendo. Inténtalo de nuevo.</string>
 </resources>

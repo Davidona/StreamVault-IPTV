@@ -376,4 +376,8 @@
   <string name="series_group_name_reserved">Favoriter är reserverade</string>
   <string name="movies_group_name_duplicate">En filmgrupp med det namnet finns redan</string>
   <string name="series_group_name_duplicate">En seriegrupp med det namnet finns redan</string>
+  <string name="continue_watching_remove_title">Ta bort från Fortsätt titta?</string>
+  <string name="continue_watching_remove_message">Det här tar bort %1$s från Fortsätt titta och raderar den sparade uppspelningspositionen.</string>
+  <string name="continue_watching_removed">%1$s togs bort från Fortsätt titta.</string>
+  <string name="continue_watching_remove_failed">Det gick inte att ta bort objektet från Fortsätt titta. Försök igen.</string>
 </resources>

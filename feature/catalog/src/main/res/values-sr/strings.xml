@@ -362,4 +362,8 @@
   <string name="series_group_name_reserved">Омиљено је резервисано</string>
   <string name="movies_group_name_duplicate">Група филмова са тим називом већ постоји</string>
   <string name="series_group_name_duplicate">Група серија са тим називом већ постоји</string>
+  <string name="continue_watching_remove_title">Уклонити из Настави са гледањем?</string>
+  <string name="continue_watching_remove_message">Ово ће уклонити %1$s из Настави са гледањем и обрисати сачувани напредак репродукције.</string>
+  <string name="continue_watching_removed">%1$s је уклоњен из Настави са гледањем.</string>
+  <string name="continue_watching_remove_failed">Ова ставка није могла да се уклони из Настави са гледањем. Покушајте поново.</string>
 </resources>

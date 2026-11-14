@@ -376,4 +376,8 @@
   <string name="series_group_name_reserved">Favorites は予約済みです</string>
   <string name="movies_group_name_duplicate">その名前の映画グループはすでに存在します</string>
   <string name="series_group_name_duplicate">その名前のシリーズグループはすでに存在します</string>
+  <string name="continue_watching_remove_title">「視聴を続ける」から削除しますか？</string>
+  <string name="continue_watching_remove_message">%1$sを「視聴を続ける」から削除し、保存された再生位置を消去します。</string>
+  <string name="continue_watching_removed">%1$sを「視聴を続ける」から削除しました。</string>
+  <string name="continue_watching_remove_failed">このアイテムを「視聴を続ける」から削除できませんでした。もう一度お試しください。</string>
 </resources>

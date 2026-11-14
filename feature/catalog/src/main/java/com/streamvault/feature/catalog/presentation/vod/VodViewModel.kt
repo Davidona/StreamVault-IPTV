@@ -24,6 +24,9 @@ import com.streamvault.domain.repository.FavoriteRepository
 import com.streamvault.domain.repository.ProviderRepository
 import com.streamvault.domain.repository.PlaybackHistoryRepository
 import com.streamvault.domain.repository.VodRepository
+import com.streamvault.domain.usecase.ContinueWatchingResult
+import com.streamvault.domain.usecase.ContinueWatchingScope
+import com.streamvault.domain.usecase.GetContinueWatching
 import com.streamvault.feature.catalog.R
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -131,6 +134,7 @@ class VodViewModel @Inject constructor(
     private val vodRepository: VodRepository,
     private val favoriteRepository: FavoriteRepository,
     private val playbackHistoryRepository: PlaybackHistoryRepository,
+    private val getContinueWatching: GetContinueWatching,
     preferencesRepository: PreferencesRepository
 ) : ViewModel() {
     private companion object {
@@ -161,6 +165,25 @@ class VodViewModel @Inject constructor(
 
     private val activeProvider = providerRepository.getActiveProvider()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
+
+    val continueWatching: StateFlow<List<PlaybackHistory>> = activeProvider
+        .flatMapLatest { provider ->
+            if (provider?.catalogLayout != CatalogLayout.UNIFIED_VOD) {
+                flowOf(emptyList())
+            } else {
+                getContinueWatching(
+                    providerId = provider.id,
+                    limit = 20,
+                    scope = ContinueWatchingScope.ALL_VOD
+                ).map { result ->
+                    when (result) {
+                        is ContinueWatchingResult.Items -> result.items
+                        ContinueWatchingResult.Degraded -> emptyList()
+                    }
+                }
+            }
+        }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
     private val favoriteIds = activeProvider
         .flatMapLatest { provider ->
@@ -468,6 +491,21 @@ class VodViewModel @Inject constructor(
 
     fun userMessageShown() {
         _userMessage.value = null
+    }
+
+    fun removeFromContinueWatching(history: PlaybackHistory) {
+        viewModelScope.launch {
+            val result = playbackHistoryRepository.removeFromHistory(
+                contentId = history.contentId,
+                contentType = history.contentType,
+                providerId = history.providerId
+            )
+            _userMessage.value = if (result.isSuccess) {
+                appContext.getString(R.string.continue_watching_removed, history.title)
+            } else {
+                appContext.getString(R.string.continue_watching_remove_failed)
+            }
+        }
     }
 
     private suspend fun setActionFavorite(

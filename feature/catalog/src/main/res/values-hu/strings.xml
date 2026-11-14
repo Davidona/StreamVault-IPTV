@@ -376,4 +376,8 @@
   <string name="series_group_name_reserved">A kedvencek le vannak foglalva</string>
   <string name="movies_group_name_duplicate">Már létezik ilyen nevű filmcsoport</string>
   <string name="series_group_name_duplicate">Már létezik ilyen nevű sorozatcsoport</string>
+  <string name="continue_watching_remove_title">Eltávolítod a Folytatás nézését listáról?</string>
+  <string name="continue_watching_remove_message">Ezzel eltávolítod a(z) %1$s elemet a Folytatás nézését listáról, és törlöd a mentett lejátszási állapotot.</string>
+  <string name="continue_watching_removed">A(z) %1$s eltávolítva a Folytatás nézését listáról.</string>
+  <string name="continue_watching_remove_failed">Az elem nem távolítható el a Folytatás nézését listáról. Próbáld újra.</string>
 </resources>

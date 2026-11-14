@@ -108,6 +108,7 @@ fun NavGraphBuilder.registerCatalogGraph(
         VodScreen(
             onMovieClick = { movie -> onOpenMovieDetail(movie, AppDestination.Vod) },
             onSeriesClick = { series -> onOpenSeriesDetail(series, AppDestination.Vod) },
+            onContinueWatchingPlay = { history -> onPlayHistory(history, AppDestination.Vod) },
             scaffold = scaffold,
         )
     }

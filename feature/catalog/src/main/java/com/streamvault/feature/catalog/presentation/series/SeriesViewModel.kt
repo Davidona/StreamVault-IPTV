@@ -919,6 +919,22 @@ class SeriesViewModel @Inject constructor(
         }
     }
 
+    fun removeFromContinueWatching(history: PlaybackHistory) {
+        viewModelScope.launch {
+            val result = playbackHistoryRepository.removeFromHistory(
+                contentId = history.contentId,
+                contentType = history.contentType,
+                providerId = history.providerId
+            )
+            val message = if (result.isSuccess) {
+                appContext.getString(R.string.continue_watching_removed, history.title)
+            } else {
+                appContext.getString(R.string.continue_watching_remove_failed)
+            }
+            _uiState.update { it.copy(userMessage = message) }
+        }
+    }
+
     fun onDismissDialog() {
         _uiState.update { it.copy(showDialog = false, selectedSeriesForDialog = null) }
     }

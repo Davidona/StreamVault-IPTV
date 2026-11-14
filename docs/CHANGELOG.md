@@ -9,11 +9,14 @@ All notable product changes are recorded in this document.
 - Added Settings → App & Remote → Playback webhooks with up to four named destinations, custom authentication headers, event and content filters, configurable progress intervals and watched thresholds, payload previews, native test events and delivery diagnostics. The feature is off by default and localized across all 38 advertised locales.
 - Added encrypted webhook configuration excluded from backups, independent destination delivery, expiring real-time updates and recoverable history delivery with bounded retries.
 - Added native JSON for home automation and custom receivers, plus Jellyfin and Yamtrack payload formats. Yamtrack episodes require actual episode IMDb/TVDB IDs; standalone Watcharr integration is not supported. See the [playback webhook guide](PLAYBACK_WEBHOOKS.md) for setup and receiver limitations.
+- Added URI-safe deep links for movies, series, episodes and live channels, allowing Android TV launchers to open details or start playback with resume or start-over behavior. See the [external launcher integration guide](EXTERNAL_LAUNCHER_INTEGRATION.md).
+- Added a Favorites preview channel for supported movies, series and live channels, with reactive updates, saved ordering, localized metadata and links that open the selected item.
 
 ### Changed
 - Moved Adjust EPG Match from Guide Options into the TV Guide channel long-press menu, where it applies to the selected channel.
 - Removed the top Resume card from Movies and Series; Continue Watching remains available in each section.
 - Added Favorites and custom-group actions to movie and series posters in the unified VOD tab's long-press menu.
+- Added a Continue Watching shelf to unified VOD and long-press removal across VOD, Movies and Series, including the Classic Movies and Series in-progress views. Confirming removal clears saved playback progress.
 
 ### Fixed
 - Improved OpenSubtitles searches for provider titles containing numbering or subtitle tags, with ID-first matching and a cleaned-title fallback.
@@ -31,8 +34,6 @@ All notable product changes are recorded in this document.
 - Added localized "Closed Captions" naming for in-band CEA-608/708 caption tracks, numbered when a stream has more than one.
 - Added per-channel M3U request headers from Kodi/Xtream-style `url|Referer=...&User-Agent=...` suffixes, plus playlist-level and per-entry `user-agent` attributes, so channels that require a Referer or custom User-Agent can open.
 - Added Stremio add-on subtitle and Cast request-header messages across all 38 advertised locales.
-- Added URI-safe deep links for movies, series, episodes and live channels, allowing Android TV launchers to open details or start playback with resume or start-over behavior. See the [external launcher integration guide](EXTERNAL_LAUNCHER_INTEGRATION.md).
-- Added a Favorites preview channel for supported movies, series and live channels, with reactive updates, saved ordering, localized metadata and links that open the selected item.
 
 ### Changed
 - Automatic sync now runs during playback and recording by default; the existing setting can still defer it, and saved preferences are preserved.

@@ -376,4 +376,8 @@
   <string name="series_group_name_reserved">Favoriler adı sistem tarafından ayrılmıştır</string>
   <string name="movies_group_name_duplicate">Bu ada sahip bir film grubu zaten mevcut</string>
   <string name="series_group_name_duplicate">Bu ada sahip bir dizi grubu zaten mevcut</string>
+  <string name="continue_watching_remove_title">İzlemeye Devam Et listesinden kaldırılsın mı?</string>
+  <string name="continue_watching_remove_message">Bu işlem %1$s öğesini İzlemeye Devam Et listesinden kaldırır ve kayıtlı oynatma ilerlemesini siler.</string>
+  <string name="continue_watching_removed">%1$s İzlemeye Devam Et listesinden kaldırıldı.</string>
+  <string name="continue_watching_remove_failed">Bu öğe İzlemeye Devam Et listesinden kaldırılamadı. Yeniden deneyin.</string>
 </resources>

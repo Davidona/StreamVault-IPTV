@@ -362,4 +362,8 @@
   <string name="series_group_name_reserved">Omiljeni je rezerviran naziv</string>
   <string name="movies_group_name_duplicate">Grupa filmova s tim nazivom već postoji</string>
   <string name="series_group_name_duplicate">Grupa serija s tim nazivom već postoji</string>
+  <string name="continue_watching_remove_title">Ukloniti iz Nastavi gledati?</string>
+  <string name="continue_watching_remove_message">Time će se %1$s ukloniti iz odjeljka Nastavi gledati i izbrisati spremljeni tijek reprodukcije.</string>
+  <string name="continue_watching_removed">%1$s uklonjen je iz odjeljka Nastavi gledati.</string>
+  <string name="continue_watching_remove_failed">Ovu stavku nije moguće ukloniti iz odjeljka Nastavi gledati. Pokušajte ponovno.</string>
 </resources>

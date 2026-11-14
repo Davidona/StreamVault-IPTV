@@ -376,4 +376,8 @@
   <string name="series_group_name_reserved">Favoritter er reservert</string>
   <string name="movies_group_name_duplicate">Det finnes allerede en filmgruppe med det navnet</string>
   <string name="series_group_name_duplicate">En seriegruppe med det navnet finnes allerede</string>
+  <string name="continue_watching_remove_title">Fjern fra Fortsett å se?</string>
+  <string name="continue_watching_remove_message">Dette fjerner %1$s fra Fortsett å se og sletter den lagrede avspillingsposisjonen.</string>
+  <string name="continue_watching_removed">%1$s ble fjernet fra Fortsett å se.</string>
+  <string name="continue_watching_remove_failed">Kunne ikke fjerne dette elementet fra Fortsett å se. Prøv igjen.</string>
 </resources>

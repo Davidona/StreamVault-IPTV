@@ -376,4 +376,8 @@
   <string name="series_group_name_reserved">Favorites 为保留名称</string>
   <string name="movies_group_name_duplicate">已存在同名电影分组</string>
   <string name="series_group_name_duplicate">已存在同名剧集分组</string>
+  <string name="continue_watching_remove_title">要从继续观看中移除吗？</string>
+  <string name="continue_watching_remove_message">这会将 %1$s 从继续观看中移除，并清除已保存的播放进度。</string>
+  <string name="continue_watching_removed">已将 %1$s 从继续观看中移除。</string>
+  <string name="continue_watching_remove_failed">无法从继续观看中移除此项目。请重试。</string>
 </resources>

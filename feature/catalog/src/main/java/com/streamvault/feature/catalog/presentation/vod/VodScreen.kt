@@ -52,10 +52,12 @@ import com.streamvault.feature.catalog.presentation.components.VodBrowseOptionsD
 import com.streamvault.feature.catalog.presentation.components.VodCategoryOption
 import com.streamvault.feature.catalog.presentation.components.VodCategoryPickerDialog
 import com.streamvault.feature.catalog.presentation.components.VodSectionHeader
+import com.streamvault.feature.catalog.presentation.components.ContinueWatchingRow
 import com.streamvault.domain.model.VodViewMode
 import com.streamvault.domain.model.LibraryFilterType
 import com.streamvault.domain.model.LibrarySortBy
 import com.streamvault.domain.model.Movie
+import com.streamvault.domain.model.PlaybackHistory
 import com.streamvault.domain.model.Series
 import com.streamvault.domain.model.VodCatalogItem
 import com.streamvault.domain.model.ProviderType
@@ -64,10 +66,12 @@ import com.streamvault.domain.model.ProviderType
 fun VodScreen(
     onMovieClick: (Movie) -> Unit,
     onSeriesClick: (Series) -> Unit,
+    onContinueWatchingPlay: (PlaybackHistory) -> Unit = {},
     scaffold: CatalogScaffoldContent,
     viewModel: VodViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val continueWatching by viewModel.continueWatching.collectAsStateWithLifecycle()
     val actionDialog by viewModel.actionDialog.collectAsStateWithLifecycle()
     val userMessage by viewModel.userMessage.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -163,7 +167,10 @@ fun VodScreen(
                     state.canLoadMoreCategories,
                     state.provider?.type == ProviderType.STALKER_PORTAL && state.vodPortalSearch,
                     state.searchQuery,
-                    viewModel::setSearchQuery
+                    viewModel::setSearchQuery,
+                    continueWatching,
+                    onContinueWatchingPlay,
+                    viewModel::removeFromContinueWatching
                 )
                 else -> VodModernShelves(
                     state.rows,
@@ -176,7 +183,10 @@ fun VodScreen(
                     state.vodTypeBadgeAsIcon,
                     state.provider?.type == ProviderType.STALKER_PORTAL && state.vodPortalSearch,
                     state.searchQuery,
-                    viewModel::setSearchQuery
+                    viewModel::setSearchQuery,
+                    continueWatching,
+                    onContinueWatchingPlay,
+                    viewModel::removeFromContinueWatching
                 )
             }
             SnackbarHost(
@@ -218,7 +228,10 @@ private fun VodModernShelves(
     useTypeBadgeIcon: Boolean,
     portalSearchEnabled: Boolean,
     searchQuery: String,
-    onSearchQueryChange: (String) -> Unit
+    onSearchQueryChange: (String) -> Unit,
+    continueWatching: List<PlaybackHistory>,
+    onContinueWatchingClick: (PlaybackHistory) -> Unit,
+    onRemoveFromContinueWatching: (PlaybackHistory) -> Unit
 ) {
     var showCategoryPicker by rememberSaveable { mutableStateOf(false) }
     val listState = rememberLazyListState()
@@ -250,6 +263,15 @@ private fun VodModernShelves(
                     )
                 )
             )
+        }
+        if (continueWatching.isNotEmpty()) {
+            item(key = "continue_watching") {
+                ContinueWatchingRow(
+                    items = continueWatching,
+                    onItemClick = onContinueWatchingClick,
+                    onRemoveFromContinueWatching = onRemoveFromContinueWatching
+                )
+            }
         }
         items(rows, key = { it.category.id }) { row ->
             if (row.items.isNotEmpty()) {
@@ -298,7 +320,10 @@ private fun VodClassicCategories(
     canLoadMore: Boolean,
     portalSearchEnabled: Boolean,
     searchQuery: String,
-    onSearchQueryChange: (String) -> Unit
+    onSearchQueryChange: (String) -> Unit,
+    continueWatching: List<PlaybackHistory>,
+    onContinueWatchingClick: (PlaybackHistory) -> Unit,
+    onRemoveFromContinueWatching: (PlaybackHistory) -> Unit
 ) {
     var showCategoryPicker by rememberSaveable { mutableStateOf(false) }
     val listState = rememberLazyListState()
@@ -326,6 +351,15 @@ private fun VodClassicCategories(
                     )
                 )
             )
+        }
+        if (continueWatching.isNotEmpty()) {
+            item(key = "continue_watching") {
+                ContinueWatchingRow(
+                    items = continueWatching,
+                    onItemClick = onContinueWatchingClick,
+                    onRemoveFromContinueWatching = onRemoveFromContinueWatching
+                )
+            }
         }
         items(rows, key = { it.category.id }) { row ->
             androidx.tv.material3.Surface(

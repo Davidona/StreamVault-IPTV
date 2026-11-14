@@ -376,4 +376,8 @@
   <string name="series_group_name_reserved">المفضلة محجوزة</string>
   <string name="movies_group_name_duplicate">توجد مجموعة أفلام بهذا الاسم بالفعل</string>
   <string name="series_group_name_duplicate">توجد مجموعة مسلسلات بهذا الاسم بالفعل</string>
+  <string name="continue_watching_remove_title">إزالة من قائمة «متابعة المشاهدة»؟</string>
+  <string name="continue_watching_remove_message">سيؤدي ذلك إلى إزالة %1$s من قائمة «متابعة المشاهدة» ومسح موضع التشغيل المحفوظ.</string>
+  <string name="continue_watching_removed">تمت إزالة %1$s من قائمة «متابعة المشاهدة».</string>
+  <string name="continue_watching_remove_failed">تعذرت إزالة هذا العنصر من قائمة «متابعة المشاهدة». حاول مرة أخرى.</string>
 </resources>

@@ -362,4 +362,8 @@
   <string name="series_group_name_reserved">Obľúbené je vyhradené</string>
   <string name="movies_group_name_duplicate">Skupina filmov s týmto názvom už existuje</string>
   <string name="series_group_name_duplicate">Skupina seriálov s týmto názvom už existuje</string>
+  <string name="continue_watching_remove_title">Odstrániť z Pokračovať v sledovaní?</string>
+  <string name="continue_watching_remove_message">Tým sa položka %1$s odstráni z Pokračovať v sledovaní a vymaže sa uložený priebeh prehrávania.</string>
+  <string name="continue_watching_removed">%1$s bolo odstránené z Pokračovať v sledovaní.</string>
+  <string name="continue_watching_remove_failed">Položku sa nepodarilo odstrániť z Pokračovať v sledovaní. Skúste to znova.</string>
 </resources>

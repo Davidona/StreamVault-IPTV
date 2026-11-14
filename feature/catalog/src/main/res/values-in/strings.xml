@@ -376,4 +376,8 @@
   <string name="series_group_name_reserved">Favorit sudah dipesan</string>
   <string name="movies_group_name_duplicate">Grup film dengan nama tersebut sudah ada</string>
   <string name="series_group_name_duplicate">Grup seri dengan nama tersebut sudah ada</string>
+  <string name="continue_watching_remove_title">Hapus dari Lanjutkan Menonton?</string>
+  <string name="continue_watching_remove_message">Tindakan ini menghapus %1$s dari Lanjutkan Menonton dan menghapus progres pemutaran yang tersimpan.</string>
+  <string name="continue_watching_removed">%1$s dihapus dari Lanjutkan Menonton.</string>
+  <string name="continue_watching_remove_failed">Item ini tidak dapat dihapus dari Lanjutkan Menonton. Coba lagi.</string>
 </resources>

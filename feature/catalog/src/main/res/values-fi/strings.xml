@@ -376,4 +376,8 @@
   <string name="series_group_name_reserved">Suosikit on varattu</string>
   <string name="movies_group_name_duplicate">Samanniminen elokuvaryhmä on jo olemassa</string>
   <string name="series_group_name_duplicate">Sarjaryhmä tällä nimellä on jo olemassa</string>
+  <string name="continue_watching_remove_title">Poistetaanko Jatka katsomista -osiosta?</string>
+  <string name="continue_watching_remove_message">Tämä poistaa kohteen %1$s Jatka katsomista -osiosta ja tyhjentää tallennetun toistokohdan.</string>
+  <string name="continue_watching_removed">%1$s poistettiin Jatka katsomista -osiosta.</string>
+  <string name="continue_watching_remove_failed">Kohdetta ei voitu poistaa Jatka katsomista -osiosta. Yritä uudelleen.</string>
 </resources>

@@ -376,4 +376,8 @@
   <string name="series_group_name_reserved">Favorites là tên dành riêng</string>
   <string name="movies_group_name_duplicate">Đã tồn tại nhóm phim với tên đó</string>
   <string name="series_group_name_duplicate">Đã tồn tại nhóm series với tên đó</string>
+  <string name="continue_watching_remove_title">Xóa khỏi mục Tiếp tục xem?</string>
+  <string name="continue_watching_remove_message">Thao tác này sẽ xóa %1$s khỏi mục Tiếp tục xem và xóa tiến độ phát đã lưu.</string>
+  <string name="continue_watching_removed">Đã xóa %1$s khỏi mục Tiếp tục xem.</string>
+  <string name="continue_watching_remove_failed">Không thể xóa mục này khỏi Tiếp tục xem. Hãy thử lại.</string>
 </resources>

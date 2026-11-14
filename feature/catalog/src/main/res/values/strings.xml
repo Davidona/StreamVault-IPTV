@@ -411,4 +411,8 @@
   <string name="series_group_name_reserved">Favorites is reserved</string>
   <string name="movies_group_name_duplicate">A movie group with that name already exists</string>
   <string name="series_group_name_duplicate">A series group with that name already exists</string>
+  <string name="continue_watching_remove_title">Remove from Continue Watching?</string>
+  <string name="continue_watching_remove_message">This removes %1$s from Continue Watching and clears its saved playback progress.</string>
+  <string name="continue_watching_removed">Removed %1$s from Continue Watching.</string>
+  <string name="continue_watching_remove_failed">Could not remove this item from Continue Watching. Try again.</string>
 </resources>

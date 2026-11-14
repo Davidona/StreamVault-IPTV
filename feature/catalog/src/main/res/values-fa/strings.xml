@@ -362,4 +362,8 @@
   <string name="series_group_name_reserved">نام «علاقه‌مندی‌ها» رزرو شده است</string>
   <string name="movies_group_name_duplicate">گروه فیلمی با این نام از قبل وجود دارد</string>
   <string name="series_group_name_duplicate">گروه سریالی با این نام از قبل وجود دارد</string>
+  <string name="continue_watching_remove_title">از ادامه تماشا برداشته شود؟</string>
+  <string name="continue_watching_remove_message">با این کار %1$s از ادامه تماشا برداشته می‌شود و پیشرفت پخش ذخیره‌شده پاک می‌شود.</string>
+  <string name="continue_watching_removed">%1$s از ادامه تماشا برداشته شد.</string>
+  <string name="continue_watching_remove_failed">برداشتن این مورد از ادامه تماشا ممکن نشد. دوباره تلاش کنید.</string>
 </resources>

@@ -362,4 +362,8 @@
   <string name="series_group_name_reserved">Nama Kegemaran telah dikhaskan</string>
   <string name="movies_group_name_duplicate">Kumpulan filem dengan nama itu sudah wujud</string>
   <string name="series_group_name_duplicate">Kumpulan siri dengan nama itu sudah wujud</string>
+  <string name="continue_watching_remove_title">Alih keluar daripada Teruskan Menonton?</string>
+  <string name="continue_watching_remove_message">Tindakan ini mengalih keluar %1$s daripada Teruskan Menonton dan memadam kemajuan main balik yang disimpan.</string>
+  <string name="continue_watching_removed">%1$s dialih keluar daripada Teruskan Menonton.</string>
+  <string name="continue_watching_remove_failed">Item ini tidak dapat dialih keluar daripada Teruskan Menonton. Cuba lagi.</string>
 </resources>

@@ -362,4 +362,8 @@
   <string name="series_group_name_reserved">Favorites 為保留名稱</string>
   <string name="movies_group_name_duplicate">已存在同名電影群組</string>
   <string name="series_group_name_duplicate">已存在同名劇集群組</string>
+  <string name="continue_watching_remove_title">要從繼續觀看中移除嗎？</string>
+  <string name="continue_watching_remove_message">這會將 %1$s 從繼續觀看中移除，並清除已儲存的播放進度。</string>
+  <string name="continue_watching_removed">已將 %1$s 從繼續觀看中移除。</string>
+  <string name="continue_watching_remove_failed">無法從繼續觀看中移除此項目。請再試一次。</string>
 </resources>

@@ -376,4 +376,8 @@
   <string name="series_group_name_reserved">Oblíbené je rezervováno</string>
   <string name="movies_group_name_duplicate">Skupina filmů s tímto názvem už existuje</string>
   <string name="series_group_name_duplicate">Skupina seriálů s tímto názvem už existuje</string>
+  <string name="continue_watching_remove_title">Odebrat z Pokračovat ve sledování?</string>
+  <string name="continue_watching_remove_message">Tím se %1$s odebere z Pokračovat ve sledování a smaže se uložený průběh přehrávání.</string>
+  <string name="continue_watching_removed">%1$s bylo odebráno z Pokračovat ve sledování.</string>
+  <string name="continue_watching_remove_failed">Položku se nepodařilo odebrat z Pokračovat ve sledování. Zkuste to znovu.</string>
 </resources>

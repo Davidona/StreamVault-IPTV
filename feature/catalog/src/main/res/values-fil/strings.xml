@@ -362,4 +362,8 @@
   <string name="series_group_name_reserved">Reserbado ang Favorites</string>
   <string name="movies_group_name_duplicate">Mayroon nang movie group na may ganyang pangalan</string>
   <string name="series_group_name_duplicate">Mayroon nang series group na may ganyang pangalan</string>
+  <string name="continue_watching_remove_title">Alisin sa Patuloy na Panoorin?</string>
+  <string name="continue_watching_remove_message">Aalisin nito ang %1$s sa Patuloy na Panoorin at buburahin ang naka-save na progreso ng playback.</string>
+  <string name="continue_watching_removed">Inalis ang %1$s sa Patuloy na Panoorin.</string>
+  <string name="continue_watching_remove_failed">Hindi maalis ang item na ito sa Patuloy na Panoorin. Subukan muli.</string>
 </resources>

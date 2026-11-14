@@ -41,6 +41,7 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import com.streamvault.core.ui.device.rememberIsTelevisionDevice
 import com.streamvault.feature.catalog.presentation.components.CategoryRow
 import com.streamvault.feature.catalog.presentation.components.ContinueWatchingRow
+import com.streamvault.feature.catalog.presentation.components.ContinueWatchingRemovalDialog
 import com.streamvault.feature.catalog.presentation.components.MovieCard
 import com.streamvault.feature.catalog.presentation.components.TraktRatingSummary
 import com.streamvault.feature.catalog.presentation.components.SelectionChip
@@ -50,6 +51,7 @@ import com.streamvault.feature.catalog.presentation.components.SavedCategoryShor
 import com.streamvault.feature.catalog.presentation.components.SavedCategoryShortcutsRow
 import com.streamvault.core.ui.design.browse.*
 import com.streamvault.domain.model.Category
+import com.streamvault.domain.model.ContentType
 import com.streamvault.domain.model.LibraryFilterType
 import com.streamvault.domain.model.LibrarySortBy
 import com.streamvault.domain.model.Movie
@@ -118,6 +120,7 @@ fun MoviesScreen(
     var pinError by remember { mutableStateOf<String?>(null) }
     var pendingMovie by remember { mutableStateOf<Movie?>(null) }
     var pendingCategory by remember { mutableStateOf<Category?>(null) }
+    var pendingContinueWatchingRemoval by remember { mutableStateOf<PlaybackHistory?>(null) }
 
     HandleVodUserMessage(
         userMessage = uiState.userMessage,
@@ -229,6 +232,8 @@ fun MoviesScreen(
                 onSearchQueryChange = viewModel::setSearchQuery,
                 onMovieClick = onMovieClick,
                 onContinueWatchingPlay = onContinueWatchingPlay,
+                onRemoveFromContinueWatching = viewModel::removeFromContinueWatching,
+                onRequestContinueWatchingRemoval = { pendingContinueWatchingRemoval = it },
                 onProtectedMovieClick = { movie ->
                     pendingCategory = null
                     pendingMovie = movie
@@ -274,6 +279,17 @@ fun MoviesScreen(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .padding(bottom = 16.dp)
+        )
+    }
+
+    pendingContinueWatchingRemoval?.let { history ->
+        ContinueWatchingRemovalDialog(
+            history = history,
+            onDismiss = { pendingContinueWatchingRemoval = null },
+            onConfirm = {
+                viewModel.removeFromContinueWatching(history)
+                pendingContinueWatchingRemoval = null
+            }
         )
     }
 
@@ -352,6 +368,8 @@ private fun MoviesVodContent(
     onSearchQueryChange: (String) -> Unit,
     onMovieClick: (Movie) -> Unit,
     onContinueWatchingPlay: (PlaybackHistory) -> Unit,
+    onRemoveFromContinueWatching: (PlaybackHistory) -> Unit,
+    onRequestContinueWatchingRemoval: (PlaybackHistory) -> Unit,
     onProtectedMovieClick: (Movie) -> Unit,
     onProtectedCategoryClick: (Category) -> Unit,
     onShowDialog: (Movie) -> Unit,
@@ -552,6 +570,7 @@ private fun MoviesVodContent(
             onProtectedMovieClick = onProtectedMovieClick,
             onProtectedCategoryClick = onProtectedCategoryClick,
             onShowDialog = onShowDialog,
+            onRequestContinueWatchingRemoval = onRequestContinueWatchingRemoval,
             onShowCategoryOptions = onShowCategoryOptions,
             onSelectCategory = onSelectCategory,
             onSelectFullLibraryBrowse = onSelectFullLibraryBrowse,
@@ -677,7 +696,8 @@ private fun MoviesVodContent(
             item(key = "continue_watching") {
                 ContinueWatchingRow(
                         items = continueWatching,
-                        onItemClick = onContinueWatchingPlay
+                        onItemClick = onContinueWatchingPlay,
+                        onRemoveFromContinueWatching = onRemoveFromContinueWatching
                     )
             }
             }
@@ -1077,6 +1097,7 @@ private fun MoviesVodClassicContent(
     onProtectedMovieClick: (Movie) -> Unit,
     onProtectedCategoryClick: (Category) -> Unit,
     onShowDialog: (Movie) -> Unit,
+    onRequestContinueWatchingRemoval: (PlaybackHistory) -> Unit,
     onShowCategoryOptions: (String) -> Unit,
     onSelectCategory: (String?) -> Unit,
     onSelectFullLibraryBrowse: () -> Unit,
@@ -1491,7 +1512,19 @@ private fun MoviesVodClassicContent(
                                 }
                             },
                             onLongClick = {
-                                if (!uiState.isReorderMode) onShowDialog(movie)
+                                if (!uiState.isReorderMode) {
+                                    val history = if (selectedFilterType == LibraryFilterType.IN_PROGRESS) {
+                                        uiState.continueWatching.firstOrNull { item ->
+                                            item.providerId == movie.providerId &&
+                                                item.contentType == ContentType.MOVIE &&
+                                                (item.contentId == movie.id ||
+                                                    item.contentId == movie.selectedVariantId ||
+                                                    movie.variants.any { variant -> variant.rawMovieId == item.contentId })
+                                        }
+                                    } else null
+                                    if (history != null) onRequestContinueWatchingRemoval(history)
+                                    else onShowDialog(movie)
+                                }
                             }
                         )
                     }

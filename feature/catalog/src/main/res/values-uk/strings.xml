@@ -376,4 +376,8 @@
   <string name="series_group_name_reserved">Favorites зарезервовано</string>
   <string name="movies_group_name_duplicate">Група фільмів із такою назвою вже існує</string>
   <string name="series_group_name_duplicate">Група серіалів із такою назвою вже існує</string>
+  <string name="continue_watching_remove_title">Вилучити з розділу «Продовжити перегляд»?</string>
+  <string name="continue_watching_remove_message">Це вилучить %1$s з розділу «Продовжити перегляд» і видалить збережений прогрес відтворення.</string>
+  <string name="continue_watching_removed">%1$s вилучено з розділу «Продовжити перегляд».</string>
+  <string name="continue_watching_remove_failed">Не вдалося вилучити цей елемент із розділу «Продовжити перегляд». Спробуйте ще раз.</string>
 </resources>

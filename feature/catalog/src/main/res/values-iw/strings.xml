@@ -376,4 +376,8 @@
   <string name="series_group_name_reserved">מועדפים שמורה</string>
   <string name="movies_group_name_duplicate">כבר קיימת קבוצת סרטים בשם זה</string>
   <string name="series_group_name_duplicate">כבר קיימת קבוצת סדרות בשם זה</string>
+  <string name="continue_watching_remove_title">להסיר מ׳המשך צפייה׳?</string>
+  <string name="continue_watching_remove_message">הפעולה תסיר את %1$s מ׳המשך צפייה׳ ותמחק את מיקום ההפעלה שנשמר.</string>
+  <string name="continue_watching_removed">%1$s הוסר מ׳המשך צפייה׳.</string>
+  <string name="continue_watching_remove_failed">לא ניתן להסיר את הפריט הזה מ׳המשך צפייה׳. אפשר לנסות שוב.</string>
 </resources>

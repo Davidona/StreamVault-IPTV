@@ -376,4 +376,8 @@
   <string name="series_group_name_reserved">Ulubione są zarezerwowane</string>
   <string name="movies_group_name_duplicate">Grupa filmów o tej nazwie już istnieje</string>
   <string name="series_group_name_duplicate">Grupa seriali o tej nazwie już istnieje</string>
+  <string name="continue_watching_remove_title">Usunąć z Oglądaj dalej?</string>
+  <string name="continue_watching_remove_message">Spowoduje to usunięcie %1$s z Oglądaj dalej i skasowanie zapisanego postępu odtwarzania.</string>
+  <string name="continue_watching_removed">Usunięto %1$s z Oglądaj dalej.</string>
+  <string name="continue_watching_remove_failed">Nie udało się usunąć tej pozycji z Oglądaj dalej. Spróbuj ponownie.</string>
 </resources>

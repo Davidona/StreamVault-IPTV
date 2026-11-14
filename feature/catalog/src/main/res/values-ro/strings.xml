@@ -376,4 +376,8 @@
   <string name="series_group_name_reserved">Favorite este rezervată</string>
   <string name="movies_group_name_duplicate">Un grup de filme cu acest nume există deja</string>
   <string name="series_group_name_duplicate">Un grup de serie cu acest nume există deja</string>
+  <string name="continue_watching_remove_title">Elimini din Continuă vizionarea?</string>
+  <string name="continue_watching_remove_message">Aceasta va elimina %1$s din Continuă vizionarea și va șterge progresul de redare salvat.</string>
+  <string name="continue_watching_removed">%1$s a fost eliminat din Continuă vizionarea.</string>
+  <string name="continue_watching_remove_failed">Elementul nu a putut fi eliminat din Continuă vizionarea. Încearcă din nou.</string>
 </resources>

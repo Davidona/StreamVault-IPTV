@@ -362,4 +362,8 @@
   <string name="series_group_name_reserved">„Любими“ е запазено име</string>
   <string name="movies_group_name_duplicate">Вече съществува филмова група с това име</string>
   <string name="series_group_name_duplicate">Вече съществува група със сериали с това име</string>
+  <string name="continue_watching_remove_title">Да се премахне ли от „Продължете да гледате“?</string>
+  <string name="continue_watching_remove_message">Това ще премахне %1$s от „Продължете да гледате“ и ще изтрие запазения напредък при гледане.</string>
+  <string name="continue_watching_removed">%1$s беше премахнато от „Продължете да гледате“.</string>
+  <string name="continue_watching_remove_failed">Елементът не можа да бъде премахнат от „Продължете да гледате“. Опитайте отново.</string>
 </resources>

@@ -362,4 +362,8 @@
   <string name="series_group_name_reserved">Të preferuarat është i rezervuar</string>
   <string name="movies_group_name_duplicate">Ekziston tashmë një grup filmash me këtë emër</string>
   <string name="series_group_name_duplicate">Ekziston tashmë një grup serialesh me këtë emër</string>
+  <string name="continue_watching_remove_title">Të hiqet nga Vazhdo shikimin?</string>
+  <string name="continue_watching_remove_message">Kjo do ta heqë %1$s nga Vazhdo shikimin dhe do të fshijë përparimin e ruajtur të riprodhimit.</string>
+  <string name="continue_watching_removed">%1$s u hoq nga Vazhdo shikimin.</string>
+  <string name="continue_watching_remove_failed">Ky element nuk mund të hiqej nga Vazhdo shikimin. Provo sërish.</string>
 </resources>

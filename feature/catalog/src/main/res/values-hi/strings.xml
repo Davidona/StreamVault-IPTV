@@ -362,4 +362,8 @@
   <string name="series_group_name_reserved">पसंदीदा नाम आरक्षित है</string>
   <string name="movies_group_name_duplicate">इस नाम का फ़िल्म समूह पहले से मौजूद है</string>
   <string name="series_group_name_duplicate">इस नाम का सीरीज़ समूह पहले से मौजूद है</string>
+  <string name="continue_watching_remove_title">देखना जारी रखें से हटाएँ?</string>
+  <string name="continue_watching_remove_message">इससे %1$s को देखना जारी रखें से हटाया जाएगा और सेव की गई प्लेबैक प्रगति मिट जाएगी।</string>
+  <string name="continue_watching_removed">%1$s को देखना जारी रखें से हटा दिया गया।</string>
+  <string name="continue_watching_remove_failed">इस आइटम को देखना जारी रखें से नहीं हटाया जा सका। फिर से कोशिश करें।</string>
 </resources>
