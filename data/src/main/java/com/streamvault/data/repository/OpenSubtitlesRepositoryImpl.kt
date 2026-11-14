@@ -89,15 +89,15 @@ class OpenSubtitlesRepositoryImpl @Inject constructor(
         episodeNumber: Int?,
         language: String?,
     ): Result<List<ExternalSubtitle>> = try {
-        val query = buildSearchQuery(contentType, title, year, tmdbId, parentTmdbId, seasonNumber, episodeNumber, language)
-        requestWithOptionalSession { session ->
-            api.search(
-                query = query,
-                token = session?.token,
-                baseUrlHost = session?.baseUrl ?: OPENSUBTITLES_DEFAULT_BASE_HOST,
-            )
+        val queries = subtitleSearchQueries(contentType, title, year, tmdbId, parentTmdbId, seasonNumber, episodeNumber, language)
+        var result: Result<List<ExternalSubtitle>> = Result.success(emptyList())
+        for (query in queries) {
+            result = requestWithOptionalSession { session ->
+                api.search(query, session?.token, session?.baseUrl ?: OPENSUBTITLES_DEFAULT_BASE_HOST)
+            }.map { subtitles -> subtitles.mapNotNull(::mapSubtitle) }
+            if (result !is Result.Success || result.data.isNotEmpty()) break
         }
-            .map { subtitles -> subtitles.mapNotNull(::mapSubtitle) }
+        result
     } catch (e: Exception) {
         if (e is CancellationException) throw e
         Result.error("OpenSubtitles search failed: ${e.message}", e)
@@ -278,65 +278,6 @@ class OpenSubtitlesRepositoryImpl @Inject constructor(
     private fun subtitleCacheFile(fileId: Long): File {
         val directory = File(context.filesDir, "subtitles/opensubtitles").apply { mkdirs() }
         return File(directory, "$fileId.srt")
-    }
-
-    private fun buildSearchQuery(
-        contentType: ContentType,
-        title: String,
-        year: Int?,
-        tmdbId: Long?,
-        parentTmdbId: Long?,
-        seasonNumber: Int?,
-        episodeNumber: Int?,
-        language: String?,
-    ): OpenSubtitlesApi.SearchQuery {
-        val languageCode = language?.trim()?.lowercase()?.takeIf { it.isNotBlank() && it != "auto" && it != "all" }
-        return when (contentType) {
-            ContentType.MOVIE -> OpenSubtitlesApi.SearchQuery(
-                query = buildTitleQuery(title, year),
-                tmdbId = tmdbId?.takeIf { it > 0 },
-                languages = languageCode,
-                orderBy = "download_count",
-            )
-            ContentType.SERIES -> OpenSubtitlesApi.SearchQuery(
-                query = title.trim().takeIf { it.isNotBlank() },
-                tmdbId = tmdbId?.takeIf { it > 0 },
-                languages = languageCode,
-                orderBy = "download_count",
-            )
-            ContentType.SERIES_EPISODE -> OpenSubtitlesApi.SearchQuery(
-                query = buildEpisodeQuery(title, seasonNumber, episodeNumber),
-                parentTmdbId = parentTmdbId?.takeIf { it > 0 },
-                seasonNumber = seasonNumber,
-                episodeNumber = episodeNumber,
-                languages = languageCode,
-                orderBy = "download_count",
-            )
-            else -> OpenSubtitlesApi.SearchQuery(
-                query = title.trim().takeIf { it.isNotBlank() },
-                languages = languageCode,
-                orderBy = "download_count",
-            )
-        }
-    }
-
-    private fun buildTitleQuery(title: String, year: Int?): String? {
-        val normalized = title.trim()
-        if (normalized.isBlank()) return null
-        return if (year != null && year > 0) "$normalized $year" else normalized
-    }
-
-    private fun buildEpisodeQuery(title: String, seasonNumber: Int?, episodeNumber: Int?): String? {
-        val normalized = title.trim()
-        if (normalized.isBlank()) return null
-        val season = seasonNumber?.takeIf { it > 0 }
-        val episode = episodeNumber?.takeIf { it > 0 }
-        return when {
-            season != null && episode != null ->
-                "$normalized S${season.toString().padStart(2, '0')}E${episode.toString().padStart(2, '0')}"
-            season != null -> "$normalized S${season.toString().padStart(2, '0')}"
-            else -> normalized
-        }
     }
 
     private fun Result<*>.isUnauthorized(): Boolean =

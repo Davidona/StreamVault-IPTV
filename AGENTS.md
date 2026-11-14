@@ -15,18 +15,26 @@
 10. Never convey state (live, error, selected, focused) by color alone. Add a label, icon, shape, or border.
 11. Compute ratios, don't judge by eye. Contrast-sensitive components get a unit test like `BrowsePaletteContrastTest`, iterating every palette id.
 
-### Focus and size
-12. Every focusable element has a focus state that differs by shape (border of 2dp or more, scale, or filled container), at least 3:1 against its surroundings. Use `AppColors.Focus`.
-13. D-pad order is defined, Back has a defined destination, no dead-end focus.
-14. Minimum text: 12sp everywhere, 14sp for anything read on TV. Phone touch targets: 48dp x 48dp or more.
+### CTA hierarchy and focus
+12. One primary CTA per screen, dialog, or sheet. Primary = filled `brand` container with `onPrimary` label. Two filled-brand buttons visible at once is a bug.
+13. Every other action is secondary (filled `surfaceElevated` container, `textPrimary` label, no stroke) or tertiary (text or icon only). Visual weight must descend: primary, secondary, tertiary.
+14. No strokes at rest on buttons, chips, or inputs. Inputs are distinguished at rest by a filled `surfaceElevated` container, not an outline. The only strokes allowed on interactive elements are the focus ring and the error state on inputs (an error stroke must also have message text).
+15. The focus state is the strongest visual change on screen: a ring of at least 2dp in `AppColors.Focus`, plus a scale or container change, at least 3:1 against its surroundings. No element at rest may look like the focused state. The focused element must be identifiable in a single screenshot at TV viewing distance.
+16. A focused primary stays filled `brand` and gains the focus treatment. A focused secondary gains the same treatment and stays visually below the primary.
+17. On screen entry, initial focus goes to the primary CTA, or to the first content item if the screen has none. Set it with an explicit `FocusRequester`, not default traversal order.
+18. D-pad order is defined, Back has a defined destination, no dead-end focus.
+19. Any PR that touches a screen brings every CTA and input on that screen into compliance with rules 12 to 15 in the same PR. Violations on untouched screens are fixed one screen per commit.
+
+### Size
+20. Minimum text: 12sp everywhere, 14sp for anything read on TV. Phone touch targets: 48dp x 48dp or more.
 
 ### Text robustness
-15. Strings follow `AGENTS.md`. Layouts must fit the longest translation without clipping. Text that can overflow sets `maxLines` and `overflow`. Use `start`/`end`, never `left`/`right`, and verify mirroring for each RTL locale in `locales_config.xml`.
+21. Strings follow `AGENTS.md`. Layouts must fit the longest translation without clipping. Text that can overflow sets `maxLines` and `overflow`. Use `start`/`end`, never `left`/`right`, and verify mirroring for each RTL locale in `locales_config.xml`.
 
 ### Done means
-16. Screenshots on the emulator of every changed screen in `classic_blue`, `light`, and `amoled_black`, default and focused. State what was captured; anything else is "untested".
-17. Report computed ratios, with token names, for every new or changed text/surface pair.
-18. Not done if any ratio is below its threshold in any theme, or rules 1 to 5 were broken.
+22. Screenshots on the emulator of every changed screen in `classic_blue`, `light`, and `amoled_black`, in the default state and with focus placed on each CTA and input on the screen. State what was captured; anything else is "untested".
+23. Report computed ratios, with token names, for every new or changed text/surface pair.
+24. Not done if any ratio is below its threshold in any theme, rules 1 to 5 were broken, or rules 12 to 15 are violated on any screen the PR touches.
 
 ## Localization requirement (mandatory)
 
