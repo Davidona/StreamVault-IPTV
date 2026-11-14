@@ -6,7 +6,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -99,9 +99,9 @@ internal fun TraktCustomListActionButton(
 ) {
     if (item == null) return
     val viewModel: TraktCustomListActionViewModel = hiltViewModel()
-    val state by viewModel.state.collectAsState()
-    val operation by viewModel.operation.collectAsState()
-    val failure by viewModel.failure.collectAsState()
+    val state by viewModel.state.collectAsStateWithLifecycle()
+    val operation by viewModel.operation.collectAsStateWithLifecycle()
+    val failure by viewModel.failure.collectAsStateWithLifecycle()
     var dialogOpen by remember(item.identity) { mutableStateOf(false) }
     var selectedListId by remember(item.identity) { mutableStateOf<Long?>(null) }
     var selectedItem by remember(item.identity) {

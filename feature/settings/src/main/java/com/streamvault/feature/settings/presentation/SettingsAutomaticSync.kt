@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.*
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -30,8 +31,8 @@ internal fun AutomaticSyncSettingsCard(
     provider: Provider? = null,
     modifier: Modifier = Modifier,
 ) {
-    val configuration by viewModel.automaticSyncConfiguration.collectAsState()
-    val statuses by viewModel.automaticSyncStatuses.collectAsState()
+    val configuration by viewModel.automaticSyncConfiguration.collectAsStateWithLifecycle()
+    val statuses by viewModel.automaticSyncStatuses.collectAsStateWithLifecycle()
     val override = provider?.let { configuration.providers[it.id] }
     val policy = override ?: configuration.defaults
     val effectivePolicy = provider?.let { configuration.forProvider(it.id) } ?: policy
@@ -109,7 +110,7 @@ internal fun AutomaticSyncSettingsCard(
                 val metadataFlow = remember(provider.id) {
                     viewModel.observeAutomaticSyncMetadata(provider.id)
                 }
-                val metadata by metadataFlow.collectAsState(initial = null)
+                val metadata by metadataFlow.collectAsStateWithLifecycle(initialValue = null)
                 val status = statuses[provider.id]
                 val outcome = if (!effectivePolicy.enabled) {
                     AutomaticSyncOutcome.DISABLED
