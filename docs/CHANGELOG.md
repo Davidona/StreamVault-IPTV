@@ -13,6 +13,7 @@ All notable product changes are recorded in this document.
 - Added a Favorites preview channel for supported movies, series and live channels, with reactive updates, saved ordering, localized metadata and links that open the selected item.
 
 ### Changed
+- Separated selected and focused states across navigation, Live TV, Movies, Series, Search, Settings and dialogs, with shared control styles, focus rings, and initial Play focus on movie and series detail pages.
 - Widened the Android TV player channel list and enlarged channel-name and playback-badge text for better readability.
 - Moved Adjust EPG Match from Guide Options into the TV Guide channel long-press menu, where it applies to the selected channel.
 - Removed the top Resume card from Movies and Series; Continue Watching remains available in each section.
