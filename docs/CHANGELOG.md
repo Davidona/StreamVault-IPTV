@@ -20,6 +20,7 @@ All notable product changes are recorded in this document.
 - Added a Continue Watching shelf to unified VOD and long-press removal across VOD, Movies and Series, including the Classic Movies and Series in-progress views. Confirming removal clears saved playback progress.
 
 ### Fixed
+- Fixed completed movies and episodes with no autoplay next item remaining on the final frame; playback now returns to the originating detail or, for direct local-catalog playback, opens the matching movie or series detail.
 - Improved OpenSubtitles searches for provider titles containing numbering or subtitle tags, with ID-first matching and a cleaned-title fallback.
 - Fixed SMB3 recording storage setup failing with "Session setup failed" in release builds by retaining the AES-CMAC provider required for SMB signing, alongside the existing MD4 authentication support.
 - Fixed hidden movie and series categories appearing in search results and Recently Added sections; fresh previews now exclude hidden categories before applying their result limit.
