@@ -1,6 +1,8 @@
 package com.streamvault.feature.settings.presentation
 
-import androidx.compose.foundation.BorderStroke
+import com.streamvault.core.ui.design.selectableFocusBorder
+import com.streamvault.core.ui.design.BrowseShapes
+import com.streamvault.core.ui.design.BrowseColors
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -8,7 +10,6 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -26,18 +27,14 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
-import androidx.tv.material3.Border
 import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.streamvault.feature.settings.R
 import com.streamvault.core.ui.interaction.TvClickableSurface
-import com.streamvault.core.ui.theme.FocusBorder
 import com.streamvault.core.ui.theme.OnBackground
 import com.streamvault.core.ui.theme.OnSurfaceDim
 import com.streamvault.core.ui.theme.Primary
-import com.streamvault.core.ui.theme.SurfaceElevated
-import com.streamvault.core.ui.theme.SurfaceHighlight
 import com.streamvault.domain.model.RecordingStatus
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -112,21 +109,12 @@ private fun RecordingBrowserSearchField(
         modifier = Modifier
             .fillMaxWidth()
             .focusRequester(searchFocusRequester),
-        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(8.dp)),
+        shape = ClickableSurfaceDefaults.shape(BrowseShapes.Control),
         colors = ClickableSurfaceDefaults.colors(
-            containerColor = SurfaceElevated,
-            focusedContainerColor = SurfaceHighlight
+            containerColor = BrowseColors.ControlContainer,
+            focusedContainerColor = BrowseColors.ControlContainer
         ),
-        border = ClickableSurfaceDefaults.border(
-            border = Border(
-                border = BorderStroke(1.dp, OnSurfaceDim.copy(alpha = 0.3f)),
-                shape = RoundedCornerShape(8.dp)
-            ),
-            focusedBorder = Border(
-                border = BorderStroke(2.dp, FocusBorder),
-                shape = RoundedCornerShape(8.dp)
-            )
-        ),
+        border = selectableFocusBorder(BrowseShapes.Control),
         scale = ClickableSurfaceDefaults.scale(focusedScale = 1f)
     ) {
         Box(

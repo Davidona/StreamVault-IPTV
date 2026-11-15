@@ -139,7 +139,6 @@ fun LiveHomeScreen(
         channelMode = uiState.liveTvChannelMode
     )
     val sidebarWidth = layoutMetrics.sidebarWidth
-    val channelSearchWidth = layoutMetrics.channelSearchWidth
     val channelRowHeight = layoutMetrics.channelRowHeight
     val channelListSpacing = layoutMetrics.channelListSpacing
     val snackbarHostState = remember { SnackbarHostState() }
@@ -960,7 +959,6 @@ fun LiveHomeScreen(
                             onChannelSearchQueryChanged = viewModel::updateChannelSearchQuery,
                             searchPlaceholder = stringResource(R.string.home_search_channels),
                             channelSearchFocusRequester = channelSearchFocusRequester,
-                            channelSearchWidth = if (portrait) LocalConfiguration.current.screenWidthDp.dp else channelSearchWidth,
                             isReorderMode = isReorderMode,
                             showCategoriesButton = isCategorySidebarHidden,
                             onShowCategories = ::revealCategorySidebar,

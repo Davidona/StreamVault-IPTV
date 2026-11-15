@@ -1,5 +1,6 @@
 package com.streamvault.feature.live.home
 
+import com.streamvault.core.ui.design.BrowseColors
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,7 +12,6 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
@@ -41,10 +41,10 @@ fun LiveChannelContentHost(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    CircularProgressIndicator(color = Color.White)
+                    CircularProgressIndicator(color = BrowseColors.Brand)
                     Text(
                         text = loadingLabel,
-                        color = Color.White.copy(alpha = 0.7f),
+                        color = BrowseColors.TextSecondary,
                         style = MaterialTheme.typography.bodyMedium
                     )
                 }

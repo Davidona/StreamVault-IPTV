@@ -23,7 +23,7 @@ import androidx.tv.material3.Glow
 import androidx.tv.material3.Icon
 import androidx.tv.material3.LocalContentColor
 import com.streamvault.core.ui.interaction.TvClickableSurface
-import com.streamvault.core.ui.design.AppColors
+import com.streamvault.core.ui.design.BrowseFocusSpec
 import com.streamvault.domain.model.PlayerBackButtonVisibility
 import com.streamvault.feature.playback.R
 
@@ -74,15 +74,16 @@ internal fun PlayerBackButton(
             },
         shape = ClickableSurfaceDefaults.shape(CircleShape),
         colors = ClickableSurfaceDefaults.colors(
-            containerColor = Color.Black.copy(alpha = 0.36f),
+            containerColor = Color.Black.copy(alpha = 0.6f),
             contentColor = Color.White,
-            focusedContainerColor = Color.White,
-            focusedContentColor = Color(0xFF10151D)
+            focusedContainerColor = Color.Black.copy(alpha = 0.85f),
+            focusedContentColor = Color.White
         ),
+        // Over video the ring is fixed white: AppColors.Focus is dark in the light and vintage themes and would vanish on the scrim.
         border = ClickableSurfaceDefaults.border(
             border = Border.None,
             focusedBorder = Border(
-                border = BorderStroke(2.dp, AppColors.Focus),
+                border = BorderStroke(BrowseFocusSpec.SelectableRingWidth, Color.White),
                 shape = CircleShape
             )
         ),

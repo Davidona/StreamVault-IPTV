@@ -15,6 +15,14 @@ import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.SportsSoccer
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Extension
+import androidx.compose.material.icons.outlined.Download
+import androidx.compose.material.icons.outlined.Extension
+import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.PlayArrow
+import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material.icons.outlined.SportsSoccer
+import androidx.compose.material.icons.outlined.StarBorder
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
@@ -107,7 +115,8 @@ internal fun selectedNavigationDestinationId(
 internal data class AppDestinationItem(
     val route: String,
     @param:StringRes val labelRes: Int,
-    val icon: ImageVector
+    val icon: ImageVector,
+    val selectedIcon: ImageVector = icon
 )
 
 internal fun buildDestinationItems(
@@ -122,7 +131,7 @@ internal fun buildDestinationItems(
             when (destination) {
                 AppTopLevelDestination.MOVIES,
                 AppTopLevelDestination.SERIES -> if (!insertedVod) {
-                    add(AppDestinationItem(Routes.VOD, R.string.nav_vod, Icons.Default.Star))
+                    add(AppDestinationItem(Routes.VOD, R.string.nav_vod, Icons.Outlined.StarBorder, Icons.Filled.Star))
                     insertedVod = true
                 }
                 else -> add(destination.toDestinationItem())
@@ -143,20 +152,21 @@ internal fun rememberAppDestinationItems(
         UiDestination(
             id = item.route,
             label = stringResource(item.labelRes),
-            icon = item.icon
+            icon = item.icon,
+            selectedIcon = item.selectedIcon
         )
     }
 }
 
 private fun AppTopLevelDestination.toDestinationItem(): AppDestinationItem = when (this) {
-    AppTopLevelDestination.HOME -> AppDestinationItem(Routes.HOME, R.string.nav_home, Icons.Default.Home)
-    AppTopLevelDestination.LIVE_TV -> AppDestinationItem(Routes.LIVE_TV, R.string.nav_live_tv, Icons.Default.PlayArrow)
-    AppTopLevelDestination.SPORTS -> AppDestinationItem(Routes.SPORTS, R.string.nav_sports, Icons.Default.SportsSoccer)
-    AppTopLevelDestination.MOVIES -> AppDestinationItem(Routes.MOVIES, R.string.nav_movies, Icons.Default.Star)
+    AppTopLevelDestination.HOME -> AppDestinationItem(Routes.HOME, R.string.nav_home, Icons.Outlined.Home, Icons.Filled.Home)
+    AppTopLevelDestination.LIVE_TV -> AppDestinationItem(Routes.LIVE_TV, R.string.nav_live_tv, Icons.Outlined.PlayArrow, Icons.Filled.PlayArrow)
+    AppTopLevelDestination.SPORTS -> AppDestinationItem(Routes.SPORTS, R.string.nav_sports, Icons.Outlined.SportsSoccer, Icons.Filled.SportsSoccer)
+    AppTopLevelDestination.MOVIES -> AppDestinationItem(Routes.MOVIES, R.string.nav_movies, Icons.Outlined.StarBorder, Icons.Filled.Star)
     AppTopLevelDestination.SERIES -> AppDestinationItem(Routes.SERIES, R.string.nav_series, Icons.Default.Menu)
-    AppTopLevelDestination.DOWNLOADS -> AppDestinationItem(Routes.DOWNLOADS, R.string.nav_downloads, Icons.Default.Download)
-    AppTopLevelDestination.GUIDE -> AppDestinationItem(Routes.EPG, R.string.nav_epg, Icons.Default.Info)
+    AppTopLevelDestination.DOWNLOADS -> AppDestinationItem(Routes.DOWNLOADS, R.string.nav_downloads, Icons.Outlined.Download, Icons.Filled.Download)
+    AppTopLevelDestination.GUIDE -> AppDestinationItem(Routes.EPG, R.string.nav_epg, Icons.Outlined.Info, Icons.Filled.Info)
     AppTopLevelDestination.SEARCH -> AppDestinationItem(Routes.SEARCH, R.string.search_title, Icons.Default.Search)
-    AppTopLevelDestination.EXTENSIONS -> AppDestinationItem(Routes.PLUGINS, R.string.nav_extensions, Icons.Default.Extension)
-    AppTopLevelDestination.SETTINGS -> AppDestinationItem(Routes.SETTINGS, R.string.nav_settings, Icons.Default.Settings)
+    AppTopLevelDestination.EXTENSIONS -> AppDestinationItem(Routes.PLUGINS, R.string.nav_extensions, Icons.Outlined.Extension, Icons.Filled.Extension)
+    AppTopLevelDestination.SETTINGS -> AppDestinationItem(Routes.SETTINGS, R.string.nav_settings, Icons.Outlined.Settings, Icons.Filled.Settings)
 }

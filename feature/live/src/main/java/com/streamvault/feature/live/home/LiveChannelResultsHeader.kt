@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.fadeIn
@@ -21,7 +20,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Icon
@@ -46,7 +44,6 @@ fun LiveChannelResultsHeader(
     onChannelSearchQueryChanged: (String) -> Unit,
     searchPlaceholder: String,
     channelSearchFocusRequester: FocusRequester,
-    channelSearchWidth: Dp,
     isReorderMode: Boolean,
     showCategoriesButton: Boolean = false,
     onShowCategories: () -> Unit = {},
@@ -125,9 +122,7 @@ fun LiveChannelResultsHeader(
                 placeholder = searchPlaceholder,
                 onSearch = {},
                 focusRequester = channelSearchFocusRequester,
-                modifier = Modifier
-                    .weight(1f, fill = false)
-                    .widthIn(min = 0.dp, max = channelSearchWidth),
+                modifier = Modifier.weight(1f),
                 enabled = !isReorderMode
             )
         }

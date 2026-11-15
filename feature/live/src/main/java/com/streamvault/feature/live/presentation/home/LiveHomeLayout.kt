@@ -6,7 +6,6 @@ import com.streamvault.domain.model.LiveTvChannelMode
 
 data class LiveHomeLayoutMetrics(
     val sidebarWidth: Dp,
-    val channelSearchWidth: Dp,
     val channelRowHeight: Dp,
     val channelListSpacing: Dp
 )
@@ -24,17 +23,6 @@ fun liveHomeLayoutMetrics(
     } else {
         272.dp
     }
-    val channelSearchWidth = if (screenWidth < 900.dp) {
-        (screenWidth * 0.34f).coerceIn(170.dp, 220.dp)
-    } else if (!isTelevisionDevice && screenWidth < 1280.dp) {
-        (screenWidth * 0.28f).coerceIn(220.dp, 280.dp)
-    } else if (channelMode == LiveTvChannelMode.PRO) {
-        320.dp
-    } else if (channelMode != LiveTvChannelMode.COMFORTABLE) {
-        300.dp
-    } else {
-        340.dp
-    }
     val channelRowHeight = when (channelMode) {
         LiveTvChannelMode.COMFORTABLE -> 92.dp
         LiveTvChannelMode.COMPACT -> 54.dp
@@ -47,7 +35,6 @@ fun liveHomeLayoutMetrics(
     }
     return LiveHomeLayoutMetrics(
         sidebarWidth = sidebarWidth,
-        channelSearchWidth = channelSearchWidth,
         channelRowHeight = channelRowHeight,
         channelListSpacing = channelListSpacing
     )

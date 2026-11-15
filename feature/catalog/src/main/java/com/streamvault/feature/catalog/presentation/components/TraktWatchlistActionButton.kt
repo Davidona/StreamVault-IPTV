@@ -26,7 +26,8 @@ internal fun TraktWatchlistActionButton(
     DetailActionButton(
         label = stringResource(actionLabel),
         onClick = onClick,
-        enabled = connected && !busy,
+        // Disconnected, the button is the way to Settings, so it stays enabled.
+        enabled = !connected || !busy,
         compact = true,
         icon = if (watchlisted) Icons.Filled.Bookmark else Icons.Outlined.BookmarkBorder,
     )

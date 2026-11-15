@@ -1,7 +1,11 @@
 package com.streamvault.feature.live.home
 
+import com.streamvault.core.ui.design.secondarySurfaceColors
 import com.streamvault.core.ui.design.browsePrimaryButtonColors
+import com.streamvault.core.ui.design.BrowseFocusSpec
 import com.streamvault.core.ui.design.BrowseShapes
+import com.streamvault.core.ui.design.selectableFocusBorder
+import com.streamvault.core.ui.design.selectableSurfaceColors
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -40,6 +44,7 @@ import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -47,6 +52,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.tv.material3.Border
 import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.ClickableSurfaceDefaults
+import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface
 import androidx.tv.material3.SurfaceDefaults
@@ -88,16 +94,8 @@ fun CompactSplitLauncherButton(
             .widthIn(min = 112.dp)
             .height(34.dp),
         shape = ClickableSurfaceDefaults.shape(BrowseShapes.Control),
-        colors = ClickableSurfaceDefaults.colors(
-            containerColor = Primary.copy(alpha = 0.18f),
-            focusedContainerColor = Primary.copy(alpha = 0.3f),
-            contentColor = OnBackground
-        ),
-        border = ClickableSurfaceDefaults.border(
-            border = Border(
-                border = BorderStroke(1.dp, Primary.copy(alpha = 0.55f))
-            )
-        ),
+        colors = secondarySurfaceColors(),
+        border = selectableFocusBorder(BrowseShapes.Control),
         scale = ClickableSurfaceDefaults.scale(focusedScale = 1f)
     ) {
         Row(
@@ -287,7 +285,8 @@ fun CategoryItem(
         onLongClick = onLongClick,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 2.dp)
+            // Inset by the ring width so the focus ring is not clipped by the list bounds.
+            .padding(horizontal = BrowseFocusSpec.SelectableRingWidth, vertical = 2.dp)
             .focusRequester(focusRequester)
             .onFocusChanged {
                 isFocused = it.isFocused
@@ -304,18 +303,9 @@ fun CategoryItem(
                 } else false
             },
         scale = ClickableSurfaceDefaults.scale(focusedScale = 1f),
-        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(10.dp)),
-        colors = ClickableSurfaceDefaults.colors(
-            containerColor = if (isSelected) Primary.copy(alpha = 0.15f) else Color.Transparent,
-            focusedContainerColor = SurfaceHighlight.copy(alpha = 0.82f),
-            contentColor = if (isSelected) Primary else OnSurface
-        ),
-        border = ClickableSurfaceDefaults.border(
-            focusedBorder = Border(
-                border = BorderStroke(2.dp, Primary.copy(alpha = 0.85f)),
-                shape = RoundedCornerShape(10.dp)
-            )
-        )
+        shape = ClickableSurfaceDefaults.shape(BrowseShapes.Control),
+        colors = selectableSurfaceColors(isSelected),
+        border = selectableFocusBorder(BrowseShapes.Control)
     ) {
         Row(
             modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
@@ -324,7 +314,7 @@ fun CategoryItem(
         ) {
             if (isPinned) {
                 PinnedCategoryGlyph(
-                    tint = if (isFocused) OnBackground else if (isSelected) Primary else OnSurfaceDim,
+                    tint = LocalContentColor.current,
                     modifier = Modifier.padding(end = 8.dp)
                 )
             }
@@ -333,14 +323,13 @@ fun CategoryItem(
                 isFocused = isFocused,
                 style = MaterialTheme.typography.bodyMedium,
                 maxLines = 1,
-                color = if (isFocused) OnBackground else if (isSelected) Primary else OnSurface,
+                fontWeight = if (isSelected) FontWeight.SemiBold else null,
                 modifier = Modifier.weight(1f)
             )
 
             Text(
                 text = category.count.toString(),
                 style = MaterialTheme.typography.labelMedium,
-                color = if (isFocused) OnBackground else OnSurfaceDim,
                 modifier = Modifier.padding(start = 10.dp)
             )
 
@@ -348,7 +337,6 @@ fun CategoryItem(
                 Text(
                     text = stringResource(R.string.home_locked_short),
                     style = MaterialTheme.typography.labelSmall,
-                    color = if (isFocused) OnBackground else OnSurfaceDim,
                     modifier = Modifier.padding(start = 8.dp)
                 )
             }

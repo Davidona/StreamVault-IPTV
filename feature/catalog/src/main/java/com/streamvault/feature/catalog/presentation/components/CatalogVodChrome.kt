@@ -98,7 +98,6 @@ fun VodActionChipRow(
         chipHorizontalPadding = 14,
         supportingTextStyle = MaterialTheme.typography.labelSmall,
         supportingTextMaxLines = 1,
-        focusedContainerBoostWhenSelected = true,
         firstItemFocusRequester = firstActionFocusRequester
     )
 }

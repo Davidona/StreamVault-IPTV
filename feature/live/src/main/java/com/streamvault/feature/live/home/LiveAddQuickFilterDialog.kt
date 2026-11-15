@@ -43,6 +43,7 @@ fun LiveAddQuickFilterDialog(
             PremiumDialogActionButton(
                 label = labels.action,
                 enabled = pendingFilter.isNotBlank(),
+                emphasized = true,
                 onClick = {
                     val normalized = pendingFilter.trim()
                     val isDuplicate = savedFilters.any {

@@ -62,6 +62,7 @@ public fun SettingsScreen(
     onNavigateToParentalControl: (Long) -> Unit = {},
     initialBackupImportUri: String? = null,
     openOpenSubtitlesSignIn: Boolean = false,
+    openTrakt: Boolean = false,
     onCloseApp: () -> Unit = {},
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
@@ -92,16 +93,16 @@ public fun SettingsScreen(
         context = context,
         officialBuildStatus = platformHost.officialBuildStatus()
     )
-    val initialCategory = if (openOpenSubtitlesSignIn) {
-        SettingsCategory.PLAYBACK.legacyId
-    } else {
-        SettingsCategory.SOURCES.legacyId
+    val initialCategory = when {
+        openOpenSubtitlesSignIn -> SettingsCategory.PLAYBACK.legacyId
+        openTrakt -> SettingsCategory.TRAKT.legacyId
+        else -> SettingsCategory.SOURCES.legacyId
     }
     val dialogState = rememberSettingsScreenDialogState(initialCategory)
     val providerState = rememberSettingsProviderSectionState(dialogState)
     var compactPane by rememberSaveable {
         mutableStateOf(
-            if (openOpenSubtitlesSignIn) SettingsCompactPane.CONTENT else SettingsCompactPane.CATEGORIES
+            if (openOpenSubtitlesSignIn || openTrakt) SettingsCompactPane.CONTENT else SettingsCompactPane.CATEGORIES
         )
     }
     var searchVisible by rememberSaveable { mutableStateOf(false) }

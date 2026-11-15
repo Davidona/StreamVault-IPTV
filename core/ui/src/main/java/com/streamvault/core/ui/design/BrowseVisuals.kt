@@ -1,6 +1,7 @@
 package com.streamvault.core.ui.design
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
@@ -17,7 +18,9 @@ import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.dp
 import androidx.tv.material3.MaterialTheme
+import androidx.tv.material3.Border
 import androidx.tv.material3.ButtonDefaults
+import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.LocalContentColor as TvContentColor
 import androidx.compose.material3.LocalContentColor as TouchContentColor
 import androidx.compose.material3.MaterialTheme as TouchMaterialTheme
@@ -32,7 +35,6 @@ internal fun AppPalette.forBrowsing(): AppPalette = copy(
     textTertiary = if (isLight) lerp(textSecondary, textTertiary, 0.15f)
         else lerp(textTertiary, textSecondary, 0.35f),
     onPrimary = contentOnColor(brand),
-    focus = brandStrong,
     outline = textPrimary.copy(alpha = if (isLight) 0.12f else 0.09f),
     heroBottom = if (isLight) heroBottom else lerp(heroBottom, Color.Black, 0.24f),
 )
@@ -46,6 +48,57 @@ fun browsePrimaryButtonColors() = ButtonDefaults.colors(
     contentColor = BrowseColors.OnPrimary,
     focusedContainerColor = BrowseColors.BrandStrong,
     focusedContentColor = contentOnColor(BrowseColors.BrandStrong),
+)
+
+/**
+ * Fills for a selectable nav or list item. Selected is an opaque tonal fill (no stroke, no alpha over
+ * artwork). Focus on an unselected item brightens the fill; a selected item keeps its fill because the
+ * label contrast margin is thin in some themes, so the ring and scale carry the focus change.
+ */
+@Composable
+fun selectableSurfaceColors(selected: Boolean) = ClickableSurfaceDefaults.colors(
+    containerColor = if (selected) BrowseColors.SelectedContainer else Color.Transparent,
+    contentColor = if (selected) BrowseColors.OnSelectedContainer else BrowseColors.TextSecondary,
+    focusedContainerColor = if (selected) BrowseColors.SelectedContainer else BrowseColors.SurfaceAccent,
+    focusedContentColor = if (selected) BrowseColors.OnSelectedContainer else BrowseColors.TextPrimary,
+)
+
+/** Secondary button: filled at rest with no stroke, brighter fill on focus (the ring carries the focus state). */
+@Composable
+fun secondaryButtonColors() = ButtonDefaults.colors(
+    containerColor = BrowseColors.ControlContainer,
+    contentColor = BrowseColors.TextPrimary,
+    focusedContainerColor = BrowseColors.SurfaceAccent,
+    focusedContentColor = BrowseColors.TextPrimary,
+    disabledContainerColor = BrowseColors.ControlContainer,
+    disabledContentColor = BrowseColors.TextDisabled,
+)
+
+/** Secondary clickable surface: same look as [secondaryButtonColors] for Surface-based controls. */
+@Composable
+fun secondarySurfaceColors() = ClickableSurfaceDefaults.colors(
+    containerColor = BrowseColors.ControlContainer,
+    contentColor = BrowseColors.TextPrimary,
+    focusedContainerColor = BrowseColors.SurfaceAccent,
+    focusedContentColor = BrowseColors.TextPrimary,
+)
+
+/** Buttons get no stroke at rest; the focus ring is the only stroke. */
+@Composable
+fun focusRingButtonBorder(shape: RoundedCornerShape) = ButtonDefaults.border(
+    focusedBorder = Border(
+        border = BorderStroke(BrowseFocusSpec.SelectableRingWidth, BrowseColors.Focus),
+        shape = shape,
+    ),
+)
+
+/** The only stroke an interactive item gets: the focus ring. */
+@Composable
+fun selectableFocusBorder(shape: RoundedCornerShape) = ClickableSurfaceDefaults.border(
+    focusedBorder = Border(
+        border = BorderStroke(BrowseFocusSpec.SelectableRingWidth, BrowseColors.Focus),
+        shape = shape,
+    ),
 )
 
 /** Theme-derived colors, also available to non-composable drawing helpers. */
@@ -67,6 +120,9 @@ object BrowseColors {
     val SurfaceElevated get() = current.surfaceElevated
     val SurfaceEmphasis get() = current.surfaceEmphasis
     val SurfaceAccent get() = current.surfaceAccent
+    val ControlContainer get() = current.controlContainer
+    val SelectedContainer get() = current.selectedContainer
+    val OnSelectedContainer get() = current.onSelectedContainer
     val Brand get() = current.brand
     val BrandMuted get() = current.brandMuted
     val BrandStrong get() = current.brandStrong
@@ -100,6 +156,7 @@ object BrowseFocusSpec {
     const val PressedScale = 0.98f
     val BorderWidth = 2.dp
     val CardBorderWidth = 2.dp
+    val SelectableRingWidth = 3.dp
 }
 
 val LocalBrowseVisuals = staticCompositionLocalOf { false }

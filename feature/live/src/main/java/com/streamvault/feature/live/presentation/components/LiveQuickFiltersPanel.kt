@@ -1,7 +1,11 @@
 package com.streamvault.feature.live.presentation.components
 
+import com.streamvault.core.ui.design.BrowseFocusSpec
+import androidx.compose.ui.text.font.FontWeight
+import com.streamvault.core.ui.design.selectableFocusBorder
+import com.streamvault.core.ui.design.selectableSurfaceColors
+import com.streamvault.core.ui.design.BrowseColors
 import com.streamvault.core.ui.design.BrowseShapes
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -16,17 +20,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.tv.material3.Border
 import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.streamvault.core.ui.interaction.TvButton
 import com.streamvault.core.ui.interaction.TvClickableSurface
-import com.streamvault.core.ui.design.browse.OnSurface
 import com.streamvault.core.ui.design.browse.OnSurfaceDim
-import com.streamvault.core.ui.design.browse.Primary
-import com.streamvault.core.ui.design.browse.SurfaceElevated
-import com.streamvault.core.ui.design.browse.SurfaceHighlight
 
 const val LIVE_ALL_CATEGORY_FILTER_KEY = "__all_categories__"
 
@@ -69,18 +68,13 @@ fun LiveQuickFiltersPanel(
         enabled = !isReorderMode,
         modifier = modifier
             .fillMaxWidth()
+            // Inset by the ring width so the focus ring is not clipped by the sidebar bounds.
+            .padding(horizontal = BrowseFocusSpec.SelectableRingWidth)
             .padding(bottom = 10.dp),
         shape = ClickableSurfaceDefaults.shape(BrowseShapes.Artwork),
-        colors = ClickableSurfaceDefaults.colors(
-            containerColor = SurfaceElevated,
-            focusedContainerColor = SurfaceHighlight.copy(alpha = 0.9f)
-        ),
-        border = ClickableSurfaceDefaults.border(
-            focusedBorder = Border(
-                border = BorderStroke(2.dp, Primary.copy(alpha = 0.85f)),
-                shape = BrowseShapes.Artwork
-            )
-        ),
+        // Tertiary row: no fill at rest so it does not read as another text input next to the search field.
+        colors = selectableSurfaceColors(selected = false),
+        border = selectableFocusBorder(BrowseShapes.Artwork),
         scale = ClickableSurfaceDefaults.scale(focusedScale = 1f)
     ) {
         Column(
@@ -94,17 +88,17 @@ fun LiveQuickFiltersPanel(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(text = buttonTitle, style = MaterialTheme.typography.labelLarge, color = OnSurface)
+                Text(text = buttonTitle, style = MaterialTheme.typography.labelLarge, color = BrowseColors.TextPrimary)
                 Text(
                     text = if (showDrawer) hideLabel else showLabel,
                     style = MaterialTheme.typography.labelMedium,
-                    color = Primary
+                    fontWeight = FontWeight.SemiBold
                 )
             }
             Text(
                 text = filterSubtitle,
                 style = MaterialTheme.typography.bodySmall,
-                color = OnSurfaceDim
+                color = BrowseColors.TextSecondary
             )
         }
     }
@@ -114,6 +108,7 @@ fun LiveQuickFiltersPanel(
     Column(
         modifier = Modifier
             .fillMaxWidth()
+            .padding(horizontal = BrowseFocusSpec.SelectableRingWidth)
             .padding(bottom = 8.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
