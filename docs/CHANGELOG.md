@@ -21,6 +21,9 @@ All notable product changes are recorded in this document.
 - Added a Continue Watching shelf to unified VOD and long-press removal across VOD, Movies and Series, including the Classic Movies and Series in-progress views. Confirming removal clears saved playback progress.
 
 ### Fixed
+- Fixed Stalker movie and series indexing getting stranded after expired sessions or temporary failures; retries preserve page checkpoints, honor throttling cooldowns without spending category retry budget, and recover recognized legacy transient failures.
+- Fixed transient Stalker guide failures being recorded as unsupported, which could suppress later forced guide refreshes.
+- Improved Xtream recovery for partial category failures, including action-level HTTP 403 responses, by retrying from the saved category cursor while keeping account authentication errors terminal; catalog and XMLTV Retry-After deadlines now persist across restarts.
 - Fixed completed movies and episodes with no autoplay next item remaining on the final frame; playback now returns to the originating detail or, for direct local-catalog playback, opens the matching movie or series detail.
 - Improved OpenSubtitles searches for provider titles containing numbering or subtitle tags, with ID-first matching and a cleaned-title fallback.
 - Fixed SMB3 recording storage setup failing with "Session setup failed" in release builds by retaining the AES-CMAC provider required for SMB signing, alongside the existing MD4 authentication support.
