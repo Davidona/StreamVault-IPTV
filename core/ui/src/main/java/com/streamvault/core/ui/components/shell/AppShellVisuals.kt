@@ -536,7 +536,8 @@ fun StatusPill(
     contentColor: Color = AppColors.TextPrimary,
     cornerRadius: Dp = 999.dp,
     horizontalPadding: Dp = 10.dp,
-    verticalPadding: Dp = 4.dp
+    verticalPadding: Dp = 4.dp,
+    textStyle: TextStyle = MaterialTheme.typography.labelSmall
 ) {
     val modern = LocalBrowseVisuals.current
     val isStatusColor = containerColor in listOf(AppColors.Live, AppColors.Brand, AppColors.Warning, AppColors.Success, AppColors.Info)
@@ -554,7 +555,7 @@ fun StatusPill(
             .then(if (modern) Modifier.border(1.dp, (if (tinted) containerColor else AppColors.TextPrimary).copy(alpha = 0.14f), shape) else Modifier)
             .padding(horizontal = horizontalPadding, vertical = verticalPadding)
     ) {
-        Text(text = label, style = MaterialTheme.typography.labelSmall, color = resolvedContentColor)
+        Text(text = label, style = textStyle, color = resolvedContentColor)
     }
 }
 

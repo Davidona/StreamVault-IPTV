@@ -7,6 +7,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -23,6 +24,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -56,12 +58,16 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.tv.material3.ClickableSurfaceDefaults
+import androidx.tv.material3.Border
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.streamvault.feature.playback.R
 import com.streamvault.core.ui.device.rememberIsTelevisionDevice
 import com.streamvault.core.ui.components.shell.StatusPill
 import com.streamvault.core.ui.design.AppColors
+import com.streamvault.core.ui.design.BrowseFocusSpec
+import com.streamvault.core.ui.design.LocalAppSpacing
+import com.streamvault.core.ui.design.contentOnColor
 import com.streamvault.domain.playback.archivePlaybackCapability
 import com.streamvault.feature.playback.player.playerCategoryOverlayItemKey
 import com.streamvault.feature.playback.player.playerChannelOverlayItemKey
@@ -97,6 +103,7 @@ fun ChannelListOverlay(
     onDismiss: () -> Unit,
     onOverlayInteracted: () -> Unit = {}
 ) {
+    val spacing = LocalAppSpacing.current
     val listState = rememberLazyListState()
     val currentIndex = remember(channels, currentChannelId) {
         channels.indexOfFirst { it.id == currentChannelId }.coerceAtLeast(0)
@@ -143,7 +150,7 @@ fun ChannelListOverlay(
                     .padding(20.dp)
             } else {
                 Modifier
-                    .width(540.dp)
+                    .width(spacing.channelListPanelWidth)
                     .fillMaxWidth()
                     .fillMaxHeight()
                     .padding(20.dp)
@@ -153,43 +160,70 @@ fun ChannelListOverlay(
                 PlayerOverlayPanel(modifier = Modifier.fillMaxSize()) {
                     androidx.compose.foundation.lazy.LazyColumn(
                         state = listState,
-                        modifier = Modifier.fillMaxSize(),
-                        contentPadding = PaddingValues(top = 10.dp, bottom = 20.dp),
-                        verticalArrangement = Arrangement.spacedBy(6.dp)
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(AppColors.Canvas),
+                        contentPadding = PaddingValues(top = spacing.sm, bottom = spacing.md),
+                        verticalArrangement = Arrangement.spacedBy(spacing.xs)
                     ) {
                         item {
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(horizontal = 8.dp, vertical = 8.dp),
+                                    .padding(horizontal = spacing.sm, vertical = spacing.sm),
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Text(
                                     text = stringResource(R.string.player_channel_list_title, channels.size),
-                                    style = MaterialTheme.typography.titleMedium,
-                                    color = Primary
+                                    style = MaterialTheme.typography.titleLarge,
+                                    color = AppColors.TextPrimary,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
                                 )
                                 if (!lastVisitedCategoryName.isNullOrBlank()) {
+                                    val lastGroupShape = RoundedCornerShape(999.dp)
                                     TvClickableSurface(
                                         onClick = {
                                             onOverlayInteracted()
                                             onOpenLastGroup()
                                         },
-                                        shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(999.dp)),
+                                        modifier = Modifier
+                                            .then(
+                                                if (channels.isEmpty()) {
+                                                    Modifier.focusRequester(overlayFocusRequester)
+                                                } else {
+                                                    Modifier
+                                                }
+                                            )
+                                            .widthIn(max = spacing.channelListPanelWidth * 0.55f)
+                                            .onFocusChanged {
+                                                if (it.isFocused) onOverlayInteracted()
+                                            },
+                                        shape = ClickableSurfaceDefaults.shape(lastGroupShape),
                                         colors = ClickableSurfaceDefaults.colors(
-                                            containerColor = AppColors.SurfaceEmphasis,
-                                            focusedContainerColor = Primary
+                                            containerColor = AppColors.SurfaceElevated,
+                                            focusedContainerColor = AppColors.SurfaceEmphasis,
+                                            contentColor = AppColors.TextPrimary,
+                                            focusedContentColor = AppColors.TextPrimary
                                         ),
-                                        modifier = Modifier.onFocusChanged {
-                                            if (it.isFocused) onOverlayInteracted()
-                                        }
+                                        border = ClickableSurfaceDefaults.border(
+                                            focusedBorder = Border(
+                                                border = BorderStroke(BrowseFocusSpec.BorderWidth, AppColors.Focus),
+                                                shape = lastGroupShape
+                                            )
+                                        ),
+                                        scale = ClickableSurfaceDefaults.scale(
+                                            focusedScale = BrowseFocusSpec.FocusedScale
+                                        )
                                     ) {
                                         Text(
                                             text = stringResource(R.string.player_last_group_label, lastVisitedCategoryName),
-                                            style = MaterialTheme.typography.labelMedium,
-                                            color = Color.White,
-                                            modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp)
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            color = AppColors.TextPrimary,
+                                            maxLines = 1,
+                                            overflow = TextOverflow.Ellipsis,
+                                            modifier = Modifier.padding(horizontal = spacing.sm, vertical = spacing.sm)
                                         )
                                     }
                                 }
@@ -199,18 +233,22 @@ fun ChannelListOverlay(
                             item {
                                 Text(
                                     text = stringResource(R.string.player_last_group_hint),
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = OnSurfaceDim,
-                                    modifier = Modifier.padding(horizontal = 8.dp)
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = AppColors.TextSecondary,
+                                    maxLines = 2,
+                                    overflow = TextOverflow.Ellipsis,
+                                    modifier = Modifier.padding(horizontal = spacing.sm)
                                 )
                             }
                         }
                         item {
                             Text(
                                 text = stringResource(R.string.player_channel_list_hint),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = OnSurfaceDim,
-                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = AppColors.TextSecondary,
+                                maxLines = 2,
+                                overflow = TextOverflow.Ellipsis,
+                                modifier = Modifier.padding(horizontal = spacing.sm, vertical = spacing.xs)
                             )
                         }
                         if (recentChannels.isNotEmpty()) {
@@ -222,13 +260,13 @@ fun ChannelListOverlay(
                                 ) {
                                     Text(
                                         text = stringResource(R.string.player_recent_channels),
-                                        style = MaterialTheme.typography.labelMedium,
-                                        color = OnSurfaceDim,
-                                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp)
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = AppColors.TextSecondary,
+                                        modifier = Modifier.padding(horizontal = spacing.sm, vertical = spacing.sm)
                                     )
                                     LazyRow(
-                                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
+                                        horizontalArrangement = Arrangement.spacedBy(spacing.xs),
+                                        contentPadding = PaddingValues(horizontal = spacing.sm, vertical = spacing.xs)
                                     ) {
                                         itemsIndexed(
                                             recentChannels,
@@ -237,25 +275,50 @@ fun ChannelListOverlay(
                                             },
                                             contentType = { _, _ -> "recent_channel" }
                                         ) { index, channel ->
+                                            val recentShape = RoundedCornerShape(999.dp)
                                             TvClickableSurface(
                                                 onClick = {
                                                     onOverlayInteracted()
                                                     onSelectChannel(channel.id)
                                                     onDismiss()
                                                 },
-                                                shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(999.dp)),
+                                                shape = ClickableSurfaceDefaults.shape(recentShape),
                                                 colors = ClickableSurfaceDefaults.colors(
-                                                    containerColor = AppColors.SurfaceEmphasis,
-                                                    focusedContainerColor = Primary
+                                                    containerColor = AppColors.SurfaceElevated,
+                                                    focusedContainerColor = AppColors.SurfaceEmphasis,
+                                                    contentColor = AppColors.TextPrimary,
+                                                    focusedContentColor = AppColors.TextPrimary
                                                 ),
-                                                modifier = Modifier.onFocusChanged {
-                                                    if (it.isFocused) onOverlayInteracted()
-                                                }
+                                                border = ClickableSurfaceDefaults.border(
+                                                    focusedBorder = Border(
+                                                        border = BorderStroke(BrowseFocusSpec.BorderWidth, AppColors.Focus),
+                                                        shape = recentShape
+                                                    )
+                                                ),
+                                                scale = ClickableSurfaceDefaults.scale(
+                                                    focusedScale = BrowseFocusSpec.FocusedScale
+                                                ),
+                                                modifier = Modifier
+                                                    .then(
+                                                        if (
+                                                            channels.isEmpty() &&
+                                                            lastVisitedCategoryName.isNullOrBlank() &&
+                                                            recentChannels.isNotEmpty() &&
+                                                            index == 0
+                                                        ) {
+                                                            Modifier.focusRequester(overlayFocusRequester)
+                                                        } else {
+                                                            Modifier
+                                                        }
+                                                    )
+                                                    .onFocusChanged {
+                                                        if (it.isFocused) onOverlayInteracted()
+                                                    }
                                             ) {
                                                 Row(
-                                                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
+                                                    modifier = Modifier.padding(horizontal = spacing.sm, vertical = spacing.sm),
                                                     verticalAlignment = Alignment.CenterVertically,
-                                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                                    horizontalArrangement = Arrangement.spacedBy(spacing.xs)
                                                 ) {
                                                     val recentNumber = channelNumbersById[channel.id]
                                                         ?.toString()
@@ -267,13 +330,15 @@ fun ChannelListOverlay(
                                                         ?: "--"
                                                     Text(
                                                         text = recentNumber,
-                                                        style = MaterialTheme.typography.labelSmall.copy(fontSize = 12.sp),
-                                                        color = Color.White.copy(alpha = 0.75f)
+                                                        style = MaterialTheme.typography.bodyMedium,
+                                                        color = AppColors.TextSecondary,
+                                                        maxLines = 1,
+                                                        overflow = TextOverflow.Ellipsis
                                                     )
                                                     Text(
                                                         text = channel.name,
-                                                        style = MaterialTheme.typography.bodySmall.copy(fontSize = 13.sp),
-                                                        color = Color.White,
+                                                        style = MaterialTheme.typography.bodyMedium,
+                                                        color = AppColors.TextPrimary,
                                                         maxLines = 1,
                                                         overflow = TextOverflow.Ellipsis
                                                     )
@@ -290,14 +355,11 @@ fun ChannelListOverlay(
                             contentType = { _, _ -> "channel" }
                         ) { index, channel ->
                             val isSelected = channel.id == currentChannelId
-                            val shouldRequestFocus = isSelected
+                            val shouldRequestFocus = index == currentIndex
                             val channelNumber = channel.number.takeIf { it > 0 } ?: (index + 1)
                             var isFocused by remember { mutableStateOf(false) }
-                            val bgColor = when {
-                                isFocused -> Primary
-                                isSelected -> Primary.copy(alpha = 0.20f)
-                                else -> AppColors.Surface.copy(alpha = 0.68f)
-                            }
+                            val rowShape = RoundedCornerShape(16.dp)
+                            val bgColor = if (isSelected) AppColors.SurfaceEmphasis else AppColors.SurfaceElevated
 
                             TvClickableSurface(
                                 onClick = {
@@ -317,31 +379,43 @@ fun ChannelListOverlay(
                                         if (shouldRequestFocus) Modifier.focusRequester(overlayFocusRequester)
                                         else Modifier
                                     ),
-                                scale = ClickableSurfaceDefaults.scale(focusedScale = 1f),
-                                shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(16.dp)),
+                                scale = ClickableSurfaceDefaults.scale(
+                                    focusedScale = BrowseFocusSpec.FocusedScale
+                                ),
+                                shape = ClickableSurfaceDefaults.shape(rowShape),
                                 colors = ClickableSurfaceDefaults.colors(
                                     containerColor = bgColor,
-                                    focusedContainerColor = bgColor
+                                    focusedContainerColor = AppColors.SurfaceEmphasis,
+                                    contentColor = AppColors.TextPrimary,
+                                    focusedContentColor = AppColors.TextPrimary
+                                ),
+                                border = ClickableSurfaceDefaults.border(
+                                    focusedBorder = Border(
+                                        border = BorderStroke(BrowseFocusSpec.BorderWidth, AppColors.Focus),
+                                        shape = rowShape
+                                    )
                                 )
                             ) {
                                 Row(
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .padding(horizontal = 16.dp, vertical = 10.dp),
+                                        .padding(horizontal = spacing.md, vertical = spacing.sm),
                                     verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                                    horizontalArrangement = Arrangement.spacedBy(spacing.sm)
                                 ) {
                                     Text(
                                         text = channelNumber.toString().padStart(2, '0'),
-                                        style = MaterialTheme.typography.labelSmall.copy(fontSize = 13.sp),
-                                        color = Color.White.copy(alpha = 0.72f),
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = AppColors.TextSecondary,
                                         textAlign = TextAlign.Start,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis,
                                         modifier = Modifier.width(32.dp)
                                     )
                                     Text(
                                         text = channel.name,
-                                        style = MaterialTheme.typography.bodyLarge.copy(fontSize = 17.sp),
-                                        color = Color.White,
+                                        style = MaterialTheme.typography.titleLarge,
+                                        color = AppColors.TextPrimary,
                                         maxLines = 1,
                                         overflow = if (isFocused) TextOverflow.Clip else TextOverflow.Ellipsis,
                                         modifier = Modifier
@@ -362,14 +436,16 @@ fun ChannelListOverlay(
                                     if (isSelected) {
                                         StatusPill(
                                             label = stringResource(R.string.player_channel_selected),
-                                            containerColor = AppColors.BrandMuted
+                                            containerColor = AppColors.SurfaceElevated,
+                                            textStyle = MaterialTheme.typography.bodyMedium
                                         )
                                     }
                                     if (channel.archivePlaybackCapability().canBuildReplayCandidate) {
                                         StatusPill(
                                             label = stringResource(R.string.player_archive_badge),
                                             containerColor = AppColors.Warning,
-                                            contentColor = Color.Black
+                                            contentColor = contentOnColor(AppColors.Warning),
+                                            textStyle = MaterialTheme.typography.bodyMedium
                                         )
                                     }
                                 }
@@ -399,8 +475,8 @@ fun ChannelListOverlay(
                 ) {
                     Text(
                         text = "\u25b2",
-                        color = Color.White.copy(alpha = 0.55f),
-                        style = MaterialTheme.typography.labelMedium,
+                        color = AppColors.TextSecondary,
+                        style = MaterialTheme.typography.titleMedium,
                         modifier = Modifier.padding(top = 8.dp)
                     )
                 }
@@ -426,42 +502,64 @@ fun ChannelListOverlay(
                 ) {
                     Text(
                         text = "\u25bc",
-                        color = Color.White.copy(alpha = 0.55f),
-                        style = MaterialTheme.typography.labelMedium,
+                        color = AppColors.TextSecondary,
+                        style = MaterialTheme.typography.titleMedium,
                         modifier = Modifier.padding(bottom = 8.dp)
                     )
                 }
             }
 
+            val categoryButtonShape = if (isRtl) {
+                RoundedCornerShape(topEnd = 10.dp, bottomEnd = 10.dp)
+            } else {
+                RoundedCornerShape(topStart = 10.dp, bottomStart = 10.dp)
+            }
             TvClickableSurface(
                 onClick = {
                     onOverlayInteracted()
                     onOpenCategories()
                 },
                 modifier = Modifier
+                    .then(
+                        if (
+                            channels.isEmpty() &&
+                            lastVisitedCategoryName.isNullOrBlank() &&
+                            recentChannels.isEmpty()
+                        ) {
+                            Modifier.focusRequester(overlayFocusRequester)
+                        } else {
+                            Modifier
+                        }
+                    )
                     .align(if (isRtl) Alignment.CenterEnd else Alignment.CenterStart)
                     .offset(x = if (isRtl) 28.dp else (-28).dp)
                     .onFocusChanged { if (it.isFocused) onOverlayInteracted() },
-                shape = ClickableSurfaceDefaults.shape(
-                    if (isRtl) RoundedCornerShape(topEnd = 10.dp, bottomEnd = 10.dp)
-                    else RoundedCornerShape(topStart = 10.dp, bottomStart = 10.dp)
-                ),
+                shape = ClickableSurfaceDefaults.shape(categoryButtonShape),
                 colors = ClickableSurfaceDefaults.colors(
-                    containerColor = AppColors.SurfaceEmphasis.copy(alpha = 0.92f),
-                    focusedContainerColor = Primary
-                )
+                    containerColor = AppColors.SurfaceElevated,
+                    focusedContainerColor = AppColors.SurfaceEmphasis,
+                    contentColor = AppColors.TextPrimary,
+                    focusedContentColor = AppColors.TextPrimary
+                ),
+                border = ClickableSurfaceDefaults.border(
+                    focusedBorder = Border(
+                        border = BorderStroke(BrowseFocusSpec.BorderWidth, AppColors.Focus),
+                        shape = categoryButtonShape
+                    )
+                ),
+                scale = ClickableSurfaceDefaults.scale(focusedScale = BrowseFocusSpec.FocusedScale)
             ) {
                 Column(
                     modifier = Modifier
-                        .width(28.dp)
+                        .width(spacing.channelListMinTouchTarget)
                         .height(96.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
                     Text(
                         text = if (isRtl) "\u25ba" else "\u25c4",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = Color.White.copy(alpha = 0.85f)
+                        style = MaterialTheme.typography.titleMedium,
+                        color = AppColors.TextPrimary
                     )
                 }
             }

@@ -75,6 +75,7 @@ import com.streamvault.feature.playback.R
 import com.streamvault.feature.playback.cast.CastConnectionState
 import com.streamvault.feature.playback.api.PlaybackPictureInPictureState
 import com.streamvault.feature.playback.api.PlaybackPlatformHost
+import com.streamvault.core.ui.design.LocalAppSpacing
 import com.streamvault.core.ui.design.requestFocusSafely
 import com.streamvault.core.ui.platform.rememberNotificationPermissionGate
 import com.streamvault.feature.playback.player.overlay.ChannelInfoOverlay
@@ -144,12 +145,18 @@ fun PlayerScreen(
 ) {
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
     val isTelevisionDevice = rememberIsTelevisionDevice()
+    val appSpacing = LocalAppSpacing.current
     val sideOverlayWidth = if (screenWidth < 700.dp) {
         (screenWidth * 0.62f).coerceIn(220.dp, 300.dp)
     } else if (!isTelevisionDevice && screenWidth < 1280.dp) {
         (screenWidth * 0.4f).coerceIn(320.dp, 420.dp)
     } else {
         350.dp
+    }
+    val channelListOverlayWidth = if (isTelevisionDevice) {
+        appSpacing.channelListOverlayWidth
+    } else {
+        sideOverlayWidth
     }
     val epgOverlayWidth = if (screenWidth < 700.dp) {
         (screenWidth * 0.68f).coerceIn(240.dp, 320.dp)
@@ -1109,6 +1116,7 @@ fun PlayerScreen(
                 viewModel = viewModel,
                 isRtl = isRtl,
                 sideOverlayWidth = sideOverlayWidth,
+                channelListOverlayWidth = channelListOverlayWidth,
                 epgOverlayWidth = epgOverlayWidth,
                 showChannelListOverlay = showChannelListOverlay,
                 showCategoryListOverlay = showCategoryListOverlay,
