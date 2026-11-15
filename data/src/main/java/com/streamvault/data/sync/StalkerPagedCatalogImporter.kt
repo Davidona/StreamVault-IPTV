@@ -101,10 +101,21 @@ internal class StalkerPagedCatalogImporter(
                 val anomaly = payload?.let { StalkerIndexPolicy.detectPageAnomaly(previous, next, it, fingerprint) }
                 if (payload == null || anomaly != null) {
                     val error = (result as? Result.Error)
+                    val throttle = generateSequence(error?.exception) { it.cause }
+                        .filterIsInstance<com.streamvault.data.remote.stalker.StalkerApiError.RateLimited>()
+                        .firstOrNull()
+                    val recoverableSession = generateSequence(error?.exception) { it.cause }.any {
+                        it is com.streamvault.data.remote.stalker.StalkerApiError.SessionExpired ||
+                            it is com.streamvault.data.remote.stalker.StalkerApiError.TokenRejected
+                    }
+                    val deferUntil = throttle?.let {
+                        now + (it.retryAfterMillis?.takeIf { delay -> delay > 0L } ?: 15 * 60_000L)
+                            .coerceIn(60_000L, 2 * 60 * 60_000L)
+                    } ?: (now + 15 * 60_000L).takeIf { recoverableSession }
                     operations.markAttemptFailed(provider.id, type, id, previous, next, now,
                         anomaly ?: error?.message ?: "Unexpected loading state",
                         error?.exception?.let { operations.failureState(it) != "FAILED_PERMANENT" } ?: true,
-                        previous?.lastPageFingerprint)
+                        previous?.lastPageFingerprint, deferUntil)
                     blocked += id
                     consumed += buffer.size
                     buffer.clear()
@@ -152,6 +163,11 @@ internal class StalkerPagedCatalogImporter(
                 catch (error: Exception) { Result.error(error.message ?: error.javaClass.simpleName, error) }
                 val failure = result as? Result.Error ?: break
                 operations.recordRequestFailure(provider.id, failure.exception)
+                if (generateSequence(failure.exception) { it.cause }.any {
+                        it is com.streamvault.data.remote.stalker.StalkerApiError.RateLimited ||
+                            it is com.streamvault.data.remote.stalker.StalkerApiError.SessionExpired ||
+                            it is com.streamvault.data.remote.stalker.StalkerApiError.TokenRejected
+                    }) break
                 if (attempt == 2 || failure.exception?.let { operations.failureState(it) == "FAILED_PERMANENT" } == true) break
                 delay(750L * (attempt + 1))
             }

@@ -105,7 +105,8 @@ internal interface StalkerIncrementalIndexOperations {
         now: Long,
         message: String,
         retryable: Boolean,
-        pageFingerprint: String?
+        pageFingerprint: String?,
+        deferredUntilMs: Long?
     )
 
     suspend fun upsertMovieSummaryBatch(

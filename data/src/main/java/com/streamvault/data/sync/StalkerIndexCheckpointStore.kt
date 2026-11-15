@@ -192,23 +192,31 @@ internal class StalkerIndexCheckpointStore(
         now: Long,
         message: String,
         retryable: Boolean,
-        pageFingerprint: String?
+        pageFingerprint: String?,
+        deferredUntilMs: Long? = null
     ) {
         val priorFailures = hydration?.failureCount ?: 0
-        val remainingBudget = if (retryable) {
-            ((hydration?.retryBudgetRemaining ?: STALKER_CATEGORY_RETRY_BUDGET) - 1).coerceAtLeast(0)
+        val availableBudget = if (hydration?.isRecoverableLegacyFailure == true) STALKER_CATEGORY_RETRY_BUDGET
+            else hydration?.retryBudgetRemaining ?: STALKER_CATEGORY_RETRY_BUDGET
+        val remainingBudget = if (deferredUntilMs != null) {
+            availableBudget
+        } else if (retryable) {
+            (availableBudget - 1).coerceAtLeast(0)
         } else {
             0
         }
         val nextStatus = when {
+            deferredUntilMs != null -> "COOLDOWN"
             !retryable -> "FAILED_PERMANENT"
             remainingBudget <= 0 -> "FAILED_BUDGET_EXHAUSTED"
             else -> "FAILED_RETRYABLE"
         }
-        val retryAfterMs = if (nextStatus == "FAILED_RETRYABLE" && priorFailures > 0) {
-            now + STALKER_CATEGORY_RETRY_COOLDOWN_MILLIS * (priorFailures + 1).coerceAtLeast(1)
-        } else {
-            0L
+        val retryAfterMs = when {
+            deferredUntilMs != null -> deferredUntilMs
+            nextStatus == "FAILED_BUDGET_EXHAUSTED" -> now + 15 * 60_000L
+            nextStatus == "FAILED_RETRYABLE" && priorFailures > 0 ->
+                now + (STALKER_CATEGORY_RETRY_COOLDOWN_MILLIS * (priorFailures.toLong() + 1)).coerceAtMost(2 * 60 * 60_000L)
+            else -> 0L
         }
         when (contentType) {
             ContentType.MOVIE -> movieHydrationDao.upsert(
@@ -228,7 +236,7 @@ internal class StalkerIndexCheckpointStore(
                     isComplete = hydration?.isComplete ?: false,
                     pageSize = hydration?.pageSize ?: 0,
                     retryAfterMs = retryAfterMs,
-                    failureCount = priorFailures + 1,
+                    failureCount = priorFailures + if (deferredUntilMs == null) 1 else 0,
                     retryBudgetRemaining = remainingBudget,
                     lastPageFingerprint = pageFingerprint
                 )
@@ -250,7 +258,7 @@ internal class StalkerIndexCheckpointStore(
                     isComplete = hydration?.isComplete ?: false,
                     pageSize = hydration?.pageSize ?: 0,
                     retryAfterMs = retryAfterMs,
-                    failureCount = priorFailures + 1,
+                    failureCount = priorFailures + if (deferredUntilMs == null) 1 else 0,
                     retryBudgetRemaining = remainingBudget,
                     lastPageFingerprint = pageFingerprint
                 )

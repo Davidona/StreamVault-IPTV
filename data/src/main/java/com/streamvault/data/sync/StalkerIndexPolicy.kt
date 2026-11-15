@@ -31,8 +31,23 @@ internal data class StalkerHydrationSnapshot(
     val lastPageFingerprint: String?
 )
 
+/** Recover only old terminal receipts whose stored message identifies a transient failure. */
+internal val StalkerHydrationSnapshot.isRecoverableLegacyFailure: Boolean
+    get() {
+        val error = lastError.orEmpty().lowercase()
+        return when (lastStatus) {
+            "FAILED_PERMANENT" -> error.contains("session expired")
+            "FAILED_BUDGET_EXHAUSTED" -> listOf(
+                "rate limit", "http 429", "timeout", "timed out", "connection reset",
+                "failed to connect", "unable to resolve host", "http 500", "http 502",
+                "http 503", "http 504"
+            ).any(error::contains)
+            else -> false
+        }
+    }
+
 internal val StalkerHydrationSnapshot.isTerminalFailure: Boolean
-    get() = lastStatus in setOf("FAILED_PERMANENT", "FAILED_BUDGET_EXHAUSTED")
+    get() = lastStatus in setOf("FAILED_PERMANENT", "FAILED_BUDGET_EXHAUSTED") && !isRecoverableLegacyFailure
 
 internal val StalkerHydrationSnapshot.isTruncated: Boolean
     get() = lastStatus == "TRUNCATED"
@@ -134,7 +149,7 @@ internal object StalkerIndexPolicy {
     fun canAttempt(hydration: StalkerHydrationSnapshot?, now: Long): Boolean {
         if (hydration == null) return true
         if (hydration.isComplete || hydration.isTruncated || hydration.isTerminalFailure) return false
-        if (hydration.retryBudgetRemaining <= 0) return false
+        if (hydration.retryBudgetRemaining <= 0 && !hydration.isRecoverableLegacyFailure) return false
         return hydration.retryAfterMs <= now
     }
 
@@ -155,7 +170,7 @@ internal object StalkerIndexPolicy {
             .filter { hydration ->
                 !hydration.isComplete &&
                     !hydration.isTerminalFailure &&
-                    hydration.retryBudgetRemaining > 0 &&
+                    (hydration.retryBudgetRemaining > 0 || hydration.isRecoverableLegacyFailure) &&
                     hydration.retryAfterMs > now
             }
             .minOfOrNull { it.retryAfterMs }
