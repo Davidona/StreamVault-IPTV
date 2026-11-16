@@ -31,6 +31,7 @@ class ChannelListPaletteContrastTest {
             val primaryTextOnSelectedRow = contrast(palette.textPrimary, palette.surfaceEmphasis)
             val secondaryTextOnSelectedRow = contrast(palette.textSecondary, palette.surfaceEmphasis)
             val focusRingOnPanel = contrast(palette.focus, palette.canvas)
+            val focusRingOnSelectedRow = contrast(palette.focus, palette.surfaceElevated)
             val focusRingOnRow = contrast(palette.focus, palette.surfaceEmphasis)
             val archiveBadgeText = contrast(contentOnColor(palette.warning), palette.warning)
 
@@ -47,8 +48,14 @@ class ChannelListPaletteContrastTest {
                 secondaryTextOnSelectedRow >= 4.5f
             )
             assertTrue("$themeId focus/canvas=$focusRingOnPanel", focusRingOnPanel >= 3f)
+            assertTrue("$themeId focus/surfaceElevated=$focusRingOnSelectedRow", focusRingOnSelectedRow >= 3f)
             assertTrue("$themeId focus/surfaceEmphasis=$focusRingOnRow", focusRingOnRow >= 3f)
             assertTrue("$themeId onWarning/warning=$archiveBadgeText", archiveBadgeText >= 4.5f)
+            println("DRAWER_CONTRAST $themeId textPrimary/canvas=$primaryTextOnPanel " +
+                "textSecondary/canvas=$secondaryTextOnPanel textPrimary/surfaceElevated=$primaryTextOnRow " +
+                "textSecondary/surfaceElevated=$secondaryTextOnRow textPrimary/surfaceEmphasis=$primaryTextOnSelectedRow " +
+                "textSecondary/surfaceEmphasis=$secondaryTextOnSelectedRow focus/canvas=$focusRingOnPanel " +
+                "focus/surfaceElevated=$focusRingOnSelectedRow focus/surfaceEmphasis=$focusRingOnRow")
         }
     }
 

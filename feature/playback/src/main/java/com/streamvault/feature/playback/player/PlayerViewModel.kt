@@ -1692,6 +1692,7 @@ class PlayerViewModel @Inject constructor(
             streamUrl = streamUrl,
             internalChannelId = internalChannelId,
             categoryId = categoryId,
+            isVirtual = isVirtual,
             providerId = providerId,
             combinedProfileId = combinedProfileId,
             combinedSourceFilterProviderId = combinedSourceFilterProviderId,

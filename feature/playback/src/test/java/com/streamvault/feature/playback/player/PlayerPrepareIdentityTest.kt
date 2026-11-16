@@ -5,6 +5,20 @@ import com.streamvault.core.navigation.StremioPlaybackReference
 import org.junit.Test
 
 class PlayerPrepareIdentityTest {
+    @Test
+    fun `negative category identities survive preparation and distinguish custom groups`() {
+        val categoryIds = listOf(-1L, -2L, -998L, -999L, -1_000_000L)
+        val identities = categoryIds.map { category ->
+            buildPlayerPrepareIdentity(
+                streamUrl = "https://example.test/channel.m3u8", epgChannelId = null,
+                internalChannelId = 10, categoryId = category, providerId = 1, isVirtual = true,
+                combinedProfileId = null, combinedSourceFilterProviderId = null,
+                contentType = "LIVE", archiveStartMs = null, archiveEndMs = null
+            )
+        }
+        assertThat(identities.map { it.categoryId }).containsExactlyElementsIn(categoryIds).inOrder()
+        assertThat(identities.toSet()).hasSize(categoryIds.size)
+    }
 
     @Test
     fun `buildPlayerPrepareIdentity ignores display metadata changes`() {
