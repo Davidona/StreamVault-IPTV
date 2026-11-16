@@ -14,13 +14,15 @@ All notable product changes are recorded in this document.
 
 ### Changed
 - Separated selected and focused states across navigation, Live TV, Movies, Series, Search, Settings and dialogs, with shared control styles, focus rings, and initial Play focus on movie and series detail pages.
-- Widened the Android TV player channel list and enlarged channel-name and playback-badge text for better readability.
+- Unified the playback channel and category browsers with matching compact panels, readable channel and category names, quieter archive indicators, and consistent selected and focused states across themes and right-to-left layouts.
 - Moved Adjust EPG Match from Guide Options into the TV Guide channel long-press menu, where it applies to the selected channel.
 - Removed the top Resume card from Movies and Series; Continue Watching remains available in each section.
 - Added Favorites and custom-group actions to movie and series posters in the unified VOD tab's long-press menu.
 - Added a Continue Watching shelf to unified VOD and long-press removal across VOD, Movies and Series, including the Classic Movies and Series in-progress views. Confirming removal clears saved playback progress.
 
 ### Fixed
+- Fixed the playback channel browser showing an empty or previous playlist for user-created groups, including the first custom group, and failing to recognize switches between custom groups.
+- Restored Left from the playback channel list opening Categories, while Back closes the browser.
 - Fixed Stalker movie and series indexing getting stranded after expired sessions or temporary failures; retries preserve page checkpoints, honor throttling cooldowns without spending category retry budget, and recover recognized legacy transient failures.
 - Fixed transient Stalker guide failures being recorded as unsupported, which could suppress later forced guide refreshes.
 - Improved Xtream recovery for partial category failures, including action-level HTTP 403 responses, by retrying from the saved category cursor while keeping account authentication errors terminal; catalog and XMLTV Retry-After deadlines now persist across restarts.

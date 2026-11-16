@@ -127,7 +127,7 @@ internal fun BoxScope.PlayerLiveOverlayHost(
             modifier = Modifier
                 .align(if (isRtl) Alignment.TopEnd else Alignment.TopStart)
                 .fillMaxHeight()
-                .width(sideOverlayWidth)
+                .width(channelListOverlayWidth)
                 .focusGroup()
         ) {
             CategoryListOverlay(
