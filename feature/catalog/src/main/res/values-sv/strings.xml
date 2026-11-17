@@ -380,4 +380,15 @@
   <string name="continue_watching_remove_message">Det här tar bort %1$s från Fortsätt titta och raderar den sparade uppspelningspositionen.</string>
   <string name="continue_watching_removed">%1$s togs bort från Fortsätt titta.</string>
   <string name="continue_watching_remove_failed">Det gick inte att ta bort objektet från Fortsätt titta. Försök igen.</string>
+    <string name="featured_movies">Utvalt filmkort</string>
+    <string name="featured_series">Utvalt seriekort</string>
+    <string name="featured_hidden">Dolt</string>
+    <string name="featured_latest">Senaste premiärerna</string>
+    <string name="featured_added">Nyligen tillagt</string>
+    <string name="featured_updated">Nyligen uppdaterat</string>
+    <string name="featured_continue">Fortsätt titta</string>
+    <string name="featured_random">Prova lyckan</string>
+    <string name="featured_for_you">För dig</string>
+    <string name="featured_up_next">Nästa avsnitt</string>
+  <string name="featured_details">Visa detaljer</string>
 </resources>

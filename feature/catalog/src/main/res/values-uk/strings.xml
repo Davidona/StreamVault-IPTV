@@ -380,4 +380,15 @@
   <string name="continue_watching_remove_message">Це вилучить %1$s з розділу «Продовжити перегляд» і видалить збережений прогрес відтворення.</string>
   <string name="continue_watching_removed">%1$s вилучено з розділу «Продовжити перегляд».</string>
   <string name="continue_watching_remove_failed">Не вдалося вилучити цей елемент із розділу «Продовжити перегляд». Спробуйте ще раз.</string>
+    <string name="featured_movies">Картка вибраного фільму</string>
+    <string name="featured_series">Картка вибраного серіалу</string>
+    <string name="featured_hidden">Прихована</string>
+    <string name="featured_latest">Найновіші релізи</string>
+    <string name="featured_added">Нещодавно додані</string>
+    <string name="featured_updated">Нещодавно оновлені</string>
+    <string name="featured_continue">Продовжити перегляд</string>
+    <string name="featured_random">Мені пощастить</string>
+    <string name="featured_for_you">Для вас</string>
+    <string name="featured_up_next">Наступна серія</string>
+  <string name="featured_details">Переглянути подробиці</string>
 </resources>

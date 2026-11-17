@@ -142,7 +142,21 @@ class SeriesViewModel @Inject constructor(
         val hasMorePreviewRows: Boolean
     )
 
+    private var featuredObserver: kotlinx.coroutines.Job? = null
+
+    private fun observeFeaturedCard() {
+        featuredObserver?.cancel()
+        featuredObserver = viewModelScope.launch {
+            com.streamvault.feature.catalog.presentation.vod.observeVodFeatured(
+                series = true, preferences = preferencesRepository, providers = providerRepository,
+                movies = null, shows = seriesRepository, playback = playbackHistoryRepository, watchlist = traktWatchlist, account = traktAccount,
+            ).collectLatest { featured -> _uiState.update { it.copy(featured = featured) } }
+        }
+    }
+
     init {
+        observeFeaturedCard()
+
         viewModelScope.launch {
             providerRepository.getProviders().collectLatest { providers ->
                 _uiState.update {
@@ -827,6 +841,7 @@ class SeriesViewModel @Inject constructor(
     }
 
     fun resetPreviewRowsForScreenEntry() {
+        if (_uiState.value.featured?.mode == com.streamvault.domain.model.VodFeaturedMode.RANDOM) observeFeaturedCard()
         _previewBatchSize.value = INITIAL_PREVIEW_BATCH_SIZE
         _uiState.update { state ->
             if (state.selectedCategory != null || state.searchQuery.isNotBlank()) {
@@ -882,6 +897,24 @@ class SeriesViewModel @Inject constructor(
                 canLoadMoreSelectedCategory = false,
                 isLoadingSelectedCategory = isLoadingSelectedCategory
             )
+        }
+    }
+
+    fun playFeaturedHistory(
+        history: PlaybackHistory,
+        onPlay: (PlaybackHistory) -> Unit,
+        onOpenDetails: (Long) -> Unit,
+    ) {
+        if (history.streamUrl.isNotBlank()) {
+            onPlay(history)
+            return
+        }
+        viewModelScope.launch {
+            val episode = _uiState.value.featured?.episode?.takeIf { it.id == history.contentId }
+                ?: seriesRepository.getEpisodeById(history.contentId)
+            val stream = episode?.let { seriesRepository.getEpisodeStreamInfo(it).getOrNull() }
+            if (stream != null) onPlay(history.copy(streamUrl = stream.url))
+            else onOpenDetails(history.seriesId ?: history.contentId)
         }
     }
 
@@ -1738,6 +1771,7 @@ data class SeriesUiState(
     val searchQuery: String = "",
     val selectedLibraryFilterType: LibraryFilterType = LibraryFilterType.ALL,
     val selectedLibrarySortBy: LibrarySortBy = LibrarySortBy.LIBRARY,
+    val featured: com.streamvault.feature.catalog.presentation.vod.VodFeaturedSelection? = null,
     val vodViewMode: VodViewMode = VodViewMode.MODERN,
     val vodInfiniteScroll: Boolean = true,
     val continueWatching: List<PlaybackHistory> = emptyList(),

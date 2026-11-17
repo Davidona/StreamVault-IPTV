@@ -1020,4 +1020,14 @@
     <string name="webhook_skipped">イベントがサポートされていないか、必要な ID がありません</string>
     <string name="webhook_pending">%1$d 保留中</string>
     <string name="webhook_http">HTTP %1$d</string>
+    <string name="featured_movies">映画の注目カード</string>
+    <string name="featured_series">シリーズの注目カード</string>
+    <string name="featured_hidden">非表示</string>
+    <string name="featured_latest">最新公開作品</string>
+    <string name="featured_added">最近追加された作品</string>
+    <string name="featured_updated">最近更新された作品</string>
+    <string name="featured_continue">視聴を続ける</string>
+    <string name="featured_random">おまかせ</string>
+    <string name="featured_for_you">あなたへのおすすめ</string>
+    <string name="featured_up_next">次のエピソード</string>
 </resources>

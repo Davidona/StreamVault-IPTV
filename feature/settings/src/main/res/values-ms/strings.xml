@@ -1017,4 +1017,14 @@
     <string name="webhook_skipped">Acara tidak disokong atau ID yang diperlukan tiada</string>
     <string name="webhook_pending">%1$d belum selesai</string>
     <string name="webhook_http">HTTP %1$d</string>
+    <string name="featured_movies">Kad filem pilihan</string>
+    <string name="featured_series">Kad siri pilihan</string>
+    <string name="featured_hidden">Tersembunyi</string>
+    <string name="featured_latest">Keluaran terkini</string>
+    <string name="featured_added">Baru ditambah</string>
+    <string name="featured_updated">Baru dikemas kini</string>
+    <string name="featured_continue">Teruskan menonton</string>
+    <string name="featured_random">Cuba nasib</string>
+    <string name="featured_for_you">Untuk anda</string>
+    <string name="featured_up_next">Episod seterusnya</string>
 </resources>

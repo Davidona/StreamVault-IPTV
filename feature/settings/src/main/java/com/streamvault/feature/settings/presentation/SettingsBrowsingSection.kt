@@ -238,6 +238,8 @@ public fun LazyListScope.settingsBrowsingSection(
                     modifier = if (targetItemId == "appearance.language") targetFocusModifier else Modifier,)
             }
             if (page == null || page == SettingsPage.VOD_LIBRARY) {
+                FeaturedCardSettings(uiState, viewModel, targetItemId, targetFocusModifier)
+
                 ClickableSettingsRow(
                     label = stringResource(R.string.settings_vod_view_mode),
                     value = stringResource(uiState.vodViewMode.labelResId()),

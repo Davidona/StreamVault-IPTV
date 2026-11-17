@@ -1025,4 +1025,14 @@
     <string name="webhook_skipped">אירוע לא נתמך או חסרים מזהים נדרשים</string>
     <string name="webhook_pending">%1$d בהמתנה</string>
     <string name="webhook_http">HTTP %1$d</string>
+    <string name="featured_movies">כרטיס סרט נבחר</string>
+    <string name="featured_series">כרטיס סדרה נבחרת</string>
+    <string name="featured_hidden">מוסתר</string>
+    <string name="featured_latest">ההפצות החדשות ביותר</string>
+    <string name="featured_added">נוספו לאחרונה</string>
+    <string name="featured_updated">עודכנו לאחרונה</string>
+    <string name="featured_continue">המשך צפייה</string>
+    <string name="featured_random">יותר מזל משכל</string>
+    <string name="featured_for_you">בשבילך</string>
+    <string name="featured_up_next">הפרק הבא</string>
 </resources>

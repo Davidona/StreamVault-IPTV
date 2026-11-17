@@ -380,4 +380,15 @@
   <string name="continue_watching_remove_message">Tämä poistaa kohteen %1$s Jatka katsomista -osiosta ja tyhjentää tallennetun toistokohdan.</string>
   <string name="continue_watching_removed">%1$s poistettiin Jatka katsomista -osiosta.</string>
   <string name="continue_watching_remove_failed">Kohdetta ei voitu poistaa Jatka katsomista -osiosta. Yritä uudelleen.</string>
+    <string name="featured_movies">Elokuvan esittelykortti</string>
+    <string name="featured_series">Sarjan esittelykortti</string>
+    <string name="featured_hidden">Piilotettu</string>
+    <string name="featured_latest">Uusimmat julkaisut</string>
+    <string name="featured_added">Äskettäin lisätyt</string>
+    <string name="featured_updated">Äskettäin päivitetyt</string>
+    <string name="featured_continue">Jatka katselua</string>
+    <string name="featured_random">Kokeile onneasi</string>
+    <string name="featured_for_you">Sinulle</string>
+    <string name="featured_up_next">Seuraava jakso</string>
+  <string name="featured_details">Näytä tiedot</string>
 </resources>

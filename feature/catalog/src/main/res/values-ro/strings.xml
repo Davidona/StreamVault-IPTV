@@ -380,4 +380,15 @@
   <string name="continue_watching_remove_message">Aceasta va elimina %1$s din Continuă vizionarea și va șterge progresul de redare salvat.</string>
   <string name="continue_watching_removed">%1$s a fost eliminat din Continuă vizionarea.</string>
   <string name="continue_watching_remove_failed">Elementul nu a putut fi eliminat din Continuă vizionarea. Încearcă din nou.</string>
+    <string name="featured_movies">Card de film recomandat</string>
+    <string name="featured_series">Card de serial recomandat</string>
+    <string name="featured_hidden">Ascuns</string>
+    <string name="featured_latest">Cele mai noi lansări</string>
+    <string name="featured_added">Adăugate recent</string>
+    <string name="featured_updated">Actualizate recent</string>
+    <string name="featured_continue">Continuă vizionarea</string>
+    <string name="featured_random">Încearcă-ți norocul</string>
+    <string name="featured_for_you">Pentru tine</string>
+    <string name="featured_up_next">Episodul următor</string>
+  <string name="featured_details">Vezi detalii</string>
 </resources>

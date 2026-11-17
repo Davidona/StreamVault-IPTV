@@ -1020,4 +1020,14 @@
     <string name="webhook_skipped">Ngjarja nuk mbështetet ose mungojnë ID-të e kërkuara</string>
     <string name="webhook_pending">%1$d në pritje</string>
     <string name="webhook_http">HTTP %1$d</string>
+    <string name="featured_movies">Karta e filmit të zgjedhur</string>
+    <string name="featured_series">Karta e serialit të zgjedhur</string>
+    <string name="featured_hidden">E fshehur</string>
+    <string name="featured_latest">Publikimet më të reja</string>
+    <string name="featured_added">Shtuar së fundmi</string>
+    <string name="featured_updated">Përditësuar së fundmi</string>
+    <string name="featured_continue">Vazhdo shikimin</string>
+    <string name="featured_random">Provo fatin</string>
+    <string name="featured_for_you">Për ju</string>
+    <string name="featured_up_next">Episodi tjetër</string>
 </resources>

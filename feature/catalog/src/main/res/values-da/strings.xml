@@ -380,4 +380,15 @@
   <string name="continue_watching_remove_message">Dette fjerner %1$s fra Fortsæt med at se og sletter den gemte afspilningsposition.</string>
   <string name="continue_watching_removed">%1$s blev fjernet fra Fortsæt med at se.</string>
   <string name="continue_watching_remove_failed">Elementet kunne ikke fjernes fra Fortsæt med at se. Prøv igen.</string>
+    <string name="featured_movies">Fremhævet filmkort</string>
+    <string name="featured_series">Fremhævet seriekort</string>
+    <string name="featured_hidden">Skjult</string>
+    <string name="featured_latest">Nyeste udgivelser</string>
+    <string name="featured_added">Senest tilføjet</string>
+    <string name="featured_updated">Senest opdateret</string>
+    <string name="featured_continue">Se videre</string>
+    <string name="featured_random">Prøv lykken</string>
+    <string name="featured_for_you">Til dig</string>
+    <string name="featured_up_next">Næste afsnit</string>
+  <string name="featured_details">Vis detaljer</string>
 </resources>

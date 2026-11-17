@@ -1022,4 +1022,14 @@
     <string name="webhook_skipped">Begivenheden er ikke understøttet eller påkrævede id\'er mangler</string>
     <string name="webhook_pending">%1$d afventer</string>
     <string name="webhook_http">HTTP %1$d</string>
+    <string name="featured_movies">Fremhævet filmkort</string>
+    <string name="featured_series">Fremhævet seriekort</string>
+    <string name="featured_hidden">Skjult</string>
+    <string name="featured_latest">Nyeste udgivelser</string>
+    <string name="featured_added">Senest tilføjet</string>
+    <string name="featured_updated">Senest opdateret</string>
+    <string name="featured_continue">Se videre</string>
+    <string name="featured_random">Prøv lykken</string>
+    <string name="featured_for_you">Til dig</string>
+    <string name="featured_up_next">Næste afsnit</string>
 </resources>

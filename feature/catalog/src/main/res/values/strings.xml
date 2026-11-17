@@ -415,4 +415,15 @@
   <string name="continue_watching_remove_message">This removes %1$s from Continue Watching and clears its saved playback progress.</string>
   <string name="continue_watching_removed">Removed %1$s from Continue Watching.</string>
   <string name="continue_watching_remove_failed">Could not remove this item from Continue Watching. Try again.</string>
+    <string name="featured_movies">Movie featured card</string>
+    <string name="featured_series">Series featured card</string>
+    <string name="featured_hidden">Hidden</string>
+    <string name="featured_latest">Latest releases</string>
+    <string name="featured_added">Recently added</string>
+    <string name="featured_updated">Recently updated</string>
+    <string name="featured_continue">Continue watching</string>
+    <string name="featured_random">Feeling lucky</string>
+    <string name="featured_for_you">For you</string>
+    <string name="featured_up_next">Up next</string>
+  <string name="featured_details">View details</string>
 </resources>

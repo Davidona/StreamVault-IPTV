@@ -122,6 +122,8 @@ data class SettingsPreferenceSnapshot(
     val liveChannelGroupingMode: LiveChannelGroupingMode,
     val groupedChannelLabelMode: GroupedChannelLabelMode,
     val liveVariantPreferenceMode: LiveVariantPreferenceMode,
+    val movieFeaturedMode: String? = null,
+    val seriesFeaturedMode: String? = null,
     val vodViewMode: VodViewMode,
     val showTraktTrendingMovies: Boolean = true,
     val showTraktPopularMovies: Boolean = true,

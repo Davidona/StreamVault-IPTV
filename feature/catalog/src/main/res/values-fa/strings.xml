@@ -366,4 +366,15 @@
   <string name="continue_watching_remove_message">با این کار %1$s از ادامه تماشا برداشته می‌شود و پیشرفت پخش ذخیره‌شده پاک می‌شود.</string>
   <string name="continue_watching_removed">%1$s از ادامه تماشا برداشته شد.</string>
   <string name="continue_watching_remove_failed">برداشتن این مورد از ادامه تماشا ممکن نشد. دوباره تلاش کنید.</string>
+    <string name="featured_movies">کارت فیلم منتخب</string>
+    <string name="featured_series">کارت سریال منتخب</string>
+    <string name="featured_hidden">پنهان</string>
+    <string name="featured_latest">تازه‌ترین انتشارها</string>
+    <string name="featured_added">تازه افزوده‌شده</string>
+    <string name="featured_updated">تازه به‌روزشده</string>
+    <string name="featured_continue">ادامه تماشا</string>
+    <string name="featured_random">شانست را امتحان کن</string>
+    <string name="featured_for_you">برای شما</string>
+    <string name="featured_up_next">قسمت بعدی</string>
+  <string name="featured_details">نمایش جزئیات</string>
 </resources>

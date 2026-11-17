@@ -366,4 +366,15 @@
   <string name="continue_watching_remove_message">Time će se %1$s ukloniti iz odjeljka Nastavi gledati i izbrisati spremljeni tijek reprodukcije.</string>
   <string name="continue_watching_removed">%1$s uklonjen je iz odjeljka Nastavi gledati.</string>
   <string name="continue_watching_remove_failed">Ovu stavku nije moguće ukloniti iz odjeljka Nastavi gledati. Pokušajte ponovno.</string>
+    <string name="featured_movies">Kartica izdvojenog filma</string>
+    <string name="featured_series">Kartica izdvojene serije</string>
+    <string name="featured_hidden">Skrivena</string>
+    <string name="featured_latest">Najnovija izdanja</string>
+    <string name="featured_added">Nedavno dodano</string>
+    <string name="featured_updated">Nedavno ažurirano</string>
+    <string name="featured_continue">Nastavi gledati</string>
+    <string name="featured_random">Okušaj sreću</string>
+    <string name="featured_for_you">Za vas</string>
+    <string name="featured_up_next">Sljedeća epizoda</string>
+  <string name="featured_details">Prikaži pojedinosti</string>
 </resources>

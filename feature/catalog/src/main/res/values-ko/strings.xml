@@ -380,4 +380,15 @@
   <string name="continue_watching_remove_message">%1$s 항목을 이어보기에서 삭제하고 저장된 재생 진행 상황을 지웁니다.</string>
   <string name="continue_watching_removed">%1$s 항목을 이어보기에서 삭제했습니다.</string>
   <string name="continue_watching_remove_failed">이 항목을 이어보기에서 삭제하지 못했습니다. 다시 시도해 주세요.</string>
+    <string name="featured_movies">영화 추천 카드</string>
+    <string name="featured_series">시리즈 추천 카드</string>
+    <string name="featured_hidden">숨김</string>
+    <string name="featured_latest">최신 개봉작</string>
+    <string name="featured_added">최근 추가된 작품</string>
+    <string name="featured_updated">최근 업데이트된 작품</string>
+    <string name="featured_continue">계속 시청</string>
+    <string name="featured_random">무작위 추천</string>
+    <string name="featured_for_you">맞춤 추천</string>
+    <string name="featured_up_next">다음 에피소드</string>
+  <string name="featured_details">상세 정보 보기</string>
 </resources>

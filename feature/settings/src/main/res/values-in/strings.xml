@@ -1022,4 +1022,14 @@
     <string name="webhook_skipped">ID acara tidak didukung atau diperlukan tidak ada</string>
     <string name="webhook_pending">%1$d tertunda</string>
     <string name="webhook_http">HTTP %1$d</string>
+    <string name="featured_movies">Kartu film unggulan</string>
+    <string name="featured_series">Kartu serial unggulan</string>
+    <string name="featured_hidden">Tersembunyi</string>
+    <string name="featured_latest">Rilis terbaru</string>
+    <string name="featured_added">Baru ditambahkan</string>
+    <string name="featured_updated">Baru diperbarui</string>
+    <string name="featured_continue">Lanjutkan menonton</string>
+    <string name="featured_random">Coba keberuntungan</string>
+    <string name="featured_for_you">Untuk Anda</string>
+    <string name="featured_up_next">Episode berikutnya</string>
 </resources>

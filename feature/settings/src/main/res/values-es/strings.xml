@@ -1018,4 +1018,14 @@
     <string name="webhook_skipped">Evento no admitido o faltan ID requeridos</string>
     <string name="webhook_pending">%1$d pendiente</string>
     <string name="webhook_http">HTTP %1$d</string>
+    <string name="featured_movies">Tarjeta destacada de películas</string>
+    <string name="featured_series">Tarjeta destacada de series</string>
+    <string name="featured_hidden">Oculta</string>
+    <string name="featured_latest">Últimos estrenos</string>
+    <string name="featured_added">Añadidos recientemente</string>
+    <string name="featured_updated">Actualizados recientemente</string>
+    <string name="featured_continue">Seguir viendo</string>
+    <string name="featured_random">Voy a tener suerte</string>
+    <string name="featured_for_you">Para ti</string>
+    <string name="featured_up_next">Siguiente episodio</string>
 </resources>

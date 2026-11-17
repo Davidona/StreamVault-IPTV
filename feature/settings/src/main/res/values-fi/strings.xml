@@ -1022,4 +1022,14 @@
     <string name="webhook_skipped">Tapahtumaa ei tueta tai vaaditut tunnukset puuttuvat</string>
     <string name="webhook_pending">%1$d vireillä</string>
     <string name="webhook_http">HTTP %1$d</string>
+    <string name="featured_movies">Elokuvan esittelykortti</string>
+    <string name="featured_series">Sarjan esittelykortti</string>
+    <string name="featured_hidden">Piilotettu</string>
+    <string name="featured_latest">Uusimmat julkaisut</string>
+    <string name="featured_added">Äskettäin lisätyt</string>
+    <string name="featured_updated">Äskettäin päivitetyt</string>
+    <string name="featured_continue">Jatka katselua</string>
+    <string name="featured_random">Kokeile onneasi</string>
+    <string name="featured_for_you">Sinulle</string>
+    <string name="featured_up_next">Seuraava jakso</string>
 </resources>

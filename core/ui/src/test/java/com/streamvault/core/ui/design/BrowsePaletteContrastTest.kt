@@ -20,6 +20,34 @@ class BrowsePaletteContrastTest {
     }
 
     @Test
+    fun featuredCardContrastAcrossThemes() {
+        allThemeIds.forEach { id ->
+            val palette = AppPalette.forTheme(id).forBrowsing()
+            mapOf("SurfaceElevated" to palette.surfaceElevated, "SurfaceAccent" to palette.surfaceAccent).forEach { (name, fill) ->
+                mapOf("TextPrimary" to palette.textPrimary, "TextSecondary" to palette.textSecondary).forEach { (textName, ink) ->
+                    val ratio = contrast(ink, fill)
+                    println("FEATURED $id $textName/$name=$ratio")
+                    assertTrue("$id $textName/$name $ratio", ratio >= 4.5f)
+                }
+                val ring = contrast(palette.focus, fill)
+                println("FEATURED $id Focus/$name=$ring")
+                assertTrue("$id focus/$name $ring", ring >= 3f)
+            }
+            val settings = AppPalette.forTheme(id)
+            val selected = androidx.compose.ui.graphics.lerp(settings.surfaceElevated, settings.brand, 0.14f)
+            val selectedText = contrast(settings.textPrimary, selected)
+            val selectedRing = contrast(settings.focus, selected)
+            println("FEATURED $id SettingsTextPrimary/Selected=$selectedText")
+            println("FEATURED $id SettingsFocus/Selected=$selectedRing")
+            assertTrue("$id selected settings text $selectedText", selectedText >= 4.5f)
+            assertTrue("$id selected settings ring $selectedRing", selectedRing >= 3f)
+            val cta = contrast(palette.onPrimary, palette.brand)
+            println("FEATURED $id OnPrimary/Brand=$cta")
+            assertTrue("$id CTA $cta", cta >= 4.5f)
+        }
+    }
+
+    @Test
     fun allNineThemesResolveToDistinctPalettes() {
         assertEquals(9, allThemeIds.map { AppPalette.forTheme(it) }.toSet().size)
     }

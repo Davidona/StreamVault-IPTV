@@ -126,16 +126,12 @@ fun ContinueWatchingRemovalDialog(
                 colors = ButtonDefaults.colors(
                     containerColor = BrowseColors.Brand,
                     contentColor = BrowseColors.OnPrimary,
-                    focusedContainerColor = BrowseColors.BrandStrong,
-                    focusedContentColor = contentOnColor(BrowseColors.BrandStrong),
-                    pressedContainerColor = BrowseColors.BrandStrong,
-                    pressedContentColor = contentOnColor(BrowseColors.BrandStrong)
+                    focusedContainerColor = BrowseColors.Brand,
+                    focusedContentColor = BrowseColors.OnPrimary,
+                    pressedContainerColor = BrowseColors.Brand,
+                    pressedContentColor = BrowseColors.OnPrimary
                 ),
                 border = ButtonDefaults.border(
-                    border = Border(
-                        border = BorderStroke(1.dp, BrowseColors.Outline),
-                        shape = BrowseShapes.Control
-                    ),
                     focusedBorder = Border(
                         border = BorderStroke(2.dp, BrowseColors.Focus),
                         shape = BrowseShapes.Control
@@ -150,7 +146,7 @@ fun ContinueWatchingRemovalDialog(
                 onClick = onDismiss,
                 shape = ButtonDefaults.shape(BrowseShapes.Control),
                 colors = ButtonDefaults.colors(
-                    containerColor = BrowseColors.SurfaceAccent,
+                    containerColor = BrowseColors.SurfaceElevated,
                     contentColor = TextPrimary,
                     focusedContainerColor = BrowseColors.SurfaceAccent,
                     focusedContentColor = TextPrimary,
@@ -158,10 +154,6 @@ fun ContinueWatchingRemovalDialog(
                     pressedContentColor = TextPrimary
                 ),
                 border = ButtonDefaults.border(
-                    border = Border(
-                        border = BorderStroke(1.dp, BrowseColors.Outline),
-                        shape = BrowseShapes.Control
-                    ),
                     focusedBorder = Border(
                         border = BorderStroke(2.dp, BrowseColors.Focus),
                         shape = BrowseShapes.Control

@@ -1022,4 +1022,14 @@
     <string name="webhook_skipped">Το συμβάν δεν υποστηρίζεται ή λείπουν απαιτούμενα αναγνωριστικά</string>
     <string name="webhook_pending">%1$d σε εκκρεμότητα</string>
     <string name="webhook_http">HTTP %1$d</string>
+    <string name="featured_movies">Κάρτα προτεινόμενης ταινίας</string>
+    <string name="featured_series">Κάρτα προτεινόμενης σειράς</string>
+    <string name="featured_hidden">Κρυφή</string>
+    <string name="featured_latest">Νέες κυκλοφορίες</string>
+    <string name="featured_added">Πρόσφατες προσθήκες</string>
+    <string name="featured_updated">Πρόσφατες ενημερώσεις</string>
+    <string name="featured_continue">Συνέχεια προβολής</string>
+    <string name="featured_random">Δοκίμασε την τύχη σου</string>
+    <string name="featured_for_you">Για εσένα</string>
+    <string name="featured_up_next">Επόμενο επεισόδιο</string>
 </resources>

@@ -1020,4 +1020,14 @@
     <string name="webhook_skipped">رویداد پشتیبانی نمی‌شود یا شناسه‌های لازم وجود ندارد</string>
     <string name="webhook_pending">%1$d در انتظار است</string>
     <string name="webhook_http">HTTP %1$d</string>
+    <string name="featured_movies">کارت فیلم منتخب</string>
+    <string name="featured_series">کارت سریال منتخب</string>
+    <string name="featured_hidden">پنهان</string>
+    <string name="featured_latest">تازه‌ترین انتشارها</string>
+    <string name="featured_added">تازه افزوده‌شده</string>
+    <string name="featured_updated">تازه به‌روزشده</string>
+    <string name="featured_continue">ادامه تماشا</string>
+    <string name="featured_random">شانست را امتحان کن</string>
+    <string name="featured_for_you">برای شما</string>
+    <string name="featured_up_next">قسمت بعدی</string>
 </resources>

@@ -380,4 +380,15 @@
   <string name="continue_watching_remove_message">%1$sを「視聴を続ける」から削除し、保存された再生位置を消去します。</string>
   <string name="continue_watching_removed">%1$sを「視聴を続ける」から削除しました。</string>
   <string name="continue_watching_remove_failed">このアイテムを「視聴を続ける」から削除できませんでした。もう一度お試しください。</string>
+    <string name="featured_movies">映画の注目カード</string>
+    <string name="featured_series">シリーズの注目カード</string>
+    <string name="featured_hidden">非表示</string>
+    <string name="featured_latest">最新公開作品</string>
+    <string name="featured_added">最近追加された作品</string>
+    <string name="featured_updated">最近更新された作品</string>
+    <string name="featured_continue">視聴を続ける</string>
+    <string name="featured_random">おまかせ</string>
+    <string name="featured_for_you">あなたへのおすすめ</string>
+    <string name="featured_up_next">次のエピソード</string>
+  <string name="featured_details">詳細を見る</string>
 </resources>

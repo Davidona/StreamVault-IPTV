@@ -16,7 +16,7 @@ All notable product changes are recorded in this document.
 - Separated selected and focused states across navigation, Live TV, Movies, Series, Search, Settings and dialogs, with shared control styles, focus rings, and initial Play focus on movie and series detail pages.
 - Unified the playback channel and category browsers with matching compact panels, readable channel and category names, quieter archive indicators, and consistent selected and focused states across themes and right-to-left layouts.
 - Moved Adjust EPG Match from Guide Options into the TV Guide channel long-press menu, where it applies to the selected channel.
-- Removed the top Resume card from Movies and Series; Continue Watching remains available in each section.
+- Restored the top featured card in the Modern Movies and Series libraries with independent settings for Hidden, Latest releases, Recently added (movies) / Recently updated (series), Continue watching, Feeling lucky and For you. Series also offers Up next, advancing at 90% completion or after an explicit watched mark. Recommendations use local genre affinity from history and the connected Trakt watchlist.
 - Added Favorites and custom-group actions to movie and series posters in the unified VOD tab's long-press menu.
 - Added a Continue Watching shelf to unified VOD and long-press removal across VOD, Movies and Series, including the Classic Movies and Series in-progress views. Confirming removal clears saved playback progress.
 

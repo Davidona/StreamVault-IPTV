@@ -142,7 +142,21 @@ class MoviesViewModel @Inject constructor(
         val hasMorePreviewRows: Boolean
     )
 
+    private var featuredObserver: kotlinx.coroutines.Job? = null
+
+    private fun observeFeaturedCard() {
+        featuredObserver?.cancel()
+        featuredObserver = viewModelScope.launch {
+            com.streamvault.feature.catalog.presentation.vod.observeVodFeatured(
+                series = false, preferences = preferencesRepository, providers = providerRepository,
+                movies = movieRepository, shows = null, playback = playbackHistoryRepository, watchlist = traktWatchlist, account = traktAccount,
+            ).collectLatest { featured -> _uiState.update { it.copy(featured = featured) } }
+        }
+    }
+
     init {
+        observeFeaturedCard()
+
         viewModelScope.launch {
             providerRepository.getProviders().collectLatest { providers ->
                 _uiState.update {
@@ -831,6 +845,7 @@ class MoviesViewModel @Inject constructor(
     }
 
     fun resetPreviewRowsForScreenEntry() {
+        if (_uiState.value.featured?.mode == com.streamvault.domain.model.VodFeaturedMode.RANDOM) observeFeaturedCard()
         _previewBatchSize.value = INITIAL_PREVIEW_BATCH_SIZE
         _uiState.update { state ->
             if (state.selectedCategory != null || state.searchQuery.isNotBlank()) {
@@ -1730,6 +1745,7 @@ data class MoviesUiState(
     val searchQuery: String = "",
     val selectedLibraryFilterType: LibraryFilterType = LibraryFilterType.ALL,
     val selectedLibrarySortBy: LibrarySortBy = LibrarySortBy.LIBRARY,
+    val featured: com.streamvault.feature.catalog.presentation.vod.VodFeaturedSelection? = null,
     val vodViewMode: VodViewMode = VodViewMode.MODERN,
     val vodInfiniteScroll: Boolean = true,
     val continueWatching: List<PlaybackHistory> = emptyList(),

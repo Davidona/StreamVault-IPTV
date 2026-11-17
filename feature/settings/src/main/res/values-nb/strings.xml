@@ -1022,4 +1022,14 @@
     <string name="webhook_skipped">Hendelsen støttes ikke eller nødvendige ID-er mangler</string>
     <string name="webhook_pending">%1$d venter</string>
     <string name="webhook_http">HTTP %1$d</string>
+    <string name="featured_movies">Fremhevet filmkort</string>
+    <string name="featured_series">Fremhevet seriekort</string>
+    <string name="featured_hidden">Skjult</string>
+    <string name="featured_latest">Nyeste utgivelser</string>
+    <string name="featured_added">Nylig lagt til</string>
+    <string name="featured_updated">Nylig oppdatert</string>
+    <string name="featured_continue">Fortsett å se</string>
+    <string name="featured_random">Prøv lykken</string>
+    <string name="featured_for_you">For deg</string>
+    <string name="featured_up_next">Neste episode</string>
 </resources>

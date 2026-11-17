@@ -1023,4 +1023,14 @@
     <string name="webhook_skipped">Događaj nije podržan ili nedostaju potrebni ID-ovi</string>
     <string name="webhook_pending">%1$d na čekanju</string>
     <string name="webhook_http">HTTP %1$d</string>
+    <string name="featured_movies">Kartica izdvojenog filma</string>
+    <string name="featured_series">Kartica izdvojene serije</string>
+    <string name="featured_hidden">Skrivena</string>
+    <string name="featured_latest">Najnovija izdanja</string>
+    <string name="featured_added">Nedavno dodano</string>
+    <string name="featured_updated">Nedavno ažurirano</string>
+    <string name="featured_continue">Nastavi gledati</string>
+    <string name="featured_random">Okušaj sreću</string>
+    <string name="featured_for_you">Za vas</string>
+    <string name="featured_up_next">Sljedeća epizoda</string>
 </resources>

@@ -770,6 +770,10 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
+    fun setVodFeaturedMode(series: Boolean, mode: com.streamvault.domain.model.VodFeaturedMode) {
+        viewModelScope.launch { preferencesRepository.setVodFeaturedMode(series, mode.name) }
+    }
+
     fun setVodViewMode(mode: VodViewMode) {
         viewModelScope.launch {
             preferencesRepository.setVodViewMode(mode.storageValue)

@@ -380,4 +380,15 @@
   <string name="continue_watching_remove_message">Tím se %1$s odebere z Pokračovat ve sledování a smaže se uložený průběh přehrávání.</string>
   <string name="continue_watching_removed">%1$s bylo odebráno z Pokračovat ve sledování.</string>
   <string name="continue_watching_remove_failed">Položku se nepodařilo odebrat z Pokračovat ve sledování. Zkuste to znovu.</string>
+    <string name="featured_movies">Karta vybraného filmu</string>
+    <string name="featured_series">Karta vybraného seriálu</string>
+    <string name="featured_hidden">Skrytá</string>
+    <string name="featured_latest">Nejnovější vydání</string>
+    <string name="featured_added">Nedávno přidané</string>
+    <string name="featured_updated">Nedávno aktualizované</string>
+    <string name="featured_continue">Pokračovat ve sledování</string>
+    <string name="featured_random">Zkusit štěstí</string>
+    <string name="featured_for_you">Pro vás</string>
+    <string name="featured_up_next">Další epizoda</string>
+  <string name="featured_details">Zobrazit podrobnosti</string>
 </resources>

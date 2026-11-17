@@ -380,4 +380,15 @@
   <string name="continue_watching_remove_message">Ezzel eltávolítod a(z) %1$s elemet a Folytatás nézését listáról, és törlöd a mentett lejátszási állapotot.</string>
   <string name="continue_watching_removed">A(z) %1$s eltávolítva a Folytatás nézését listáról.</string>
   <string name="continue_watching_remove_failed">Az elem nem távolítható el a Folytatás nézését listáról. Próbáld újra.</string>
+    <string name="featured_movies">Kiemelt film kártyája</string>
+    <string name="featured_series">Kiemelt sorozat kártyája</string>
+    <string name="featured_hidden">Rejtett</string>
+    <string name="featured_latest">Legújabb megjelenések</string>
+    <string name="featured_added">Nemrég hozzáadva</string>
+    <string name="featured_updated">Nemrég frissítve</string>
+    <string name="featured_continue">Megtekintés folytatása</string>
+    <string name="featured_random">Próbálj szerencsét</string>
+    <string name="featured_for_you">Neked</string>
+    <string name="featured_up_next">Következő epizód</string>
+  <string name="featured_details">Részletek megtekintése</string>
 </resources>

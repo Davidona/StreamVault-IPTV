@@ -1022,4 +1022,14 @@
     <string name="webhook_skipped">Événement non pris en charge ou identifiants requis manquants</string>
     <string name="webhook_pending">%1$d en attente</string>
     <string name="webhook_http">HTTP %1$d</string>
+    <string name="featured_movies">Carte de film à la une</string>
+    <string name="featured_series">Carte de série à la une</string>
+    <string name="featured_hidden">Masquée</string>
+    <string name="featured_latest">Dernières sorties</string>
+    <string name="featured_added">Ajouts récents</string>
+    <string name="featured_updated">Mises à jour récentes</string>
+    <string name="featured_continue">Reprendre la lecture</string>
+    <string name="featured_random">Au hasard</string>
+    <string name="featured_for_you">Pour vous</string>
+    <string name="featured_up_next">Épisode suivant</string>
 </resources>

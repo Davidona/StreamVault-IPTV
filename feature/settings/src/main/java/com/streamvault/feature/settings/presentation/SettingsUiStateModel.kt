@@ -186,6 +186,8 @@ data class SettingsUiState(
     val liveChannelGroupingMode: LiveChannelGroupingMode = LiveChannelGroupingMode.RAW_VARIANTS,
     val groupedChannelLabelMode: GroupedChannelLabelMode = GroupedChannelLabelMode.HYBRID,
     val liveVariantPreferenceMode: LiveVariantPreferenceMode = LiveVariantPreferenceMode.BALANCED,
+    val movieFeaturedMode: String? = null,
+    val seriesFeaturedMode: String? = null,
     val vodViewMode: VodViewMode = VodViewMode.MODERN,
     val showTraktTrendingMovies: Boolean = true,
     val showTraktPopularMovies: Boolean = true,

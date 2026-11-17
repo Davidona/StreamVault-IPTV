@@ -366,4 +366,15 @@
   <string name="continue_watching_remove_message">इससे %1$s को देखना जारी रखें से हटाया जाएगा और सेव की गई प्लेबैक प्रगति मिट जाएगी।</string>
   <string name="continue_watching_removed">%1$s को देखना जारी रखें से हटा दिया गया।</string>
   <string name="continue_watching_remove_failed">इस आइटम को देखना जारी रखें से नहीं हटाया जा सका। फिर से कोशिश करें।</string>
+    <string name="featured_movies">चुनिंदा फ़िल्म कार्ड</string>
+    <string name="featured_series">चुनिंदा सीरीज़ कार्ड</string>
+    <string name="featured_hidden">छिपा हुआ</string>
+    <string name="featured_latest">नई रिलीज़</string>
+    <string name="featured_added">हाल ही में जोड़े गए</string>
+    <string name="featured_updated">हाल ही में अपडेट हुए</string>
+    <string name="featured_continue">देखना जारी रखें</string>
+    <string name="featured_random">किस्मत आज़माएँ</string>
+    <string name="featured_for_you">आपके लिए</string>
+    <string name="featured_up_next">अगला एपिसोड</string>
+  <string name="featured_details">विवरण देखें</string>
 </resources>

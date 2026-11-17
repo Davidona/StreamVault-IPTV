@@ -366,4 +366,15 @@
   <string name="continue_watching_remove_message">Tým sa položka %1$s odstráni z Pokračovať v sledovaní a vymaže sa uložený priebeh prehrávania.</string>
   <string name="continue_watching_removed">%1$s bolo odstránené z Pokračovať v sledovaní.</string>
   <string name="continue_watching_remove_failed">Položku sa nepodarilo odstrániť z Pokračovať v sledovaní. Skúste to znova.</string>
+    <string name="featured_movies">Karta vybraného filmu</string>
+    <string name="featured_series">Karta vybraného seriálu</string>
+    <string name="featured_hidden">Skrytá</string>
+    <string name="featured_latest">Najnovšie vydania</string>
+    <string name="featured_added">Nedávno pridané</string>
+    <string name="featured_updated">Nedávno aktualizované</string>
+    <string name="featured_continue">Pokračovať v sledovaní</string>
+    <string name="featured_random">Skúsiť šťastie</string>
+    <string name="featured_for_you">Pre vás</string>
+    <string name="featured_up_next">Ďalšia epizóda</string>
+  <string name="featured_details">Zobraziť podrobnosti</string>
 </resources>

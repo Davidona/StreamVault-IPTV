@@ -67,12 +67,6 @@ internal fun SettingsActionSurface(
             disabledContainerColor = colors.groupSurface.copy(alpha = 0.58f)
         ),
         border = ClickableSurfaceDefaults.border(
-            border = androidx.tv.material3.Border(
-                androidx.compose.foundation.BorderStroke(
-                    if (overview) 0.dp else 1.dp,
-                    if (overview) Color.Transparent else colors.primaryText.copy(alpha = 0.09f)
-                ), shape = shape,
-            ),
             focusedBorder = androidx.tv.material3.Border(
                 androidx.compose.foundation.BorderStroke(SettingsDesignTokens.focusStroke, colors.focusOutline),
                 shape = shape
@@ -131,9 +125,9 @@ public fun ClickableSettingsRow(
                 }
                 if (compactValue) {
                     Text(value, style = MaterialTheme.typography.labelLarge,
-                        color = if (enabled) colors.accent else colors.disabledText,
+                        color = if (enabled) colors.primaryText else colors.disabledText,
                         modifier = Modifier.widthIn(max = valueMaxWidth)
-                            .background(colors.accent.copy(alpha = 0.10f), SettingsDetailShapes.Control)
+                            .background(AppColors.current.surfaceElevated, SettingsDetailShapes.Control)
                             .padding(horizontal = 12.dp, vertical = 8.dp))
                 }
                 androidx.tv.material3.Icon(Icons.AutoMirrored.Rounded.KeyboardArrowRight,

@@ -452,6 +452,12 @@ interface SettingsPreferences {
 
     suspend fun setVodVariantPreferenceMode(mode: VodVariantPreferenceMode)
 
+    val movieFeaturedMode: Flow<String?> get() = kotlinx.coroutines.flow.flowOf(null)
+    val seriesFeaturedMode: Flow<String?> get() = kotlinx.coroutines.flow.flowOf(null)
+    suspend fun setVodFeaturedMode(series: Boolean, mode: String) {
+        throw UnsupportedOperationException("Featured preferences unavailable")
+    }
+
     val vodViewMode: Flow<String?>
 
     suspend fun setVodViewMode(mode: String)

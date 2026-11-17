@@ -1020,4 +1020,14 @@
     <string name="webhook_skipped">Настанот не е поддржан или недостасуваат потребните ИД</string>
     <string name="webhook_pending">%1$d на чекање</string>
     <string name="webhook_http">HTTP %1$d</string>
+    <string name="featured_movies">Картичка за избран филм</string>
+    <string name="featured_series">Картичка за избрана серија</string>
+    <string name="featured_hidden">Скриена</string>
+    <string name="featured_latest">Најнови изданија</string>
+    <string name="featured_added">Неодамна додадени</string>
+    <string name="featured_updated">Неодамна ажурирани</string>
+    <string name="featured_continue">Продолжи со гледање</string>
+    <string name="featured_random">Пробај среќа</string>
+    <string name="featured_for_you">За вас</string>
+    <string name="featured_up_next">Следна епизода</string>
 </resources>

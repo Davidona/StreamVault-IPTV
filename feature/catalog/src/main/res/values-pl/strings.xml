@@ -380,4 +380,15 @@
   <string name="continue_watching_remove_message">Spowoduje to usunięcie %1$s z Oglądaj dalej i skasowanie zapisanego postępu odtwarzania.</string>
   <string name="continue_watching_removed">Usunięto %1$s z Oglądaj dalej.</string>
   <string name="continue_watching_remove_failed">Nie udało się usunąć tej pozycji z Oglądaj dalej. Spróbuj ponownie.</string>
+    <string name="featured_movies">Karta wyróżnionego filmu</string>
+    <string name="featured_series">Karta wyróżnionego serialu</string>
+    <string name="featured_hidden">Ukryta</string>
+    <string name="featured_latest">Najnowsze premiery</string>
+    <string name="featured_added">Ostatnio dodane</string>
+    <string name="featured_updated">Ostatnio zaktualizowane</string>
+    <string name="featured_continue">Kontynuuj oglądanie</string>
+    <string name="featured_random">Szczęśliwy traf</string>
+    <string name="featured_for_you">Dla Ciebie</string>
+    <string name="featured_up_next">Następny odcinek</string>
+  <string name="featured_details">Zobacz szczegóły</string>
 </resources>

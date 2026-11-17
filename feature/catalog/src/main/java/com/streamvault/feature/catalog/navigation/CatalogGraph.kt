@@ -93,6 +93,7 @@ fun NavGraphBuilder.registerCatalogGraph(
 
     composable(CatalogRoutePatterns.SERIES) {
         SeriesScreen(
+            onFeaturedPlay = { history -> onPlayHistory(history, AppDestination.Series) },
             onSeriesClick = { series -> onOpenSeriesDetail(series, AppDestination.Series) },
             onSeriesIdClick = { seriesId ->
                 actions.navigate(

@@ -599,6 +599,29 @@ private fun MoviesVodContent(
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(bottom = 28.dp)
         ) {
+            uiState.featured?.let { featured ->
+                item(key = "hero") {
+                    com.streamvault.feature.catalog.presentation.components.VodHeroStrip(
+                        title = featured.candidate.title,
+                        subtitle = featured.episode?.let { stringResource(R.string.continue_watching_season_episode, it.seasonNumber, it.episodeNumber) }
+                            ?: stringResource(when (featured.mode) {
+                                com.streamvault.domain.model.VodFeaturedMode.LATEST_RELEASE -> R.string.featured_latest
+                                com.streamvault.domain.model.VodFeaturedMode.RECENTLY_ADDED -> R.string.featured_added
+                                com.streamvault.domain.model.VodFeaturedMode.RANDOM -> R.string.featured_random
+                                com.streamvault.domain.model.VodFeaturedMode.FOR_YOU -> R.string.featured_for_you
+                                com.streamvault.domain.model.VodFeaturedMode.UP_NEXT -> R.string.featured_up_next
+                                else -> R.string.featured_continue
+                            }),
+                        actionLabel = stringResource(if (featured.episode != null) R.string.featured_up_next
+                            else if (featured.history != null) R.string.player_resume else R.string.featured_details),
+                        focusRequester = initialFocusRequester,
+                        onClick = {
+                            featured.history?.let(onContinueWatchingPlay)
+                                ?: featured.candidate.movie?.let(onMovieClick)
+                        },
+                    )
+                }
+            }
             item(key = "actions") {
             VodActionChipRow(
                     actions = buildList {
@@ -689,7 +712,7 @@ private fun MoviesVodContent(
                         }
                     },
                     modifier = Modifier.padding(top = 2.dp, bottom = 6.dp),
-                    firstActionFocusRequester = initialFocusRequester
+                    firstActionFocusRequester = initialFocusRequester.takeIf { uiState.featured == null }
                 )
             }
             if (continueWatching.isNotEmpty()) {

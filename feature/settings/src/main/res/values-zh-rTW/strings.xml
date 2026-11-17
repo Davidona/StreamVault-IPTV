@@ -1017,4 +1017,14 @@
     <string name="webhook_skipped">事件不受支援或缺少必需的 ID</string>
     <string name="webhook_pending">%1$d 待定</string>
     <string name="webhook_http">HTTP %1$d</string>
+    <string name="featured_movies">電影精選卡片</string>
+    <string name="featured_series">影集精選卡片</string>
+    <string name="featured_hidden">隱藏</string>
+    <string name="featured_latest">最新發行</string>
+    <string name="featured_added">最近新增</string>
+    <string name="featured_updated">最近更新</string>
+    <string name="featured_continue">繼續觀看</string>
+    <string name="featured_random">好手氣</string>
+    <string name="featured_for_you">為你推薦</string>
+    <string name="featured_up_next">下一集</string>
 </resources>

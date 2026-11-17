@@ -1018,4 +1018,14 @@
     <string name="webhook_skipped">Evento non supportato o ID richiesti mancanti</string>
     <string name="webhook_pending">%1$d in sospeso</string>
     <string name="webhook_http">HTTP %1$d</string>
+    <string name="featured_movies">Scheda film in evidenza</string>
+    <string name="featured_series">Scheda serie in evidenza</string>
+    <string name="featured_hidden">Nascosta</string>
+    <string name="featured_latest">Ultime uscite</string>
+    <string name="featured_added">Aggiunti di recente</string>
+    <string name="featured_updated">Aggiornati di recente</string>
+    <string name="featured_continue">Continua a guardare</string>
+    <string name="featured_random">Mi sento fortunato</string>
+    <string name="featured_for_you">Per te</string>
+    <string name="featured_up_next">Prossimo episodio</string>
 </resources>

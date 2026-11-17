@@ -1017,4 +1017,14 @@
     <string name="webhook_skipped">กิจกรรมไม่รองรับหรือไม่มี ID ที่จำเป็น</string>
     <string name="webhook_pending">%1$d อยู่ระหว่างการพิจารณา</string>
     <string name="webhook_http">HTTP %1$d</string>
+    <string name="featured_movies">การ์ดภาพยนตร์เด่น</string>
+    <string name="featured_series">การ์ดซีรีส์เด่น</string>
+    <string name="featured_hidden">ซ่อน</string>
+    <string name="featured_latest">ผลงานออกใหม่</string>
+    <string name="featured_added">เพิ่มล่าสุด</string>
+    <string name="featured_updated">อัปเดตล่าสุด</string>
+    <string name="featured_continue">รับชมต่อ</string>
+    <string name="featured_random">สุ่มรับชม</string>
+    <string name="featured_for_you">สำหรับคุณ</string>
+    <string name="featured_up_next">ตอนถัดไป</string>
 </resources>

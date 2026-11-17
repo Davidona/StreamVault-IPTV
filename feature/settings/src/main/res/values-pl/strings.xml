@@ -1028,4 +1028,14 @@
     <string name="webhook_skipped">Zdarzenie nie jest obsługiwane lub brakuje wymaganych identyfikatorów</string>
     <string name="webhook_pending">%1$d w oczekiwaniu</string>
     <string name="webhook_http">HTTP %1$d</string>
+    <string name="featured_movies">Karta wyróżnionego filmu</string>
+    <string name="featured_series">Karta wyróżnionego serialu</string>
+    <string name="featured_hidden">Ukryta</string>
+    <string name="featured_latest">Najnowsze premiery</string>
+    <string name="featured_added">Ostatnio dodane</string>
+    <string name="featured_updated">Ostatnio zaktualizowane</string>
+    <string name="featured_continue">Kontynuuj oglądanie</string>
+    <string name="featured_random">Szczęśliwy traf</string>
+    <string name="featured_for_you">Dla Ciebie</string>
+    <string name="featured_up_next">Następny odcinek</string>
 </resources>

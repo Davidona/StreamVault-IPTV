@@ -1020,4 +1020,14 @@
     <string name="webhook_skipped">ईवेंट असमर्थित है या आवश्यक आईडी गायब हैं</string>
     <string name="webhook_pending">%1$d लंबित है</string>
     <string name="webhook_http">HTTP %1$d</string>
+    <string name="featured_movies">चुनिंदा फ़िल्म कार्ड</string>
+    <string name="featured_series">चुनिंदा सीरीज़ कार्ड</string>
+    <string name="featured_hidden">छिपा हुआ</string>
+    <string name="featured_latest">नई रिलीज़</string>
+    <string name="featured_added">हाल ही में जोड़े गए</string>
+    <string name="featured_updated">हाल ही में अपडेट हुए</string>
+    <string name="featured_continue">देखना जारी रखें</string>
+    <string name="featured_random">किस्मत आज़माएँ</string>
+    <string name="featured_for_you">आपके लिए</string>
+    <string name="featured_up_next">अगला एपिसोड</string>
 </resources>

@@ -380,4 +380,15 @@
   <string name="continue_watching_remove_message">这会将 %1$s 从继续观看中移除，并清除已保存的播放进度。</string>
   <string name="continue_watching_removed">已将 %1$s 从继续观看中移除。</string>
   <string name="continue_watching_remove_failed">无法从继续观看中移除此项目。请重试。</string>
+    <string name="featured_movies">电影精选卡片</string>
+    <string name="featured_series">剧集精选卡片</string>
+    <string name="featured_hidden">隐藏</string>
+    <string name="featured_latest">最新发行</string>
+    <string name="featured_added">最近添加</string>
+    <string name="featured_updated">最近更新</string>
+    <string name="featured_continue">继续观看</string>
+    <string name="featured_random">试试手气</string>
+    <string name="featured_for_you">为你推荐</string>
+    <string name="featured_up_next">下一集</string>
+  <string name="featured_details">查看详情</string>
 </resources>

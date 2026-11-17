@@ -1034,4 +1034,14 @@
     <string name="webhook_skipped">الحدث غير مدعوم أو المعرفات المطلوبة مفقودة</string>
     <string name="webhook_pending">%1$d معلق</string>
     <string name="webhook_http">HTTP %1$d</string>
+    <string name="featured_movies">بطاقة الأفلام المميزة</string>
+    <string name="featured_series">بطاقة المسلسلات المميزة</string>
+    <string name="featured_hidden">مخفية</string>
+    <string name="featured_latest">أحدث الإصدارات</string>
+    <string name="featured_added">المضافة حديثًا</string>
+    <string name="featured_updated">المحدثة حديثًا</string>
+    <string name="featured_continue">متابعة المشاهدة</string>
+    <string name="featured_random">جرّب حظك</string>
+    <string name="featured_for_you">لك</string>
+    <string name="featured_up_next">الحلقة التالية</string>
 </resources>

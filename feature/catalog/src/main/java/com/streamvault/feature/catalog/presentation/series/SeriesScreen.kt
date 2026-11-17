@@ -102,6 +102,7 @@ import kotlinx.coroutines.delay
 fun SeriesScreen(
     onSeriesClick: (Series) -> Unit,
     onSeriesIdClick: (Long) -> Unit,
+    onFeaturedPlay: (PlaybackHistory) -> Unit = {},
     scaffold: CatalogScaffoldContent,
     viewModel: SeriesViewModel = hiltViewModel()
 ) {
@@ -232,6 +233,7 @@ fun SeriesScreen(
                 onSearchQueryChange = viewModel::setSearchQuery,
                 onSeriesClick = onSeriesClick,
                 onSeriesIdClick = onSeriesIdClick,
+                onFeaturedPlay = { history -> viewModel.playFeaturedHistory(history, onFeaturedPlay, onSeriesIdClick) },
                 onRemoveFromContinueWatching = viewModel::removeFromContinueWatching,
                 onRequestContinueWatchingRemoval = { pendingContinueWatchingRemoval = it },
                 onProtectedSeriesClick = { series ->
@@ -366,6 +368,7 @@ private fun SeriesVodContent(
     onSearchQueryChange: (String) -> Unit,
     onSeriesClick: (Series) -> Unit,
     onSeriesIdClick: (Long) -> Unit,
+    onFeaturedPlay: (PlaybackHistory) -> Unit,
     onRemoveFromContinueWatching: (PlaybackHistory) -> Unit,
     onRequestContinueWatchingRemoval: (PlaybackHistory) -> Unit,
     onProtectedSeriesClick: (Series) -> Unit,
@@ -599,6 +602,38 @@ private fun SeriesVodContent(
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(bottom = 28.dp)
         ) {
+            uiState.featured?.let { featured ->
+                item(key = "hero") {
+                    com.streamvault.feature.catalog.presentation.components.VodHeroStrip(
+                        title = featured.candidate.title,
+                        subtitle = featured.episode?.let { stringResource(R.string.continue_watching_season_episode, it.seasonNumber, it.episodeNumber) }
+                            ?: stringResource(when (featured.mode) {
+                                com.streamvault.domain.model.VodFeaturedMode.LATEST_RELEASE -> R.string.featured_latest
+                                com.streamvault.domain.model.VodFeaturedMode.RECENTLY_ADDED -> R.string.featured_updated
+                                com.streamvault.domain.model.VodFeaturedMode.RANDOM -> R.string.featured_random
+                                com.streamvault.domain.model.VodFeaturedMode.FOR_YOU -> R.string.featured_for_you
+                                com.streamvault.domain.model.VodFeaturedMode.UP_NEXT -> R.string.featured_up_next
+                                else -> R.string.featured_continue
+                            }),
+                        actionLabel = stringResource(if (featured.episode != null) R.string.featured_up_next
+                            else if (featured.history != null) R.string.player_resume else R.string.featured_details),
+                        focusRequester = initialFocusRequester,
+                        onClick = {
+                            val episode = featured.episode
+                            val history = featured.history
+                            if (episode != null && history != null) onFeaturedPlay(history.copy(
+                                id = 0, contentId = episode.id, contentType = ContentType.SERIES_EPISODE,
+                                seriesId = featured.candidate.id, title = episode.title, streamUrl = episode.streamUrl,
+                                remoteContentId = null, remoteSeriesId = null,
+                                resumePositionMs = episode.watchProgress, totalDurationMs = episode.durationSeconds.toLong() * 1000,
+                                seasonNumber = episode.seasonNumber, episodeNumber = episode.episodeNumber,
+                                watchedStatus = com.streamvault.domain.model.PlaybackWatchedStatus.IN_PROGRESS,
+                            )) else if (history != null) onFeaturedPlay(history)
+                            else featured.candidate.series?.let(onSeriesClick)
+                        },
+                    )
+                }
+            }
             item(key = "actions") {
             VodActionChipRow(
                     actions = buildList {
@@ -689,7 +724,7 @@ private fun SeriesVodContent(
                         }
                     },
                     modifier = Modifier.padding(top = 2.dp, bottom = 6.dp),
-                    firstActionFocusRequester = initialFocusRequester
+                    firstActionFocusRequester = initialFocusRequester.takeIf { uiState.featured == null }
                 )
             }
             if (continueWatching.isNotEmpty()) {

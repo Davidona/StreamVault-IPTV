@@ -380,4 +380,15 @@
   <string name="continue_watching_remove_message">Esto quitará %1$s de Seguir viendo y borrará el progreso de reproducción guardado.</string>
   <string name="continue_watching_removed">Se quitó %1$s de Seguir viendo.</string>
   <string name="continue_watching_remove_failed">No se pudo quitar este elemento de Seguir viendo. Inténtalo de nuevo.</string>
+    <string name="featured_movies">Tarjeta destacada de películas</string>
+    <string name="featured_series">Tarjeta destacada de series</string>
+    <string name="featured_hidden">Oculta</string>
+    <string name="featured_latest">Últimos estrenos</string>
+    <string name="featured_added">Añadidos recientemente</string>
+    <string name="featured_updated">Actualizados recientemente</string>
+    <string name="featured_continue">Seguir viendo</string>
+    <string name="featured_random">Voy a tener suerte</string>
+    <string name="featured_for_you">Para ti</string>
+    <string name="featured_up_next">Siguiente episodio</string>
+  <string name="featured_details">Ver detalles</string>
 </resources>

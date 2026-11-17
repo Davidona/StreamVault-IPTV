@@ -1028,4 +1028,14 @@
     <string name="webhook_skipped">Подія не підтримується або відсутні потрібні ідентифікатори</string>
     <string name="webhook_pending">%1$d очікує на розгляд</string>
     <string name="webhook_http">HTTP %1$d</string>
+    <string name="featured_movies">Картка вибраного фільму</string>
+    <string name="featured_series">Картка вибраного серіалу</string>
+    <string name="featured_hidden">Прихована</string>
+    <string name="featured_latest">Найновіші релізи</string>
+    <string name="featured_added">Нещодавно додані</string>
+    <string name="featured_updated">Нещодавно оновлені</string>
+    <string name="featured_continue">Продовжити перегляд</string>
+    <string name="featured_random">Мені пощастить</string>
+    <string name="featured_for_you">Для вас</string>
+    <string name="featured_up_next">Наступна серія</string>
 </resources>

@@ -1022,4 +1022,14 @@
     <string name="webhook_skipped">Etkinlik desteklenmiyor veya gerekli kimlikler eksik</string>
     <string name="webhook_pending">%1$d beklemede</string>
     <string name="webhook_http">HTTP %1$d</string>
+    <string name="featured_movies">Öne çıkan film kartı</string>
+    <string name="featured_series">Öne çıkan dizi kartı</string>
+    <string name="featured_hidden">Gizli</string>
+    <string name="featured_latest">En yeni yapımlar</string>
+    <string name="featured_added">Son eklenenler</string>
+    <string name="featured_updated">Son güncellenenler</string>
+    <string name="featured_continue">İzlemeye devam et</string>
+    <string name="featured_random">Şansımı dene</string>
+    <string name="featured_for_you">Sizin için</string>
+    <string name="featured_up_next">Sıradaki bölüm</string>
 </resources>

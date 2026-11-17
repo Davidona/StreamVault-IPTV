@@ -1022,4 +1022,14 @@
     <string name="webhook_skipped">Händelsen stöds inte eller obligatoriska ID:n saknas</string>
     <string name="webhook_pending">%1$d väntar</string>
     <string name="webhook_http">HTTP %1$d</string>
+    <string name="featured_movies">Utvalt filmkort</string>
+    <string name="featured_series">Utvalt seriekort</string>
+    <string name="featured_hidden">Dolt</string>
+    <string name="featured_latest">Senaste premiärerna</string>
+    <string name="featured_added">Nyligen tillagt</string>
+    <string name="featured_updated">Nyligen uppdaterat</string>
+    <string name="featured_continue">Fortsätt titta</string>
+    <string name="featured_random">Prova lyckan</string>
+    <string name="featured_for_you">För dig</string>
+    <string name="featured_up_next">Nästa avsnitt</string>
 </resources>

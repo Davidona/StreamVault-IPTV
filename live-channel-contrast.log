@@ -1,0 +1,24 @@
+> Task :core:ui:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :core:ui:preBuild UP-TO-DATE
+> Task :core:ui:preDebugBuild UP-TO-DATE
+> Task :core:ui:generateDebugResValues UP-TO-DATE
+> Task :core:ui:generateDebugResources UP-TO-DATE
+> Task :core:ui:packageDebugResources UP-TO-DATE
+> Task :core:ui:parseDebugLocalResources UP-TO-DATE
+> Task :core:ui:generateDebugRFile UP-TO-DATE
+> Task :core:ui:compileDebugKotlin UP-TO-DATE
+> Task :core:ui:javaPreCompileDebug UP-TO-DATE
+> Task :core:ui:compileDebugJavaWithJavac NO-SOURCE
+> Task :core:ui:bundleLibRuntimeToJarDebug UP-TO-DATE
+> Task :core:ui:bundleLibCompileToJarDebug UP-TO-DATE
+> Task :core:ui:preDebugUnitTestBuild UP-TO-DATE
+> Task :core:ui:generateDebugUnitTestStubRFile UP-TO-DATE
+> Task :core:ui:javaPreCompileDebugUnitTest UP-TO-DATE
+> Task :core:ui:processDebugJavaRes UP-TO-DATE
+> Task :core:ui:compileDebugUnitTestKotlin
+> Task :core:ui:compileDebugUnitTestJavaWithJavac NO-SOURCE
+> Task :core:ui:processDebugUnitTestJavaRes UP-TO-DATE
+> Task :core:ui:testDebugUnitTest
+
+BUILD SUCCESSFUL in 3s
+15 actionable tasks: 2 executed, 13 up-to-date

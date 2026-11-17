@@ -380,4 +380,15 @@
   <string name="continue_watching_remove_message">הפעולה תסיר את %1$s מ׳המשך צפייה׳ ותמחק את מיקום ההפעלה שנשמר.</string>
   <string name="continue_watching_removed">%1$s הוסר מ׳המשך צפייה׳.</string>
   <string name="continue_watching_remove_failed">לא ניתן להסיר את הפריט הזה מ׳המשך צפייה׳. אפשר לנסות שוב.</string>
+    <string name="featured_movies">כרטיס סרט נבחר</string>
+    <string name="featured_series">כרטיס סדרה נבחרת</string>
+    <string name="featured_hidden">מוסתר</string>
+    <string name="featured_latest">ההפצות החדשות ביותר</string>
+    <string name="featured_added">נוספו לאחרונה</string>
+    <string name="featured_updated">עודכנו לאחרונה</string>
+    <string name="featured_continue">המשך צפייה</string>
+    <string name="featured_random">יותר מזל משכל</string>
+    <string name="featured_for_you">בשבילך</string>
+    <string name="featured_up_next">הפרק הבא</string>
+  <string name="featured_details">הצגת פרטים</string>
 </resources>

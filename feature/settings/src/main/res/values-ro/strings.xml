@@ -1025,4 +1025,14 @@
     <string name="webhook_skipped">Eveniment neacceptat sau ID-uri necesare lipsesc</string>
     <string name="webhook_pending">%1$d în așteptare</string>
     <string name="webhook_http">HTTP %1$d</string>
+    <string name="featured_movies">Card de film recomandat</string>
+    <string name="featured_series">Card de serial recomandat</string>
+    <string name="featured_hidden">Ascuns</string>
+    <string name="featured_latest">Cele mai noi lansări</string>
+    <string name="featured_added">Adăugate recent</string>
+    <string name="featured_updated">Actualizate recent</string>
+    <string name="featured_continue">Continuă vizionarea</string>
+    <string name="featured_random">Încearcă-ți norocul</string>
+    <string name="featured_for_you">Pentru tine</string>
+    <string name="featured_up_next">Episodul următor</string>
 </resources>

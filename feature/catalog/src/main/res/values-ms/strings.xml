@@ -366,4 +366,15 @@
   <string name="continue_watching_remove_message">Tindakan ini mengalih keluar %1$s daripada Teruskan Menonton dan memadam kemajuan main balik yang disimpan.</string>
   <string name="continue_watching_removed">%1$s dialih keluar daripada Teruskan Menonton.</string>
   <string name="continue_watching_remove_failed">Item ini tidak dapat dialih keluar daripada Teruskan Menonton. Cuba lagi.</string>
+    <string name="featured_movies">Kad filem pilihan</string>
+    <string name="featured_series">Kad siri pilihan</string>
+    <string name="featured_hidden">Tersembunyi</string>
+    <string name="featured_latest">Keluaran terkini</string>
+    <string name="featured_added">Baru ditambah</string>
+    <string name="featured_updated">Baru dikemas kini</string>
+    <string name="featured_continue">Teruskan menonton</string>
+    <string name="featured_random">Cuba nasib</string>
+    <string name="featured_for_you">Untuk anda</string>
+    <string name="featured_up_next">Episod seterusnya</string>
+  <string name="featured_details">Lihat butiran</string>
 </resources>

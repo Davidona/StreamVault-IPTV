@@ -1018,4 +1018,14 @@
     <string name="webhook_skipped">Ereignis wird nicht unterstützt oder erforderliche IDs fehlen</string>
     <string name="webhook_pending">%1$d ausstehend</string>
     <string name="webhook_http">HTTP %1$d</string>
+    <string name="featured_movies">Filmempfehlungskarte</string>
+    <string name="featured_series">Serienempfehlungskarte</string>
+    <string name="featured_hidden">Ausgeblendet</string>
+    <string name="featured_latest">Neueste Veröffentlichungen</string>
+    <string name="featured_added">Kürzlich hinzugefügt</string>
+    <string name="featured_updated">Kürzlich aktualisiert</string>
+    <string name="featured_continue">Weiterschauen</string>
+    <string name="featured_random">Auf gut Glück</string>
+    <string name="featured_for_you">Für dich</string>
+    <string name="featured_up_next">Nächste Folge</string>
 </resources>

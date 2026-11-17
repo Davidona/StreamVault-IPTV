@@ -380,4 +380,15 @@
   <string name="continue_watching_remove_message">Cela retirera %1$s de Continuer à regarder et effacera sa progression de lecture enregistrée.</string>
   <string name="continue_watching_removed">%1$s a été retiré de Continuer à regarder.</string>
   <string name="continue_watching_remove_failed">Impossible de retirer cet élément de Continuer à regarder. Réessayez.</string>
+    <string name="featured_movies">Carte de film à la une</string>
+    <string name="featured_series">Carte de série à la une</string>
+    <string name="featured_hidden">Masquée</string>
+    <string name="featured_latest">Dernières sorties</string>
+    <string name="featured_added">Ajouts récents</string>
+    <string name="featured_updated">Mises à jour récentes</string>
+    <string name="featured_continue">Reprendre la lecture</string>
+    <string name="featured_random">Au hasard</string>
+    <string name="featured_for_you">Pour vous</string>
+    <string name="featured_up_next">Épisode suivant</string>
+  <string name="featured_details">Voir les détails</string>
 </resources>

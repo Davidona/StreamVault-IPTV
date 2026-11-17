@@ -380,4 +380,15 @@
   <string name="continue_watching_remove_message">Dadurch wird %1$s aus „Weiter ansehen“ entfernt und der gespeicherte Wiedergabefortschritt gelöscht.</string>
   <string name="continue_watching_removed">%1$s wurde aus „Weiter ansehen“ entfernt.</string>
   <string name="continue_watching_remove_failed">Der Eintrag konnte nicht aus „Weiter ansehen“ entfernt werden. Bitte erneut versuchen.</string>
+    <string name="featured_movies">Filmempfehlungskarte</string>
+    <string name="featured_series">Serienempfehlungskarte</string>
+    <string name="featured_hidden">Ausgeblendet</string>
+    <string name="featured_latest">Neueste Veröffentlichungen</string>
+    <string name="featured_added">Kürzlich hinzugefügt</string>
+    <string name="featured_updated">Kürzlich aktualisiert</string>
+    <string name="featured_continue">Weiterschauen</string>
+    <string name="featured_random">Auf gut Glück</string>
+    <string name="featured_for_you">Für dich</string>
+    <string name="featured_up_next">Nächste Folge</string>
+  <string name="featured_details">Details ansehen</string>
 </resources>
