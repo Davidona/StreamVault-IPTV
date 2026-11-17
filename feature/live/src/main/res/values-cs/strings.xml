@@ -363,4 +363,5 @@
     <string name="live_order_reset_manual_prompt">Nahradit uložené ruční pořadí pořadím poskytovatele?</string>
     <string name="live_order_jump_to_position">Přejít na tuto pozici</string>
     <string name="home_recent_ordering_hint">Kanály jsou seřazeny podle posledního sledování, nejnovější jsou nahoře. Sledováním kanálu se přesune na začátek.</string>
+    <string name="live_channel_count">Počet kanálů: %1$d</string>
 </resources>

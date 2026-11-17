@@ -91,7 +91,8 @@ fun LiveChannelResultsHeader(
                 text = resultCountLabel,
                 style = MaterialTheme.typography.labelMedium,
                 color = OnSurfaceDim,
-                maxLines = 1
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
             )
         } else {
             ContentMetadataStrip(values = metadataValues)

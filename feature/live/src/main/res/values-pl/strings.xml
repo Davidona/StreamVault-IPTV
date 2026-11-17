@@ -363,4 +363,5 @@
     <string name="live_order_reset_manual_prompt">Zastąpić zapisaną ręczną kolejność kolejnością dostawcy?</string>
     <string name="live_order_jump_to_position">Przejdź do tej pozycji</string>
     <string name="home_recent_ordering_hint">Kanały są uporządkowane według ostatniego oglądania, od najnowszego. Obejrzenie kanału przenosi go na początek listy.</string>
+    <string name="live_channel_count">Liczba kanałów: %1$d</string>
 </resources>

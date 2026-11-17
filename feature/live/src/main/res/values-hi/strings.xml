@@ -363,4 +363,5 @@
     <string name="live_order_reset_manual_prompt">क्या सहेजे गए मैन्युअल क्रम को प्रदाता के क्रम से बदलें?</string>
     <string name="live_order_jump_to_position">इस स्थान पर जाएँ</string>
     <string name="home_recent_ordering_hint">चैनल पिछली बार देखे जाने के समय के अनुसार क्रम में हैं, सबसे नया पहले। किसी चैनल को देखने पर वह सूची में सबसे ऊपर आ जाता है।</string>
+    <string name="live_channel_count">%1$d चैनल</string>
 </resources>

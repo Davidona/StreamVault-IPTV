@@ -363,4 +363,5 @@
     <string name="live_order_reset_manual_prompt">Remplacer la séquence manuelle enregistrée par la séquence du fournisseur ?</string>
     <string name="live_order_jump_to_position">Aller à cette position</string>
     <string name="home_recent_ordering_hint">Les chaînes sont classées selon leur dernière heure de visionnage, la plus récente en premier. Regarder une chaîne la place en haut de la liste.</string>
+    <string name="live_channel_count">%1$d chaînes</string>
 </resources>

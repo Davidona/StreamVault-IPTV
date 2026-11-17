@@ -363,4 +363,5 @@
     <string name="live_order_reset_manual_prompt">Заменити сачувани ручни редослед редоследом добављача?</string>
     <string name="live_order_jump_to_position">Пређи на ову позицију</string>
     <string name="home_recent_ordering_hint">Канали су поређани према последњем гледању, од најскоријег. Када гледате канал, он се премешта на врх листе.</string>
+    <string name="live_channel_count">Број канала: %1$d</string>
 </resources>

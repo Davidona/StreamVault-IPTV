@@ -363,4 +363,5 @@
     <string name="live_order_reset_manual_prompt">Të zëvendësohet renditja manuale e ruajtur me renditjen e ofruesit?</string>
     <string name="live_order_jump_to_position">Shko te ky pozicion</string>
     <string name="home_recent_ordering_hint">Kanalet renditen sipas kohës së shikimit të fundit, me më të fundit në krye. Kur shikoni një kanal, ai kalon në krye të listës.</string>
+    <string name="live_channel_count">%1$d kanale</string>
 </resources>

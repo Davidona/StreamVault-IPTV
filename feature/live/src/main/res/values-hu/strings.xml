@@ -363,4 +363,5 @@
     <string name="live_order_reset_manual_prompt">Lecseréli a mentett kézi sorrendet a szolgáltató sorrendjére?</string>
     <string name="live_order_jump_to_position">Ugrás erre a pozícióra</string>
     <string name="home_recent_ordering_hint">A csatornák az utolsó megtekintés ideje szerint vannak sorba rendezve, a legutóbb nézettel kezdve. Megtekintéskor a csatorna a lista elejére kerül.</string>
+    <string name="live_channel_count">%1$d csatorna</string>
 </resources>

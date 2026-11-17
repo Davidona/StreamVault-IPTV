@@ -363,4 +363,5 @@
     <string name="live_order_reset_manual_prompt">De opgeslagen handmatige volgorde vervangen door de volgorde van de aanbieder?</string>
     <string name="live_order_jump_to_position">Ga naar deze positie</string>
     <string name="home_recent_ordering_hint">Kanalen staan op volgorde van wanneer je ze voor het laatst hebt bekeken, met de nieuwste bovenaan. Als je een kanaal bekijkt, komt het bovenaan te staan.</string>
+    <string name="live_channel_count">%1$d zenders</string>
 </resources>

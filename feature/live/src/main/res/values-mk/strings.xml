@@ -363,4 +363,5 @@
     <string name="live_order_reset_manual_prompt">Да се замени ли зачуваниот рачен редослед со редоследот на провајдерот?</string>
     <string name="live_order_jump_to_position">Оди на оваа позиција</string>
     <string name="home_recent_ordering_hint">Каналите се подредени според последното гледање, со најновиот на врвот. Кога гледате канал, тој се преместува на врвот.</string>
+    <string name="live_channel_count">%1$d канали</string>
 </resources>

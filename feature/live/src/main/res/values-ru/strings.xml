@@ -363,4 +363,5 @@
     <string name="live_order_reset_manual_prompt">Заменить сохранённый ручной порядок порядком провайдера?</string>
     <string name="live_order_jump_to_position">Перейти к этой позиции</string>
     <string name="home_recent_ordering_hint">Каналы расположены по времени последнего просмотра: недавно просмотренные — сверху. При просмотре канал перемещается в начало списка.</string>
+    <string name="live_channel_count">Количество каналов: %1$d</string>
 </resources>

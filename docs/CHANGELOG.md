@@ -30,6 +30,7 @@ All notable product changes are recorded in this document.
 - Improved OpenSubtitles searches for provider titles containing numbering or subtitle tags, with ID-first matching and a cleaned-title fallback.
 - Fixed SMB3 recording storage setup failing with "Session setup failed" in release builds by retaining the AES-CMAC provider required for SMB signing, alongside the existing MD4 authentication support.
 - Fixed hidden movie and series categories appearing in search results and Recently Added sections; fresh previews now exclude hidden categories before applying their result limit.
+- Fixed Live TV categories with more than 200 channels stopping at the first page; counts now show the full category total and scrolling loads the remaining channels.
 
 ## [1.2.5]
 

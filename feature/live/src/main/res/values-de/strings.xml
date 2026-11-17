@@ -363,4 +363,5 @@
     <string name="live_order_reset_manual_prompt">Gespeicherte manuelle Reihenfolge durch die Anbieterreihenfolge ersetzen?</string>
     <string name="live_order_jump_to_position">Zu dieser Position springen</string>
     <string name="home_recent_ordering_hint">Die Sender werden nach dem letzten Ansehen sortiert, der zuletzt gesehene steht zuerst. Wenn du einen Sender ansiehst, rückt er nach oben.</string>
+    <string name="live_channel_count">%1$d Kanäle</string>
 </resources>

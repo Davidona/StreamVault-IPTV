@@ -509,17 +509,63 @@ class HomeViewModelTest {
 
     private suspend fun prepareProviderReorder(count: Int = 500): Pair<Category, List<Channel>> {
         val provider = Provider(id = 71L, name = "Provider", type = ProviderType.M3U, serverUrl = "https://test", createdAt = 123)
-        val category = Category(id = 12L, name = "Sports")
+        val category = Category(id = 12L, name = "Sports", count = count)
         val channels = (1..count).map { Channel(id = it.toLong(), providerId = provider.id, streamId = it.toLong(), name = "Channel $it") }
         whenever(providerRepository.getActiveProvider()).thenReturn(flowOf(provider))
         whenever(providerRepository.getProvider(provider.id)).thenReturn(provider)
         whenever(channelRepository.getCategories(provider.id)).thenReturn(flowOf(listOf(category)))
         whenever(preferencesRepository.defaultCategoryId).thenReturn(flowOf(category.id))
-        whenever(channelRepository.getChannelsByCategoryPage(eq(provider.id), eq(category.id), any())).thenReturn(flowOf(channels.take(200)))
+        whenever(channelRepository.getChannelsByCategoryPage(eq(provider.id), eq(category.id), any())).thenAnswer { call ->
+            flowOf(channels.take(call.getArgument<Int>(2)))
+        }
         whenever(channelRepository.getChannelsByCategory(provider.id, category.id)).thenReturn(flowOf(channels))
         viewModel = createViewModel()
         testDispatcher.scheduler.advanceUntilIdle()
         return category to channels
+    }
+
+    @Test fun `browse advances past 200 and 400 to the last channel and resets on category change`() = runTest {
+        val (category, channels) = prepareProviderReorder(525)
+        assertThat(viewModel.uiState.value.filteredChannels).hasSize(200)
+        assertThat(viewModel.uiState.value.channelResultCount).isEqualTo(525)
+        assertThat(viewModel.uiState.value.hasMoreChannels).isTrue()
+        viewModel.loadMoreChannels()
+        advanceUntilIdle()
+        assertThat(viewModel.uiState.value.filteredChannels).hasSize(400)
+        viewModel.loadMoreChannels()
+        advanceUntilIdle()
+        assertThat(viewModel.uiState.value.filteredChannels).isEqualTo(channels)
+        assertThat(viewModel.uiState.value.hasMoreChannels).isFalse()
+        val small = category.copy(id = 13, name = "News", count = 8)
+        whenever(channelRepository.getChannelsByCategoryPage(eq(71L), eq(small.id), any()))
+            .thenReturn(flowOf(channels.take(8)))
+        viewModel.selectCategory(small)
+        advanceUntilIdle()
+        assertThat(viewModel.uiState.value.channelResultCount).isEqualTo(8)
+        viewModel.selectCategory(category)
+        advanceUntilIdle()
+        assertThat(viewModel.uiState.value.filteredChannels).hasSize(200)
+        assertThat(viewModel.uiState.value.channelResultCount).isEqualTo(525)
+    }
+
+    @Test fun `search advances beyond first search page and clearing search restores browse total`() = runTest {
+        val (_, channels) = prepareProviderReorder(725)
+        whenever(channelRepository.searchChannelsByCategoryPaged(eq(71L), eq(12L), eq("Channel"), any()))
+            .thenAnswer { call -> flowOf(channels.take(call.getArgument<Int>(3))) }
+        viewModel.updateChannelSearchQuery("Channel")
+        advanceUntilIdle()
+        assertThat(viewModel.uiState.value.filteredChannels).hasSize(300)
+        viewModel.loadMoreChannels()
+        advanceUntilIdle()
+        assertThat(viewModel.uiState.value.filteredChannels).hasSize(600)
+        viewModel.loadMoreChannels()
+        advanceUntilIdle()
+        assertThat(viewModel.uiState.value.filteredChannels.last().id).isEqualTo(725)
+        assertThat(viewModel.uiState.value.hasMoreChannels).isFalse()
+        viewModel.updateChannelSearchQuery("")
+        advanceUntilIdle()
+        assertThat(viewModel.uiState.value.filteredChannels).hasSize(200)
+        assertThat(viewModel.uiState.value.channelResultCount).isEqualTo(725)
     }
 
     @Test fun `combined live categories apply profile ordering and pinned sections`() = runTest {

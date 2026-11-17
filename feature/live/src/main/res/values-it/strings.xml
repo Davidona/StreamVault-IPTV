@@ -363,4 +363,5 @@
     <string name="live_order_reset_manual_prompt">Sostituire la sequenza manuale salvata con la sequenza del provider?</string>
     <string name="live_order_jump_to_position">Vai a questa posizione</string>
     <string name="home_recent_ordering_hint">I canali sono ordinati in base a quanto recentemente sono stati visti; il più recente è in cima. Guardare un canale lo sposta al primo posto.</string>
+    <string name="live_channel_count">%1$d canali</string>
 </resources>

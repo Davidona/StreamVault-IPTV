@@ -363,4 +363,5 @@
     <string name="live_order_reset_manual_prompt">Ganti urutan manual tersimpan dengan urutan penyedia?</string>
     <string name="live_order_jump_to_position">Lompat ke posisi ini</string>
     <string name="home_recent_ordering_hint">Saluran diurutkan berdasarkan waktu terakhir ditonton, dengan yang terbaru di atas. Saat Anda menonton saluran, saluran itu pindah ke urutan teratas.</string>
+    <string name="live_channel_count">%1$d saluran</string>
 </resources>

@@ -363,4 +363,5 @@
     <string name="live_order_reset_manual_prompt">Înlocuiești ordinea manuală salvată cu ordinea furnizorului?</string>
     <string name="live_order_jump_to_position">Mergi la această poziție</string>
     <string name="home_recent_ordering_hint">Canalele sunt ordonate după ultima vizionare, cu cea mai recentă prima. Când urmărești un canal, acesta ajunge în partea de sus.</string>
+    <string name="live_channel_count">%1$d canale</string>
 </resources>

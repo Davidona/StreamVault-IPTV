@@ -363,4 +363,5 @@
     <string name="live_order_reset_manual_prompt">Nahradiť uložené ručné poradie poradím poskytovateľa?</string>
     <string name="live_order_jump_to_position">Prejsť na túto pozíciu</string>
     <string name="home_recent_ordering_hint">Kanály sú zoradené podľa posledného sledovania, najnovší je navrchu. Počas sledovania sa kanál presunie na začiatok zoznamu.</string>
+    <string name="live_channel_count">Počet kanálov: %1$d</string>
 </resources>

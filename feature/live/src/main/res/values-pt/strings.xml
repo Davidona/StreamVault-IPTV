@@ -363,4 +363,5 @@
     <string name="live_order_reset_manual_prompt">Substituir a ordem manual guardada pela ordem do fornecedor?</string>
     <string name="live_order_jump_to_position">Ir para esta posição</string>
     <string name="home_recent_ordering_hint">Os canais são ordenados pela última vez em que foram vistos, com o mais recente primeiro. Ao ver um canal, ele passa para o topo.</string>
+    <string name="live_channel_count">%1$d canais</string>
 </resources>
