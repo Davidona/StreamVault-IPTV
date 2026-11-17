@@ -155,7 +155,8 @@ internal fun InlinePreviewVideoLayer(
     var controlIndex by remember { mutableIntStateOf(CONTROL_PLAY_PAUSE) }
     var subtitleIndex by remember { mutableIntStateOf(0) }
     var pausedByUser by remember { mutableStateOf(false) }
-    var seekFeedback by remember { mutableStateOf<String?>(null) }
+    // Direction of the last ⏪/⏩ jump while its badge is showing (true = backward).
+    var seekFeedbackBackward by remember { mutableStateOf<Boolean?>(null) }
     var seekFeedbackNonce by remember { mutableIntStateOf(0) }
 
     fun showChrome() {
@@ -171,7 +172,7 @@ internal fun InlinePreviewVideoLayer(
 
     fun seek(backward: Boolean) {
         if (backward) playerEngine.seekBackward() else playerEngine.seekForward()
-        seekFeedback = if (backward) "−10 s" else "+10 s"
+        seekFeedbackBackward = backward
         seekFeedbackNonce++
         showChrome()
     }
@@ -214,9 +215,9 @@ internal fun InlinePreviewVideoLayer(
     }
 
     LaunchedEffect(seekFeedbackNonce) {
-        if (seekFeedback == null) return@LaunchedEffect
+        if (seekFeedbackBackward == null) return@LaunchedEffect
         delay(SEEK_FEEDBACK_MS)
-        seekFeedback = null
+        seekFeedbackBackward = null
     }
 
     fun handleFullscreenKey(event: KeyEvent): Boolean {
@@ -342,10 +343,13 @@ internal fun InlinePreviewVideoLayer(
                     modifier = Modifier.align(Alignment.TopStart).padding(32.dp)
                 )
             }
-            seekFeedback?.let { feedback ->
+            seekFeedbackBackward?.let { backward ->
                 OverlayBadge(
-                    text = feedback,
-                    icon = if (feedback.startsWith("−")) Icons.Filled.FastRewind else Icons.Filled.FastForward,
+                    text = stringResource(
+                        if (backward) R.string.live_inline_seek_back_feedback
+                        else R.string.live_inline_seek_forward_feedback
+                    ),
+                    icon = if (backward) Icons.Filled.FastRewind else Icons.Filled.FastForward,
                     modifier = Modifier.align(Alignment.Center)
                 )
             }
@@ -451,7 +455,12 @@ private fun ControlButton(
         modifier = Modifier.focusRequester(focusRequester)
     ) {
         Icon(imageVector = icon, contentDescription = null, modifier = Modifier.size(20.dp))
-        Text(text = label, modifier = Modifier.padding(start = 8.dp), maxLines = 1)
+        Text(
+            text = label,
+            modifier = Modifier.padding(start = 8.dp),
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
     }
 }
 
