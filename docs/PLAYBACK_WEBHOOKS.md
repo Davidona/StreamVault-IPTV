@@ -98,4 +98,4 @@ Adjust the destination, light entity, and brightness for your installation. The 
 
 ## Validation
 
-Run `python tools/verify_webhook_locales.py` to check resource keys and formatting contracts in all advertised locales. `PlaybackWebhookContrastTest` verifies the new text and focus pairs for every theme. Unit and opt-in emulator journeys cover lifecycle events, delivery isolation, encryption, preview/error layouts, and playback progression. Acceptance results and device limitations belong in `PLAYBACK_WEBHOOK_VALIDATION.md`; build/install success alone is not playback validation.
+Run `python tools/verify_webhook_locales.py` to check resource keys and formatting contracts in all advertised locales. `PlaybackWebhookContrastTest` verifies the new text and focus pairs for every theme. Unit and opt-in emulator journeys cover lifecycle events, delivery isolation, encryption, preview/error layouts, and playback progression. Record acceptance results and device limitations with each release's test evidence; build/install success alone is not playback validation.
