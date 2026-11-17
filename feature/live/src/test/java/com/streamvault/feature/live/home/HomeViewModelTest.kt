@@ -68,6 +68,7 @@ class HomeViewModelTest {
     private val pluginManager: LivePreviewStreamPreparer = mock()
     private val playerEngine: PlayerEngine = mock()
     private val playerEngineProvider: InjectProvider<PlayerEngine> = mock()
+    private val livePreviewTranslationPort: com.streamvault.feature.live.api.LivePreviewTranslationPort = mock()
     private val application: Application = mock()
     private lateinit var reverseHandoffOrigin: MutableStateFlow<LivePreviewOrigin?>
     private val createdViewModels = mutableListOf<HomeViewModel>()
@@ -166,6 +167,7 @@ class HomeViewModelTest {
             multiViewStatusPort = multiViewStatusPort,
             livePreviewHandoffManager = livePreviewHandoffManager,
             pluginManager = pluginManager,
+            livePreviewTranslationPort = livePreviewTranslationPort,
             playerEngineProvider = playerEngineProvider,
             liveWatchUsageRepository = usage
         ).also(createdViewModels::add)
@@ -238,6 +240,7 @@ class HomeViewModelTest {
             flowOf(com.streamvault.domain.model.PlaybackBufferMode.AUTO)
         )
         whenever(preferencesRepository.playerFastRetryOnTransientFailures).thenReturn(flowOf(false))
+        stubPreviewSubtitlePreferences()
         whenever(playerEngine.playbackState).thenReturn(
             MutableStateFlow(com.streamvault.player.PlaybackState.IDLE)
         )
@@ -279,6 +282,7 @@ class HomeViewModelTest {
             flowOf(com.streamvault.domain.model.PlaybackBufferMode.AUTO)
         )
         whenever(preferencesRepository.playerFastRetryOnTransientFailures).thenReturn(flowOf(false))
+        stubPreviewSubtitlePreferences()
         whenever(playerEngine.playbackState).thenReturn(
             MutableStateFlow(com.streamvault.player.PlaybackState.IDLE)
         )
@@ -320,6 +324,183 @@ class HomeViewModelTest {
             eq(LivePreviewOrigin.HOME)
         )
         assertThat(viewModel.previewUiState.value.previewChannelId).isEqualTo(channel.id)
+    }
+
+    @Test
+    fun `preview applies the subtitle setup before preparing the stream`() = runTest {
+        configurePreviewDependencies()
+        whenever(preferencesRepository.pinnedSubtitleLanguages).thenReturn(flowOf(listOf("en")))
+        val streamInfo = StreamInfo(url = "https://example.com/live.m3u8")
+        whenever(channelRepository.getStreamInfo(any(), any())).thenReturn(Result.Success(streamInfo))
+        whenever(pluginManager.prepare(any())).thenReturn(Result.Success(streamInfo))
+        viewModel = createViewModel()
+        advanceUntilIdle()
+
+        viewModel.previewChannel(Channel(id = 105L, name = "Subtitled", providerId = 7L))
+        advanceUntilIdle()
+
+        // Order matters: the engine only honours track preferences configured before prepare().
+        val inOrder = org.mockito.kotlin.inOrder(playerEngine)
+        inOrder.verify(playerEngine).setPinnedSubtitleLanguages(listOf("en"))
+        inOrder.verify(playerEngine).setVodTrackPreferences(null)
+        inOrder.verify(playerEngine).prepare(streamInfo)
+    }
+
+    @Test
+    fun `choosing a subtitle in inline fullscreen applies it to the preview`() = runTest {
+        configurePreviewDependencies()
+        val streamInfo = StreamInfo(url = "https://example.com/live.m3u8")
+        whenever(channelRepository.getStreamInfo(any(), any())).thenReturn(Result.Success(streamInfo))
+        whenever(pluginManager.prepare(any())).thenReturn(Result.Success(streamInfo))
+        whenever(playerEngine.availableSubtitleTracks).thenReturn(
+            MutableStateFlow(
+                listOf(
+                    com.streamvault.player.PlayerTrack(
+                        id = "text:0:1",
+                        name = "English",
+                        language = "en",
+                        type = com.streamvault.player.TrackType.TEXT,
+                        isSelected = false
+                    )
+                )
+            )
+        )
+        viewModel = createViewModel()
+        advanceUntilIdle()
+        viewModel.previewChannel(Channel(id = 106L, name = "Inline", providerId = 7L))
+        advanceUntilIdle()
+
+        viewModel.selectPreviewSubtitle("text:0:1")
+        advanceUntilIdle()
+
+        verify(playerEngine).selectSubtitleTrack("text:0:1")
+
+        viewModel.selectPreviewSubtitle(null)
+        advanceUntilIdle()
+
+        verify(playerEngine).selectSubtitleTrack(null)
+    }
+
+    private suspend fun stubPreviewStream() {
+        val streamInfo = StreamInfo(url = "https://example.com/live.m3u8")
+        whenever(channelRepository.getStreamInfo(any(), any())).thenReturn(Result.Success(streamInfo))
+        whenever(pluginManager.prepare(any())).thenReturn(Result.Success(streamInfo))
+    }
+
+    private val translationChannelA = Channel(id = 120L, name = "News FR", providerId = 7L, streamUrl = "http://x/live/120.ts")
+    private val translationChannelB = Channel(id = 121L, name = "Sport DE", providerId = 7L, streamUrl = "http://x/live/121.ts")
+
+    @Test
+    fun `real-time translation is offered only when enabled for a supported provider`() = runTest {
+        configurePreviewDependencies()
+        stubPreviewStream()
+        viewModel = createViewModel()
+        advanceUntilIdle()
+
+        viewModel.previewChannel(translationChannelA)
+        advanceUntilIdle()
+        assertThat(viewModel.previewUiState.value.liveTranslationAvailable).isFalse()
+
+        enablePreviewTranslation()
+        viewModel.previewChannel(translationChannelB)
+        advanceUntilIdle()
+        assertThat(viewModel.previewUiState.value.liveTranslationAvailable).isTrue()
+    }
+
+    @Test
+    fun `choosing real-time translation turns subtitles off and starts the session on the preview engine`() = runTest {
+        configurePreviewDependencies()
+        stubPreviewStream()
+        enablePreviewTranslation()
+        viewModel = createViewModel()
+        advanceUntilIdle()
+        viewModel.previewChannel(translationChannelA)
+        advanceUntilIdle()
+
+        viewModel.selectPreviewTranslation()
+        advanceUntilIdle()
+
+        verify(playerEngine).selectSubtitleTrack(null)
+        verify(livePreviewTranslationPort).start(
+            any(),
+            same(playerEngine),
+            eq("https://translate.example"),
+            eq(translationChannelA.streamUrl),
+            eq(7L),
+            eq(translationChannelA.id),
+            any()
+        )
+        assertThat(viewModel.previewUiState.value.liveTranslationActive).isTrue()
+    }
+
+    @Test
+    fun `choosing a subtitle track stops real-time translation`() = runTest {
+        configurePreviewDependencies()
+        stubPreviewStream()
+        enablePreviewTranslation()
+        whenever(playerEngine.availableSubtitleTracks).thenReturn(MutableStateFlow(emptyList()))
+        viewModel = createViewModel()
+        advanceUntilIdle()
+        viewModel.previewChannel(translationChannelA)
+        advanceUntilIdle()
+        viewModel.selectPreviewTranslation()
+        advanceUntilIdle()
+        clearInvocations(livePreviewTranslationPort)
+
+        viewModel.selectPreviewSubtitle(null)
+        advanceUntilIdle()
+
+        verify(livePreviewTranslationPort).stop(playerEngine)
+        assertThat(viewModel.previewUiState.value.liveTranslationActive).isFalse()
+    }
+
+    @Test
+    fun `real-time translation follows the user to the next channel`() = runTest {
+        configurePreviewDependencies()
+        stubPreviewStream()
+        enablePreviewTranslation()
+        viewModel = createViewModel()
+        advanceUntilIdle()
+        viewModel.previewChannel(translationChannelA)
+        advanceUntilIdle()
+        viewModel.selectPreviewTranslation()
+        advanceUntilIdle()
+        clearInvocations(livePreviewTranslationPort)
+
+        viewModel.previewChannel(translationChannelB)
+        advanceUntilIdle()
+
+        verify(livePreviewTranslationPort).stop(playerEngine)
+        verify(livePreviewTranslationPort).start(
+            any(),
+            same(playerEngine),
+            any(),
+            eq(translationChannelB.streamUrl),
+            eq(7L),
+            eq(translationChannelB.id),
+            any()
+        )
+        assertThat(viewModel.previewUiState.value.liveTranslationActive).isTrue()
+    }
+
+    @Test
+    fun `handing the preview to the full player stops real-time translation`() = runTest {
+        configurePreviewDependencies()
+        stubPreviewStream()
+        enablePreviewTranslation()
+        whenever(livePreviewHandoffManager.beginFullscreenHandoff(any(), any())).thenReturn(true)
+        viewModel = createViewModel()
+        advanceUntilIdle()
+        viewModel.previewChannel(translationChannelA)
+        advanceUntilIdle()
+        viewModel.selectPreviewTranslation()
+        advanceUntilIdle()
+        clearInvocations(livePreviewTranslationPort)
+
+        assertThat(viewModel.beginPreviewHandoff(translationChannelA)).isTrue()
+
+        verify(livePreviewTranslationPort).stop(playerEngine)
+        assertThat(viewModel.previewUiState.value.liveTranslationActive).isFalse()
     }
 
     @Test
@@ -470,10 +651,30 @@ class HomeViewModelTest {
             flowOf(com.streamvault.domain.model.PlaybackBufferMode.AUTO)
         )
         whenever(preferencesRepository.playerFastRetryOnTransientFailures).thenReturn(flowOf(false))
+        stubPreviewSubtitlePreferences()
         whenever(playerEngine.playbackState).thenReturn(MutableStateFlow(PlaybackState.IDLE))
         whenever(playerEngine.isPlaying).thenReturn(MutableStateFlow(false))
         whenever(playerEngine.playerStats).thenReturn(MutableStateFlow(com.streamvault.player.PlayerStats()))
         whenever(playerEngine.error).thenReturn(flowOf(null))
+    }
+
+    /** Subtitle settings the preview engine reads before prepare(). */
+    private fun stubPreviewSubtitlePreferences() {
+        whenever(preferencesRepository.pinnedSubtitleLanguages).thenReturn(flowOf(emptyList()))
+        whenever(preferencesRepository.playerSubtitleTextScale).thenReturn(flowOf(1f))
+        whenever(preferencesRepository.playerSubtitleTextColor).thenReturn(flowOf(0xFFFFFFFF.toInt()))
+        whenever(preferencesRepository.playerSubtitleBackgroundColor).thenReturn(flowOf(0x80000000.toInt()))
+        // Real-time translation is off unless a test turns it on.
+        whenever(preferencesRepository.playerLiveTranslationEnabled).thenReturn(flowOf(false))
+        whenever(preferencesRepository.playerLiveTranslationEndpoint).thenReturn(flowOf("https://translate.example"))
+    }
+
+    /** Turns real-time translation on for an Xtream provider with id 7 (the preview channels' provider). */
+    private suspend fun enablePreviewTranslation() {
+        whenever(preferencesRepository.playerLiveTranslationEnabled).thenReturn(flowOf(true))
+        whenever(providerRepository.getProvider(7L)).thenReturn(
+            Provider(id = 7L, name = "Xtream", type = com.streamvault.domain.model.ProviderType.XTREAM_CODES, serverUrl = "http://x")
+        )
     }
 
     @Test

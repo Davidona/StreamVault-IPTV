@@ -3,6 +3,7 @@ package com.streamvault.app.live
 import com.streamvault.feature.live.api.LiveMultiViewStatusPort
 import com.streamvault.feature.live.api.LivePreviewHandoffPort
 import com.streamvault.feature.live.api.LivePreviewStreamPreparer
+import com.streamvault.feature.live.api.LivePreviewTranslationPort
 import com.streamvault.feature.live.api.LiveSurfaceRefreshPort
 import dagger.Binds
 import dagger.Module
@@ -36,4 +37,10 @@ abstract class AppLiveBindings {
     abstract fun bindLivePreviewHandoffPort(
         adapter: AppLivePreviewHandoffAdapter,
     ): LivePreviewHandoffPort
+
+    @Binds
+    @Singleton
+    abstract fun bindLivePreviewTranslationPort(
+        adapter: AppLivePreviewTranslationAdapter,
+    ): LivePreviewTranslationPort
 }

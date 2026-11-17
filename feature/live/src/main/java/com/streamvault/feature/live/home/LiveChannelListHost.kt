@@ -39,9 +39,26 @@ fun LiveChannelListHost(
     itemContent: @Composable (channel: Channel, focusRequester: FocusRequester, isDragging: Boolean) -> Unit,
     onCancelMove: () -> Unit = {},
     jumpRequest: Pair<Int, Long>? = null,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    revealChannelId: Long? = null,
+    revealNonce: Int = 0
 ) {
     val channelListState = rememberLazyListState()
+
+    // Scrolls a channel into view on request (e.g. after zapping in inline fullscreen) so its
+    // FocusRequester is attached by the time the screen restores focus to it.
+    LaunchedEffect(revealNonce) {
+        if (revealNonce == 0) return@LaunchedEffect
+        val targetId = revealChannelId ?: return@LaunchedEffect
+        val index = channels.indexOfFirst { it.id == targetId }
+        if (index < 0) return@LaunchedEffect
+        val visible = channelListState.layoutInfo.visibleItemsInfo
+        val comfortablyVisible = visible.size > 2 &&
+            index > visible.first().index && index < visible.last().index
+        if (!comfortablyVisible) {
+            channelListState.scrollToItem((index - 2).coerceAtLeast(0))
+        }
+    }
 
     LaunchedEffect(isReorderMode, draggingChannel?.id, channels) {
         if (!isReorderMode) return@LaunchedEffect

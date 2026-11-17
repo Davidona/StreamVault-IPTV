@@ -25,6 +25,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -38,6 +39,8 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -127,11 +130,21 @@ fun LivePreviewPane(
     playerEngine: PlayerEngine?,
     isLoading: Boolean,
     errorMessage: String?,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    // When true the video itself is drawn by a screen-level layer (see InlinePreviewVideoLayer)
+    // positioned over this pane's video slot, so it can grow to fullscreen without being recreated.
+    hostsVideoExternally: Boolean = false,
+    onVideoSlotPositioned: ((LayoutCoordinates?) -> Unit)? = null
 ) {
     val renderSurfaceType by (playerEngine?.renderSurfaceType)?.collectAsStateWithLifecycle(
         initialValue = PlayerRenderSurfaceType.SURFACE_VIEW
     ) ?: remember { mutableStateOf(PlayerRenderSurfaceType.SURFACE_VIEW) }
+
+    if (onVideoSlotPositioned != null) {
+        DisposableEffect(onVideoSlotPositioned) {
+            onDispose { onVideoSlotPositioned(null) }
+        }
+    }
 
     Surface(
         modifier = modifier,
@@ -155,16 +168,25 @@ fun LivePreviewPane(
                 modifier = Modifier
                     .fillMaxWidth()
                     .aspectRatio(16f / 9f)
-                    .background(Color.Black, BrowseShapes.Control),
+                    .background(Color.Black, BrowseShapes.Control)
+                    .then(
+                        if (onVideoSlotPositioned != null) {
+                            Modifier.onGloballyPositioned { onVideoSlotPositioned(it) }
+                        } else {
+                            Modifier
+                        }
+                    ),
                 contentAlignment = Alignment.Center
             ) {
                 if (playerEngine != null && errorMessage == null) {
-                    PlayerRenderView(
-                        playerEngine = playerEngine,
-                        resizeMode = PlayerSurfaceResizeMode.FIT,
-                        surfaceType = renderSurfaceType,
-                        modifier = Modifier.fillMaxSize()
-                    )
+                    if (!hostsVideoExternally) {
+                        PlayerRenderView(
+                            playerEngine = playerEngine,
+                            resizeMode = PlayerSurfaceResizeMode.FIT,
+                            surfaceType = renderSurfaceType,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
                 } else {
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
@@ -186,7 +208,7 @@ fun LivePreviewPane(
                     }
                 }
 
-                if (isLoading && channel != null) {
+                if (isLoading && channel != null && !hostsVideoExternally) {
                     Row(
                         modifier = Modifier
                             .background(Color.Black.copy(alpha = 0.62f), BrowseShapes.Artwork)
