@@ -102,10 +102,10 @@
                 <data android:mimeType="application/x-mpegurl" />
                 <data android:mimeType="application/vnd.apple.mpegurl" />
                 <data android:mimeType="application/mpegurl" />
-                <data android:scheme="content" android:pathPattern=".*\\.m3u" />
-                <data android:scheme="content" android:pathPattern=".*\\.m3u8" />
-                <data android:scheme="file" android:pathPattern=".*\\.m3u" />
-                <data android:scheme="file" android:pathPattern=".*\\.m3u8" />
+                <data android:scheme="content" />
+                <data android:scheme="file" />
+                <data android:pathPattern=".*\\.m3u" />
+                <data android:pathPattern=".*\\.m3u8" />
             </intent-filter>
 
             <intent-filter>
@@ -118,8 +118,9 @@
                 <!-- TV file managers often label a JSON file generically. -->
                 <data android:mimeType="application/octet-stream" />
                 <data android:mimeType="text/plain" />
-                <data android:scheme="content" android:pathPattern=".*\\.json" />
-                <data android:scheme="file" android:pathPattern=".*\\.json" />
+                <data android:scheme="content" />
+                <data android:scheme="file" />
+                <data android:pathPattern=".*\\.json" />
             </intent-filter>
 
             <intent-filter>

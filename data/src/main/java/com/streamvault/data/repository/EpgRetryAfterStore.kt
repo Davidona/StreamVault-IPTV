@@ -2,6 +2,7 @@ package com.streamvault.data.repository
 
 import android.content.Context
 import android.content.SharedPreferences
+import androidx.core.content.edit
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.security.MessageDigest
 import javax.inject.Inject
@@ -26,17 +27,17 @@ class EpgRetryAfterStore internal constructor(private val preferences: SharedPre
         val deadline = now + delayMillis.coerceIn(0L, Long.MAX_VALUE - now)
         val key = key(providerId, url)
         val existing = preferences.getLong(key, 0L)
-        if (deadline > existing) preferences.edit().putLong(key, deadline).commit()
+        if (deadline > existing) preferences.edit(commit = true) { putLong(key, deadline) }
     }
 
     fun clear(providerId: Long, url: String) {
-        preferences.edit().remove(key(providerId, url)).apply()
+        preferences.edit { remove(key(providerId, url)) }
     }
 
     fun clearProvider(providerId: Long) {
         val prefix = "$providerId:"
-        val editor = preferences.edit()
-        preferences.all.keys.filter { it.startsWith(prefix) }.forEach(editor::remove)
-        editor.apply()
+        preferences.edit {
+            preferences.all.keys.filter { it.startsWith(prefix) }.forEach { remove(it) }
+        }
     }
 }

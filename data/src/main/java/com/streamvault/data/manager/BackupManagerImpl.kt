@@ -302,6 +302,8 @@ class BackupManagerImpl @Inject constructor(
             put("groupedChannelLabelMode", preferencesRepository.groupedChannelLabelMode.first().name)
             put("liveVariantPreferenceMode", preferencesRepository.liveVariantPreferenceMode.first().name)
             put("vodViewMode", preferencesRepository.vodViewMode.first().orEmpty())
+            put("movieFeaturedMode", preferencesRepository.movieFeaturedMode.first().orEmpty())
+            put("seriesFeaturedMode", preferencesRepository.seriesFeaturedMode.first().orEmpty())
             put("vodTypeBadgeAsIcon", preferencesRepository.vodTypeBadgeAsIcon.first().toString())
             put("vodInfiniteScroll", preferencesRepository.vodInfiniteScroll.first().toString())
             put("vodPortalSearch", preferencesRepository.vodPortalSearch.first().toString())
@@ -4165,6 +4167,8 @@ class BackupManagerImpl @Inject constructor(
             put("groupedChannelLabelMode", preferencesRepository.groupedChannelLabelMode.first().name)
             put("liveVariantPreferenceMode", preferencesRepository.liveVariantPreferenceMode.first().name)
             put("vodViewMode", preferencesRepository.vodViewMode.first().orEmpty())
+            put("movieFeaturedMode", preferencesRepository.movieFeaturedMode.first().orEmpty())
+            put("seriesFeaturedMode", preferencesRepository.seriesFeaturedMode.first().orEmpty())
             put("vodTypeBadgeAsIcon", preferencesRepository.vodTypeBadgeAsIcon.first().toString())
             put("vodInfiniteScroll", preferencesRepository.vodInfiniteScroll.first().toString())
             put("vodPortalSearch", preferencesRepository.vodPortalSearch.first().toString())
@@ -5302,6 +5306,10 @@ class BackupManagerImpl @Inject constructor(
         }
         prefs["vodViewMode"]?.takeIf { it.isNotBlank() }
             ?.let { preferencesRepository.setVodViewMode(it) }
+        prefs["movieFeaturedMode"]?.takeIf { it.isNotBlank() }
+            ?.let { preferencesRepository.setVodFeaturedMode(series = false, mode = it) }
+        prefs["seriesFeaturedMode"]?.takeIf { it.isNotBlank() }
+            ?.let { preferencesRepository.setVodFeaturedMode(series = true, mode = it) }
         prefs["vodTypeBadgeAsIcon"]?.toBooleanStrictOrNull()
             ?.let { preferencesRepository.setVodTypeBadgeAsIcon(it) }
         prefs["vodInfiniteScroll"]?.toBooleanStrictOrNull()

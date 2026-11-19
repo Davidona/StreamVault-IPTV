@@ -1,6 +1,7 @@
 package com.streamvault.data.sync
 
 import android.content.Context
+import androidx.core.content.edit
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -21,12 +22,12 @@ class XtreamRetryDeadlineStore @Inject constructor(@ApplicationContext context: 
     @Synchronized
     override fun extend(providerId: Long, deadline: Long) {
         if (providerId > 0L && deadline > this.deadline(providerId)) {
-            preferences.edit().putLong(providerId.toString(), deadline).commit()
+            preferences.edit(commit = true) { putLong(providerId.toString(), deadline) }
         }
     }
 
     @Synchronized
     override fun clear(providerId: Long) {
-        preferences.edit().remove(providerId.toString()).apply()
+        preferences.edit { remove(providerId.toString()) }
     }
 }

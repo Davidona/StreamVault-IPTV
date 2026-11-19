@@ -101,6 +101,7 @@ class LauncherRecommendationsManager @Inject constructor(
     }
 
     private suspend fun syncFavorites(snapshot: LauncherFavoritesSnapshot) = refreshMutex.withLock {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return@withLock
         // Source snapshots can be queued while a provider switch is being processed.
         val activeId = providerRepository.getActiveProvider().first()?.id
         if (snapshot.providerId != null && snapshot.providerId != activeId) return@withLock

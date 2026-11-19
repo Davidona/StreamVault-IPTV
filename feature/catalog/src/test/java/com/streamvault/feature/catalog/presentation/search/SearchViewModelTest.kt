@@ -60,6 +60,7 @@ class SearchViewModelTest {
         Dispatchers.setMain(StandardTestDispatcher())
         whenever(providerRepository.getActiveProvider()).thenReturn(flowOf(null))
         whenever(preferencesRepository.parentalControlLevel).thenReturn(flowOf(0))
+        whenever(preferencesRepository.getHiddenCategoryIds(any(), any())).thenReturn(flowOf(emptySet()))
         whenever(preferencesRepository.getRecentSearchQueries(any(), anyOrNull(), any())).thenReturn(flowOf(emptyList()))
         whenever(parentalControlManager.unlockedCategoriesForProvider(any())).thenReturn(flowOf(emptySet()))
         whenever(searchContent.invoke(any(), any(), any(), any())).thenReturn(flowOf(SearchContentResult()))
