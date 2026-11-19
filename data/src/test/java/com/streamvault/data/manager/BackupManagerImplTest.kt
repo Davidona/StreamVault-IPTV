@@ -125,6 +125,33 @@ import org.mockito.kotlin.whenever
 class BackupManagerImplTest {
 
     @Test
+    fun `importConfig restores movie and series featured modes independently`() = runBlocking {
+        val context: Context = mock()
+        val resolver: ContentResolver = mock()
+        val preferences: PreferencesRepository = mock()
+        val providerDao: ProviderDao = mock()
+        whenever(context.contentResolver).thenReturn(resolver)
+        whenever(providerDao.getAllSync()).thenReturn(emptyList())
+        val backup = BackupData(preferences = mapOf(
+            "movieFeaturedMode" to "RANDOM",
+            "seriesFeaturedMode" to "UP_NEXT"
+        ))
+        whenever(resolver.openInputStream(Uri.parse("content://featured-modes"))).thenReturn(
+            ByteArrayInputStream(Gson().toJson(backup).toByteArray())
+        )
+
+        val result = backupManagerForValidation(
+            context = context,
+            preferencesRepository = preferences,
+            providerDao = providerDao
+        ).importConfig("content://featured-modes", preferencesOnlyPlan())
+
+        assertThat(result).isInstanceOf(Result.Success::class.java)
+        verify(preferences).setVodFeaturedMode(series = false, mode = "RANDOM")
+        verify(preferences).setVodFeaturedMode(series = true, mode = "UP_NEXT")
+    }
+
+    @Test
     fun `v14 import durably queues catalog state that is unavailable before sync`() = runBlocking {
         val context: Context = mock()
         val resolver: ContentResolver = mock()
