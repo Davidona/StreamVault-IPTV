@@ -353,4 +353,28 @@
   <string name="vod_sync_needed_title">Нужна е синхронизация</string>
   <string name="vod_unavailable_subtitle">Този доставчик предоставя отделни каталози с филми и сериали.</string>
   <string name="vod_unavailable_title">VOD не е достъпно</string>
+
+  <string name="movies_group_created">Създадена е група %1$s</string>
+  <string name="series_group_created">Създадена е група %1$s</string>
+  <string name="movies_group_name_invalid">Въведете име на група</string>
+  <string name="series_group_name_invalid">Въведете име на група</string>
+  <string name="movies_group_name_reserved">„Любими“ е запазено име</string>
+  <string name="series_group_name_reserved">„Любими“ е запазено име</string>
+  <string name="movies_group_name_duplicate">Вече съществува филмова група с това име</string>
+  <string name="series_group_name_duplicate">Вече съществува група със сериали с това име</string>
+  <string name="continue_watching_remove_title">Да се премахне ли от „Продължете да гледате“?</string>
+  <string name="continue_watching_remove_message">Това ще премахне %1$s от „Продължете да гледате“ и ще изтрие запазения напредък при гледане.</string>
+  <string name="continue_watching_removed">%1$s беше премахнато от „Продължете да гледате“.</string>
+  <string name="continue_watching_remove_failed">Елементът не можа да бъде премахнат от „Продължете да гледате“. Опитайте отново.</string>
+    <string name="featured_movies">Карта за избран филм</string>
+    <string name="featured_series">Карта за избран сериал</string>
+    <string name="featured_hidden">Скрита</string>
+    <string name="featured_latest">Най-нови заглавия</string>
+    <string name="featured_added">Наскоро добавени</string>
+    <string name="featured_updated">Наскоро обновени</string>
+    <string name="featured_continue">Продължи гледането</string>
+    <string name="featured_random">Пробвай късмета си</string>
+    <string name="featured_for_you">За теб</string>
+    <string name="featured_up_next">Следващ епизод</string>
+  <string name="featured_details">Виж подробности</string>
 </resources>

@@ -363,4 +363,5 @@
     <string name="live_order_reset_manual_prompt">Да се замени ли запазената ръчна подредба с реда на доставчика?</string>
     <string name="live_order_jump_to_position">Премини към тази позиция</string>
     <string name="home_recent_ordering_hint">Каналите са подредени според последното гледане, като най-скоро гледаните са най-отгоре. При гледане каналът се премества най-отгоре.</string>
+    <string name="live_channel_count">%1$d канала</string>
 </resources>

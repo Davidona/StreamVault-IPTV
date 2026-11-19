@@ -1,5 +1,7 @@
 package com.streamvault.feature.playback.player
 
+import com.streamvault.core.navigation.PlaybackStartMode
+
 import android.view.KeyEvent
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -73,6 +75,7 @@ import com.streamvault.feature.playback.R
 import com.streamvault.feature.playback.cast.CastConnectionState
 import com.streamvault.feature.playback.api.PlaybackPictureInPictureState
 import com.streamvault.feature.playback.api.PlaybackPlatformHost
+import com.streamvault.core.ui.design.LocalAppSpacing
 import com.streamvault.core.ui.design.requestFocusSafely
 import com.streamvault.core.ui.platform.rememberNotificationPermissionGate
 import com.streamvault.feature.playback.player.overlay.ChannelInfoOverlay
@@ -128,24 +131,33 @@ fun PlayerScreen(
     episodeId: Long? = null,
     remoteContentId: String? = null,
     remoteSeriesId: String? = null,
+    startMode: PlaybackStartMode = PlaybackStartMode.PROMPT,
+    externalLaunchId: Long? = null,
     stremioPlaybackReference: StremioPlaybackReference? = null,
     stremioMediaRequestHeaders: Map<String, String> = emptyMap(),
     stremioInlineSubtitles: List<StremioSubtitlePlaybackSource> = emptyList(),
     returnDestination: AppDestination? = null,
     onBack: () -> Unit,
     onNavigate: ((AppDestination) -> Unit)? = null,
+    onPlaybackCompleted: () -> Unit = onBack,
     playbackPlatformHost: PlaybackPlatformHost? = null,
     splitScreenPlanner: @Composable (Channel, () -> Unit, () -> Unit) -> Unit = { _, _, _ -> },
     viewModel: PlayerViewModel = hiltViewModel()
 ) {
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
     val isTelevisionDevice = rememberIsTelevisionDevice()
+    val appSpacing = LocalAppSpacing.current
     val sideOverlayWidth = if (screenWidth < 700.dp) {
         (screenWidth * 0.62f).coerceIn(220.dp, 300.dp)
     } else if (!isTelevisionDevice && screenWidth < 1280.dp) {
         (screenWidth * 0.4f).coerceIn(320.dp, 420.dp)
     } else {
         350.dp
+    }
+    val channelListOverlayWidth = if (isTelevisionDevice) {
+        appSpacing.channelListOverlayWidth
+    } else {
+        sideOverlayWidth
     }
     val epgOverlayWidth = if (screenWidth < 700.dp) {
         (screenWidth * 0.68f).coerceIn(240.dp, 320.dp)
@@ -192,6 +204,7 @@ fun PlayerScreen(
     val playerNotice by viewModel.playerNotice.collectAsStateWithLifecycle()
     val preventStandbyDuringPlayback by viewModel.preventStandbyDuringPlayback.collectAsStateWithLifecycle()
     val sleepTimerExitEvent by viewModel.sleepTimerExitEvent.collectAsStateWithLifecycle()
+    val playbackCompleted by viewModel.playbackCompleted.collectAsStateWithLifecycle()
     val playerPreferences by viewModel.playerPreferencesUiState.collectAsStateWithLifecycle()
     val localSubtitlePicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocument()
@@ -264,6 +277,13 @@ fun PlayerScreen(
                 pixelWidthHeightRatio = videoFormat.pixelWidthHeightRatio
             )
         )
+    }
+
+    LaunchedEffect(playbackCompleted) {
+        if (playbackCompleted) {
+            viewModel.consumePlaybackCompleted()
+            onPlaybackCompleted()
+        }
     }
 
     LaunchedEffect(sleepTimerExitEvent) {
@@ -384,7 +404,7 @@ fun PlayerScreen(
         stremioInlineSubtitles = stremioInlineSubtitles
     )
 
-    LaunchedEffect(prepareIdentity) {
+    LaunchedEffect(prepareIdentity, startMode, externalLaunchId) {
         viewModel.prepare(
             streamUrl = streamUrl,
             epgChannelId = epgChannelId,
@@ -406,6 +426,7 @@ fun PlayerScreen(
             episodeId = episodeId,
             remoteContentId = remoteContentId,
             remoteSeriesId = remoteSeriesId,
+            startMode = startMode,
             stremioPlaybackReference = stremioPlaybackReference,
             stremioMediaRequestHeaders = stremioMediaRequestHeaders,
             stremioInlineSubtitles = stremioInlineSubtitles
@@ -1104,6 +1125,7 @@ fun PlayerScreen(
                 viewModel = viewModel,
                 isRtl = isRtl,
                 sideOverlayWidth = sideOverlayWidth,
+                channelListOverlayWidth = channelListOverlayWidth,
                 epgOverlayWidth = epgOverlayWidth,
                 showChannelListOverlay = showChannelListOverlay,
                 showCategoryListOverlay = showCategoryListOverlay,

@@ -293,4 +293,6 @@
     <string name="nav_sports">Sport</string>
     <string name="stremio_new_episode_channel">Oznámení o nových dílech</string>
     <string name="stremio_new_episode_count">Nové díly: %1$d</string>
+    <string name="tv_channel_favorites_title">Oblíbené</string>
+    <string name="tv_channel_favorites_description">Vaše oblíbené kanály, filmy a seriály</string>
 </resources>

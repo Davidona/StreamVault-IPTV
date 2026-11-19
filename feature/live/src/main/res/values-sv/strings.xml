@@ -363,4 +363,5 @@
     <string name="live_order_reset_manual_prompt">Ersätta den sparade manuella ordningen med leverantörens ordning?</string>
     <string name="live_order_jump_to_position">Gå till den här positionen</string>
     <string name="home_recent_ordering_hint">Kanalerna sorteras efter när de senast visades, med den senaste först. När du tittar på en kanal flyttas den högst upp.</string>
+    <string name="live_channel_count">%1$d kanaler</string>
 </resources>

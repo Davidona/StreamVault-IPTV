@@ -363,4 +363,5 @@
     <string name="live_order_reset_manual_prompt">将已保存的手动顺序替换为提供方顺序？</string>
     <string name="live_order_jump_to_position">跳转到此位置</string>
     <string name="home_recent_ordering_hint">频道按最近观看时间排序，最近观看的排在最前面。观看某个频道后，它会移到列表顶部。</string>
+    <string name="live_channel_count">%1$d 个频道</string>
 </resources>

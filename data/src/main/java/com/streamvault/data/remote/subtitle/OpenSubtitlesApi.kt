@@ -49,6 +49,8 @@ class OpenSubtitlesApi @Inject constructor(
         val parentImdbId: Long? = null,
         val seasonNumber: Int? = null,
         val episodeNumber: Int? = null,
+        val year: Int? = null,
+        val type: String? = null,
         val languages: String? = null,
         val orderBy: String? = null,
     ) {
@@ -60,6 +62,8 @@ class OpenSubtitlesApi @Inject constructor(
             parentImdbId?.takeIf { it > 0 }?.let { put("parent_imdb_id", it.toString()) }
             seasonNumber?.takeIf { it > 0 }?.let { put("season_number", it.toString()) }
             episodeNumber?.takeIf { it > 0 }?.let { put("episode_number", it.toString()) }
+            year?.takeIf { it > 0 }?.let { put("year", it.toString()) }
+            type?.takeIf { it.isNotBlank() }?.let { put("type", it) }
             languages?.takeIf { it.isNotBlank() }?.let { put("languages", it) }
             orderBy?.takeIf { it.isNotBlank() }?.let { put("order_by", it) }
         }

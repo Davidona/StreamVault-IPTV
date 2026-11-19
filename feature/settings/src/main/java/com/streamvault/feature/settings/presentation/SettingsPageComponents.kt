@@ -21,6 +21,10 @@ import com.streamvault.core.ui.design.AppColors
 
 @Composable
 internal fun SettingsPageCard(page: SettingsPage, modifier: Modifier = Modifier, onClick: () -> Unit) {
+    if (page == SettingsPage.PLAYBACK_WEBHOOKS) {
+        WebhookAction(stringResource(page.title), stringResource(page.description), modifier = modifier, onClick = onClick)
+        return
+    }
     val colors = SettingsDesignTokens.colors(AppColors.current)
     SettingsActionSurface(onClick, modifier, overview = true) {
         Row(Modifier.fillMaxWidth().heightIn(min = SettingsDesignTokens.explanatoryRowMinHeight)

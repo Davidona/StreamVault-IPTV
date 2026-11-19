@@ -363,4 +363,5 @@
     <string name="live_order_reset_manual_prompt">استبدال الترتيب اليدوي المحفوظ بترتيب المزوّد؟</string>
     <string name="live_order_jump_to_position">الانتقال إلى هذا الموضع</string>
     <string name="home_recent_ordering_hint">تُرتَّب القنوات حسب وقت آخر مشاهدة، من الأحدث إلى الأقدم. تؤدي مشاهدة قناة إلى نقلها إلى الأعلى.</string>
+    <string name="live_channel_count">%1$d قناة</string>
 </resources>

@@ -367,4 +367,28 @@
 <string name="trakt_rating_saved">Nilai Anda tersimpan di Trakt.</string>
 <string name="trakt_rating_failed">Nilai Anda tidak dapat disimpan di Trakt.</string>
 <string name="trakt_favorite_sync_failed">StreamVault menyimpan perubahan, tetapi tidak dapat memperbarui Favorit Trakt. Coba lagi.</string>
+
+  <string name="movies_group_created">Grup yang dibuat %1$s</string>
+  <string name="series_group_created">Grup yang dibuat %1$s</string>
+  <string name="movies_group_name_invalid">Masukkan nama grup</string>
+  <string name="series_group_name_invalid">Masukkan nama grup</string>
+  <string name="movies_group_name_reserved">Favorit sudah dipesan</string>
+  <string name="series_group_name_reserved">Favorit sudah dipesan</string>
+  <string name="movies_group_name_duplicate">Grup film dengan nama tersebut sudah ada</string>
+  <string name="series_group_name_duplicate">Grup seri dengan nama tersebut sudah ada</string>
+  <string name="continue_watching_remove_title">Hapus dari Lanjutkan Menonton?</string>
+  <string name="continue_watching_remove_message">Tindakan ini menghapus %1$s dari Lanjutkan Menonton dan menghapus progres pemutaran yang tersimpan.</string>
+  <string name="continue_watching_removed">%1$s dihapus dari Lanjutkan Menonton.</string>
+  <string name="continue_watching_remove_failed">Item ini tidak dapat dihapus dari Lanjutkan Menonton. Coba lagi.</string>
+    <string name="featured_movies">Kartu film unggulan</string>
+    <string name="featured_series">Kartu serial unggulan</string>
+    <string name="featured_hidden">Tersembunyi</string>
+    <string name="featured_latest">Rilis terbaru</string>
+    <string name="featured_added">Baru ditambahkan</string>
+    <string name="featured_updated">Baru diperbarui</string>
+    <string name="featured_continue">Lanjutkan menonton</string>
+    <string name="featured_random">Coba keberuntungan</string>
+    <string name="featured_for_you">Untuk Anda</string>
+    <string name="featured_up_next">Episode berikutnya</string>
+  <string name="featured_details">Lihat detail</string>
 </resources>

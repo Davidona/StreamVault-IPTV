@@ -367,4 +367,28 @@
 <string name="trakt_rating_saved">Trakt에 평점을 저장했습니다.</string>
 <string name="trakt_rating_failed">Trakt에 평점을 저장하지 못했습니다.</string>
 <string name="trakt_favorite_sync_failed">StreamVault에서 변경 사항을 저장했지만 Trakt 즐겨찾기를 업데이트하지 못했습니다. 다시 시도하세요.</string>
+
+  <string name="movies_group_created">%1$s 그룹이 생성되었습니다</string>
+  <string name="series_group_created">그룹 %1$s 생성됨</string>
+  <string name="movies_group_name_invalid">그룹 이름을 입력하세요</string>
+  <string name="series_group_name_invalid">그룹 이름을 입력하세요</string>
+  <string name="movies_group_name_reserved">Favorites는 예약되어 있습니다</string>
+  <string name="series_group_name_reserved">Favorites는 예약되어 있습니다</string>
+  <string name="movies_group_name_duplicate">같은 이름의 영화 그룹이 이미 있습니다</string>
+  <string name="series_group_name_duplicate">같은 이름의 시리즈 그룹이 이미 있습니다</string>
+  <string name="continue_watching_remove_title">이어보기에서 삭제할까요?</string>
+  <string name="continue_watching_remove_message">%1$s 항목을 이어보기에서 삭제하고 저장된 재생 진행 상황을 지웁니다.</string>
+  <string name="continue_watching_removed">%1$s 항목을 이어보기에서 삭제했습니다.</string>
+  <string name="continue_watching_remove_failed">이 항목을 이어보기에서 삭제하지 못했습니다. 다시 시도해 주세요.</string>
+    <string name="featured_movies">영화 추천 카드</string>
+    <string name="featured_series">시리즈 추천 카드</string>
+    <string name="featured_hidden">숨김</string>
+    <string name="featured_latest">최신 개봉작</string>
+    <string name="featured_added">최근 추가된 작품</string>
+    <string name="featured_updated">최근 업데이트된 작품</string>
+    <string name="featured_continue">계속 시청</string>
+    <string name="featured_random">무작위 추천</string>
+    <string name="featured_for_you">맞춤 추천</string>
+    <string name="featured_up_next">다음 에피소드</string>
+  <string name="featured_details">상세 정보 보기</string>
 </resources>

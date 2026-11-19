@@ -353,4 +353,28 @@
   <string name="vod_sync_needed_title">Потребна е синхронизација</string>
   <string name="vod_unavailable_subtitle">Овој провајдер нуди одделни каталози за филмови и серии.</string>
   <string name="vod_unavailable_title">VOD е недостапен</string>
+
+  <string name="movies_group_created">Создадена група %1$s</string>
+  <string name="series_group_created">Создадена група %1$s</string>
+  <string name="movies_group_name_invalid">Внеси име на групата</string>
+  <string name="series_group_name_invalid">Внеси име на групата</string>
+  <string name="movies_group_name_reserved">Омилени е резервирано</string>
+  <string name="series_group_name_reserved">Омилени е резервирано</string>
+  <string name="movies_group_name_duplicate">Веќе постои група со филмови со тоа име</string>
+  <string name="series_group_name_duplicate">Веќе постои група со серии со тоа име</string>
+  <string name="continue_watching_remove_title">Да се отстрани од Продолжи со гледање?</string>
+  <string name="continue_watching_remove_message">Ова ќе ја отстрани содржината %1$s од Продолжи со гледање и ќе го избрише зачуваниот напредок на репродукцијата.</string>
+  <string name="continue_watching_removed">%1$s е отстрането од Продолжи со гледање.</string>
+  <string name="continue_watching_remove_failed">Содржината не можеше да се отстрани од Продолжи со гледање. Обидете се повторно.</string>
+    <string name="featured_movies">Картичка за избран филм</string>
+    <string name="featured_series">Картичка за избрана серија</string>
+    <string name="featured_hidden">Скриена</string>
+    <string name="featured_latest">Најнови изданија</string>
+    <string name="featured_added">Неодамна додадени</string>
+    <string name="featured_updated">Неодамна ажурирани</string>
+    <string name="featured_continue">Продолжи со гледање</string>
+    <string name="featured_random">Пробај среќа</string>
+    <string name="featured_for_you">За вас</string>
+    <string name="featured_up_next">Следна епизода</string>
+  <string name="featured_details">Прикажи детали</string>
 </resources>

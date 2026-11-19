@@ -363,4 +363,5 @@
     <string name="live_order_reset_manual_prompt">ترتیب دستی ذخیره‌شده با ترتیب ارائه‌دهنده جایگزین شود؟</string>
     <string name="live_order_jump_to_position">رفتن به این موقعیت</string>
     <string name="home_recent_ordering_hint">کانال‌ها بر اساس آخرین زمان تماشا مرتب می‌شوند و تازه‌ترین مورد اول است. با تماشای یک کانال، به بالای فهرست می‌آید.</string>
+    <string name="live_channel_count">%1$d کانال</string>
 </resources>

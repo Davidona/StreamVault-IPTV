@@ -367,4 +367,28 @@
 <string name="trakt_rating_saved">Đã lưu điểm của bạn vào Trakt.</string>
 <string name="trakt_rating_failed">Không thể lưu điểm của bạn vào Trakt.</string>
 <string name="trakt_favorite_sync_failed">StreamVault đã lưu thay đổi nhưng không thể cập nhật Mục yêu thích Trakt. Hãy thử lại.</string>
+
+  <string name="movies_group_created">Đã tạo nhóm %1$s</string>
+  <string name="series_group_created">Đã tạo nhóm %1$s</string>
+  <string name="movies_group_name_invalid">Nhập tên nhóm</string>
+  <string name="series_group_name_invalid">Nhập tên nhóm</string>
+  <string name="movies_group_name_reserved">Favorites là tên dành riêng</string>
+  <string name="series_group_name_reserved">Favorites là tên dành riêng</string>
+  <string name="movies_group_name_duplicate">Đã tồn tại nhóm phim với tên đó</string>
+  <string name="series_group_name_duplicate">Đã tồn tại nhóm series với tên đó</string>
+  <string name="continue_watching_remove_title">Xóa khỏi mục Tiếp tục xem?</string>
+  <string name="continue_watching_remove_message">Thao tác này sẽ xóa %1$s khỏi mục Tiếp tục xem và xóa tiến độ phát đã lưu.</string>
+  <string name="continue_watching_removed">Đã xóa %1$s khỏi mục Tiếp tục xem.</string>
+  <string name="continue_watching_remove_failed">Không thể xóa mục này khỏi Tiếp tục xem. Hãy thử lại.</string>
+    <string name="featured_movies">Thẻ phim nổi bật</string>
+    <string name="featured_series">Thẻ phim bộ nổi bật</string>
+    <string name="featured_hidden">Ẩn</string>
+    <string name="featured_latest">Phát hành mới nhất</string>
+    <string name="featured_added">Mới thêm gần đây</string>
+    <string name="featured_updated">Mới cập nhật gần đây</string>
+    <string name="featured_continue">Tiếp tục xem</string>
+    <string name="featured_random">Thử vận may</string>
+    <string name="featured_for_you">Dành cho bạn</string>
+    <string name="featured_up_next">Tập tiếp theo</string>
+  <string name="featured_details">Xem chi tiết</string>
 </resources>

@@ -64,10 +64,13 @@ fun NavGraphBuilder.registerPlaybackGraph(
                 episodeId = safePlayerRequest.episodeId,
                 remoteContentId = safePlayerRequest.remoteContentId,
                 remoteSeriesId = safePlayerRequest.remoteSeriesId,
+                startMode = safePlayerRequest.startMode,
+                externalLaunchId = safePlayerRequest.externalLaunchId,
                 stremioPlaybackReference = safePlayerRequest.stremioPlaybackReference,
                 stremioMediaRequestHeaders = safePlayerRequest.stremioMediaRequestHeaders,
                 stremioInlineSubtitles = safePlayerRequest.stremioInlineSubtitles,
                 onBack = { actions.returnTo(safePlayerRequest.returnDestination) },
+                onPlaybackCompleted = { actions.returnTo(playbackCompletionDestination(safePlayerRequest)) },
                 playbackPlatformHost = platformHost,
                 splitScreenPlanner = { pendingChannel, onDismiss, onLaunch ->
                     MultiViewPlannerDialog(

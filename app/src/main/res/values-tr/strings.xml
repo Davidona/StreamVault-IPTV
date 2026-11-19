@@ -346,4 +346,6 @@
     <string name="nav_sports">Spor</string>
     <string name="stremio_new_episode_channel">Yeni bölüm bildirimleri</string>
     <string name="stremio_new_episode_count">Yeni bölümler: %1$d</string>
+    <string name="tv_channel_favorites_title">Favoriler</string>
+    <string name="tv_channel_favorites_description">Favori kanallarınız, filmleriniz ve dizileriniz</string>
 </resources>

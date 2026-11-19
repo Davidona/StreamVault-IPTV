@@ -83,6 +83,8 @@ fun SettingsUiState.applyPreferenceSnapshot(
         liveChannelGroupingMode = snapshot.liveChannelGroupingMode,
         groupedChannelLabelMode = snapshot.groupedChannelLabelMode,
         liveVariantPreferenceMode = snapshot.liveVariantPreferenceMode,
+        movieFeaturedMode = snapshot.movieFeaturedMode,
+        seriesFeaturedMode = snapshot.seriesFeaturedMode,
         vodViewMode = snapshot.vodViewMode,
         showTraktTrendingMovies = snapshot.showTraktTrendingMovies,
         showTraktPopularMovies = snapshot.showTraktPopularMovies,

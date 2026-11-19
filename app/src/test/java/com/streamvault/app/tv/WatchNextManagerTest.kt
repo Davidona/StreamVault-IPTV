@@ -1,6 +1,8 @@
 package com.streamvault.app.tv
 
 import android.content.ContentResolver
+import android.content.ContentValues
+import android.content.Intent
 import android.content.Context
 import android.content.pm.PackageManager
 import android.database.Cursor
@@ -9,6 +11,9 @@ import android.os.Build
 import android.provider.BaseColumns
 import com.google.common.truth.Truth.assertThat
 import com.streamvault.app.R
+import com.streamvault.app.navigation.ExternalItemLinkCodec
+import com.streamvault.core.navigation.ExternalItemAction
+import com.streamvault.core.navigation.ExternalItemType
 import com.streamvault.domain.model.ContentType
 import com.streamvault.domain.model.PlaybackHistory
 import com.streamvault.domain.repository.PlaybackHistoryRepository
@@ -90,13 +95,22 @@ class WatchNextManagerTest {
         manager.updateWatchNextProgress(history)
 
         val uriCaptor = argumentCaptor<Uri>()
+        val valuesCaptor = argumentCaptor<ContentValues>()
         verify(resolver).update(
             uriCaptor.capture(),
-            any(),
+            valuesCaptor.capture(),
             anyOrNull(),
             anyOrNull()
         )
         assertThat(uriCaptor.firstValue.lastPathSegment).isEqualTo("101")
+        val publishedUri = valuesCaptor.firstValue.getAsString("intent_uri")
+        val restoredIntent = Intent.parseUri(publishedUri, Intent.URI_INTENT_SCHEME)
+        val link = ExternalItemLinkCodec.decode(requireNotNull(restoredIntent.data))
+        assertThat(link?.type).isEqualTo(ExternalItemType.EPISODE)
+        assertThat(link?.id).isEqualTo(10L)
+        assertThat(link?.providerId).isEqualTo(5L)
+        assertThat(link?.action).isEqualTo(ExternalItemAction.RESUME)
+        assertThat(publishedUri).doesNotContain(history.streamUrl)
     }
 
     @Test

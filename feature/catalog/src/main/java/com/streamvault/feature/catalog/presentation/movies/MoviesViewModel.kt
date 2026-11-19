@@ -142,7 +142,21 @@ class MoviesViewModel @Inject constructor(
         val hasMorePreviewRows: Boolean
     )
 
+    private var featuredObserver: kotlinx.coroutines.Job? = null
+
+    private fun observeFeaturedCard() {
+        featuredObserver?.cancel()
+        featuredObserver = viewModelScope.launch {
+            com.streamvault.feature.catalog.presentation.vod.observeVodFeatured(
+                series = false, preferences = preferencesRepository, providers = providerRepository,
+                movies = movieRepository, shows = null, playback = playbackHistoryRepository, watchlist = traktWatchlist, account = traktAccount,
+            ).collectLatest { featured -> _uiState.update { it.copy(featured = featured) } }
+        }
+    }
+
     init {
+        observeFeaturedCard()
+
         viewModelScope.launch {
             providerRepository.getProviders().collectLatest { providers ->
                 _uiState.update {
@@ -585,20 +599,27 @@ class MoviesViewModel @Inject constructor(
             providerRepository.getActiveProvider()
                 .filterNotNull()
                 .flatMapLatest { provider ->
-                    combine(
-                        favoriteRepository.getAllFavorites(provider.id, ContentType.MOVIE),
-                        playbackHistoryRepository.getRecentlyWatchedByProvider(provider.id, limit = 24),
-                        movieRepository.getTopRatedPreview(provider.id, VodBrowseDefaults.PREVIEW_ROW_LIMIT),
-                        movieRepository.getFreshPreview(provider.id, VodBrowseDefaults.PREVIEW_ROW_LIMIT)
-                    ) { allFavorites, history, topRated, fresh ->
-                        MovieLibraryLensDependencies(
-                            providerId = provider.id,
-                            allFavorites = allFavorites,
-                            history = history,
-                            topRated = topRated,
-                            fresh = fresh
-                        )
-                    }
+                    preferencesRepository.getHiddenCategoryIds(provider.id, ContentType.MOVIE)
+                        .flatMapLatest { hiddenCategoryIds ->
+                            combine(
+                                favoriteRepository.getAllFavorites(provider.id, ContentType.MOVIE),
+                                playbackHistoryRepository.getRecentlyWatchedByProvider(provider.id, limit = 24),
+                                movieRepository.getTopRatedPreview(provider.id, VodBrowseDefaults.PREVIEW_ROW_LIMIT),
+                                movieRepository.getFreshPreviewExcludingHiddenCategories(
+                                    provider.id,
+                                    hiddenCategoryIds,
+                                    VodBrowseDefaults.PREVIEW_ROW_LIMIT
+                                )
+                            ) { allFavorites, history, topRated, fresh ->
+                                MovieLibraryLensDependencies(
+                                    providerId = provider.id,
+                                    allFavorites = allFavorites,
+                                    history = history,
+                                    topRated = topRated,
+                                    fresh = fresh
+                                )
+                            }
+                        }
                 }
                 .collectLatest { dependencies ->
                     val globalFavoriteIds = dependencies.allFavorites
@@ -824,6 +845,7 @@ class MoviesViewModel @Inject constructor(
     }
 
     fun resetPreviewRowsForScreenEntry() {
+        if (_uiState.value.featured?.mode == com.streamvault.domain.model.VodFeaturedMode.RANDOM) observeFeaturedCard()
         _previewBatchSize.value = INITIAL_PREVIEW_BATCH_SIZE
         _uiState.update { state ->
             if (state.selectedCategory != null || state.searchQuery.isNotBlank()) {
@@ -913,6 +935,22 @@ class MoviesViewModel @Inject constructor(
                     dialogGroupMemberships = memberships
                 )
             }
+        }
+    }
+
+    fun removeFromContinueWatching(history: PlaybackHistory) {
+        viewModelScope.launch {
+            val result = playbackHistoryRepository.removeFromHistory(
+                contentId = history.contentId,
+                contentType = history.contentType,
+                providerId = history.providerId
+            )
+            val message = if (result.isSuccess) {
+                appContext.getString(R.string.continue_watching_removed, history.title)
+            } else {
+                appContext.getString(R.string.continue_watching_remove_failed)
+            }
+            _uiState.update { it.copy(userMessage = message) }
         }
     }
 
@@ -1707,6 +1745,7 @@ data class MoviesUiState(
     val searchQuery: String = "",
     val selectedLibraryFilterType: LibraryFilterType = LibraryFilterType.ALL,
     val selectedLibrarySortBy: LibrarySortBy = LibrarySortBy.LIBRARY,
+    val featured: com.streamvault.feature.catalog.presentation.vod.VodFeaturedSelection? = null,
     val vodViewMode: VodViewMode = VodViewMode.MODERN,
     val vodInfiniteScroll: Boolean = true,
     val continueWatching: List<PlaybackHistory> = emptyList(),

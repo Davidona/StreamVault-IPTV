@@ -353,4 +353,28 @@
   <string name="vod_sync_needed_title">Penyegerakan diperlukan</string>
   <string name="vod_unavailable_subtitle">Penyedia ini menyediakan katalog Filem dan Siri yang berasingan.</string>
   <string name="vod_unavailable_title">VOD tidak tersedia</string>
+
+  <string name="movies_group_created">Kumpulan %1$s dicipta</string>
+  <string name="series_group_created">Kumpulan %1$s dicipta</string>
+  <string name="movies_group_name_invalid">Masukkan nama kumpulan</string>
+  <string name="series_group_name_invalid">Masukkan nama kumpulan</string>
+  <string name="movies_group_name_reserved">Nama Kegemaran telah dikhaskan</string>
+  <string name="series_group_name_reserved">Nama Kegemaran telah dikhaskan</string>
+  <string name="movies_group_name_duplicate">Kumpulan filem dengan nama itu sudah wujud</string>
+  <string name="series_group_name_duplicate">Kumpulan siri dengan nama itu sudah wujud</string>
+  <string name="continue_watching_remove_title">Alih keluar daripada Teruskan Menonton?</string>
+  <string name="continue_watching_remove_message">Tindakan ini mengalih keluar %1$s daripada Teruskan Menonton dan memadam kemajuan main balik yang disimpan.</string>
+  <string name="continue_watching_removed">%1$s dialih keluar daripada Teruskan Menonton.</string>
+  <string name="continue_watching_remove_failed">Item ini tidak dapat dialih keluar daripada Teruskan Menonton. Cuba lagi.</string>
+    <string name="featured_movies">Kad filem pilihan</string>
+    <string name="featured_series">Kad siri pilihan</string>
+    <string name="featured_hidden">Tersembunyi</string>
+    <string name="featured_latest">Keluaran terkini</string>
+    <string name="featured_added">Baru ditambah</string>
+    <string name="featured_updated">Baru dikemas kini</string>
+    <string name="featured_continue">Teruskan menonton</string>
+    <string name="featured_random">Cuba nasib</string>
+    <string name="featured_for_you">Untuk anda</string>
+    <string name="featured_up_next">Episod seterusnya</string>
+  <string name="featured_details">Lihat butiran</string>
 </resources>

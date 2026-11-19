@@ -21,6 +21,8 @@ interface PlaybackHistoryRepository {
     fun getRecentlyWatchedByProvider(providerId: Long, limit: Int = 100): Flow<List<PlaybackHistory>>
     fun getRecentlyWatchedByProviders(providerIds: Set<Long>, limit: Int = 100): Flow<List<PlaybackHistory>>
     fun getUnwatchedCount(providerId: Long, seriesId: Long): Flow<Int>
+    /** Exact provider/series match, including progress waiting to be flushed. */
+    suspend fun getLatestEpisodeHistoryForSeries(providerId: Long, seriesId: Long): PlaybackHistory? = null
     suspend fun getPlaybackHistory(
         contentId: Long,
         contentType: ContentType,

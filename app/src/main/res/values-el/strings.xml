@@ -293,4 +293,6 @@
     <string name="nav_sports">Αθλητικά</string>
     <string name="stremio_new_episode_channel">Ειδοποιήσεις νέων επεισοδίων</string>
     <string name="stremio_new_episode_count">Νέα επεισόδια: %1$d</string>
+    <string name="tv_channel_favorites_title">Αγαπημένα</string>
+    <string name="tv_channel_favorites_description">Τα αγαπημένα σας κανάλια, ταινίες και σειρές</string>
 </resources>

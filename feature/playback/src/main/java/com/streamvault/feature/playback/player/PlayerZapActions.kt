@@ -258,6 +258,7 @@ internal fun PlayerViewModel.changeChannel(index: Int, isAutoFallback: Boolean =
     if (currentChannelIndex != -1 && currentChannelIndex != index) {
         previousChannelIndex = currentChannelIndex
     }
+    finishWebhookPlayback()
     val requestVersion = beginPlaybackSession()
     releaseOutgoingLiveZapPlayback(
         stopPlayback = playerEngine::stop,

@@ -196,7 +196,8 @@ internal fun buildPlayerPrepareIdentity(
     streamUrl = streamUrl,
     epgChannelId = epgChannelId,
     internalChannelId = internalChannelId,
-    categoryId = categoryId?.takeIf { it > 0L } ?: -1L,
+    // Virtual groups, Favorites, Recent and All Channels all use negative IDs.
+    categoryId = categoryId ?: -1L,
     providerId = providerId?.takeIf { it > 0L } ?: -1L,
     isVirtual = isVirtual,
     combinedProfileId = combinedProfileId?.takeIf { it > 0L },

@@ -346,4 +346,6 @@
     <string name="nav_sports">Palakasan</string>
     <string name="stremio_new_episode_channel">Mga abiso para sa bagong episode</string>
     <string name="stremio_new_episode_count">Mga bagong episode: %1$d</string>
+    <string name="tv_channel_favorites_title">Mga Paborito</string>
+    <string name="tv_channel_favorites_description">Mga paborito mong channel, pelikula, at serye</string>
 </resources>

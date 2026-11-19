@@ -1,23 +1,34 @@
 ﻿package com.streamvault.feature.catalog.presentation.vod
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.streamvault.domain.model.VodViewMode
 import com.streamvault.data.preferences.PreferencesRepository
 import com.streamvault.domain.model.CatalogLayout
 import com.streamvault.domain.model.Category
+import com.streamvault.domain.model.ContentType
 import com.streamvault.domain.model.LibraryFilterType
 import com.streamvault.domain.model.LibrarySortBy
+import com.streamvault.domain.model.Movie
 import com.streamvault.domain.model.PlaybackHistory
 import com.streamvault.domain.model.LegacyProvider as Provider
+import com.streamvault.domain.model.Result
+import com.streamvault.domain.model.Series
 import com.streamvault.domain.model.VodCatalogItem
 import com.streamvault.domain.model.VodCategoryKind
 import com.streamvault.domain.model.VodCategoryHydration
 import com.streamvault.domain.model.VodCategoryHydrationRequest
 import com.streamvault.domain.util.SearchTextNormalizer
+import com.streamvault.domain.repository.FavoriteRepository
 import com.streamvault.domain.repository.ProviderRepository
 import com.streamvault.domain.repository.PlaybackHistoryRepository
 import com.streamvault.domain.repository.VodRepository
+import com.streamvault.domain.usecase.ContinueWatchingResult
+import com.streamvault.domain.usecase.ContinueWatchingScope
+import com.streamvault.domain.usecase.GetContinueWatching
+import com.streamvault.feature.catalog.R
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -25,11 +36,13 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
@@ -42,6 +55,18 @@ data class VodCategoryRow(
     val category: Category,
     val items: List<VodCatalogItem>,
     val kind: VodCategoryKind = VodCategoryKind.from(items)
+)
+
+data class VodActionDialogState(
+    val item: VodCatalogItem,
+    val groups: List<Category>,
+    val isFavorite: Boolean,
+    val memberOfGroups: List<Long>
+)
+
+private data class VodFavoriteIds(
+    val movies: Set<Long> = emptySet(),
+    val series: Set<Long> = emptySet()
 )
 
 data class VodUiState(
@@ -104,9 +129,12 @@ private data class PortalVodSearchSnapshot(
 @HiltViewModel
 @OptIn(ExperimentalCoroutinesApi::class)
 class VodViewModel @Inject constructor(
+    @param:ApplicationContext private val appContext: Context,
     providerRepository: ProviderRepository,
     private val vodRepository: VodRepository,
+    private val favoriteRepository: FavoriteRepository,
     private val playbackHistoryRepository: PlaybackHistoryRepository,
+    private val getContinueWatching: GetContinueWatching,
     preferencesRepository: PreferencesRepository
 ) : ViewModel() {
     private companion object {
@@ -138,12 +166,59 @@ class VodViewModel @Inject constructor(
     private val activeProvider = providerRepository.getActiveProvider()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
 
+    val continueWatching: StateFlow<List<PlaybackHistory>> = activeProvider
+        .flatMapLatest { provider ->
+            if (provider?.catalogLayout != CatalogLayout.UNIFIED_VOD) {
+                flowOf(emptyList())
+            } else {
+                getContinueWatching(
+                    providerId = provider.id,
+                    limit = 20,
+                    scope = ContinueWatchingScope.ALL_VOD
+                ).map { result ->
+                    when (result) {
+                        is ContinueWatchingResult.Items -> result.items
+                        ContinueWatchingResult.Degraded -> emptyList()
+                    }
+                }
+            }
+        }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
+
+    private val favoriteIds = activeProvider
+        .flatMapLatest { provider ->
+            if (provider == null) {
+                flowOf(VodFavoriteIds())
+            } else {
+                combine(
+                    favoriteRepository.getFavorites(provider.id, ContentType.MOVIE),
+                    favoriteRepository.getFavorites(provider.id, ContentType.SERIES)
+                ) { movies, series ->
+                    VodFavoriteIds(
+                        movies = movies.asSequence().map { it.contentId }.toSet(),
+                        series = series.asSequence().map { it.contentId }.toSet()
+                    )
+                }
+            }
+        }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), VodFavoriteIds())
+
+    private val _actionDialog = MutableStateFlow<VodActionDialogState?>(null)
+    val actionDialog: StateFlow<VodActionDialogState?> = _actionDialog.asStateFlow()
+
+    private val _userMessage = MutableStateFlow<String?>(null)
+    val userMessage: StateFlow<String?> = _userMessage.asStateFlow()
+    private var actionDialogGeneration = 0L
+
     init {
         viewModelScope.launch {
             activeProvider
                 .map { it?.id }
                 .distinctUntilChanged()
                 .collect {
+                    if (_actionDialog.value?.item?.providerId != it) {
+                        dismissActionDialog()
+                    }
                     resetPortalSearch()
                     if (isPortalSearchQuery(searchQuery.value)) {
                         startPortalSearch(searchQuery.value)
@@ -199,7 +274,8 @@ class VodViewModel @Inject constructor(
         searchQuery,
         portalSearchEnabled,
         selectedLibraryFilterType,
-        selectedLibrarySortBy
+        selectedLibrarySortBy,
+        favoriteIds
     ) { values -> values }
         .flatMapLatest { values ->
             val provider = values[0] as Provider?
@@ -210,6 +286,7 @@ class VodViewModel @Inject constructor(
             val portalSearchEnabled = values[5] as Boolean
             val filterType = values[6] as LibraryFilterType
             val sortBy = values[7] as LibrarySortBy
+            val currentFavoriteIds = values[8] as VodFavoriteIds
             val category = snapshot.rows.firstOrNull { it.category.id == categoryId }?.category
             val portalSearchActive = isPortalVodSearchQuery(provider?.type, portalSearchEnabled, query)
             if (portalSearchActive) {
@@ -222,7 +299,13 @@ class VodViewModel @Inject constructor(
                     vodRepository.observeHydration(provider.id, category.id),
                     playbackHistoryRepository.getRecentlyWatchedByProvider(provider.id, limit = 500)
                 ) { items, hydration, history ->
-                    val browsed = applyBrowse(items, history, filterType, sortBy, query)
+                    val browsed = applyBrowse(
+                        items.withFavoriteFlags(currentFavoriteIds),
+                        history,
+                        filterType,
+                        sortBy,
+                        query
+                    )
                     SelectedVodSnapshot(category, browsed.take(limit), browsed.size, hydration)
                 }
             }
@@ -239,7 +322,8 @@ class VodViewModel @Inject constructor(
         portalSearchEnabled,
         searchQuery,
         selectedLibraryFilterType,
-        selectedLibrarySortBy
+        selectedLibrarySortBy,
+        favoriteIds
     ) { values ->
         val provider = values[0] as Provider?
         val snapshot = values[1] as UnifiedVodCatalogSnapshot
@@ -259,6 +343,7 @@ class VodViewModel @Inject constructor(
         val query = values[8] as String
         val filterType = values[9] as LibraryFilterType
         val sortBy = values[10] as LibrarySortBy
+        val currentFavoriteIds = values[11] as VodFavoriteIds
         val portalSearchActive = isPortalVodSearchQuery(provider?.type, portalSearchEnabled, query)
         val requiresCompleteCatalog = query.isNotBlank() ||
             filterType != LibraryFilterType.ALL || sortBy != LibrarySortBy.LIBRARY
@@ -266,10 +351,12 @@ class VodViewModel @Inject constructor(
             selectedContent.hydration?.isComplete != true
         VodUiState(
             provider = provider,
-            rows = snapshot.rows,
+            rows = snapshot.rows.map { row ->
+                row.copy(items = row.items.withFavoriteFlags(currentFavoriteIds))
+            },
             totalCategoryCount = snapshot.totalCategoryCount,
             selectedCategory = selectedContent.category,
-            selectedItems = selectedContent.items,
+            selectedItems = selectedContent.items.withFavoriteFlags(currentFavoriteIds),
             selectedLoadedCount = selectedContent.items.size,
             selectedTotalCount = selectedContent.localTotal,
             selectedRawPageSize = selectedContent.hydration?.pageSize ?: 0,
@@ -285,7 +372,7 @@ class VodViewModel @Inject constructor(
             selectedLibrarySortBy = sortBy,
             viewMode = VodViewMode.fromStorage(viewMode),
             portalSearchActive = portalSearchActive,
-            portalSearchItems = currentPortalSnapshot.items,
+            portalSearchItems = currentPortalSnapshot.items.withFavoriteFlags(currentFavoriteIds),
             portalSearchTotalCount = currentPortalSnapshot.totalCount,
             portalSearchPageSize = currentPortalSnapshot.pageSize,
             canLoadMorePortalSearch = portalSearchActive && currentPortalSnapshot.hasMore,
@@ -296,9 +383,254 @@ class VodViewModel @Inject constructor(
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), VodUiState())
 
+    fun showItemActions(item: VodCatalogItem) {
+        val generation = ++actionDialogGeneration
+        viewModelScope.launch {
+            if (activeProvider.value?.id != item.providerId) return@launch
+            val dialog = loadActionDialog(item)
+            if (generation == actionDialogGeneration && activeProvider.value?.id == item.providerId) {
+                _actionDialog.value = dialog
+            }
+        }
+    }
+
+    fun dismissActionDialog() {
+        actionDialogGeneration++
+        _actionDialog.value = null
+    }
+
+    fun toggleActionFavorite() {
+        val dialog = _actionDialog.value ?: return
+        val generation = actionDialogGeneration
+        viewModelScope.launch {
+            if (dialog.isFavorite) {
+                dialog.item.actionIds().forEach { itemId ->
+                    setActionFavorite(dialog.item.providerId, itemId, dialog.item.contentType(), false)
+                }
+            } else {
+                setActionFavorite(
+                    dialog.item.providerId,
+                    dialog.item.selectedActionId(),
+                    dialog.item.contentType(),
+                    true
+                )
+            }
+            refreshActionDialog(dialog.item, generation)
+        }
+    }
+
+    fun addActionItemToGroup(group: Category) {
+        val dialog = _actionDialog.value ?: return
+        val generation = actionDialogGeneration
+        viewModelScope.launch {
+            updateActionGroupMembership(
+                providerId = dialog.item.providerId,
+                itemId = dialog.item.selectedActionId(),
+                groupId = group.id,
+                contentType = dialog.item.contentType(),
+                shouldBeMember = true
+            )
+            refreshActionDialog(dialog.item, generation)
+        }
+    }
+
+    fun removeActionItemFromGroup(group: Category) {
+        val dialog = _actionDialog.value ?: return
+        val generation = actionDialogGeneration
+        viewModelScope.launch {
+            dialog.item.actionIds().forEach { itemId ->
+                updateActionGroupMembership(
+                    providerId = dialog.item.providerId,
+                    itemId = itemId,
+                    groupId = group.id,
+                    contentType = dialog.item.contentType(),
+                    shouldBeMember = false
+                )
+            }
+            refreshActionDialog(dialog.item, generation)
+        }
+    }
+
+    fun createActionGroup(name: String) {
+        val dialog = _actionDialog.value ?: return
+        val normalizedName = name.trim()
+        validateGroupName(normalizedName, dialog.groups, dialog.item.contentType())?.let { message ->
+            _userMessage.value = message
+            return
+        }
+        val generation = actionDialogGeneration
+        viewModelScope.launch {
+            when (val result = favoriteRepository.createGroup(
+                providerId = dialog.item.providerId,
+                name = normalizedName,
+                contentType = dialog.item.contentType()
+            )) {
+                is Result.Success -> {
+                    updateActionGroupMembership(
+                        providerId = dialog.item.providerId,
+                        itemId = dialog.item.selectedActionId(),
+                        groupId = result.data.id,
+                        contentType = dialog.item.contentType(),
+                        shouldBeMember = true
+                    )
+                    refreshActionDialog(dialog.item, generation)
+                    _userMessage.value = appContext.getString(
+                        if (dialog.item.contentType() == ContentType.SERIES) {
+                            R.string.series_group_created
+                        } else {
+                            R.string.movies_group_created
+                        },
+                        normalizedName
+                    )
+                }
+                is Result.Error -> _userMessage.value = result.message
+                Result.Loading -> Unit
+            }
+        }
+    }
+
+    fun userMessageShown() {
+        _userMessage.value = null
+    }
+
+    fun removeFromContinueWatching(history: PlaybackHistory) {
+        viewModelScope.launch {
+            val result = playbackHistoryRepository.removeFromHistory(
+                contentId = history.contentId,
+                contentType = history.contentType,
+                providerId = history.providerId
+            )
+            _userMessage.value = if (result.isSuccess) {
+                appContext.getString(R.string.continue_watching_removed, history.title)
+            } else {
+                appContext.getString(R.string.continue_watching_remove_failed)
+            }
+        }
+    }
+
+    private suspend fun setActionFavorite(
+        providerId: Long,
+        itemId: Long,
+        contentType: ContentType,
+        isFavorite: Boolean
+    ) {
+        if (isFavorite) {
+            favoriteRepository.addFavorite(providerId, itemId, contentType)
+        } else {
+            favoriteRepository.removeFavorite(providerId, itemId, contentType)
+        }
+    }
+
+    private suspend fun updateActionGroupMembership(
+        providerId: Long,
+        itemId: Long,
+        groupId: Long,
+        contentType: ContentType,
+        shouldBeMember: Boolean
+    ) {
+        val storedGroupId = kotlin.math.abs(groupId)
+        if (shouldBeMember) {
+            favoriteRepository.addFavorite(providerId, itemId, contentType, groupId = storedGroupId)
+        } else {
+            favoriteRepository.removeFavorite(providerId, itemId, contentType, groupId = storedGroupId)
+        }
+    }
+
     fun loadMoreCategories() {
         visibleCategoryCount.value += CATEGORY_LOAD_INCREMENT
     }
+
+    private suspend fun loadActionDialog(item: VodCatalogItem): VodActionDialogState {
+        val contentType = item.contentType()
+        val itemIds = item.actionIds()
+        val groups = favoriteRepository.getGroups(item.providerId, contentType).first().map { group ->
+            Category(
+                id = -kotlin.math.abs(group.id),
+                name = group.name,
+                type = contentType,
+                isVirtual = true
+            )
+        }
+        val memberships = itemIds
+            .flatMap { itemId -> favoriteRepository.getGroupMemberships(item.providerId, itemId, contentType) }
+            .map { groupId -> -kotlin.math.abs(groupId) }
+            .distinct()
+        val isFavorite = itemIds.any { itemId ->
+            favoriteRepository.isFavorite(item.providerId, itemId, contentType)
+        }
+        return VodActionDialogState(item, groups, isFavorite, memberships)
+    }
+
+    private suspend fun refreshActionDialog(item: VodCatalogItem, generation: Long) {
+        val updatedDialog = loadActionDialog(item)
+        if (generation == actionDialogGeneration && _actionDialog.value?.item?.stableId == item.stableId) {
+            _actionDialog.value = updatedDialog
+        }
+    }
+
+    private fun validateGroupName(name: String, groups: List<Category>, contentType: ContentType): String? {
+        val isSeries = contentType == ContentType.SERIES
+        if (name.isBlank()) {
+            return appContext.getString(
+                if (isSeries) R.string.series_group_name_invalid else R.string.movies_group_name_invalid
+            )
+        }
+        if (name.equals("favorites", ignoreCase = true)) {
+            return appContext.getString(
+                if (isSeries) R.string.series_group_name_reserved else R.string.movies_group_name_reserved
+            )
+        }
+        if (groups.any { it.name.equals(name, ignoreCase = true) }) {
+            return appContext.getString(
+                if (isSeries) R.string.series_group_name_duplicate else R.string.movies_group_name_duplicate
+            )
+        }
+        return null
+    }
+
+    private fun VodCatalogItem.contentType(): ContentType = when (this) {
+        is VodCatalogItem.MovieItem -> ContentType.MOVIE
+        is VodCatalogItem.SeriesItem -> ContentType.SERIES
+    }
+
+    private val VodCatalogItem.providerId: Long
+        get() = when (this) {
+            is VodCatalogItem.MovieItem -> movie.providerId
+            is VodCatalogItem.SeriesItem -> series.providerId
+        }
+
+    private fun VodCatalogItem.selectedActionId(): Long = when (this) {
+        is VodCatalogItem.MovieItem -> movie.selectedVariantId ?: movie.id
+        is VodCatalogItem.SeriesItem -> series.selectedVariantId ?: series.id
+    }
+
+    private fun VodCatalogItem.actionIds(): List<Long> = when (this) {
+        is VodCatalogItem.MovieItem -> movie.variants.map { it.rawMovieId }
+            .ifEmpty { listOf(movie.selectedVariantId ?: movie.id) }
+            .distinct()
+        is VodCatalogItem.SeriesItem -> series.variants.map { it.rawSeriesId }
+            .ifEmpty { listOf(series.selectedVariantId ?: series.id) }
+            .distinct()
+    }
+
+    private fun List<VodCatalogItem>.withFavoriteFlags(favoriteIds: VodFavoriteIds): List<VodCatalogItem> = map { item ->
+        when (item) {
+            is VodCatalogItem.MovieItem -> item.copy(
+                movie = item.movie.copy(isFavorite = item.movie.actionIds().any(favoriteIds.movies::contains))
+            )
+            is VodCatalogItem.SeriesItem -> item.copy(
+                series = item.series.copy(isFavorite = item.series.actionIds().any(favoriteIds.series::contains))
+            )
+        }
+    }
+
+    private fun Movie.actionIds(): List<Long> = variants.map { it.rawMovieId }
+        .ifEmpty { listOf(selectedVariantId ?: id) }
+        .distinct()
+
+    private fun Series.actionIds(): List<Long> = variants.map { it.rawSeriesId }
+        .ifEmpty { listOf(selectedVariantId ?: id) }
+        .distinct()
 
     fun selectCategory(category: Category?) {
         resetPortalSearch()

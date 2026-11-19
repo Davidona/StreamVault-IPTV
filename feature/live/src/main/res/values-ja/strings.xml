@@ -363,4 +363,5 @@
     <string name="live_order_reset_manual_prompt">保存した手動の並び順をプロバイダーの順序に置き換えますか？</string>
     <string name="live_order_jump_to_position">この位置へ移動</string>
     <string name="home_recent_ordering_hint">チャンネルは最後に視聴した順に並び、最も最近見たものが先頭に表示されます。視聴すると、そのチャンネルが先頭に移動します。</string>
+    <string name="live_channel_count">%1$d チャンネル</string>
 </resources>

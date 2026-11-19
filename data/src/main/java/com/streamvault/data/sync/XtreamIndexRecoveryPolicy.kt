@@ -14,7 +14,9 @@ internal object XtreamIndexRecoveryPolicy {
             return "FAILED_PERMANENT"
         }
         val requestFailure = chain.filterIsInstance<XtreamRequestException>().firstOrNull()
-        return if (requestFailure?.statusCode == 401 || requestFailure?.statusCode == 403) {
+        // Action-level 403 can be a temporary edge block or throttle. Explicit
+        // account authentication rejection remains permanent above.
+        return if (requestFailure?.statusCode == 401) {
             "FAILED_PERMANENT"
         } else {
             "FAILED_RETRYABLE"

@@ -353,4 +353,28 @@
   <string name="vod_sync_needed_title">Je potrebná synchronizácia</string>
   <string name="vod_unavailable_subtitle">Tento poskytovateľ ponúka samostatné katalógy filmov a seriálov.</string>
   <string name="vod_unavailable_title">VOD nie je k dispozícii</string>
+
+  <string name="movies_group_created">Vytvorená skupina %1$s</string>
+  <string name="series_group_created">Vytvorená skupina %1$s</string>
+  <string name="movies_group_name_invalid">Zadajte názov skupiny</string>
+  <string name="series_group_name_invalid">Zadajte názov skupiny</string>
+  <string name="movies_group_name_reserved">Obľúbené je vyhradené</string>
+  <string name="series_group_name_reserved">Obľúbené je vyhradené</string>
+  <string name="movies_group_name_duplicate">Skupina filmov s týmto názvom už existuje</string>
+  <string name="series_group_name_duplicate">Skupina seriálov s týmto názvom už existuje</string>
+  <string name="continue_watching_remove_title">Odstrániť z Pokračovať v sledovaní?</string>
+  <string name="continue_watching_remove_message">Tým sa položka %1$s odstráni z Pokračovať v sledovaní a vymaže sa uložený priebeh prehrávania.</string>
+  <string name="continue_watching_removed">%1$s bolo odstránené z Pokračovať v sledovaní.</string>
+  <string name="continue_watching_remove_failed">Položku sa nepodarilo odstrániť z Pokračovať v sledovaní. Skúste to znova.</string>
+    <string name="featured_movies">Karta vybraného filmu</string>
+    <string name="featured_series">Karta vybraného seriálu</string>
+    <string name="featured_hidden">Skrytá</string>
+    <string name="featured_latest">Najnovšie vydania</string>
+    <string name="featured_added">Nedávno pridané</string>
+    <string name="featured_updated">Nedávno aktualizované</string>
+    <string name="featured_continue">Pokračovať v sledovaní</string>
+    <string name="featured_random">Skúsiť šťastie</string>
+    <string name="featured_for_you">Pre vás</string>
+    <string name="featured_up_next">Ďalšia epizóda</string>
+  <string name="featured_details">Zobraziť podrobnosti</string>
 </resources>

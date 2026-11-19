@@ -363,4 +363,5 @@
     <string name="live_order_reset_manual_prompt">Palitan ang naka-save na manu-manong pagkakasunod-sunod ng pagkakasunod-sunod ng provider?</string>
     <string name="live_order_jump_to_position">Pumunta sa posisyong ito</string>
     <string name="home_recent_ordering_hint">Inayos ang mga channel ayon sa pinakahuling panonood, at nauuna ang pinakabago. Kapag nanood ka ng channel, mapupunta ito sa itaas.</string>
+    <string name="live_channel_count">%1$d channel</string>
 </resources>

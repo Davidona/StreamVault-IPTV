@@ -293,4 +293,6 @@
     <string name="nav_sports">Спорт</string>
     <string name="stremio_new_episode_channel">Сповіщення про нові серії</string>
     <string name="stremio_new_episode_count">Нові серії: %1$d</string>
+    <string name="tv_channel_favorites_title">Улюблене</string>
+    <string name="tv_channel_favorites_description">Ваші улюблені канали, фільми та серіали</string>
 </resources>

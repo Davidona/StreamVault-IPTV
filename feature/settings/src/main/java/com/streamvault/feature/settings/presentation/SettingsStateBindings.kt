@@ -280,6 +280,10 @@ fun observeSettingsPreferenceSnapshot(
         snapshot.copy(groupedChannelLabelMode = groupedChannelLabelMode)
     }.combine(preferencesRepository.liveVariantPreferenceMode) { snapshot, liveVariantPreferenceMode ->
         snapshot.copy(liveVariantPreferenceMode = liveVariantPreferenceMode)
+    }.combine(preferencesRepository.movieFeaturedMode) { snapshot, mode ->
+        snapshot.copy(movieFeaturedMode = mode)
+    }.combine(preferencesRepository.seriesFeaturedMode) { snapshot, mode ->
+        snapshot.copy(seriesFeaturedMode = mode)
     }.combine(preferencesRepository.vodViewMode) { snapshot, vodViewMode ->
         snapshot.copy(vodViewMode = VodViewMode.fromStorage(vodViewMode))
     }.combine(preferencesRepository.showTraktTrendingMovies) { snapshot, enabled ->

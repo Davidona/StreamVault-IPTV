@@ -1,5 +1,6 @@
 ﻿package com.streamvault.feature.catalog.presentation.movies
 
+import com.streamvault.core.ui.design.BrowseColors
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -21,7 +22,6 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.tv.material3.*
 import androidx.compose.ui.layout.ContentScale
 import coil3.compose.AsyncImage
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -41,6 +41,7 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import com.streamvault.core.ui.device.rememberIsTelevisionDevice
 import com.streamvault.feature.catalog.presentation.components.CategoryRow
 import com.streamvault.feature.catalog.presentation.components.ContinueWatchingRow
+import com.streamvault.feature.catalog.presentation.components.ContinueWatchingRemovalDialog
 import com.streamvault.feature.catalog.presentation.components.MovieCard
 import com.streamvault.feature.catalog.presentation.components.TraktRatingSummary
 import com.streamvault.feature.catalog.presentation.components.SelectionChip
@@ -50,6 +51,7 @@ import com.streamvault.feature.catalog.presentation.components.SavedCategoryShor
 import com.streamvault.feature.catalog.presentation.components.SavedCategoryShortcutsRow
 import com.streamvault.core.ui.design.browse.*
 import com.streamvault.domain.model.Category
+import com.streamvault.domain.model.ContentType
 import com.streamvault.domain.model.LibraryFilterType
 import com.streamvault.domain.model.LibrarySortBy
 import com.streamvault.domain.model.Movie
@@ -81,7 +83,6 @@ import com.streamvault.feature.catalog.presentation.components.VodBrowseOptionsD
 import com.streamvault.feature.catalog.presentation.components.VodClassicCategoryOption
 import com.streamvault.feature.catalog.presentation.components.VodClassicContentHeader
 import com.streamvault.feature.catalog.presentation.components.VodClassicSplitLayout
-import com.streamvault.feature.catalog.presentation.components.VodHeroStrip
 import com.streamvault.feature.catalog.presentation.components.VodSectionHeader
 import com.streamvault.core.ui.design.FocusRestoreHost
 import com.streamvault.core.ui.design.requestFocusSafely
@@ -119,6 +120,7 @@ fun MoviesScreen(
     var pinError by remember { mutableStateOf<String?>(null) }
     var pendingMovie by remember { mutableStateOf<Movie?>(null) }
     var pendingCategory by remember { mutableStateOf<Category?>(null) }
+    var pendingContinueWatchingRemoval by remember { mutableStateOf<PlaybackHistory?>(null) }
 
     HandleVodUserMessage(
         userMessage = uiState.userMessage,
@@ -184,10 +186,10 @@ fun MoviesScreen(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    CircularProgressIndicator(color = Color.White)
+                    CircularProgressIndicator(color = BrowseColors.Brand)
                     Text(
                         text = stringResource(R.string.movies_loading),
-                        color = Color.White.copy(alpha = 0.7f)
+                        color = BrowseColors.TextSecondary
                     )
                 }
             }
@@ -230,6 +232,8 @@ fun MoviesScreen(
                 onSearchQueryChange = viewModel::setSearchQuery,
                 onMovieClick = onMovieClick,
                 onContinueWatchingPlay = onContinueWatchingPlay,
+                onRemoveFromContinueWatching = viewModel::removeFromContinueWatching,
+                onRequestContinueWatchingRemoval = { pendingContinueWatchingRemoval = it },
                 onProtectedMovieClick = { movie ->
                     pendingCategory = null
                     pendingMovie = movie
@@ -275,6 +279,17 @@ fun MoviesScreen(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .padding(bottom = 16.dp)
+        )
+    }
+
+    pendingContinueWatchingRemoval?.let { history ->
+        ContinueWatchingRemovalDialog(
+            history = history,
+            onDismiss = { pendingContinueWatchingRemoval = null },
+            onConfirm = {
+                viewModel.removeFromContinueWatching(history)
+                pendingContinueWatchingRemoval = null
+            }
         )
     }
 
@@ -353,6 +368,8 @@ private fun MoviesVodContent(
     onSearchQueryChange: (String) -> Unit,
     onMovieClick: (Movie) -> Unit,
     onContinueWatchingPlay: (PlaybackHistory) -> Unit,
+    onRemoveFromContinueWatching: (PlaybackHistory) -> Unit,
+    onRequestContinueWatchingRemoval: (PlaybackHistory) -> Unit,
     onProtectedMovieClick: (Movie) -> Unit,
     onProtectedCategoryClick: (Category) -> Unit,
     onShowDialog: (Movie) -> Unit,
@@ -391,7 +408,6 @@ private fun MoviesVodContent(
     val freshMovies = uiState.libraryLensRows[MovieLibraryLens.FRESH].orEmpty()
     val topRatedMovies = uiState.libraryLensRows[MovieLibraryLens.TOP_RATED].orEmpty()
     val continueWatching = uiState.continueWatching
-    val heroMovie = freshMovies.firstOrNull() ?: topRatedMovies.firstOrNull() ?: favoriteMovies.firstOrNull()
     val categoryByName = remember(uiState.providerCategories, uiState.categories, uiState.favoriteCategoryName) {
         buildMap<String, Category> {
             uiState.providerCategories.forEach { put(it.name, it) }
@@ -468,12 +484,6 @@ private fun MoviesVodContent(
             category == null || category.id !in uiState.pinnedCategoryIds
         }
     }
-    val fallbackMovieId = if (heroMovie == null) {
-        favoriteMovies.firstOrNull()?.id
-            ?: freshMovies.firstOrNull()?.id
-            ?: topRatedMovies.firstOrNull()?.id
-            ?: catEntries.firstOrNull()?.value?.firstOrNull()?.id
-    } else null
     val categoryOptions = remember(
         visibleCategoryNames,
         uiState.categoryCounts,
@@ -560,6 +570,7 @@ private fun MoviesVodContent(
             onProtectedMovieClick = onProtectedMovieClick,
             onProtectedCategoryClick = onProtectedCategoryClick,
             onShowDialog = onShowDialog,
+            onRequestContinueWatchingRemoval = onRequestContinueWatchingRemoval,
             onShowCategoryOptions = onShowCategoryOptions,
             onSelectCategory = onSelectCategory,
             onSelectFullLibraryBrowse = onSelectFullLibraryBrowse,
@@ -588,23 +599,28 @@ private fun MoviesVodContent(
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(bottom = 28.dp)
         ) {
-            item(key = "hero") {
-            if (heroMovie != null) {
-                VodHeroStrip(
-                        title = heroMovie.name,
-                        subtitle = heroMovie.plot?.takeIf { it.isNotBlank() }
-                            ?: heroMovie.year
-                            ?: stringResource(R.string.movies_library_lens_subtitle),
-                        actionLabel = stringResource(R.string.player_resume).substringBefore(" "),
+            uiState.featured?.let { featured ->
+                item(key = "hero") {
+                    com.streamvault.feature.catalog.presentation.components.VodHeroStrip(
+                        title = featured.candidate.title,
+                        subtitle = featured.episode?.let { stringResource(R.string.continue_watching_season_episode, it.seasonNumber, it.episodeNumber) }
+                            ?: stringResource(when (featured.mode) {
+                                com.streamvault.domain.model.VodFeaturedMode.LATEST_RELEASE -> R.string.featured_latest
+                                com.streamvault.domain.model.VodFeaturedMode.RECENTLY_ADDED -> R.string.featured_added
+                                com.streamvault.domain.model.VodFeaturedMode.RANDOM -> R.string.featured_random
+                                com.streamvault.domain.model.VodFeaturedMode.FOR_YOU -> R.string.featured_for_you
+                                com.streamvault.domain.model.VodFeaturedMode.UP_NEXT -> R.string.featured_up_next
+                                else -> R.string.featured_continue
+                            }),
+                        actionLabel = stringResource(if (featured.episode != null) R.string.featured_up_next
+                            else if (featured.history != null) R.string.player_resume else R.string.featured_details),
+                        focusRequester = initialFocusRequester,
                         onClick = {
-                            val isLocked = isMovieLocked(heroMovie)
-                            if (isLocked) onProtectedMovieClick(heroMovie) else onMovieClick(heroMovie)
+                            featured.history?.let(onContinueWatchingPlay)
+                                ?: featured.candidate.movie?.let(onMovieClick)
                         },
-                        modifier = Modifier
-                            .padding(top = 8.dp, bottom = 6.dp)
-                            .focusRequester(initialFocusRequester)
                     )
-            }
+                }
             }
             item(key = "actions") {
             VodActionChipRow(
@@ -695,14 +711,16 @@ private fun MoviesVodContent(
                             )
                         }
                     },
-                    modifier = Modifier.padding(top = 2.dp, bottom = 6.dp)
+                    modifier = Modifier.padding(top = 2.dp, bottom = 6.dp),
+                    firstActionFocusRequester = initialFocusRequester.takeIf { uiState.featured == null }
                 )
             }
             if (continueWatching.isNotEmpty()) {
             item(key = "continue_watching") {
                 ContinueWatchingRow(
                         items = continueWatching,
-                        onItemClick = onContinueWatchingPlay
+                        onItemClick = onContinueWatchingPlay,
+                        onRemoveFromContinueWatching = onRemoveFromContinueWatching
                     )
             }
             }
@@ -749,8 +767,6 @@ private fun MoviesVodContent(
                         isLocked = isLocked,
                         onClick = { if (isLocked) onProtectedMovieClick(movie) else onMovieClick(movie) },
                         onLongClick = { onShowDialog(movie) }
-                        ,
-                        modifier = if (movie.id == fallbackMovieId) Modifier.focusRequester(initialFocusRequester) else Modifier
                     )
                 }
             }
@@ -812,8 +828,6 @@ private fun MoviesVodContent(
                         isLocked = isLocked,
                         onClick = { if (isLocked) onProtectedMovieClick(movie) else onMovieClick(movie) },
                         onLongClick = { onShowDialog(movie) }
-                        ,
-                        modifier = if (movie.id == fallbackMovieId) Modifier.focusRequester(initialFocusRequester) else Modifier
                     )
                 }
             }
@@ -825,7 +839,7 @@ private fun MoviesVodContent(
                             .padding(vertical = 24.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        CircularProgressIndicator(color = Color.White, modifier = Modifier.size(32.dp))
+                        CircularProgressIndicator(color = BrowseColors.Brand, modifier = Modifier.size(32.dp))
                     }
                 }
             }
@@ -994,10 +1008,10 @@ private fun MoviesVodContent(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
-                        CircularProgressIndicator(color = Color.White)
+                        CircularProgressIndicator(color = BrowseColors.Brand)
                         Text(
                             text = stringResource(R.string.movies_loading),
-                            color = Color.White.copy(alpha = 0.7f)
+                            color = BrowseColors.TextSecondary
                         )
                     }
                 }
@@ -1106,6 +1120,7 @@ private fun MoviesVodClassicContent(
     onProtectedMovieClick: (Movie) -> Unit,
     onProtectedCategoryClick: (Category) -> Unit,
     onShowDialog: (Movie) -> Unit,
+    onRequestContinueWatchingRemoval: (PlaybackHistory) -> Unit,
     onShowCategoryOptions: (String) -> Unit,
     onSelectCategory: (String?) -> Unit,
     onSelectFullLibraryBrowse: () -> Unit,
@@ -1456,7 +1471,7 @@ private fun MoviesVodClassicContent(
                                 .height(320.dp),
                             contentAlignment = Alignment.Center
                         ) {
-                            CircularProgressIndicator(color = Color.White)
+                            CircularProgressIndicator(color = BrowseColors.Brand)
                         }
                     }
                 } else if (filteredGridMovies.isEmpty()) {
@@ -1520,7 +1535,19 @@ private fun MoviesVodClassicContent(
                                 }
                             },
                             onLongClick = {
-                                if (!uiState.isReorderMode) onShowDialog(movie)
+                                if (!uiState.isReorderMode) {
+                                    val history = if (selectedFilterType == LibraryFilterType.IN_PROGRESS) {
+                                        uiState.continueWatching.firstOrNull { item ->
+                                            item.providerId == movie.providerId &&
+                                                item.contentType == ContentType.MOVIE &&
+                                                (item.contentId == movie.id ||
+                                                    item.contentId == movie.selectedVariantId ||
+                                                    movie.variants.any { variant -> variant.rawMovieId == item.contentId })
+                                        }
+                                    } else null
+                                    if (history != null) onRequestContinueWatchingRemoval(history)
+                                    else onShowDialog(movie)
+                                }
                             }
                         )
                     }

@@ -142,7 +142,21 @@ class SeriesViewModel @Inject constructor(
         val hasMorePreviewRows: Boolean
     )
 
+    private var featuredObserver: kotlinx.coroutines.Job? = null
+
+    private fun observeFeaturedCard() {
+        featuredObserver?.cancel()
+        featuredObserver = viewModelScope.launch {
+            com.streamvault.feature.catalog.presentation.vod.observeVodFeatured(
+                series = true, preferences = preferencesRepository, providers = providerRepository,
+                movies = null, shows = seriesRepository, playback = playbackHistoryRepository, watchlist = traktWatchlist, account = traktAccount,
+            ).collectLatest { featured -> _uiState.update { it.copy(featured = featured) } }
+        }
+    }
+
     init {
+        observeFeaturedCard()
+
         viewModelScope.launch {
             providerRepository.getProviders().collectLatest { providers ->
                 _uiState.update {
@@ -579,20 +593,27 @@ class SeriesViewModel @Inject constructor(
             providerRepository.getActiveProvider()
                 .filterNotNull()
                 .flatMapLatest { provider ->
-                    combine(
-                        favoriteRepository.getAllFavorites(provider.id, ContentType.SERIES),
-                        playbackHistoryRepository.getRecentlyWatchedByProvider(provider.id, limit = 24),
-                        seriesRepository.getTopRatedPreview(provider.id, VodBrowseDefaults.PREVIEW_ROW_LIMIT),
-                        seriesRepository.getFreshPreview(provider.id, VodBrowseDefaults.PREVIEW_ROW_LIMIT)
-                    ) { allFavorites, history, topRated, fresh ->
-                        SeriesLibraryLensDependencies(
-                            providerId = provider.id,
-                            allFavorites = allFavorites,
-                            history = history,
-                            topRated = topRated,
-                            fresh = fresh
-                        )
-                    }
+                    preferencesRepository.getHiddenCategoryIds(provider.id, ContentType.SERIES)
+                        .flatMapLatest { hiddenCategoryIds ->
+                            combine(
+                                favoriteRepository.getAllFavorites(provider.id, ContentType.SERIES),
+                                playbackHistoryRepository.getRecentlyWatchedByProvider(provider.id, limit = 24),
+                                seriesRepository.getTopRatedPreview(provider.id, VodBrowseDefaults.PREVIEW_ROW_LIMIT),
+                                seriesRepository.getFreshPreviewExcludingHiddenCategories(
+                                    provider.id,
+                                    hiddenCategoryIds,
+                                    VodBrowseDefaults.PREVIEW_ROW_LIMIT
+                                )
+                            ) { allFavorites, history, topRated, fresh ->
+                                SeriesLibraryLensDependencies(
+                                    providerId = provider.id,
+                                    allFavorites = allFavorites,
+                                    history = history,
+                                    topRated = topRated,
+                                    fresh = fresh
+                                )
+                            }
+                        }
                 }
                 .collectLatest { dependencies ->
                     val globalFavoriteIds = dependencies.allFavorites
@@ -820,6 +841,7 @@ class SeriesViewModel @Inject constructor(
     }
 
     fun resetPreviewRowsForScreenEntry() {
+        if (_uiState.value.featured?.mode == com.streamvault.domain.model.VodFeaturedMode.RANDOM) observeFeaturedCard()
         _previewBatchSize.value = INITIAL_PREVIEW_BATCH_SIZE
         _uiState.update { state ->
             if (state.selectedCategory != null || state.searchQuery.isNotBlank()) {
@@ -878,6 +900,24 @@ class SeriesViewModel @Inject constructor(
         }
     }
 
+    fun playFeaturedHistory(
+        history: PlaybackHistory,
+        onPlay: (PlaybackHistory) -> Unit,
+        onOpenDetails: (Long) -> Unit,
+    ) {
+        if (history.streamUrl.isNotBlank()) {
+            onPlay(history)
+            return
+        }
+        viewModelScope.launch {
+            val episode = _uiState.value.featured?.episode?.takeIf { it.id == history.contentId }
+                ?: seriesRepository.getEpisodeById(history.contentId)
+            val stream = episode?.let { seriesRepository.getEpisodeStreamInfo(it).getOrNull() }
+            if (stream != null) onPlay(history.copy(streamUrl = stream.url))
+            else onOpenDetails(history.seriesId ?: history.contentId)
+        }
+    }
+
     suspend fun verifyPin(pin: String): Boolean {
         return preferencesRepository.verifyParentalPin(pin)
     }
@@ -909,6 +949,22 @@ class SeriesViewModel @Inject constructor(
                     dialogGroupMemberships = memberships
                 )
             }
+        }
+    }
+
+    fun removeFromContinueWatching(history: PlaybackHistory) {
+        viewModelScope.launch {
+            val result = playbackHistoryRepository.removeFromHistory(
+                contentId = history.contentId,
+                contentType = history.contentType,
+                providerId = history.providerId
+            )
+            val message = if (result.isSuccess) {
+                appContext.getString(R.string.continue_watching_removed, history.title)
+            } else {
+                appContext.getString(R.string.continue_watching_remove_failed)
+            }
+            _uiState.update { it.copy(userMessage = message) }
         }
     }
 
@@ -1715,6 +1771,7 @@ data class SeriesUiState(
     val searchQuery: String = "",
     val selectedLibraryFilterType: LibraryFilterType = LibraryFilterType.ALL,
     val selectedLibrarySortBy: LibrarySortBy = LibrarySortBy.LIBRARY,
+    val featured: com.streamvault.feature.catalog.presentation.vod.VodFeaturedSelection? = null,
     val vodViewMode: VodViewMode = VodViewMode.MODERN,
     val vodInfiniteScroll: Boolean = true,
     val continueWatching: List<PlaybackHistory> = emptyList(),

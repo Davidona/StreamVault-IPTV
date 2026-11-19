@@ -2460,6 +2460,20 @@ class PreferencesRepository @Inject constructor(
         }
     }
 
+    override val movieFeaturedMode: Flow<String?> = context.dataStore.data.map {
+        it[androidx.datastore.preferences.core.stringPreferencesKey("movie_featured_mode")]
+    }
+    override val seriesFeaturedMode: Flow<String?> = context.dataStore.data.map {
+        it[androidx.datastore.preferences.core.stringPreferencesKey("series_featured_mode")]
+    }
+    override suspend fun setVodFeaturedMode(series: Boolean, mode: String) {
+        context.dataStore.edit {
+            it[androidx.datastore.preferences.core.stringPreferencesKey(
+                if (series) "series_featured_mode" else "movie_featured_mode"
+            )] = mode
+        }
+    }
+
     override val vodViewMode: Flow<String?> = context.dataStore.data.map { preferences ->
         preferences[PreferencesKeys.VOD_VIEW_MODE]
     }

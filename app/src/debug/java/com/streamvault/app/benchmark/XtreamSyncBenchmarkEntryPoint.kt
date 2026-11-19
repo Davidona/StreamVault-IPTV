@@ -14,6 +14,14 @@ import dagger.hilt.components.SingletonComponent
 @EntryPoint
 @InstallIn(SingletonComponent::class)
 interface XtreamSyncBenchmarkEntryPoint {
+    @com.streamvault.player.di.MainPlayerEngine
+    fun launcherPlayerEngine(): com.streamvault.player.PlayerEngine
+    fun launcherHistory(): com.streamvault.domain.repository.PlaybackHistoryRepository
+    fun launcherWatchNext(): com.streamvault.app.tv.WatchNextManager
+    fun launcherRecommendations(): com.streamvault.app.tv.LauncherRecommendationsManager
+    fun launcherFavorites(): com.streamvault.domain.repository.FavoriteRepository
+    fun launcherCategories(): com.streamvault.domain.repository.CategoryRepository
+    fun webhooks(): com.streamvault.domain.playback.events.PlaybackWebhooks
     fun setup(): ValidateAndAddProvider
     fun providers(): ProviderRepository
     fun sync(): ProviderSyncCommands

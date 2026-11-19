@@ -367,4 +367,28 @@
 <string name="trakt_rating_saved">Оценка сохранена в Trakt.</string>
 <string name="trakt_rating_failed">Не удалось сохранить оценку в Trakt.</string>
 <string name="trakt_favorite_sync_failed">StreamVault сохранил изменение, но не смог обновить избранное Trakt. Попробуйте снова.</string>
+
+  <string name="movies_group_created">Группа %1$s создана</string>
+  <string name="series_group_created">Группа %1$s создана</string>
+  <string name="movies_group_name_invalid">Введите название группы</string>
+  <string name="series_group_name_invalid">Введите название группы</string>
+  <string name="movies_group_name_reserved">Favorites зарезервировано</string>
+  <string name="series_group_name_reserved">Favorites зарезервировано</string>
+  <string name="movies_group_name_duplicate">Группа фильмов с таким названием уже существует</string>
+  <string name="series_group_name_duplicate">Группа сериалов с таким названием уже существует</string>
+  <string name="continue_watching_remove_title">Убрать из раздела «Продолжить просмотр»?</string>
+  <string name="continue_watching_remove_message">Это уберёт %1$s из раздела «Продолжить просмотр» и удалит сохранённый прогресс воспроизведения.</string>
+  <string name="continue_watching_removed">%1$s удалён из раздела «Продолжить просмотр».</string>
+  <string name="continue_watching_remove_failed">Не удалось убрать этот элемент из раздела «Продолжить просмотр». Попробуйте ещё раз.</string>
+    <string name="featured_movies">Карточка выбранного фильма</string>
+    <string name="featured_series">Карточка выбранного сериала</string>
+    <string name="featured_hidden">Скрыта</string>
+    <string name="featured_latest">Последние релизы</string>
+    <string name="featured_added">Недавно добавленные</string>
+    <string name="featured_updated">Недавно обновлённые</string>
+    <string name="featured_continue">Продолжить просмотр</string>
+    <string name="featured_random">Мне повезёт</string>
+    <string name="featured_for_you">Для вас</string>
+    <string name="featured_up_next">Следующая серия</string>
+  <string name="featured_details">Подробнее</string>
 </resources>

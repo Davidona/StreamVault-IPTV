@@ -293,4 +293,6 @@
     <string name="nav_sports">스포츠</string>
     <string name="stremio_new_episode_channel">새 에피소드 알림</string>
     <string name="stremio_new_episode_count">새 에피소드: %1$d</string>
+    <string name="tv_channel_favorites_title">즐겨찾기</string>
+    <string name="tv_channel_favorites_description">즐겨찾는 채널, 영화 및 시리즈</string>
 </resources>

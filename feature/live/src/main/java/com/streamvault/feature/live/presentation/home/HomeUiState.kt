@@ -61,4 +61,15 @@ data class HomeUiState(
     val errorMessage: String? = null,
     val multiviewChannelCount: Int = 0,
     val multiviewSlotCapacity: Int = 4
-)
+) {
+    /** Browse totals come from category metadata, independently of the loaded page. */
+    val channelResultCount: Int
+        get() {
+            val category = selectedCategory ?: return filteredChannels.size
+            if (channelSearchQuery.isNotBlank() || category.isVirtual ||
+                selectedCombinedSourceProviderId != null || isChannelReorderMode
+            ) return filteredChannels.size
+            val total = categories.firstOrNull { it.id == category.id }?.count ?: category.count
+            return maxOf(total, filteredChannels.size)
+        }
+}

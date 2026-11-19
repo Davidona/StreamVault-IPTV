@@ -9,6 +9,8 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Modifier
@@ -42,6 +44,8 @@ fun LiveChannelListHost(
     modifier: Modifier = Modifier
 ) {
     val channelListState = rememberLazyListState()
+    val currentHasMoreChannels by rememberUpdatedState(hasMoreChannels)
+    val currentOnLoadMore by rememberUpdatedState(onLoadMore)
 
     LaunchedEffect(isReorderMode, draggingChannel?.id, channels) {
         if (!isReorderMode) return@LaunchedEffect
@@ -95,11 +99,13 @@ fun LiveChannelListHost(
             val info = channelListState.layoutInfo
             val lastVisible = info.visibleItemsInfo.lastOrNull()?.index ?: -1
             val total = info.totalItemsCount
-            hasMoreChannels && total > 0 && lastVisible >= total - 5
+            // Include the loaded count so another page can be requested even if
+            // the viewport stays near the end after a small page is appended.
+            total.takeIf { currentHasMoreChannels && total > 0 && lastVisible >= total - 5 }
         }
             .distinctUntilChanged()
-            .filter { it }
-            .collect { onLoadMore() }
+            .filter { it != null }
+            .collect { currentOnLoadMore() }
     }
 
     DisposableEffect(Unit) {

@@ -363,4 +363,5 @@
     <string name="live_order_reset_manual_prompt">Korvataanko tallennettu manuaalinen järjestys palveluntarjoajan järjestyksellä?</string>
     <string name="live_order_jump_to_position">Siirry tähän kohtaan</string>
     <string name="home_recent_ordering_hint">Kanavat järjestetään viimeisimmän katselun mukaan uusimmasta alkaen. Kun katsot kanavaa, se siirtyy listan kärkeen.</string>
+    <string name="live_channel_count">Kanavia: %1$d</string>
 </resources>

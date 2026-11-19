@@ -47,6 +47,8 @@ import java.io.InputStream
 import java.io.IOException
 import java.util.concurrent.TimeUnit
 import com.streamvault.data.remote.NetworkTimeoutConfig
+import com.streamvault.data.remote.xtream.XtreamNetworkException
+import com.streamvault.data.remote.xtream.parseXtreamRetryAfter
 import com.streamvault.domain.util.KeyedMutexRegistry
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -62,6 +64,7 @@ class EpgRepositoryImpl @Inject constructor(
     private val epgSourceRepository: EpgSourceRepository,
     private val preferencesRepository: PreferencesRepository,
     private val providerCapabilityResolver: ProviderCapabilityResolver? = null,
+    private val retryAfterStore: EpgRetryAfterStore? = null,
     private val externalScope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 ) : EpgRepository {
 
@@ -266,6 +269,12 @@ class EpgRepositoryImpl @Inject constructor(
     override suspend fun refreshEpg(providerId: Long, epgUrl: String): Result<Unit> =
         withContext(Dispatchers.IO) {
             providerRefreshMutexes.withLock(providerId) {
+                val remaining = retryAfterStore?.remainingMillis(providerId, epgUrl, System.currentTimeMillis()) ?: 0L
+                if (remaining > 0L) {
+                    return@withLock Result.error("EPG request deferred by provider", XtreamNetworkException(
+                        "EPG request deferred by provider", retryAfterMs = remaining
+                    ))
+                }
                 val stagingProviderId = -providerId
                 val providerTimezoneId = (providerCapabilityResolver?.snapshot(providerId)?.configuration as? StalkerConfig)
                     ?.device
@@ -302,11 +311,16 @@ class EpgRepositoryImpl @Inject constructor(
                             // Preserve transient HTTP failures through the guide executor's result wrapper.
                             // Authentication and other permanent client errors must not enter retry backoff.
                             val cause = if (response.code == 408 || response.code == 429 || response.code in 500..599) {
-                                IOException(message)
+                                val retryAfter = parseXtreamRetryAfter(response.header("Retry-After"))
+                                if (retryAfter != null && retryAfter > 0L) {
+                                    retryAfterStore?.record(providerId, epgUrl, System.currentTimeMillis(), retryAfter)
+                                }
+                                XtreamNetworkException(message, statusCode = response.code, retryAfterMs = retryAfter)
                             } else null
                             return@withLock Result.error(message, cause)
                         }
 
+                        retryAfterStore?.clear(providerId, epgUrl)
                         val contentLength = response.header("Content-Length")?.toLongOrNull() ?: -1L
                         if (contentLength > MAX_EPG_SIZE_BYTES) {
                             return@withLock Result.error("EPG file too large (${contentLength / 1_048_576}MB)")
@@ -369,6 +383,7 @@ class EpgRepositoryImpl @Inject constructor(
     }
 
     override fun onProviderDeleted(providerId: Long) {
+        retryAfterStore?.clearProvider(providerId)
         // Entries are reference-counted and removed after the final refresh exits.
     }
 

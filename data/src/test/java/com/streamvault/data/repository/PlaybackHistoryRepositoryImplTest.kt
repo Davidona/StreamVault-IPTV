@@ -27,6 +27,21 @@ import org.mockito.kotlin.whenever
 import org.mockito.kotlin.check
 
 class PlaybackHistoryRepositoryImplTest {
+    @Test fun `series resume reads exact provider series query and includes newer unflushed progress`() = runTest {
+        whenever(preferencesRepository.isIncognitoMode).thenReturn(flowOf(false))
+        val persisted = movieHistory().copy(contentType = ContentType.SERIES_EPISODE, seriesId = 20,
+            lastWatchedAt = 1_000)
+        whenever(historyDao.getLatestEpisodeHistoryForSeries(5, 20)).thenReturn(persisted.toEntity())
+        val repository = repository()
+        assertThat(repository.getLatestEpisodeHistoryForSeries(5, 20)?.contentId).isEqualTo(10)
+        val pending = persisted.copy(contentId = 11, lastWatchedAt = 2_000, resumePositionMs = 6_000)
+        assertThat(repository.updateResumePosition(pending).isSuccess).isTrue()
+        assertThat(repository.getLatestEpisodeHistoryForSeries(5, 20)?.contentId).isEqualTo(11)
+        assertThat(repository.getLatestEpisodeHistoryForSeries(5, 20)?.resumePositionMs).isEqualTo(6_000)
+        assertThat(repository.getLatestEpisodeHistoryForSeries(6, 20)).isNull()
+        assertThat(repository.getLatestEpisodeHistoryForSeries(5, 21)).isNull()
+    }
+
     @Test fun `Trakt import respects current incognito preference without waiting for state collection`() = runTest {
         whenever(preferencesRepository.isIncognitoMode).thenReturn(flowOf(true))
         val identity = com.streamvault.domain.trakt.TraktMediaIdentity.MovieId(603)

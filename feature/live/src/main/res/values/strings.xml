@@ -363,4 +363,5 @@
     <string name="live_order_reset_manual_prompt">Replace the saved manual arrangement with provider order?</string>
     <string name="live_order_jump_to_position">Jump to this position</string>
     <string name="home_recent_ordering_hint">Channels are ordered by when you last watched them, newest first. Watching a channel moves it to the top.</string>
+    <string name="live_channel_count">%1$d channels</string>
 </resources>

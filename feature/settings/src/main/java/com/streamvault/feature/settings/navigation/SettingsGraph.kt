@@ -12,7 +12,7 @@ import com.streamvault.feature.settings.api.SettingsPlatformHost
 /** Stable route patterns owned by the settings feature. */
 object SettingsRoutePatterns {
     const val SETTINGS = "settings"
-    const val SETTINGS_DESTINATION = "settings?backupUri={backupUri}&openOpenSubtitlesSignIn={openOpenSubtitlesSignIn}"
+    const val SETTINGS_DESTINATION = "settings?backupUri={backupUri}&openOpenSubtitlesSignIn={openOpenSubtitlesSignIn}&openTrakt={openTrakt}"
     const val PARENTAL_CONTROL_GROUPS = "parental_control_groups/{providerId}"
 }
 
@@ -27,6 +27,7 @@ fun NavGraphBuilder.registerSettingsGraph(
     settingsContent: @Composable (
         backupUri: String?,
         openOpenSubtitlesSignIn: Boolean,
+        openTrakt: Boolean,
         SettingsPlatformHost,
         List<UiDestination>,
         onBack: () -> Unit,
@@ -41,11 +42,13 @@ fun NavGraphBuilder.registerSettingsGraph(
         arguments = listOf(
             navArgument("backupUri") { type = NavType.StringType; defaultValue = "" },
             navArgument("openOpenSubtitlesSignIn") { type = NavType.BoolType; defaultValue = false },
+            navArgument("openTrakt") { type = NavType.BoolType; defaultValue = false },
         )
     ) { backStackEntry ->
         val backupUri = backStackEntry.arguments?.getString("backupUri")?.takeIf { it.isNotBlank() }
         val openOpenSubtitlesSignIn = backStackEntry.arguments?.getBoolean("openOpenSubtitlesSignIn") == true
-        settingsContent(backupUri, openOpenSubtitlesSignIn, platformHost, navigationDestinations, actions::back)
+        val openTrakt = backStackEntry.arguments?.getBoolean("openTrakt") == true
+        settingsContent(backupUri, openOpenSubtitlesSignIn, openTrakt, platformHost, navigationDestinations, actions::back)
     }
 
     composable(

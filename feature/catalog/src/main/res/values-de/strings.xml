@@ -367,4 +367,28 @@
 <string name="trakt_rating_saved">Deine Bewertung wurde auf Trakt gespeichert.</string>
 <string name="trakt_rating_failed">Deine Bewertung konnte nicht auf Trakt gespeichert werden.</string>
 <string name="trakt_favorite_sync_failed">StreamVault hat die Änderung gespeichert, konnte aber die Trakt-Favoriten nicht aktualisieren. Versuche es erneut.</string>
+
+  <string name="movies_group_created">Erstellte Gruppe %1$s</string>
+  <string name="series_group_created">Erstellte Gruppe %1$s</string>
+  <string name="movies_group_name_invalid">Geben Sie einen Gruppennamen ein</string>
+  <string name="series_group_name_invalid">Geben Sie einen Gruppennamen ein</string>
+  <string name="movies_group_name_reserved">Favoriten ist reserviert</string>
+  <string name="series_group_name_reserved">Favoriten ist reserviert</string>
+  <string name="movies_group_name_duplicate">Eine Filmgruppe mit diesem Namen existiert bereits</string>
+  <string name="series_group_name_duplicate">Eine Seriengruppe mit diesem Namen existiert bereits</string>
+  <string name="continue_watching_remove_title">Aus „Weiter ansehen“ entfernen?</string>
+  <string name="continue_watching_remove_message">Dadurch wird %1$s aus „Weiter ansehen“ entfernt und der gespeicherte Wiedergabefortschritt gelöscht.</string>
+  <string name="continue_watching_removed">%1$s wurde aus „Weiter ansehen“ entfernt.</string>
+  <string name="continue_watching_remove_failed">Der Eintrag konnte nicht aus „Weiter ansehen“ entfernt werden. Bitte erneut versuchen.</string>
+    <string name="featured_movies">Filmempfehlungskarte</string>
+    <string name="featured_series">Serienempfehlungskarte</string>
+    <string name="featured_hidden">Ausgeblendet</string>
+    <string name="featured_latest">Neueste Veröffentlichungen</string>
+    <string name="featured_added">Kürzlich hinzugefügt</string>
+    <string name="featured_updated">Kürzlich aktualisiert</string>
+    <string name="featured_continue">Weiterschauen</string>
+    <string name="featured_random">Auf gut Glück</string>
+    <string name="featured_for_you">Für dich</string>
+    <string name="featured_up_next">Nächste Folge</string>
+  <string name="featured_details">Details ansehen</string>
 </resources>

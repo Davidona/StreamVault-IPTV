@@ -278,6 +278,8 @@ private fun resolvedSettingsCatalog(
         setting("live.clock_font", SettingsCategory.LIVE_TV, SettingsPage.CLOCK, R.string.settings_live_clock_font),
         setting("live.multiview_center_two", SettingsCategory.LIVE_TV, SettingsPage.MULTIVIEW, R.string.settings_multiview_center_two_slot_layout),
         setting("live.multiview_connection_limit", SettingsCategory.LIVE_TV, SettingsPage.MULTIVIEW, R.string.settings_multiview_respect_provider_connection_limit),
+        setting("vod.featured_movies", SettingsCategory.MOVIES, SettingsPage.VOD_LIBRARY, R.string.featured_movies),
+        setting("vod.featured_series", SettingsCategory.MOVIES, SettingsPage.VOD_LIBRARY, R.string.featured_series),
         setting("vod.view_mode", SettingsCategory.MOVIES, SettingsPage.VOD_LIBRARY, R.string.settings_vod_view_mode, "library layout"),
         setting("vod.trakt_trending_movies", SettingsCategory.MOVIES, SettingsPage.VOD_LIBRARY, R.string.settings_trakt_discovery_trending_movies, "trakt"),
         setting("vod.trakt_popular_movies", SettingsCategory.MOVIES, SettingsPage.VOD_LIBRARY, R.string.settings_trakt_discovery_popular_movies, "trakt"),

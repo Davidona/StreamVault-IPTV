@@ -1,8 +1,9 @@
 package com.streamvault.feature.live.presentation.components
 
+import com.streamvault.core.ui.design.selectableFocusBorder
+import com.streamvault.core.ui.design.secondarySurfaceColors
 import com.streamvault.core.ui.design.BrowseShapes
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -29,7 +30,6 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
-import androidx.tv.material3.Border
 import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
@@ -37,7 +37,6 @@ import androidx.tv.material3.Surface
 import androidx.tv.material3.SurfaceDefaults
 import androidx.tv.material3.Text
 import com.streamvault.core.ui.interaction.mouseClickable
-import com.streamvault.core.ui.design.browse.FocusBorder
 import com.streamvault.core.ui.design.browse.OnBackground
 import com.streamvault.core.ui.design.browse.OnSurfaceDim
 import com.streamvault.core.ui.design.browse.Primary
@@ -83,20 +82,8 @@ fun LiveSourceSwitcher(
                 .mouseClickable(focusRequester = toggleRequester, onClick = { showSourceList = !showSourceList })
                 .onFocusChanged { isFocused = it.isFocused },
             shape = ClickableSurfaceDefaults.shape(BrowseShapes.Artwork),
-            colors = ClickableSurfaceDefaults.colors(
-                containerColor = if (isFocused) Primary.copy(alpha = 0.12f) else SurfaceElevated.copy(alpha = 0.96f),
-                focusedContainerColor = Primary.copy(alpha = 0.18f)
-            ),
-            border = ClickableSurfaceDefaults.border(
-                border = Border(
-                    border = BorderStroke(1.dp, Primary.copy(alpha = 0.14f)),
-                    shape = BrowseShapes.Artwork
-                ),
-                focusedBorder = Border(
-                    border = BorderStroke(2.dp, FocusBorder),
-                    shape = BrowseShapes.Artwork
-                )
-            )
+            colors = secondarySurfaceColors(),
+            border = selectableFocusBorder(BrowseShapes.Artwork)
         ) {
             Row(
                 modifier = Modifier.padding(horizontal = if (compact) 10.dp else 12.dp, vertical = if (compact) 5.dp else 7.dp),
@@ -107,9 +94,9 @@ fun LiveSourceSwitcher(
                     text = currentOption?.title ?: noSourceLabel,
                     style = if (compact) MaterialTheme.typography.labelMedium else MaterialTheme.typography.bodyMedium,
                     modifier = Modifier.weight(1f).widthIn(max = if (compact) 180.dp else 280.dp),
-                    color = if (isFocused) Primary else OnBackground
+                    color = Color.Unspecified
                 )
-                Icon(imageVector = if (showSourceList) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown, contentDescription = null, tint = OnSurfaceDim)
+                Icon(imageVector = if (showSourceList) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown, contentDescription = null)
             }
         }
 

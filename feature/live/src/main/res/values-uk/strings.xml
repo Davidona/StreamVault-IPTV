@@ -363,4 +363,5 @@
     <string name="live_order_reset_manual_prompt">Замінити збережений ручний порядок порядком постачальника?</string>
     <string name="live_order_jump_to_position">Перейти до цієї позиції</string>
     <string name="home_recent_ordering_hint">Канали впорядковано за часом останнього перегляду: найновіший — першим. Після перегляду канал переміщується на початок списку.</string>
+    <string name="live_channel_count">Кількість каналів: %1$d</string>
 </resources>

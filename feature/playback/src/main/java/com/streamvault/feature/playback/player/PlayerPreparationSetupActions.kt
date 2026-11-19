@@ -47,6 +47,7 @@ internal fun PlayerViewModel.applyPrepareSessionState(
     streamUrl: String,
     internalChannelId: Long,
     categoryId: Long,
+    isVirtual: Boolean,
     providerId: Long,
     combinedProfileId: Long?,
     combinedSourceFilterProviderId: Long?,
@@ -64,17 +65,15 @@ internal fun PlayerViewModel.applyPrepareSessionState(
     preferredVideoDecoderMode: DecoderMode,
     preferredSurfaceMode: PlayerSurfaceMode
 ): Boolean {
-    val previousProviderId = currentProviderId
-    val previousCategoryId = currentCategoryId
-    val previousCombinedProfileId = currentCombinedProfileId
-    val previousCombinedSourceFilterProviderId = currentCombinedSourceFilterProviderId
-    val shouldReloadPlaylist = categoryId != -1L &&
-        (
-            categoryId != previousCategoryId ||
-                providerId != previousProviderId ||
-                combinedProfileId != previousCombinedProfileId ||
-                combinedSourceFilterProviderId != previousCombinedSourceFilterProviderId
-            )
+    val shouldReloadPlaylist = shouldReloadPlayerPlaylist(
+        current = PlayerPlaylistContext(
+            currentCategoryId, currentProviderId, isVirtualCategory,
+            currentCombinedProfileId, currentCombinedSourceFilterProviderId
+        ),
+        requested = PlayerPlaylistContext(
+            categoryId, providerId, isVirtual, combinedProfileId, combinedSourceFilterProviderId
+        )
+    )
 
     val requestedContentType = try {
         ContentType.valueOf(contentType)

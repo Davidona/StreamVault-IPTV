@@ -325,7 +325,7 @@ fun PremiumDialogActionButton(
     val containerColor = when {
         destructive -> dialogPalette.live.copy(alpha = 0.22f)
         emphasized -> dialogPalette.brand
-        else -> Color.White.copy(alpha = 0.08f)
+        else -> dialogPalette.controlContainer
     }
     val contentColor = when {
         destructive -> dialogPalette.textPrimary
@@ -341,16 +341,25 @@ fun PremiumDialogActionButton(
         colors = ButtonDefaults.colors(
             containerColor = containerColor,
             contentColor = contentColor,
-            focusedContainerColor = if (destructive) dialogPalette.live else dialogPalette.surfaceEmphasis,
+            // A focused primary stays filled brand; the ring carries the focus state.
+            focusedContainerColor = when {
+                destructive -> dialogPalette.live
+                emphasized -> dialogPalette.brandStrong
+                else -> dialogPalette.surfaceAccent
+            },
             focusedContentColor = if (LocalBrowseVisuals.current) {
-                if (destructive) contentOnColor(dialogPalette.live) else dialogPalette.textPrimary
+                when {
+                    destructive -> contentOnColor(dialogPalette.live)
+                    emphasized -> contentOnColor(dialogPalette.brandStrong)
+                    else -> dialogPalette.textPrimary
+                }
             } else dialogPalette.focus,
             disabledContainerColor = dialogPalette.surface.copy(alpha = 0.85f),
             disabledContentColor = dialogPalette.textDisabled
         ),
         border = ButtonDefaults.border(
             focusedBorder = androidx.tv.material3.Border(
-                border = BorderStroke(if (LocalBrowseVisuals.current) BrowseFocusSpec.BorderWidth else FocusSpec.BorderWidth, dialogPalette.focus)
+                border = BorderStroke(if (LocalBrowseVisuals.current) BrowseFocusSpec.SelectableRingWidth else FocusSpec.BorderWidth, dialogPalette.focus)
             )
         ),
         scale = ButtonDefaults.scale(focusedScale = if (LocalBrowseVisuals.current) BrowseFocusSpec.FocusedScale else FocusSpec.FocusedScale)
@@ -375,7 +384,7 @@ fun PremiumDialogFooterButton(
     val containerColor = when {
         destructive -> dialogPalette.live.copy(alpha = 0.18f)
         emphasized -> dialogPalette.brand
-        else -> Color.White.copy(alpha = 0.08f)
+        else -> dialogPalette.controlContainer
     }
     val contentColor = if (emphasized) { if (LocalBrowseVisuals.current) dialogPalette.onPrimary else Color.Black } else dialogPalette.textPrimary
 
@@ -387,16 +396,25 @@ fun PremiumDialogFooterButton(
         colors = ButtonDefaults.colors(
             containerColor = containerColor,
             contentColor = contentColor,
-            focusedContainerColor = if (destructive) dialogPalette.live else dialogPalette.surfaceEmphasis,
+            // A focused primary stays filled brand; the ring carries the focus state.
+            focusedContainerColor = when {
+                destructive -> dialogPalette.live
+                emphasized -> dialogPalette.brandStrong
+                else -> dialogPalette.surfaceAccent
+            },
             focusedContentColor = if (LocalBrowseVisuals.current) {
-                if (destructive) contentOnColor(dialogPalette.live) else dialogPalette.textPrimary
+                when {
+                    destructive -> contentOnColor(dialogPalette.live)
+                    emphasized -> contentOnColor(dialogPalette.brandStrong)
+                    else -> dialogPalette.textPrimary
+                }
             } else dialogPalette.focus,
             disabledContainerColor = dialogPalette.surface.copy(alpha = 0.85f),
             disabledContentColor = dialogPalette.textDisabled
         ),
         border = ButtonDefaults.border(
             focusedBorder = androidx.tv.material3.Border(
-                border = BorderStroke(if (LocalBrowseVisuals.current) BrowseFocusSpec.BorderWidth else FocusSpec.BorderWidth, dialogPalette.focus)
+                border = BorderStroke(if (LocalBrowseVisuals.current) BrowseFocusSpec.SelectableRingWidth else FocusSpec.BorderWidth, dialogPalette.focus)
             )
         ),
         scale = ButtonDefaults.scale(focusedScale = if (LocalBrowseVisuals.current) BrowseFocusSpec.FocusedScale else FocusSpec.FocusedScale)

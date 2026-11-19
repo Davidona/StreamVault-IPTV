@@ -8,6 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
@@ -20,6 +21,7 @@ fun LiveFocusedMarqueeText(
     modifier: Modifier = Modifier,
     style: TextStyle = TextStyle.Default,
     color: Color = Color.Unspecified,
+    fontWeight: FontWeight? = null,
     maxLines: Int = 1,
 ) {
     val ambientLayoutDirection = LocalLayoutDirection.current
@@ -36,6 +38,7 @@ fun LiveFocusedMarqueeText(
             text = text,
             style = style,
             color = color,
+            fontWeight = fontWeight,
             maxLines = maxLines,
             overflow = if (isFocused) TextOverflow.Clip else TextOverflow.Ellipsis,
             modifier = modifier.then(

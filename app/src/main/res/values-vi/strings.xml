@@ -293,4 +293,6 @@
     <string name="nav_sports">Thể thao</string>
     <string name="stremio_new_episode_channel">Thông báo tập mới</string>
     <string name="stremio_new_episode_count">Tập mới: %1$d</string>
+    <string name="tv_channel_favorites_title">Yêu thích</string>
+    <string name="tv_channel_favorites_description">Các kênh, phim và phim bộ yêu thích của bạn</string>
 </resources>

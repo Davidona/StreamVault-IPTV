@@ -71,6 +71,27 @@ class XtreamLiveCategorySchedulingTest {
     }
 
     @Test
+    fun `a new adaptive policy respects saved provider deadline`() = runTest {
+        val saved = mutableMapOf<Long, Long>()
+        val deadlines = object : XtreamRetryDeadlines {
+            override fun deadline(providerId: Long) = saved[providerId] ?: 0L
+            override fun extend(providerId: Long, deadline: Long) {
+                saved[providerId] = maxOf(saved[providerId] ?: 0L, deadline)
+            }
+            override fun clear(providerId: Long) { saved.remove(providerId) }
+        }
+        val policy = XtreamAdaptiveSyncPolicy(deadlines) { testScheduler.currentTime }
+        policy.recordFailure(7, XtreamNetworkException("HTTP 429", statusCode = 429, retryAfterMs = 600_000))
+        val reconstructed = XtreamAdaptiveSyncPolicy(deadlines) { testScheduler.currentTime }
+        reconstructed.awaitTurn(8, XtreamAdaptiveSyncPolicy.Stage.HEAVY)
+        assertThat(testScheduler.currentTime).isEqualTo(0L)
+        reconstructed.awaitTurn(7, XtreamAdaptiveSyncPolicy.Stage.HEAVY)
+        assertThat(testScheduler.currentTime).isEqualTo(600_000L)
+        reconstructed.forgetProvider(7)
+        assertThat(saved).isEmpty()
+    }
+
+    @Test
     fun `retry after extension while waiting delays the next request to the new deadline`() = runTest {
         val policy = XtreamAdaptiveSyncPolicy { testScheduler.currentTime }
         policy.recordFailure(7, XtreamNetworkException("HTTP 429", statusCode = 429, retryAfterMs = 10_000))

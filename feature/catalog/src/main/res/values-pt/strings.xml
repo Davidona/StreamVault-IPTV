@@ -367,4 +367,28 @@
 <string name="trakt_rating_saved">Sua avaliação foi salva no Trakt.</string>
 <string name="trakt_rating_failed">Não foi possível salvar sua avaliação no Trakt.</string>
 <string name="trakt_favorite_sync_failed">O StreamVault salvou a alteração, mas não conseguiu atualizar os Favoritos do Trakt. Tente novamente.</string>
+
+  <string name="movies_group_created">Grupo criado %1$s</string>
+  <string name="series_group_created">Grupo criado %1$s</string>
+  <string name="movies_group_name_invalid">Insira um nome de grupo</string>
+  <string name="series_group_name_invalid">Insira um nome de grupo</string>
+  <string name="movies_group_name_reserved">Favoritos estão reservados</string>
+  <string name="series_group_name_reserved">Favoritos estão reservados</string>
+  <string name="movies_group_name_duplicate">Já existe um grupo de filmes com esse nome</string>
+  <string name="series_group_name_duplicate">Já existe um grupo de séries com esse nome</string>
+  <string name="continue_watching_remove_title">Remover de Continuar a ver?</string>
+  <string name="continue_watching_remove_message">Isto remove %1$s de Continuar a ver e apaga o progresso de reprodução guardado.</string>
+  <string name="continue_watching_removed">%1$s foi removido de Continuar a ver.</string>
+  <string name="continue_watching_remove_failed">Não foi possível remover este item de Continuar a ver. Tente novamente.</string>
+    <string name="featured_movies">Cartão de filme em destaque</string>
+    <string name="featured_series">Cartão de série em destaque</string>
+    <string name="featured_hidden">Oculto</string>
+    <string name="featured_latest">Últimos lançamentos</string>
+    <string name="featured_added">Adicionados recentemente</string>
+    <string name="featured_updated">Atualizados recentemente</string>
+    <string name="featured_continue">Continuar a ver</string>
+    <string name="featured_random">Estou com sorte</string>
+    <string name="featured_for_you">Para si</string>
+    <string name="featured_up_next">Próximo episódio</string>
+  <string name="featured_details">Ver detalhes</string>
 </resources>

@@ -637,7 +637,6 @@ fun LiveEpgScreen(
                 title = stringResource(R.string.epg_options_short),
                 showAppNavigation = stringResource(R.string.epg_show_app_navigation),
                 cancel = stringResource(R.string.settings_cancel),
-                manageEpgMatch = stringResource(R.string.epg_override_manage),
                 refreshGuide = stringResource(R.string.epg_refresh_guide)
             ),
             onDismiss = { showGuideOptions = false },
@@ -661,13 +660,7 @@ fun LiveEpgScreen(
             onDensitySelected = viewModel::selectDensity,
             onToggleScheduledOnly = viewModel::toggleScheduledOnly,
             onToggleFavoritesOnly = viewModel::toggleFavoritesOnly,
-            onRefresh = viewModel::refresh,
-            onManageEpgMatch = focusedChannel?.takeIf { it.providerId > 0L }?.let { ch ->
-                {
-                    showGuideOptions = false
-                    viewModel.openEpgOverride(ch)
-                }
-            }
+            onRefresh = viewModel::refresh
         )
     }
 
@@ -749,7 +742,8 @@ fun LiveEpgScreen(
                     scheduleWeeklyRecording = stringResource(R.string.epg_schedule_weekly_recording),
                     detailsShow = stringResource(R.string.epg_program_details_show),
                     detailsHide = stringResource(R.string.epg_program_details_hide),
-                    cancel = stringResource(R.string.settings_cancel)
+                    cancel = stringResource(R.string.settings_cancel),
+                    adjustEpgMatch = stringResource(R.string.epg_override_manage)
                 ),
                 onDismiss = { selectedProgram = null },
                 onWatchLive = {
@@ -825,6 +819,12 @@ fun LiveEpgScreen(
                     }
                 } else {
                     null
+                },
+                onAdjustEpgMatch = channel.takeIf { it.providerId > 0L }?.let {
+                    {
+                        selectedProgram = null
+                        viewModel.openEpgOverride(channel)
+                    }
                 }
             )
         }

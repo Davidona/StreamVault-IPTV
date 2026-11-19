@@ -24,6 +24,7 @@ enum class SettingsCategory(val legacyId: Int, val title: Int, val description: 
 }
 
 enum class SettingsPage(val categoryId: Int, val title: Int, val description: Int) {
+    PLAYBACK_WEBHOOKS(9, R.string.webhook_title, R.string.webhook_description),
     LOCAL_BACKUP(5, R.string.settings_page_local_backup, R.string.settings_page_local_backup_description),
     DRIVE_BACKUP(5, R.string.settings_page_drive_backup, R.string.settings_page_drive_backup_description),
     UPDATES(7, R.string.settings_updates_title, R.string.settings_updates_subtitle),

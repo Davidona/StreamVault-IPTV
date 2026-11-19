@@ -139,7 +139,6 @@ fun LiveHomeScreen(
         channelMode = uiState.liveTvChannelMode
     )
     val sidebarWidth = layoutMetrics.sidebarWidth
-    val channelSearchWidth = layoutMetrics.channelSearchWidth
     val channelRowHeight = layoutMetrics.channelRowHeight
     val channelListSpacing = layoutMetrics.channelListSpacing
     val snackbarHostState = remember { SnackbarHostState() }
@@ -795,7 +794,13 @@ fun LiveHomeScreen(
                                 .focusGroup()
                         ) {
                         if (portrait) {
-                            androidx.compose.material3.TextButton(onClick = { isCategorySidebarHidden = true }) {
+                            com.streamvault.core.ui.interaction.TvButton(
+                                onClick = { isCategorySidebarHidden = true },
+                                modifier = Modifier.sizeIn(
+                                    minWidth = com.streamvault.core.ui.design.LocalAppSpacing.current.channelListMinTouchTarget,
+                                    minHeight = com.streamvault.core.ui.design.LocalAppSpacing.current.channelListMinTouchTarget
+                                )
+                            ) {
                                 Text(stringResource(R.string.settings_cancel))
                             }
                         }
@@ -936,11 +941,11 @@ fun LiveHomeScreen(
                                 stringResource(R.string.home_all_channels)
                             },
                             resultCountLabel = stringResource(
-                                R.string.live_channel_results,
-                                uiState.filteredChannels.size
+                                R.string.live_channel_count,
+                                uiState.channelResultCount
                             ),
                             metadataValues = buildList {
-                                add(stringResource(R.string.live_channel_results, uiState.filteredChannels.size))
+                                add(stringResource(R.string.live_channel_count, uiState.channelResultCount))
                                 uiState.lastVisitedCategory?.name?.let {
                                     add(
                                         stringResource(
@@ -960,7 +965,6 @@ fun LiveHomeScreen(
                             onChannelSearchQueryChanged = viewModel::updateChannelSearchQuery,
                             searchPlaceholder = stringResource(R.string.home_search_channels),
                             channelSearchFocusRequester = channelSearchFocusRequester,
-                            channelSearchWidth = if (portrait) LocalConfiguration.current.screenWidthDp.dp else channelSearchWidth,
                             isReorderMode = isReorderMode,
                             showCategoriesButton = isCategorySidebarHidden,
                             onShowCategories = ::revealCategorySidebar,

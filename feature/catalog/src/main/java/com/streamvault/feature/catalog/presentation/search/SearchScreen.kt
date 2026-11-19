@@ -2,6 +2,10 @@
 
 package com.streamvault.feature.catalog.presentation.search
 
+import com.streamvault.core.ui.design.focusRingButtonBorder
+import com.streamvault.core.ui.design.secondaryButtonColors
+import com.streamvault.core.ui.design.secondarySurfaceColors
+import com.streamvault.feature.catalog.presentation.components.DetailCloseButton
 import com.streamvault.core.ui.layout.AdaptiveRow
 
 import androidx.compose.foundation.layout.FlowRow
@@ -10,10 +14,11 @@ import com.streamvault.core.ui.layout.isPortraitLayout
 
 import android.widget.Toast
 import com.streamvault.core.ui.design.BrowseShapes
+import com.streamvault.core.ui.design.selectableFocusBorder
+import com.streamvault.core.ui.design.selectableSurfaceColors
 import androidx.annotation.StringRes
 import com.streamvault.core.ui.interaction.TvClickableSurface
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -139,6 +144,20 @@ class SearchViewModel @Inject constructor(
             provider?.let { parentalControlManager.unlockedCategoriesForProvider(it.id) } ?: flowOf(emptySet())
         }
 
+    private val searchProviderWithHiddenCategoryIds = providerRepository.getActiveProvider()
+        .flatMapLatest { provider ->
+            if (provider == null) {
+                flowOf(SearchProviderVisibility())
+            } else {
+                combine(
+                    preferencesRepository.getHiddenCategoryIds(provider.id, ContentType.MOVIE),
+                    preferencesRepository.getHiddenCategoryIds(provider.id, ContentType.SERIES)
+                ) { movieIds, seriesIds ->
+                    SearchProviderVisibility(provider, movieIds, seriesIds)
+                }
+            }
+        }
+
     init {
         viewModelScope.launch {
             preferencesRepository.parentalControlLevel.collect { level ->
@@ -171,15 +190,26 @@ class SearchViewModel @Inject constructor(
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     @OptIn(FlowPreview::class)
-    val uiState: StateFlow<SearchUiState> = combine(
-        providerRepository.getActiveProvider(),
+    private val searchFilterParams = combine(
+        searchProviderWithHiddenCategoryIds,
         _query.debounce(300),
         _selectedTab,
         _parentalControlLevel,
         unlockedCategoryIds
-    ) { provider, query, tab, level, unlockedIds ->
-        SearchFilterParams(provider, query, tab, level, unlockedIds)
-    }.distinctUntilChanged().flatMapLatest { params ->
+    ) { providerVisibility, query, tab, level, unlockedIds ->
+        SearchFilterParams(
+            provider = providerVisibility.provider,
+            query = query,
+            tab = tab,
+            level = level,
+            unlockedCategoryIds = unlockedIds,
+            hiddenMovieCategoryIds = providerVisibility.hiddenMovieCategoryIds,
+            hiddenSeriesCategoryIds = providerVisibility.hiddenSeriesCategoryIds
+        )
+    }
+
+    val uiState: StateFlow<SearchUiState> = searchFilterParams
+        .distinctUntilChanged().flatMapLatest { params ->
         val provider = params.provider
         val query = params.query
         val tab = params.tab
@@ -208,12 +238,14 @@ class SearchViewModel @Inject constructor(
                     channels = if (filterAdult)
                         results.channels.filterNot { it.isAdult || it.isUserProtected }
                     else results.channels,
-                    movies = if (filterAdult)
-                        results.movies.filterNot { it.isAdult || it.isUserProtected }
-                    else results.movies,
-                    series = if (filterAdult)
-                        results.series.filterNot { it.isAdult || it.isUserProtected }
-                    else results.series,
+                    movies = results.movies.filter { movie ->
+                        movie.categoryId?.let(params.hiddenMovieCategoryIds::contains) != true &&
+                            (!filterAdult || (!movie.isAdult && !movie.isUserProtected))
+                    },
+                    series = results.series.filter { series ->
+                        series.categoryId?.let(params.hiddenSeriesCategoryIds::contains) != true &&
+                            (!filterAdult || (!series.isAdult && !series.isUserProtected))
+                    },
                     isLoading = false,
                     hasSearched = true,
                     hasSearchError = results.isPartialResult &&
@@ -367,7 +399,15 @@ private data class SearchFilterParams(
     val query: String,
     val tab: SearchTab,
     val level: Int,
-    val unlockedCategoryIds: Set<Long>
+    val unlockedCategoryIds: Set<Long>,
+    val hiddenMovieCategoryIds: Set<Long> = emptySet(),
+    val hiddenSeriesCategoryIds: Set<Long> = emptySet()
+)
+
+private data class SearchProviderVisibility(
+    val provider: com.streamvault.domain.model.LegacyProvider? = null,
+    val hiddenMovieCategoryIds: Set<Long> = emptySet(),
+    val hiddenSeriesCategoryIds: Set<Long> = emptySet()
 )
 
 enum class SearchTab(@get:StringRes val titleRes: Int) {
@@ -996,7 +1036,8 @@ private fun SearchHeroPanel(
                             val recentQueryDescription = stringResource(R.string.a11y_recent_search, recentQuery)
                             SearchPill(
                                 text = recentQuery,
-                                selected = recentQuery.equals(query, ignoreCase = true),
+                                selected = false,
+                                secondary = true,
                                 onClick = { onRecentQuerySelected(recentQuery) },
                                 modifier = Modifier.semantics {
                                     contentDescription = recentQueryDescription
@@ -1027,32 +1068,17 @@ private fun SearchPill(
     selected: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    compact: Boolean = false
+    compact: Boolean = false,
+    // Recent queries are actions, not a selection, so they get a filled secondary container instead of the tonal selected one.
+    secondary: Boolean = false
 ) {
     TvClickableSurface(
         modifier = modifier,
         onClick = onClick,
         shape = ClickableSurfaceDefaults.shape(CircleShape),
         scale = ClickableSurfaceDefaults.scale(focusedScale = 1f),
-        colors = ClickableSurfaceDefaults.colors(
-            containerColor = if (selected) Primary.copy(alpha = 0.22f) else Surface.copy(alpha = 0.72f),
-            focusedContainerColor = if (selected) Primary.copy(alpha = 0.30f) else SurfaceHighlight,
-            contentColor = if (selected) TextPrimary else TextSecondary,
-            focusedContentColor = TextPrimary
-        ),
-        border = ClickableSurfaceDefaults.border(
-            border = Border(
-                border = BorderStroke(
-                    1.dp,
-                    if (selected) Primary.copy(alpha = 0.65f) else FocusBorder.copy(alpha = 0.28f)
-                ),
-                shape = CircleShape
-            ),
-            focusedBorder = Border(
-                border = BorderStroke(2.dp, FocusBorder),
-                shape = CircleShape
-            )
-        )
+        colors = if (secondary) secondarySurfaceColors() else selectableSurfaceColors(selected),
+        border = selectableFocusBorder(CircleShape)
     ) {
         Text(
             text = text,
@@ -1321,12 +1347,11 @@ private fun SearchItemActionsDialog(
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier.weight(1f)
                     )
-                    IconButton(
+                    DetailCloseButton(
+                        contentDescription = stringResource(R.string.search_actions_dismiss),
                         onClick = safeDismiss,
                         modifier = Modifier.mouseClickable(onClick = safeDismiss)
-                    ) {
-                        Icon(Icons.Default.Close, contentDescription = stringResource(R.string.search_actions_dismiss))
-                    }
+                    )
                 }
 
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -1335,7 +1360,6 @@ private fun SearchItemActionsDialog(
                         icon = Icons.Default.Star,
                         label = if (isFavorite) stringResource(R.string.search_actions_remove_favorite)
                                 else stringResource(R.string.search_actions_add_favorite),
-                        isActive = isFavorite,
                         focusRequester = firstFocusRequester,
                         onClick = { if (canInteract) onToggleFavorite() }
                     )
@@ -1345,14 +1369,12 @@ private fun SearchItemActionsDialog(
                         SearchActionButton(
                             icon = Icons.Default.Close,
                             label = stringResource(R.string.search_actions_hide_category),
-                            isActive = false,
                             onClick = { if (canInteract) onHide() }
                         )
                     } else {
                         SearchActionButton(
                             icon = Icons.Default.Close,
                             label = stringResource(R.string.search_actions_hide_no_category),
-                            isActive = false,
                             enabled = false,
                             onClick = {}
                         )
@@ -1364,14 +1386,12 @@ private fun SearchItemActionsDialog(
                             icon = Icons.Default.Lock,
                             label = if (isProtected) stringResource(R.string.search_actions_unlock)
                                     else stringResource(R.string.search_actions_lock),
-                            isActive = isProtected,
                             onClick = { if (canInteract) onToggleLock() }
                         )
                     } else {
                         SearchActionButton(
                             icon = Icons.Default.Lock,
                             label = stringResource(R.string.search_actions_lock_no_category),
-                            isActive = false,
                             enabled = false,
                             onClick = {}
                         )
@@ -1387,7 +1407,6 @@ private fun SearchItemActionsDialog(
 private fun SearchActionButton(
     icon: ImageVector,
     label: String,
-    isActive: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     focusRequester: FocusRequester? = null,
@@ -1400,26 +1419,13 @@ private fun SearchActionButton(
         )
         .mouseClickable(onClick = onClick)
 
-    val actionColor = if (isActive) AppColors.Warning.copy(alpha = 0.18f)
-        else AppColors.SurfaceAccent
-
     Button(
         onClick = onClick,
         enabled = enabled,
         modifier = baseModifier,
-        colors = ButtonDefaults.colors(
-            containerColor = actionColor,
-            focusedContainerColor = actionColor,
-            contentColor = AppColors.TextPrimary,
-            focusedContentColor = AppColors.TextPrimary,
-            disabledContainerColor = AppColors.Surface.copy(alpha = 0.3f),
-            disabledContentColor = AppColors.TextSecondary
-        ),
+        colors = secondaryButtonColors(),
         shape = ButtonDefaults.shape(shape = BrowseShapes.Control),
-        border = ButtonDefaults.border(
-            border = Border(BorderStroke(1.dp, AppColors.Outline)),
-            focusedBorder = Border(BorderStroke(2.dp, AppColors.Focus))
-        ),
+        border = focusRingButtonBorder(BrowseShapes.Control),
         scale = ButtonDefaults.scale(focusedScale = 1f)
     ) {
         Icon(

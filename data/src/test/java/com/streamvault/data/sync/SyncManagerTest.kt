@@ -1331,7 +1331,7 @@ class SyncManagerTest {
     }
 
     @Test
-    fun `manual Stalker EPG refresh carries unsupported portal guide warnings to settings`() = runTest {
+    fun `manual Stalker EPG refresh inspects channels despite an old unsupported observation`() = runTest {
         val portalStateStore = mock<com.streamvault.data.remote.stalker.StalkerPortalStateStore>()
         org.mockito.kotlin.whenever(portalStateStore.getValidated(eq(1L), any())).thenReturn(
             com.streamvault.data.local.entity.StalkerPortalStateEntity(
@@ -1339,9 +1339,10 @@ class SyncManagerTest {
             )
         )
         val manager = buildManager(providerType = ProviderType.STALKER_PORTAL, portalStateStore = portalStateStore)
+        org.mockito.kotlin.whenever(channelDao.getGuideSyncEntriesByProvider(1L)).thenReturn(emptyList())
         val receipt = manager.syncSection(1L, SyncRepairSection.EPG).getOrNull()
-        assertThat(receipt?.partial).isTrue()
-        assertThat(receipt?.warnings).contains("Stalker portal guide is known to be unsupported; keeping cached guide data.")
+        assertThat(receipt?.partial).isFalse()
+        verify(channelDao).getGuideSyncEntriesByProvider(1L)
     }
 
     @Test
@@ -1962,6 +1963,25 @@ class SyncManagerTest {
                     job.totalCategories == 1
             }
         ).isTrue()
+    }
+
+    @Test
+    fun `transient Xtream category failure returns retryable result and keeps partial checkpoint`() = runBlocking {
+        val mgr = buildManager(providerType = ProviderType.XTREAM_CODES)
+        org.mockito.kotlin.whenever(categoryDao.getByProviderAndTypeSync(1L, ContentType.MOVIE.name)).thenReturn(
+            listOf(CategoryEntity(categoryId = 42L, name = "Action", type = ContentType.MOVIE, providerId = 1L)))
+        org.mockito.kotlin.whenever(xtreamIndexJobDao.get(1L, ContentType.MOVIE.name)).thenReturn(
+            XtreamIndexJobEntity(1L, "MOVIE", state = "PARTIAL", totalCategories = 1, failedCategories = 1))
+        xtreamBackend.respond(action = "get_vod_streams", body = "{}", code = 503)
+
+        val result = mgr.processQueuedXtreamIndexJobs(1L, ContentType.MOVIE, maxCategoriesPerSection = 2)
+
+        assertThat(result).isInstanceOf(Result.Error::class.java)
+        assertThat((result as Result.Error).exception).isInstanceOf(java.io.IOException::class.java)
+        val jobs = argumentCaptor<XtreamIndexJobEntity>()
+        verify(xtreamIndexJobDao, atLeastOnce()).upsert(jobs.capture())
+        assertThat(jobs.allValues.last().state).isEqualTo("PARTIAL")
+        assertThat(jobs.allValues.last().nextCategoryIndex).isEqualTo(0)
     }
 
     @Test
@@ -3822,7 +3842,7 @@ class SyncManagerTest {
     }
 
     @Test
-    fun sync_stalker_skips_known_unsupported_epg_and_finishes_ready_with_warning() = runTest {
+    fun sync_stalker_hands_off_epg_and_finishes_ready_with_warning() = runTest {
         val providerEntity = sampleProvider(ProviderType.STALKER_PORTAL).copy(
             serverUrl = "http://example.com",
             username = "",

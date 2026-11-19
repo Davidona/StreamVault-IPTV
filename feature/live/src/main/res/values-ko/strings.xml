@@ -363,4 +363,5 @@
     <string name="live_order_reset_manual_prompt">저장된 수동 순서를 제공업체 순서로 바꾸시겠습니까?</string>
     <string name="live_order_jump_to_position">이 위치로 이동</string>
     <string name="home_recent_ordering_hint">채널은 마지막으로 시청한 시간 순으로 정렬되며, 가장 최근 채널이 먼저 표시됩니다. 채널을 시청하면 목록 맨 위로 이동합니다.</string>
+    <string name="live_channel_count">채널 %1$d개</string>
 </resources>

@@ -113,7 +113,6 @@ fun LiveChannelRowSurface(
         shape = ClickableSurfaceDefaults.shape(BrowseShapes.Control),
         colors = ClickableSurfaceDefaults.colors(containerColor = AppColors.SurfaceElevated, focusedContainerColor = AppColors.SurfaceEmphasis),
         border = ClickableSurfaceDefaults.border(
-            border = Border(BorderStroke(1.dp, AppColors.Outline), shape = BrowseShapes.Control),
             focusedBorder = Border(
                 border = BorderStroke(if (isDragging) 4.dp else FocusSpec.BorderWidth, if (isDragging) AppColors.Warning else AppColors.Focus),
                 shape = BrowseShapes.Control

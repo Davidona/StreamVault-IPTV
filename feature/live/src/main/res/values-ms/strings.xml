@@ -363,4 +363,5 @@
     <string name="live_order_reset_manual_prompt">Gantikan susunan manual yang disimpan dengan susunan penyedia?</string>
     <string name="live_order_jump_to_position">Pergi ke kedudukan ini</string>
     <string name="home_recent_ordering_hint">Saluran disusun mengikut masa terakhir ditonton, dengan yang terkini di atas. Apabila anda menonton saluran, saluran itu akan berpindah ke bahagian atas.</string>
+    <string name="live_channel_count">%1$d saluran</string>
 </resources>

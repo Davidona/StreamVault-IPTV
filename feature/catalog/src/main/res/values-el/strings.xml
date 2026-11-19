@@ -367,4 +367,28 @@
 <string name="trakt_rating_saved">Η βαθμολογία σας αποθηκεύτηκε στο Trakt.</string>
 <string name="trakt_rating_failed">Δεν ήταν δυνατή η αποθήκευση της βαθμολογίας σας στο Trakt.</string>
 <string name="trakt_favorite_sync_failed">Το StreamVault αποθήκευσε την αλλαγή, αλλά δεν μπόρεσε να ενημερώσει τα αγαπημένα του Trakt. Δοκιμάστε ξανά.</string>
+
+  <string name="movies_group_created">Δημιουργήθηκε η ομάδα %1$s</string>
+  <string name="series_group_created">Δημιουργήθηκε η ομάδα %1$s</string>
+  <string name="movies_group_name_invalid">Εισαγάγετε όνομα ομάδας</string>
+  <string name="series_group_name_invalid">Εισαγάγετε όνομα ομάδας</string>
+  <string name="movies_group_name_reserved">Το Favorites είναι δεσμευμένο</string>
+  <string name="series_group_name_reserved">Το Favorites είναι δεσμευμένο</string>
+  <string name="movies_group_name_duplicate">Υπάρχει ήδη ομάδα ταινιών με αυτό το όνομα</string>
+  <string name="series_group_name_duplicate">Υπάρχει ήδη ομάδα σειρών με αυτό το όνομα</string>
+  <string name="continue_watching_remove_title">Να αφαιρεθεί από τη Συνέχεια παρακολούθησης;</string>
+  <string name="continue_watching_remove_message">Αυτό θα αφαιρέσει το %1$s από τη Συνέχεια παρακολούθησης και θα διαγράψει την αποθηκευμένη πρόοδο αναπαραγωγής.</string>
+  <string name="continue_watching_removed">Το %1$s αφαιρέθηκε από τη Συνέχεια παρακολούθησης.</string>
+  <string name="continue_watching_remove_failed">Δεν ήταν δυνατή η αφαίρεση αυτού του στοιχείου από τη Συνέχεια παρακολούθησης. Δοκιμάστε ξανά.</string>
+    <string name="featured_movies">Κάρτα προτεινόμενης ταινίας</string>
+    <string name="featured_series">Κάρτα προτεινόμενης σειράς</string>
+    <string name="featured_hidden">Κρυφή</string>
+    <string name="featured_latest">Νέες κυκλοφορίες</string>
+    <string name="featured_added">Πρόσφατες προσθήκες</string>
+    <string name="featured_updated">Πρόσφατες ενημερώσεις</string>
+    <string name="featured_continue">Συνέχεια προβολής</string>
+    <string name="featured_random">Δοκίμασε την τύχη σου</string>
+    <string name="featured_for_you">Για εσένα</string>
+    <string name="featured_up_next">Επόμενο επεισόδιο</string>
+  <string name="featured_details">Προβολή λεπτομερειών</string>
 </resources>

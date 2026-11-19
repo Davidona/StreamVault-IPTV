@@ -315,4 +315,6 @@
     <string name="nav_sports">體育</string>
     <string name="stremio_new_episode_channel">新集數通知</string>
     <string name="stremio_new_episode_count">新集數: %1$d</string>
+    <string name="tv_channel_favorites_title">收藏</string>
+    <string name="tv_channel_favorites_description">你收藏的頻道、電影與影集</string>
 </resources>

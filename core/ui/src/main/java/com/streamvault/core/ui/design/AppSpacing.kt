@@ -16,6 +16,9 @@ data class AppSpacing(
     val sectionGap: Dp = 32.dp,
     val cardGap: Dp = 16.dp,
     val chipGap: Dp = 10.dp,
+    val channelListOverlayWidth: Dp = 420.dp,
+    val channelListPanelWidth: Dp = 760.dp,
+    val channelListMinTouchTarget: Dp = 48.dp,
     val safeTop: Dp = 32.dp,
     val safeBottom: Dp = 32.dp,
     val safeHoriz: Dp = 56.dp

@@ -1459,6 +1459,22 @@ interface MovieDao {
     @Query("SELECT * FROM movies WHERE provider_id = :providerId AND added_at > 0 ORDER BY added_at DESC, name ASC, id ASC LIMIT :limit")
     fun getFreshPreview(providerId: Long, limit: Int): Flow<List<MovieBrowseEntity>>
 
+    @Query(
+        """
+        SELECT * FROM movies
+        WHERE provider_id = :providerId
+          AND added_at > 0
+          AND (category_id IS NULL OR category_id NOT IN (:hiddenCategoryIds))
+        ORDER BY added_at DESC, name ASC, id ASC
+        LIMIT :limit
+        """
+    )
+    fun getFreshPreviewExcludingHiddenCategories(
+        providerId: Long,
+        hiddenCategoryIds: List<Long>,
+        limit: Int
+    ): Flow<List<MovieBrowseEntity>>
+
         @Query(
             """
             SELECT * FROM movies
@@ -2500,6 +2516,22 @@ interface SeriesDao {
 
     @Query("SELECT * FROM series WHERE provider_id = :providerId AND last_modified > 0 ORDER BY last_modified DESC, name ASC LIMIT :limit")
     fun getFreshPreview(providerId: Long, limit: Int): Flow<List<SeriesBrowseEntity>>
+
+    @Query(
+        """
+        SELECT * FROM series
+        WHERE provider_id = :providerId
+          AND last_modified > 0
+          AND (category_id IS NULL OR category_id NOT IN (:hiddenCategoryIds))
+        ORDER BY last_modified DESC, name ASC
+        LIMIT :limit
+        """
+    )
+    fun getFreshPreviewExcludingHiddenCategories(
+        providerId: Long,
+        hiddenCategoryIds: List<Long>,
+        limit: Int
+    ): Flow<List<SeriesBrowseEntity>>
 
     @Query(
         """
@@ -3594,6 +3626,9 @@ interface VirtualGroupDao {
 @Dao
 @RewriteQueriesToDropUnusedColumns
 interface PlaybackHistoryDao {
+    @Query("SELECT * FROM playback_history WHERE provider_id = :providerId AND series_id = :seriesId AND content_type = 'SERIES_EPISODE' ORDER BY last_watched_at DESC, content_id DESC LIMIT 1")
+    suspend fun getLatestEpisodeHistoryForSeries(providerId: Long, seriesId: Long): PlaybackHistoryEntity?
+
     @Query("SELECT * FROM playback_history ORDER BY last_watched_at DESC, content_id DESC, content_type DESC, provider_id DESC LIMIT :limit")
     fun getRecentlyWatched(limit: Int = 100): Flow<List<PlaybackHistoryLiteEntity>>
 

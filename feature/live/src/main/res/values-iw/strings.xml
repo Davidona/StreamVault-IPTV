@@ -363,4 +363,5 @@
     <string name="live_order_reset_manual_prompt">להחליף את הסדר הידני השמור בסדר של הספק?</string>
     <string name="live_order_jump_to_position">קפיצה למיקום הזה</string>
     <string name="home_recent_ordering_hint">הערוצים מסודרים לפי מועד הצפייה האחרון, כשהאחרון מופיע ראשון. צפייה בערוץ מעבירה אותו לראש הרשימה.</string>
+    <string name="live_channel_count">%1$d ערוצים</string>
 </resources>

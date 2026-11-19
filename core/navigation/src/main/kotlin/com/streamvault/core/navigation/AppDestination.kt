@@ -19,6 +19,7 @@ sealed interface AppDestination : Serializable {
     data class Settings(
         val backupUri: String? = null,
         val openOpenSubtitlesSignIn: Boolean = false,
+        val openTrakt: Boolean = false,
     ) : AppDestination
     data object Plugins : AppDestination
     data object Addons : AppDestination

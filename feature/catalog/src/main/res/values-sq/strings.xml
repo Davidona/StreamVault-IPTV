@@ -353,4 +353,28 @@
   <string name="vod_sync_needed_title">Kërkohet sinkronizim</string>
   <string name="vod_unavailable_subtitle">Ky ofrues ekspozon katalogë të veçantë për Filmat dhe Serialet.</string>
   <string name="vod_unavailable_title">VOD nuk disponohet</string>
+
+  <string name="movies_group_created">U krijua grupi %1$s</string>
+  <string name="series_group_created">U krijua grupi %1$s</string>
+  <string name="movies_group_name_invalid">Fut një emër grupi</string>
+  <string name="series_group_name_invalid">Fut një emër grupi</string>
+  <string name="movies_group_name_reserved">Të preferuarat është i rezervuar</string>
+  <string name="series_group_name_reserved">Të preferuarat është i rezervuar</string>
+  <string name="movies_group_name_duplicate">Ekziston tashmë një grup filmash me këtë emër</string>
+  <string name="series_group_name_duplicate">Ekziston tashmë një grup serialesh me këtë emër</string>
+  <string name="continue_watching_remove_title">Të hiqet nga Vazhdo shikimin?</string>
+  <string name="continue_watching_remove_message">Kjo do ta heqë %1$s nga Vazhdo shikimin dhe do të fshijë përparimin e ruajtur të riprodhimit.</string>
+  <string name="continue_watching_removed">%1$s u hoq nga Vazhdo shikimin.</string>
+  <string name="continue_watching_remove_failed">Ky element nuk mund të hiqej nga Vazhdo shikimin. Provo sërish.</string>
+    <string name="featured_movies">Karta e filmit të zgjedhur</string>
+    <string name="featured_series">Karta e serialit të zgjedhur</string>
+    <string name="featured_hidden">E fshehur</string>
+    <string name="featured_latest">Publikimet më të reja</string>
+    <string name="featured_added">Shtuar së fundmi</string>
+    <string name="featured_updated">Përditësuar së fundmi</string>
+    <string name="featured_continue">Vazhdo shikimin</string>
+    <string name="featured_random">Provo fatin</string>
+    <string name="featured_for_you">Për ju</string>
+    <string name="featured_up_next">Episodi tjetër</string>
+  <string name="featured_details">Shiko hollësitë</string>
 </resources>

@@ -367,4 +367,28 @@
 <string name="trakt_rating_saved">評価をTraktに保存しました。</string>
 <string name="trakt_rating_failed">評価をTraktに保存できませんでした。</string>
 <string name="trakt_favorite_sync_failed">StreamVaultで変更を保存しましたが、Traktのお気に入りを更新できませんでした。もう一度お試しください。</string>
+
+  <string name="movies_group_created">グループ %1$s を作成しました</string>
+  <string name="series_group_created">グループ %1$s を作成しました</string>
+  <string name="movies_group_name_invalid">グループ名を入力してください</string>
+  <string name="series_group_name_invalid">グループ名を入力してください</string>
+  <string name="movies_group_name_reserved">Favorites は予約済みです</string>
+  <string name="series_group_name_reserved">Favorites は予約済みです</string>
+  <string name="movies_group_name_duplicate">その名前の映画グループはすでに存在します</string>
+  <string name="series_group_name_duplicate">その名前のシリーズグループはすでに存在します</string>
+  <string name="continue_watching_remove_title">「視聴を続ける」から削除しますか？</string>
+  <string name="continue_watching_remove_message">%1$sを「視聴を続ける」から削除し、保存された再生位置を消去します。</string>
+  <string name="continue_watching_removed">%1$sを「視聴を続ける」から削除しました。</string>
+  <string name="continue_watching_remove_failed">このアイテムを「視聴を続ける」から削除できませんでした。もう一度お試しください。</string>
+    <string name="featured_movies">映画の注目カード</string>
+    <string name="featured_series">シリーズの注目カード</string>
+    <string name="featured_hidden">非表示</string>
+    <string name="featured_latest">最新公開作品</string>
+    <string name="featured_added">最近追加された作品</string>
+    <string name="featured_updated">最近更新された作品</string>
+    <string name="featured_continue">視聴を続ける</string>
+    <string name="featured_random">おまかせ</string>
+    <string name="featured_for_you">あなたへのおすすめ</string>
+    <string name="featured_up_next">次のエピソード</string>
+  <string name="featured_details">詳細を見る</string>
 </resources>

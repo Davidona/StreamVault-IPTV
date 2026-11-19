@@ -4,7 +4,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.*
@@ -15,11 +17,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
+import kotlinx.coroutines.flow.first
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.res.stringResource
@@ -32,6 +35,8 @@ import com.streamvault.core.ui.interaction.TvIconButton
 import com.streamvault.core.ui.theme.*
 import com.streamvault.feature.settings.R
 import com.streamvault.core.ui.design.AppColors
+import com.streamvault.core.ui.design.selectableFocusBorder
+import com.streamvault.core.ui.design.selectableSurfaceColors
 
 internal val SettingsCategory.icon: ImageVector get() = when (this) {
     SettingsCategory.SOURCES -> Icons.Rounded.Dns
@@ -47,6 +52,25 @@ internal val SettingsCategory.icon: ImageVector get() = when (this) {
     SettingsCategory.TRAKT -> Icons.Rounded.AccountCircle
     SettingsCategory.SPORTS -> Icons.Rounded.SportsSoccer
 }
+
+/**
+ * Opening Settings on a category that sits below the first screenful (deep links such as Trakt) would
+ * otherwise leave the selected entry off screen. Scrolls once, on entry, and only when it is not visible.
+ */
+@Composable
+private fun rememberRailListState(selectedCategory: Int, headerItemCount: Int): LazyListState {
+    val listState = rememberLazyListState()
+    LaunchedEffect(Unit) {
+        val index = SettingsCategory.entries.indexOfFirst { it.legacyId == selectedCategory } + headerItemCount
+        snapshotFlow { listState.layoutInfo.visibleItemsInfo.isNotEmpty() }.first { it }
+        if (listState.layoutInfo.visibleItemsInfo.none { it.index == index }) {
+            listState.scrollToItem((index - ENTRIES_ABOVE_SELECTED_ON_ENTRY).coerceAtLeast(0))
+        }
+    }
+    return listState
+}
+
+private const val ENTRIES_ABOVE_SELECTED_ON_ENTRY = 3
 
 @Composable
 public fun SettingsNavigationRail(
@@ -73,21 +97,14 @@ public fun SettingsNavigationRail(
                 .then(if (isSelected) Modifier.onGloballyPositioned { selectedEntryPlaced = true } else Modifier)
                 .semantics { selected = isSelected },
             shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(SettingsDesignTokens.groupRadius)),
-            colors = ClickableSurfaceDefaults.colors(
-                containerColor = if (isSelected) colors.focusedSurface else Color.Transparent,
-                focusedContainerColor = colors.focusedSurface
-            ),
-            border = ClickableSurfaceDefaults.border(focusedBorder = Border(
-                    androidx.compose.foundation.BorderStroke(SettingsDesignTokens.focusStroke, colors.focusOutline),
-                    shape = RoundedCornerShape(SettingsDesignTokens.groupRadius))),
+            colors = selectableSurfaceColors(isSelected),
+            border = selectableFocusBorder(RoundedCornerShape(SettingsDesignTokens.groupRadius)),
             scale = ClickableSurfaceDefaults.scale(focusedScale = 1f)
         ) {
             Row(Modifier.fillMaxWidth().heightIn(min = 48.dp).padding(horizontal = 14.dp, vertical = 10.dp),
                 horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
-                Icon(category.icon, null, tint = if (isSelected) colors.accent else colors.secondaryText,
-                    modifier = Modifier.size(20.dp))
+                Icon(category.icon, null, modifier = Modifier.size(20.dp))
                 Text(stringResource(category.title), style = MaterialTheme.typography.labelLarge,
-                    color = if (isSelected) colors.accent else colors.primaryText,
                     fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal)
             }
         }
@@ -110,6 +127,7 @@ public fun SettingsNavigationRail(
                 searchModifier = searchModifier,
             )
             LazyColumn(
+                state = rememberRailListState(selectedCategory, headerItemCount = 0),
                 modifier = Modifier.weight(1f).fillMaxWidth(),
                 contentPadding = PaddingValues(top = SettingsDesignTokens.space12, bottom = SettingsDesignTokens.space24),
                 verticalArrangement = Arrangement.spacedBy(SettingsDesignTokens.space4),
@@ -119,6 +137,7 @@ public fun SettingsNavigationRail(
         }
     } else {
         LazyColumn(
+            state = rememberRailListState(selectedCategory, headerItemCount = 1),
             modifier = Modifier.width(SettingsDesignTokens.railWidth).fillMaxHeight().background(colors.canvas),
             contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 20.dp, bottom = 24.dp),
             verticalArrangement = Arrangement.spacedBy(4.dp)

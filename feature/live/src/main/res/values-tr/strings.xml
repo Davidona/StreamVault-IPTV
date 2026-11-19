@@ -365,4 +365,5 @@
     <string name="live_order_reset_manual_prompt">Kaydedilen manuel sıralama sağlayıcı sıralamasıyla değiştirilsin mi?</string>
     <string name="live_order_jump_to_position">Bu konuma git</string>
     <string name="home_recent_ordering_hint">Kanallar en son izlenme zamanına göre, en yeni izlenen en üstte olacak şekilde sıralanır. Bir kanalı izlediğinizde en üste taşınır.</string>
+    <string name="live_channel_count">%1$d kanal</string>
 </resources>

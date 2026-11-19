@@ -363,4 +363,5 @@
     <string name="live_order_reset_manual_prompt">Να αντικατασταθεί η αποθηκευμένη χειροκίνητη σειρά με τη σειρά του παρόχου;</string>
     <string name="live_order_jump_to_position">Μετάβαση σε αυτήν τη θέση</string>
     <string name="home_recent_ordering_hint">Τα κανάλια ταξινομούνται με βάση την τελευταία προβολή, με το πιο πρόσφατο πρώτο. Όταν παρακολουθείτε ένα κανάλι, μετακινείται στην κορυφή.</string>
+    <string name="live_channel_count">%1$d κανάλια</string>
 </resources>

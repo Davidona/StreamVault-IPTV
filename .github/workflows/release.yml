@@ -94,6 +94,9 @@ jobs:
       - name: Verify native 16 KiB page alignment
         run: python3 tools/check-native-page-alignment.py app/build/outputs/apk/release/*.apk
 
+      - name: Verify release SMB crypto retention
+        run: python3 tools/verify-smb-release-crypto.py --check-only
+
       - name: Prepare release artifact
         if: github.event_name == 'workflow_dispatch'
         shell: bash

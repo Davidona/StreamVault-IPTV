@@ -1,6 +1,5 @@
 ﻿package com.streamvault.feature.catalog.presentation.components
 
-import com.streamvault.core.ui.design.contentOnColor
 import com.streamvault.core.ui.design.BrowseShapes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -36,7 +35,6 @@ import androidx.tv.material3.Border
 import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface
-import androidx.tv.material3.SurfaceDefaults
 import androidx.tv.material3.Text
 import com.streamvault.core.ui.design.BrowseColors as AppColors
 import com.streamvault.feature.catalog.presentation.components.ChipRowItem
@@ -59,8 +57,6 @@ import com.streamvault.core.ui.interaction.TvClickableSurface
 import com.streamvault.core.ui.interaction.TvButton
 import com.streamvault.core.ui.interaction.TvIconButton
 import com.streamvault.core.ui.components.shell.AppSectionHeader
-import com.streamvault.core.ui.layout.AdaptiveRow
-import com.streamvault.core.ui.layout.isPortraitLayout
 
 @Composable
 fun VodSectionHeader(
@@ -102,77 +98,8 @@ fun VodActionChipRow(
         chipHorizontalPadding = 14,
         supportingTextStyle = MaterialTheme.typography.labelSmall,
         supportingTextMaxLines = 1,
-        focusedContainerBoostWhenSelected = true,
         firstItemFocusRequester = firstActionFocusRequester
     )
-}
-
-@Composable
-fun VodHeroStrip(
-    title: String,
-    subtitle: String,
-    actionLabel: String,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    TvClickableSurface(
-        onClick = onClick,
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(horizontal = 20.dp)
-            .then(if (isPortraitLayout()) Modifier else Modifier.height(132.dp)),
-        shape = ClickableSurfaceDefaults.shape(BrowseShapes.Panel),
-        colors = ClickableSurfaceDefaults.colors(
-            containerColor = SurfaceHighlight,
-            focusedContainerColor = Primary.copy(alpha = 0.22f)
-        ),
-        border = ClickableSurfaceDefaults.border(
-            focusedBorder = Border(
-                border = BorderStroke(2.dp, FocusBorder),
-                shape = BrowseShapes.Panel
-            )
-        ),
-        scale = ClickableSurfaceDefaults.scale(focusedScale = 1f)
-    ) {
-        AdaptiveRow(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 20.dp, vertical = 18.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Column(
-                modifier = if (isPortraitLayout()) Modifier.fillMaxWidth() else Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.headlineSmall,
-                    color = TextPrimary,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
-                )
-                Text(
-                    text = subtitle,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = OnSurfaceDim,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
-            Surface(
-                shape = BrowseShapes.Control,
-                colors = SurfaceDefaults.colors(containerColor = Primary)
-            ) {
-                Text(
-                    text = actionLabel,
-                    style = MaterialTheme.typography.labelLarge,
-                    color = contentOnColor(Primary),
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp)
-                )
-            }
-        }
-    }
 }
 
 data class VodActionChip(

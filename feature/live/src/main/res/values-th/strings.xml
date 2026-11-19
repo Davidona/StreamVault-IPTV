@@ -363,4 +363,5 @@
     <string name="live_order_reset_manual_prompt">แทนที่ลำดับที่จัดเองที่บันทึกไว้ด้วยลำดับของผู้ให้บริการหรือไม่</string>
     <string name="live_order_jump_to_position">ไปยังตำแหน่งนี้</string>
     <string name="home_recent_ordering_hint">ช่องจะเรียงตามเวลาที่ดูล่าสุด โดยรายการที่ดูล่าสุดจะแสดงก่อน เมื่อคุณดูช่อง ช่องนั้นจะย้ายไปอยู่บนสุด</string>
+    <string name="live_channel_count">%1$d ช่อง</string>
 </resources>

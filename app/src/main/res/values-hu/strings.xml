@@ -293,4 +293,6 @@
     <string name="nav_sports">Sport</string>
     <string name="stremio_new_episode_channel">Értesítések új epizódokról</string>
     <string name="stremio_new_episode_count">Új epizódok: %1$d</string>
+    <string name="tv_channel_favorites_title">Kedvencek</string>
+    <string name="tv_channel_favorites_description">Kedvenc csatornáid, filmjeid és sorozataid</string>
 </resources>

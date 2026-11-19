@@ -363,4 +363,5 @@
     <string name="live_order_reset_manual_prompt">Thay thứ tự thủ công đã lưu bằng thứ tự của nhà cung cấp?</string>
     <string name="live_order_jump_to_position">Chuyển đến vị trí này</string>
     <string name="home_recent_ordering_hint">Kênh được sắp xếp theo lần xem gần nhất, kênh mới xem nhất ở đầu. Khi xem một kênh, kênh đó sẽ chuyển lên đầu danh sách.</string>
+    <string name="live_channel_count">%1$d kênh</string>
 </resources>

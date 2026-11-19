@@ -1,7 +1,9 @@
 package com.streamvault.feature.live.presentation.components
 
+import androidx.compose.ui.graphics.Color
+import com.streamvault.core.ui.design.selectableFocusBorder
+import com.streamvault.core.ui.design.BrowseColors
 import com.streamvault.core.ui.design.BrowseShapes
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -21,19 +23,13 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.tv.material3.Border
 import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
 import com.streamvault.core.ui.interaction.mouseClickable
 import com.streamvault.core.ui.interaction.rememberTvInteractionSounds
-import com.streamvault.core.ui.design.browse.FocusBorder
-import com.streamvault.core.ui.design.browse.OnSurface
 import com.streamvault.core.ui.design.browse.OnSurfaceDim
-import com.streamvault.core.ui.design.browse.Primary
-import com.streamvault.core.ui.design.browse.SurfaceElevated
-import com.streamvault.core.ui.design.browse.SurfaceHighlight
 
 data class LiveSelectionChip(
     val key: String,
@@ -86,8 +82,7 @@ fun LiveChipRowSection(
     contentPadding: PaddingValues = PaddingValues(horizontal = 24.dp),
     chipHorizontalPadding: Int = 16,
     supportingTextStyle: TextStyle = MaterialTheme.typography.bodySmall,
-    supportingTextMaxLines: Int = Int.MAX_VALUE,
-    focusedContainerBoostWhenSelected: Boolean = false
+    supportingTextMaxLines: Int = Int.MAX_VALUE
 ) {
     if (chips.isEmpty()) return
     val sounds = rememberTvInteractionSounds()
@@ -122,19 +117,15 @@ fun LiveChipRowSection(
                             if (it.isFocused && !wasFocused) sounds.playNavigate()
                             wasFocused = it.isFocused
                         },
+                    // Secondary control: filled at rest, no stroke. Selected keeps its fill when focused; the ring carries focus.
                     colors = ClickableSurfaceDefaults.colors(
-                        containerColor = if (selected) Primary.copy(alpha = 0.18f) else SurfaceElevated,
-                        focusedContainerColor = if (selected && focusedContainerBoostWhenSelected) Primary.copy(alpha = 0.28f) else SurfaceHighlight,
-                        contentColor = if (selected) Primary else OnSurface,
-                        focusedContentColor = OnSurface
+                        containerColor = if (selected) BrowseColors.SelectedContainer else BrowseColors.ControlContainer,
+                        focusedContainerColor = if (selected) BrowseColors.SelectedContainer else BrowseColors.SurfaceAccent,
+                        contentColor = if (selected) BrowseColors.OnSelectedContainer else BrowseColors.TextPrimary,
+                        focusedContentColor = if (selected) BrowseColors.OnSelectedContainer else BrowseColors.TextPrimary
                     ),
                     shape = ClickableSurfaceDefaults.shape(BrowseShapes.Control),
-                    border = ClickableSurfaceDefaults.border(
-                        focusedBorder = Border(
-                            border = BorderStroke(2.dp, FocusBorder),
-                            shape = BrowseShapes.Control
-                        )
-                    ),
+                    border = selectableFocusBorder(BrowseShapes.Control),
                     scale = ClickableSurfaceDefaults.scale(focusedScale = 1f)
                 ) {
                     Column(
@@ -143,7 +134,7 @@ fun LiveChipRowSection(
                     ) {
                         Text(text = chip.label, style = MaterialTheme.typography.labelLarge, maxLines = 1, overflow = TextOverflow.Ellipsis)
                         chip.supportingText?.takeIf { it.isNotBlank() }?.let {
-                            Text(text = it, style = supportingTextStyle, color = OnSurfaceDim, maxLines = supportingTextMaxLines, overflow = TextOverflow.Ellipsis)
+                            Text(text = it, style = supportingTextStyle, color = if (selected || wasFocused) Color.Unspecified else BrowseColors.TextSecondary, maxLines = supportingTextMaxLines, overflow = TextOverflow.Ellipsis)
                         }
                     }
                 }

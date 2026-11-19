@@ -367,4 +367,28 @@
 <string name="trakt_rating_saved">Je beoordeling is opgeslagen op Trakt.</string>
 <string name="trakt_rating_failed">Je beoordeling kon niet op Trakt worden opgeslagen.</string>
 <string name="trakt_favorite_sync_failed">StreamVault heeft de wijziging opgeslagen, maar kon de Trakt-favorieten niet bijwerken. Probeer het opnieuw.</string>
+
+  <string name="movies_group_created">Groep aangemaakt %1$s</string>
+  <string name="series_group_created">Groep aangemaakt %1$s</string>
+  <string name="movies_group_name_invalid">Voer een groepsnaam in</string>
+  <string name="series_group_name_invalid">Voer een groepsnaam in</string>
+  <string name="movies_group_name_reserved">Favorieten zijn gereserveerd</string>
+  <string name="series_group_name_reserved">Favorieten zijn gereserveerd</string>
+  <string name="movies_group_name_duplicate">Er bestaat al een filmgroep met die naam</string>
+  <string name="series_group_name_duplicate">Er bestaat al een seriegroep met die naam</string>
+  <string name="continue_watching_remove_title">Verwijderen uit Verder kijken?</string>
+  <string name="continue_watching_remove_message">Hiermee wordt %1$s verwijderd uit Verder kijken en de opgeslagen afspeelvoortgang gewist.</string>
+  <string name="continue_watching_removed">%1$s is verwijderd uit Verder kijken.</string>
+  <string name="continue_watching_remove_failed">Dit item kan niet worden verwijderd uit Verder kijken. Probeer het opnieuw.</string>
+    <string name="featured_movies">Uitgelichte filmkaart</string>
+    <string name="featured_series">Uitgelichte seriekaart</string>
+    <string name="featured_hidden">Verborgen</string>
+    <string name="featured_latest">Nieuwste releases</string>
+    <string name="featured_added">Onlangs toegevoegd</string>
+    <string name="featured_updated">Onlangs bijgewerkt</string>
+    <string name="featured_continue">Verder kijken</string>
+    <string name="featured_random">Doe een gok</string>
+    <string name="featured_for_you">Voor jou</string>
+    <string name="featured_up_next">Volgende aflevering</string>
+  <string name="featured_details">Details bekijken</string>
 </resources>

@@ -10,16 +10,19 @@ import kotlinx.coroutines.launch
 private const val PLAYBACK_CONTROL_MUTE_TOGGLE_DEBOUNCE_MS = 250L
 
 fun PlayerViewModel.seekForward() {
+    webhookState.discontinuity = true
     notifyUserActivity()
     playerEngine.seekForward()
 }
 
 fun PlayerViewModel.seekBackward() {
+    webhookState.discontinuity = true
     notifyUserActivity()
     playerEngine.seekBackward()
 }
 
 fun PlayerViewModel.seekToLiveEdge() {
+    webhookState.discontinuity = true
     notifyUserActivity()
     playerEngine.seekToLiveEdge()
 }
@@ -86,12 +89,15 @@ fun PlayerViewModel.dismissResumePrompt(resume: Boolean) {
     val prompt = _resumePrompt.value
     _resumePrompt.value = ResumePromptState()
     if (resume && prompt.positionMs > 0) {
+        webhookState.discontinuity = true
         playerEngine.seekTo(prompt.positionMs)
     }
     playerEngine.play()
 }
 
 fun PlayerViewModel.play() {
+    webhookState.handedOff = false
+    webhookState.userPaused = false
     notifyUserActivity()
     if (
         currentContentType == ContentType.LIVE &&
@@ -105,6 +111,7 @@ fun PlayerViewModel.play() {
 }
 
 fun PlayerViewModel.pause() {
+    webhookState.userPaused = true
     notifyUserActivity()
     if (currentContentType == ContentType.LIVE && timeshiftConfig.enabled) {
         playerEngine.pauseTimeshift()

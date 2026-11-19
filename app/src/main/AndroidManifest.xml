@@ -69,10 +69,23 @@
             <meta-data
                 android:name="com.streamvault.app.EXTERNAL_ROUTES"
                 android:value="home,plugins,downloads" />
+            <meta-data
+                android:name="com.streamvault.app.ITEM_LINK_VERSION"
+                android:value="1" />
 
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH" />
                 <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="streamvault" android:host="movie" />
+                <data android:scheme="streamvault" android:host="series" />
+                <data android:scheme="streamvault" android:host="episode" />
+                <data android:scheme="streamvault" android:host="live" />
             </intent-filter>
 
             <intent-filter>

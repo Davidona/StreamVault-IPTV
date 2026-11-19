@@ -58,6 +58,7 @@ import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -75,6 +76,8 @@ import com.streamvault.core.ui.design.BrowseColors
 import com.streamvault.core.ui.design.BrowseShapes
 import com.streamvault.core.ui.design.LocalBrowseVisuals
 import com.streamvault.core.ui.design.browseBackdrop
+import com.streamvault.core.ui.design.selectableFocusBorder
+import com.streamvault.core.ui.design.selectableSurfaceColors
 import com.streamvault.core.ui.design.browsePanel
 import com.streamvault.core.ui.design.AppMotion
 import com.streamvault.core.ui.design.BrowseFocusSpec as FocusSpec
@@ -93,7 +96,8 @@ enum class NavigationChrome {
 data class UiDestination(
     val id: String,
     val label: String,
-    val icon: ImageVector
+    val icon: ImageVector,
+    val selectedIcon: ImageVector = icon
 )
 
 @Composable
@@ -404,34 +408,23 @@ private fun TopNavigationButton(
             },
         shape = ClickableSurfaceDefaults.shape(BrowseShapes.Control),
         scale = ClickableSurfaceDefaults.scale(focusedScale = 1f),
-        colors = ClickableSurfaceDefaults.colors(
-            containerColor = if (selected) BrowseColors.Brand.copy(alpha = 0.12f) else Color.Transparent,
-            focusedContainerColor = BrowseColors.Brand.copy(alpha = 0.18f)
-        ),
-        border = ClickableSurfaceDefaults.border(
-            focusedBorder = Border(
-                border = BorderStroke(FocusSpec.BorderWidth, BrowseColors.Focus),
-                shape = BrowseShapes.Control
-            )
-        )
+        colors = selectableSurfaceColors(selected),
+        border = selectableFocusBorder(BrowseShapes.Control)
     ) {
         Row(
-            modifier = Modifier
-                .then(if (selected) Modifier.border(1.dp, BrowseColors.Brand.copy(alpha = 0.28f), BrowseShapes.Control) else Modifier)
-                .padding(horizontal = 8.dp, vertical = 6.dp),
+            modifier = Modifier.padding(horizontal = 8.dp, vertical = 6.dp),
             horizontalArrangement = Arrangement.spacedBy(6.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
-                imageVector = destination.icon,
+                imageVector = if (selected) destination.selectedIcon else destination.icon,
                 contentDescription = destination.label,
-                tint = if (selected) BrowseColors.Brand else BrowseColors.TextSecondary,
                 modifier = Modifier.size(14.dp)
             )
             Text(
                 text = destination.label,
                 style = MaterialTheme.typography.labelSmall,
-                color = if (selected) BrowseColors.TextPrimary else BrowseColors.TextSecondary
+                fontWeight = if (selected) FontWeight.SemiBold else null
             )
         }
     }
@@ -536,7 +529,8 @@ fun StatusPill(
     contentColor: Color = AppColors.TextPrimary,
     cornerRadius: Dp = 999.dp,
     horizontalPadding: Dp = 10.dp,
-    verticalPadding: Dp = 4.dp
+    verticalPadding: Dp = 4.dp,
+    textStyle: TextStyle = MaterialTheme.typography.labelSmall
 ) {
     val modern = LocalBrowseVisuals.current
     val isStatusColor = containerColor in listOf(AppColors.Live, AppColors.Brand, AppColors.Warning, AppColors.Success, AppColors.Info)
@@ -554,7 +548,7 @@ fun StatusPill(
             .then(if (modern) Modifier.border(1.dp, (if (tinted) containerColor else AppColors.TextPrimary).copy(alpha = 0.14f), shape) else Modifier)
             .padding(horizontal = horizontalPadding, vertical = verticalPadding)
     ) {
-        Text(text = label, style = MaterialTheme.typography.labelSmall, color = resolvedContentColor)
+        Text(text = label, style = textStyle, color = resolvedContentColor)
     }
 }
 
@@ -745,16 +739,8 @@ private fun RailButton(
             .onFocusChanged { isFocused = it.isFocused },
         shape = ClickableSurfaceDefaults.shape(BrowseShapes.Panel),
         scale = ClickableSurfaceDefaults.scale(focusedScale = 1f),
-        colors = ClickableSurfaceDefaults.colors(
-            containerColor = if (selected) BrowseColors.Brand.copy(alpha = 0.12f) else Color.Transparent,
-            focusedContainerColor = BrowseColors.Brand.copy(alpha = 0.18f)
-        ),
-        border = ClickableSurfaceDefaults.border(
-            focusedBorder = Border(
-                border = BorderStroke(FocusSpec.BorderWidth, BrowseColors.Focus),
-                shape = BrowseShapes.Panel
-            )
-        )
+        colors = selectableSurfaceColors(selected),
+        border = selectableFocusBorder(BrowseShapes.Panel)
     ) {
         Row(
             modifier = Modifier
@@ -764,15 +750,14 @@ private fun RailButton(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
-                imageVector = destination.icon,
+                imageVector = if (selected) destination.selectedIcon else destination.icon,
                 contentDescription = destination.label,
-                tint = if (selected) BrowseColors.Brand else BrowseColors.TextSecondary,
                 modifier = Modifier.size(20.dp)
             )
             Text(
                 text = destination.label,
                 style = MaterialTheme.typography.titleSmall,
-                color = if (selected) BrowseColors.TextPrimary else BrowseColors.TextSecondary,
+                fontWeight = if (selected) FontWeight.SemiBold else null,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )

@@ -367,4 +367,28 @@
 <string name="trakt_rating_saved">تم حفظ تقييمك في Trakt.</string>
 <string name="trakt_rating_failed">تعذر حفظ تقييمك في Trakt.</string>
 <string name="trakt_favorite_sync_failed">حفظ StreamVault التغيير، لكن تعذر تحديث مفضلات Trakt. حاول مرة أخرى.</string>
+
+  <string name="movies_group_created">تم إنشاء المجموعة %1$s</string>
+  <string name="series_group_created">تم إنشاء المجموعة %1$s</string>
+  <string name="movies_group_name_invalid">أدخل اسمًا للمجموعة</string>
+  <string name="series_group_name_invalid">أدخل اسمًا للمجموعة</string>
+  <string name="movies_group_name_reserved">اسم «المفضلة» محجوز</string>
+  <string name="series_group_name_reserved">المفضلة محجوزة</string>
+  <string name="movies_group_name_duplicate">توجد مجموعة أفلام بهذا الاسم بالفعل</string>
+  <string name="series_group_name_duplicate">توجد مجموعة مسلسلات بهذا الاسم بالفعل</string>
+  <string name="continue_watching_remove_title">إزالة من قائمة «متابعة المشاهدة»؟</string>
+  <string name="continue_watching_remove_message">سيؤدي ذلك إلى إزالة %1$s من قائمة «متابعة المشاهدة» ومسح موضع التشغيل المحفوظ.</string>
+  <string name="continue_watching_removed">تمت إزالة %1$s من قائمة «متابعة المشاهدة».</string>
+  <string name="continue_watching_remove_failed">تعذرت إزالة هذا العنصر من قائمة «متابعة المشاهدة». حاول مرة أخرى.</string>
+    <string name="featured_movies">بطاقة الأفلام المميزة</string>
+    <string name="featured_series">بطاقة المسلسلات المميزة</string>
+    <string name="featured_hidden">مخفية</string>
+    <string name="featured_latest">أحدث الإصدارات</string>
+    <string name="featured_added">المضافة حديثًا</string>
+    <string name="featured_updated">المحدثة حديثًا</string>
+    <string name="featured_continue">متابعة المشاهدة</string>
+    <string name="featured_random">جرّب حظك</string>
+    <string name="featured_for_you">لك</string>
+    <string name="featured_up_next">الحلقة التالية</string>
+  <string name="featured_details">عرض التفاصيل</string>
 </resources>

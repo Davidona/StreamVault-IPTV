@@ -2,6 +2,36 @@
 
 All notable product changes are recorded in this document.
 
+## [1.2.6]
+
+### Added
+- Added optional playback webhooks for movies, episodes and live TV, with start, pause, resume, stop, periodic progress and watched-threshold events, including known external IDs and separate series identities.
+- Added Settings → App & Remote → Playback webhooks with up to four named destinations, custom authentication headers, event and content filters, configurable progress intervals and watched thresholds, payload previews, native test events and delivery diagnostics. The feature is off by default and localized across all 38 advertised locales.
+- Added encrypted webhook configuration excluded from backups, independent destination delivery, expiring real-time updates and recoverable history delivery with bounded retries.
+- Added native JSON for home automation and custom receivers, plus Jellyfin and Yamtrack payload formats. Yamtrack episodes require actual episode IMDb/TVDB IDs; standalone Watcharr integration is not supported. See the [playback webhook guide](PLAYBACK_WEBHOOKS.md) for setup and receiver limitations.
+- Added URI-safe deep links for movies, series, episodes and live channels, allowing Android TV launchers to open details or start playback with resume or start-over behavior. See the [external launcher integration guide](EXTERNAL_LAUNCHER_INTEGRATION.md).
+- Added a Favorites preview channel for supported movies, series and live channels, with reactive updates, saved ordering, localized metadata and links that open the selected item.
+
+### Changed
+- Separated selected and focused states across navigation, Live TV, Movies, Series, Search, Settings and dialogs, with shared control styles, focus rings, and initial Play focus on movie and series detail pages.
+- Unified the playback channel and category browsers with matching compact panels, readable channel and category names, quieter archive indicators, and consistent selected and focused states across themes and right-to-left layouts.
+- Moved Adjust EPG Match from Guide Options into the TV Guide channel long-press menu, where it applies to the selected channel.
+- Restored the top featured card in the Modern Movies and Series libraries with independent settings for Hidden, Latest releases, Recently added (movies) / Recently updated (series), Continue watching, Feeling lucky and For you. Series also offers Up next, advancing at 90% completion or after an explicit watched mark. Recommendations use local genre affinity from history and the connected Trakt watchlist.
+- Added Favorites and custom-group actions to movie and series posters in the unified VOD tab's long-press menu.
+- Added a Continue Watching shelf to unified VOD and long-press removal across VOD, Movies and Series, including the Classic Movies and Series in-progress views. Confirming removal clears saved playback progress.
+
+### Fixed
+- Fixed the playback channel browser showing an empty or previous playlist for user-created groups, including the first custom group, and failing to recognize switches between custom groups.
+- Restored Left from the playback channel list opening Categories, while Back closes the browser.
+- Fixed Stalker movie and series indexing getting stranded after expired sessions or temporary failures; retries preserve page checkpoints, honor throttling cooldowns without spending category retry budget, and recover recognized legacy transient failures.
+- Fixed transient Stalker guide failures being recorded as unsupported, which could suppress later forced guide refreshes.
+- Improved Xtream recovery for partial category failures, including action-level HTTP 403 responses, by retrying from the saved category cursor while keeping account authentication errors terminal; catalog and XMLTV Retry-After deadlines now persist across restarts.
+- Fixed completed movies and episodes with no autoplay next item remaining on the final frame; playback now returns to the originating detail or, for direct local-catalog playback, opens the matching movie or series detail.
+- Improved OpenSubtitles searches for provider titles containing numbering or subtitle tags, with ID-first matching and a cleaned-title fallback.
+- Fixed SMB3 recording storage setup failing with "Session setup failed" in release builds by retaining the AES-CMAC provider required for SMB signing, alongside the existing MD4 authentication support.
+- Fixed hidden movie and series categories appearing in search results and Recently Added sections; fresh previews now exclude hidden categories before applying their result limit.
+- Fixed Live TV categories with more than 200 channels stopping at the first page; counts now show the full category total and scrolling loads the remaining channels.
+
 ## [1.2.5]
 
 ### Added

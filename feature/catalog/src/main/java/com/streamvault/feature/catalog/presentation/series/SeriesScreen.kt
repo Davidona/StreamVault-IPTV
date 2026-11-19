@@ -1,5 +1,6 @@
 ﻿package com.streamvault.feature.catalog.presentation.series
 
+import com.streamvault.core.ui.design.BrowseColors
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -22,7 +23,6 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.tv.material3.*
 import androidx.compose.ui.layout.ContentScale
 import coil3.compose.AsyncImage
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -42,6 +42,7 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import com.streamvault.core.ui.device.rememberIsTelevisionDevice
 import com.streamvault.feature.catalog.presentation.components.CategoryRow
 import com.streamvault.feature.catalog.presentation.components.ContinueWatchingRow
+import com.streamvault.feature.catalog.presentation.components.ContinueWatchingRemovalDialog
 import com.streamvault.feature.catalog.presentation.components.SavedCategoryContextCard
 import com.streamvault.feature.catalog.presentation.components.SavedCategoryShortcut
 import com.streamvault.feature.catalog.presentation.components.SavedCategoryShortcutsRow
@@ -50,8 +51,10 @@ import com.streamvault.feature.catalog.presentation.components.SelectionChipRow
 import com.streamvault.feature.catalog.presentation.components.SeriesCard
 import com.streamvault.core.ui.design.browse.*
 import com.streamvault.domain.model.Category
+import com.streamvault.domain.model.ContentType
 import com.streamvault.domain.model.LibraryFilterType
 import com.streamvault.domain.model.LibrarySortBy
+import com.streamvault.domain.model.PlaybackHistory
 import com.streamvault.domain.model.Series
 import com.streamvault.domain.util.SearchTextNormalizer
 import kotlinx.coroutines.launch
@@ -80,7 +83,6 @@ import com.streamvault.feature.catalog.presentation.components.VodBrowseOptionsD
 import com.streamvault.feature.catalog.presentation.components.VodClassicCategoryOption
 import com.streamvault.feature.catalog.presentation.components.VodClassicContentHeader
 import com.streamvault.feature.catalog.presentation.components.VodClassicSplitLayout
-import com.streamvault.feature.catalog.presentation.components.VodHeroStrip
 import com.streamvault.feature.catalog.presentation.components.VodSectionHeader
 import com.streamvault.core.ui.design.FocusRestoreHost
 import com.streamvault.core.ui.design.requestFocusSafely
@@ -100,6 +102,7 @@ import kotlinx.coroutines.delay
 fun SeriesScreen(
     onSeriesClick: (Series) -> Unit,
     onSeriesIdClick: (Long) -> Unit,
+    onFeaturedPlay: (PlaybackHistory) -> Unit = {},
     scaffold: CatalogScaffoldContent,
     viewModel: SeriesViewModel = hiltViewModel()
 ) {
@@ -118,6 +121,7 @@ fun SeriesScreen(
     var pinError by remember { mutableStateOf<String?>(null) }
     var pendingSeries by remember { mutableStateOf<Series?>(null) }
     var pendingCategory by remember { mutableStateOf<Category?>(null) }
+    var pendingContinueWatchingRemoval by remember { mutableStateOf<PlaybackHistory?>(null) }
 
     HandleVodUserMessage(
         userMessage = uiState.userMessage,
@@ -183,10 +187,10 @@ fun SeriesScreen(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    CircularProgressIndicator(color = Color.White)
+                    CircularProgressIndicator(color = BrowseColors.Brand)
                     Text(
                         text = stringResource(R.string.series_loading),
-                        color = Color.White.copy(alpha = 0.7f)
+                        color = BrowseColors.TextSecondary
                     )
                 }
             }
@@ -229,6 +233,9 @@ fun SeriesScreen(
                 onSearchQueryChange = viewModel::setSearchQuery,
                 onSeriesClick = onSeriesClick,
                 onSeriesIdClick = onSeriesIdClick,
+                onFeaturedPlay = { history -> viewModel.playFeaturedHistory(history, onFeaturedPlay, onSeriesIdClick) },
+                onRemoveFromContinueWatching = viewModel::removeFromContinueWatching,
+                onRequestContinueWatchingRemoval = { pendingContinueWatchingRemoval = it },
                 onProtectedSeriesClick = { series ->
                     pendingCategory = null
                     pendingSeries = series
@@ -274,6 +281,17 @@ fun SeriesScreen(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .padding(bottom = 16.dp)
+        )
+    }
+
+    pendingContinueWatchingRemoval?.let { history ->
+        ContinueWatchingRemovalDialog(
+            history = history,
+            onDismiss = { pendingContinueWatchingRemoval = null },
+            onConfirm = {
+                viewModel.removeFromContinueWatching(history)
+                pendingContinueWatchingRemoval = null
+            }
         )
     }
 
@@ -350,6 +368,9 @@ private fun SeriesVodContent(
     onSearchQueryChange: (String) -> Unit,
     onSeriesClick: (Series) -> Unit,
     onSeriesIdClick: (Long) -> Unit,
+    onFeaturedPlay: (PlaybackHistory) -> Unit,
+    onRemoveFromContinueWatching: (PlaybackHistory) -> Unit,
+    onRequestContinueWatchingRemoval: (PlaybackHistory) -> Unit,
     onProtectedSeriesClick: (Series) -> Unit,
     onProtectedCategoryClick: (Category) -> Unit,
     onShowDialog: (Series) -> Unit,
@@ -389,7 +410,6 @@ private fun SeriesVodContent(
     val freshSeries = uiState.libraryLensRows[SeriesLibraryLens.FRESH].orEmpty()
     val topRatedSeries = uiState.libraryLensRows[SeriesLibraryLens.TOP_RATED].orEmpty()
     val continueWatching = uiState.continueWatching
-    val heroSeries = freshSeries.firstOrNull() ?: topRatedSeries.firstOrNull() ?: favoriteSeries.firstOrNull()
     val categoryByName = remember(uiState.providerCategories, uiState.categories, uiState.favoriteCategoryName) {
         buildMap<String, Category> {
             uiState.providerCategories.forEach { put(it.name, it) }
@@ -466,12 +486,6 @@ private fun SeriesVodContent(
             category == null || category.id !in uiState.pinnedCategoryIds
         }
     }
-    val fallbackSeriesId = if (heroSeries == null) {
-        favoriteSeries.firstOrNull()?.id
-            ?: freshSeries.firstOrNull()?.id
-            ?: topRatedSeries.firstOrNull()?.id
-            ?: catEntries.firstOrNull()?.value?.firstOrNull()?.id
-    } else null
     val categoryOptions = remember(
         visibleCategoryNames,
         uiState.categoryCounts,
@@ -559,6 +573,7 @@ private fun SeriesVodContent(
             onProtectedSeriesClick = onProtectedSeriesClick,
             onProtectedCategoryClick = onProtectedCategoryClick,
             onShowDialog = onShowDialog,
+            onRequestContinueWatchingRemoval = onRequestContinueWatchingRemoval,
             onShowCategoryOptions = onShowCategoryOptions,
             onSelectCategory = onSelectCategory,
             onSelectFullLibraryBrowse = onSelectFullLibraryBrowse,
@@ -587,23 +602,37 @@ private fun SeriesVodContent(
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(bottom = 28.dp)
         ) {
-            item(key = "hero") {
-            if (heroSeries != null) {
-                VodHeroStrip(
-                        title = heroSeries.name,
-                        subtitle = heroSeries.plot?.takeIf { it.isNotBlank() }
-                            ?: heroSeries.genre
-                            ?: stringResource(R.string.series_library_lens_subtitle),
-                        actionLabel = stringResource(R.string.player_resume).substringBefore(" "),
+            uiState.featured?.let { featured ->
+                item(key = "hero") {
+                    com.streamvault.feature.catalog.presentation.components.VodHeroStrip(
+                        title = featured.candidate.title,
+                        subtitle = featured.episode?.let { stringResource(R.string.continue_watching_season_episode, it.seasonNumber, it.episodeNumber) }
+                            ?: stringResource(when (featured.mode) {
+                                com.streamvault.domain.model.VodFeaturedMode.LATEST_RELEASE -> R.string.featured_latest
+                                com.streamvault.domain.model.VodFeaturedMode.RECENTLY_ADDED -> R.string.featured_updated
+                                com.streamvault.domain.model.VodFeaturedMode.RANDOM -> R.string.featured_random
+                                com.streamvault.domain.model.VodFeaturedMode.FOR_YOU -> R.string.featured_for_you
+                                com.streamvault.domain.model.VodFeaturedMode.UP_NEXT -> R.string.featured_up_next
+                                else -> R.string.featured_continue
+                            }),
+                        actionLabel = stringResource(if (featured.episode != null) R.string.featured_up_next
+                            else if (featured.history != null) R.string.player_resume else R.string.featured_details),
+                        focusRequester = initialFocusRequester,
                         onClick = {
-                            val isLocked = isSeriesLocked(heroSeries)
-                            if (isLocked) onProtectedSeriesClick(heroSeries) else onSeriesClick(heroSeries)
+                            val episode = featured.episode
+                            val history = featured.history
+                            if (episode != null && history != null) onFeaturedPlay(history.copy(
+                                id = 0, contentId = episode.id, contentType = ContentType.SERIES_EPISODE,
+                                seriesId = featured.candidate.id, title = episode.title, streamUrl = episode.streamUrl,
+                                remoteContentId = null, remoteSeriesId = null,
+                                resumePositionMs = episode.watchProgress, totalDurationMs = episode.durationSeconds.toLong() * 1000,
+                                seasonNumber = episode.seasonNumber, episodeNumber = episode.episodeNumber,
+                                watchedStatus = com.streamvault.domain.model.PlaybackWatchedStatus.IN_PROGRESS,
+                            )) else if (history != null) onFeaturedPlay(history)
+                            else featured.candidate.series?.let(onSeriesClick)
                         },
-                        modifier = Modifier
-                            .padding(top = 8.dp, bottom = 6.dp)
-                            .focusRequester(initialFocusRequester)
                     )
-            }
+                }
             }
             item(key = "actions") {
             VodActionChipRow(
@@ -694,13 +723,15 @@ private fun SeriesVodContent(
                             )
                         }
                     },
-                    modifier = Modifier.padding(top = 2.dp, bottom = 6.dp)
+                    modifier = Modifier.padding(top = 2.dp, bottom = 6.dp),
+                    firstActionFocusRequester = initialFocusRequester.takeIf { uiState.featured == null }
                 )
             }
             if (continueWatching.isNotEmpty()) {
             item(key = "continue_watching") {
                 ContinueWatchingRow(
                         items = continueWatching,
+                        onRemoveFromContinueWatching = onRemoveFromContinueWatching,
                         onItemClick = { history ->
                             val rawSeriesId = history.seriesId ?: history.contentId
                             val presentedSeries = continueSeries.firstOrNull { series ->
@@ -755,8 +786,7 @@ private fun SeriesVodContent(
                         series = series,
                         isLocked = isLocked,
                         onClick = { if (isLocked) onProtectedSeriesClick(series) else onSeriesClick(series) },
-                        onLongClick = { onShowDialog(series) },
-                        modifier = if (series.id == fallbackSeriesId) Modifier.focusRequester(initialFocusRequester) else Modifier
+                        onLongClick = { onShowDialog(series) }
                     )
                 }
             }
@@ -817,8 +847,7 @@ private fun SeriesVodContent(
                         series = series,
                         isLocked = isLocked,
                         onClick = { if (isLocked) onProtectedSeriesClick(series) else onSeriesClick(series) },
-                        onLongClick = { onShowDialog(series) },
-                        modifier = if (series.id == fallbackSeriesId) Modifier.focusRequester(initialFocusRequester) else Modifier
+                        onLongClick = { onShowDialog(series) }
                     )
                 }
             }
@@ -830,7 +859,7 @@ private fun SeriesVodContent(
                             .padding(vertical = 24.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        CircularProgressIndicator(color = Color.White, modifier = Modifier.size(32.dp))
+                        CircularProgressIndicator(color = BrowseColors.Brand, modifier = Modifier.size(32.dp))
                     }
                 }
             }
@@ -999,10 +1028,10 @@ private fun SeriesVodContent(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
-                        CircularProgressIndicator(color = Color.White)
+                        CircularProgressIndicator(color = BrowseColors.Brand)
                         Text(
                             text = stringResource(R.string.series_loading),
-                            color = Color.White.copy(alpha = 0.7f)
+                            color = BrowseColors.TextSecondary
                         )
                     }
                 }
@@ -1112,6 +1141,7 @@ private fun SeriesVodClassicContent(
     onProtectedSeriesClick: (Series) -> Unit,
     onProtectedCategoryClick: (Category) -> Unit,
     onShowDialog: (Series) -> Unit,
+    onRequestContinueWatchingRemoval: (PlaybackHistory) -> Unit,
     onShowCategoryOptions: (String) -> Unit,
     onSelectCategory: (String?) -> Unit,
     onSelectFullLibraryBrowse: () -> Unit,
@@ -1462,7 +1492,7 @@ private fun SeriesVodClassicContent(
                                 .height(320.dp),
                             contentAlignment = Alignment.Center
                         ) {
-                            CircularProgressIndicator(color = Color.White)
+                            CircularProgressIndicator(color = BrowseColors.Brand)
                         }
                     }
                 } else if (filteredGridSeries.isEmpty()) {
@@ -1526,7 +1556,20 @@ private fun SeriesVodClassicContent(
                                 }
                             },
                             onLongClick = {
-                                if (!uiState.isReorderMode) onShowDialog(series)
+                                if (!uiState.isReorderMode) {
+                                    val history = if (selectedFilterType == LibraryFilterType.IN_PROGRESS) {
+                                        uiState.continueWatching.firstOrNull { item ->
+                                            val historySeriesId = item.seriesId ?: item.contentId
+                                            item.providerId == series.providerId &&
+                                                item.contentType in setOf(ContentType.SERIES, ContentType.SERIES_EPISODE) &&
+                                                (historySeriesId == series.id ||
+                                                    historySeriesId == series.selectedVariantId ||
+                                                    series.variants.any { variant -> variant.rawSeriesId == historySeriesId })
+                                        }
+                                    } else null
+                                    if (history != null) onRequestContinueWatchingRemoval(history)
+                                    else onShowDialog(series)
+                                }
                             }
                         )
                     }
