@@ -1,0 +1,161 @@
+name: Build Katito APK
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Rebrand to Katito
+        shell: bash
+        run: |
+          set -e
+          # App name everywhere in the UI (all languages)
+          find . -path ./.git -prune -o -name "strings.xml" -path "*/src/main/res/*" -print0 | xargs -0 sed -i 's/StreamVault/Katito/g'
+          # Keep the credit the license requires
+          sed -i 's|<string name="settings_build_desc">Katito for Android TV</string>|<string name="settings_build_desc">Katito for Android TV — based on StreamVault by David Nashash (Davidona)</string>|' feature/settings/src/main/res/values/strings.xml
+          find feature/settings/src/main/res -name strings.xml -path "*values-*" -print0 | xargs -0 sed -i -E 's|(<string name="settings_build_desc">[^<]*)</string>|\1 — based on StreamVault</string>|'
+          # Hard-coded text in code
+          sed -i "s/\"StreamVault couldn.t open your library\"/\"Katito couldn't open your library\"/" app/src/main/java/com/streamvault/app/MainActivity.kt
+          sed -i 's/"StreamVault \${releaseInfo.versionName}"/"Katito ${releaseInfo.versionName}"/; s/Downloading the latest StreamVault update/Downloading the latest Katito update/; s/"StreamVault-\$sanitizedVersion.apk"/"Katito-$sanitizedVersion.apk"/' app/src/main/java/com/streamvault/app/update/AppUpdateInstaller.kt
+          sed -i 's|"/StreamVault/"|"/Katito/"|g; s/Share StreamVault backup/Share Katito backup/' app/src/main/java/com/streamvault/app/backup/BackupFileBridge.kt
+          sed -i 's/Share StreamVault crash report/Share Katito crash report/' app/src/main/java/com/streamvault/app/diagnostics/CrashReportStore.kt
+          sed -i 's/DEFAULT_TITLE = "StreamVault"/DEFAULT_TITLE = "Katito"/' feature/playback/src/main/java/com/streamvault/feature/playback/cast/CastMediaRequestFactory.kt
+          sed -i 's/URL. StreamVault will download/URL. Katito will download/' feature/system/src/main/java/com/streamvault/feature/system/presentation/plugins/PluginsScreen.kt
+          sed -i 's/Allow installs from StreamVault, then/Allow installs from Katito, then/' app/src/main/java/com/streamvault/app/plugins/StreamVaultPluginManager.kt
+          # Own package ID so it installs as its own app
+          sed -i 's/applicationId = "com.streamvault.app"/applicationId = "com.katito.app"/' app/build.gradle.kts
+          # Don't auto-check the original StreamVault releases
+          sed -i 's/preferences\[PreferencesKeys.AUTO_CHECK_APP_UPDATES\] ?: true/preferences[PreferencesKeys.AUTO_CHECK_APP_UPDATES] ?: false/' data/src/main/java/com/streamvault/data/preferences/PreferencesRepository.kt
+          grep -q '<string name="app_name">Katito</string>' app/src/main/res/values/strings.xml
+          grep -q 'applicationId = "com.katito.app"' app/build.gradle.kts
+          echo "Rebrand applied."
+
+      - name: Add Katito icon
+        shell: bash
+        run: |
+          set -e
+          pip install --quiet --break-system-packages cairosvg pillow
+          mkdir -p ~/.fonts
+          curl -fsSL -o ~/.fonts/Poppins-Bold.ttf https://github.com/google/fonts/raw/main/ofl/poppins/Poppins-Bold.ttf || echo "Font download failed, using default font"
+          fc-cache -f > /dev/null
+          cat > /tmp/katito_icon.py <<'PYEOF'
+          import cairosvg, io, re, os
+          from PIL import Image, ImageDraw
+          import cairosvg
+          BG = '''<defs>
+          <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+           <stop offset="0" stop-color="#2A1B4D"/><stop offset="1" stop-color="#0E0A1C"/></linearGradient>
+          <radialGradient id="glow" cx="0.5" cy="0.45" r="0.55">
+           <stop offset="0" stop-color="#F5A524" stop-opacity="0.35"/><stop offset="1" stop-color="#F5A524" stop-opacity="0"/></radialGradient>
+          <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+           <stop offset="0" stop-color="#FFD37A"/><stop offset="1" stop-color="#F08A1C"/></linearGradient>
+          </defs>'''
+          # Mark in 108x108 adaptive space, safe circle r=33 at (54,54)
+          MARK = '''<g transform="translate(-3.6,-2.5)">
+           <rect x="34" y="31" width="11" height="48" rx="2.8" fill="#FFFFFF"/>
+           <path d="M45 52.5 L64.5 31 L78 31 L50.5 60.5 L45 60.5 Z" fill="#FFFFFF"/>
+           <path d="M56 59.5 Q56 55.3 59.8 57.2 L78 66.3 Q81.6 68.1 78 69.9 L59.8 79 Q56 80.9 56 76.7 Z" fill="url(#gold)"/>
+          </g>'''
+          def svg(content, w, h, vb): return f'<svg xmlns="http://www.w3.org/2000/svg" width="{w}" height="{h}" viewBox="{vb}">{BG}{content}</svg>'
+          bgfill = '<rect x="-200" y="-200" width="600" height="600" fill="url(#bg)"/><rect width="108" height="108" fill="url(#glow)"/>'
+          def render(s, w, h=None):
+              return Image.open(io.BytesIO(cairosvg.svg2png(bytestring=s.encode(), output_width=w, output_height=h or w))).convert('RGBA')
+          R = 'app/src/main/res'
+          dens = {'ldpi':0.75,'mdpi':1,'hdpi':1.5,'xhdpi':2,'xxhdpi':3,'xxxhdpi':4}
+          # Legacy icon: crop to central 72 units so mark is bigger
+          legacy = svg(bgfill+MARK,80,80,'14 14 80 80')
+          def masked(im, shape):
+              m = Image.new('L', (im.width*4, im.height*4), 0); d = ImageDraw.Draw(m)
+              if shape=='circle': d.ellipse((0,0,m.width-1,m.height-1), fill=255)
+              else: d.rounded_rectangle((0,0,m.width-1,m.height-1), radius=int(m.width*0.18), fill=255)
+              m = m.resize(im.size, Image.LANCZOS); out = Image.new('RGBA', im.size, (0,0,0,0)); out.paste(im,(0,0),m); return out
+          big = render(legacy, 1024)
+          for d,f in dens.items():
+              px = round(48*f)
+              masked(big,'rr').resize((px,px),Image.LANCZOS).save(f'{R}/mipmap-{d}/ic_launcher.png')
+              masked(big,'circle').resize((px,px),Image.LANCZOS).save(f'{R}/mipmap-{d}/ic_launcher_round.png')
+              if d!='ldpi':
+                  fp = round(108*f)
+                  render(svg(MARK,108,108,'0 0 108 108'), fp).save(f'{R}/mipmap-{d}/ic_launcher_foreground.png')
+                  render(svg(bgfill,108,108,'0 0 108 108'), fp).convert('RGB').save(f'{R}/mipmap-{d}/ic_launcher_background.png')
+          for name in ['ic_launcher-web.png','playstore-icon.png']:
+              render(legacy,512).convert('RGB').save(f'{R}/{name}')
+          # TV banner 16:9
+          ban = f'''<svg xmlns="http://www.w3.org/2000/svg" width="320" height="180" viewBox="0 0 320 180">{BG}
+          <defs><radialGradient id="g2" cx="0.3" cy="0.5" r="0.6"><stop offset="0" stop-color="#F5A524" stop-opacity="0.3"/><stop offset="1" stop-color="#F5A524" stop-opacity="0"/></radialGradient></defs>
+          <rect width="320" height="180" fill="url(#bg)"/><rect width="320" height="180" fill="url(#g2)"/>
+          <g transform="translate(20,36) scale(1.0)">{MARK}</g>
+          <text x="128" y="106" font-family="Poppins" font-weight="700" font-size="46" fill="#FFFFFF" letter-spacing="0.5">Katito</text>
+          </svg>'''
+          bb = render(ban, 1672, 941).convert('RGB')
+          bb.save(f'{R}/drawable/app_banner.png')
+
+          for d,(w,h) in {'mdpi':(240,135),'hdpi':(160,90),'xhdpi':(320,180),'xxhdpi':(480,270),'xxxhdpi':(640,360)}.items():
+              bb.resize((w,h),Image.LANCZOS).save(f'{R}/drawable-{d}/app_banner.png')
+          print('done')
+          PYEOF
+          python3 /tmp/katito_icon.py
+          sed -i 's#@color/ic_launcher_background#@mipmap/ic_launcher_background#' app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml
+          sed -i 's/#001e46/#1C1336/' app/src/main/res/values/ic_launcher_background.xml
+          echo "Icon applied."
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v5
+        with:
+          java-version: '17'
+          distribution: temurin
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Set up signing key
+        env:
+          KATITO_KEYSTORE_BASE64: ${{ secrets.KATITO_KEYSTORE_BASE64 }}
+          KATITO_KEYSTORE_PASSWORD: ${{ secrets.KATITO_KEYSTORE_PASSWORD }}
+        run: |
+          if [ -z "$KATITO_KEYSTORE_BASE64" ] || [ -z "$KATITO_KEYSTORE_PASSWORD" ]; then
+            echo "::error::Signing secrets KATITO_KEYSTORE_BASE64 and KATITO_KEYSTORE_PASSWORD are missing. Add them in Settings > Secrets and variables > Actions."
+            exit 1
+          fi
+          mkdir -p keystore
+          echo "$KATITO_KEYSTORE_BASE64" | tr -d ' \n\r' | base64 --decode > keystore/katito.jks
+          printf '%s\n' \
+            'storeFile=keystore/katito.jks' \
+            "storePassword=$KATITO_KEYSTORE_PASSWORD" \
+            'keyAlias=katito' \
+            "keyPassword=$KATITO_KEYSTORE_PASSWORD" > keystore.properties
+
+      - name: Build optimized release APK
+        run: |
+          chmod +x gradlew
+          ./gradlew --console=plain :app:assembleRelease
+
+      - name: Rename APK
+        run: |
+          mkdir -p out
+          cp "$(find app/build/outputs/apk/release -name '*.apk' | head -n 1)" out/Katito.apk
+          ls -lh out/Katito.apk
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Katito-apk
+          path: out/Katito.apk
+
+      - name: Publish APK as a Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="katito-build-${{ github.run_number }}"
+          gh release create "$TAG" out/Katito.apk \
+            --repo "${{ github.repository }}" \
+            --title "Katito build ${{ github.run_number }}" \
+            --notes "Personal build of Katito (based on StreamVault by David Nashash). Download Katito.apk below." \
+            --target "${{ github.sha }}"

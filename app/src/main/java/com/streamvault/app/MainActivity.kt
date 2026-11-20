@@ -32,7 +32,7 @@ import dagger.hilt.android.AndroidEntryPoint
 
 import javax.inject.Inject
 import com.streamvault.data.preferences.PreferencesRepository
-import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.LaunchedEffect
@@ -193,10 +193,10 @@ class MainActivity : ComponentActivity(), CatalogPlatformHost {
             requestedOrientation = android.content.pm.ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
         }
         setContent {
-            val appLanguage by preferencesRepository.appLanguage.collectAsState(initial = "system")
-            val appTimeFormat by preferencesRepository.appTimeFormat.collectAsState(initial = com.streamvault.domain.model.AppTimeFormat.SYSTEM)
-            val appTheme by preferencesRepository.appTheme.collectAsState(initial = AppTheme.DEFAULT)
-            val databaseStartupState by databaseStartupCoordinator.state.collectAsState()
+            val appLanguage by preferencesRepository.appLanguage.collectAsStateWithLifecycle(initialValue = "system")
+            val appTimeFormat by preferencesRepository.appTimeFormat.collectAsStateWithLifecycle(initialValue = com.streamvault.domain.model.AppTimeFormat.SYSTEM)
+            val appTheme by preferencesRepository.appTheme.collectAsStateWithLifecycle(initialValue = AppTheme.DEFAULT)
+            val databaseStartupState by databaseStartupCoordinator.state.collectAsStateWithLifecycle()
             val currentContext = LocalContext.current
             
             val appTextSize by preferencesRepository.appTextSize.collectAsState(

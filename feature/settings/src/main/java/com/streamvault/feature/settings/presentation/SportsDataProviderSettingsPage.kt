@@ -16,7 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
@@ -63,7 +63,7 @@ import com.streamvault.domain.sports.provider.CUSTOM_SPORTS_PROVIDER_MAX_CONFIGU
 internal fun SportsDataProviderSettingsPage(
     viewModel: SportsProviderSettingsViewModel = hiltViewModel(),
 ) {
-    val uiState by viewModel.state.collectAsState()
+    val uiState by viewModel.state.collectAsStateWithLifecycle()
     val colors = SettingsDesignTokens.colors(AppColors.current)
     val context = androidx.compose.ui.platform.LocalContext.current
     var selectedDescriptor by remember { mutableStateOf<SportsProviderDescriptor?>(null) }

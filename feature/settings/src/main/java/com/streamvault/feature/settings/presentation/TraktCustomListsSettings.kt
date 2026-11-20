@@ -8,7 +8,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -148,10 +148,10 @@ class TraktCustomListsSettingsViewModel @Inject constructor(
 @Composable
 internal fun TraktCustomListsSettings() {
     val viewModel: TraktCustomListsSettingsViewModel = hiltViewModel()
-    val state by viewModel.state.collectAsState()
-    val accountState by viewModel.accountState.collectAsState()
-    val busy by viewModel.busy.collectAsState()
-    val failure by viewModel.failure.collectAsState()
+    val state by viewModel.state.collectAsStateWithLifecycle()
+    val accountState by viewModel.accountState.collectAsStateWithLifecycle()
+    val busy by viewModel.busy.collectAsStateWithLifecycle()
+    val failure by viewModel.failure.collectAsStateWithLifecycle()
     var selectedListId by remember { mutableStateOf<Long?>(null) }
     var createExpanded by remember { mutableStateOf(false) }
     var listName by remember { mutableStateOf("") }
