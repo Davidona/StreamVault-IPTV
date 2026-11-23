@@ -37,6 +37,9 @@ import com.streamvault.feature.playback.R
 import com.streamvault.player.PlayerChapter
 
 private const val VOD_DPAD_SEEK_STEP_MS = 10_000L
+private val TIMELINE_THUMB_RESTING = 12.dp
+private val TIMELINE_THUMB_FOCUSED = 20.dp
+private val TIMELINE_THUMB_SLOT = TIMELINE_THUMB_FOCUSED
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -151,14 +154,19 @@ internal fun VodTimeline(
                     }
                 },
             thumb = {
-                Box(
-                    modifier = Modifier
-                        .size(if (isTimelineFocused) 20.dp else 12.dp)
-                        .background(Color.White, CircleShape),
-                    contentAlignment = Alignment.Center
-                ) {
-                    if (isTimelineFocused) {
-                        Box(Modifier.size(8.dp).background(Color(0xFF10151D), CircleShape))
+                // Slider gives the thumb slot a 16dp minimum height and top-aligns its content, so a
+                // smaller resting dot would sit above the track centre. A fixed slot as tall as the
+                // focused dot, with the dot centred in it, keeps it on the track in both states.
+                Box(modifier = Modifier.size(TIMELINE_THUMB_SLOT), contentAlignment = Alignment.Center) {
+                    Box(
+                        modifier = Modifier
+                            .size(if (isTimelineFocused) TIMELINE_THUMB_FOCUSED else TIMELINE_THUMB_RESTING)
+                            .background(Color.White, CircleShape),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        if (isTimelineFocused) {
+                            Box(Modifier.size(8.dp).background(Color(0xFF10151D), CircleShape))
+                        }
                     }
                 }
             },
