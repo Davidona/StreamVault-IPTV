@@ -1872,8 +1872,8 @@ class PlayerViewModel @Inject constructor(
             }
         }
         
-        // Show context info on entry for both Live and VOD
-        openChannelInfoOverlay()
+        // Only LIVE auto-hides this overlay. For VOD the flag would stay set and block D-pad seeks.
+        if (currentContentType == ContentType.LIVE) openChannelInfoOverlay()
 
         if (providerId > 0) {
             playbackSessionScope(requestVersion)?.launch {
