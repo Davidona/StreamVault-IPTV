@@ -619,7 +619,8 @@ fun PlayerScreen(
             canOpenEpisodePicker = contentType == "SERIES_EPISODE" &&
                 viewModel.currentSeries.value?.seasons.sanitizedForPlayer()
                     ?.any { it.episodes.isNotEmpty() } == true,
-            showClosePlaybackConfirmation = showClosePlaybackConfirmation
+            showClosePlaybackConfirmation = showClosePlaybackConfirmation,
+            showResumePrompt = resumePrompt.show
         )
     }
 

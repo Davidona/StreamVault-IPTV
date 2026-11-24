@@ -67,6 +67,16 @@ class PlayerInputPolicyTest {
     }
 
     @Test
+    fun `resume prompt keeps horizontal keys from seeking`() {
+        val state = liveState(contentType = "MOVIE", showResumePrompt = true)
+
+        assertThat(playerInputDecision(state, PlayerInputKey.DpadLeft).action)
+            .isEqualTo(PlayerInputAction.Pass)
+        assertThat(playerInputDecision(state, PlayerInputKey.DpadRight).action)
+            .isEqualTo(PlayerInputAction.Pass)
+    }
+
+    @Test
     fun `audio video offset Back dismisses preview and directional keys pass through`() {
         val state = liveState(showAudioVideoOffsetDialog = true)
 
@@ -297,7 +307,8 @@ class PlayerInputPolicyTest {
         showControls: Boolean = false,
         hasPendingNumericChannelInput: Boolean = false,
         canOpenEpisodePicker: Boolean = false,
-        showClosePlaybackConfirmation: Boolean = false
+        showClosePlaybackConfirmation: Boolean = false,
+        showResumePrompt: Boolean = false
     ) = PlayerInputState(
         contentType = contentType,
         isCatchUpPlayback = isCatchUpPlayback,
@@ -322,6 +333,7 @@ class PlayerInputPolicyTest {
         showControls = showControls,
         hasPendingNumericChannelInput = hasPendingNumericChannelInput,
         canOpenEpisodePicker = canOpenEpisodePicker,
-        showClosePlaybackConfirmation = showClosePlaybackConfirmation
+        showClosePlaybackConfirmation = showClosePlaybackConfirmation,
+        showResumePrompt = showResumePrompt
     )
 }
