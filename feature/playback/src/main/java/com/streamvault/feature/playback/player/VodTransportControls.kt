@@ -8,8 +8,6 @@ import androidx.compose.material.icons.filled.Forward10
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Replay10
-import androidx.compose.material.icons.filled.SkipNext
-import androidx.compose.material.icons.filled.SkipPrevious
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -28,13 +26,9 @@ internal fun VodTransportControls(
     isPlaying: Boolean,
     playButtonFocusRequester: FocusRequester,
     timelineFocusRequester: FocusRequester,
-    canSeekPreviousChapter: Boolean,
-    canSeekNextChapter: Boolean,
-    onSeekPreviousChapter: () -> Unit,
     onSeekBackward: () -> Unit,
     onTogglePlayPause: () -> Unit,
     onSeekForward: () -> Unit,
-    onSeekNextChapter: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -42,12 +36,6 @@ internal fun VodTransportControls(
         horizontalArrangement = Arrangement.spacedBy(6.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        VodTransportButton(
-            icon = Icons.Default.SkipPrevious,
-            label = stringResource(R.string.player_previous_chapter),
-            enabled = canSeekPreviousChapter,
-            onClick = onSeekPreviousChapter
-        )
         VodTransportButton(
             icon = Icons.Default.Replay10,
             label = stringResource(R.string.player_rewind_10_seconds),
@@ -72,12 +60,6 @@ internal fun VodTransportControls(
             label = stringResource(R.string.player_forward_10_seconds),
             onClick = onSeekForward
         )
-        VodTransportButton(
-            icon = Icons.Default.SkipNext,
-            label = stringResource(R.string.player_next_chapter),
-            enabled = canSeekNextChapter,
-            onClick = onSeekNextChapter
-        )
     }
 }
 
@@ -85,12 +67,10 @@ internal fun VodTransportControls(
 private fun VodTransportButton(
     icon: androidx.compose.ui.graphics.vector.ImageVector,
     label: String,
-    enabled: Boolean = true,
     onClick: () -> Unit
 ) {
     VodControlButton(
         onClick = onClick,
-        enabled = enabled,
         modifier = Modifier.semantics { contentDescription = label }
     ) {
         Icon(imageVector = icon, contentDescription = null)

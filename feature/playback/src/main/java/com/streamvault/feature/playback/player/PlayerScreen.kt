@@ -90,6 +90,7 @@ import com.streamvault.feature.playback.player.overlay.PlayerClosePlaybackConfir
 import com.streamvault.feature.playback.player.overlay.PlayerScheduleByTimeDialog
 import com.streamvault.feature.playback.player.overlay.PlayerScheduleByTimeLabels
 import com.streamvault.feature.playback.player.overlay.PlayerAspectRatioToast
+import com.streamvault.feature.playback.player.overlay.SeekFeedbackHost
 import com.streamvault.feature.playback.player.overlay.PlayerBackButton
 import com.streamvault.feature.playback.player.overlay.PlayerBackButtonPlacement
 import com.streamvault.feature.playback.player.overlay.playerBackButtonPlacement
@@ -200,6 +201,7 @@ fun PlayerScreen(
     val displayChannelNumber by viewModel.displayChannelNumber.collectAsStateWithLifecycle()
     val showChannelInfoOverlay by viewModel.showChannelInfoOverlay.collectAsStateWithLifecycle()
     val aspectRatio by viewModel.aspectRatio.collectAsStateWithLifecycle()
+    val aspectRatioChangeLabels = remember(viewModel) { viewModel.aspectRatioChanges.map { it.modeName } }
     val showDiagnostics by viewModel.showDiagnostics.collectAsStateWithLifecycle()
     val playerNotice by viewModel.playerNotice.collectAsStateWithLifecycle()
     val preventStandbyDuringPlayback by viewModel.preventStandbyDuringPlayback.collectAsStateWithLifecycle()
@@ -617,7 +619,8 @@ fun PlayerScreen(
             canOpenEpisodePicker = contentType == "SERIES_EPISODE" &&
                 viewModel.currentSeries.value?.seasons.sanitizedForPlayer()
                     ?.any { it.episodes.isNotEmpty() } == true,
-            showClosePlaybackConfirmation = showClosePlaybackConfirmation
+            showClosePlaybackConfirmation = showClosePlaybackConfirmation,
+            showResumePrompt = resumePrompt.show
         )
     }
 
@@ -980,11 +983,16 @@ fun PlayerScreen(
         )
 
         PlayerAspectRatioToast(
-            aspectRatioLabel = aspectRatio.modeName,
+            aspectRatioChanges = aspectRatioChangeLabels,
             controlsVisible = showControls,
             modifier = Modifier
                 .align(Alignment.TopCenter)
                 .padding(top = 32.dp)
+        )
+
+        SeekFeedbackHost(
+            events = viewModel.seekFeedback,
+            controlsVisible = showControls
         )
 
         PlayerResolutionBadgeHost(

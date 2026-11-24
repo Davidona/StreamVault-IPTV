@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -37,7 +36,6 @@ import androidx.tv.material3.Surface
 import androidx.tv.material3.SurfaceDefaults
 import androidx.tv.material3.Text
 import com.streamvault.core.ui.interaction.TvClickableSurface
-import com.streamvault.core.ui.interaction.TvIconButton
 import com.streamvault.feature.playback.R
 import com.streamvault.player.PlayerChapter
 
@@ -49,7 +47,6 @@ internal fun VodChapterSheet(
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val closeLabel = stringResource(R.string.player_close_chapters)
     val initialChapterIndex = selectedChapterIndex ?: chapters.firstOrNull()?.index
     val initialFocusRequester = remember { FocusRequester() }
     LaunchedEffect(initialChapterIndex) {
@@ -86,12 +83,6 @@ internal fun VodChapterSheet(
                             style = MaterialTheme.typography.bodySmall,
                             color = Color.White.copy(alpha = 0.64f)
                         )
-                    }
-                    TvIconButton(
-                        onClick = onDismiss,
-                        modifier = Modifier.semantics { contentDescription = closeLabel }
-                    ) {
-                        Icon(imageVector = Icons.Default.Close, contentDescription = null)
                     }
                 }
 

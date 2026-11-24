@@ -37,6 +37,21 @@ import com.streamvault.feature.playback.R
 import com.streamvault.player.PlayerChapter
 
 private const val VOD_DPAD_SEEK_STEP_MS = 10_000L
+private val TIMELINE_THUMB_RESTING = 12.dp
+private val TIMELINE_THUMB_FOCUSED = 20.dp
+private val TIMELINE_THUMB_SLOT = TIMELINE_THUMB_FOCUSED
+
+// Geometry the seek feedback strip copies so it lands exactly on the overlay's timeline.
+internal val VOD_OVERLAY_HORIZONTAL_PADDING = 32.dp
+internal val VOD_OVERLAY_VERTICAL_PADDING = 18.dp
+internal val VOD_OVERLAY_ROW_GAP = 6.dp
+internal val VOD_TIMELINE_HEIGHT = 32.dp
+internal val VOD_TIMELINE_TRACK_THICKNESS = 4.dp
+internal val VOD_TIMELINE_TRACK_INSET = TIMELINE_THUMB_SLOT / 2
+internal val VOD_TIMELINE_THUMB_SIZE = TIMELINE_THUMB_RESTING
+
+// The play button (44dp, padded 2dp each side) sets the height of the controls row under the timeline.
+internal val VOD_CONTROLS_ROW_HEIGHT = 48.dp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -67,7 +82,7 @@ internal fun VodTimeline(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .height(32.dp)
+            .height(VOD_TIMELINE_HEIGHT)
             .semantics { contentDescription = timelineDescription }
     ) {
         Canvas(modifier = Modifier.matchParentSize()) {
@@ -151,21 +166,26 @@ internal fun VodTimeline(
                     }
                 },
             thumb = {
-                Box(
-                    modifier = Modifier
-                        .size(if (isTimelineFocused) 20.dp else 12.dp)
-                        .background(Color.White, CircleShape),
-                    contentAlignment = Alignment.Center
-                ) {
-                    if (isTimelineFocused) {
-                        Box(Modifier.size(8.dp).background(Color(0xFF10151D), CircleShape))
+                // Slider gives the thumb slot a 16dp minimum height and top-aligns its content, so a
+                // smaller resting dot would sit above the track centre. A fixed slot as tall as the
+                // focused dot, with the dot centred in it, keeps it on the track in both states.
+                Box(modifier = Modifier.size(TIMELINE_THUMB_SLOT), contentAlignment = Alignment.Center) {
+                    Box(
+                        modifier = Modifier
+                            .size(if (isTimelineFocused) TIMELINE_THUMB_FOCUSED else TIMELINE_THUMB_RESTING)
+                            .background(Color.White, CircleShape),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        if (isTimelineFocused) {
+                            Box(Modifier.size(8.dp).background(Color(0xFF10151D), CircleShape))
+                        }
                     }
                 }
             },
             track = { sliderState ->
                 SliderDefaults.Track(
                     sliderState = sliderState,
-                    modifier = Modifier.height(4.dp),
+                    modifier = Modifier.height(VOD_TIMELINE_TRACK_THICKNESS),
                     thumbTrackGapSize = 0.dp,
                     drawStopIndicator = null,
                     colors = SliderDefaults.colors(

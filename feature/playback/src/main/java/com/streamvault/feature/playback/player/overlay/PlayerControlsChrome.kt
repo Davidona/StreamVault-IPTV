@@ -88,6 +88,8 @@ import com.streamvault.domain.model.Program
 import com.streamvault.domain.model.RecordingStatus
 import coil3.compose.AsyncImage
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import java.util.Date
@@ -368,17 +370,22 @@ fun PlayerNumericInputOverlay(
     }
 }
 
+/** Shown only when the viewer changes the aspect ratio, not on playback start or when a saved ratio is restored. */
 @Composable
 fun PlayerAspectRatioToast(
-    aspectRatioLabel: String,
+    aspectRatioChanges: Flow<String>,
     controlsVisible: Boolean,
     modifier: Modifier = Modifier
 ) {
     var show by remember { mutableStateOf(false) }
-    LaunchedEffect(aspectRatioLabel) {
-        show = true
-        delay(2000)
-        show = false
+    var label by remember { mutableStateOf("") }
+    LaunchedEffect(aspectRatioChanges) {
+        aspectRatioChanges.collectLatest { changedTo ->
+            label = changedTo
+            show = true
+            delay(2000)
+            show = false
+        }
     }
 
     AnimatedVisibility(
@@ -393,7 +400,7 @@ fun PlayerAspectRatioToast(
                 .padding(horizontal = 24.dp, vertical = 12.dp)
         ) {
             Text(
-                text = stringResource(R.string.player_aspect_ratio_label, aspectRatioLabel),
+                text = stringResource(R.string.player_aspect_ratio_label, label),
                 style = MaterialTheme.typography.titleMedium,
                 color = Color.White,
                 fontWeight = FontWeight.Bold

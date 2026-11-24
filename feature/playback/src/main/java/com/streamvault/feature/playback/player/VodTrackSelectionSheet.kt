@@ -51,9 +51,6 @@ internal fun VodSelectionSheet(
                         Icon(icon, null, tint = MaterialTheme.colorScheme.primary)
                         Text(title, Modifier.weight(1f), color = Color.White,
                             style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
-                        VodControlButton(onClick = onDismiss) {
-                            Icon(Icons.Default.Close, stringResource(R.string.player_subtitle_search_close))
-                        }
                     }
                     content()
                 }
