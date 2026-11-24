@@ -28,6 +28,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.window.DialogProperties
+import com.streamvault.core.ui.components.dialogs.AppDialog
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.contentDescription
@@ -74,7 +76,6 @@ internal fun VodPlaybackSettingsSheet(
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val closeLabel = stringResource(R.string.player_close_playback_settings)
     val firstActionFocusRequester = remember { FocusRequester() }
     val actions = buildList {
         if (state.showSubtitleAction) add(VodSettingsAction("subtitles", stringResource(R.string.player_subs), onClick = onOpenSubtitleTracks))
@@ -106,99 +107,96 @@ internal fun VodPlaybackSettingsSheet(
         if (actions.isNotEmpty()) firstActionFocusRequester.requestFocus()
     }
 
-    Box(
-        modifier = modifier
-            .fillMaxSize()
-            .background(Color.Black.copy(alpha = 0.32f))
-    ) {
-        Surface(
-            modifier = Modifier
-                .align(Alignment.CenterEnd)
-                .fillMaxHeight()
-                .width(360.dp),
-            colors = SurfaceDefaults.colors(containerColor = Color(0xFF10151D))
+    // A separate window keeps D-pad focus inside the sheet, like VodTrackSelectionSheet.
+    AppDialog(onDismissRequest = onDismiss, properties = DialogProperties(usePlatformDefaultWidth = false)) {
+        Box(
+            modifier = modifier
+                .fillMaxSize()
+                .background(Color.Black.copy(alpha = 0.32f))
         ) {
-            Column(
+            Surface(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 20.dp, vertical = 20.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+                    .align(Alignment.CenterEnd)
+                    .fillMaxHeight()
+                    .width(360.dp),
+                colors = SurfaceDefaults.colors(containerColor = Color(0xFF10151D))
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        imageVector = Icons.Default.Settings,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Text(
-                        text = stringResource(R.string.player_playback_settings),
-                        modifier = Modifier.weight(1f),
-                        style = MaterialTheme.typography.titleLarge,
-                        color = Color.White,
-                        fontWeight = FontWeight.SemiBold
-                    )
-                    VodControlButton(
-                        onClick = onDismiss,
-                        modifier = Modifier.semantics { contentDescription = closeLabel }
-                    ) {
-                        Icon(imageVector = Icons.Default.Close, contentDescription = null)
-                    }
-                }
-                LazyColumn(
-                    modifier = Modifier.fillMaxWidth(),
-                    contentPadding = PaddingValues(vertical = 4.dp),
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 20.dp, vertical = 20.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    items(actions, key = VodSettingsAction::id) { action ->
-                        TvClickableSurface(
-                            onClick = action.onClick,
-                            enabled = action.enabled,
-                            shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(10.dp)),
-                            colors = ClickableSurfaceDefaults.colors(
-                                containerColor = Color.White.copy(alpha = 0.035f),
-                                contentColor = Color(0xFFDCE3ED),
-                                focusedContainerColor = Color(0xFFDFEBFA),
-                                focusedContentColor = Color(0xFF10151D)
-                            ),
-                            scale = ClickableSurfaceDefaults.scale(focusedScale = 1f),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .then(
-                                    if (action.id == actions.firstOrNull()?.id) {
-                                        Modifier.focusRequester(firstActionFocusRequester)
-                                    } else {
-                                        Modifier
-                                    }
-                                )
-                                .semantics { contentDescription = action.label }
-                        ) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)
-                                    .padding(horizontal = 12.dp, vertical = 10.dp),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = Icons.Default.Settings,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Text(
+                            text = stringResource(R.string.player_playback_settings),
+                            modifier = Modifier.weight(1f),
+                            style = MaterialTheme.typography.titleLarge,
+                            color = Color.White,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
+                    LazyColumn(
+                        modifier = Modifier.fillMaxWidth(),
+                        contentPadding = PaddingValues(vertical = 4.dp),
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        items(actions, key = VodSettingsAction::id) { action ->
+                            TvClickableSurface(
+                                onClick = action.onClick,
+                                enabled = action.enabled,
+                                shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(10.dp)),
+                                colors = ClickableSurfaceDefaults.colors(
+                                    containerColor = Color.White.copy(alpha = 0.035f),
+                                    contentColor = Color(0xFFDCE3ED),
+                                    focusedContainerColor = Color(0xFFDFEBFA),
+                                    focusedContentColor = Color(0xFF10151D)
+                                ),
+                                scale = ClickableSurfaceDefaults.scale(focusedScale = 1f),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .then(
+                                        if (action.id == actions.firstOrNull()?.id) {
+                                            Modifier.focusRequester(firstActionFocusRequester)
+                                        } else {
+                                            Modifier
+                                        }
+                                    )
+                                    .semantics { contentDescription = action.label }
                             ) {
-                                Icon(
-                                    imageVector = vodSettingsIcon(action.id, isMuted),
-                                    contentDescription = null,
-                                    modifier = Modifier.size(20.dp),
-                                    tint = LocalContentColor.current.copy(alpha = 0.8f)
-                                )
-                                Text(
-                                    text = action.label,
-                                    modifier = Modifier.weight(1f),
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = LocalContentColor.current,
-                                    maxLines = 2,
-                                    overflow = TextOverflow.Ellipsis
-                                )
-                                Icon(
-                                    imageVector = Icons.Default.ChevronRight,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(16.dp),
-                                    tint = LocalContentColor.current.copy(alpha = 0.45f)
-                                )
+                                Row(
+                                    modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)
+                                        .padding(horizontal = 12.dp, vertical = 10.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = vodSettingsIcon(action.id, isMuted),
+                                        contentDescription = null,
+                                        modifier = Modifier.size(20.dp),
+                                        tint = LocalContentColor.current.copy(alpha = 0.8f)
+                                    )
+                                    Text(
+                                        text = action.label,
+                                        modifier = Modifier.weight(1f),
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = LocalContentColor.current,
+                                        maxLines = 2,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                    Icon(
+                                        imageVector = Icons.Default.ChevronRight,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(16.dp),
+                                        tint = LocalContentColor.current.copy(alpha = 0.45f)
+                                    )
+                                }
                             }
                         }
                     }
