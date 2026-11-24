@@ -17,13 +17,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Audiotrack
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.ClosedCaption
 import androidx.compose.material.icons.filled.MenuBook
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.SkipNext
 import androidx.compose.material.icons.filled.SkipPrevious
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.Tv
+import androidx.compose.material.icons.filled.VideoLibrary
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -58,12 +57,9 @@ internal fun VodPlayerControlsOverlay(
     playButtonFocusRequester: FocusRequester,
     showBackButton: Boolean = false,
     onBackToMenu: () -> Unit = {},
-    onClose: () -> Unit,
     onTogglePlayPause: () -> Unit,
     onSeekBackward: () -> Unit,
     onSeekForward: () -> Unit,
-    onSeekPreviousChapter: () -> Unit,
-    onSeekNextChapter: () -> Unit,
     onOpenChapters: () -> Unit,
     onOpenEpisodes: () -> Unit,
     canPlayPreviousEpisode: Boolean = false,
@@ -82,7 +78,6 @@ internal fun VodPlayerControlsOverlay(
     val timelineFocusRequester = remember { FocusRequester() }
     val vodControlsLabel = stringResource(R.string.player_vod_controls)
     val settingsLabel = stringResource(R.string.player_playback_settings)
-    val closeLabel = stringResource(R.string.player_close_controls)
     AnimatedVisibility(
         visible = visible,
         enter = fadeIn(),
@@ -186,13 +181,9 @@ internal fun VodPlayerControlsOverlay(
                         isPlaying = isPlaying,
                         playButtonFocusRequester = playButtonFocusRequester,
                         timelineFocusRequester = timelineFocusRequester,
-                        canSeekPreviousChapter = overlayState.previousChapterTargetMs != null,
-                        canSeekNextChapter = overlayState.nextChapterTargetMs != null,
-                        onSeekPreviousChapter = onSeekPreviousChapter,
                         onSeekBackward = onSeekBackward,
                         onTogglePlayPause = onTogglePlayPause,
-                        onSeekForward = onSeekForward,
-                        onSeekNextChapter = onSeekNextChapter
+                        onSeekForward = onSeekForward
                     )
                     Spacer(modifier = Modifier.weight(1f))
                     if (overlayState.showChapterAction) {
@@ -216,7 +207,7 @@ internal fun VodPlayerControlsOverlay(
                             onClick = onPlayNextEpisode
                         )
                         VodActionButton(
-                            icon = Icons.Default.Tv,
+                            icon = Icons.Default.VideoLibrary,
                             label = stringResource(R.string.player_episodes),
                             onClick = onOpenEpisodes
                         )
@@ -242,12 +233,6 @@ internal fun VodPlayerControlsOverlay(
                         ) {
                             Icon(imageVector = Icons.Default.Settings, contentDescription = null)
                         }
-                    }
-                    VodControlButton(
-                        onClick = onClose,
-                        modifier = Modifier.semantics { contentDescription = closeLabel }
-                    ) {
-                        Icon(imageVector = Icons.Default.Close, contentDescription = null)
                     }
                 }
             }

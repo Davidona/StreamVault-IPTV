@@ -148,16 +148,9 @@ internal fun PlayerControlsOverlayHost(
             playButtonFocusRequester = playButtonFocusRequester,
             showBackButton = showBackButton,
             onBackToMenu = onBackToMenu,
-            onClose = viewModel::toggleControls,
             onTogglePlayPause = { if (isPlaying) viewModel.pause() else viewModel.play() },
             onSeekBackward = viewModel::seekBackward,
             onSeekForward = viewModel::seekForward,
-            onSeekPreviousChapter = {
-                vodOverlayState.previousChapterTargetMs?.let(viewModel::seekTo)
-            },
-            onSeekNextChapter = {
-                vodOverlayState.nextChapterTargetMs?.let(viewModel::seekTo)
-            },
             onOpenChapters = onOpenChapters,
             onOpenEpisodes = onOpenEpisodes,
             canPlayPreviousEpisode = previousEpisode != null,

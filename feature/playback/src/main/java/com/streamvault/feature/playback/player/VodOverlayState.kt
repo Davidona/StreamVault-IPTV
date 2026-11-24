@@ -7,8 +7,6 @@ internal data class VodOverlayState(
     val isVod: Boolean,
     val chapters: List<PlayerChapter>,
     val currentChapter: PlayerChapter?,
-    val previousChapterTargetMs: Long?,
-    val nextChapterTargetMs: Long?,
     val showChapterAction: Boolean,
     val showEpisodesAction: Boolean,
     val showSubtitleAction: Boolean,
@@ -47,8 +45,6 @@ internal fun buildVodOverlayState(
         isVod = isVod,
         chapters = visibleChapters,
         currentChapter = currentChapter(visibleChapters, currentPositionMs),
-        previousChapterTargetMs = previousChapterTarget(visibleChapters, currentPositionMs),
-        nextChapterTargetMs = nextChapterTarget(visibleChapters, currentPositionMs),
         showChapterAction = isVod && visibleChapters.isNotEmpty() && !isCastConnected,
         showEpisodesAction = isVod && normalizedContentType == "SERIES_EPISODE" && showEpisodesAction,
         showSubtitleAction = isVod &&
