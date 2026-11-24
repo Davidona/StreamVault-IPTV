@@ -32,6 +32,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -172,6 +173,8 @@ private fun SeekStrip(state: SeekFeedbackState, visible: Boolean, modifier: Modi
     val duration = state.durationMs.coerceAtLeast(1L).toFloat()
     val position = (state.toMs / duration).coerceIn(0f, 1f)
     val stackStart = (state.stackStartMs / duration).coerceIn(0f, 1f)
+    // The overlay's Slider mirrors in RTL, so the strip has to fill from the same side to line up with it.
+    val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
 
     // Same box as the overlay's timeline: same side padding, same height, same distance from the
     // bottom, so the bar does not jump when the controls open.
@@ -194,7 +197,7 @@ private fun SeekStrip(state: SeekFeedbackState, visible: Boolean, modifier: Modi
                 color = Color.White,
                 modifier = Modifier
                     .padding(horizontal = VOD_TIMELINE_TRACK_INSET)
-                    .followFraction(position)
+                    .followFraction(if (isRtl) 1f - position else position)
                     .clip(RoundedCornerShape(spacing.xs))
                     .background(SeekScrim)
                     .padding(horizontal = spacing.sm, vertical = spacing.xs)
@@ -204,21 +207,23 @@ private fun SeekStrip(state: SeekFeedbackState, visible: Boolean, modifier: Modi
                     .fillMaxWidth()
                     .height(VOD_TIMELINE_HEIGHT)
                     .drawBehind {
-                        val thickness = VOD_TIMELINE_TRACK_THICKNESS.toPx()
-                        val inset = VOD_TIMELINE_TRACK_INSET.toPx()
-                        val trackWidth = size.width - 2f * inset
-                        val top = (size.height - thickness) / 2f
-                        val radius = CornerRadius(thickness / 2f)
-                        drawRoundRect(SeekTrackScrim, Offset(inset, top), Size(trackWidth, thickness), radius)
-                        drawRoundRect(Color.White, Offset(inset, top), Size(trackWidth * position, thickness), radius)
-                        val ghostLeft = inset + trackWidth * minOf(position, stackStart)
-                        val ghostWidth = trackWidth * kotlin.math.abs(position - stackStart)
-                        drawRoundRect(ghostColor, Offset(ghostLeft, top), Size(ghostWidth, thickness), radius)
-                        drawCircle(
-                            Color.White,
-                            VOD_TIMELINE_THUMB_SIZE.toPx() / 2f,
-                            Offset(inset + trackWidth * position, size.height / 2f)
-                        )
+                        withTransform({ if (isRtl) scale(-1f, 1f, pivot = center) }) {
+                            val thickness = VOD_TIMELINE_TRACK_THICKNESS.toPx()
+                            val inset = VOD_TIMELINE_TRACK_INSET.toPx()
+                            val trackWidth = size.width - 2f * inset
+                            val top = (size.height - thickness) / 2f
+                            val radius = CornerRadius(thickness / 2f)
+                            drawRoundRect(SeekTrackScrim, Offset(inset, top), Size(trackWidth, thickness), radius)
+                            drawRoundRect(Color.White, Offset(inset, top), Size(trackWidth * position, thickness), radius)
+                            val ghostLeft = inset + trackWidth * minOf(position, stackStart)
+                            val ghostWidth = trackWidth * kotlin.math.abs(position - stackStart)
+                            drawRoundRect(ghostColor, Offset(ghostLeft, top), Size(ghostWidth, thickness), radius)
+                            drawCircle(
+                                Color.White,
+                                VOD_TIMELINE_THUMB_SIZE.toPx() / 2f,
+                                Offset(inset + trackWidth * position, size.height / 2f)
+                            )
+                        }
                     }
             )
         }
