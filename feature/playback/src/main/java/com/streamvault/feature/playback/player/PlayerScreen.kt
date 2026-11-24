@@ -984,7 +984,6 @@ fun PlayerScreen(
 
         PlayerAspectRatioToast(
             aspectRatioChanges = aspectRatioChangeLabels,
-            controlsVisible = showControls,
             modifier = Modifier
                 .align(Alignment.TopCenter)
                 .padding(top = 32.dp)

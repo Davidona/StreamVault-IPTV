@@ -374,7 +374,6 @@ fun PlayerNumericInputOverlay(
 @Composable
 fun PlayerAspectRatioToast(
     aspectRatioChanges: Flow<String>,
-    controlsVisible: Boolean,
     modifier: Modifier = Modifier
 ) {
     var show by remember { mutableStateOf(false) }
@@ -389,7 +388,7 @@ fun PlayerAspectRatioToast(
     }
 
     AnimatedVisibility(
-        visible = show && !controlsVisible,
+        visible = show,
         enter = fadeIn() + slideInVertically(initialOffsetY = { -it }),
         exit = fadeOut() + slideOutVertically(targetOffsetY = { -it }),
         modifier = modifier
