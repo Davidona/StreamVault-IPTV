@@ -63,6 +63,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
@@ -220,6 +221,11 @@ class PlayerViewModel @Inject constructor(
     internal val audioVideoOffsetPreviewMs = MutableStateFlow<Int?>(null)
     internal val _audioVideoOffsetUiState = MutableStateFlow(PlayerAudioVideoOffsetUiState())
     val audioVideoOffsetUiState: StateFlow<PlayerAudioVideoOffsetUiState> = _audioVideoOffsetUiState.asStateFlow()
+    internal val seekTargetTracker = SeekTargetTracker()
+    internal val _seekFeedback = MutableSharedFlow<SeekFeedbackEvent>(extraBufferCapacity = 8, onBufferOverflow = BufferOverflow.DROP_OLDEST)
+    val seekFeedback: SharedFlow<SeekFeedbackEvent> = _seekFeedback.asSharedFlow()
+    internal val _aspectRatioChanges = MutableSharedFlow<AspectRatio>(extraBufferCapacity = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
+    val aspectRatioChanges: SharedFlow<AspectRatio> = _aspectRatioChanges.asSharedFlow()
     internal val _seekPreview = MutableStateFlow(SeekPreviewState())
     val seekPreview: StateFlow<SeekPreviewState> = _seekPreview.asStateFlow()
     private val _recordingItems = MutableStateFlow<List<RecordingItem>>(emptyList())

@@ -122,8 +122,8 @@ internal fun VodPlayerControlsOverlay(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .fillMaxWidth()
-                    .padding(horizontal = 32.dp, vertical = 18.dp),
-                verticalArrangement = Arrangement.spacedBy(6.dp)
+                    .padding(horizontal = VOD_OVERLAY_HORIZONTAL_PADDING, vertical = VOD_OVERLAY_VERTICAL_PADDING),
+                verticalArrangement = Arrangement.spacedBy(VOD_OVERLAY_ROW_GAP)
             ) {
                 Row(verticalAlignment = Alignment.Bottom) {
                     Column(modifier = Modifier.weight(1f)) {
