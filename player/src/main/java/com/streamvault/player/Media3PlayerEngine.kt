@@ -28,7 +28,9 @@ import androidx.media3.exoplayer.trackselection.DefaultTrackSelector
 import androidx.media3.exoplayer.Renderer
 import androidx.media3.exoplayer.ScrubbingModeParameters
 import androidx.media3.exoplayer.analytics.AnalyticsListener
+import androidx.media3.exoplayer.audio.AudioCapabilities
 import androidx.media3.exoplayer.audio.AudioSink
+import androidx.media3.exoplayer.audio.DefaultAudioSink
 import androidx.media3.exoplayer.audio.AudioRendererEventListener
 import androidx.media3.exoplayer.mediacodec.MediaCodecInfo
 import androidx.media3.exoplayer.mediacodec.MediaCodecSelector
@@ -61,6 +63,8 @@ import com.streamvault.player.playback.AudioVideoOffsetAudioSink
 import com.streamvault.player.playback.LiveAudioTapAudioSink
 import com.streamvault.player.playback.createLivePlaybackSpeedControl
 import com.streamvault.player.playback.PlaybackCodecSelector
+import com.streamvault.player.playback.PlaybackExtensionRendererMode
+import com.streamvault.player.playback.toMedia3RendererMode
 import com.streamvault.player.playback.PlaybackCompatibilityProfile
 import com.streamvault.player.playback.PlaybackBufferPolicies
 import com.streamvault.player.playback.PlaybackBufferPolicy
@@ -1943,7 +1947,18 @@ class Media3PlayerEngine @Inject constructor(
             useAudioVideoSyncSink = _audioVideoSyncEnabled.value,
             useVideoRendererWorkaround = compatibilityProfile.shouldDisableDecoderReuseWorkaround()
         )
-        val rendererFactorySettings = buildPlaybackRendererFactorySettings(rendererPlan)
+        val rendererFactorySettings = buildPlaybackRendererFactorySettings(rendererPlan).let { settings ->
+            // The FFmpeg renderer decodes to PCM and would drop the Atmos layer, so passthrough needs the
+            // platform renderer (which owns the passthrough path) to be tried first.
+            if (audioOutputPreference == AudioOutputPreference.PREFER_PASSTHROUGH) {
+                settings.copy(
+                    audioExtensionRendererMode = PlaybackExtensionRendererMode.PLATFORM_FIRST.toMedia3RendererMode()
+                )
+            } else {
+                settings
+            }
+        }
+        val disablePassthrough = audioOutputPreference == AudioOutputPreference.DISABLE_PASSTHROUGH
         audioVideoSyncSinkActive = false
         val audioCodecSelector = if (rendererPlan.useAudioManagedCodecSelector) {
             PlaybackCodecSelector(
@@ -1972,9 +1987,17 @@ class Media3PlayerEngine @Inject constructor(
                 enableFloatOutput: Boolean,
                 enableAudioTrackPlaybackParams: Boolean
             ): AudioSink {
-                val audioSink = requireNotNull(
-                    super.buildAudioSink(context, enableFloatOutput, enableAudioTrackPlaybackParams)
-                ) { "DefaultRenderersFactory did not provide an AudioSink." }
+                val audioSink = if (disablePassthrough) {
+                    DefaultAudioSink.Builder(context)
+                        .setAudioCapabilities(AudioCapabilities.DEFAULT_AUDIO_CAPABILITIES)
+                        .setEnableFloatOutput(enableFloatOutput)
+                        .setEnableAudioTrackPlaybackParams(enableAudioTrackPlaybackParams)
+                        .build()
+                } else {
+                    requireNotNull(
+                        super.buildAudioSink(context, enableFloatOutput, enableAudioTrackPlaybackParams)
+                    ) { "DefaultRenderersFactory did not provide an AudioSink." }
+                }
                 val syncAwareSink = if (rendererPlan.useAudioVideoSyncSink) {
                     audioVideoSyncSinkActive = true
                     AudioVideoOffsetAudioSink(
