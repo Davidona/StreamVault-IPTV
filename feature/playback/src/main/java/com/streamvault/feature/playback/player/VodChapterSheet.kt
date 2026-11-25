@@ -37,8 +37,11 @@ import androidx.tv.material3.SurfaceDefaults
 import androidx.tv.material3.Text
 import com.streamvault.core.ui.interaction.TvClickableSurface
 import com.streamvault.feature.playback.R
+import androidx.compose.ui.window.DialogProperties
+import com.streamvault.core.ui.components.dialogs.AppDialog as Dialog
 import com.streamvault.player.PlayerChapter
 
+/** Hosted in a dialog like the other VOD sheets, so Left cannot move focus out to the controls behind it. */
 @Composable
 internal fun VodChapterSheet(
     chapters: List<PlayerChapter>,
@@ -46,6 +49,18 @@ internal fun VodChapterSheet(
     onSelectChapter: (PlayerChapter) -> Unit,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier
+) {
+    Dialog(onDismissRequest = onDismiss, properties = DialogProperties(usePlatformDefaultWidth = false)) {
+        VodChapterSheetContent(chapters, selectedChapterIndex, onSelectChapter, modifier)
+    }
+}
+
+@Composable
+private fun VodChapterSheetContent(
+    chapters: List<PlayerChapter>,
+    selectedChapterIndex: Int?,
+    onSelectChapter: (PlayerChapter) -> Unit,
+    modifier: Modifier
 ) {
     val initialChapterIndex = selectedChapterIndex ?: chapters.firstOrNull()?.index
     val initialFocusRequester = remember { FocusRequester() }
