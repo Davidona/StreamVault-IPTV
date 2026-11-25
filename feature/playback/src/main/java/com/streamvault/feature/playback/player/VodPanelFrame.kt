@@ -51,6 +51,7 @@ private val PanelShape = RoundedCornerShape(24.dp)
 private val PanelWidth = 400.dp
 private val PanelRowShape = RoundedCornerShape(12.dp)
 private val PanelValueMaxWidth = 120.dp
+private val PanelChipShape = RoundedCornerShape(50)
 
 /** Clears the badge row at the top, so the stream badges stay visible beside an open panel. */
 private val PanelTopMargin = VOD_OVERLAY_VERTICAL_PADDING + PanelSpacing.xxl
@@ -126,7 +127,7 @@ internal fun VodPanelFrame(
  * Row of a panel list. Resting rows are flat, the selected row is a tonal container with a check (never color
  * alone), and focus fills the row with [AppColors.Focus] and [AppColors.Canvas] text. [opensPage] shows a chevron,
  * [trailing] replaces it (for example a progress indicator). [value] is the current setting, shown at the end
- * before the chevron.
+ * before the chevron. [leading] replaces [icon] with larger content, for example an episode thumbnail.
  */
 @Composable
 internal fun VodPanelRow(
@@ -135,6 +136,7 @@ internal fun VodPanelRow(
     detail: String? = null,
     value: String? = null,
     icon: ImageVector? = null,
+    leading: (@Composable () -> Unit)? = null,
     selected: Boolean = false,
     opensPage: Boolean = false,
     enabled: Boolean = true,
@@ -164,7 +166,11 @@ internal fun VodPanelRow(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(PanelSpacing.sm),
         ) {
-            if (icon != null) Icon(icon, contentDescription = null, modifier = Modifier.size(20.dp))
+            if (leading != null) {
+                leading()
+            } else if (icon != null) {
+                Icon(icon, contentDescription = null, modifier = Modifier.size(20.dp))
+            }
             Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
                 Text(
                     text = title,
@@ -218,4 +224,46 @@ internal fun rememberPlacementFocus(requester: FocusRequester, tag: String): Mod
                 requester.requestFocusSafely(tag, "Target row on placement")
             }
         }
+}
+
+/**
+ * Pill for a horizontal row of choices at the top of a panel, such as the seasons. The chosen one is a tonal
+ * container with a check (never color alone), the others are filled with the control container, and focus fills the
+ * chip with [AppColors.Focus] and [AppColors.Canvas] text, like a row.
+ */
+@Composable
+internal fun VodPanelChip(
+    label: String,
+    selected: Boolean,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit,
+) {
+    TvClickableSurface(
+        onClick = onClick,
+        modifier = modifier,
+        shape = ClickableSurfaceDefaults.shape(PanelChipShape),
+        colors = ClickableSurfaceDefaults.colors(
+            containerColor = if (selected) AppColors.SelectedContainer else AppColors.current.controlContainer,
+            contentColor = if (selected) AppColors.OnSelectedContainer else AppColors.TextPrimary,
+            focusedContainerColor = AppColors.Focus,
+            focusedContentColor = AppColors.Canvas,
+        ),
+        scale = ClickableSurfaceDefaults.scale(focusedScale = 1f),
+    ) {
+        Row(
+            modifier = Modifier
+                .heightIn(min = 40.dp)
+                .padding(horizontal = PanelSpacing.md, vertical = PanelSpacing.xs),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(PanelSpacing.xs),
+        ) {
+            if (selected) Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp))
+            Text(
+                text = label,
+                style = MaterialTheme.typography.bodyMedium,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+        }
+    }
 }

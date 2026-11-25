@@ -10,7 +10,6 @@ import com.streamvault.feature.playback.R
 import com.streamvault.feature.playback.ui.components.dialogs.ProgramHistoryDialog
 import com.streamvault.feature.playback.player.overlay.ChannelVariantSelectionDialog
 import com.streamvault.feature.playback.player.overlay.PlayerAudioVideoOffsetDialog
-import com.streamvault.feature.playback.player.overlay.PlayerEpisodeSelectionDialog
 import com.streamvault.feature.playback.player.overlay.PlayerSleepTimerDialog
 import com.streamvault.feature.playback.player.overlay.PlayerSpeedSelectionDialog
 import com.streamvault.feature.playback.player.overlay.PlayerSubtitleOffsetDialog
@@ -64,7 +63,6 @@ internal fun PlayerControlsModalHost(
     showAudioVideoOffsetDialog: Boolean,
     showSubtitleOffsetDialog: Boolean,
     showEpisodePicker: Boolean,
-    fallbackTitle: String,
     fallbackEpisodeId: Long,
     fallbackSeasonNumber: Int?,
     onOpenSubtitleSearch: () -> Unit,
@@ -300,15 +298,12 @@ internal fun PlayerControlsModalHost(
         )
     }
     if (!isInPictureInPictureMode && showEpisodePicker) {
-        val playbackTitle by viewModel.playbackTitle.collectAsStateWithLifecycle()
         val currentSeries by viewModel.currentSeries.collectAsStateWithLifecycle()
         val currentEpisode by viewModel.currentEpisode.collectAsStateWithLifecycle()
         val seasons = remember(currentSeries) {
             currentSeries?.seasons.sanitizedForPlayer().orEmpty()
         }
-        PlayerEpisodeSelectionDialog(
-            visible = true,
-            seriesTitle = currentSeries?.name ?: playbackTitle.ifBlank { fallbackTitle },
+        VodEpisodeSheet(
             seasons = seasons,
             currentEpisodeId = currentEpisode?.id ?: fallbackEpisodeId,
             currentSeasonNumber = currentEpisode?.seasonNumber ?: fallbackSeasonNumber,

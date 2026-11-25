@@ -1128,7 +1128,6 @@ fun PlayerScreen(
             showAudioVideoOffsetDialog = modalState.showAudioVideoOffsetDialog,
             showSubtitleOffsetDialog = modalState.showSubtitleOffsetDialog,
             showEpisodePicker = modalState.showEpisodePicker,
-            fallbackTitle = title,
             fallbackEpisodeId = internalChannelId,
             fallbackSeasonNumber = seasonNumber,
             onOpenSubtitleSearch = { modalState = modalState.open(PlayerModal.SubtitleSearch) },
