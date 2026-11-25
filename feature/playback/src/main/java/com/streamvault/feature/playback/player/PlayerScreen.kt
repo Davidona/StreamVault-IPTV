@@ -241,6 +241,7 @@ fun PlayerScreen(
     val channelListFocusRequester = remember { FocusRequester() }
     val categoryListFocusRequester = remember { FocusRequester() }
     val playButtonFocusRequester = remember { FocusRequester() }
+    val vodPanelOpenerFocus = remember { VodPanelOpenerFocus() }
     val quickActionsFocusRequester = remember { FocusRequester() }
     val channelInfoFocusRequester = remember { FocusRequester() }
     val layoutDirection = LocalLayoutDirection.current
@@ -473,12 +474,15 @@ fun PlayerScreen(
                     tag = "PlayerScreen",
                     target = "Player quick actions after modal"
                 )
-            } else {
+            } else if (!vodPanelOpenerFocus.restore()) {
                 playButtonFocusRequester.requestFocusSafely(
                     tag = "PlayerScreen",
                     target = "Player transport after modal"
                 )
             }
+        } else if (modalState.active == null) {
+            // Controls hidden while the panel closed: the next show must start on play/pause, not a stale opener.
+            vodPanelOpenerFocus.forget()
         }
     }
 
@@ -949,6 +953,7 @@ fun PlayerScreen(
             displayChannelNumber = displayChannelNumber,
             aspectRatioLabel = aspectRatio.modeName,
             playButtonFocusRequester = playButtonFocusRequester,
+            vodPanelOpenerFocus = vodPanelOpenerFocus,
             quickActionsFocusRequester = quickActionsFocusRequester,
             modifier = Modifier.fillMaxSize(),
             onOpenArchive = { modalState = modalState.open(PlayerModal.ProgramHistory) },
@@ -962,6 +967,7 @@ fun PlayerScreen(
             onOpenEpisodes = { modalState = modalState.open(PlayerModal.EpisodePicker) },
             onOpenChapters = { modalState = modalState.open(PlayerModal.ChapterSelection) },
             onOpenPlaybackSettings = { modalState = modalState.open(PlayerModal.PlaybackSettings) },
+            modalVisible = modalState.hasVisibleModal,
             showChapterSheet = modalState.showChapterSelection,
             showPlaybackSettingsSheet = modalState.showPlaybackSettings,
             onDismissVodSheet = { modalState = modalState.dismiss() },

@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -62,6 +63,7 @@ internal fun PlayerControlsOverlayHost(
     displayChannelNumber: Int,
     aspectRatioLabel: String,
     playButtonFocusRequester: FocusRequester,
+    vodPanelOpenerFocus: VodPanelOpenerFocus,
     quickActionsFocusRequester: FocusRequester,
     onOpenArchive: () -> Unit,
     onOpenSubtitleTracks: () -> Unit,
@@ -74,6 +76,7 @@ internal fun PlayerControlsOverlayHost(
     onOpenEpisodes: () -> Unit,
     onOpenChapters: () -> Unit = {},
     onOpenPlaybackSettings: () -> Unit = {},
+    modalVisible: Boolean = false,
     showChapterSheet: Boolean = false,
     showPlaybackSettingsSheet: Boolean = false,
     onDismissVodSheet: () -> Unit = {},
@@ -155,6 +158,7 @@ internal fun PlayerControlsOverlayHost(
     )
 
     if (vodOverlayState.isVod) {
+        CompositionLocalProvider(LocalVodTooltipsSuppressed provides modalVisible) {
         VodPlayerControlsOverlay(
             visible = visible,
             title = vodDisplayTitle,
@@ -167,6 +171,7 @@ internal fun PlayerControlsOverlayHost(
             playbackSpeed = playbackSpeed,
             seekPreview = seekPreview,
             playButtonFocusRequester = playButtonFocusRequester,
+            panelOpenerFocus = vodPanelOpenerFocus,
             onTogglePlayPause = { if (isPlaying) viewModel.pause() else viewModel.play() },
             onSeekBackward = viewModel::seekBackward,
             onSeekForward = viewModel::seekForward,
@@ -196,6 +201,7 @@ internal fun PlayerControlsOverlayHost(
             },
             modifier = modifier
         )
+        }
 
         if (showChapterSheet) {
             VodChapterSheet(

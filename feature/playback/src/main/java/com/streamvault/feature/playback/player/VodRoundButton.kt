@@ -10,6 +10,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
@@ -135,6 +136,9 @@ internal fun VodPlayPauseButton(
  * phase (the tooltip's alpha), so a focus move recomposes nothing here. The tooltip is always
  * composed and shown through alpha, which avoids a text layout and node insert per focus move.
  */
+/** True while a panel or dialog is open over the overlay; the focused button behind it must not show its tooltip. */
+internal val LocalVodTooltipsSuppressed = compositionLocalOf { false }
+
 @Composable
 private fun VodButtonWithTooltip(
     label: String,
@@ -143,11 +147,14 @@ private fun VodButtonWithTooltip(
 ) {
     val isFocused = remember { mutableStateOf(false) }
     val tooltipVisible = remember { mutableStateOf(false) }
+    val suppressed = LocalVodTooltipsSuppressed.current
+    // The button keeps its focus state while a panel window has focus, so hide explicitly.
+    LaunchedEffect(suppressed) { if (suppressed) tooltipVisible.value = false }
     LaunchedEffect(Unit) {
         snapshotFlow { isFocused.value }.collectLatest { focused ->
             if (focused) {
                 delay(TooltipDelayMillis)
-                tooltipVisible.value = true
+                if (!suppressed) tooltipVisible.value = true
             } else {
                 tooltipVisible.value = false
             }
@@ -158,7 +165,7 @@ private fun VodButtonWithTooltip(
         Box(
             modifier = Modifier
                 .matchParentSize()
-                .graphicsLayer { alpha = if (tooltipVisible.value) 1f else 0f }
+                .graphicsLayer { alpha = if (tooltipVisible.value && !suppressed) 1f else 0f }
         ) {
             VodTooltip(label)
         }

@@ -28,6 +28,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.res.stringResource
@@ -51,6 +52,7 @@ internal fun VodPlayerControlsOverlay(
     playbackSpeed: Float,
     seekPreview: SeekPreviewState,
     playButtonFocusRequester: FocusRequester,
+    panelOpenerFocus: VodPanelOpenerFocus = remember { VodPanelOpenerFocus() },
     onTogglePlayPause: () -> Unit,
     onSeekBackward: () -> Unit,
     onSeekForward: () -> Unit,
@@ -157,6 +159,7 @@ internal fun VodPlayerControlsOverlay(
                     Spacer(modifier = Modifier.weight(1f))
                     VodActionButtons(
                         overlayState = overlayState,
+                        panelOpenerFocus = panelOpenerFocus,
                         onPlayPreviousEpisode = onPlayPreviousEpisode,
                         onPlayNextEpisode = onPlayNextEpisode,
                         onOpenAudioTracks = onOpenAudioTracks,
@@ -189,6 +192,7 @@ internal fun VodPlayerControlsOverlay(
 @Composable
 private fun VodActionButtons(
     overlayState: VodOverlayState,
+    panelOpenerFocus: VodPanelOpenerFocus,
     onPlayPreviousEpisode: () -> Unit,
     onPlayNextEpisode: () -> Unit,
     onOpenAudioTracks: () -> Unit,
@@ -219,35 +223,40 @@ private fun VodActionButtons(
             VodRoundButton(
                 icon = Icons.Default.Audiotrack,
                 label = stringResource(R.string.player_audio),
-                onClick = onOpenAudioTracks
+                onClick = { panelOpenerFocus.opened(VodPanelOpener.AUDIO); onOpenAudioTracks() },
+                modifier = Modifier.focusRequester(panelOpenerFocus.requesterFor(VodPanelOpener.AUDIO))
             )
         }
         if (overlayState.showSubtitleAction) {
             VodRoundButton(
                 icon = Icons.Default.ClosedCaption,
                 label = stringResource(R.string.player_subs),
-                onClick = onOpenSubtitleTracks
+                onClick = { panelOpenerFocus.opened(VodPanelOpener.SUBTITLES); onOpenSubtitleTracks() },
+                modifier = Modifier.focusRequester(panelOpenerFocus.requesterFor(VodPanelOpener.SUBTITLES))
             )
         }
         if (overlayState.showChapterAction) {
             VodRoundButton(
                 icon = Icons.Default.MenuBook,
                 label = stringResource(R.string.player_chapters),
-                onClick = onOpenChapters
+                onClick = { panelOpenerFocus.opened(VodPanelOpener.CHAPTERS); onOpenChapters() },
+                modifier = Modifier.focusRequester(panelOpenerFocus.requesterFor(VodPanelOpener.CHAPTERS))
             )
         }
         if (overlayState.showEpisodesAction) {
             VodRoundButton(
                 icon = Icons.Default.VideoLibrary,
                 label = stringResource(R.string.player_episodes),
-                onClick = onOpenEpisodes
+                onClick = { panelOpenerFocus.opened(VodPanelOpener.EPISODES); onOpenEpisodes() },
+                modifier = Modifier.focusRequester(panelOpenerFocus.requesterFor(VodPanelOpener.EPISODES))
             )
         }
         if (overlayState.showSettingsAction) {
             VodRoundButton(
                 icon = Icons.Default.Settings,
                 label = stringResource(R.string.player_playback_settings),
-                onClick = onOpenSettings
+                onClick = { panelOpenerFocus.opened(VodPanelOpener.SETTINGS); onOpenSettings() },
+                modifier = Modifier.focusRequester(panelOpenerFocus.requesterFor(VodPanelOpener.SETTINGS))
             )
         }
     }
