@@ -28,7 +28,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
-import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -80,11 +79,12 @@ internal fun stripEpisodeMarker(title: String, seasonNumber: Int, episodeNumber:
     return title.replace(marker, "").trim()
 }
 
-// The chips sit on the top gradient, which over a bright frame is mid gray and over a dark one is
-// near black. Dark theme containers vanish in one or the other, so the chips are light: opaque, 14.9:1
-// against black, 4.1:1 against that mid gray, and black text on them is 14.9:1. Theme independent
-// because it only ever sits on video.
-private val VodChipContainer = Color.White.copy(alpha = 0.85f).compositeOver(Color.Black)
+// Translucent white fills, so the video shows through the scrim and the chips and buttons read as glass.
+// Chips: the header scrim is at least 60% black there, so even over a pure white frame the chip sits on
+// mid gray (about #757575) and the white text on it is 4.6:1. Buttons: the bottom scrim is 85 to 92% black,
+// white text or icon is above 10:1 over any frame. Not palette roles because they only ever sit on video.
+private val VodChipContainer = Color.White.copy(alpha = 0.10f)
+internal val VodButtonContainer = Color.White.copy(alpha = 0.14f)
 
 // The line sits above the bottom scrim's dark zone, so shadows keep it readable on a bright frame.
 // One shadow is too faint on white, so the text is drawn twice: a tight shadow for the glyph edge
@@ -241,7 +241,7 @@ private fun VodChip(text: String) {
             .background(VodChipContainer)
             .padding(horizontal = spacing.sm, vertical = spacing.xs / 2),
         style = MaterialTheme.typography.bodyMedium,
-        color = Color.Black,
+        color = Color.White,
         fontWeight = FontWeight.SemiBold,
         maxLines = 1
     )

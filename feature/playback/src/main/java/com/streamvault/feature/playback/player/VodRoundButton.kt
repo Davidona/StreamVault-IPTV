@@ -18,7 +18,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.layout
@@ -50,17 +49,12 @@ private const val VodPlayFocusScale = 1.08f
 // scrim in every theme, and in the dark themes the light Focus fill carries it as well.
 private val VodFocusRing = BorderStroke(2.dp, Color.White)
 
-// The bottom scrim is about 0.92 black, so any dark theme container vanishes into it (1.6 to 2:1).
-// Mid gray, opaque, is 4.7:1 against black and 4.7:1 under a white icon, in every theme. Computed
-// once; it is not a palette role because it only ever sits on this scrim.
-private val VodButtonContainer = Color.White.copy(alpha = 0.45f).compositeOver(Color.Black)
-
 // 500 ms: long enough that moving across the row does not flash a tooltip on every button, short
 // enough that a pause on a button explains it. 1000 ms feels like the UI is stuck on a remote.
 private const val TooltipDelayMillis = 500L
 
 /**
- * Round transport or action button: opaque mid-gray fill with a white icon at rest, [AppColors.Focus]
+ * Round transport or action button: translucent white fill ([VodButtonContainer]) with a white icon at rest, [AppColors.Focus]
  * fill with a [AppColors.Canvas] icon and a white ring when focused. A tooltip with [label] floats
  * above it once focus has stayed for [TooltipDelayMillis].
  */
