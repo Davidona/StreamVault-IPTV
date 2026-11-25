@@ -35,4 +35,31 @@ class VodChapterNavigationTest {
 
         assertThat(currentChapter(unordered, positionMs = 80_000L)?.title).isEqualTo("The turn")
     }
+
+    @Test
+    fun `previous chapter restarts the current one after the threshold`() {
+        assertThat(previousChapterTarget(chapters, positionMs = 90_000L)).isEqualTo(60_000L)
+    }
+
+    @Test
+    fun `previous chapter goes back one chapter near a chapter start`() {
+        assertThat(previousChapterTarget(chapters, positionMs = 61_000L)).isEqualTo(0L)
+    }
+
+    @Test
+    fun `previous chapter in the first chapter seeks to the beginning`() {
+        assertThat(previousChapterTarget(chapters, positionMs = 1_000L)).isEqualTo(0L)
+    }
+
+    @Test
+    fun `chapter targets are absent without chapters`() {
+        assertThat(previousChapterTarget(emptyList(), 5_000L)).isNull()
+        assertThat(nextChapterTarget(emptyList(), 5_000L)).isNull()
+    }
+
+    @Test
+    fun `next chapter seeks to the following start and is absent in the last chapter`() {
+        assertThat(nextChapterTarget(chapters, positionMs = 30_000L)).isEqualTo(60_000L)
+        assertThat(nextChapterTarget(chapters, positionMs = 120_000L)).isNull()
+    }
 }
