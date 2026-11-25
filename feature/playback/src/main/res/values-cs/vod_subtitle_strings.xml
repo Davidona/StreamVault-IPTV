@@ -1,6 +1,7 @@
 <resources>
     <string name="vod_subtitle_sources">Zdroje</string>
     <string name="vod_subtitle_settings">Nastavení</string>
+    <string name="vod_subtitle_appearance">Vzhled titulků</string>
     <string name="vod_subtitle_provider">Titulky poskytovatele</string>
     <string name="vod_subtitle_provider_hint">Vyberte stopu titulků z tohoto videa</string>
     <string name="vod_subtitle_online">OpenSubtitles</string>

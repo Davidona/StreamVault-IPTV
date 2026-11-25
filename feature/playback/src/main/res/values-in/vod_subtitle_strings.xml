@@ -1,6 +1,7 @@
 <resources>
     <string name="vod_subtitle_sources">Sumber</string>
     <string name="vod_subtitle_settings">Pengaturan</string>
+    <string name="vod_subtitle_appearance">Tampilan subtitel</string>
     <string name="vod_subtitle_provider">Subtitle penyedia</string>
     <string name="vod_subtitle_provider_hint">Pilih trek subtitle dari video ini</string>
     <string name="vod_subtitle_online">OpenSubtitles</string>

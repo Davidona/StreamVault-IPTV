@@ -1,6 +1,7 @@
 <resources>
     <string name="vod_subtitle_sources">Források</string>
     <string name="vod_subtitle_settings">Beállítások</string>
+    <string name="vod_subtitle_appearance">Feliratok megjelenése</string>
     <string name="vod_subtitle_provider">Szolgáltatói feliratok</string>
     <string name="vod_subtitle_provider_hint">Válasszon feliratsávot ebből a videóból</string>
     <string name="vod_subtitle_online">OpenSubtitles</string>

@@ -1,6 +1,7 @@
 <resources>
     <string name="vod_subtitle_sources">منابع</string>
     <string name="vod_subtitle_settings">تنظیمات</string>
+    <string name="vod_subtitle_appearance">ظاهر زیرنویس</string>
     <string name="vod_subtitle_provider">زیرنویس‌های ارائه‌دهنده</string>
     <string name="vod_subtitle_provider_hint">یک زیرنویس از این ویدیو انتخاب کنید</string>
     <string name="vod_subtitle_online">OpenSubtitles</string>

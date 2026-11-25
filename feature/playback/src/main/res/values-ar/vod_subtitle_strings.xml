@@ -1,6 +1,7 @@
 <resources>
     <string name="vod_subtitle_sources">المصادر</string>
     <string name="vod_subtitle_settings">الإعدادات</string>
+    <string name="vod_subtitle_appearance">مظهر الترجمة</string>
     <string name="vod_subtitle_provider">ترجمات المزوّد</string>
     <string name="vod_subtitle_provider_hint">اختر مسار ترجمة من هذا الفيديو</string>
     <string name="vod_subtitle_online">OpenSubtitles</string>

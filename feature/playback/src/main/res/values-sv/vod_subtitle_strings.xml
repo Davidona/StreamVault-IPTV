@@ -2,6 +2,7 @@
 <resources>
     <string name="vod_subtitle_sources">Källor</string>
     <string name="vod_subtitle_settings">Inställningar</string>
+    <string name="vod_subtitle_appearance">Textningens utseende</string>
     <string name="vod_subtitle_provider">Leverantörsundertexter</string>
     <string name="vod_subtitle_provider_hint">Välj ett undertextspår från den här videon</string>
     <string name="vod_subtitle_online">OpenSubtitles</string>

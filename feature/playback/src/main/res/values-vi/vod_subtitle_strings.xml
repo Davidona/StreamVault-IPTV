@@ -1,6 +1,7 @@
 <resources>
     <string name="vod_subtitle_sources">Nguồn</string>
     <string name="vod_subtitle_settings">Cài đặt</string>
+    <string name="vod_subtitle_appearance">Giao diện phụ đề</string>
     <string name="vod_subtitle_provider">Phụ đề từ nhà cung cấp</string>
     <string name="vod_subtitle_provider_hint">Chọn bản phụ đề từ video này</string>
     <string name="vod_subtitle_online">OpenSubtitles</string>

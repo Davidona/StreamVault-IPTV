@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.runtime.Composable
@@ -23,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -36,6 +38,7 @@ import com.streamvault.core.ui.components.dialogs.AppDialog
 import com.streamvault.core.ui.design.AppColors
 import com.streamvault.core.ui.design.AppSpacing
 import com.streamvault.core.ui.interaction.TvClickableSurface
+import com.streamvault.feature.playback.R
 
 private val PanelSpacing = AppSpacing()
 private val PanelShape = RoundedCornerShape(24.dp)
@@ -54,13 +57,15 @@ private val PanelBottomMargin = VOD_OVERLAY_VERTICAL_PADDING + VOD_BUTTON_ROW_HE
 /**
  * Frame shared by the VOD side panels: an opaque, rounded surface anchored bottom-end above the button row, which
  * stays visible behind it. No dim, blur or gradient (P3: it covers a large part of the screen). The dialog
- * window keeps D-pad focus inside, so Left cannot reach the controls behind, and Back closes it.
+ * window keeps D-pad focus inside, so Left cannot reach the controls behind, and Back closes it. [onBack] shows a
+ * focusable back button in place of the title icon, for in-frame sub-pages.
  */
 @Composable
 internal fun VodPanelFrame(
     title: String,
     icon: ImageVector,
     onDismiss: () -> Unit,
+    onBack: (() -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     AppDialog(onDismissRequest = onDismiss, properties = DialogProperties(usePlatformDefaultWidth = false)) {
@@ -83,7 +88,17 @@ internal fun VodPanelFrame(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(PanelSpacing.sm),
                     ) {
-                        Icon(icon, contentDescription = null, modifier = Modifier.size(24.dp))
+                        if (onBack != null) {
+                            VodControlButton(onBack) {
+                                Icon(
+                                    Icons.AutoMirrored.Filled.ArrowBack,
+                                    contentDescription = stringResource(R.string.player_back_to_menu),
+                                    modifier = Modifier.size(24.dp),
+                                )
+                            }
+                        } else {
+                            Icon(icon, contentDescription = null, modifier = Modifier.size(24.dp))
+                        }
                         Text(
                             text = title,
                             modifier = Modifier.weight(1f),
@@ -102,7 +117,8 @@ internal fun VodPanelFrame(
 
 /**
  * Row of a panel list. Resting rows are flat, the selected row is a tonal container with a check (never color
- * alone), and focus fills the row with [AppColors.Focus] and [AppColors.Canvas] text. [opensPage] shows a chevron.
+ * alone), and focus fills the row with [AppColors.Focus] and [AppColors.Canvas] text. [opensPage] shows a chevron,
+ * [trailing] replaces it (for example a progress indicator).
  */
 @Composable
 internal fun VodPanelRow(
@@ -113,6 +129,7 @@ internal fun VodPanelRow(
     selected: Boolean = false,
     opensPage: Boolean = false,
     enabled: Boolean = true,
+    trailing: (@Composable () -> Unit)? = null,
     onClick: () -> Unit,
 ) {
     TvClickableSurface(
@@ -155,7 +172,9 @@ internal fun VodPanelRow(
                     )
                 }
             }
-            if (selected || opensPage) {
+            if (trailing != null) {
+                trailing()
+            } else if (selected || opensPage) {
                 Icon(
                     imageVector = if (selected) Icons.Default.Check else Icons.Default.ChevronRight,
                     contentDescription = null,

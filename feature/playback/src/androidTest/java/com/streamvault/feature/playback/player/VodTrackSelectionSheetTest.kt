@@ -23,7 +23,7 @@ class VodTrackSelectionSheetTest {
     @get:Rule val rule = createComposeRule()
     private val tracks = (1..30).map { PlayerTrack("$it", "Subtitle language $it", null, TrackType.TEXT, it == 1) }
 
-    @Test fun sourcesRemainVisibleWithManyTracks_andSettingsApplyWithoutClosing() {
+    @Test fun mainPageOpensOnSelectedTrack_andAppearanceAppliesWithoutClosing() {
         var selected: String? = null
         var searches = 0
         var imports = 0
@@ -51,20 +51,13 @@ class VodTrackSelectionSheetTest {
                 )
             }
         }
-        rule.onNodeWithText("Provider subtitles").assertIsDisplayed()
-        rule.onNodeWithText("Provider subtitles").assertIsFocused()
-        capture("vod-subtitle-sources")
-        rule.onNodeWithText("OpenSubtitles").assertIsDisplayed()
-        rule.onNodeWithText("Provider subtitles").performKeyInput {
-            pressKey(Key.DirectionDown)
-        }
-        rule.onNodeWithText("OpenSubtitles").assertIsFocused().performKeyInput {
-            pressKey(Key.Enter)
-        }
+        rule.onNodeWithText("Subtitle language 1").assertIsDisplayed().assertIsFocused()
+        capture("vod-subtitle-main")
+        rule.onNode(hasScrollToIndexAction()).performScrollToNode(hasText("OpenSubtitles"))
+        rule.onNodeWithText("OpenSubtitles").assertIsDisplayed().performSemanticsAction(SemanticsActions.OnClick) { it() }
         rule.onNodeWithText("Load SRT from device").assertIsDisplayed().performSemanticsAction(SemanticsActions.OnClick) { it() }
-        capture("vod-subtitle-sources")
-        rule.onNodeWithText("Settings").performSemanticsAction(SemanticsActions.OnClick) { it() }
-        capture("vod-subtitle-settings")
+        rule.onNodeWithText("Subtitle appearance").assertIsDisplayed().performSemanticsAction(SemanticsActions.OnClick) { it() }
+        capture("vod-subtitle-appearance")
         rule.onNodeWithContentDescription("Increase Subtitle delay").performSemanticsAction(SemanticsActions.OnClick) { it() }
         rule.onNodeWithText("100 ms").assertExists()
         rule.onNodeWithContentDescription("Reset delay").performSemanticsAction(SemanticsActions.OnClick) { it() }
@@ -73,9 +66,10 @@ class VodTrackSelectionSheetTest {
         rule.onNodeWithText("125%").assertExists()
         rule.onNodeWithContentDescription("Increase Background opacity").assertIsDisplayed().performSemanticsAction(SemanticsActions.OnClick) { it() }
         rule.onNodeWithText("60%").assertExists()
-        capture("vod-subtitle-appearance")
-        rule.onNodeWithText("Sources").performSemanticsAction(SemanticsActions.OnClick) { it() }
-        rule.onNodeWithText("Provider subtitles").performSemanticsAction(SemanticsActions.OnClick) { it() }
+        rule.onNodeWithContentDescription("Decrease Subtitle delay").assertIsFocused().performKeyInput {
+            pressKey(Key.DirectionLeft)
+        }
+        rule.onNodeWithText("Subtitle appearance").assertIsFocused()
         rule.onNode(hasScrollToIndexAction()).performScrollToNode(hasText("Subtitle language 30"))
         rule.onNodeWithText("Subtitle language 30").performSemanticsAction(SemanticsActions.OnClick) { it() }
         assertEquals("30", selected)

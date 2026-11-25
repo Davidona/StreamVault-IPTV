@@ -1,6 +1,7 @@
 <resources>
     <string name="vod_subtitle_sources">Surse</string>
     <string name="vod_subtitle_settings">Setări</string>
+    <string name="vod_subtitle_appearance">Aspectul subtitrărilor</string>
     <string name="vod_subtitle_provider">Subtitrări de la furnizor</string>
     <string name="vod_subtitle_provider_hint">Alegeți o pistă de subtitrare din acest videoclip</string>
     <string name="vod_subtitle_online">OpenSubtitles</string>

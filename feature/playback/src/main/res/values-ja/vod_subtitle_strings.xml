@@ -1,6 +1,7 @@
 <resources>
     <string name="vod_subtitle_sources">ソース</string>
     <string name="vod_subtitle_settings">設定</string>
+    <string name="vod_subtitle_appearance">字幕の外観</string>
     <string name="vod_subtitle_provider">プロバイダーの字幕</string>
     <string name="vod_subtitle_provider_hint">この動画から字幕トラックを選択</string>
     <string name="vod_subtitle_online">OpenSubtitles</string>

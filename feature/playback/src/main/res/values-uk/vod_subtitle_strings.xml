@@ -1,6 +1,7 @@
 <resources>
     <string name="vod_subtitle_sources">Джерела</string>
     <string name="vod_subtitle_settings">Налаштування</string>
+    <string name="vod_subtitle_appearance">Вигляд субтитрів</string>
     <string name="vod_subtitle_provider">Субтитри провайдера</string>
     <string name="vod_subtitle_provider_hint">Виберіть доріжку субтитрів із цього відео</string>
     <string name="vod_subtitle_online">OpenSubtitles</string>
