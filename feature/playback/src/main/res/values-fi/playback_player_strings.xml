@@ -313,4 +313,7 @@
     <string name="player_stremio_subtitles_loading">Ladataan lisäosan tekstityksiä…</string>
     <string name="player_stremio_subtitles_empty">Lisäosan tekstityksiä ei ole saatavilla</string>
     <string name="player_stremio_subtitles_retry">Lataa lisäosan tekstitykset uudelleen</string>
+    <string name="player_season_label">Kausi %1$d</string>
+    <string name="player_episode_label">Jakso %1$d</string>
+    <string name="player_vod_ends_at">Päättyy klo %1$s</string>
 </resources>

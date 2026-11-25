@@ -314,4 +314,7 @@
     <string name="player_stremio_subtitles_loading">Se încarcă subtitrările suplimentului…</string>
     <string name="player_stremio_subtitles_empty">Nu sunt disponibile subtitrări pentru supliment</string>
     <string name="player_stremio_subtitles_retry">Reîncarcă subtitrările suplimentului</string>
+    <string name="player_season_label">Sezonul %1$d</string>
+    <string name="player_episode_label">Episodul %1$d</string>
+    <string name="player_vod_ends_at">Se termină la %1$s</string>
 </resources>

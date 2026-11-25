@@ -315,4 +315,7 @@
     <string name="player_stremio_subtitles_loading">Wczytywanie napisów dodatku…</string>
     <string name="player_stremio_subtitles_empty">Brak dostępnych napisów dodatku</string>
     <string name="player_stremio_subtitles_retry">Wczytaj napisy dodatku ponownie</string>
+    <string name="player_season_label">Sezon %1$d</string>
+    <string name="player_episode_label">Odcinek %1$d</string>
+    <string name="player_vod_ends_at">Koniec o %1$s</string>
 </resources>

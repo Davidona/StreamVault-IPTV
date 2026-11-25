@@ -317,4 +317,7 @@
     <string name="player_stremio_subtitles_loading">جارٍ تحميل ترجمات الإضافة…</string>
     <string name="player_stremio_subtitles_empty">لا تتوفر ترجمات للإضافة</string>
     <string name="player_stremio_subtitles_retry">إعادة محاولة تحميل ترجمات الإضافة</string>
+    <string name="player_season_label">الموسم %1$d</string>
+    <string name="player_episode_label">الحلقة %1$d</string>
+    <string name="player_vod_ends_at">ينتهي في %1$s</string>
 </resources>

@@ -313,4 +313,7 @@
     <string name="player_stremio_subtitles_loading">Carregando legendas do complemento…</string>
     <string name="player_stremio_subtitles_empty">Nenhuma legenda do complemento disponível</string>
     <string name="player_stremio_subtitles_retry">Tentar carregar as legendas do complemento novamente</string>
+    <string name="player_season_label">Temporada %1$d</string>
+    <string name="player_episode_label">Episódio %1$d</string>
+    <string name="player_vod_ends_at">Termina às %1$s</string>
 </resources>

@@ -313,4 +313,7 @@
     <string name="player_stremio_subtitles_loading">Memuat subtitle add-on…</string>
     <string name="player_stremio_subtitles_empty">Subtitle add-on tidak tersedia</string>
     <string name="player_stremio_subtitles_retry">Coba muat ulang subtitle add-on</string>
+    <string name="player_season_label">Musim %1$d</string>
+    <string name="player_episode_label">Episode %1$d</string>
+    <string name="player_vod_ends_at">Selesai pukul %1$s</string>
 </resources>

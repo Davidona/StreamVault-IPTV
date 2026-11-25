@@ -313,4 +313,7 @@
     <string name="player_stremio_subtitles_loading">Add-onondertitels laden…</string>
     <string name="player_stremio_subtitles_empty">Geen add-onondertitels beschikbaar</string>
     <string name="player_stremio_subtitles_retry">Add-onondertitels opnieuw laden</string>
+    <string name="player_season_label">Seizoen %1$d</string>
+    <string name="player_episode_label">Aflevering %1$d</string>
+    <string name="player_vod_ends_at">Eindigt om %1$s</string>
 </resources>

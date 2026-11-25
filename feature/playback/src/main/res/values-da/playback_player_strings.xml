@@ -313,4 +313,7 @@
     <string name="player_stremio_subtitles_loading">Indlæser tilføjelsens undertekster…</string>
     <string name="player_stremio_subtitles_empty">Ingen tilføjelsesundertekster tilgængelige</string>
     <string name="player_stremio_subtitles_retry">Prøv at hente tilføjelsens undertekster igen</string>
+    <string name="player_season_label">Sæson %1$d</string>
+    <string name="player_episode_label">Afsnit %1$d</string>
+    <string name="player_vod_ends_at">Slutter kl. %1$s</string>
 </resources>

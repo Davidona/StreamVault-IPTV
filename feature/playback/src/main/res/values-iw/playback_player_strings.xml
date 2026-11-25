@@ -314,4 +314,7 @@
     <string name="player_stremio_subtitles_loading">טוען כתוביות של תוסף…</string>
     <string name="player_stremio_subtitles_empty">אין כתוביות זמינות מהתוסף</string>
     <string name="player_stremio_subtitles_retry">נסה לטעון שוב את כתוביות התוסף</string>
+    <string name="player_season_label">עונה %1$d</string>
+    <string name="player_episode_label">פרק %1$d</string>
+    <string name="player_vod_ends_at">מסתיים ב-%1$s</string>
 </resources>

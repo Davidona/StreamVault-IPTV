@@ -302,4 +302,7 @@
     <string name="player_stremio_subtitles_loading">Memuatkan sari kata add-on…</string>
     <string name="player_stremio_subtitles_empty">Tiada sari kata add-on tersedia</string>
     <string name="player_stremio_subtitles_retry">Muat semula sari kata add-on</string>
+    <string name="player_season_label">Musim %1$d</string>
+    <string name="player_episode_label">Episod %1$d</string>
+    <string name="player_vod_ends_at">Tamat pada %1$s</string>
 </resources>

@@ -313,4 +313,7 @@
     <string name="player_stremio_subtitles_loading">Add-on-Untertitel werden geladen…</string>
     <string name="player_stremio_subtitles_empty">Keine Add-on-Untertitel verfügbar</string>
     <string name="player_stremio_subtitles_retry">Add-on-Untertitel erneut laden</string>
+    <string name="player_season_label">Staffel %1$d</string>
+    <string name="player_episode_label">Episode %1$d</string>
+    <string name="player_vod_ends_at">Endet um %1$s</string>
 </resources>

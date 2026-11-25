@@ -994,15 +994,29 @@ fun PlayerScreen(
             controlsVisible = showControls
         )
 
-        PlayerResolutionBadgeHost(
-            viewModel = viewModel,
-            streamUrl = streamUrl,
-            videoFormat = videoFormat,
-            controlsVisible = showControls,
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .padding(32.dp)
-        )
+        // VOD shows the same decoded-format chips as its overlay (flashed at start, then faded), so a
+        // second badge with a different label would contradict them. Live keeps its resolution badge.
+        if (isVodPlayback(contentType, isCatchUpPlayback)) {
+            val startBadges = remember(videoFormat) { vodStreamBadges(videoFormat) }
+            VodStartBadges(
+                badges = startBadges,
+                streamUrl = streamUrl,
+                isReady = playbackState == PlaybackState.READY,
+                frameRateKnown = videoFormat.frameRate > 0f,
+                controlsVisible = showControls,
+                modifier = Modifier.align(Alignment.TopEnd)
+            )
+        } else {
+            PlayerResolutionBadgeHost(
+                viewModel = viewModel,
+                streamUrl = streamUrl,
+                videoFormat = videoFormat,
+                controlsVisible = showControls,
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(32.dp)
+            )
+        }
 
         PlayerSleepTimerWarningHost(
             viewModel = viewModel,

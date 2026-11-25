@@ -303,4 +303,7 @@
     <string name="player_stremio_subtitles_loading">Nilo-load ang mga subtitle ng add-on…</string>
     <string name="player_stremio_subtitles_empty">Walang available na subtitle ng add-on</string>
     <string name="player_stremio_subtitles_retry">Subukang muli ang mga subtitle ng add-on</string>
+    <string name="player_season_label">Season %1$d</string>
+    <string name="player_episode_label">Episode %1$d</string>
+    <string name="player_vod_ends_at">Matatapos sa %1$s</string>
 </resources>

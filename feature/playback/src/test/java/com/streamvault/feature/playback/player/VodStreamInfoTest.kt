@@ -51,4 +51,29 @@ class VodStreamInfoTest {
         assertThat(vodEndsAtMs(1_000L, 0L, 0L, 1f)).isNull()
         assertThat(vodEndsAtMs(1_000L, 90_000L, 70_000L, 1f)).isEqualTo(1_000L)
     }
+
+    @Test
+    fun `frame rate badge sits between hdr and audio codec`() {
+        val format = VideoFormat(3840, 2160, frameRate = 23.976f, codecV = "video/hevc", codecA = "audio/eac3", isHdr = true)
+        assertThat(vodStreamBadges(format)).containsExactly("4K", "HEVC", "HDR", "23.98 fps", "E-AC-3").inOrder()
+    }
+
+    @Test
+    fun `whole frame rates have no decimals and unknown frame rate adds no badge`() {
+        assertThat(vodStreamBadges(VideoFormat(1920, 1080, frameRate = 25f))).containsExactly("FHD", "25 fps").inOrder()
+        assertThat(vodStreamBadges(VideoFormat(1920, 1080, frameRate = 0f))).containsExactly("FHD")
+    }
+
+    @Test
+    fun `start badges wait for ready playback and a first chip`() {
+        assertThat(startBadgesWaitMs(isReady = false, hasBadges = true, frameRateKnown = true)).isNull()
+        assertThat(startBadgesWaitMs(isReady = true, hasBadges = false, frameRateKnown = true)).isNull()
+    }
+
+    @Test
+    fun `start badges show at once when the frame rate is known and otherwise wait for it`() {
+        assertThat(startBadgesWaitMs(isReady = true, hasBadges = true, frameRateKnown = true)).isEqualTo(0L)
+        assertThat(startBadgesWaitMs(isReady = true, hasBadges = true, frameRateKnown = false))
+            .isEqualTo(START_BADGES_FRAME_RATE_WAIT_MS)
+    }
 }

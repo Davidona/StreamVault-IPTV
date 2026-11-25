@@ -305,4 +305,7 @@
     <string name="player_stremio_subtitles_loading">Načítavajú sa titulky doplnku…</string>
     <string name="player_stremio_subtitles_empty">Titulky doplnku nie sú k dispozícii</string>
     <string name="player_stremio_subtitles_retry">Znova načítať titulky doplnku</string>
+    <string name="player_season_label">Séria %1$d</string>
+    <string name="player_episode_label">Epizóda %1$d</string>
+    <string name="player_vod_ends_at">Skončí o %1$s</string>
 </resources>

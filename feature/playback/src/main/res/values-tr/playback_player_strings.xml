@@ -324,4 +324,7 @@
 
     <string name="player_more">Daha fazla</string>
     <string name="player_track_no_audio_tracks">Ses parçası yok</string>
+    <string name="player_season_label">Sezon %1$d</string>
+    <string name="player_episode_label">Bölüm %1$d</string>
+    <string name="player_vod_ends_at">Bitiş: %1$s</string>
 </resources>

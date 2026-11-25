@@ -39,7 +39,7 @@ internal fun buildVodOverlayState(
     isCastConnected: Boolean
 ): VodOverlayState {
     val normalizedContentType = contentType.uppercase(Locale.ROOT)
-    val isVod = !isCatchUpPlayback && normalizedContentType in VOD_CONTENT_TYPES
+    val isVod = isVodPlayback(contentType, isCatchUpPlayback)
     val visibleChapters = if (isVod) {
         chapters.sortedBy(PlayerChapter::startTimeMs)
     } else {
@@ -66,3 +66,7 @@ internal fun buildVodOverlayState(
 }
 
 private val VOD_CONTENT_TYPES = setOf("VOD", "MOVIE", "SERIES_EPISODE")
+
+/** True when the VOD overlay (not the live one) is the one on screen. */
+internal fun isVodPlayback(contentType: String, isCatchUpPlayback: Boolean): Boolean =
+    !isCatchUpPlayback && contentType.uppercase(Locale.ROOT) in VOD_CONTENT_TYPES

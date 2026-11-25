@@ -50,10 +50,8 @@ import com.streamvault.core.ui.design.LocalAppSpacing
 import com.streamvault.feature.playback.player.SeekDirection
 import com.streamvault.feature.playback.player.SeekFeedbackEvent
 import com.streamvault.feature.playback.player.SeekFeedbackState
-import com.streamvault.feature.playback.player.VOD_CONTROLS_ROW_HEIGHT
 import com.streamvault.feature.playback.player.VOD_OVERLAY_HORIZONTAL_PADDING
-import com.streamvault.feature.playback.player.VOD_OVERLAY_ROW_GAP
-import com.streamvault.feature.playback.player.VOD_OVERLAY_VERTICAL_PADDING
+import com.streamvault.feature.playback.player.VOD_TIMELINE_BOTTOM_OFFSET
 import com.streamvault.feature.playback.player.VOD_TIMELINE_HEIGHT
 import com.streamvault.feature.playback.player.VOD_TIMELINE_THUMB_SIZE
 import com.streamvault.feature.playback.player.VOD_TIMELINE_TRACK_INSET
@@ -187,7 +185,7 @@ private fun SeekStrip(state: SeekFeedbackState, visible: Boolean, modifier: Modi
             .padding(
                 start = VOD_OVERLAY_HORIZONTAL_PADDING,
                 end = VOD_OVERLAY_HORIZONTAL_PADDING,
-                bottom = VOD_OVERLAY_VERTICAL_PADDING + VOD_CONTROLS_ROW_HEIGHT + VOD_OVERLAY_ROW_GAP
+                bottom = VOD_TIMELINE_BOTTOM_OFFSET
             )
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(0.dp)) {

@@ -4,11 +4,12 @@ import com.streamvault.domain.model.VideoFormat
 import java.util.Locale
 import kotlin.math.max
 
-/** Quality, video codec, HDR and audio codec chips read from the decoded stream, never from titles. */
+/** Quality, video codec, HDR, frame rate and audio codec chips read from the decoded stream, never from titles. */
 internal fun vodStreamBadges(format: VideoFormat): List<String> = buildList {
     qualityBadge(format.width, format.height)?.let(::add)
     videoCodecBadge(format.codecV)?.let(::add)
     if (format.isHdr) add("HDR")
+    format.frameRateLabel?.let { add("$it fps") }
     audioCodecBadge(format.codecA)?.let(::add)
 }
 

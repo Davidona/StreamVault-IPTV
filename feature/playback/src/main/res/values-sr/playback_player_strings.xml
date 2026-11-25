@@ -304,4 +304,7 @@
     <string name="player_stremio_subtitles_loading">Учитавање титлова додатка…</string>
     <string name="player_stremio_subtitles_empty">Нема доступних титлова додатка</string>
     <string name="player_stremio_subtitles_retry">Поново учитај титлове додатка</string>
+    <string name="player_season_label">Сезона %1$d</string>
+    <string name="player_episode_label">Епизода %1$d</string>
+    <string name="player_vod_ends_at">Завршава се у %1$s</string>
 </resources>

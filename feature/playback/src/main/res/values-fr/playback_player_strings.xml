@@ -313,4 +313,7 @@
     <string name="player_stremio_subtitles_loading">Chargement des sous-titres du module complémentaire…</string>
     <string name="player_stremio_subtitles_empty">Aucun sous-titre disponible pour le module complémentaire</string>
     <string name="player_stremio_subtitles_retry">Réessayer les sous-titres du module complémentaire</string>
+    <string name="player_season_label">Saison %1$d</string>
+    <string name="player_episode_label">Épisode %1$d</string>
+    <string name="player_vod_ends_at">Se termine à %1$s</string>
 </resources>

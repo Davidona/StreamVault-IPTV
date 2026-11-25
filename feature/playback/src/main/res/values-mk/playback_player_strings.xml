@@ -303,4 +303,7 @@
     <string name="player_stremio_subtitles_loading">Се вчитуваат преводите од додатокот…</string>
     <string name="player_stremio_subtitles_empty">Нема достапни преводи од додатокот</string>
     <string name="player_stremio_subtitles_retry">Обиди се повторно да ги вчиташ преводите од додатокот</string>
+    <string name="player_season_label">Сезона %1$d</string>
+    <string name="player_episode_label">Епизода %1$d</string>
+    <string name="player_vod_ends_at">Завршува во %1$s</string>
 </resources>

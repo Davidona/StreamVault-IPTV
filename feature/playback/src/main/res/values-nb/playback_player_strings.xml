@@ -313,4 +313,7 @@
     <string name="player_stremio_subtitles_loading">Laster inn tilleggsundertekster…</string>
     <string name="player_stremio_subtitles_empty">Ingen tilleggsundertekster tilgjengelig</string>
     <string name="player_stremio_subtitles_retry">Last inn tilleggsundertekstene på nytt</string>
+    <string name="player_season_label">Sesong %1$d</string>
+    <string name="player_episode_label">Episode %1$d</string>
+    <string name="player_vod_ends_at">Slutter kl. %1$s</string>
 </resources>

@@ -313,4 +313,7 @@
     <string name="player_stremio_subtitles_loading">Φόρτωση υποτίτλων πρόσθετου…</string>
     <string name="player_stremio_subtitles_empty">Δεν υπάρχουν διαθέσιμοι υπότιτλοι πρόσθετου</string>
     <string name="player_stremio_subtitles_retry">Δοκιμάστε ξανά τη φόρτωση υποτίτλων πρόσθετου</string>
+    <string name="player_season_label">Σεζόν %1$d</string>
+    <string name="player_episode_label">Επεισόδιο %1$d</string>
+    <string name="player_vod_ends_at">Λήγει στις %1$s</string>
 </resources>

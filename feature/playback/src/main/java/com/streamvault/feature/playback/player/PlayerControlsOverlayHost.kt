@@ -119,6 +119,22 @@ internal fun PlayerControlsOverlayHost(
     val canOpenEpisodePicker = contentType == "SERIES_EPISODE" &&
         currentSeriesSeasons?.any { it.episodes.isNotEmpty() } == true
 
+    val videoFormat by viewModel.videoFormat.collectAsControlsState(observeControls)
+    val vodBadges = remember(videoFormat) { vodStreamBadges(videoFormat) }
+    val vodTitle = playbackTitle.ifBlank { title }
+    val vodEpisodeHeader = remember(currentEpisode, contentType, vodTitle) {
+        currentEpisode?.takeIf { contentType == "SERIES_EPISODE" }?.let { buildVodEpisodeHeader(it, vodTitle) }
+    }
+    // The chips already say season and episode, so the "S01E01" marker is dropped from the title.
+    val vodDisplayTitle = remember(vodTitle, vodEpisodeHeader) {
+        val header = vodEpisodeHeader
+        if (header != null && header.seasonNumber > 0 && header.episodeNumber > 0) {
+            stripEpisodeMarker(vodTitle, header.seasonNumber, header.episodeNumber)
+        } else {
+            vodTitle
+        }
+    }
+
     val isCastConnected = castConnectionState == CastConnectionState.CONNECTED
     val vodOverlayState = buildVodOverlayState(
         contentType = contentType,
@@ -126,6 +142,8 @@ internal fun PlayerControlsOverlayHost(
         chapters = chapters,
         currentPositionMs = currentPosition,
         showEpisodesAction = canOpenEpisodePicker,
+        hasPreviousEpisode = previousEpisode != null,
+        hasNextEpisode = nextEpisode != null,
         subtitleTrackCount = availableSubtitleTracks.size,
         showStremioSubtitleAction = stremioSubtitlePickerState.enabled,
         audioTrackCount = availableAudioTracks.size,
@@ -139,22 +157,27 @@ internal fun PlayerControlsOverlayHost(
     if (vodOverlayState.isVod) {
         VodPlayerControlsOverlay(
             visible = visible,
-            title = playbackTitle.ifBlank { title },
+            title = vodDisplayTitle,
             overlayState = vodOverlayState,
+            episodeHeader = vodEpisodeHeader,
+            badges = vodBadges,
             isPlaying = isPlaying,
             currentPositionMs = currentPosition,
             durationMs = duration,
+            playbackSpeed = playbackSpeed,
             seekPreview = seekPreview,
             playButtonFocusRequester = playButtonFocusRequester,
-            showBackButton = showBackButton,
-            onBackToMenu = onBackToMenu,
             onTogglePlayPause = { if (isPlaying) viewModel.pause() else viewModel.play() },
             onSeekBackward = viewModel::seekBackward,
             onSeekForward = viewModel::seekForward,
+            onPreviousChapter = {
+                previousChapterTarget(vodOverlayState.chapters, currentPosition)?.let(viewModel::seekTo)
+            },
+            onNextChapter = {
+                nextChapterTarget(vodOverlayState.chapters, currentPosition)?.let(viewModel::seekTo)
+            },
             onOpenChapters = onOpenChapters,
             onOpenEpisodes = onOpenEpisodes,
-            canPlayPreviousEpisode = previousEpisode != null,
-            canPlayNextEpisode = nextEpisode != null,
             onPlayPreviousEpisode = {
                 previousEpisode?.let(viewModel::playEpisodeFromNavigation)
             },

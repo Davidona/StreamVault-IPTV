@@ -313,4 +313,7 @@
     <string name="player_stremio_subtitles_loading">추가 기능 자막을 불러오는 중…</string>
     <string name="player_stremio_subtitles_empty">사용 가능한 추가 기능 자막이 없습니다</string>
     <string name="player_stremio_subtitles_retry">추가 기능 자막 다시 불러오기</string>
+    <string name="player_season_label">시즌 %1$d</string>
+    <string name="player_episode_label">에피소드 %1$d</string>
+    <string name="player_vod_ends_at">%1$s에 종료</string>
 </resources>

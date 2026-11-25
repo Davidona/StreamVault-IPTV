@@ -313,4 +313,7 @@
     <string name="player_stremio_subtitles_loading">アドオン字幕を読み込み中…</string>
     <string name="player_stremio_subtitles_empty">利用できるアドオン字幕はありません</string>
     <string name="player_stremio_subtitles_retry">アドオン字幕を再読み込み</string>
+    <string name="player_season_label">シーズン %1$d</string>
+    <string name="player_episode_label">エピソード %1$d</string>
+    <string name="player_vod_ends_at">%1$s に終了</string>
 </resources>

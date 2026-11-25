@@ -315,4 +315,7 @@
     <string name="player_stremio_subtitles_loading">Завантаження субтитрів доповнення…</string>
     <string name="player_stremio_subtitles_empty">Субтитри доповнення недоступні</string>
     <string name="player_stremio_subtitles_retry">Повторно завантажити субтитри доповнення</string>
+    <string name="player_season_label">Сезон %1$d</string>
+    <string name="player_episode_label">Епізод %1$d</string>
+    <string name="player_vod_ends_at">Закінчиться о %1$s</string>
 </resources>

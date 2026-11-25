@@ -303,4 +303,7 @@
     <string name="player_stremio_subtitles_loading">Po ngarkohen titrat e shtesës…</string>
     <string name="player_stremio_subtitles_empty">Nuk ka titra të disponueshme nga shtesa</string>
     <string name="player_stremio_subtitles_retry">Ringarko titrat e shtesës</string>
+    <string name="player_season_label">Sezoni %1$d</string>
+    <string name="player_episode_label">Episodi %1$d</string>
+    <string name="player_vod_ends_at">Përfundon në %1$s</string>
 </resources>

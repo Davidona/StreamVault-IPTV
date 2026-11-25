@@ -313,4 +313,7 @@
     <string name="player_stremio_subtitles_loading">Kiegészítő feliratainak betöltése…</string>
     <string name="player_stremio_subtitles_empty">Nem érhetők el kiegészítő feliratok</string>
     <string name="player_stremio_subtitles_retry">Kiegészítő feliratainak újrapróbálása</string>
+    <string name="player_season_label">%1$d. évad</string>
+    <string name="player_episode_label">%1$d. epizód</string>
+    <string name="player_vod_ends_at">Vége: %1$s</string>
 </resources>

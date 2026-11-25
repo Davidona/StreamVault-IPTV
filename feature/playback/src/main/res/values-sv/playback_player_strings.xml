@@ -313,4 +313,7 @@
     <string name="player_stremio_subtitles_loading">Läser in tilläggets undertexter…</string>
     <string name="player_stremio_subtitles_empty">Inga tillgängliga tilläggsundertexter</string>
     <string name="player_stremio_subtitles_retry">Läs in tilläggets undertexter igen</string>
+    <string name="player_season_label">Säsong %1$d</string>
+    <string name="player_episode_label">Avsnitt %1$d</string>
+    <string name="player_vod_ends_at">Slutar kl. %1$s</string>
 </resources>

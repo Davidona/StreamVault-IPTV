@@ -2,8 +2,9 @@ package com.streamvault.feature.playback.player
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.FastForward
+import androidx.compose.material.icons.filled.FastRewind
 import androidx.compose.material.icons.filled.Forward10
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
@@ -14,65 +15,63 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.res.stringResource
-import androidx.tv.material3.Icon
+import com.streamvault.core.ui.design.LocalAppSpacing
 import com.streamvault.feature.playback.R
 
+/**
+ * Start-side button group: [previous chapter] [-10] [play/pause] [+10] [next chapter]. The chapter
+ * buttons are present only when [showChapterSkip] is set.
+ */
 @Composable
 internal fun VodTransportControls(
     isPlaying: Boolean,
+    showChapterSkip: Boolean,
     playButtonFocusRequester: FocusRequester,
     timelineFocusRequester: FocusRequester,
+    onPreviousChapter: () -> Unit,
     onSeekBackward: () -> Unit,
     onTogglePlayPause: () -> Unit,
     onSeekForward: () -> Unit,
+    onNextChapter: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Row(
         modifier = modifier,
-        horizontalArrangement = Arrangement.spacedBy(6.dp),
+        horizontalArrangement = Arrangement.spacedBy(LocalAppSpacing.current.sm),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        VodTransportButton(
+        if (showChapterSkip) {
+            VodRoundButton(
+                icon = Icons.Default.FastRewind,
+                label = stringResource(R.string.player_previous_chapter),
+                onClick = onPreviousChapter
+            )
+        }
+        VodRoundButton(
             icon = Icons.Default.Replay10,
             label = stringResource(R.string.player_rewind_10_seconds),
             onClick = onSeekBackward
         )
-        VodControlButton(
+        VodPlayPauseButton(
+            icon = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
+            label = stringResource(if (isPlaying) R.string.player_pause else R.string.player_play),
             onClick = onTogglePlayPause,
             modifier = Modifier
                 .focusRequester(playButtonFocusRequester)
                 .focusProperties { up = timelineFocusRequester }
-                .semantics { contentDescription = if (isPlaying) "Pause" else "Play" }
-                .padding(2.dp)
-        ) {
-            Icon(
-                imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
-                contentDescription = null,
-                tint = androidx.tv.material3.LocalContentColor.current
-            )
-        }
-        VodTransportButton(
+        )
+        VodRoundButton(
             icon = Icons.Default.Forward10,
             label = stringResource(R.string.player_forward_10_seconds),
             onClick = onSeekForward
         )
-    }
-}
-
-@Composable
-private fun VodTransportButton(
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
-    label: String,
-    onClick: () -> Unit
-) {
-    VodControlButton(
-        onClick = onClick,
-        modifier = Modifier.semantics { contentDescription = label }
-    ) {
-        Icon(imageVector = icon, contentDescription = null)
+        if (showChapterSkip) {
+            VodRoundButton(
+                icon = Icons.Default.FastForward,
+                label = stringResource(R.string.player_next_chapter),
+                onClick = onNextChapter
+            )
+        }
     }
 }

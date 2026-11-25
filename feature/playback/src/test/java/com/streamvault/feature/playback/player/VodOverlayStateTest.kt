@@ -229,4 +229,12 @@ class VodOverlayStateTest {
         assertThat(seriesState(chapters = listOf(chapter, second)).showChapterSkipActions).isTrue()
         assertThat(seriesState(chapters = listOf(chapter, second), isCastConnected = true).showChapterSkipActions).isFalse()
     }
+
+    @Test
+    fun `vod playback is movies and episodes but not live or catch-up`() {
+        assertThat(isVodPlayback("MOVIE", false)).isTrue()
+        assertThat(isVodPlayback("series_episode", false)).isTrue()
+        assertThat(isVodPlayback("LIVE", false)).isFalse()
+        assertThat(isVodPlayback("MOVIE", true)).isFalse()
+    }
 }

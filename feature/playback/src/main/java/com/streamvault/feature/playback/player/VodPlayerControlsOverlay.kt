@@ -8,11 +8,10 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -29,41 +28,36 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.res.stringResource
-import androidx.tv.material3.Icon
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
+import com.streamvault.core.ui.design.LocalAppSpacing
 import com.streamvault.feature.playback.R
-import com.streamvault.feature.playback.player.overlay.PlayerBackButton
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 internal fun VodPlayerControlsOverlay(
     visible: Boolean,
     title: String,
     overlayState: VodOverlayState,
+    episodeHeader: VodEpisodeHeader?,
+    badges: List<String>,
     isPlaying: Boolean,
     currentPositionMs: Long,
     durationMs: Long,
+    playbackSpeed: Float,
     seekPreview: SeekPreviewState,
     playButtonFocusRequester: FocusRequester,
-    showBackButton: Boolean = false,
-    onBackToMenu: () -> Unit = {},
     onTogglePlayPause: () -> Unit,
     onSeekBackward: () -> Unit,
     onSeekForward: () -> Unit,
+    onPreviousChapter: () -> Unit,
+    onNextChapter: () -> Unit,
     onOpenChapters: () -> Unit,
     onOpenEpisodes: () -> Unit,
-    canPlayPreviousEpisode: Boolean = false,
-    canPlayNextEpisode: Boolean = false,
     onPlayPreviousEpisode: () -> Unit = {},
     onPlayNextEpisode: () -> Unit = {},
     onOpenSubtitleTracks: () -> Unit,
@@ -75,9 +69,9 @@ internal fun VodPlayerControlsOverlay(
     onUserInteraction: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val spacing = LocalAppSpacing.current
     val timelineFocusRequester = remember { FocusRequester() }
     val vodControlsLabel = stringResource(R.string.player_vod_controls)
-    val settingsLabel = stringResource(R.string.player_playback_settings)
     AnimatedVisibility(
         visible = visible,
         enter = fadeIn(),
@@ -98,23 +92,26 @@ internal fun VodPlayerControlsOverlay(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(
-                        Brush.verticalGradient(
-                            colors = listOf(
-                                Color.Transparent,
-                                Color.Transparent,
-                                Color.Black.copy(alpha = 0.92f)
-                            )
-                        )
-                )
+                    .background(VodScrimBrush)
             )
 
-            if (showBackButton) {
-                PlayerBackButton(
-                    onClick = onBackToMenu,
-                    modifier = Modifier
-                        .align(Alignment.TopStart)
-                        .padding(24.dp)
+            Row(
+                modifier = Modifier
+                    .align(Alignment.TopStart)
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(spacing.xl),
+                verticalAlignment = Alignment.Top
+            ) {
+                Box(modifier = Modifier.weight(1f)) {
+                    VodHeader(
+                        title = title,
+                        episode = episodeHeader,
+                        currentChapter = overlayState.currentChapter
+                    )
+                }
+                VodBadges(
+                    badges = badges,
+                    modifier = Modifier.padding(top = VOD_OVERLAY_VERTICAL_PADDING, end = VOD_OVERLAY_HORIZONTAL_PADDING)
                 )
             }
 
@@ -125,40 +122,7 @@ internal fun VodPlayerControlsOverlay(
                     .padding(horizontal = VOD_OVERLAY_HORIZONTAL_PADDING, vertical = VOD_OVERLAY_VERTICAL_PADDING),
                 verticalArrangement = Arrangement.spacedBy(VOD_OVERLAY_ROW_GAP)
             ) {
-                Row(verticalAlignment = Alignment.Bottom) {
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = title,
-                            style = MaterialTheme.typography.titleLarge,
-                            color = Color.White,
-                            fontWeight = FontWeight.SemiBold,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                        overlayState.currentChapter?.let { chapter ->
-                            Text(
-                                text = stringResource(R.string.player_chapter_title, chapter.index, chapter.title),
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = Color.White.copy(alpha = 0.72f),
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
-                            )
-                        }
-                    }
-                    Column(horizontalAlignment = Alignment.End) {
-                        Text(
-                            text = formatVodDuration(currentPositionMs),
-                            style = MaterialTheme.typography.labelLarge,
-                            color = Color.White
-                        )
-                        Text(
-                            text = "-${formatVodDuration((durationMs - currentPositionMs).coerceAtLeast(0L))}",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = Color.White.copy(alpha = 0.64f)
-                        )
-                    }
-                }
-
+                VodEndsAtRow(positionMs = currentPositionMs, durationMs = durationMs, playbackSpeed = playbackSpeed)
                 VodTimeline(
                     chapters = overlayState.chapters,
                     currentChapter = overlayState.currentChapter,
@@ -171,69 +135,36 @@ internal fun VodPlayerControlsOverlay(
                     onSeekPreviewPositionChanged = onSeekPreviewPositionChanged,
                     onUserInteraction = onUserInteraction
                 )
+                VodTimeRow(positionMs = currentPositionMs, durationMs = durationMs)
 
-                FlowRow(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(VOD_BUTTON_ROW_HEIGHT),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
                     VodTransportControls(
                         isPlaying = isPlaying,
+                        showChapterSkip = overlayState.showChapterSkipActions,
                         playButtonFocusRequester = playButtonFocusRequester,
                         timelineFocusRequester = timelineFocusRequester,
+                        onPreviousChapter = onPreviousChapter,
                         onSeekBackward = onSeekBackward,
                         onTogglePlayPause = onTogglePlayPause,
-                        onSeekForward = onSeekForward
+                        onSeekForward = onSeekForward,
+                        onNextChapter = onNextChapter
                     )
                     Spacer(modifier = Modifier.weight(1f))
-                    if (overlayState.showChapterAction) {
-                        VodActionButton(
-                            icon = Icons.Default.MenuBook,
-                            label = stringResource(R.string.player_chapters),
-                            onClick = onOpenChapters
-                        )
-                    }
-                    if (overlayState.showEpisodesAction) {
-                        VodActionButton(
-                            icon = Icons.Default.SkipPrevious,
-                            label = stringResource(R.string.player_previous_episode),
-                            enabled = canPlayPreviousEpisode,
-                            onClick = onPlayPreviousEpisode
-                        )
-                        VodActionButton(
-                            icon = Icons.Default.SkipNext,
-                            label = stringResource(R.string.player_next_episode),
-                            enabled = canPlayNextEpisode,
-                            onClick = onPlayNextEpisode
-                        )
-                        VodActionButton(
-                            icon = Icons.Default.VideoLibrary,
-                            label = stringResource(R.string.player_episodes),
-                            onClick = onOpenEpisodes
-                        )
-                    }
-                    if (overlayState.showSubtitleAction) {
-                        VodActionButton(
-                            icon = Icons.Default.ClosedCaption,
-                            label = stringResource(R.string.player_subs),
-                            onClick = onOpenSubtitleTracks
-                        )
-                    }
-                    if (overlayState.showAudioAction) {
-                        VodActionButton(
-                            icon = Icons.Default.Audiotrack,
-                            label = stringResource(R.string.player_audio),
-                            onClick = onOpenAudioTracks
-                        )
-                    }
-                    if (overlayState.showSettingsAction) {
-                        VodControlButton(
-                            onClick = onOpenSettings,
-                            modifier = Modifier.semantics { contentDescription = settingsLabel }
-                        ) {
-                            Icon(imageVector = Icons.Default.Settings, contentDescription = null)
-                        }
-                    }
+                    VodActionButtons(
+                        overlayState = overlayState,
+                        onPlayPreviousEpisode = onPlayPreviousEpisode,
+                        onPlayNextEpisode = onPlayNextEpisode,
+                        onOpenAudioTracks = onOpenAudioTracks,
+                        onOpenSubtitleTracks = onOpenSubtitleTracks,
+                        onOpenChapters = onOpenChapters,
+                        onOpenEpisodes = onOpenEpisodes,
+                        onOpenSettings = onOpenSettings
+                    )
                 }
             }
 
@@ -242,10 +173,10 @@ internal fun VodPlayerControlsOverlay(
                     text = formatVodDuration(seekPreview.positionMs),
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
-                        .padding(bottom = 162.dp)
-                        .clip(RoundedCornerShape(10.dp))
+                        .padding(bottom = VOD_TIMELINE_BOTTOM_OFFSET + VOD_TIMELINE_HEIGHT + spacing.xs)
+                        .clip(RoundedCornerShape(spacing.sm))
                         .background(Color.Black.copy(alpha = 0.72f))
-                        .padding(horizontal = 14.dp, vertical = 8.dp),
+                        .padding(horizontal = spacing.md, vertical = spacing.xs),
                     color = Color.White,
                     style = MaterialTheme.typography.labelLarge
                 )
@@ -254,18 +185,70 @@ internal fun VodPlayerControlsOverlay(
     }
 }
 
+/** End-side group: episode skips, audio, subtitles, chapter list, episode list, settings. */
 @Composable
-private fun VodActionButton(
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
-    label: String,
-    enabled: Boolean = true,
-    onClick: () -> Unit
+private fun VodActionButtons(
+    overlayState: VodOverlayState,
+    onPlayPreviousEpisode: () -> Unit,
+    onPlayNextEpisode: () -> Unit,
+    onOpenAudioTracks: () -> Unit,
+    onOpenSubtitleTracks: () -> Unit,
+    onOpenChapters: () -> Unit,
+    onOpenEpisodes: () -> Unit,
+    onOpenSettings: () -> Unit
 ) {
-    VodControlButton(
-        onClick = onClick,
-        enabled = enabled,
-        modifier = Modifier.semantics { contentDescription = label }
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(LocalAppSpacing.current.sm),
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Icon(imageVector = icon, contentDescription = null)
+        if (overlayState.showPreviousEpisodeAction) {
+            VodRoundButton(
+                icon = Icons.Default.SkipPrevious,
+                label = stringResource(R.string.player_previous_episode),
+                onClick = onPlayPreviousEpisode
+            )
+        }
+        if (overlayState.showNextEpisodeAction) {
+            VodRoundButton(
+                icon = Icons.Default.SkipNext,
+                label = stringResource(R.string.player_next_episode),
+                onClick = onPlayNextEpisode
+            )
+        }
+        if (overlayState.showAudioAction) {
+            VodRoundButton(
+                icon = Icons.Default.Audiotrack,
+                label = stringResource(R.string.player_audio),
+                onClick = onOpenAudioTracks
+            )
+        }
+        if (overlayState.showSubtitleAction) {
+            VodRoundButton(
+                icon = Icons.Default.ClosedCaption,
+                label = stringResource(R.string.player_subs),
+                onClick = onOpenSubtitleTracks
+            )
+        }
+        if (overlayState.showChapterAction) {
+            VodRoundButton(
+                icon = Icons.Default.MenuBook,
+                label = stringResource(R.string.player_chapters),
+                onClick = onOpenChapters
+            )
+        }
+        if (overlayState.showEpisodesAction) {
+            VodRoundButton(
+                icon = Icons.Default.VideoLibrary,
+                label = stringResource(R.string.player_episodes),
+                onClick = onOpenEpisodes
+            )
+        }
+        if (overlayState.showSettingsAction) {
+            VodRoundButton(
+                icon = Icons.Default.Settings,
+                label = stringResource(R.string.player_playback_settings),
+                onClick = onOpenSettings
+            )
+        }
     }
 }
