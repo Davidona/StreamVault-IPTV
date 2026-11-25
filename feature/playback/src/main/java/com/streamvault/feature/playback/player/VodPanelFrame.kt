@@ -20,11 +20,15 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -38,6 +42,7 @@ import androidx.tv.material3.Text
 import com.streamvault.core.ui.components.dialogs.AppDialog
 import com.streamvault.core.ui.design.AppColors
 import com.streamvault.core.ui.design.AppSpacing
+import com.streamvault.core.ui.design.requestFocusSafely
 import com.streamvault.core.ui.interaction.TvClickableSurface
 import com.streamvault.feature.playback.R
 
@@ -196,4 +201,21 @@ internal fun VodPanelRow(
             }
         }
     }
+}
+
+/**
+ * Takes focus as soon as the row is first placed, instead of one frame later from an effect: the lazy list has already
+ * scrolled to the row by then, so the request cannot make it jump.
+ */
+@Composable
+internal fun rememberPlacementFocus(requester: FocusRequester, tag: String): Modifier {
+    val requested = remember { BooleanArray(1) }
+    return Modifier
+        .focusRequester(requester)
+        .onGloballyPositioned {
+            if (!requested[0]) {
+                requested[0] = true
+                requester.requestFocusSafely(tag, "Target row on placement")
+            }
+        }
 }

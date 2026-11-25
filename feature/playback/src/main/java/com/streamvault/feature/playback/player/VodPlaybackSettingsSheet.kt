@@ -17,10 +17,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.key.key
-import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.res.stringResource
 import com.streamvault.core.ui.design.AppSpacing
@@ -127,7 +125,7 @@ internal fun VodPlaybackSettingsSheet(
                     items(rows, key = { it.key }) { row ->
                         SettingsMainRow(
                             row = row,
-                            modifier = if (row.key == focusKey) rememberPlacementFocus(pageFocus) else Modifier,
+                            modifier = if (row.key == focusKey) rememberPlacementFocus(pageFocus, "VodPlaybackSettingsSheet") else Modifier,
                             value = settingsValue(row, playbackSpeed, aspectRatio, stopTimerMinutes, idleTimerMinutes, isMuted),
                             isMuted = isMuted,
                             isCastConnected = isCastConnected,
@@ -155,7 +153,7 @@ internal fun VodPlaybackSettingsSheet(
                     items(options, key = { it.key }) { option ->
                         VodPanelRow(
                             title = option.label,
-                            modifier = if (option.key == focusKey) rememberPlacementFocus(pageFocus) else Modifier,
+                            modifier = if (option.key == focusKey) rememberPlacementFocus(pageFocus, "VodPlaybackSettingsSheet") else Modifier,
                             selected = option.selected,
                             onClick = option.onSelect,
                         )
@@ -164,23 +162,6 @@ internal fun VodPlaybackSettingsSheet(
             }
         }
     }
-}
-
-/**
- * Takes focus as soon as the row is first placed, instead of one frame later from an effect: the lazy list has already
- * scrolled to the row by then, so the request cannot make it jump.
- */
-@Composable
-private fun rememberPlacementFocus(requester: FocusRequester): Modifier {
-    val requested = remember { BooleanArray(1) }
-    return Modifier
-        .focusRequester(requester)
-        .onGloballyPositioned {
-            if (!requested[0]) {
-                requested[0] = true
-                requester.requestFocusSafely("VodPlaybackSettingsSheet", "Target row on placement")
-            }
-        }
 }
 
 @Composable

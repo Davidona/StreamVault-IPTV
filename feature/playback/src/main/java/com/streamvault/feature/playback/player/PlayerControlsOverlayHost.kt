@@ -213,7 +213,6 @@ internal fun PlayerControlsOverlayHost(
                     onDismissVodSheet()
                 },
                 onDismiss = onDismissVodSheet,
-                modifier = Modifier.fillMaxSize()
             )
         }
         if (showPlaybackSettingsSheet) {

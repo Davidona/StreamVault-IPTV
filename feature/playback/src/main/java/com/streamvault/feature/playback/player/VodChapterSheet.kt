@@ -1,167 +1,88 @@
 package com.streamvault.feature.playback.player
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.MenuBook
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.res.stringResource
-import androidx.tv.material3.Icon
-import androidx.tv.material3.MaterialTheme
-import androidx.tv.material3.Surface
-import androidx.tv.material3.SurfaceDefaults
-import androidx.tv.material3.Text
-import com.streamvault.core.ui.interaction.TvClickableSurface
+import com.streamvault.core.ui.design.AppSpacing
+import com.streamvault.core.ui.design.FocusSafeLazyColumn
+import com.streamvault.core.ui.design.requestFocusSafely
 import com.streamvault.feature.playback.R
-import androidx.compose.ui.window.DialogProperties
-import com.streamvault.core.ui.components.dialogs.AppDialog as Dialog
 import com.streamvault.player.PlayerChapter
 
-/** Hosted in a dialog like the other VOD sheets, so Left cannot move focus out to the controls behind it. */
+/**
+ * Chapter list in the shared panel frame. Focus starts on the current chapter (the first one when none is current),
+ * which is composed before it is focused. Choosing a chapter seeks to it and closes the frame.
+ */
 @Composable
 internal fun VodChapterSheet(
     chapters: List<PlayerChapter>,
     selectedChapterIndex: Int?,
     onSelectChapter: (PlayerChapter) -> Unit,
     onDismiss: () -> Unit,
-    modifier: Modifier = Modifier
 ) {
-    Dialog(onDismissRequest = onDismiss, properties = DialogProperties(usePlatformDefaultWidth = false)) {
-        VodChapterSheetContent(chapters, selectedChapterIndex, onSelectChapter, modifier)
+    val targetPosition = chapters.indexOfFirst { it.index == selectedChapterIndex }.coerceAtLeast(0)
+    val listState = rememberLazyListState(
+        initialFirstVisibleItemIndex = vodSettingsFirstVisibleIndex(targetPosition),
+    )
+    val targetFocus = remember { FocusRequester() }
+    val startKey = startSideKey()
+    LaunchedEffect(Unit) {
+        // Fallback for when the window had not taken its own initial focus yet at the first placement.
+        withFrameNanos { }
+        targetFocus.requestFocusSafely("VodChapterSheet", "Current chapter row")
     }
-}
 
-@Composable
-private fun VodChapterSheetContent(
-    chapters: List<PlayerChapter>,
-    selectedChapterIndex: Int?,
-    onSelectChapter: (PlayerChapter) -> Unit,
-    modifier: Modifier
-) {
-    val initialChapterIndex = selectedChapterIndex ?: chapters.firstOrNull()?.index
-    val initialFocusRequester = remember { FocusRequester() }
-    LaunchedEffect(initialChapterIndex) {
-        if (initialChapterIndex != null) initialFocusRequester.requestFocus()
-    }
-    Box(
-        modifier = modifier
-            .fillMaxSize()
-            .background(Color.Black.copy(alpha = 0.72f))
+    VodPanelFrame(
+        title = stringResource(R.string.player_chapters),
+        icon = Icons.Default.MenuBook,
+        onDismiss = onDismiss,
     ) {
-        Surface(
+        FocusSafeLazyColumn(
             modifier = Modifier
-                .align(Alignment.CenterEnd)
-                .fillMaxHeight()
-                .widthIn(min = 360.dp, max = 520.dp),
-            colors = SurfaceDefaults.colors(containerColor = Color(0xFF111216))
+                .weight(1f, fill = false)
+                .fillMaxWidth()
+                // Every row is full width, so the start key has nowhere to go: swallow it instead of letting the
+                // focus search leave the frame.
+                .onKeyEvent { event -> event.key == startKey },
+            state = listState,
+            verticalArrangement = Arrangement.spacedBy(AppSpacing().xs),
         ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 28.dp, vertical = 22.dp),
-                verticalArrangement = Arrangement.spacedBy(18.dp)
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = stringResource(R.string.player_chapters),
-                            style = MaterialTheme.typography.headlineSmall,
-                            color = Color.White,
-                            fontWeight = FontWeight.SemiBold
-                        )
-                        Text(
-                            text = stringResource(R.string.player_chapter_count, chapters.size),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = Color.White.copy(alpha = 0.64f)
-                        )
-                    }
+            itemsIndexed(chapters, key = { _, chapter -> chapter.index }) { position, chapter ->
+                val selected = chapter.index == selectedChapterIndex
+                val description = if (selected) {
+                    stringResource(R.string.player_chapter_selected, chapter.index)
+                } else {
+                    stringResource(R.string.player_chapter_label, chapter.index)
                 }
-
-                LazyColumn(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    items(chapters, key = PlayerChapter::index) { chapter ->
-                        val selected = chapter.index == selectedChapterIndex
-                        val chapterDescription = if (selected) {
-                            stringResource(R.string.player_chapter_selected, chapter.index)
-                        } else {
-                            stringResource(R.string.player_chapter_label, chapter.index)
-                        }
-                        TvClickableSurface(
-                            onClick = { onSelectChapter(chapter) },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .then(
-                                    if (chapter.index == initialChapterIndex) {
-                                        Modifier.focusRequester(initialFocusRequester)
-                                    } else {
-                                        Modifier
-                                    }
-                                )
-                                .semantics { contentDescription = chapterDescription }
-                        ) {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .background(
-                                        if (selected) Color.White.copy(alpha = 0.12f) else Color.Transparent
-                                    )
-                                    .padding(horizontal = 16.dp, vertical = 14.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                if (selected) {
-                                    Icon(
-                                        imageVector = Icons.Default.PlayArrow,
-                                        contentDescription = null,
-                                        tint = MaterialTheme.colorScheme.primary
-                                    )
-                                } else {
-                                    Spacer(modifier = Modifier.width(24.dp))
-                                }
-                                Spacer(modifier = Modifier.width(10.dp))
-                                Column(modifier = Modifier.weight(1f)) {
-                                    Text(
-                                        text = chapter.title,
-                                        style = MaterialTheme.typography.titleMedium,
-                                        color = Color.White,
-                                        maxLines = 1,
-                                        overflow = TextOverflow.Ellipsis
-                                    )
-                                    Text(
-                                        text = formatVodDuration(chapter.startTimeMs),
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = Color.White.copy(alpha = 0.64f)
-                                    )
-                                }
+                VodPanelRow(
+                    title = chapter.title.ifBlank { stringResource(R.string.player_chapter_label, chapter.index) },
+                    modifier = Modifier
+                        .then(
+                            if (position == targetPosition) {
+                                rememberPlacementFocus(targetFocus, "VodChapterSheet")
+                            } else {
+                                Modifier
                             }
-                        }
-                    }
-                }
+                        )
+                        .semantics { contentDescription = description },
+                    detail = formatVodDuration(chapter.startTimeMs),
+                    selected = selected,
+                    onClick = { onSelectChapter(chapter) },
+                )
             }
         }
     }
