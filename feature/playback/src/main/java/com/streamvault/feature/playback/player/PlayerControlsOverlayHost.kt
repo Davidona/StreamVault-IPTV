@@ -106,6 +106,7 @@ internal fun PlayerControlsOverlayHost(
     val isMuted by viewModel.isMuted.collectAsControlsState(observeControls)
     val mediaTitle by viewModel.mediaTitle.collectAsControlsState(observeControls)
     val playbackSpeed by viewModel.playbackSpeed.collectAsControlsState(observeControls)
+    val aspectRatio by viewModel.aspectRatio.collectAsControlsState(observeControls)
     val audioVideoSyncEnabled by viewModel.audioVideoSyncEnabled.collectAsControlsState(observeControls)
     val castConnectionState by viewModel.castConnectionState.collectAsControlsState(observeControls)
     val seekPreview by viewModel.seekPreview.collectAsControlsState(observeControls)
@@ -218,25 +219,31 @@ internal fun PlayerControlsOverlayHost(
         if (showPlaybackSettingsSheet) {
             VodPlaybackSettingsSheet(
                 state = vodOverlayState,
-                onOpenSubtitleTracks = onOpenSubtitleTracks,
-                onOpenAudioTracks = onOpenAudioTracks,
+                playbackSpeed = playbackSpeed,
+                aspectRatio = aspectRatio,
+                stopTimerMinutes = sleepTimerUiState.stopTimerMinutes,
+                idleTimerMinutes = sleepTimerUiState.idleTimerMinutes,
+                isMuted = isMuted,
+                isCastConnected = isCastConnected,
                 onOpenVideoTracks = onOpenVideoTracks,
-                onOpenPlaybackSpeed = onOpenPlaybackSpeed,
-                onOpenStopPlaybackTimer = onOpenStopPlaybackTimer,
-                onOpenIdleStandbyTimer = onOpenIdleStandbyTimer,
                 onOpenAudioVideoSync = onOpenAudioVideoSync,
-                onToggleAspectRatio = viewModel::toggleAspectRatio,
+                onSelectSpeed = viewModel::setPlaybackSpeed,
+                onSelectStopTimer = { minutes ->
+                    viewModel.notifyUserActivity()
+                    viewModel.setStopPlaybackTimer(minutes)
+                },
+                onSelectIdleTimer = { minutes ->
+                    viewModel.notifyUserActivity()
+                    viewModel.setIdleStandbyTimer(minutes)
+                },
+                onSelectAspectRatio = viewModel::setAspectRatio,
                 onToggleMute = viewModel::toggleMute,
                 onEnterPictureInPicture = onEnterPictureInPicture,
                 onOpenExternalPlayer = {},
-                onOpenEpisodes = onOpenEpisodes,
                 onOpenSplitScreen = onOpenSplitScreen,
                 onCast = { viewModel.castCurrentMedia(onOpenCastRouteChooser) },
                 onStopCasting = viewModel::stopCasting,
-                isMuted = isMuted,
-                isCastConnected = isCastConnected,
                 onDismiss = onDismissVodSheet,
-                modifier = Modifier.fillMaxSize()
             )
         }
     } else {
