@@ -84,17 +84,22 @@ fun PlayerViewModel.toggleControls() {
 }
 
 fun PlayerViewModel.toggleAspectRatio() {
-    val nextRatio = when (_aspectRatio.value) {
-        AspectRatio.FIT -> AspectRatio.FILL
-        AspectRatio.FILL -> AspectRatio.ZOOM
-        AspectRatio.ZOOM -> AspectRatio.FIT
-    }
-    _aspectRatio.value = nextRatio
-    _aspectRatioChanges.tryEmit(nextRatio)
+    setAspectRatio(
+        when (_aspectRatio.value) {
+            AspectRatio.FIT -> AspectRatio.FILL
+            AspectRatio.FILL -> AspectRatio.ZOOM
+            AspectRatio.ZOOM -> AspectRatio.FIT
+        }
+    )
+}
+
+fun PlayerViewModel.setAspectRatio(ratio: AspectRatio) {
+    _aspectRatio.value = ratio
+    _aspectRatioChanges.tryEmit(ratio)
 
     if (currentContentType == ContentType.LIVE && currentContentId > 0L) {
         viewModelScope.launch {
-            playerPreferencesCoordinator.setAspectRatioForChannel(currentContentId, nextRatio.name)
+            playerPreferencesCoordinator.setAspectRatioForChannel(currentContentId, ratio.name)
         }
     }
 }

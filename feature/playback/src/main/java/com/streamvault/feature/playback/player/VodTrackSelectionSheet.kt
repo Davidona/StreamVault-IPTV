@@ -390,5 +390,5 @@ private suspend fun LazyListState.animateToBottom() {
 
 /** The key that moves toward the start edge: Left, or Right when the layout is mirrored. */
 @Composable
-private fun startSideKey(): Key =
+internal fun startSideKey(): Key =
     if (LocalLayoutDirection.current == LayoutDirection.Rtl) Key.DirectionRight else Key.DirectionLeft

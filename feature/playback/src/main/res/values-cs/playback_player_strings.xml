@@ -318,4 +318,7 @@
     <string name="player_season_label">Sezóna %1$d</string>
     <string name="player_episode_label">Epizoda %1$d</string>
     <string name="player_vod_ends_at">Končí v %1$s</string>
+    <string name="player_aspect_fit">Přizpůsobit</string>
+    <string name="player_aspect_stretch">Roztáhnout</string>
+    <string name="player_aspect_zoom">Přiblížit</string>
 </resources>

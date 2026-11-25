@@ -317,4 +317,7 @@
     <string name="player_season_label">Sezonul %1$d</string>
     <string name="player_episode_label">Episodul %1$d</string>
     <string name="player_vod_ends_at">Se termină la %1$s</string>
+    <string name="player_aspect_fit">Potrivire</string>
+    <string name="player_aspect_stretch">Întindere</string>
+    <string name="player_aspect_zoom">Zoom</string>
 </resources>

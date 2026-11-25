@@ -318,4 +318,7 @@
     <string name="player_season_label">Sezon %1$d</string>
     <string name="player_episode_label">Odcinek %1$d</string>
     <string name="player_vod_ends_at">Koniec o %1$s</string>
+    <string name="player_aspect_fit">Dopasuj</string>
+    <string name="player_aspect_stretch">Rozciągnij</string>
+    <string name="player_aspect_zoom">Powiększ</string>
 </resources>

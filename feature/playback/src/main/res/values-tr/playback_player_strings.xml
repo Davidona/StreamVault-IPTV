@@ -327,4 +327,7 @@
     <string name="player_season_label">Sezon %1$d</string>
     <string name="player_episode_label">Bölüm %1$d</string>
     <string name="player_vod_ends_at">Bitiş: %1$s</string>
+    <string name="player_aspect_fit">Sığdır</string>
+    <string name="player_aspect_stretch">Uzat</string>
+    <string name="player_aspect_zoom">Yakınlaştır</string>
 </resources>

@@ -316,4 +316,7 @@
     <string name="player_season_label">시즌 %1$d</string>
     <string name="player_episode_label">에피소드 %1$d</string>
     <string name="player_vod_ends_at">%1$s에 종료</string>
+    <string name="player_aspect_fit">맞춤</string>
+    <string name="player_aspect_stretch">늘이기</string>
+    <string name="player_aspect_zoom">확대</string>
 </resources>

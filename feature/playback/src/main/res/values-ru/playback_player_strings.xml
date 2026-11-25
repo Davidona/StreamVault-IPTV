@@ -318,4 +318,7 @@
     <string name="player_season_label">Сезон %1$d</string>
     <string name="player_episode_label">Эпизод %1$d</string>
     <string name="player_vod_ends_at">Закончится в %1$s</string>
+    <string name="player_aspect_fit">По размеру</string>
+    <string name="player_aspect_stretch">Растянуть</string>
+    <string name="player_aspect_zoom">Увеличить</string>
 </resources>

@@ -317,4 +317,7 @@
     <string name="player_season_label">עונה %1$d</string>
     <string name="player_episode_label">פרק %1$d</string>
     <string name="player_vod_ends_at">מסתיים ב-%1$s</string>
+    <string name="player_aspect_fit">התאמה</string>
+    <string name="player_aspect_stretch">מתיחה</string>
+    <string name="player_aspect_zoom">זום</string>
 </resources>

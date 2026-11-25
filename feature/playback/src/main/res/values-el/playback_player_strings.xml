@@ -316,4 +316,7 @@
     <string name="player_season_label">Σεζόν %1$d</string>
     <string name="player_episode_label">Επεισόδιο %1$d</string>
     <string name="player_vod_ends_at">Λήγει στις %1$s</string>
+    <string name="player_aspect_fit">Προσαρμογή</string>
+    <string name="player_aspect_stretch">Τέντωμα</string>
+    <string name="player_aspect_zoom">Μεγέθυνση</string>
 </resources>

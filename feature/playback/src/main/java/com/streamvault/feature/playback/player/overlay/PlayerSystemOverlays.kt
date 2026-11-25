@@ -67,6 +67,7 @@ import com.streamvault.feature.playback.player.PlayerNoticeAction
 import com.streamvault.feature.playback.player.PlayerNoticeState
 import com.streamvault.feature.playback.player.PlayerAudioVideoOffsetUiState
 import com.streamvault.feature.playback.player.PlayerRecoveryType
+import com.streamvault.feature.playback.player.PlayerViewModel
 import com.streamvault.feature.playback.player.SleepTimerUiState
 import com.streamvault.core.ui.theme.AccentAmber
 import com.streamvault.core.ui.theme.ErrorColor
@@ -905,7 +906,7 @@ fun PlayerSpeedSelectionDialog(
     if (!visible) return
 
     val firstItemFocusRequester = remember { FocusRequester() }
-    val speedOptions = remember { listOf(0.5f, 0.75f, 1f, 1.25f, 1.5f, 2f) }
+    val speedOptions = remember { PlayerViewModel.PLAYBACK_SPEED_OPTIONS }
 
     LaunchedEffect(visible) {
         firstItemFocusRequester.requestFocusSafely(
@@ -985,7 +986,7 @@ fun PlayerSleepTimerDialog(
     if (!visible) return
 
     val firstItemFocusRequester = remember { FocusRequester() }
-    val options = remember { listOf(0, 15, 30, 45, 60, 90, 120) }
+    val options = remember { PlayerViewModel.PLAYBACK_TIMER_PRESETS_MINUTES.sorted() }
 
     LaunchedEffect(visible) {
         firstItemFocusRequester.requestFocusSafely(
@@ -1731,7 +1732,7 @@ private fun PlayerEpisodeListItem(
     }
 }
 
-private fun formatPlaybackSpeedLabel(speed: Float): String {
+internal fun formatPlaybackSpeedLabel(speed: Float): String {
     return if (speed % 1f == 0f) {
         "${speed.toInt()}x"
     } else {
@@ -1740,7 +1741,7 @@ private fun formatPlaybackSpeedLabel(speed: Float): String {
 }
 
 @Composable
-private fun formatTimerPresetLabel(minutes: Int): String =
+internal fun formatTimerPresetLabel(minutes: Int): String =
     if (minutes <= 0) {
         stringResource(R.string.player_timer_off)
     } else {

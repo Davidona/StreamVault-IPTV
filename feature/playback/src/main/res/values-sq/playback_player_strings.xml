@@ -306,4 +306,7 @@
     <string name="player_season_label">Sezoni %1$d</string>
     <string name="player_episode_label">Episodi %1$d</string>
     <string name="player_vod_ends_at">Përfundon në %1$s</string>
+    <string name="player_aspect_fit">Përshtat</string>
+    <string name="player_aspect_stretch">Shtriji</string>
+    <string name="player_aspect_zoom">Zmadho</string>
 </resources>

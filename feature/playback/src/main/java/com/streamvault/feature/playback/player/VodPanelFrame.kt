@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -44,6 +45,7 @@ private val PanelSpacing = AppSpacing()
 private val PanelShape = RoundedCornerShape(24.dp)
 private val PanelWidth = 400.dp
 private val PanelRowShape = RoundedCornerShape(12.dp)
+private val PanelValueMaxWidth = 120.dp
 
 /** Clears the badge row at the top, so the stream badges stay visible beside an open panel. */
 private val PanelTopMargin = VOD_OVERLAY_VERTICAL_PADDING + PanelSpacing.xxl
@@ -118,13 +120,15 @@ internal fun VodPanelFrame(
 /**
  * Row of a panel list. Resting rows are flat, the selected row is a tonal container with a check (never color
  * alone), and focus fills the row with [AppColors.Focus] and [AppColors.Canvas] text. [opensPage] shows a chevron,
- * [trailing] replaces it (for example a progress indicator).
+ * [trailing] replaces it (for example a progress indicator). [value] is the current setting, shown at the end
+ * before the chevron.
  */
 @Composable
 internal fun VodPanelRow(
     title: String,
     modifier: Modifier = Modifier,
     detail: String? = null,
+    value: String? = null,
     icon: ImageVector? = null,
     selected: Boolean = false,
     opensPage: Boolean = false,
@@ -171,6 +175,15 @@ internal fun VodPanelRow(
                         overflow = TextOverflow.Ellipsis,
                     )
                 }
+            }
+            if (value != null) {
+                Text(
+                    text = value,
+                    modifier = Modifier.widthIn(max = PanelValueMaxWidth),
+                    style = MaterialTheme.typography.bodyMedium,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
             }
             if (trailing != null) {
                 trailing()

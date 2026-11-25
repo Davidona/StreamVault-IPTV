@@ -305,4 +305,7 @@
     <string name="player_season_label">Musim %1$d</string>
     <string name="player_episode_label">Episod %1$d</string>
     <string name="player_vod_ends_at">Tamat pada %1$s</string>
+    <string name="player_aspect_fit">Muat</string>
+    <string name="player_aspect_stretch">Regang</string>
+    <string name="player_aspect_zoom">Zum</string>
 </resources>

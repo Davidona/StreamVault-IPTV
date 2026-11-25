@@ -316,4 +316,7 @@
     <string name="player_season_label">Sæson %1$d</string>
     <string name="player_episode_label">Afsnit %1$d</string>
     <string name="player_vod_ends_at">Slutter kl. %1$s</string>
+    <string name="player_aspect_fit">Tilpas</string>
+    <string name="player_aspect_stretch">Stræk</string>
+    <string name="player_aspect_zoom">Zoom</string>
 </resources>

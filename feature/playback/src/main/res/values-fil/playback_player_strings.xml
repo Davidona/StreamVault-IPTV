@@ -306,4 +306,7 @@
     <string name="player_season_label">Season %1$d</string>
     <string name="player_episode_label">Episode %1$d</string>
     <string name="player_vod_ends_at">Matatapos sa %1$s</string>
+    <string name="player_aspect_fit">Akma</string>
+    <string name="player_aspect_stretch">Iunat</string>
+    <string name="player_aspect_zoom">Palakihin</string>
 </resources>

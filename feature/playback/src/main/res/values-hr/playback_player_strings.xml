@@ -307,4 +307,7 @@
     <string name="player_season_label">Sezona %1$d</string>
     <string name="player_episode_label">Epizoda %1$d</string>
     <string name="player_vod_ends_at">Završava u %1$s</string>
+    <string name="player_aspect_fit">Prilagodi</string>
+    <string name="player_aspect_stretch">Razvuci</string>
+    <string name="player_aspect_zoom">Zumiraj</string>
 </resources>

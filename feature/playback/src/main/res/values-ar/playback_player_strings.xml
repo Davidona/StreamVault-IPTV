@@ -320,4 +320,7 @@
     <string name="player_season_label">الموسم %1$d</string>
     <string name="player_episode_label">الحلقة %1$d</string>
     <string name="player_vod_ends_at">ينتهي في %1$s</string>
+    <string name="player_aspect_fit">ملاءمة</string>
+    <string name="player_aspect_stretch">تمديد</string>
+    <string name="player_aspect_zoom">تكبير</string>
 </resources>

@@ -316,4 +316,7 @@
     <string name="player_season_label">シーズン %1$d</string>
     <string name="player_episode_label">エピソード %1$d</string>
     <string name="player_vod_ends_at">%1$s に終了</string>
+    <string name="player_aspect_fit">フィット</string>
+    <string name="player_aspect_stretch">引き伸ばし</string>
+    <string name="player_aspect_zoom">ズーム</string>
 </resources>

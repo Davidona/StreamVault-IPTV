@@ -316,4 +316,7 @@
     <string name="player_season_label">Musim %1$d</string>
     <string name="player_episode_label">Episode %1$d</string>
     <string name="player_vod_ends_at">Selesai pukul %1$s</string>
+    <string name="player_aspect_fit">Sesuaikan</string>
+    <string name="player_aspect_stretch">Regangkan</string>
+    <string name="player_aspect_zoom">Perbesar</string>
 </resources>

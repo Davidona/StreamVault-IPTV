@@ -1466,14 +1466,6 @@ private fun PlayerSeekPreviewCard(
     }
 }
 
-private fun formatPlaybackSpeedLabel(speed: Float): String {
-    return if (speed % 1f == 0f) {
-        "${speed.toInt()}x"
-    } else {
-        "${("%.2f".format(Locale.US, speed)).trimEnd('0').trimEnd('.')}x"
-    }
-}
-
 private fun sleepTimerActionLabel(title: String, activeLabel: String, active: Boolean): String =
     if (active) activeLabel else title
 

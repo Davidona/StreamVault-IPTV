@@ -306,4 +306,7 @@
     <string name="player_season_label">Сезона %1$d</string>
     <string name="player_episode_label">Епизода %1$d</string>
     <string name="player_vod_ends_at">Завршува во %1$s</string>
+    <string name="player_aspect_fit">Прилагоди</string>
+    <string name="player_aspect_stretch">Растегни</string>
+    <string name="player_aspect_zoom">Зумирај</string>
 </resources>

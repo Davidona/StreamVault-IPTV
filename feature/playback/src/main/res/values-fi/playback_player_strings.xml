@@ -316,4 +316,7 @@
     <string name="player_season_label">Kausi %1$d</string>
     <string name="player_episode_label">Jakso %1$d</string>
     <string name="player_vod_ends_at">Päättyy klo %1$s</string>
+    <string name="player_aspect_fit">Sovita</string>
+    <string name="player_aspect_stretch">Venytä</string>
+    <string name="player_aspect_zoom">Zoomaa</string>
 </resources>

@@ -306,4 +306,7 @@
     <string name="player_season_label">सीज़न %1$d</string>
     <string name="player_episode_label">एपिसोड %1$d</string>
     <string name="player_vod_ends_at">%1$s पर समाप्त</string>
+    <string name="player_aspect_fit">फ़िट</string>
+    <string name="player_aspect_stretch">खींचें</string>
+    <string name="player_aspect_zoom">ज़ूम</string>
 </resources>

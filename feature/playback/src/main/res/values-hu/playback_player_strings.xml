@@ -316,4 +316,7 @@
     <string name="player_season_label">%1$d. évad</string>
     <string name="player_episode_label">%1$d. epizód</string>
     <string name="player_vod_ends_at">Vége: %1$s</string>
+    <string name="player_aspect_fit">Illesztés</string>
+    <string name="player_aspect_stretch">Nyújtás</string>
+    <string name="player_aspect_zoom">Nagyítás</string>
 </resources>
