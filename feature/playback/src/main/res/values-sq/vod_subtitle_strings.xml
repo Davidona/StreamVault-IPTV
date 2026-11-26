@@ -1,6 +1,7 @@
 <resources>
     <string name="vod_subtitle_sources">Burimet</string>
     <string name="vod_subtitle_settings">Cilësimet</string>
+    <string name="vod_subtitle_appearance">Pamja e titrave</string>
     <string name="vod_subtitle_provider">Titrat e ofruesit</string>
     <string name="vod_subtitle_provider_hint">Zgjidh një pistë titrash nga ky video</string>
     <string name="vod_subtitle_online">OpenSubtitles</string>

@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -62,6 +63,7 @@ internal fun PlayerControlsOverlayHost(
     displayChannelNumber: Int,
     aspectRatioLabel: String,
     playButtonFocusRequester: FocusRequester,
+    vodPanelOpenerFocus: VodPanelOpenerFocus,
     quickActionsFocusRequester: FocusRequester,
     onOpenArchive: () -> Unit,
     onOpenSubtitleTracks: () -> Unit,
@@ -74,6 +76,7 @@ internal fun PlayerControlsOverlayHost(
     onOpenEpisodes: () -> Unit,
     onOpenChapters: () -> Unit = {},
     onOpenPlaybackSettings: () -> Unit = {},
+    modalVisible: Boolean = false,
     showChapterSheet: Boolean = false,
     showPlaybackSettingsSheet: Boolean = false,
     onDismissVodSheet: () -> Unit = {},
@@ -103,6 +106,7 @@ internal fun PlayerControlsOverlayHost(
     val isMuted by viewModel.isMuted.collectAsControlsState(observeControls)
     val mediaTitle by viewModel.mediaTitle.collectAsControlsState(observeControls)
     val playbackSpeed by viewModel.playbackSpeed.collectAsControlsState(observeControls)
+    val aspectRatio by viewModel.aspectRatio.collectAsControlsState(observeControls)
     val audioVideoSyncEnabled by viewModel.audioVideoSyncEnabled.collectAsControlsState(observeControls)
     val castConnectionState by viewModel.castConnectionState.collectAsControlsState(observeControls)
     val seekPreview by viewModel.seekPreview.collectAsControlsState(observeControls)
@@ -119,6 +123,22 @@ internal fun PlayerControlsOverlayHost(
     val canOpenEpisodePicker = contentType == "SERIES_EPISODE" &&
         currentSeriesSeasons?.any { it.episodes.isNotEmpty() } == true
 
+    val videoFormat by viewModel.videoFormat.collectAsControlsState(observeControls)
+    val vodBadges = remember(videoFormat) { vodStreamBadges(videoFormat) }
+    val vodTitle = playbackTitle.ifBlank { title }
+    val vodEpisodeHeader = remember(currentEpisode, contentType, vodTitle) {
+        currentEpisode?.takeIf { contentType == "SERIES_EPISODE" }?.let { buildVodEpisodeHeader(it, vodTitle) }
+    }
+    // The chips already say season and episode, so the "S01E01" marker is dropped from the title.
+    val vodDisplayTitle = remember(vodTitle, vodEpisodeHeader) {
+        val header = vodEpisodeHeader
+        if (header != null && header.seasonNumber > 0 && header.episodeNumber > 0) {
+            stripEpisodeMarker(vodTitle, header.seasonNumber, header.episodeNumber)
+        } else {
+            vodTitle
+        }
+    }
+
     val isCastConnected = castConnectionState == CastConnectionState.CONNECTED
     val vodOverlayState = buildVodOverlayState(
         contentType = contentType,
@@ -126,6 +146,8 @@ internal fun PlayerControlsOverlayHost(
         chapters = chapters,
         currentPositionMs = currentPosition,
         showEpisodesAction = canOpenEpisodePicker,
+        hasPreviousEpisode = previousEpisode != null,
+        hasNextEpisode = nextEpisode != null,
         subtitleTrackCount = availableSubtitleTracks.size,
         showStremioSubtitleAction = stremioSubtitlePickerState.enabled,
         audioTrackCount = availableAudioTracks.size,
@@ -137,31 +159,31 @@ internal fun PlayerControlsOverlayHost(
     )
 
     if (vodOverlayState.isVod) {
+        CompositionLocalProvider(LocalVodTooltipsSuppressed provides modalVisible) {
         VodPlayerControlsOverlay(
             visible = visible,
-            title = playbackTitle.ifBlank { title },
+            title = vodDisplayTitle,
             overlayState = vodOverlayState,
+            episodeHeader = vodEpisodeHeader,
+            badges = vodBadges,
             isPlaying = isPlaying,
             currentPositionMs = currentPosition,
             durationMs = duration,
+            playbackSpeed = playbackSpeed,
             seekPreview = seekPreview,
             playButtonFocusRequester = playButtonFocusRequester,
-            showBackButton = showBackButton,
-            onBackToMenu = onBackToMenu,
-            onClose = viewModel::toggleControls,
+            panelOpenerFocus = vodPanelOpenerFocus,
             onTogglePlayPause = { if (isPlaying) viewModel.pause() else viewModel.play() },
             onSeekBackward = viewModel::seekBackward,
             onSeekForward = viewModel::seekForward,
-            onSeekPreviousChapter = {
-                vodOverlayState.previousChapterTargetMs?.let(viewModel::seekTo)
+            onPreviousChapter = {
+                previousChapterTarget(vodOverlayState.chapters, currentPosition)?.let(viewModel::seekTo)
             },
-            onSeekNextChapter = {
-                vodOverlayState.nextChapterTargetMs?.let(viewModel::seekTo)
+            onNextChapter = {
+                nextChapterTarget(vodOverlayState.chapters, currentPosition)?.let(viewModel::seekTo)
             },
             onOpenChapters = onOpenChapters,
             onOpenEpisodes = onOpenEpisodes,
-            canPlayPreviousEpisode = previousEpisode != null,
-            canPlayNextEpisode = nextEpisode != null,
             onPlayPreviousEpisode = {
                 previousEpisode?.let(viewModel::playEpisodeFromNavigation)
             },
@@ -180,6 +202,7 @@ internal fun PlayerControlsOverlayHost(
             },
             modifier = modifier
         )
+        }
 
         if (showChapterSheet) {
             VodChapterSheet(
@@ -190,31 +213,36 @@ internal fun PlayerControlsOverlayHost(
                     onDismissVodSheet()
                 },
                 onDismiss = onDismissVodSheet,
-                modifier = Modifier.fillMaxSize()
             )
         }
         if (showPlaybackSettingsSheet) {
             VodPlaybackSettingsSheet(
                 state = vodOverlayState,
-                onOpenSubtitleTracks = onOpenSubtitleTracks,
-                onOpenAudioTracks = onOpenAudioTracks,
+                playbackSpeed = playbackSpeed,
+                aspectRatio = aspectRatio,
+                stopTimerMinutes = sleepTimerUiState.stopTimerMinutes,
+                idleTimerMinutes = sleepTimerUiState.idleTimerMinutes,
+                isMuted = isMuted,
+                isCastConnected = isCastConnected,
                 onOpenVideoTracks = onOpenVideoTracks,
-                onOpenPlaybackSpeed = onOpenPlaybackSpeed,
-                onOpenStopPlaybackTimer = onOpenStopPlaybackTimer,
-                onOpenIdleStandbyTimer = onOpenIdleStandbyTimer,
                 onOpenAudioVideoSync = onOpenAudioVideoSync,
-                onToggleAspectRatio = viewModel::toggleAspectRatio,
+                onSelectSpeed = viewModel::setPlaybackSpeed,
+                onSelectStopTimer = { minutes ->
+                    viewModel.notifyUserActivity()
+                    viewModel.setStopPlaybackTimer(minutes)
+                },
+                onSelectIdleTimer = { minutes ->
+                    viewModel.notifyUserActivity()
+                    viewModel.setIdleStandbyTimer(minutes)
+                },
+                onSelectAspectRatio = viewModel::setAspectRatio,
                 onToggleMute = viewModel::toggleMute,
                 onEnterPictureInPicture = onEnterPictureInPicture,
                 onOpenExternalPlayer = {},
-                onOpenEpisodes = onOpenEpisodes,
                 onOpenSplitScreen = onOpenSplitScreen,
                 onCast = { viewModel.castCurrentMedia(onOpenCastRouteChooser) },
                 onStopCasting = viewModel::stopCasting,
-                isMuted = isMuted,
-                isCastConnected = isCastConnected,
                 onDismiss = onDismissVodSheet,
-                modifier = Modifier.fillMaxSize()
             )
         }
     } else {

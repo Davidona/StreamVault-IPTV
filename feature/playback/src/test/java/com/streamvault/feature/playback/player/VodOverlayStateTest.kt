@@ -181,4 +181,60 @@ class VodOverlayStateTest {
         assertThat(state.showVideoQualityAction).isFalse()
         assertThat(state.showExternalPlayerAction).isTrue()
     }
+
+    private fun seriesState(
+        chapters: List<PlayerChapter> = emptyList(),
+        hasPreviousEpisode: Boolean = false,
+        hasNextEpisode: Boolean = false,
+        contentType: String = "SERIES_EPISODE",
+        isCastConnected: Boolean = false
+    ) = buildVodOverlayState(
+        contentType = contentType,
+        isCatchUpPlayback = false,
+        chapters = chapters,
+        currentPositionMs = 0L,
+        showEpisodesAction = true,
+        hasPreviousEpisode = hasPreviousEpisode,
+        hasNextEpisode = hasNextEpisode,
+        subtitleTrackCount = 0,
+        audioTrackCount = 0,
+        videoQualityCount = 0,
+        showExternalPlayerAction = false,
+        isCastConnected = isCastConnected
+    )
+
+    @Test
+    fun `episode skip buttons show only for the neighbors that exist`() {
+        val first = seriesState(hasNextEpisode = true)
+        assertThat(first.showPreviousEpisodeAction).isFalse()
+        assertThat(first.showNextEpisodeAction).isTrue()
+
+        val last = seriesState(hasPreviousEpisode = true)
+        assertThat(last.showPreviousEpisodeAction).isTrue()
+        assertThat(last.showNextEpisodeAction).isFalse()
+    }
+
+    @Test
+    fun `movie never shows episode skip buttons`() {
+        val state = seriesState(hasPreviousEpisode = true, hasNextEpisode = true, contentType = "MOVIE")
+        assertThat(state.showPreviousEpisodeAction).isFalse()
+        assertThat(state.showNextEpisodeAction).isFalse()
+    }
+
+    @Test
+    fun `chapter skip buttons need more than one chapter and no cast`() {
+        val second = chapter.copy(index = 2, title = "Second", startTimeMs = 60_000L, endTimeMs = null)
+        assertThat(seriesState(chapters = emptyList()).showChapterSkipActions).isFalse()
+        assertThat(seriesState(chapters = listOf(chapter)).showChapterSkipActions).isFalse()
+        assertThat(seriesState(chapters = listOf(chapter, second)).showChapterSkipActions).isTrue()
+        assertThat(seriesState(chapters = listOf(chapter, second), isCastConnected = true).showChapterSkipActions).isFalse()
+    }
+
+    @Test
+    fun `vod playback is movies and episodes but not live or catch-up`() {
+        assertThat(isVodPlayback("MOVIE", false)).isTrue()
+        assertThat(isVodPlayback("series_episode", false)).isTrue()
+        assertThat(isVodPlayback("LIVE", false)).isFalse()
+        assertThat(isVodPlayback("MOVIE", true)).isFalse()
+    }
 }

@@ -2,6 +2,7 @@
 <resources>
     <string name="vod_subtitle_sources">Kaynaklar</string>
     <string name="vod_subtitle_settings">Ayarlar</string>
+    <string name="vod_subtitle_appearance">Altyazı görünümü</string>
     <string name="vod_subtitle_provider">Sağlayıcı altyazıları</string>
     <string name="vod_subtitle_provider_hint">Bu videodan bir altyazı parçası seçin</string>
     <string name="vod_subtitle_online">OpenSubtitles</string>

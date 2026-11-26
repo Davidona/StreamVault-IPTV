@@ -237,8 +237,8 @@
     <string name="player_close_chapters">Kapitel schließen</string>
     <string name="player_previous_chapter">Vorheriges Kapitel</string>
     <string name="player_next_chapter">Nächstes Kapitel</string>
-    <string name="player_rewind_10_seconds">10 Sekunden zurückspulen</string>
-    <string name="player_forward_10_seconds">10 Sekunden vorspulen</string>
+    <string name="player_rewind_10_seconds">10 s zurück</string>
+    <string name="player_forward_10_seconds">10 s vor</string>
     <string name="player_vod_timeline">VOD-Zeitleiste</string>
     <string name="player_close_controls">Steuerung schließen</string>
     <string name="player_back_to_menu">Zurück zum Menü</string>
@@ -313,4 +313,10 @@
     <string name="player_stremio_subtitles_loading">Add-on-Untertitel werden geladen…</string>
     <string name="player_stremio_subtitles_empty">Keine Add-on-Untertitel verfügbar</string>
     <string name="player_stremio_subtitles_retry">Add-on-Untertitel erneut laden</string>
+    <string name="player_season_label">Staffel %1$d</string>
+    <string name="player_episode_label">Episode %1$d</string>
+    <string name="player_vod_ends_at">Endet um %1$s</string>
+    <string name="player_aspect_fit">Einpassen</string>
+    <string name="player_aspect_stretch">Strecken</string>
+    <string name="player_aspect_zoom">Zoom</string>
 </resources>

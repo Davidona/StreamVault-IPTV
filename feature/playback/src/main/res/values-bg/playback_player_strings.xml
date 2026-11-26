@@ -75,8 +75,8 @@
     <string name="player_close_chapters">Затваряне на главите</string>
     <string name="player_previous_chapter">Предишна глава</string>
     <string name="player_next_chapter">Следваща глава</string>
-    <string name="player_rewind_10_seconds">Назад с 10 секунди</string>
-    <string name="player_forward_10_seconds">Напред с 10 секунди</string>
+    <string name="player_rewind_10_seconds">Назад с 10 сек</string>
+    <string name="player_forward_10_seconds">Напред с 10 сек</string>
     <string name="player_vod_timeline">VOD времева линия</string>
     <string name="player_close_controls">Затваряне на контролите</string>
     <string name="player_back_to_menu">Обратно към менюто</string>
@@ -303,4 +303,10 @@
     <string name="player_stremio_subtitles_loading">Зареждане на субтитрите от добавката…</string>
     <string name="player_stremio_subtitles_empty">Няма налични субтитри от добавката</string>
     <string name="player_stremio_subtitles_retry">Опитай отново да заредиш субтитрите от добавката</string>
+    <string name="player_season_label">Сезон %1$d</string>
+    <string name="player_episode_label">Епизод %1$d</string>
+    <string name="player_vod_ends_at">Свършва в %1$s</string>
+    <string name="player_aspect_fit">Побиране</string>
+    <string name="player_aspect_stretch">Разтягане</string>
+    <string name="player_aspect_zoom">Увеличение</string>
 </resources>

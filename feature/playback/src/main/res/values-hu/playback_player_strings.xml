@@ -245,8 +245,8 @@
     <string name="player_close_chapters">Fejezetek bezárása</string>
     <string name="player_previous_chapter">Előző fejezet</string>
     <string name="player_next_chapter">Következő fejezet</string>
-    <string name="player_rewind_10_seconds">Visszatekerés 10 másodperccel</string>
-    <string name="player_forward_10_seconds">Előretekerés 10 másodperccel</string>
+    <string name="player_rewind_10_seconds">Vissza 10 mp</string>
+    <string name="player_forward_10_seconds">Előre 10 mp</string>
     <string name="player_vod_timeline">VOD idővonal</string>
     <string name="player_close_controls">Vezérlők bezárása</string>
     <string name="player_back_to_menu">Vissza a menübe</string>
@@ -313,4 +313,10 @@
     <string name="player_stremio_subtitles_loading">Kiegészítő feliratainak betöltése…</string>
     <string name="player_stremio_subtitles_empty">Nem érhetők el kiegészítő feliratok</string>
     <string name="player_stremio_subtitles_retry">Kiegészítő feliratainak újrapróbálása</string>
+    <string name="player_season_label">%1$d. évad</string>
+    <string name="player_episode_label">%1$d. epizód</string>
+    <string name="player_vod_ends_at">Vége: %1$s</string>
+    <string name="player_aspect_fit">Illesztés</string>
+    <string name="player_aspect_stretch">Nyújtás</string>
+    <string name="player_aspect_zoom">Nagyítás</string>
 </resources>

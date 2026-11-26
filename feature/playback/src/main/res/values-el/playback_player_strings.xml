@@ -237,8 +237,8 @@
     <string name="player_close_chapters">Κλείσιμο κεφαλαίων</string>
     <string name="player_previous_chapter">Προηγούμενο κεφάλαιο</string>
     <string name="player_next_chapter">Επόμενο κεφάλαιο</string>
-    <string name="player_rewind_10_seconds">Επιστροφή 10 δευτερολέπτων</string>
-    <string name="player_forward_10_seconds">Προώθηση 10 δευτερολέπτων</string>
+    <string name="player_rewind_10_seconds">Πίσω 10 δλ</string>
+    <string name="player_forward_10_seconds">Μπρος 10 δλ</string>
     <string name="player_vod_timeline">Χρονογραμμή VOD</string>
     <string name="player_close_controls">Κλείσιμο χειριστηρίων</string>
     <string name="player_back_to_menu">Επιστροφή στο μενού</string>
@@ -313,4 +313,10 @@
     <string name="player_stremio_subtitles_loading">Φόρτωση υποτίτλων πρόσθετου…</string>
     <string name="player_stremio_subtitles_empty">Δεν υπάρχουν διαθέσιμοι υπότιτλοι πρόσθετου</string>
     <string name="player_stremio_subtitles_retry">Δοκιμάστε ξανά τη φόρτωση υποτίτλων πρόσθετου</string>
+    <string name="player_season_label">Σεζόν %1$d</string>
+    <string name="player_episode_label">Επεισόδιο %1$d</string>
+    <string name="player_vod_ends_at">Λήγει στις %1$s</string>
+    <string name="player_aspect_fit">Προσαρμογή</string>
+    <string name="player_aspect_stretch">Τέντωμα</string>
+    <string name="player_aspect_zoom">Μεγέθυνση</string>
 </resources>

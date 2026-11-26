@@ -313,4 +313,10 @@
     <string name="player_stremio_subtitles_loading">Đang tải phụ đề của tiện ích bổ sung…</string>
     <string name="player_stremio_subtitles_empty">Không có phụ đề tiện ích bổ sung</string>
     <string name="player_stremio_subtitles_retry">Tải lại phụ đề tiện ích bổ sung</string>
+    <string name="player_season_label">Phần %1$d</string>
+    <string name="player_episode_label">Tập %1$d</string>
+    <string name="player_vod_ends_at">Kết thúc lúc %1$s</string>
+    <string name="player_aspect_fit">Vừa khít</string>
+    <string name="player_aspect_stretch">Kéo giãn</string>
+    <string name="player_aspect_zoom">Thu phóng</string>
 </resources>

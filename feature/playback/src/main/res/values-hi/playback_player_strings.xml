@@ -303,4 +303,10 @@
     <string name="player_stremio_subtitles_loading">ऐड-ऑन के उपशीर्षक लोड हो रहे हैं…</string>
     <string name="player_stremio_subtitles_empty">कोई ऐड-ऑन उपशीर्षक उपलब्ध नहीं है</string>
     <string name="player_stremio_subtitles_retry">ऐड-ऑन के उपशीर्षक फिर से लोड करें</string>
+    <string name="player_season_label">सीज़न %1$d</string>
+    <string name="player_episode_label">एपिसोड %1$d</string>
+    <string name="player_vod_ends_at">%1$s पर समाप्त</string>
+    <string name="player_aspect_fit">फ़िट</string>
+    <string name="player_aspect_stretch">खींचें</string>
+    <string name="player_aspect_zoom">ज़ूम</string>
 </resources>

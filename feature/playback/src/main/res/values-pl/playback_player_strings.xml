@@ -230,8 +230,8 @@
     <string name="player_close_chapters">Zamknij rozdziały</string>
     <string name="player_previous_chapter">Poprzedni rozdział</string>
     <string name="player_next_chapter">Następny rozdział</string>
-    <string name="player_rewind_10_seconds">Przewiń 10 sekund do tyłu</string>
-    <string name="player_forward_10_seconds">Przewiń 10 sekund do przodu</string>
+    <string name="player_rewind_10_seconds">Cofnij 10 s</string>
+    <string name="player_forward_10_seconds">Do przodu 10 s</string>
     <string name="player_vod_timeline">Oś czasu VOD</string>
     <string name="player_close_controls">Zamknij elementy sterujące</string>
     <string name="player_back_to_menu">Powrót do menu</string>
@@ -315,4 +315,10 @@
     <string name="player_stremio_subtitles_loading">Wczytywanie napisów dodatku…</string>
     <string name="player_stremio_subtitles_empty">Brak dostępnych napisów dodatku</string>
     <string name="player_stremio_subtitles_retry">Wczytaj napisy dodatku ponownie</string>
+    <string name="player_season_label">Sezon %1$d</string>
+    <string name="player_episode_label">Odcinek %1$d</string>
+    <string name="player_vod_ends_at">Koniec o %1$s</string>
+    <string name="player_aspect_fit">Dopasuj</string>
+    <string name="player_aspect_stretch">Rozciągnij</string>
+    <string name="player_aspect_zoom">Powiększ</string>
 </resources>

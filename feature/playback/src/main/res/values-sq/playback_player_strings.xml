@@ -75,8 +75,8 @@
     <string name="player_close_chapters">Mbyll kapitujt</string>
     <string name="player_previous_chapter">Kapitulli i mëparshëm</string>
     <string name="player_next_chapter">Kapitulli tjetër</string>
-    <string name="player_rewind_10_seconds">Kthe 10 sekonda pas</string>
-    <string name="player_forward_10_seconds">Kalo 10 sekonda përpara</string>
+    <string name="player_rewind_10_seconds">Prapa 10 s</string>
+    <string name="player_forward_10_seconds">Përpara 10 s</string>
     <string name="player_vod_timeline">Vija kohore VOD</string>
     <string name="player_close_controls">Mbyll kontrollet</string>
     <string name="player_back_to_menu">Kthehu në menu</string>
@@ -303,4 +303,10 @@
     <string name="player_stremio_subtitles_loading">Po ngarkohen titrat e shtesës…</string>
     <string name="player_stremio_subtitles_empty">Nuk ka titra të disponueshme nga shtesa</string>
     <string name="player_stremio_subtitles_retry">Ringarko titrat e shtesës</string>
+    <string name="player_season_label">Sezoni %1$d</string>
+    <string name="player_episode_label">Episodi %1$d</string>
+    <string name="player_vod_ends_at">Përfundon në %1$s</string>
+    <string name="player_aspect_fit">Përshtat</string>
+    <string name="player_aspect_stretch">Shtriji</string>
+    <string name="player_aspect_zoom">Zmadho</string>
 </resources>

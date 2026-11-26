@@ -1,6 +1,7 @@
 <resources>
     <string name="vod_subtitle_sources">Źródła</string>
     <string name="vod_subtitle_settings">Ustawienia</string>
+    <string name="vod_subtitle_appearance">Wygląd napisów</string>
     <string name="vod_subtitle_provider">Napisy dostawcy</string>
     <string name="vod_subtitle_provider_hint">Wybierz ścieżkę napisów z tego wideo</string>
     <string name="vod_subtitle_online">OpenSubtitles</string>

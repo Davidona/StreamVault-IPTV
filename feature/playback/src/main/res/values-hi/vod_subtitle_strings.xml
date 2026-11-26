@@ -1,6 +1,7 @@
 <resources>
     <string name="vod_subtitle_sources">स्रोत</string>
     <string name="vod_subtitle_settings">सेटिंग्स</string>
+    <string name="vod_subtitle_appearance">उपशीर्षक का स्वरूप</string>
     <string name="vod_subtitle_provider">प्रदाता सबटाइटल</string>
     <string name="vod_subtitle_provider_hint">इस वीडियो से सबटाइटल ट्रैक चुनें</string>
     <string name="vod_subtitle_online">OpenSubtitles</string>

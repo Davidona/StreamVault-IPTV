@@ -1,6 +1,7 @@
 <resources>
     <string name="vod_subtitle_sources">来源</string>
     <string name="vod_subtitle_settings">设置</string>
+    <string name="vod_subtitle_appearance">字幕外观</string>
     <string name="vod_subtitle_provider">提供商字幕</string>
     <string name="vod_subtitle_provider_hint">从此视频中选择字幕轨道</string>
     <string name="vod_subtitle_online">OpenSubtitles</string>

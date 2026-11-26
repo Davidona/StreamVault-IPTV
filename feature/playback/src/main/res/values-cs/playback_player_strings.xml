@@ -240,7 +240,7 @@
     <string name="player_subtitle_delay_current">Aktuální zpoždění: %1$+d ms</string>
     <string name="player_subtitle_load_from_device">Načíst SRT ze zařízení</string>
     <string name="player_subtitle_search_languages_hint">Vyberte jazyk a poté zvolte verzi.</string>
-    <string name="player_rewind_10_seconds">Přetočit o 10 sekund zpět</string>
+    <string name="player_rewind_10_seconds">Zpět o 10 s</string>
     <string name="player_vod_timeline">Časová osa VOD</string>
     <string name="player_chapter_count">%1$d kapitol</string>
     <string name="player_playback_settings">Nastavení přehrávání</string>
@@ -249,7 +249,7 @@
     <string name="player_close_playback_settings">Zavřít nastavení přehrávání</string>
     <string name="player_diagnostics_frame_rate">Snímková frekvence</string>
     <string name="player_subtitle_search_signed_out">Pokud je povolen anonymní přístup, můžete hledat bez přihlášení. Přihlaste se a využijte limit stahování svého účtu.</string>
-    <string name="player_forward_10_seconds">Přetočit o 10 sekund vpřed</string>
+    <string name="player_forward_10_seconds">Vpřed o 10 s</string>
     <string name="player_subtitle_search_open_settings">Připojit účet (volitelné)</string>
     <string name="player_chapters">Kapitoly</string>
     <string name="epg_catchup_available_unknown">Zpětné přehrávání k dispozici</string>
@@ -315,4 +315,10 @@
     <string name="player_stremio_subtitles_loading">Načítání titulků doplňku…</string>
     <string name="player_stremio_subtitles_empty">Nejsou k dispozici žádné titulky doplňku</string>
     <string name="player_stremio_subtitles_retry">Zkusit znovu načíst titulky doplňku</string>
+    <string name="player_season_label">Sezóna %1$d</string>
+    <string name="player_episode_label">Epizoda %1$d</string>
+    <string name="player_vod_ends_at">Končí v %1$s</string>
+    <string name="player_aspect_fit">Přizpůsobit</string>
+    <string name="player_aspect_stretch">Roztáhnout</string>
+    <string name="player_aspect_zoom">Přiblížit</string>
 </resources>

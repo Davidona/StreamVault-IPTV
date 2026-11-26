@@ -244,8 +244,8 @@
     <string name="player_close_chapters">Закрити розділи</string>
     <string name="player_previous_chapter">Попередній розділ</string>
     <string name="player_next_chapter">Наступний розділ</string>
-    <string name="player_rewind_10_seconds">Перемотати на 10 секунд назад</string>
-    <string name="player_forward_10_seconds">Перемотати на 10 секунд уперед</string>
+    <string name="player_rewind_10_seconds">Назад 10 с</string>
+    <string name="player_forward_10_seconds">Уперед 10 с</string>
     <string name="player_vod_timeline">Таймлайн VOD</string>
     <string name="player_close_controls">Закрити керування</string>
     <string name="player_back_to_menu">Назад до меню</string>
@@ -315,4 +315,10 @@
     <string name="player_stremio_subtitles_loading">Завантаження субтитрів доповнення…</string>
     <string name="player_stremio_subtitles_empty">Субтитри доповнення недоступні</string>
     <string name="player_stremio_subtitles_retry">Повторно завантажити субтитри доповнення</string>
+    <string name="player_season_label">Сезон %1$d</string>
+    <string name="player_episode_label">Епізод %1$d</string>
+    <string name="player_vod_ends_at">Закінчиться о %1$s</string>
+    <string name="player_aspect_fit">Вмістити</string>
+    <string name="player_aspect_stretch">Розтягнути</string>
+    <string name="player_aspect_zoom">Збільшити</string>
 </resources>

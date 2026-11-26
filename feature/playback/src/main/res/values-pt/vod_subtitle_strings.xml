@@ -1,6 +1,7 @@
 <resources>
     <string name="vod_subtitle_sources">Fontes</string>
     <string name="vod_subtitle_settings">Configurações</string>
+    <string name="vod_subtitle_appearance">Aparência das legendas</string>
     <string name="vod_subtitle_provider">Legendas do provedor</string>
     <string name="vod_subtitle_provider_hint">Escolha uma faixa de legendas deste vídeo</string>
     <string name="vod_subtitle_online">OpenSubtitles</string>

@@ -251,8 +251,8 @@
     <string name="player_vod_timeline">VOD-tidslinje</string>
     <string name="player_aspect_ratio">Billedformat</string>
     <string name="player_track_live_translation">Realtidsoversættelse</string>
-    <string name="player_rewind_10_seconds">Spol 10 sekunder tilbage</string>
-    <string name="player_forward_10_seconds">Spol 10 sekunder frem</string>
+    <string name="player_rewind_10_seconds">Spol 10 s tilbage</string>
+    <string name="player_forward_10_seconds">Spol 10 s frem</string>
     <string name="player_diagnostics_stream_bitrate">Stream-bitrate</string>
     <string name="player_diagnostics_bandwidth_estimate">Netværksbåndbredde</string>
     <string name="player_diagnostics_frame_rate">Billedhastighed</string>
@@ -313,4 +313,10 @@
     <string name="player_stremio_subtitles_loading">Indlæser tilføjelsens undertekster…</string>
     <string name="player_stremio_subtitles_empty">Ingen tilføjelsesundertekster tilgængelige</string>
     <string name="player_stremio_subtitles_retry">Prøv at hente tilføjelsens undertekster igen</string>
+    <string name="player_season_label">Sæson %1$d</string>
+    <string name="player_episode_label">Afsnit %1$d</string>
+    <string name="player_vod_ends_at">Slutter kl. %1$s</string>
+    <string name="player_aspect_fit">Tilpas</string>
+    <string name="player_aspect_stretch">Stræk</string>
+    <string name="player_aspect_zoom">Zoom</string>
 </resources>

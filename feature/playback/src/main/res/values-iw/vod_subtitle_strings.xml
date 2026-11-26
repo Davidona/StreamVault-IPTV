@@ -1,6 +1,7 @@
 <resources>
     <string name="vod_subtitle_sources">מקורות</string>
     <string name="vod_subtitle_settings">הגדרות</string>
+    <string name="vod_subtitle_appearance">מראה הכתוביות</string>
     <string name="vod_subtitle_provider">כתוביות ספק</string>
     <string name="vod_subtitle_provider_hint">בחר רצועת כתוביות מסרטון זה</string>
     <string name="vod_subtitle_online">OpenSubtitles</string>

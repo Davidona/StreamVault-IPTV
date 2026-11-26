@@ -238,7 +238,7 @@
     <string name="player_subtitle_delay_current">Nykyinen viive: %1$+d ms</string>
     <string name="player_subtitle_load_from_device">Lataa SRT laitteesta</string>
     <string name="player_subtitle_search_languages_hint">Valitse kieli ja sitten versio.</string>
-    <string name="player_rewind_10_seconds">Kelaa taaksepäin 10 sekuntia</string>
+    <string name="player_rewind_10_seconds">Taakse 10 s</string>
     <string name="player_vod_timeline">VOD-aikajana</string>
     <string name="player_chapter_count">%1$d lukua</string>
     <string name="player_playback_settings">Toistoasetukset</string>
@@ -247,7 +247,7 @@
     <string name="player_close_playback_settings">Sulje toistoasetukset</string>
     <string name="player_diagnostics_frame_rate">Kuvataajuus</string>
     <string name="player_subtitle_search_signed_out">Voit hakea kirjautumatta, jos anonyymi käyttö on käytössä. Kirjaudu sisään käyttääksesi tilisi latauskiintiötä.</string>
-    <string name="player_forward_10_seconds">Kelaa eteenpäin 10 sekuntia</string>
+    <string name="player_forward_10_seconds">Eteen 10 s</string>
     <string name="player_subtitle_search_open_settings">Yhdistä tili (valinnainen)</string>
     <string name="player_chapters">Luvut</string>
     <string name="epg_catchup_available_unknown">Kiinniotto saatavilla</string>
@@ -313,4 +313,10 @@
     <string name="player_stremio_subtitles_loading">Ladataan lisäosan tekstityksiä…</string>
     <string name="player_stremio_subtitles_empty">Lisäosan tekstityksiä ei ole saatavilla</string>
     <string name="player_stremio_subtitles_retry">Lataa lisäosan tekstitykset uudelleen</string>
+    <string name="player_season_label">Kausi %1$d</string>
+    <string name="player_episode_label">Jakso %1$d</string>
+    <string name="player_vod_ends_at">Päättyy klo %1$s</string>
+    <string name="player_aspect_fit">Sovita</string>
+    <string name="player_aspect_stretch">Venytä</string>
+    <string name="player_aspect_zoom">Zoomaa</string>
 </resources>

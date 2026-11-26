@@ -74,8 +74,8 @@
     <string name="player_close_chapters">Tutup bab</string>
     <string name="player_previous_chapter">Bab sebelumnya</string>
     <string name="player_next_chapter">Bab seterusnya</string>
-    <string name="player_rewind_10_seconds">Putar balik 10 saat</string>
-    <string name="player_forward_10_seconds">Mara 10 saat</string>
+    <string name="player_rewind_10_seconds">Undur 10 s</string>
+    <string name="player_forward_10_seconds">Maju 10 s</string>
     <string name="player_vod_timeline">Garis masa VOD</string>
     <string name="player_close_controls">Tutup kawalan</string>
     <string name="player_back_to_menu">Kembali ke menu</string>
@@ -302,4 +302,10 @@
     <string name="player_stremio_subtitles_loading">Memuatkan sari kata add-on…</string>
     <string name="player_stremio_subtitles_empty">Tiada sari kata add-on tersedia</string>
     <string name="player_stremio_subtitles_retry">Muat semula sari kata add-on</string>
+    <string name="player_season_label">Musim %1$d</string>
+    <string name="player_episode_label">Episod %1$d</string>
+    <string name="player_vod_ends_at">Tamat pada %1$s</string>
+    <string name="player_aspect_fit">Muat</string>
+    <string name="player_aspect_stretch">Regang</string>
+    <string name="player_aspect_zoom">Zum</string>
 </resources>

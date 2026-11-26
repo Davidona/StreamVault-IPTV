@@ -1,36 +1,39 @@
 package com.streamvault.feature.playback.player
 
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.CloudDownload
+import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.CloudDownload
 import androidx.compose.material.icons.filled.Language
+import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.tv.material3.Button
-import androidx.tv.material3.ClickableSurfaceDefaults
+import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.streamvault.core.ui.design.AppColors
+import com.streamvault.core.ui.design.AppSpacing
+import com.streamvault.core.ui.design.FocusSafeLazyColumn
 import com.streamvault.core.ui.design.requestFocusSafely
-import com.streamvault.core.ui.interaction.TvClickableSurface
+import com.streamvault.core.ui.design.scrollListToTopOnFocus
 import com.streamvault.feature.playback.R
 import java.text.NumberFormat
 
@@ -50,8 +53,11 @@ internal fun PlayerExternalSubtitleSearchDialog(
     }
     val selectedLanguageLabel = state.selectedLanguageName
         ?: stringResource(R.string.player_subtitle_search_all_languages)
-    val firstFocusRequester = androidx.compose.runtime.remember { FocusRequester() }
-    val firstLanguageFocusRequester = androidx.compose.runtime.remember { FocusRequester() }
+    val listState = rememberLazyListState()
+    val allLanguagesIsFirstRow = state.account != null &&
+        !(state.errorMessage != null && state.languages.isEmpty() && !state.isLoadingLanguages)
+    val firstFocusRequester = remember { FocusRequester() }
+    val firstLanguageFocusRequester = remember { FocusRequester() }
     val dismissSearch = {
         viewModel.cancelExternalSubtitleSearch()
         onDismiss()
@@ -85,93 +91,67 @@ internal fun PlayerExternalSubtitleSearchDialog(
         }
     }
 
-    VodSelectionSheet(
+    VodPanelFrame(
         title = stringResource(R.string.player_subtitle_search_title),
-        icon = androidx.compose.material.icons.Icons.Default.CloudDownload,
+        icon = Icons.Default.CloudDownload,
         onDismiss = dismissSearch,
     ) {
-        Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            Text(
-                text = description,
-                style = MaterialTheme.typography.bodyMedium,
-                color = AppColors.TextSecondary,
-            )
-        }
+        Text(
+            text = description,
+            style = MaterialTheme.typography.bodyMedium,
+            color = AppColors.TextSecondary,
+        )
 
-        LazyColumn(
-            modifier = Modifier.weight(1f).fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
+        FocusSafeLazyColumn(
+            modifier = Modifier.weight(1f, fill = false).fillMaxWidth(),
+            state = listState,
+            verticalArrangement = Arrangement.spacedBy(AppSpacing().xs),
         ) {
             if (state.account == null) {
                 item {
-                    Row(
-                        modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
-                        horizontalArrangement = Arrangement.End,
-                    ) {
-                        Button(onClick = onOpenSettings) {
-                            Text(stringResource(R.string.player_subtitle_search_open_settings))
-                        }
-                    }
+                    VodPanelRow(
+                        title = stringResource(R.string.player_subtitle_search_open_settings),
+                        icon = Icons.Default.Settings,
+                        onClick = onOpenSettings,
+                    )
                 }
             }
             when (state.stage) {
                 ExternalSubtitleSearchStage.LANGUAGES -> {
                     if (state.isLoadingLanguages) {
-                        item {
-                            Row(
-                                modifier = Modifier.fillMaxWidth().padding(16.dp),
-                                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                                verticalAlignment = Alignment.CenterVertically,
-                            ) {
-                                androidx.compose.material3.CircularProgressIndicator(
-                                    modifier = Modifier.size(24.dp),
-                                    color = AppColors.Brand,
-                                    strokeWidth = 2.dp,
-                                )
-                                Text(
-                                    text = stringResource(R.string.player_subtitle_search_loading_languages),
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = AppColors.TextSecondary,
-                                )
-                            }
-                        }
+                        item { SearchProgressRow(R.string.player_subtitle_search_loading_languages) }
                     }
-
                     state.errorMessage?.let { error ->
-                        item {
-                            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                                Text(
-                                    text = error,
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.error,
-                                    modifier = Modifier.padding(12.dp),
+                        item { SearchErrorText(error) }
+                        if (!state.isLoadingLanguages && state.languages.isEmpty()) {
+                            item {
+                                VodPanelRow(
+                                    title = stringResource(R.string.player_subtitle_search_retry),
+                                    icon = Icons.Default.Refresh,
+                                    onClick = viewModel::loadExternalSubtitleLanguages,
                                 )
-                                if (!state.isLoadingLanguages && state.languages.isEmpty()) {
-                                    Button(onClick = viewModel::loadExternalSubtitleLanguages) {
-                                        Text(stringResource(R.string.player_subtitle_search_retry))
-                                    }
-                                }
                             }
                         }
                     }
-
                     item {
-                        VodSelectionRow(
+                        VodPanelRow(
                             title = stringResource(R.string.player_subtitle_search_all_languages),
                             detail = stringResource(R.string.player_subtitle_search_all_languages_hint),
-                            icon = androidx.compose.material.icons.Icons.Default.Language,
+                            icon = Icons.Default.Language,
                             selected = state.selectedLanguageCode == null,
-                            modifier = if (state.languages.isEmpty()) {
-                                Modifier.focusRequester(firstLanguageFocusRequester)
-                            } else {
-                                Modifier
-                            },
+                            // Loading or error text above the first focusable row stays cut off by the fade unless
+                            // entering that row scrolls back up. Rows above it (account, retry) make it not the first.
+                            modifier = (if (allLanguagesIsFirstRow) Modifier.scrollListToTopOnFocus(listState) else Modifier)
+                                .then(
+                                    if (state.languages.isEmpty()) Modifier.focusRequester(firstLanguageFocusRequester)
+                                    else Modifier
+                                ),
                         ) { viewModel.selectExternalSubtitleLanguage(null) }
                     }
                     items(state.languages, key = { it.code }) { language ->
-                        VodSelectionRow(
+                        VodPanelRow(
                             title = language.name,
-                            icon = androidx.compose.material.icons.Icons.Default.Language,
+                            icon = Icons.Default.Language,
                             selected = state.selectedLanguageCode == language.code,
                             modifier = if (language == state.languages.firstOrNull()) {
                                 Modifier.focusRequester(firstLanguageFocusRequester)
@@ -183,13 +163,13 @@ internal fun PlayerExternalSubtitleSearchDialog(
                 }
                 ExternalSubtitleSearchStage.RESULTS -> {
                     item {
-                        VodSelectionRow(
+                        VodPanelRow(
                             title = stringResource(R.string.player_subtitle_search_change_language),
                             detail = stringResource(
                                 R.string.player_subtitle_search_back_to_languages,
                                 selectedLanguageLabel,
                             ),
-                            icon = androidx.compose.material.icons.Icons.AutoMirrored.Filled.ArrowBack,
+                            icon = Icons.AutoMirrored.Filled.ArrowBack,
                             modifier = if (state.subtitles.isEmpty()) {
                                 Modifier.focusRequester(firstFocusRequester)
                             } else {
@@ -197,133 +177,103 @@ internal fun PlayerExternalSubtitleSearchDialog(
                             },
                         ) { viewModel.backToExternalSubtitleLanguages() }
                     }
-
                     if (state.isSearching) {
-                        item {
-                            Row(
-                                modifier = Modifier.fillMaxWidth().padding(16.dp),
-                                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                                verticalAlignment = Alignment.CenterVertically,
-                            ) {
-                                androidx.compose.material3.CircularProgressIndicator(
-                                    modifier = Modifier.size(24.dp),
-                                    color = AppColors.Brand,
-                                    strokeWidth = 2.dp,
-                                )
-                                Text(
-                                    text = stringResource(R.string.player_subtitle_search_loading),
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = AppColors.TextSecondary,
-                                )
-                            }
-                        }
+                        item { SearchProgressRow(R.string.player_subtitle_search_loading) }
                     }
-
                     state.errorMessage?.let { error ->
-                        item {
-                            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                                Text(
-                                    text = error,
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.error,
-                                    modifier = Modifier.padding(12.dp),
+                        item { SearchErrorText(error) }
+                        if (!state.isSearching && state.subtitles.isEmpty()) {
+                            item {
+                                VodPanelRow(
+                                    title = stringResource(R.string.player_subtitle_search_retry),
+                                    icon = Icons.Default.Refresh,
+                                    onClick = viewModel::searchExternalSubtitles,
                                 )
-                                if (!state.isSearching && state.subtitles.isEmpty()) {
-                                    Button(onClick = viewModel::searchExternalSubtitles) {
-                                        Text(stringResource(R.string.player_subtitle_search_retry))
-                                    }
-                                }
                             }
                         }
                     }
-
                     if (!state.isSearching && state.errorMessage == null && state.subtitles.isEmpty()) {
                         item {
                             Text(
                                 text = stringResource(R.string.player_subtitle_search_no_results),
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = AppColors.TextSecondary,
-                                modifier = Modifier.padding(16.dp),
+                                modifier = Modifier.padding(AppSpacing().sm),
                             )
                         }
                     }
-
                     state.appliedSubtitleName?.let { name ->
                         item {
                             Text(
                                 text = stringResource(R.string.player_subtitle_search_applied, name),
                                 style = MaterialTheme.typography.bodyMedium,
-                                color = AppColors.Brand,
-                                modifier = Modifier.padding(12.dp),
+                                color = AppColors.TextPrimary,
+                                modifier = Modifier.padding(AppSpacing().sm),
                             )
                         }
                     }
-
                     items(state.subtitles, key = { it.id }) { subtitle ->
-                        val downloading = state.downloadingSubtitleId != null
-                        TvClickableSurface(
-                            onClick = { viewModel.downloadExternalSubtitle(subtitle.id) },
-                            enabled = !downloading,
-                            shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(10.dp)),
-                            scale = ClickableSurfaceDefaults.scale(focusedScale = 1f),
-                            colors = ClickableSurfaceDefaults.colors(
-                                containerColor = androidx.compose.ui.graphics.Color.White.copy(alpha = 0.035f),
-                                contentColor = androidx.compose.ui.graphics.Color(0xFFDCE3ED),
-                                focusedContainerColor = androidx.compose.ui.graphics.Color(0xFFDFEBFA),
-                                focusedContentColor = androidx.compose.ui.graphics.Color(0xFF10151D),
-                            ),
+                        val release = subtitle.releaseName.ifBlank {
+                            stringResource(R.string.player_subtitle_search_release_unknown)
+                        }
+                        val downloads = stringResource(
+                            R.string.player_subtitle_search_download_count,
+                            NumberFormat.getIntegerInstance().format(subtitle.downloadCount),
+                        )
+                        VodPanelRow(
+                            title = subtitle.displayLanguage,
+                            detail = "$release\n$downloads",
+                            enabled = state.downloadingSubtitleId == null,
+                            trailing = if (state.downloadingSubtitleId == subtitle.id) {
+                                {
+                                    CircularProgressIndicator(
+                                        modifier = Modifier.size(24.dp),
+                                        color = LocalContentColor.current,
+                                        strokeWidth = 2.dp,
+                                    )
+                                }
+                            } else {
+                                null
+                            },
                             modifier = if (subtitle == state.subtitles.firstOrNull()) {
                                 Modifier.focusRequester(firstFocusRequester)
                             } else {
                                 Modifier
                             },
-                        ) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 14.dp),
-                                horizontalArrangement = Arrangement.spacedBy(16.dp),
-                                verticalAlignment = Alignment.CenterVertically,
-                            ) {
-                                Column(
-                                    modifier = Modifier.weight(1f),
-                                    verticalArrangement = Arrangement.spacedBy(4.dp),
-                                ) {
-                                    Text(
-                                        text = subtitle.displayLanguage,
-                                        style = MaterialTheme.typography.titleMedium,
-                                        fontWeight = FontWeight.SemiBold,
-                                        color = androidx.tv.material3.LocalContentColor.current,
-                                    )
-                                    Text(
-                                        text = subtitle.releaseName.ifBlank {
-                                            stringResource(R.string.player_subtitle_search_release_unknown)
-                                        },
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = androidx.tv.material3.LocalContentColor.current.copy(alpha = 0.65f),
-                                        maxLines = 2,
-                                        overflow = TextOverflow.Ellipsis,
-                                    )
-                                    Text(
-                                        text = stringResource(
-                                            R.string.player_subtitle_search_download_count,
-                                            NumberFormat.getIntegerInstance().format(subtitle.downloadCount),
-                                        ),
-                                        style = MaterialTheme.typography.labelSmall,
-                                        color = androidx.tv.material3.LocalContentColor.current.copy(alpha = 0.65f),
-                                    )
-                                }
-                                if (state.downloadingSubtitleId == subtitle.id) {
-                                    androidx.compose.material3.CircularProgressIndicator(
-                                        modifier = Modifier.size(26.dp),
-                                        color = AppColors.Brand,
-                                        strokeWidth = 2.dp,
-                                    )
-                                }
-                            }
-                        }
+                        ) { viewModel.downloadExternalSubtitle(subtitle.id) }
                     }
                 }
             }
         }
-
     }
+}
+
+@Composable
+private fun SearchProgressRow(@StringRes textRes: Int) {
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(AppSpacing().sm),
+        horizontalArrangement = Arrangement.spacedBy(AppSpacing().sm),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        CircularProgressIndicator(
+            modifier = Modifier.size(24.dp),
+            color = AppColors.TextPrimary,
+            strokeWidth = 2.dp,
+        )
+        Text(
+            text = stringResource(textRes),
+            style = MaterialTheme.typography.bodyMedium,
+            color = AppColors.TextSecondary,
+        )
+    }
+}
+
+@Composable
+private fun SearchErrorText(message: String) {
+    Text(
+        text = message,
+        style = MaterialTheme.typography.bodyMedium,
+        color = MaterialTheme.colorScheme.error,
+        modifier = Modifier.padding(AppSpacing().sm),
+    )
 }

@@ -1,6 +1,7 @@
 <resources>
     <string name="vod_subtitle_sources">Mga Pinagmulan</string>
     <string name="vod_subtitle_settings">Mga Setting</string>
+    <string name="vod_subtitle_appearance">Hitsura ng subtitle</string>
     <string name="vod_subtitle_provider">Mga subtitle mula sa provider</string>
     <string name="vod_subtitle_provider_hint">Pumili ng subtitle track mula sa video na ito</string>
     <string name="vod_subtitle_online">OpenSubtitles</string>

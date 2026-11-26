@@ -302,4 +302,10 @@
     <string name="player_stremio_subtitles_loading">กำลังโหลดคำบรรยายจากส่วนเสริม…</string>
     <string name="player_stremio_subtitles_empty">ไม่มีคำบรรยายจากส่วนเสริม</string>
     <string name="player_stremio_subtitles_retry">โหลดคำบรรยายจากส่วนเสริมอีกครั้ง</string>
+    <string name="player_season_label">ซีซัน %1$d</string>
+    <string name="player_episode_label">ตอนที่ %1$d</string>
+    <string name="player_vod_ends_at">จบเวลา %1$s</string>
+    <string name="player_aspect_fit">พอดี</string>
+    <string name="player_aspect_stretch">ยืด</string>
+    <string name="player_aspect_zoom">ซูม</string>
 </resources>

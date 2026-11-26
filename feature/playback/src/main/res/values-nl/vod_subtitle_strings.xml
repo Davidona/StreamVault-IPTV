@@ -1,6 +1,7 @@
 <resources>
     <string name="vod_subtitle_sources">Bronnen</string>
     <string name="vod_subtitle_settings">Instellingen</string>
+    <string name="vod_subtitle_appearance">Weergave van ondertitels</string>
     <string name="vod_subtitle_provider">Ondertitels van aanbieder</string>
     <string name="vod_subtitle_provider_hint">Kies een ondertitelspoor uit deze video</string>
     <string name="vod_subtitle_online">OpenSubtitles</string>

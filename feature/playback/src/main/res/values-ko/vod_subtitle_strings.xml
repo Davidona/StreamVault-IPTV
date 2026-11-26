@@ -1,6 +1,7 @@
 <resources>
     <string name="vod_subtitle_sources">소스</string>
     <string name="vod_subtitle_settings">설정</string>
+    <string name="vod_subtitle_appearance">자막 모양</string>
     <string name="vod_subtitle_provider">제공자 자막</string>
     <string name="vod_subtitle_provider_hint">이 동영상에서 자막 트랙을 선택하세요</string>
     <string name="vod_subtitle_online">OpenSubtitles</string>

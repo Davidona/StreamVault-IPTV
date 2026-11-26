@@ -237,8 +237,8 @@
     <string name="player_close_chapters">Cerrar capítulos</string>
     <string name="player_previous_chapter">Capítulo anterior</string>
     <string name="player_next_chapter">Capítulo siguiente</string>
-    <string name="player_rewind_10_seconds">Retroceder 10 segundos</string>
-    <string name="player_forward_10_seconds">Avanzar 10 segundos</string>
+    <string name="player_rewind_10_seconds">Atrás 10 s</string>
+    <string name="player_forward_10_seconds">Adelante 10 s</string>
     <string name="player_vod_timeline">Línea de tiempo VOD</string>
     <string name="player_close_controls">Cerrar controles</string>
     <string name="player_back_to_menu">Volver al menú</string>
@@ -313,4 +313,10 @@
     <string name="player_stremio_subtitles_loading">Cargando subtítulos del complemento…</string>
     <string name="player_stremio_subtitles_empty">No hay subtítulos del complemento disponibles</string>
     <string name="player_stremio_subtitles_retry">Volver a intentar los subtítulos del complemento</string>
+    <string name="player_season_label">Temporada %1$d</string>
+    <string name="player_episode_label">Episodio %1$d</string>
+    <string name="player_vod_ends_at">Termina a las %1$s</string>
+    <string name="player_aspect_fit">Ajustar</string>
+    <string name="player_aspect_stretch">Estirar</string>
+    <string name="player_aspect_zoom">Zoom</string>
 </resources>

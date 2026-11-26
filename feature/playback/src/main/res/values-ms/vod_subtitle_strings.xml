@@ -1,6 +1,7 @@
 <resources>
     <string name="vod_subtitle_sources">Sumber</string>
     <string name="vod_subtitle_settings">Tetapan</string>
+    <string name="vod_subtitle_appearance">Rupa sari kata</string>
     <string name="vod_subtitle_provider">Sari kata penyedia</string>
     <string name="vod_subtitle_provider_hint">Pilih trek sari kata daripada video ini</string>
     <string name="vod_subtitle_online">OpenSubtitles</string>

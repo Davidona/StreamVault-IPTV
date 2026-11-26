@@ -1,6 +1,7 @@
 <resources>
     <string name="vod_subtitle_sources">Πηγές</string>
     <string name="vod_subtitle_settings">Ρυθμίσεις</string>
+    <string name="vod_subtitle_appearance">Εμφάνιση υποτίτλων</string>
     <string name="vod_subtitle_provider">Υπότιτλοι παρόχου</string>
     <string name="vod_subtitle_provider_hint">Επιλέξτε κομμάτι υποτίτλων από αυτό το βίντεο</string>
     <string name="vod_subtitle_online">OpenSubtitles</string>

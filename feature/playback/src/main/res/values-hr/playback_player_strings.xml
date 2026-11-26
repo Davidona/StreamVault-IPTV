@@ -76,8 +76,8 @@
     <string name="player_close_chapters">Zatvori poglavlja</string>
     <string name="player_previous_chapter">Prethodno poglavlje</string>
     <string name="player_next_chapter">Sljedeće poglavlje</string>
-    <string name="player_rewind_10_seconds">Premotaj 10 sekundi unatrag</string>
-    <string name="player_forward_10_seconds">Premotaj 10 sekundi naprijed</string>
+    <string name="player_rewind_10_seconds">Natrag 10 s</string>
+    <string name="player_forward_10_seconds">Naprijed 10 s</string>
     <string name="player_vod_timeline">VOD vremenska crta</string>
     <string name="player_close_controls">Zatvori kontrole</string>
     <string name="player_back_to_menu">Natrag na izbornik</string>
@@ -304,4 +304,10 @@
     <string name="player_stremio_subtitles_loading">Učitavanje titlova dodatka…</string>
     <string name="player_stremio_subtitles_empty">Titlovi dodatka nisu dostupni</string>
     <string name="player_stremio_subtitles_retry">Pokušaj ponovno učitati titlove dodatka</string>
+    <string name="player_season_label">Sezona %1$d</string>
+    <string name="player_episode_label">Epizoda %1$d</string>
+    <string name="player_vod_ends_at">Završava u %1$s</string>
+    <string name="player_aspect_fit">Prilagodi</string>
+    <string name="player_aspect_stretch">Razvuci</string>
+    <string name="player_aspect_zoom">Zumiraj</string>
 </resources>

@@ -90,6 +90,7 @@ import com.streamvault.feature.playback.player.overlay.PlayerClosePlaybackConfir
 import com.streamvault.feature.playback.player.overlay.PlayerScheduleByTimeDialog
 import com.streamvault.feature.playback.player.overlay.PlayerScheduleByTimeLabels
 import com.streamvault.feature.playback.player.overlay.PlayerAspectRatioToast
+import com.streamvault.feature.playback.player.overlay.SeekFeedbackHost
 import com.streamvault.feature.playback.player.overlay.PlayerBackButton
 import com.streamvault.feature.playback.player.overlay.PlayerBackButtonPlacement
 import com.streamvault.feature.playback.player.overlay.playerBackButtonPlacement
@@ -200,6 +201,7 @@ fun PlayerScreen(
     val displayChannelNumber by viewModel.displayChannelNumber.collectAsStateWithLifecycle()
     val showChannelInfoOverlay by viewModel.showChannelInfoOverlay.collectAsStateWithLifecycle()
     val aspectRatio by viewModel.aspectRatio.collectAsStateWithLifecycle()
+    val aspectRatioChangeLabels = remember(viewModel) { viewModel.aspectRatioChanges.map { it.modeName } }
     val showDiagnostics by viewModel.showDiagnostics.collectAsStateWithLifecycle()
     val playerNotice by viewModel.playerNotice.collectAsStateWithLifecycle()
     val preventStandbyDuringPlayback by viewModel.preventStandbyDuringPlayback.collectAsStateWithLifecycle()
@@ -239,6 +241,7 @@ fun PlayerScreen(
     val channelListFocusRequester = remember { FocusRequester() }
     val categoryListFocusRequester = remember { FocusRequester() }
     val playButtonFocusRequester = remember { FocusRequester() }
+    val vodPanelOpenerFocus = remember { VodPanelOpenerFocus() }
     val quickActionsFocusRequester = remember { FocusRequester() }
     val channelInfoFocusRequester = remember { FocusRequester() }
     val layoutDirection = LocalLayoutDirection.current
@@ -471,12 +474,15 @@ fun PlayerScreen(
                     tag = "PlayerScreen",
                     target = "Player quick actions after modal"
                 )
-            } else {
+            } else if (!vodPanelOpenerFocus.restore()) {
                 playButtonFocusRequester.requestFocusSafely(
                     tag = "PlayerScreen",
                     target = "Player transport after modal"
                 )
             }
+        } else if (modalState.active == null) {
+            // Controls hidden while the panel closed: the next show must start on play/pause, not a stale opener.
+            vodPanelOpenerFocus.forget()
         }
     }
 
@@ -617,7 +623,8 @@ fun PlayerScreen(
             canOpenEpisodePicker = contentType == "SERIES_EPISODE" &&
                 viewModel.currentSeries.value?.seasons.sanitizedForPlayer()
                     ?.any { it.episodes.isNotEmpty() } == true,
-            showClosePlaybackConfirmation = showClosePlaybackConfirmation
+            showClosePlaybackConfirmation = showClosePlaybackConfirmation,
+            showResumePrompt = resumePrompt.show
         )
     }
 
@@ -946,6 +953,7 @@ fun PlayerScreen(
             displayChannelNumber = displayChannelNumber,
             aspectRatioLabel = aspectRatio.modeName,
             playButtonFocusRequester = playButtonFocusRequester,
+            vodPanelOpenerFocus = vodPanelOpenerFocus,
             quickActionsFocusRequester = quickActionsFocusRequester,
             modifier = Modifier.fillMaxSize(),
             onOpenArchive = { modalState = modalState.open(PlayerModal.ProgramHistory) },
@@ -959,6 +967,7 @@ fun PlayerScreen(
             onOpenEpisodes = { modalState = modalState.open(PlayerModal.EpisodePicker) },
             onOpenChapters = { modalState = modalState.open(PlayerModal.ChapterSelection) },
             onOpenPlaybackSettings = { modalState = modalState.open(PlayerModal.PlaybackSettings) },
+            modalVisible = modalState.hasVisibleModal,
             showChapterSheet = modalState.showChapterSelection,
             showPlaybackSettingsSheet = modalState.showPlaybackSettings,
             onDismissVodSheet = { modalState = modalState.dismiss() },
@@ -980,22 +989,40 @@ fun PlayerScreen(
         )
 
         PlayerAspectRatioToast(
-            aspectRatioLabel = aspectRatio.modeName,
-            controlsVisible = showControls,
+            aspectRatioChanges = aspectRatioChangeLabels,
             modifier = Modifier
                 .align(Alignment.TopCenter)
                 .padding(top = 32.dp)
         )
 
-        PlayerResolutionBadgeHost(
-            viewModel = viewModel,
-            streamUrl = streamUrl,
-            videoFormat = videoFormat,
-            controlsVisible = showControls,
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .padding(32.dp)
+        SeekFeedbackHost(
+            events = viewModel.seekFeedback,
+            controlsVisible = showControls
         )
+
+        // VOD shows the same decoded-format chips as its overlay (flashed at start, then faded), so a
+        // second badge with a different label would contradict them. Live keeps its resolution badge.
+        if (isVodPlayback(contentType, isCatchUpPlayback)) {
+            val startBadges = remember(videoFormat) { vodStreamBadges(videoFormat) }
+            VodStartBadges(
+                badges = startBadges,
+                streamUrl = streamUrl,
+                isReady = playbackState == PlaybackState.READY,
+                frameRateKnown = videoFormat.frameRate > 0f,
+                controlsVisible = showControls,
+                modifier = Modifier.align(Alignment.TopEnd)
+            )
+        } else {
+            PlayerResolutionBadgeHost(
+                viewModel = viewModel,
+                streamUrl = streamUrl,
+                videoFormat = videoFormat,
+                controlsVisible = showControls,
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(32.dp)
+            )
+        }
 
         PlayerSleepTimerWarningHost(
             viewModel = viewModel,
@@ -1101,7 +1128,6 @@ fun PlayerScreen(
             showAudioVideoOffsetDialog = modalState.showAudioVideoOffsetDialog,
             showSubtitleOffsetDialog = modalState.showSubtitleOffsetDialog,
             showEpisodePicker = modalState.showEpisodePicker,
-            fallbackTitle = title,
             fallbackEpisodeId = internalChannelId,
             fallbackSeasonNumber = seasonNumber,
             onOpenSubtitleSearch = { modalState = modalState.open(PlayerModal.SubtitleSearch) },

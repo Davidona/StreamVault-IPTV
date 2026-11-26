@@ -54,6 +54,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.unit.LayoutDirection
 import android.content.res.Configuration
@@ -248,6 +249,7 @@ class MainActivity : ComponentActivity(), CatalogPlatformHost {
             CompositionLocalProvider(
                 androidx.compose.ui.platform.LocalDensity provides textDensity,
                 LocalContext provides localizedContext,
+                LocalResources provides localizedContext.resources,
                 LocalConfiguration provides configuration,
                 LocalLayoutDirection provides layoutDirection,
                 LocalAppTimeFormat provides appTimeFormat,

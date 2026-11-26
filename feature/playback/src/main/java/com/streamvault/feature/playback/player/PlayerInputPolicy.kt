@@ -47,7 +47,8 @@ internal data class PlayerInputState(
     val showControls: Boolean = false,
     val hasPendingNumericChannelInput: Boolean = false,
     val canOpenEpisodePicker: Boolean = false,
-    val showClosePlaybackConfirmation: Boolean = false
+    val showClosePlaybackConfirmation: Boolean = false,
+    val showResumePrompt: Boolean = false
 )
 
 /**
@@ -281,7 +282,8 @@ private fun directionalInputDecision(
             state.showDiagnostics
     }
 
-    if (state.showControls) {
+    // The prompt's buttons own D-pad navigation; a seek here would move the video behind it.
+    if (state.showControls || state.showResumePrompt) {
         return PlayerInputDecision(PlayerInputAction.Pass, notifyInteraction)
     }
 

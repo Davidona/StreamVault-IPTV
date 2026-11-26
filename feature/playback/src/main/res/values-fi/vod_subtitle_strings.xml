@@ -1,6 +1,7 @@
 <resources>
     <string name="vod_subtitle_sources">Lähteet</string>
     <string name="vod_subtitle_settings">Asetukset</string>
+    <string name="vod_subtitle_appearance">Tekstityksen ulkoasu</string>
     <string name="vod_subtitle_provider">Palveluntarjoajan tekstitykset</string>
     <string name="vod_subtitle_provider_hint">Valitse tämän videon tekstitysraita</string>
     <string name="vod_subtitle_online">OpenSubtitles</string>

@@ -1,6 +1,7 @@
 <resources>
     <string name="vod_subtitle_sources">แหล่งที่มา</string>
     <string name="vod_subtitle_settings">ตั้งค่า</string>
+    <string name="vod_subtitle_appearance">รูปลักษณ์คำบรรยาย</string>
     <string name="vod_subtitle_provider">คำบรรยายจากผู้ให้บริการ</string>
     <string name="vod_subtitle_provider_hint">เลือกแทร็กคำบรรยายจากวิดีโอนี้</string>
     <string name="vod_subtitle_online">OpenSubtitles</string>

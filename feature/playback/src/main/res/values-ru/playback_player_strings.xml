@@ -240,7 +240,7 @@
     <string name="player_subtitle_delay_current">Текущая задержка: %1$+d мс</string>
     <string name="player_subtitle_load_from_device">Загрузить SRT с устройства</string>
     <string name="player_subtitle_search_languages_hint">Выберите язык, затем выберите версию.</string>
-    <string name="player_rewind_10_seconds">Перемотать на 10 секунд назад</string>
+    <string name="player_rewind_10_seconds">Назад 10 с</string>
     <string name="player_vod_timeline">Шкала VOD</string>
     <string name="player_chapter_count">Глав: %1$d</string>
     <string name="player_playback_settings">Настройки воспроизведения</string>
@@ -249,7 +249,7 @@
     <string name="player_close_playback_settings">Закрыть настройки воспроизведения</string>
     <string name="player_diagnostics_frame_rate">Частота кадров</string>
     <string name="player_subtitle_search_signed_out">Можно искать без входа, если включён анонимный доступ. Войдите, чтобы использовать дневной лимит загрузок вашего аккаунта.</string>
-    <string name="player_forward_10_seconds">Перемотать на 10 секунд вперёд</string>
+    <string name="player_forward_10_seconds">Вперёд 10 с</string>
     <string name="player_subtitle_search_open_settings">Подключить аккаунт (необязательно)</string>
     <string name="player_chapters">Главы</string>
     <string name="epg_catchup_available_unknown">Доступен просмотр назад</string>
@@ -315,4 +315,10 @@
     <string name="player_stremio_subtitles_loading">Загрузка субтитров дополнения…</string>
     <string name="player_stremio_subtitles_empty">Субтитры дополнения недоступны</string>
     <string name="player_stremio_subtitles_retry">Повторить загрузку субтитров дополнения</string>
+    <string name="player_season_label">Сезон %1$d</string>
+    <string name="player_episode_label">Эпизод %1$d</string>
+    <string name="player_vod_ends_at">Закончится в %1$s</string>
+    <string name="player_aspect_fit">По размеру</string>
+    <string name="player_aspect_stretch">Растянуть</string>
+    <string name="player_aspect_zoom">Увеличить</string>
 </resources>

@@ -63,6 +63,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
@@ -111,6 +112,7 @@ class PlayerViewModel @Inject constructor(
         private const val LOW_BANDWIDTH_THRESHOLD_BPS = 500_000L
         private const val LOW_BANDWIDTH_DURATION_SECONDS = 30
         internal val PLAYBACK_TIMER_PRESETS_MINUTES = setOf(0, 15, 30, 45, 60, 90, 120)
+        internal val PLAYBACK_SPEED_OPTIONS = listOf(0.5f, 0.75f, 1f, 1.25f, 1.5f, 2f)
         internal const val TIMER_TICK_MS = 1_000L
     }
 
@@ -220,6 +222,11 @@ class PlayerViewModel @Inject constructor(
     internal val audioVideoOffsetPreviewMs = MutableStateFlow<Int?>(null)
     internal val _audioVideoOffsetUiState = MutableStateFlow(PlayerAudioVideoOffsetUiState())
     val audioVideoOffsetUiState: StateFlow<PlayerAudioVideoOffsetUiState> = _audioVideoOffsetUiState.asStateFlow()
+    internal val seekTargetTracker = SeekTargetTracker()
+    internal val _seekFeedback = MutableSharedFlow<SeekFeedbackEvent>(extraBufferCapacity = 8, onBufferOverflow = BufferOverflow.DROP_OLDEST)
+    val seekFeedback: SharedFlow<SeekFeedbackEvent> = _seekFeedback.asSharedFlow()
+    internal val _aspectRatioChanges = MutableSharedFlow<AspectRatio>(extraBufferCapacity = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
+    val aspectRatioChanges: SharedFlow<AspectRatio> = _aspectRatioChanges.asSharedFlow()
     internal val _seekPreview = MutableStateFlow(SeekPreviewState())
     val seekPreview: StateFlow<SeekPreviewState> = _seekPreview.asStateFlow()
     private val _recordingItems = MutableStateFlow<List<RecordingItem>>(emptyList())
@@ -1866,8 +1873,8 @@ class PlayerViewModel @Inject constructor(
             }
         }
         
-        // Show context info on entry for both Live and VOD
-        openChannelInfoOverlay()
+        // Only LIVE auto-hides this overlay. For VOD the flag would stay set and block D-pad seeks.
+        if (currentContentType == ContentType.LIVE) openChannelInfoOverlay()
 
         if (providerId > 0) {
             playbackSessionScope(requestVersion)?.launch {

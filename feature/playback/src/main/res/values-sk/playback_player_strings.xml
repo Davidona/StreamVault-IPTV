@@ -77,8 +77,8 @@
     <string name="player_close_chapters">Zavrieť kapitoly</string>
     <string name="player_previous_chapter">Predchádzajúca kapitola</string>
     <string name="player_next_chapter">Ďalšia kapitola</string>
-    <string name="player_rewind_10_seconds">Pretočiť o 10 sekúnd vzad</string>
-    <string name="player_forward_10_seconds">Pretočiť o 10 sekúnd vpred</string>
+    <string name="player_rewind_10_seconds">Späť o 10 s</string>
+    <string name="player_forward_10_seconds">Vpred o 10 s</string>
     <string name="player_vod_timeline">Časová os VOD</string>
     <string name="player_close_controls">Zavrieť ovládacie prvky</string>
     <string name="player_back_to_menu">Späť do ponuky</string>
@@ -305,4 +305,10 @@
     <string name="player_stremio_subtitles_loading">Načítavajú sa titulky doplnku…</string>
     <string name="player_stremio_subtitles_empty">Titulky doplnku nie sú k dispozícii</string>
     <string name="player_stremio_subtitles_retry">Znova načítať titulky doplnku</string>
+    <string name="player_season_label">Séria %1$d</string>
+    <string name="player_episode_label">Epizóda %1$d</string>
+    <string name="player_vod_ends_at">Skončí o %1$s</string>
+    <string name="player_aspect_fit">Prispôsobiť</string>
+    <string name="player_aspect_stretch">Roztiahnuť</string>
+    <string name="player_aspect_zoom">Priblížiť</string>
 </resources>

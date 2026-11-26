@@ -1,6 +1,7 @@
 <resources>
     <string name="vod_subtitle_sources">Kilder</string>
     <string name="vod_subtitle_settings">Innstillinger</string>
+    <string name="vod_subtitle_appearance">Utseende for undertekster</string>
     <string name="vod_subtitle_provider">Leverandørens undertekster</string>
     <string name="vod_subtitle_provider_hint">Velg et undertekstspor fra denne videoen</string>
     <string name="vod_subtitle_online">OpenSubtitles</string>

@@ -12,13 +12,26 @@ private const val PLAYBACK_CONTROL_MUTE_TOGGLE_DEBOUNCE_MS = 250L
 fun PlayerViewModel.seekForward() {
     webhookState.discontinuity = true
     notifyUserActivity()
-    playerEngine.seekForward()
+    emitSeekFeedback(SeekDirection.FORWARD)
+    playerEngine.seekForward(SEEK_STEP_MS)
 }
 
 fun PlayerViewModel.seekBackward() {
     webhookState.discontinuity = true
     notifyUserActivity()
-    playerEngine.seekBackward()
+    emitSeekFeedback(SeekDirection.BACKWARD)
+    playerEngine.seekBackward(SEEK_STEP_MS)
+}
+
+// Live seeks go through timeshift and have no stable position to show, so feedback is for VOD only.
+private fun PlayerViewModel.emitSeekFeedback(direction: SeekDirection) {
+    if (currentContentType == ContentType.LIVE) return
+    seekTargetTracker.next(
+        direction = direction,
+        enginePositionMs = playerEngine.currentPosition.value,
+        durationMs = playerEngine.duration.value,
+        nowMs = SystemClock.elapsedRealtime()
+    )?.let(_seekFeedback::tryEmit)
 }
 
 fun PlayerViewModel.seekToLiveEdge() {
@@ -71,16 +84,22 @@ fun PlayerViewModel.toggleControls() {
 }
 
 fun PlayerViewModel.toggleAspectRatio() {
-    val nextRatio = when (_aspectRatio.value) {
-        AspectRatio.FIT -> AspectRatio.FILL
-        AspectRatio.FILL -> AspectRatio.ZOOM
-        AspectRatio.ZOOM -> AspectRatio.FIT
-    }
-    _aspectRatio.value = nextRatio
+    setAspectRatio(
+        when (_aspectRatio.value) {
+            AspectRatio.FIT -> AspectRatio.FILL
+            AspectRatio.FILL -> AspectRatio.ZOOM
+            AspectRatio.ZOOM -> AspectRatio.FIT
+        }
+    )
+}
+
+fun PlayerViewModel.setAspectRatio(ratio: AspectRatio) {
+    _aspectRatio.value = ratio
+    _aspectRatioChanges.tryEmit(ratio)
 
     if (currentContentType == ContentType.LIVE && currentContentId > 0L) {
         viewModelScope.launch {
-            playerPreferencesCoordinator.setAspectRatioForChannel(currentContentId, nextRatio.name)
+            playerPreferencesCoordinator.setAspectRatioForChannel(currentContentId, ratio.name)
         }
     }
 }

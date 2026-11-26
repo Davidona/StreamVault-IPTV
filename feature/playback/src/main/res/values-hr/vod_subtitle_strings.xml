@@ -1,6 +1,7 @@
 <resources>
     <string name="vod_subtitle_sources">Izvori</string>
     <string name="vod_subtitle_settings">Postavke</string>
+    <string name="vod_subtitle_appearance">Izgled titlova</string>
     <string name="vod_subtitle_provider">Titlovi davatelja</string>
     <string name="vod_subtitle_provider_hint">Odaberite stazu titlova iz ovog videa</string>
     <string name="vod_subtitle_online">OpenSubtitles</string>

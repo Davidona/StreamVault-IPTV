@@ -2,8 +2,6 @@ package com.streamvault.feature.playback.player
 
 import com.streamvault.player.PlayerChapter
 
-const val CHAPTER_RESTART_THRESHOLD_MS = 3_000L
-
 /** Returns the chapter containing [positionMs], or null when the position is in a gap. */
 internal fun currentChapter(
     chapters: List<PlayerChapter>,
@@ -16,36 +14,18 @@ internal fun currentChapter(
             (endTimeMs == null || positionMs < endTimeMs)
     }
 
-/**
- * Returns the target for a previous-chapter action.
- *
- * A press later than the restart threshold restarts the current chapter. Near its
- * start (or while in a gap), it targets the preceding chapter instead.
- */
-internal fun previousChapterTarget(
-    chapters: List<PlayerChapter>,
-    positionMs: Long,
-    restartThresholdMs: Long = CHAPTER_RESTART_THRESHOLD_MS
-): Long? {
-    val sortedChapters = chapters.sortedBy(PlayerChapter::startTimeMs)
-    val current = currentChapter(sortedChapters, positionMs)
-    if (current != null && positionMs - current.startTimeMs > restartThresholdMs) {
-        return current.startTimeMs
-    }
+/** A press of "previous chapter" within this long of a chapter start goes to the chapter before it. */
+internal const val CHAPTER_RESTART_THRESHOLD_MS = 3_000L
 
-    return sortedChapters
-        .asSequence()
-        .filter { chapter -> chapter.startTimeMs < positionMs }
-        .lastOrNull { chapter -> chapter != current }
-        ?.startTimeMs
+/** Start of the chapter to seek to for "previous chapter", or null when there are no chapters. */
+internal fun previousChapterTarget(chapters: List<PlayerChapter>, positionMs: Long): Long? {
+    val starts = chapters.map(PlayerChapter::startTimeMs).sorted()
+    if (starts.isEmpty()) return null
+    val currentStart = starts.lastOrNull { it <= positionMs } ?: return starts.first()
+    if (positionMs - currentStart > CHAPTER_RESTART_THRESHOLD_MS) return currentStart
+    return starts.lastOrNull { it < currentStart } ?: 0L
 }
 
-/** Returns the first chapter start strictly after [positionMs]. */
-internal fun nextChapterTarget(
-    chapters: List<PlayerChapter>,
-    positionMs: Long
-): Long? = chapters
-    .asSequence()
-    .sortedBy(PlayerChapter::startTimeMs)
-    .firstOrNull { chapter -> chapter.startTimeMs > positionMs }
-    ?.startTimeMs
+/** Start of the chapter after [positionMs], or null when the last chapter is playing. */
+internal fun nextChapterTarget(chapters: List<PlayerChapter>, positionMs: Long): Long? =
+    chapters.map(PlayerChapter::startTimeMs).sorted().firstOrNull { it > positionMs }

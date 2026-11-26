@@ -302,4 +302,10 @@
     <string name="player_stremio_subtitles_loading">正在載入外掛字幕…</string>
     <string name="player_stremio_subtitles_empty">沒有可用的外掛字幕</string>
     <string name="player_stremio_subtitles_retry">重新載入外掛字幕</string>
+    <string name="player_season_label">第 %1$d 季</string>
+    <string name="player_episode_label">第 %1$d 集</string>
+    <string name="player_vod_ends_at">結束於 %1$s</string>
+    <string name="player_aspect_fit">符合</string>
+    <string name="player_aspect_stretch">延伸</string>
+    <string name="player_aspect_zoom">縮放</string>
 </resources>

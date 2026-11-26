@@ -75,8 +75,8 @@
     <string name="player_close_chapters">Isara ang mga kabanata</string>
     <string name="player_previous_chapter">Nakaraang kabanata</string>
     <string name="player_next_chapter">Susunod na kabanata</string>
-    <string name="player_rewind_10_seconds">I-rewind nang 10 segundo</string>
-    <string name="player_forward_10_seconds">I-forward nang 10 segundo</string>
+    <string name="player_rewind_10_seconds">I-rewind 10s</string>
+    <string name="player_forward_10_seconds">I-forward 10s</string>
     <string name="player_vod_timeline">VOD timeline</string>
     <string name="player_close_controls">Isara ang mga control</string>
     <string name="player_back_to_menu">Bumalik sa menu</string>
@@ -303,4 +303,10 @@
     <string name="player_stremio_subtitles_loading">Nilo-load ang mga subtitle ng add-on…</string>
     <string name="player_stremio_subtitles_empty">Walang available na subtitle ng add-on</string>
     <string name="player_stremio_subtitles_retry">Subukang muli ang mga subtitle ng add-on</string>
+    <string name="player_season_label">Season %1$d</string>
+    <string name="player_episode_label">Episode %1$d</string>
+    <string name="player_vod_ends_at">Matatapos sa %1$s</string>
+    <string name="player_aspect_fit">Akma</string>
+    <string name="player_aspect_stretch">Iunat</string>
+    <string name="player_aspect_zoom">Palakihin</string>
 </resources>

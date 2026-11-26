@@ -303,4 +303,10 @@
     <string name="player_stremio_subtitles_loading">در حال بارگذاری زیرنویس‌های افزونه…</string>
     <string name="player_stremio_subtitles_empty">زیرنویسی از افزونه در دسترس نیست</string>
     <string name="player_stremio_subtitles_retry">بارگذاری دوباره زیرنویس‌های افزونه</string>
+    <string name="player_season_label">سیزن %1$d</string>
+    <string name="player_episode_label">قسمت %1$d</string>
+    <string name="player_vod_ends_at">پایان در %1$s</string>
+    <string name="player_aspect_fit">متناسب</string>
+    <string name="player_aspect_stretch">کشیده</string>
+    <string name="player_aspect_zoom">بزرگ‌نمایی</string>
 </resources>
