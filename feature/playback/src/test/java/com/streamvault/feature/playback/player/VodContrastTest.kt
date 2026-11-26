@@ -62,6 +62,12 @@ class VodContrastTest {
     }
 
     @Test
+    fun startBadgeTextIsReadableOverTheLightestFrameWithNoScrim() {
+        val chip = VodStartBadgeContainer.compositeOver(Color.White)
+        check("White/VodStartBadgeContainer over a white frame (no scrim)", contrast(Color.White, chip), 4.5f)
+    }
+
+    @Test
     fun buttonIconsAndRingAreReadableOverTheLightestFrameUnderTheBottomScrim() {
         // The button row sits at about 0.85 to 0.92 of the bottom scrim; 0.85 is the lighter edge.
         val buttonRowScrimAlpha = 0.85f

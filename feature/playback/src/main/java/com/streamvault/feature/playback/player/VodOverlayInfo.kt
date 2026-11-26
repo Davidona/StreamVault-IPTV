@@ -86,6 +86,11 @@ internal fun stripEpisodeMarker(title: String, seasonNumber: Int, episodeNumber:
 internal val VodChipContainer = Color.White.copy(alpha = 0.10f)
 internal val VodButtonContainer = Color.White.copy(alpha = 0.14f)
 
+// The start badges show while the controls are hidden, so no header scrim sits behind them and the glass
+// chip would vanish on a bright frame. They carry their own 60% black fill instead (rule 9): over a pure
+// white frame that is mid gray (#666666) and the white text on it is 5.7:1.
+internal val VodStartBadgeContainer = Color.Black.copy(alpha = VOD_SCRIM_TEXT_ALPHA)
+
 // The line sits above the bottom scrim's dark zone, so shadows keep it readable on a bright frame.
 // One shadow is too faint on white, so the text is drawn twice: a tight shadow for the glyph edge
 // and a wide one for the halo.
@@ -214,31 +219,35 @@ internal fun VodStartBadges(
     ) {
         VodBadges(
             badges = badges,
+            container = VodStartBadgeContainer,
             modifier = Modifier.padding(top = VOD_OVERLAY_VERTICAL_PADDING, end = VOD_OVERLAY_HORIZONTAL_PADDING)
         )
     }
 }
 
-/** Top-end chips read from the decoded format. They carry their own fill, so no scrim. Empty draws nothing. */
+/**
+ * Top-end chips read from the decoded format. [container] is the chip fill: the glass default sits on
+ * the header scrim, the start badges pass their own dark fill. Empty draws nothing.
+ */
 @Composable
-internal fun VodBadges(badges: List<String>, modifier: Modifier = Modifier) {
+internal fun VodBadges(badges: List<String>, modifier: Modifier = Modifier, container: Color = VodChipContainer) {
     if (badges.isEmpty()) return
     Row(
         modifier = modifier,
         horizontalArrangement = Arrangement.spacedBy(LocalAppSpacing.current.chipGap)
     ) {
-        badges.forEach { VodChip(it) }
+        badges.forEach { VodChip(it, container) }
     }
 }
 
 @Composable
-private fun VodChip(text: String) {
+private fun VodChip(text: String, container: Color = VodChipContainer) {
     val spacing = LocalAppSpacing.current
     Text(
         text = text,
         modifier = Modifier
             .clip(RoundedCornerShape(spacing.xs))
-            .background(VodChipContainer)
+            .background(container)
             .padding(horizontal = spacing.sm, vertical = spacing.xs / 2),
         style = MaterialTheme.typography.bodyMedium,
         color = Color.White,
