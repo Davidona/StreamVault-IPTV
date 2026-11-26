@@ -238,7 +238,7 @@
     <string name="player_subtitle_delay_current">Penundaan saat ini: %1$+d ms</string>
     <string name="player_subtitle_load_from_device">Muat SRT dari perangkat</string>
     <string name="player_subtitle_search_languages_hint">Pilih bahasa, lalu pilih versi.</string>
-    <string name="player_rewind_10_seconds">Mundur 10 detik</string>
+    <string name="player_rewind_10_seconds">Mundur 10 dtk</string>
     <string name="player_vod_timeline">Timeline VOD</string>
     <string name="player_chapter_count">%1$d bab</string>
     <string name="player_playback_settings">Pengaturan pemutaran</string>
@@ -247,7 +247,7 @@
     <string name="player_close_playback_settings">Tutup pengaturan pemutaran</string>
     <string name="player_diagnostics_frame_rate">Laju Bingkai</string>
     <string name="player_subtitle_search_signed_out">Anda dapat mencari tanpa masuk jika akses anonim diaktifkan. Masuk untuk menggunakan kuota unduhan akun Anda.</string>
-    <string name="player_forward_10_seconds">Maju 10 detik</string>
+    <string name="player_forward_10_seconds">Maju 10 dtk</string>
     <string name="player_subtitle_search_open_settings">Hubungkan akun (opsional)</string>
     <string name="player_chapters">Bab</string>
     <string name="epg_catchup_available_unknown">Pengejaran tersedia</string>

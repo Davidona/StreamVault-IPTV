@@ -75,8 +75,8 @@
     <string name="player_close_chapters">Close chapters</string>
     <string name="player_previous_chapter">Previous chapter</string>
     <string name="player_next_chapter">Next chapter</string>
-    <string name="player_rewind_10_seconds">Rewind 10 seconds</string>
-    <string name="player_forward_10_seconds">Forward 10 seconds</string>
+    <string name="player_rewind_10_seconds">Rewind 10s</string>
+    <string name="player_forward_10_seconds">Forward 10s</string>
     <string name="player_vod_timeline">VOD timeline</string>
     <string name="player_close_controls">Close controls</string>
     <string name="player_back_to_menu">Back to menu</string>

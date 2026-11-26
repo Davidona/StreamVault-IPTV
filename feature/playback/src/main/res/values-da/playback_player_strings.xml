@@ -251,8 +251,8 @@
     <string name="player_vod_timeline">VOD-tidslinje</string>
     <string name="player_aspect_ratio">Billedformat</string>
     <string name="player_track_live_translation">Realtidsoversættelse</string>
-    <string name="player_rewind_10_seconds">Spol 10 sekunder tilbage</string>
-    <string name="player_forward_10_seconds">Spol 10 sekunder frem</string>
+    <string name="player_rewind_10_seconds">Spol 10 s tilbage</string>
+    <string name="player_forward_10_seconds">Spol 10 s frem</string>
     <string name="player_diagnostics_stream_bitrate">Stream-bitrate</string>
     <string name="player_diagnostics_bandwidth_estimate">Netværksbåndbredde</string>
     <string name="player_diagnostics_frame_rate">Billedhastighed</string>

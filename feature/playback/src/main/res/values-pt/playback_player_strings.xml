@@ -236,8 +236,8 @@
     <string name="player_close_chapters">Fechar capítulos</string>
     <string name="player_previous_chapter">Capítulo anterior</string>
     <string name="player_next_chapter">Próximo capítulo</string>
-    <string name="player_rewind_10_seconds">Retroceder 10 segundos</string>
-    <string name="player_forward_10_seconds">Avançar 10 segundos</string>
+    <string name="player_rewind_10_seconds">Voltar 10 s</string>
+    <string name="player_forward_10_seconds">Avançar 10 s</string>
     <string name="player_vod_timeline">Linha do tempo do VOD</string>
     <string name="player_close_controls">Fechar controles</string>
     <string name="player_back_to_menu">Voltar ao menu</string>

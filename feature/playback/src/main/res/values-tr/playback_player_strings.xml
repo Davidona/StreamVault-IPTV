@@ -76,8 +76,8 @@
     <string name="player_close_chapters">Bölümleri kapat</string>
     <string name="player_previous_chapter">Önceki bölüm</string>
     <string name="player_next_chapter">Sonraki bölüm</string>
-    <string name="player_rewind_10_seconds">10 saniye geri sar</string>
-    <string name="player_forward_10_seconds">10 saniye ileri sar</string>
+    <string name="player_rewind_10_seconds">10 sn geri</string>
+    <string name="player_forward_10_seconds">10 sn ileri</string>
     <string name="player_vod_timeline">VOD zaman çizelgesi</string>
     <string name="player_close_controls">Kontrolleri kapat</string>
     <string name="player_back_to_menu">Menüye dön</string>

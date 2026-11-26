@@ -237,8 +237,8 @@
     <string name="player_close_chapters">Fermer les chapitres</string>
     <string name="player_previous_chapter">Chapitre précédent</string>
     <string name="player_next_chapter">Chapitre suivant</string>
-    <string name="player_rewind_10_seconds">Reculer de 10 secondes</string>
-    <string name="player_forward_10_seconds">Avancer de 10 secondes</string>
+    <string name="player_rewind_10_seconds">Reculer de 10 s</string>
+    <string name="player_forward_10_seconds">Avancer de 10 s</string>
     <string name="player_vod_timeline">Chronologie VOD</string>
     <string name="player_close_controls">Fermer les commandes</string>
     <string name="player_back_to_menu">Retour au menu</string>

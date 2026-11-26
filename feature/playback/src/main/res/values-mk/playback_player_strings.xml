@@ -75,8 +75,8 @@
     <string name="player_close_chapters">Затвори поглавја</string>
     <string name="player_previous_chapter">Претходно поглавје</string>
     <string name="player_next_chapter">Следно поглавје</string>
-    <string name="player_rewind_10_seconds">Назад 10 секунди</string>
-    <string name="player_forward_10_seconds">Напред 10 секунди</string>
+    <string name="player_rewind_10_seconds">Назад 10 сек</string>
+    <string name="player_forward_10_seconds">Напред 10 сек</string>
     <string name="player_vod_timeline">VOD временска линија</string>
     <string name="player_close_controls">Затвори контроли</string>
     <string name="player_back_to_menu">Назад кон менито</string>

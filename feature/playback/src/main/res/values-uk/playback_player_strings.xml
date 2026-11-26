@@ -244,8 +244,8 @@
     <string name="player_close_chapters">Закрити розділи</string>
     <string name="player_previous_chapter">Попередній розділ</string>
     <string name="player_next_chapter">Наступний розділ</string>
-    <string name="player_rewind_10_seconds">Перемотати на 10 секунд назад</string>
-    <string name="player_forward_10_seconds">Перемотати на 10 секунд уперед</string>
+    <string name="player_rewind_10_seconds">Назад 10 с</string>
+    <string name="player_forward_10_seconds">Уперед 10 с</string>
     <string name="player_vod_timeline">Таймлайн VOD</string>
     <string name="player_close_controls">Закрити керування</string>
     <string name="player_back_to_menu">Назад до меню</string>

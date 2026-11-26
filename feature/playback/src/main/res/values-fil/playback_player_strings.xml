@@ -75,8 +75,8 @@
     <string name="player_close_chapters">Isara ang mga kabanata</string>
     <string name="player_previous_chapter">Nakaraang kabanata</string>
     <string name="player_next_chapter">Susunod na kabanata</string>
-    <string name="player_rewind_10_seconds">I-rewind nang 10 segundo</string>
-    <string name="player_forward_10_seconds">I-forward nang 10 segundo</string>
+    <string name="player_rewind_10_seconds">I-rewind 10s</string>
+    <string name="player_forward_10_seconds">I-forward 10s</string>
     <string name="player_vod_timeline">VOD timeline</string>
     <string name="player_close_controls">Isara ang mga control</string>
     <string name="player_back_to_menu">Bumalik sa menu</string>

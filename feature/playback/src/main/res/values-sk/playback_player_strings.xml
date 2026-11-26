@@ -77,8 +77,8 @@
     <string name="player_close_chapters">Zavrieť kapitoly</string>
     <string name="player_previous_chapter">Predchádzajúca kapitola</string>
     <string name="player_next_chapter">Ďalšia kapitola</string>
-    <string name="player_rewind_10_seconds">Pretočiť o 10 sekúnd vzad</string>
-    <string name="player_forward_10_seconds">Pretočiť o 10 sekúnd vpred</string>
+    <string name="player_rewind_10_seconds">Späť o 10 s</string>
+    <string name="player_forward_10_seconds">Vpred o 10 s</string>
     <string name="player_vod_timeline">Časová os VOD</string>
     <string name="player_close_controls">Zavrieť ovládacie prvky</string>
     <string name="player_back_to_menu">Späť do ponuky</string>

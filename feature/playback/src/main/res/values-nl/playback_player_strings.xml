@@ -238,7 +238,7 @@
     <string name="player_subtitle_delay_current">Huidige vertraging: %1$+d ms</string>
     <string name="player_subtitle_load_from_device">SRT van apparaat laden</string>
     <string name="player_subtitle_search_languages_hint">Kies een taal en selecteer vervolgens een versie.</string>
-    <string name="player_rewind_10_seconds">10 seconden terugspoelen</string>
+    <string name="player_rewind_10_seconds">10 s terug</string>
     <string name="player_vod_timeline">VOD-tijdlijn</string>
     <string name="player_chapter_count">%1$d hoofdstukken</string>
     <string name="player_playback_settings">Afspeelinstellingen</string>
@@ -247,7 +247,7 @@
     <string name="player_close_playback_settings">Afspeelinstellingen sluiten</string>
     <string name="player_diagnostics_frame_rate">Framerate</string>
     <string name="player_subtitle_search_signed_out">U kunt zoeken zonder in te loggen als anonieme toegang is ingeschakeld. Log in om de downloadlimiet van uw account te gebruiken.</string>
-    <string name="player_forward_10_seconds">10 seconden vooruitspoelen</string>
+    <string name="player_forward_10_seconds">10 s vooruit</string>
     <string name="player_subtitle_search_open_settings">Account verbinden (optioneel)</string>
     <string name="player_chapters">Hoofdstukken</string>
     <string name="epg_catchup_available_unknown">Inhalen beschikbaar</string>

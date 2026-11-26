@@ -74,8 +74,8 @@
     <string name="player_close_chapters">Tutup bab</string>
     <string name="player_previous_chapter">Bab sebelumnya</string>
     <string name="player_next_chapter">Bab seterusnya</string>
-    <string name="player_rewind_10_seconds">Putar balik 10 saat</string>
-    <string name="player_forward_10_seconds">Mara 10 saat</string>
+    <string name="player_rewind_10_seconds">Undur 10 s</string>
+    <string name="player_forward_10_seconds">Maju 10 s</string>
     <string name="player_vod_timeline">Garis masa VOD</string>
     <string name="player_close_controls">Tutup kawalan</string>
     <string name="player_back_to_menu">Kembali ke menu</string>

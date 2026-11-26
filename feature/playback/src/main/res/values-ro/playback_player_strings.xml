@@ -238,8 +238,8 @@
     <string name="player_close_chapters">Închideți capitolele</string>
     <string name="player_previous_chapter">Capitolul anterior</string>
     <string name="player_next_chapter">Capitolul următor</string>
-    <string name="player_rewind_10_seconds">Derulați înapoi 10 secunde</string>
-    <string name="player_forward_10_seconds">Derulați înainte 10 secunde</string>
+    <string name="player_rewind_10_seconds">Înapoi 10 s</string>
+    <string name="player_forward_10_seconds">Înainte 10 s</string>
     <string name="player_vod_timeline">Cronologie VOD</string>
     <string name="player_close_controls">Închideți controalele</string>
     <string name="player_back_to_menu">Înapoi la meniu</string>

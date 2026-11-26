@@ -230,8 +230,8 @@
     <string name="player_close_chapters">Zamknij rozdziały</string>
     <string name="player_previous_chapter">Poprzedni rozdział</string>
     <string name="player_next_chapter">Następny rozdział</string>
-    <string name="player_rewind_10_seconds">Przewiń 10 sekund do tyłu</string>
-    <string name="player_forward_10_seconds">Przewiń 10 sekund do przodu</string>
+    <string name="player_rewind_10_seconds">Cofnij 10 s</string>
+    <string name="player_forward_10_seconds">Do przodu 10 s</string>
     <string name="player_vod_timeline">Oś czasu VOD</string>
     <string name="player_close_controls">Zamknij elementy sterujące</string>
     <string name="player_back_to_menu">Powrót do menu</string>

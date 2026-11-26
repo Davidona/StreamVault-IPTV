@@ -238,8 +238,8 @@
     <string name="player_close_chapters">סגור פרקים</string>
     <string name="player_previous_chapter">הפרק הקודם</string>
     <string name="player_next_chapter">הפרק הבא</string>
-    <string name="player_rewind_10_seconds">החזר לאחור 10 שניות</string>
-    <string name="player_forward_10_seconds">קדם 10 שניות</string>
+    <string name="player_rewind_10_seconds">אחורה 10 שנ׳</string>
+    <string name="player_forward_10_seconds">קדימה 10 שנ׳</string>
     <string name="player_vod_timeline">ציר זמן VOD</string>
     <string name="player_close_controls">סגור בקרות</string>
     <string name="player_back_to_menu">חזרה לתפריט</string>
