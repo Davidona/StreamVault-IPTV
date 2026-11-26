@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -93,8 +94,17 @@ internal fun VodPlayerControlsOverlay(
         ) {
             Box(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .background(VodScrimBrush)
+                    .align(Alignment.TopStart)
+                    .fillMaxWidth()
+                    .fillMaxHeight(VOD_SCRIM_TOP_END)
+                    .background(VodTopScrimBrush)
+            )
+            Box(
+                modifier = Modifier
+                    .align(Alignment.BottomStart)
+                    .fillMaxWidth()
+                    .fillMaxHeight(1f - VOD_SCRIM_BOTTOM_START)
+                    .background(VodBottomScrimBrush)
             )
 
             Row(

@@ -12,20 +12,29 @@ internal const val VOD_SCRIM_TOP_TEXT_END = 0.15f
 internal const val VOD_SCRIM_TOP_END = 0.28f
 internal const val VOD_SCRIM_BOTTOM_START = 0.58f
 
-private const val FADE_STEPS = 8
+// Few stops, two small boxes: one full-screen brush with 19 stops cost +5.8 ms GPU p50 on the TCL TV
+// over the 3-stop baseline brush (tv-overlay-results.md, P7 bisect).
+private const val FADE_STEPS = 4
 
 /**
- * One full-screen gradient for both scrims, so the header fade costs no extra layer. Each fade is a
- * smoothstep sampled at [FADE_STEPS] points, which keeps both ends soft where a straight ramp shows
- * an edge. Rule 9: at least 55 percent black behind the header text (up to the header's end) and
- * behind the time row (about 83 percent down).
+ * Header scrim, drawn in a box [VOD_SCRIM_TOP_END] of the screen tall, so stop positions are
+ * fractions of that box. Rule 9: at least 55 percent black behind the header text (up to the
+ * header's end). The fade is a smoothstep sampled at [FADE_STEPS] points, which keeps the lower edge
+ * soft where a straight ramp shows an edge.
  */
-internal fun vodScrimStops(): List<Pair<Float, Color>> = buildList {
+internal fun vodTopScrimStops(): List<Pair<Float, Color>> = buildList {
     add(0f to Color.Black.copy(alpha = VOD_SCRIM_TOP_ALPHA))
-    add(VOD_SCRIM_TOP_TEXT_END to Color.Black.copy(alpha = VOD_SCRIM_TEXT_ALPHA))
-    addAll(smoothFade(VOD_SCRIM_TOP_TEXT_END, VOD_SCRIM_TOP_END, VOD_SCRIM_TEXT_ALPHA, 0f))
-    add(VOD_SCRIM_BOTTOM_START to Color.Transparent)
-    addAll(smoothFade(VOD_SCRIM_BOTTOM_START, 1f, 0f, VOD_SCRIM_BOTTOM_ALPHA))
+    add(VOD_SCRIM_TOP_TEXT_END / VOD_SCRIM_TOP_END to Color.Black.copy(alpha = VOD_SCRIM_TEXT_ALPHA))
+    addAll(smoothFade(VOD_SCRIM_TOP_TEXT_END / VOD_SCRIM_TOP_END, 1f, VOD_SCRIM_TEXT_ALPHA, 0f))
+}
+
+/**
+ * Bottom scrim, drawn in a box from [VOD_SCRIM_BOTTOM_START] down, so stop positions are fractions
+ * of that box. Rule 9: at least 55 percent black behind the time row (about 83 percent down).
+ */
+internal fun vodBottomScrimStops(): List<Pair<Float, Color>> = buildList {
+    add(0f to Color.Transparent)
+    addAll(smoothFade(0f, 1f, 0f, VOD_SCRIM_BOTTOM_ALPHA))
 }
 
 private fun smoothFade(from: Float, to: Float, fromAlpha: Float, toAlpha: Float): List<Pair<Float, Color>> =
@@ -37,4 +46,5 @@ private fun smoothFade(from: Float, to: Float, fromAlpha: Float, toAlpha: Float)
         position to Color.Black.copy(alpha = fromAlpha + (toAlpha - fromAlpha) * eased)
     }
 
-internal val VodScrimBrush: Brush = Brush.verticalGradient(*vodScrimStops().toTypedArray())
+internal val VodTopScrimBrush: Brush = Brush.verticalGradient(*vodTopScrimStops().toTypedArray())
+internal val VodBottomScrimBrush: Brush = Brush.verticalGradient(*vodBottomScrimStops().toTypedArray())
