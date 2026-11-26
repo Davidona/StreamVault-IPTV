@@ -83,7 +83,7 @@ internal fun stripEpisodeMarker(title: String, seasonNumber: Int, episodeNumber:
 // Chips: the header scrim is at least 60% black there, so even over a pure white frame the chip sits on
 // mid gray (about #757575) and the white text on it is 4.6:1. Buttons: the bottom scrim is 85 to 92% black,
 // white text or icon is above 10:1 over any frame. Not palette roles because they only ever sit on video.
-private val VodChipContainer = Color.White.copy(alpha = 0.10f)
+internal val VodChipContainer = Color.White.copy(alpha = 0.10f)
 internal val VodButtonContainer = Color.White.copy(alpha = 0.14f)
 
 // The line sits above the bottom scrim's dark zone, so shadows keep it readable on a bright frame.
