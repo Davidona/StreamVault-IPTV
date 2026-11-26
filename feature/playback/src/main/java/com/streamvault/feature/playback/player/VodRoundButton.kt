@@ -9,6 +9,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.remember
@@ -21,6 +22,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.layout
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInWindow
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -35,6 +40,7 @@ import com.streamvault.feature.playback.player.overlay.TvFocusSurface
 import com.streamvault.feature.playback.player.overlay.TvTintedIcon
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
+import kotlin.math.roundToInt
 
 internal val VOD_ROUND_BUTTON_SIZE = 40.dp
 internal val VOD_PLAY_BUTTON_SIZE = VOD_BUTTON_ROW_HEIGHT
@@ -142,6 +148,7 @@ private fun VodButtonWithTooltip(
     val isFocused = remember { mutableStateOf(false) }
     val tooltipVisible = remember { mutableStateOf(false) }
     val suppressed = LocalVodTooltipsSuppressed.current
+    val buttonLeftInWindow = remember { mutableIntStateOf(0) }
     // The button keeps its focus state while a panel window has focus, so hide explicitly.
     LaunchedEffect(suppressed) { if (suppressed) tooltipVisible.value = false }
     LaunchedEffect(Unit) {
@@ -154,27 +161,36 @@ private fun VodButtonWithTooltip(
             }
         }
     }
-    Box(modifier = Modifier.size(size)) {
+    Box(
+        modifier = Modifier
+            .size(size)
+            .onGloballyPositioned { buttonLeftInWindow.intValue = it.positionInWindow().x.roundToInt() }
+    ) {
         button(Modifier.onFocusChanged { isFocused.value = it.isFocused })
         Box(
             modifier = Modifier
                 .matchParentSize()
                 .graphicsLayer { alpha = if (tooltipVisible.value && !suppressed) 1f else 0f }
         ) {
-            VodTooltip(label)
+            VodTooltip(label, buttonLeftInWindow = { buttonLeftInWindow.intValue })
         }
     }
 }
 
-/** Opaque light chip with dark text, the strongest contrast on the dark scrim; placed above the button. */
+/**
+ * Opaque light chip with dark text, the strongest contrast on the dark scrim; placed above the
+ * button and kept inside the overlay's edge padding, so the first and last buttons never clip it.
+ */
 @Composable
-private fun VodTooltip(label: String) {
+private fun VodTooltip(label: String, buttonLeftInWindow: () -> Int) {
     val spacing = LocalAppSpacing.current
+    val screenWidth = LocalWindowInfo.current.containerSize.width
+    val edgeMargin = with(LocalDensity.current) { VOD_OVERLAY_HORIZONTAL_PADDING.roundToPx() }
     Text(
         text = label,
         modifier = Modifier
             .clearAndSetSemantics {}
-            .floatAbove(spacing.xs)
+            .floatAbove(spacing.xs, buttonLeftInWindow, screenWidth, edgeMargin)
             .clip(RoundedCornerShape(spacing.xs))
             .background(Color.White)
             .padding(horizontal = spacing.sm, vertical = spacing.xs / 2),
@@ -185,13 +201,23 @@ private fun VodTooltip(label: String) {
 }
 
 /**
- * Centres the element over its parent and lifts it clear of the parent's top edge, without taking
- * layout space, so showing the tooltip never moves the button row.
+ * Centres the element over its parent, pushed back inside [edgeMargin] of the screen edges, and
+ * lifts it clear of the parent's top edge, without taking layout space, so showing the tooltip
+ * never moves the button row.
  */
-private fun Modifier.floatAbove(gap: Dp): Modifier = layout { measurable, constraints ->
+private fun Modifier.floatAbove(
+    gap: Dp,
+    parentLeftInWindow: () -> Int,
+    screenWidth: Int,
+    edgeMargin: Int
+): Modifier = layout { measurable, constraints ->
     val placeable = measurable.measure(Constraints())
     val gapPx = gap.roundToPx()
     layout(constraints.maxWidth, 0) {
-        placeable.place((constraints.maxWidth - placeable.width) / 2, -placeable.height - gapPx)
+        val parentLeft = parentLeftInWindow()
+        val centredLeft = parentLeft + (constraints.maxWidth - placeable.width) / 2
+        val rightLimit = maxOf(edgeMargin, screenWidth - edgeMargin - placeable.width)
+        // place, not placeRelative: the window position is absolute and must not mirror in RTL.
+        placeable.place(centredLeft.coerceIn(edgeMargin, rightLimit) - parentLeft, -placeable.height - gapPx)
     }
 }
